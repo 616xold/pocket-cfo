@@ -1,0 +1,324 @@
+import type {
+  ArtifactRecord,
+  MissionRecord,
+  MissionTaskRecord,
+  ProofBundleManifest,
+} from "@pocket-cto/domain";
+import {
+  createMemorySession,
+  type PersistenceSession,
+  type TransactionalRepository,
+} from "../../lib/persistence";
+import { isTaskRunnable } from "../orchestrator/task-state-machine";
+
+export type CreateMissionInput = {
+  type: MissionRecord["type"];
+  title: string;
+  objective: string;
+  sourceKind: MissionRecord["sourceKind"];
+  sourceRef: string | null;
+  createdBy: string;
+  primaryRepo: string | null;
+  spec: MissionRecord["spec"];
+};
+
+export type AddMissionInput = {
+  missionId: string;
+  rawText: string;
+  compilerName: string;
+  compilerVersion: string;
+  compilerConfidence: number;
+  compilerOutput: Record<string, unknown>;
+};
+
+export type CreateTaskInput = {
+  missionId: string;
+  role: MissionTaskRecord["role"];
+  sequence: number;
+  status: MissionTaskRecord["status"];
+  dependsOnTaskId?: string | null;
+};
+
+export interface MissionRepository extends TransactionalRepository {
+  createMission(
+    input: CreateMissionInput,
+    session?: PersistenceSession,
+  ): Promise<MissionRecord>;
+
+  addMissionInput(
+    input: AddMissionInput,
+    session?: PersistenceSession,
+  ): Promise<void>;
+
+  createTask(
+    input: CreateTaskInput,
+    session?: PersistenceSession,
+  ): Promise<MissionTaskRecord>;
+
+  updateMissionStatus(
+    missionId: string,
+    status: MissionRecord["status"],
+    session?: PersistenceSession,
+  ): Promise<MissionRecord>;
+
+  claimNextRunnableTask(
+    session?: PersistenceSession,
+  ): Promise<MissionTaskRecord | null>;
+
+  getTaskById(
+    taskId: string,
+    session?: PersistenceSession,
+  ): Promise<MissionTaskRecord | null>;
+
+  updateTaskStatus(
+    taskId: string,
+    status: MissionTaskRecord["status"],
+    session?: PersistenceSession,
+  ): Promise<MissionTaskRecord>;
+
+  getMissionById(
+    missionId: string,
+    session?: PersistenceSession,
+  ): Promise<MissionRecord | null>;
+
+  getTasksByMissionId(
+    missionId: string,
+    session?: PersistenceSession,
+  ): Promise<MissionTaskRecord[]>;
+
+  getProofBundleByMissionId(
+    missionId: string,
+    session?: PersistenceSession,
+  ): Promise<ProofBundleManifest | null>;
+
+  saveProofBundle(
+    bundle: ProofBundleManifest,
+    session?: PersistenceSession,
+  ): Promise<ArtifactRecord>;
+}
+
+export class InMemoryMissionRepository implements MissionRepository {
+  private readonly missions = new Map<string, MissionRecord>();
+  private readonly inputs: AddMissionInput[] = [];
+  private readonly tasks = new Map<string, MissionTaskRecord[]>();
+  private readonly proofBundles = new Map<
+    string,
+    {
+      artifact: ArtifactRecord;
+      bundle: ProofBundleManifest;
+    }
+  >();
+
+  async transaction<T>(
+    operation: (session: PersistenceSession) => Promise<T>,
+  ): Promise<T> {
+    return operation(createMemorySession());
+  }
+
+  async createMission(input: CreateMissionInput): Promise<MissionRecord> {
+    const now = new Date().toISOString();
+    const mission: MissionRecord = {
+      id: crypto.randomUUID(),
+      type: input.type,
+      status: "planned",
+      title: input.title,
+      objective: input.objective,
+      sourceKind: input.sourceKind,
+      sourceRef: input.sourceRef,
+      createdBy: input.createdBy,
+      primaryRepo: input.primaryRepo,
+      spec: input.spec,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.missions.set(mission.id, mission);
+    return mission;
+  }
+
+  async addMissionInput(input: AddMissionInput): Promise<void> {
+    this.inputs.push(input);
+  }
+
+  async createTask(input: CreateTaskInput): Promise<MissionTaskRecord> {
+    const now = new Date().toISOString();
+    const task: MissionTaskRecord = {
+      id: crypto.randomUUID(),
+      missionId: input.missionId,
+      role: input.role,
+      sequence: input.sequence,
+      status: input.status,
+      attemptCount: 0,
+      codexThreadId: null,
+      workspaceId: null,
+      dependsOnTaskId: input.dependsOnTaskId ?? null,
+      summary: null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const existingTasks = this.tasks.get(input.missionId) ?? [];
+    existingTasks.push(task);
+    this.tasks.set(input.missionId, existingTasks);
+
+    return task;
+  }
+
+  async updateMissionStatus(
+    missionId: string,
+    status: MissionRecord["status"],
+  ): Promise<MissionRecord> {
+    const existingMission = this.missions.get(missionId);
+
+    if (!existingMission) {
+      throw new Error(`Mission ${missionId} not found`);
+    }
+
+    const updatedMission: MissionRecord = {
+      ...existingMission,
+      status,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.missions.set(missionId, updatedMission);
+
+    return updatedMission;
+  }
+
+  async claimNextRunnableTask(): Promise<MissionTaskRecord | null> {
+    const candidate = this.findNextRunnableTask();
+
+    if (!candidate) {
+      return null;
+    }
+
+    return this.replaceTask(candidate.id, {
+      status: "claimed",
+      attemptCount: candidate.attemptCount + 1,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  async getTaskById(taskId: string): Promise<MissionTaskRecord | null> {
+    for (const tasks of this.tasks.values()) {
+      const task = tasks.find((candidate) => candidate.id === taskId);
+      if (task) {
+        return task;
+      }
+    }
+
+    return null;
+  }
+
+  async updateTaskStatus(
+    taskId: string,
+    status: MissionTaskRecord["status"],
+  ): Promise<MissionTaskRecord> {
+    return this.replaceTask(taskId, {
+      status,
+      updatedAt: new Date().toISOString(),
+    });
+  }
+
+  async getMissionById(missionId: string): Promise<MissionRecord | null> {
+    return this.missions.get(missionId) ?? null;
+  }
+
+  async getTasksByMissionId(missionId: string): Promise<MissionTaskRecord[]> {
+    return this.tasks.get(missionId) ?? [];
+  }
+
+  async getProofBundleByMissionId(
+    missionId: string,
+  ): Promise<ProofBundleManifest | null> {
+    return this.proofBundles.get(missionId)?.bundle ?? null;
+  }
+
+  async saveProofBundle(bundle: ProofBundleManifest): Promise<ArtifactRecord> {
+    const now = new Date().toISOString();
+    const artifact: ArtifactRecord = {
+      id: crypto.randomUUID(),
+      missionId: bundle.missionId,
+      taskId: null,
+      kind: "proof_bundle_manifest",
+      uri: `pocket-cto://missions/${bundle.missionId}/proof-bundle-manifest`,
+      mimeType: "application/json",
+      sha256: null,
+      metadata: {
+        manifest: bundle,
+      },
+      createdAt: now,
+    };
+
+    this.proofBundles.set(bundle.missionId, { artifact, bundle });
+    return artifact;
+  }
+
+  private findNextRunnableTask() {
+    const candidates: Array<{
+      mission: MissionRecord;
+      task: MissionTaskRecord;
+    }> = [];
+
+    for (const mission of this.missions.values()) {
+      const tasks = this.tasks.get(mission.id) ?? [];
+      const tasksById = new Map(tasks.map((task) => [task.id, task]));
+
+      for (const task of tasks) {
+        const dependencyStatus = task.dependsOnTaskId
+          ? (tasksById.get(task.dependsOnTaskId)?.status ?? null)
+          : null;
+
+        if (
+          isTaskRunnable({
+            missionStatus: mission.status,
+            taskStatus: task.status,
+            dependencyStatus,
+          })
+        ) {
+          candidates.push({ mission, task });
+        }
+      }
+    }
+
+    candidates.sort((left, right) => {
+      return (
+        left.mission.createdAt.localeCompare(right.mission.createdAt) ||
+        left.mission.id.localeCompare(right.mission.id) ||
+        left.task.sequence - right.task.sequence ||
+        left.task.id.localeCompare(right.task.id)
+      );
+    });
+
+    return candidates[0]?.task ?? null;
+  }
+
+  private replaceTask(
+    taskId: string,
+    patch: Partial<MissionTaskRecord>,
+  ): MissionTaskRecord {
+    for (const [missionId, tasks] of this.tasks.entries()) {
+      const index = tasks.findIndex((candidate) => candidate.id === taskId);
+      if (index === -1) {
+        continue;
+      }
+
+      const existingTask = tasks[index];
+      if (!existingTask) {
+        break;
+      }
+
+      const updatedTask: MissionTaskRecord = {
+        ...existingTask,
+        ...patch,
+      };
+      const nextTasks = [...tasks];
+      nextTasks[index] = updatedTask;
+      this.tasks.set(missionId, nextTasks);
+
+      return updatedTask;
+    }
+
+    throw new Error(`Task ${taskId} not found`);
+  }
+}

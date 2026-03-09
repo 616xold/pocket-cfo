@@ -1,0 +1,2 @@
+ALTER TABLE "mission_tasks" ADD CONSTRAINT "mission_tasks_depends_on_task_id_fkey" FOREIGN KEY ("depends_on_task_id") REFERENCES "public"."mission_tasks"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
+CREATE UNIQUE INDEX "mission_tasks_mission_sequence_key" ON "mission_tasks" USING btree ("mission_id","sequence");

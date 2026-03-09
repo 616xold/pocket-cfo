@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM"],
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "declaration": true,
+    "baseUrl": ".",
+    "paths": {
+      "@pocket-cto/domain": ["packages/domain/src/index.ts"],
+      "@pocket-cto/config": ["packages/config/src/index.ts"],
+      "@pocket-cto/db": ["packages/db/src/index.ts"],
+      "@pocket-cto/codex-runtime": ["packages/codex-runtime/src/index.ts"],
+      "@pocket-cto/stack-packs": ["packages/stack-packs/src/index.ts"],
+      "@pocket-cto/testkit": ["packages/testkit/src/index.ts"]
+    }
+  }
+}

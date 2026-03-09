@@ -1,0 +1,14 @@
+{
+  "extends": "./tsconfig.base.json",
+  "files": [],
+  "references": [
+    { "path": "./packages/domain" },
+    { "path": "./packages/config" },
+    { "path": "./packages/db" },
+    { "path": "./packages/codex-runtime" },
+    { "path": "./packages/stack-packs" },
+    { "path": "./packages/testkit" },
+    { "path": "./apps/control-plane" },
+    { "path": "./apps/web" }
+  ]
+}

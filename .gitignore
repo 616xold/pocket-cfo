@@ -1,0 +1,44 @@
+# package managers
+**/node_modules/
+.pnpm-store/
+
+# build, cache, coverage
+**/dist/
+**/.next/
+**/coverage/
+**/.turbo/
+**/.vite/
+**/.cache/
+**/out/
+**/build/
+**/*.tsbuildinfo
+
+# env and secrets
+.env
+.env.*
+!.env.example
+
+# local runtime / workspace
+.workspaces/
+tmp/
+temp/
+artifacts-local/
+playwright-report/
+test-results/
+*.pid
+*.log
+
+# os/editor junk
+.DS_Store
+__MACOSX/
+.idea/
+.vscode/
+
+# accidental generated companions inside TS source roots
+packages/**/src/**/*.js
+packages/**/src/**/*.d.ts
+apps/control-plane/src/**/*.js
+apps/control-plane/src/**/*.d.ts
+
+# local tool overrides
+.mise.local.toml
