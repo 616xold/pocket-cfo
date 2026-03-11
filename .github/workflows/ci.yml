@@ -33,6 +33,8 @@ env:
   CODEX_DEFAULT_APPROVAL_POLICY: untrusted
   CODEX_DEFAULT_SANDBOX: workspace-write
   CODEX_DEFAULT_SERVICE_NAME: pocket-cto-ci
+  WORKSPACE_ROOT: /tmp/pocket-cto-workspaces
+  POCKET_CTO_SOURCE_REPO_ROOT: ${{ github.workspace }}
 
 jobs:
   static:
