@@ -31,6 +31,10 @@ The user-visible proof is operational rather than product-facing: the CI workflo
 - [x] (2026-03-10T23:23Z) Reproduced the latest pushed branch commit `cc3918379789e3961a2bee5eb5d49742931cf717` from a clean temp worktree and confirmed both `pnpm ci:static` and `pnpm ci:integration-db` pass under runner-style env with local Postgres.
 - [x] (2026-03-10T23:27Z) Re-ran the requested root validation commands in the live dirty checkout, confirmed `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, and `pnpm test` still pass, and confirmed `pnpm ci:static` plus `pnpm ci:integration-db` fail there only at `ci:clean-tree` because the worktree intentionally contains unstaged runtime changes.
 - [x] (2026-03-10T23:29Z) Re-ran `pnpm ci:repro:current` after the branch-trigger change and verified the exact next intended push still passes install, `pnpm ci:static`, and `pnpm ci:integration-db` from a fresh temp worktree at `/var/folders/41/pj1kw0tj2xd832wl_62gn73m0000gn/T/pocket-cto-ci-repro-U8JSVW/repo`.
+- [x] (2026-03-11T00:14Z) Audited the new M1.3 workspace env surface and found that `packages/config` plus docs already knew about `WORKSPACE_ROOT` and `POCKET_CTO_SOURCE_REPO_ROOT`, but `turbo.json`, `.github/workflows/ci.yml`, and `tools/ci-repro-current-worktree.mjs` still did not propagate them.
+- [x] (2026-03-11T00:16Z) Added `WORKSPACE_ROOT` and `POCKET_CTO_SOURCE_REPO_ROOT` to Turbo `globalEnv`, set safe workflow defaults (`/tmp/pocket-cto-workspaces` and `${{ github.workspace }}`), mirrored the same contract in `ci:repro:current` with temp-rooted values, and updated local-dev docs plus this ExecPlan to explain the reason.
+- [x] (2026-03-11T02:15Z) Re-ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, and `pnpm test` in the live checkout, then confirmed `pnpm ci:static` and `pnpm ci:integration-db` fail there only at `ci:clean-tree` because the current repo intentionally contains the tracked workspace-env edits from this slice.
+- [x] (2026-03-11T02:15Z) Re-ran `pnpm ci:repro:current` with local Postgres and verified the clean temp worktree passes install, `pnpm ci:static`, and `pnpm ci:integration-db` with `WORKSPACE_ROOT` rooted outside the repo and `POCKET_CTO_SOURCE_REPO_ROOT` pointed at the temp checkout.
 
 ## Surprises & Discoveries
 
@@ -66,6 +70,9 @@ The user-visible proof is operational rather than product-facing: the CI workflo
 
 - Observation: The root `ci:static` and `ci:integration-db` scripts are behaving correctly in the live checkout by failing only at the final clean-tree gate, not in lint, typecheck, build, migration, or tests.
   Evidence: after the branch-trigger fix, both commands completed their substantive steps successfully and then reported the existing tracked and untracked runtime files already present in the dirty worktree.
+
+- Observation: The repo had already documented safe external workspace semantics for M1.3, but CI and Turbo still treated workspace env changes as invisible.
+  Evidence: `packages/config/src/index.ts` and `docs/ops/local-dev.md` already mention `WORKSPACE_ROOT` and `POCKET_CTO_SOURCE_REPO_ROOT`, while `turbo.json` omitted both from `globalEnv`, `.github/workflows/ci.yml` set neither, and `tools/ci-repro-current-worktree.mjs` exported neither in its `CI_ENV` contract.
 
 ## Decision Log
 
@@ -120,6 +127,10 @@ The user-visible proof is operational rather than product-facing: the CI workflo
 - Decision: Run CI on every branch push for the current repo stage, keep `pull_request`, add `workflow_dispatch`, and add per-ref concurrency cancellation.
   Rationale: The real operator problem is invisible status on `codex/*` pushes, not excessive CI volume, and this repo is still in a high-churn bootstrap phase where branch pushes need visible feedback before PR creation. Manual dispatch and concurrency make reruns clearer without widening runtime behavior.
   Date/Author: 2026-03-10 / Codex
+
+- Decision: Treat M1.3 workspace envs as part of the repo-level CI contract now, even before planner or executor file-mutation work lands.
+  Rationale: `WORKSPACE_ROOT` and `POCKET_CTO_SOURCE_REPO_ROOT` already influence workspace placement and safety checks. If Turbo caching, Actions env, and local repro do not all see them, future M1.4 and M1.5 work can inherit stale workspace semantics or unsafe defaults silently.
+  Date/Author: 2026-03-11 / Codex
 
 ## Context and Orientation
 
@@ -309,3 +320,5 @@ The final validation picture is now explicit:
 - the latest pushed branch commit is green from a clean temp worktree
 - the exact current next-push snapshot is green through `pnpm ci:repro:current`
 - the live dirty checkout still fails `pnpm ci:static` and `pnpm ci:integration-db` only because the clean-tree guard correctly sees the unstaged runtime slice that has not been committed yet
+
+The latest follow-up keeps that contract aligned with M1.3 workspace semantics. Turbo cache invalidation now includes `WORKSPACE_ROOT` and `POCKET_CTO_SOURCE_REPO_ROOT`, GitHub Actions supplies safe external defaults for both, and `pnpm ci:repro:current` mirrors the same env contract with temp-local workspace paths so branch CI and local clean-checkout reproduction observe the same workspace-root assumptions.

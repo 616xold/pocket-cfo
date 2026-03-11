@@ -45,6 +45,7 @@ async function main() {
   const worktreePath = join(tempRoot, "repo");
   const patchPath = join(tempRoot, "current.patch");
   const baselinePath = join(tempRoot, "clean-tree-baseline.json");
+  const workspaceRoot = join(tempRoot, "workspaces");
   const untrackedPaths = gitOutput(repoRoot, [
     "ls-files",
     "--others",
@@ -82,6 +83,8 @@ async function main() {
   const env = {
     ...process.env,
     ...CI_ENV,
+    WORKSPACE_ROOT: workspaceRoot,
+    POCKET_CTO_SOURCE_REPO_ROOT: worktreePath,
     CI_CLEAN_TREE_BASELINE_FILE: baselinePath,
   };
   runStep("pnpm install --frozen-lockfile", worktreePath, env, [
