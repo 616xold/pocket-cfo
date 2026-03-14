@@ -43,17 +43,30 @@ const interruptTaskResponseSchema = z.object({
   liveControl: liveControlSchema,
 });
 
-const controlPlaneUrl =
-  process.env.NEXT_PUBLIC_CONTROL_PLANE_URL ??
-  process.env.CONTROL_PLANE_URL ??
-  "http://localhost:4000";
+type ControlPlaneUrlEnv = {
+  CONTROL_PLANE_URL?: string;
+  NEXT_PUBLIC_CONTROL_PLANE_URL?: string;
+};
+
+export function resolveControlPlaneUrl(
+  env: ControlPlaneUrlEnv = {
+    CONTROL_PLANE_URL: process.env.CONTROL_PLANE_URL,
+    NEXT_PUBLIC_CONTROL_PLANE_URL: process.env.NEXT_PUBLIC_CONTROL_PLANE_URL,
+  },
+) {
+  return (
+    env.NEXT_PUBLIC_CONTROL_PLANE_URL ??
+    env.CONTROL_PLANE_URL ??
+    "http://localhost:4000"
+  );
+}
 
 async function fetchJson<TSchema extends z.ZodTypeAny>(
   input: string,
   schema: TSchema,
 ): Promise<z.output<TSchema> | null> {
   try {
-    const response = await fetch(`${controlPlaneUrl}${input}`, {
+    const response = await fetch(`${resolveControlPlaneUrl()}${input}`, {
       cache: "no-store",
     });
 
@@ -76,7 +89,7 @@ async function postJson<TSchema extends z.ZodTypeAny>(
   let response: Response;
 
   try {
-    response = await fetch(`${controlPlaneUrl}${input}`, {
+    response = await fetch(`${resolveControlPlaneUrl()}${input}`, {
       method: "POST",
       headers: {
         "content-type": "application/json",

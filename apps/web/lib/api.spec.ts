@@ -6,8 +6,48 @@ const taskId = "33333333-3333-4333-8333-333333333333";
 
 describe("web api module", () => {
   afterEach(() => {
+    vi.resetModules();
     vi.restoreAllMocks();
+    vi.unstubAllEnvs();
     vi.unstubAllGlobals();
+  });
+
+  it("falls back to the default control-plane URL when no env override is set", async () => {
+    const mod = await loadApiModuleWithEnv({});
+
+    expect(
+      mod.resolveControlPlaneUrl({
+        NEXT_PUBLIC_CONTROL_PLANE_URL: undefined,
+        CONTROL_PLANE_URL: undefined,
+      }),
+    ).toBe("http://localhost:4000");
+  });
+
+  it("prefers NEXT_PUBLIC_CONTROL_PLANE_URL over CONTROL_PLANE_URL", async () => {
+    const mod = await loadApiModuleWithEnv({
+      controlPlaneUrl: "http://control-plane.internal:4200",
+      nextPublicControlPlaneUrl: "http://public-control-plane.example:4100",
+    });
+
+    expect(
+      mod.resolveControlPlaneUrl({
+        NEXT_PUBLIC_CONTROL_PLANE_URL: "http://public-control-plane.example:4100",
+        CONTROL_PLANE_URL: "http://control-plane.internal:4200",
+      }),
+    ).toBe("http://public-control-plane.example:4100");
+  });
+
+  it("uses CONTROL_PLANE_URL when NEXT_PUBLIC_CONTROL_PLANE_URL is absent", async () => {
+    const mod = await loadApiModuleWithEnv({
+      controlPlaneUrl: "http://control-plane.internal:4200",
+    });
+
+    expect(
+      mod.resolveControlPlaneUrl({
+        NEXT_PUBLIC_CONTROL_PLANE_URL: undefined,
+        CONTROL_PLANE_URL: "http://control-plane.internal:4200",
+      }),
+    ).toBe("http://control-plane.internal:4200");
   });
 
   it("parses mission detail with approvals and artifacts", async () => {
@@ -19,7 +59,7 @@ describe("web api module", () => {
     });
     vi.stubGlobal("fetch", fetchMock);
 
-    const mod = await import("./api");
+    const mod = await loadApiModuleWithEnv({});
     const detail = await mod.getMissionDetail(missionId);
 
     expect(detail).not.toBeNull();
@@ -30,7 +70,7 @@ describe("web api module", () => {
     ]);
     expect(detail?.liveControl.mode).toBe("embedded_worker");
     expect(fetchMock).toHaveBeenCalledWith(
-      `http://localhost:4000/missions/${missionId}`,
+      `${mod.resolveControlPlaneUrl()}/missions/${missionId}`,
       {
         cache: "no-store",
       },
@@ -91,7 +131,10 @@ describe("web api module", () => {
       });
     vi.stubGlobal("fetch", fetchMock);
 
-    const mod = await import("./api");
+    const mod = await loadApiModuleWithEnv({
+      controlPlaneUrl: "http://control-plane.internal:4200",
+      nextPublicControlPlaneUrl: "http://public-control-plane.example:4100",
+    });
 
     const approvalResult = await mod.resolveMissionApproval({
       approvalId,
@@ -114,7 +157,7 @@ describe("web api module", () => {
 
     expect(fetchMock).toHaveBeenNthCalledWith(
       1,
-      `http://localhost:4000/approvals/${approvalId}/resolve`,
+      `http://public-control-plane.example:4100/approvals/${approvalId}/resolve`,
       {
         body: JSON.stringify({
           decision: "accept",
@@ -130,7 +173,7 @@ describe("web api module", () => {
     );
     expect(fetchMock).toHaveBeenNthCalledWith(
       2,
-      `http://localhost:4000/tasks/${taskId}/interrupt`,
+      `http://public-control-plane.example:4100/tasks/${taskId}/interrupt`,
       {
         body: JSON.stringify({
           rationale: undefined,
@@ -175,7 +218,9 @@ describe("web api module", () => {
       });
     vi.stubGlobal("fetch", fetchMock);
 
-    const mod = await import("./api");
+    const mod = await loadApiModuleWithEnv({
+      controlPlaneUrl: "http://control-plane.internal:4200",
+    });
 
     await expect(
       mod.resolveMissionApproval({
@@ -189,6 +234,11 @@ describe("web api module", () => {
       errorCode: "live_control_unavailable",
       message: "Live approval and interrupt control is unavailable in this process",
     });
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      `http://control-plane.internal:4200/approvals/${approvalId}/resolve`,
+      expect.any(Object),
+    );
 
     await expect(
       mod.interruptMissionTask({
@@ -201,8 +251,37 @@ describe("web api module", () => {
       errorCode: "task_conflict",
       message: `Task ${taskId} has no active live turn to interrupt`,
     });
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      `http://control-plane.internal:4200/tasks/${taskId}/interrupt`,
+      expect.any(Object),
+    );
   });
 });
+
+async function loadApiModuleWithEnv(input: {
+  controlPlaneUrl?: string;
+  nextPublicControlPlaneUrl?: string;
+}) {
+  vi.resetModules();
+  vi.unstubAllEnvs();
+
+  delete process.env.CONTROL_PLANE_URL;
+  delete process.env.NEXT_PUBLIC_CONTROL_PLANE_URL;
+
+  if (input.controlPlaneUrl) {
+    vi.stubEnv("CONTROL_PLANE_URL", input.controlPlaneUrl);
+  }
+
+  if (input.nextPublicControlPlaneUrl) {
+    vi.stubEnv(
+      "NEXT_PUBLIC_CONTROL_PLANE_URL",
+      input.nextPublicControlPlaneUrl,
+    );
+  }
+
+  return import("./api");
+}
 
 function buildMissionDetailPayload() {
   return {
