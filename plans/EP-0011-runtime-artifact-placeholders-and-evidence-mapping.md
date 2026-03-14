@@ -18,6 +18,7 @@ The user-visible change is concrete. A successful executor task should now leave
 - [x] (2026-03-14T01:22Z) Extended the operator-facing mission-detail read model to include approval summaries, artifact summaries, and live-control availability in one `GET /missions/:missionId` response so the web detail page can reflect the persisted M1.6 and M1.7 backend state without a second approval-only fetch.
 - [x] (2026-03-14T01:27Z) Updated the web mission detail surface to render approvals, artifact ledger entries, proof-bundle state, and minimal live-control actions in a mobile-safe layout, removed the stale mission-spine placeholder copy, and added focused route, parser, render, and control-request tests.
 - [x] (2026-03-14T02:18Z) Polished the web operator action UX so approval resolution and interrupt actions now return structured result objects, preserve `409` and `501` route semantics as user-facing inline feedback, show pending text during submission, and use an explicit local operator label instead of the hidden `web-operator` constant.
+- [x] (2026-03-14T17:44Z) Hardened the web API base-URL path for CI by exporting a single `resolveControlPlaneUrl()` helper, keeping the `NEXT_PUBLIC_CONTROL_PLANE_URL` then `CONTROL_PLANE_URL` then fallback precedence in one place, and rewriting the web API specs to stub env explicitly instead of depending on whichever CI variables happen to be injected.
 
 ## Surprises & Discoveries
 
@@ -32,6 +33,12 @@ The user-visible change is concrete. A successful executor task should now leave
 
 - Observation: no additive DB change was necessary for M1.7 because the required artifact kinds were already present in the enum and schema.
   Evidence: `pnpm db:generate` returned `No schema changes, nothing to migrate`, and `pnpm db:migrate` completed without creating a new migration.
+
+- Observation: the web API specs had become CI-sensitive because GitHub Actions injects `NEXT_PUBLIC_CONTROL_PLANE_URL` and `CONTROL_PLANE_URL` as `http://127.0.0.1:4000`, while the older test expected a hardcoded `http://localhost:4000` request URL.
+  Evidence: `.github/workflows/ci.yml` sets both env vars, `apps/web/lib/api.ts` resolves from those env vars before the localhost fallback, and `apps/web/lib/api.spec.ts` failed deterministically until the env was stubbed explicitly.
+
+- Observation: using the repo's raw `NodeJS.ProcessEnv` type for the exported resolver helper made the web package typecheck brittle because Pocket CTO narrows `ProcessEnv` more aggressively than plain Node defaults.
+  Evidence: intermediate `pnpm --filter @pocket-cto/web typecheck` runs failed until the helper accepted a tiny explicit env shape containing only `NEXT_PUBLIC_CONTROL_PLANE_URL` and `CONTROL_PLANE_URL`.
 
 ## Decision Log
 
@@ -69,6 +76,10 @@ The user-visible change is concrete. A successful executor task should now leave
 
 - Decision: replace the buried `web-operator` constant with a visible local operator label backed by `POCKET_CTO_WEB_OPERATOR_NAME`, defaulting to `Local web operator`.
   Rationale: M1 still runs locally, so a small env-backed strategy is enough for the MVP. Making the operator label explicit in both UI copy and action payloads is more honest than keeping a hidden hardcoded identity.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: keep web control-plane base-URL resolution in one exported `resolveControlPlaneUrl()` helper inside `apps/web/lib/api.ts`, and make the API specs re-import the module under explicit stubbed env state.
+  Rationale: the CI failure came from duplicated assumptions rather than a backend defect. Centralizing the precedence rule and forcing tests to control env with `vi.stubEnv`, `vi.unstubAllEnvs`, and `vi.resetModules` makes the behavior deterministic without widening scope into config redesign.
   Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
@@ -192,6 +203,13 @@ Validation results captured after implementation:
 - `pnpm --filter @pocket-cto/web typecheck` passed.
 - `pnpm --filter @pocket-cto/web lint` passed.
 - A stale control-plane mission-detail spec expectation around artifact ordering was narrowed to the actual created-at contract, then `pnpm --filter @pocket-cto/control-plane test` was rerun and passed with 80 tests.
+- `pnpm --filter @pocket-cto/web test -- --run lib/api.spec.ts` passed after the CI-hardening update and now covers the default localhost fallback, `NEXT_PUBLIC_CONTROL_PLANE_URL` precedence, and `CONTROL_PLANE_URL` fallback explicitly.
+- `pnpm --filter @pocket-cto/web test` passed with 15 tests after the API env-hardening change.
+- `pnpm --filter @pocket-cto/web typecheck` passed after narrowing the exported resolver helper to a tiny explicit env shape instead of raw `NodeJS.ProcessEnv`.
+- `pnpm --filter @pocket-cto/web lint` passed after the API env-hardening change.
+- `pnpm --filter @pocket-cto/control-plane test` passed with 85 tests after the web API fix, confirming the operator-action contract stayed intact.
+- `pnpm --filter @pocket-cto/control-plane typecheck` passed after the web API fix.
+- `pnpm --filter @pocket-cto/control-plane lint` passed after the web API fix.
 
 Manual acceptance captured after implementation with a stub runtime against a temp git repo:
 
@@ -241,6 +259,9 @@ Minimal approval-resolution and task-interrupt controls are now wired only when 
 
 The operator action UX is now explicit enough for local MVP use.
 Approval-resolution and interrupt submissions return typed success or failure results instead of generic thrown route errors, the mission detail page shows inline feedback for success, already-resolved conflicts, missing active live turns, and embedded-worker unavailability, and the operator identity used for those actions is now a visible local configuration point rather than a hidden constant.
+
+The web API surface is now deterministic under CI as well as local development.
+`apps/web/lib/api.ts` owns the only control-plane base-URL precedence rule, and the web specs now stub env and re-import the API module so injected CI values like `http://127.0.0.1:4000` cannot silently invalidate localhost-fallback expectations.
 
 The planner path stayed intact.
 Planner turns still persist the existing `plan` artifact through `planner-output.ts`, and the new runtime-artifact flow only attaches to executor terminalization.

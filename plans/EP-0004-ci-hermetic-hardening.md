@@ -43,6 +43,8 @@ The user-visible proof is operational rather than product-facing: the CI workflo
 - [x] (2026-03-13T19:15Z) Re-fetched `origin/main`, confirmed `gh` is unavailable in this environment, and reproduced the merged M1.6 failure from clean refs: `pnpm ci:repro:ref --ref origin/main --step integration-db --repeat 10` failed 10/10 times and `pnpm ci:repro:ref --ref HEAD --step integration-db --repeat 5` failed 5/5 times at the same `pnpm ci:integration-db` clean-tree step.
 - [x] (2026-03-13T19:15Z) Narrowed the deterministic failure to the fake Codex approval fixture mutating tracked `packages/codex-runtime/README.md` because `turn/start` fell back to `process.cwd()` instead of the thread `cwd` when approval tests omitted `cwd`, then fixed the fixture and added a protocol-spec assertion that the approval side effect lands in the temporary approval directory.
 - [x] (2026-03-13T19:15Z) Updated `tools/ci-repro-ref.mjs` so repeated clean-ref runs continue after failures and report a full summary, removed a stray root `.DS_Store`, and revalidated the patched current snapshot with `pnpm ci:repro:current`, which now passes install, `pnpm ci:static`, and `pnpm ci:integration-db` from a clean temp worktree.
+- [x] (2026-03-14T03:08Z) Fetched `origin/main` to `e7fd99e50c6d7cac62acf6fbd34e840ca8689f4e`, confirmed `gh` is still unavailable locally, and re-ran clean-ref `integration-db` reproduction against committed `HEAD` and merged `origin/main`; both refs failed deterministically in `@pocket-cto/web#test` because `apps/web/lib/api.spec.ts` still expects `http://localhost:4000` while the CI env contract uses `http://127.0.0.1:4000`.
+- [x] (2026-03-14T03:08Z) Verified that the exact current local branch snapshot is already green without further CI edits: `pnpm ci:repro:current` passed from a clean temp worktree, `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, and `pnpm test` passed in the live checkout, and the direct live `pnpm ci:static` plus `pnpm ci:integration-db` runs again failed only at `ci:clean-tree` because the web API fix and plan work are still intentionally unstaged.
 
 ## Surprises & Discoveries
 
@@ -90,6 +92,9 @@ The user-visible proof is operational rather than product-facing: the CI workflo
 
 - Observation: The dirty tracked file comes from the fake Codex approval fixture using the wrong fallback `cwd`.
   Evidence: The failing temp worktree diff showed duplicated `executor change via approval fixture` lines in `packages/codex-runtime/README.md`, and `packages/testkit/src/runtime/fake-codex-app-server.mjs` appended that marker to `join(pendingServerRequest.cwd, "README.md")` while `turn/start` defaulted `cwd` to `process.cwd()` instead of the thread `cwd`.
+
+- Observation: The CI/tooling layer is now behaving correctly for the exact next push, but the last committed branch snapshot and merged `origin/main` are both still red because the web API spec hardcodes the old control-plane base URL.
+  Evidence: `pnpm ci:repro:ref --ref HEAD --step integration-db --repeat 5` failed 5/5 and `pnpm ci:repro:ref --ref origin/main --step integration-db --repeat 3` failed 3/3 in `apps/web/lib/api.spec.ts`, each comparing `http://localhost:4000/...` against the runner-style `http://127.0.0.1:4000/...` requests, while `pnpm ci:repro:current` passed from a clean temp worktree because the live `apps/web/lib/api.ts` and `apps/web/lib/api.spec.ts` changes already resolve the base URL from env.
 
 ## Decision Log
 
@@ -160,6 +165,10 @@ The user-visible proof is operational rather than product-facing: the CI workflo
 - Decision: Fix the fake Codex approval fixture to inherit the thread `cwd` when `turn/start` omits it, and assert the temp approval directory receives the README side effect.
   Rationale: The real red `integration-db` path came from test-fixture `cwd` drift, not from CI, Postgres, or product runtime logic. Correcting the fallback and codifying the expectation in `packages/codex-runtime/src/protocol.spec.ts` removes the deterministic clean-tree mutation without weakening the guardrails.
   Date/Author: 2026-03-13 / Codex
+
+- Decision: Keep the March 14 follow-up verification-only and do not re-edit the live `apps/web/lib/api.ts` or `apps/web/lib/api.spec.ts` changes from the CI thread.
+  Rationale: Clean-ref repro proves the remaining failure is deterministic on committed refs, but `pnpm ci:repro:current` proves the exact current branch snapshot is already green because the local web API env-resolution fix exists in the worktree. The correct next step is to commit and push that existing fix, not to duplicate or overwrite it from repo-tooling work.
+  Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
 
@@ -358,3 +367,5 @@ The latest follow-up keeps that contract aligned with M1.3 workspace semantics. 
 The March 12 diagnosis narrows the reported post-merge `integration-db` red run to an unresolved but unreproduced failure. In this environment, `origin/main` and `HEAD` resolve to the same tree, `pnpm ci:integration-db` passes 5 out of 5 times from clean temp worktrees on `origin/main`, and the same clean-ref reproduction passes on `HEAD`. That evidence does not support a deterministic code or merge-tree defect.
 
 The concrete hardening from this pass is diagnostic rather than behavioral: `pnpm ci:repro:ref` now makes it straightforward to rerun clean-ref static or integration reproduction, including repeat stress, against `origin/main`, a merge commit SHA, or any branch head under the same workflow env contract. On the live dirty branch, baseline-backed `pnpm ci:static` and `pnpm ci:integration-db` also stayed green relative to the current checkout, which keeps the CI surface trustworthy while M1.5 work remains in progress.
+
+The March 14 verification changes the practical conclusion for this branch. The committed `HEAD` (`98a16eb3501b23564bcf34bb7410d4359947002e`) and merged `origin/main` (`e7fd99e50c6d7cac62acf6fbd34e840ca8689f4e`) are both still deterministically red in clean-ref `integration-db` reproduction because `apps/web/lib/api.spec.ts` expects `http://localhost:4000` while the CI env contract uses `http://127.0.0.1:4000`. The CI/tooling layer itself is no longer the blocker, though: `pnpm ci:repro:current` passed for the exact local branch snapshot, and the live checkout's direct `pnpm ci:static` plus `pnpm ci:integration-db` runs failed only at the clean-tree guard. The practical outcome is that the branch becomes safe to merge once the already-present web API env-resolution edits are committed and pushed; no additional CI hardening change was required in this verification-only pass.
