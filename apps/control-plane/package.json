@@ -10,10 +10,12 @@
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/server.ts",
     "dev:worker": "tsx watch src/worker.ts",
+    "eval:doctor": "tsx src/evals/doctor.ts",
     "eval:planner": "tsx src/evals/run.ts planner",
     "eval:executor": "tsx src/evals/run.ts executor",
     "eval:compiler": "tsx src/evals/run.ts compiler",
     "eval:all": "tsx src/evals/run.ts all",
+    "eval:smoke:planner": "tsx src/evals/smoke-planner.ts",
     "lint": "eslint src --ext .ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run"

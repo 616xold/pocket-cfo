@@ -21,8 +21,13 @@ describe("runEvalCommand", () => {
 
     expect(summary.samples).toBe(1);
     expect(summary.runLabel).toBe("planner");
+    expect(summary.mode).toBe("dry-run");
+    expect(summary.candidateModel).toBe("gpt-5-mini");
+    expect(summary.graderModel).toBe("gpt-5-mini");
     expect(record.mode).toBe("dry-run");
     expect(record.target).toBe("planner");
     expect(record.candidate.model).toBe("dry-run-fixture");
+    expect(record.candidate.provider).toBeNull();
+    expect(record.grader.provider).toBeNull();
   });
 });

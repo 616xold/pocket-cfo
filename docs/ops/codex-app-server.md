@@ -277,6 +277,12 @@ When the operator declines or cancels:
 3. Pocket CTO attempts to return the decline or cancel decision to the live runtime session and records a durable continuation-failure marker if that handoff is already gone
 4. the later terminal task outcome is whatever the runtime actually reports; Pocket CTO does not fabricate success
 
+When Codex App Server sends `item/permissions/requestApproval`:
+
+1. Pocket CTO now rejects that request explicitly with an unsupported-surface error
+2. the turn then fails truthfully instead of surfacing a generic missing-handler surprise
+3. M1.6 does not persist a partial approval row for this surface because the stable permissions response is a granted-permissions payload, not the decision-based shape Pocket CTO persists for file-change and command approvals
+
 Interrupts use the same live-session seam:
 
 1. the worker command surface resolves the active task session by `taskId`
@@ -285,8 +291,34 @@ Interrupts use the same live-session seam:
 4. Pocket CTO sends `turn/interrupt` to the live app-server client
 5. when the runtime later reports terminal `interrupted`, the task finalizes as `cancelled` with `reason = "runtime_turn_interrupted"`
 
-There is no separate HTTP approval route yet in M1.6.
-Pocket CTO intentionally keeps approval resolution and interrupts on the worker command surface because the live continuation lives in the worker process's in-memory session registry.
+## HTTP operator control surface
+
+Pocket CTO now exposes a real API-side operator command surface:
+
+- `GET /missions/:missionId/approvals`
+- `POST /approvals/:approvalId/resolve`
+- `POST /tasks/:taskId/interrupt`
+
+Those routes are honest about the single-process live-session limitation.
+They only resolve or interrupt live turns when the control-plane server is running in embedded-worker mode and therefore owns the same in-memory session registry as the active runtime turn.
+
+In embedded-worker mode the route responses report:
+
+- `liveControl.enabled = true`
+- `liveControl.mode = "embedded_worker"`
+- `liveControl.limitation = "single_process_only"`
+
+In API-only mode the same read route still works, but the mutating control routes fail with:
+
+- HTTP `501`
+- `error.code = "live_control_unavailable"`
+
+Route semantics are intentionally stable and narrow:
+
+- `400` for schema and id validation failures
+- `404` for missing missions, approvals, or tasks
+- `409` for already-resolved approvals, stranded approval continuity, or tasks without an active live turn
+- `501` when the current process does not own live control
 
 ## Planner output capture
 

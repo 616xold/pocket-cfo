@@ -17,11 +17,19 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 - [x] (2026-03-13T19:35Z) Added focused eval tests for dataset loading, result writing, and dry-run execution; verified `pnpm eval:planner -- --dry-run --limit 1` writes JSONL output under `evals/results/` without requiring a live API key.
 - [x] (2026-03-13T19:35Z) Ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` successfully after the eval-lane changes.
 - [x] (2026-03-13T19:35Z) Checked the session for `OPENAI_API_KEY`; it is absent in this environment, so no live paid eval was run. The lane is ready for manual live use once the key is present together with `OPENAI_EVALS_ENABLED=true`.
+- [x] (2026-03-14T10:05Z) Re-inspected the live-eval visibility gap before the follow-up slice by grepping the eval surface and checking the current worktree. Confirmed that the existing JSONL results record `mode`, requested model names, and scores, but not provider-side proof such as OpenAI response ids, resolved model names, or token usage.
+- [x] (2026-03-14T01:45Z) Added the live-visibility follow-up slice: `eval:doctor`, `eval:smoke:planner`, live-vs-dry-run CLI summaries, and persisted provider metadata for candidate, grader, and optional reference calls.
+- [x] (2026-03-14T01:45Z) Added focused tests for doctor reporting, CLI summary formatting, provider metadata persistence, and smoke-command refusal when live mode is not truly enabled.
+- [x] (2026-03-14T01:45Z) Re-ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`; all passed after the live-visibility changes.
+- [x] (2026-03-14T01:45Z) Verified the live proof path by running `OPENAI_EVALS_ENABLED=true pnpm eval:doctor` and `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner`. The planner smoke wrote `evals/results/20260314T014428Z-planner.jsonl` with real OpenAI response ids, resolved model names, and token usage for both the candidate and grader calls.
 
 ## Surprises & Discoveries
 
 - Observation: The current OpenAI integration surface is configuration-only.
   Evidence: `packages/config/src/index.ts` already parses `OPENAI_API_KEY`, `OPENAI_MISSION_COMPILER_MODEL`, `OPENAI_SUMMARY_MODEL`, and `OPENAI_REASONING_MODEL`, but repo-wide search found no OpenAI client usage in application code.
+
+- Observation: The first eval-lane slice still leaves a visibility gap between "configured for live use" and "provably used the OpenAI API".
+  Evidence: `apps/control-plane/src/modules/evals/openai-client.ts` only returned `output` and `text`, `apps/control-plane/src/modules/evals/types.ts` had no provider metadata fields, and `apps/control-plane/src/evals/run.ts` only printed run label, sample count, average score, and output path.
 
 - Observation: The mission compiler is still a true stub, while planner and executor prompt builders are already meaningful prompt-quality surfaces.
   Evidence: `apps/control-plane/src/modules/missions/compiler.ts` returns a fixed `StubMissionCompiler` response, while `apps/control-plane/src/modules/runtime-codex/planner-prompt.ts` and `apps/control-plane/src/modules/runtime-codex/executor-prompt.ts` contain explicit instruction layouts, constraints, and section contracts.
@@ -40,6 +48,9 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 
 - Observation: The first text-rule scorer version undercounted heading compliance because it collapsed newlines before checking for `##` sections.
   Evidence: the initial dry-run planner artifact contained all required sections, but the saved JSONL still reported every section as missing until the rule scorer switched to raw newline-preserving heading checks.
+
+- Observation: local `.env` loading can make the eval key available to the harness even when the shell does not export `OPENAI_API_KEY`.
+  Evidence: `if [ -n "${OPENAI_API_KEY:-}" ]; then echo present; else echo absent; fi` returned `absent`, while `pnpm eval:doctor` loaded the repo `.env` file and reported `OPENAI_API_KEY: present (***pw4A)`.
 
 ## Decision Log
 
@@ -66,6 +77,14 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 - Decision: Add a dedicated `loadEvalEnv` helper instead of reusing the full runtime env loader.
   Rationale: Manual evals should not require unrelated database, MinIO, or worker env vars just to load datasets and call the OpenAI API.
   Date/Author: 2026-03-13 / Codex
+
+- Decision: Add an explicit eval doctor command plus a one-sample live planner smoke command instead of overloading the main eval scripts.
+  Rationale: Developers need a zero-ambiguity way to confirm whether live mode is actually configured and a deliberate one-sample path that proves the Responses API round-trip without widening CI or normal eval execution.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Persist narrow provider metadata on each live candidate, grader, and optional reference call.
+  Rationale: Response ids, resolved model names, and token usage are stable enough to prove live usage and aid comparisons, while keeping the checked-in schema small and deterministic.
+  Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
 
@@ -171,10 +190,27 @@ Validation results captured after implementation:
   - output path: `evals/results/20260313T193611Z-planner.jsonl`
   - samples: `1`
   - average dry-run score: `5`
+- `pnpm eval:doctor` passed.
+  - reported `OPENAI_API_KEY: present (***pw4A)`
+  - reported `OPENAI_EVALS_ENABLED: false`
+  - reported default mode `dry-run`
+- `OPENAI_EVALS_ENABLED=true pnpm eval:doctor` passed.
+  - reported default mode `live`
+  - candidate model: `gpt-5-mini`
+  - grader model: `gpt-5-mini`
+  - reference model: `gpt-5-codex`
+- `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner` passed.
+  - output path: `evals/results/20260314T014428Z-planner.jsonl`
+  - samples: `1`
+  - average live score: `4.8`
+  - candidate response id: `resp_00cc7e27427ed8950169b4bd3b48ec81a2aadda39976e680ef`
+  - candidate usage: `334` input, `3523` output, `3857` total tokens
+  - grader response id: `resp_008feee904be165f0169b4bd70db78819689c12e03ea3d92d0`
+  - grader usage: `3154` input, `811` output, `3965` total tokens
 
 Live-run note:
 
-- `OPENAI_API_KEY` is absent in this session, so no live paid eval was executed here.
+- Although the shell itself did not export `OPENAI_API_KEY`, the eval harness loaded a local `.env` file and was therefore able to run a real paid smoke eval once `OPENAI_EVALS_ENABLED=true` was supplied.
 
 ## Interfaces and Dependencies
 
@@ -206,11 +242,15 @@ This slice should not introduce new database schema, replay event types, mission
 
 ## Outcomes & Retrospective
 
-EP-0010 is complete for the intended first slice.
+EP-0010 is complete for the intended first slice and its live-visibility follow-up.
 Pocket CTO now has a checked-in, opt-in real-LLM eval lane that stays outside required CI, evaluates the current planner, executor, and compiler-quality surfaces with small seeded datasets, and writes timestamped JSONL results to a gitignored comparison folder.
 
 The implementation stayed modular and out of the runtime hot path.
 The new bounded context lives under `apps/control-plane/src/modules/evals/`, the CLI entrypoint lives under `apps/control-plane/src/evals/`, configuration lives in `packages/config`, and the checked-in rubric and datasets live under `evals/`.
 
-The remaining gap is purely operational: this session did not include `OPENAI_API_KEY`, so live paid execution was not demonstrated here.
-Once the key is present, the lane is ready for regular manual use with `OPENAI_EVALS_ENABLED=true`.
+The live proof path is now demonstrated, not just configured.
+This session successfully ran a one-sample planner smoke eval against the OpenAI Responses API and captured candidate and grader response ids plus token usage in both the CLI summary and the saved JSONL result file.
+
+Follow-up note for the live-visibility slice:
+the original lane was operationally useful but not self-proving.
+This follow-up adds a doctor command, a deliberate live planner smoke command, explicit live-vs-dry-run CLI summaries, and provider metadata in result records so a saved JSONL file and the terminal output both make live usage unmistakable.

@@ -20,6 +20,14 @@ pnpm dev
 pnpm dev:worker   # optional until runtime execution work lands
 ```
 
+To run the control-plane server in the same process as the worker so HTTP approval resolution and task interrupts work:
+
+```bash
+CONTROL_PLANE_EMBEDDED_WORKER=true pnpm dev:control-plane
+```
+
+In that mode, do not also start `pnpm dev:worker` for the same repo and database unless you are explicitly testing the single-process limitation.
+
 ## CI environment
 
 GitHub Actions does not commit or generate a repo `.env` file.
@@ -49,6 +57,16 @@ Required env for live evals:
 Checked-in datasets live under `evals/datasets/`.
 The grading rubric lives under `evals/rubrics/quality-rubric.md`.
 Timestamped result files are written to the gitignored `evals/results/` directory as JSONL.
+This harness calls the OpenAI Responses API directly.
+It does not create a hosted OpenAI Evals run, so you should expect local JSONL artifacts and CLI output here rather than a hosted Evals dashboard entry.
+
+Check the local eval configuration before spending tokens:
+
+```bash
+pnpm eval:doctor
+```
+
+`pnpm eval:doctor` prints whether `OPENAI_API_KEY` is present, whether `OPENAI_EVALS_ENABLED` is true, the candidate or grader or reference models, the effective live-vs-dry-run mode, and the results directory.
 
 Run the lane manually from the repo root:
 
@@ -76,6 +94,15 @@ OPENAI_EVALS_ENABLED=true pnpm eval:planner -- --limit 1 --with-reference
 
 If either the key or opt-in flag is missing, the live eval scripts fail fast with a clear message.
 Use `--dry-run` when you want to exercise dataset loading, prompt generation, grading flow, and result writing without paid calls.
+
+To intentionally prove the live path with one seeded planner sample:
+
+```bash
+OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner
+```
+
+The smoke command refuses to proceed if it would become a dry run.
+On success it writes one results file under `evals/results/` and prints a compact summary with the mode, output path, response ids, and token usage when the API returns that metadata.
 
 ## Git and repo hygiene
 
@@ -137,7 +164,8 @@ That means:
 
 - durable approval rows and replay survive worker restarts
 - live turn continuation does not survive worker restarts
-- approval resolution and interrupt operations must reach the same worker process that owns the active turn
+- approval resolution and interrupt operations must reach the same process that owns the active turn
+- the HTTP control surface works only when the control-plane server runs with `CONTROL_PLANE_EMBEDDED_WORKER=true`
 - accepted approvals only move task or mission state back to `running` after the live response handoff succeeds
 - if a durable approval resolution outlives its live session, Pocket CTO records `payload.liveContinuation.status = "delivery_failed"` on that approval row instead of faking a resumed turn
 
@@ -249,9 +277,34 @@ Expected response shape:
   "proofBundle": {
     "missionId": "<mission-uuid>",
     "status": "placeholder"
+  },
+  "approvals": [],
+  "artifacts": [
+    {
+      "id": "<artifact-uuid>",
+      "kind": "proof_bundle_manifest",
+      "taskId": null,
+      "uri": "pocket-cto://missions/<mission-uuid>/proof-bundle-manifest",
+      "createdAt": "<timestamp>",
+      "summary": "Proof bundle placeholder manifest persisted."
+    }
+  ],
+  "liveControl": {
+    "enabled": false,
+    "limitation": "single_process_only",
+    "mode": "api_only"
   }
 }
 ```
+
+The richer mission-detail read model is now the preferred operator fetch.
+It includes:
+
+- `approvals`: summary-shaped approval rows in oldest-first order
+- `artifacts`: summary-shaped artifact ledger entries in oldest-first order by `createdAt`
+- `liveControl`: whether the current control-plane process can resolve approvals or interrupt active turns directly
+
+`GET /missions/:missionId/approvals` still exists for the narrow approval ledger surface, but the web mission detail page now reads approvals and artifacts from `GET /missions/:missionId` so the operator view stays coherent.
 
 Fetch the replay events:
 

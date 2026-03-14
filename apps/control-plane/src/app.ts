@@ -5,8 +5,10 @@ import { registerHealthRoutes } from "./modules/health/routes";
 import { registerMissionRoutes } from "./modules/missions/routes";
 import { registerReplayRoutes } from "./modules/replay/routes";
 import { registerGitHubWebhookRoutes } from "./modules/github/webhook-routes";
+import { registerApprovalRoutes } from "./modules/approvals/routes";
 import { createContainer } from "./bootstrap";
 import type { AppContainer } from "./lib/types";
+import { registerRuntimeControlRoutes } from "./modules/runtime-codex/routes";
 
 export async function buildApp(options?: { container?: AppContainer }) {
   const logger = createLogger();
@@ -17,10 +19,17 @@ export async function buildApp(options?: { container?: AppContainer }) {
 
   await registerHealthRoutes(app);
   await registerMissionRoutes(app, {
+    liveControl: container.operatorControl.liveControl,
     missionService: container.missionService,
   });
   await registerReplayRoutes(app, {
     replayService: container.replayService,
+  });
+  await registerApprovalRoutes(app, {
+    operatorControl: container.operatorControl,
+  });
+  await registerRuntimeControlRoutes(app, {
+    operatorControl: container.operatorControl,
   });
   await registerGitHubWebhookRoutes(app);
 

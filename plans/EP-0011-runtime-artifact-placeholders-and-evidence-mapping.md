@@ -15,6 +15,8 @@ The user-visible change is concrete. A successful executor task should now leave
 - [x] (2026-03-13T19:54Z) Wired executor completion handling to prepare and persist runtime artifact placeholders, append one `artifact.created` replay event per saved artifact, and enrich the existing proof-bundle manifest in place while leaving the planner plan-artifact flow intact.
 - [x] (2026-03-13T19:54Z) Extended DB-backed orchestrator coverage so executor success now proves persisted `diff_summary` plus `test_report`, terminalized no-change failure proves persisted `test_report` plus `log_excerpt`, replay ordering around `artifact.created` is asserted, proof-bundle artifact ids are checked, and planner artifact behavior remains covered by the existing planner-path tests.
 - [x] (2026-03-13T19:54Z) Ran the required validation commands, completed one manual planner-plus-executor acceptance with a stub runtime against a temp git repo, and captured the resulting artifact ids, kinds, proof-bundle linkage, and replay sequence below.
+- [x] (2026-03-14T01:22Z) Extended the operator-facing mission-detail read model to include approval summaries, artifact summaries, and live-control availability in one `GET /missions/:missionId` response so the web detail page can reflect the persisted M1.6 and M1.7 backend state without a second approval-only fetch.
+- [x] (2026-03-14T01:27Z) Updated the web mission detail surface to render approvals, artifact ledger entries, proof-bundle state, and minimal live-control actions in a mobile-safe layout, removed the stale mission-spine placeholder copy, and added focused route, parser, render, and control-request tests.
 
 ## Surprises & Discoveries
 
@@ -51,6 +53,14 @@ The user-visible change is concrete. A successful executor task should now leave
 - Decision: persist `log_excerpt` only for non-success executor terminalizations in M1.7, while successful executor turns persist `diff_summary` plus `test_report`.
   Rationale: the prompt required at least those artifact kinds and explicitly called out failure-oriented excerpts. Restricting `log_excerpt` to non-success paths keeps the success artifact set legible and avoids duplicating the final executor report unnecessarily.
   Date/Author: 2026-03-13 / Codex
+
+- Decision: extend the existing `GET /missions/:missionId` read model instead of introducing a separate aggregation route for approvals and artifacts.
+  Rationale: a single mission-detail fetch keeps the web operator surface simple, keeps routes thin, and makes approval and artifact evidence feel like part of the same mission narrative instead of parallel side channels.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: expose approvals oldest-first and artifacts oldest-first by `createdAt`, with response bodies reduced to summary-shaped read models instead of raw approval and artifact rows.
+  Rationale: oldest-first ordering aligns the operator ledger with replay and proof-bundle narrative flow, while the smaller response shape keeps the UI legible and avoids leaking irrelevant persistence details.
+  Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
 
@@ -210,6 +220,10 @@ External and runtime dependencies for this slice remain unchanged:
 M1.7 now produces real runtime evidence placeholders instead of stopping at executor task summaries.
 Successful executor turns persist `diff_summary` and `test_report` artifacts derived from local validation and compact runtime output, while terminalized executor failures can still persist a reviewable `log_excerpt` plus validation evidence.
 Each persisted artifact appends its own `artifact.created` replay event, and the existing proof-bundle manifest is enriched in place with new artifact ids, more truthful summary fields, and a `ready` status once runtime evidence exists.
+
+The operator read model now reflects that persisted evidence directly.
+`GET /missions/:missionId` includes approval summaries, artifact ledger summaries, and live-control availability, and the web mission detail page renders those sections instead of relying on the old mission-spine placeholder copy.
+Minimal approval-resolution and task-interrupt controls are now wired only when the embedded-worker live-control surface is available; otherwise the UI stays explicit about that limitation instead of silently hiding it.
 
 The planner path stayed intact.
 Planner turns still persist the existing `plan` artifact through `planner-output.ts`, and the new runtime-artifact flow only attaches to executor terminalization.

@@ -29,6 +29,8 @@ It does not add GitHub integration, richer artifact plumbing beyond approval per
 - [x] (2026-03-13T19:00Z) Hardened approval resolution so accepted decisions only move task or mission state back to `running` after the live app-server response handoff succeeds, and added a durable `payload.liveContinuation.status = "delivery_failed"` marker when that handoff is already gone.
 - [x] (2026-03-13T19:00Z) Hardened approval cancellation and interrupt error reporting around the same live-session seam, then replaced the DB-backed approval polling helpers with a shared 5-second wait helper that reports the last observed state on timeout.
 - [x] (2026-03-13T19:00Z) Added a focused approval-service durability spec for live-handoff failure and re-ran the DB-backed approval or interrupt suite against the hardened behavior before the full validation pass.
+- [x] (2026-03-14T01:15Z) Added a shared single-process control kernel for the API and worker entrypoints, thin approval or interrupt HTTP routes, and explicit `live_control_unavailable` semantics when the current process does not own the live in-memory session registry.
+- [x] (2026-03-14T01:15Z) Added route-level control-surface tests plus DB-backed fake-runtime HTTP approval-resolution and interrupt integration coverage, then updated the ops docs and local-dev guidance for embedded-worker mode.
 
 ## Surprises & Discoveries
 
@@ -67,6 +69,12 @@ It does not add GitHub integration, richer artifact plumbing beyond approval per
 
 - Observation: the DB-backed approval or interrupt specs still depended on a 1-second total polling window and one raw `delay(1)` check, which is enough to reintroduce flakes under slower CI scheduling.
   Evidence: `apps/control-plane/src/modules/orchestrator/drizzle-service.spec.ts` used `waitFor()` with `100 * 10ms` defaults plus a direct `await delay(1)` after approval resolution before this hardening pass.
+
+- Observation: the worker-owned approval registry does not block an HTTP operator surface as long as the API and worker are intentionally co-located in the same process and share one bootstrap-built service graph.
+  Evidence: `apps/control-plane/src/bootstrap.ts` now builds one kernel that can supply the API-only app surface or an embedded app plus worker pair, and the DB-backed `app.inject` approval or interrupt tests pass only when that embedded container owns the same in-memory registry as the live fake runtime.
+
+- Observation: runtime `item/permissions/requestApproval` carries a grant payload shape that does not fit Pocket CTO's existing decision-based approval records cleanly in M1.6.
+  Evidence: `packages/codex-runtime/src/protocol.ts` defines `PermissionsRequestApprovalResponseSchema` as granted permissions plus scope rather than a simple accept or decline decision, so the M1.6 worker now rejects that request explicitly with an operator-visible unsupported-surface error instead of pretending it can persist or resume it.
 
 ## Decision Log
 
@@ -113,6 +121,14 @@ It does not add GitHub integration, richer artifact plumbing beyond approval per
 - Decision: Keep the DB-backed approval and interrupt specs on polling, but move them to a shared helper with a 5-second timeout, 25ms interval, and last-observation timeout diagnostics instead of ad hoc 1-second loops and blind sleeps.
   Rationale: the fake runtime and DB-backed worker flow are already integration-heavy enough that a deterministic internal signal would widen the seam more than needed for this hardening pass; a safer shared wait helper narrows the timing surface without hiding failures.
   Date/Author: 2026-03-13 / Codex
+
+- Decision: Expose operator approval resolution and task interruption over HTTP only when the control-plane server is running in embedded-worker mode, and return `live_control_unavailable` from the same routes when the current process is API-only.
+  Rationale: this keeps the new operator command surface honest about the single-process live-session limitation while still giving the MVP a real human-usable API for approvals and interrupts.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Reject runtime `item/permissions/requestApproval` explicitly in M1.6 instead of storing a partial approval row that Pocket CTO cannot resume correctly.
+  Rationale: the stable permissions approval response is a granted-permissions payload, not the decision-based shape Pocket CTO persists for file-change or command approvals, so a truthful unsupported-surface failure is narrower and safer for this milestone.
+  Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
 
@@ -364,7 +380,7 @@ External or runtime dependencies:
 - local `codex app-server` for schema verification only
 - fake app-server fixture for automated tests and manual acceptance
 - existing Postgres dev and test databases
-- no new env vars expected
+- one server-mode env flag for local embedded worker operation: `CONTROL_PLANE_EMBEDDED_WORKER=true`
 
 ## Outcomes & Retrospective
 
@@ -375,6 +391,10 @@ The control plane now persists runtime approvals, appends `approval.requested` a
 Planner turns remain `approvalPolicy = "never"`, while executor mutation turns now use an explicit policy resolver that returns `on-request`.
 The durability hardening pass also means accepted approvals do not move task or mission state back to `running` until the live response handoff succeeds, and a lost live handoff now leaves an explicit `payload.liveContinuation.status = "delivery_failed"` marker instead of a silent false-positive resume.
 The DB-backed approval or interrupt coverage now uses one shared 5-second wait helper with last-observation timeout reporting, and the full DB-heavy spec stayed green across five consecutive reruns.
+The operator loop is now materially more complete as well: the API can list persisted approvals for a mission, resolve an approval through `POST /approvals/:approvalId/resolve`, and interrupt an active task through `POST /tasks/:taskId/interrupt` when the server is running with an embedded worker and therefore owns the live in-memory session registry for that process.
+When the server is running in API-only mode, those same routes now fail honestly with `live_control_unavailable` instead of implying cross-process continuity that Pocket CTO does not have yet.
+The web mission page now surfaces the persisted mission approvals and whether the current control-plane process has live control enabled, so operators can see the limitation without hunting through docs or replay.
+Runtime permissions approvals also fail more honestly now: Pocket CTO rejects that unsupported surface explicitly in M1.6 instead of surfacing a generic missing-handler surprise.
 
 The known intentional limitation for the end of this slice is single-process approval continuity.
 If the worker restarts mid-approval, the approval row and replay should still explain what happened, but the live turn cannot yet be resumed automatically.
