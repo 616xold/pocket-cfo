@@ -117,10 +117,13 @@ describe("MissionService", () => {
         updatedAt: "2026-03-14T10:00:00.000Z",
       },
     ]);
-    expect(detail.artifacts.map((artifact) => artifact.kind)).toEqual([
-      "proof_bundle_manifest",
+    expect(detail.artifacts.map((artifact) => artifact.kind).sort()).toEqual([
       "diff_summary",
+      "proof_bundle_manifest",
     ]);
-    expect(detail.artifacts[1]?.summary).toContain("README.md");
+    expect(
+      detail.artifacts.find((artifact) => artifact.kind === "diff_summary")
+        ?.summary,
+    ).toContain("README.md");
   });
 });

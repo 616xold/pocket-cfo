@@ -252,6 +252,33 @@ dd {
   opacity: 0.55;
 }
 
+.action-cluster {
+  display: grid;
+  gap: 10px;
+  width: min(100%, 340px);
+}
+
+.action-feedback {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.action-feedback.success {
+  border-color: rgba(126, 231, 181, 0.32);
+  background: rgba(126, 231, 181, 0.08);
+  color: var(--good);
+}
+
+.action-feedback.error {
+  border-color: rgba(255, 209, 132, 0.3);
+  background: rgba(255, 209, 132, 0.08);
+  color: var(--warn);
+}
+
 @media (max-width: 720px) {
   .shell {
     padding: 20px 16px 40px;
@@ -269,6 +296,10 @@ dd {
   }
 
   .button-row {
+    width: 100%;
+  }
+
+  .action-cluster {
     width: 100%;
   }
 }

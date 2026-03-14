@@ -6,6 +6,11 @@ import {
   interruptMissionTask,
   resolveMissionApproval,
 } from "../../../lib/api";
+import {
+  buildApprovalActionResult,
+  buildInterruptActionResult,
+  type MissionActionState,
+} from "../../../lib/operator-actions";
 
 const approvalResolutionFormSchema = z.object({
   approvalId: z.string().uuid(),
@@ -20,7 +25,10 @@ const taskInterruptFormSchema = z.object({
   taskId: z.string().uuid(),
 });
 
-export async function submitApprovalResolution(formData: FormData) {
+export async function submitApprovalResolution(
+  _previousState: MissionActionState,
+  formData: FormData,
+) {
   const input = approvalResolutionFormSchema.parse({
     approvalId: formData.get("approvalId"),
     decision: formData.get("decision"),
@@ -28,26 +36,41 @@ export async function submitApprovalResolution(formData: FormData) {
     resolvedBy: formData.get("resolvedBy"),
   });
 
-  await resolveMissionApproval({
+  const result = await resolveMissionApproval({
     approvalId: input.approvalId,
     decision: input.decision,
     resolvedBy: input.resolvedBy,
   });
 
-  revalidatePath(`/missions/${input.missionId}`);
+  if (result.ok) {
+    revalidatePath(`/missions/${input.missionId}`);
+  }
+
+  return buildApprovalActionResult(
+    input.decision,
+    input.resolvedBy,
+    result,
+  );
 }
 
-export async function submitTaskInterrupt(formData: FormData) {
+export async function submitTaskInterrupt(
+  _previousState: MissionActionState,
+  formData: FormData,
+) {
   const input = taskInterruptFormSchema.parse({
     missionId: formData.get("missionId"),
     requestedBy: formData.get("requestedBy"),
     taskId: formData.get("taskId"),
   });
 
-  await interruptMissionTask({
+  const result = await interruptMissionTask({
     requestedBy: input.requestedBy,
     taskId: input.taskId,
   });
 
-  revalidatePath(`/missions/${input.missionId}`);
+  if (result.ok) {
+    revalidatePath(`/missions/${input.missionId}`);
+  }
+
+  return buildInterruptActionResult(input.requestedBy, result);
 }

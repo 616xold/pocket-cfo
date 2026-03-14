@@ -71,6 +71,12 @@ describe("eval result writer", () => {
             text: "prompt body",
             version: "planner-prompt.v1",
           },
+          provenance: {
+            branchName: "main",
+            datasetName: "planner",
+            gitSha: "abc123def456",
+            promptVersion: "planner-prompt.v1",
+          },
           reference: {
             model: "gpt-5-codex",
             output: "reference output",
@@ -135,6 +141,10 @@ describe("eval result writer", () => {
       },
       itemId: "planner-passkeys-readonly",
       mode: "live",
+      provenance: {
+        datasetName: "planner",
+        gitSha: "abc123def456",
+      },
       reference: {
         provider: {
           responseId: "resp_456",

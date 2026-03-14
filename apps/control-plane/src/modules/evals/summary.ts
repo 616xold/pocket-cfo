@@ -31,6 +31,20 @@ export function buildEvalRunSummary(input: {
     averageOverallScore,
     candidateModel: input.candidateModel,
     graderModel: input.graderModel,
+    provenance: {
+      branchName: firstNonEmpty(
+        input.records.map((record) => record.provenance.branchName),
+      ),
+      datasetNames: uniqueValues(
+        input.records.map((record) => record.provenance.datasetName),
+      ),
+      gitSha: firstNonEmpty(
+        input.records.map((record) => record.provenance.gitSha),
+      ),
+      promptVersions: uniqueValues(
+        input.records.map((record) => record.provenance.promptVersion),
+      ),
+    },
     live: {
       candidate: summarizeProviderCalls(
         input.records.map((record) => record.candidate.provider),
@@ -56,6 +70,9 @@ export function formatEvalRunSummary(summary: EvalRunSummary) {
     `Mode: ${summary.mode}`,
     `Candidate model: ${summary.candidateModel}`,
     `Grader model: ${summary.graderModel}`,
+    `Dataset: ${summary.provenance.datasetNames.join(", ")}`,
+    `Prompt version: ${summary.provenance.promptVersions.join(", ")}`,
+    `Git: ${formatGitSummary(summary.provenance.branchName, summary.provenance.gitSha)}`,
     `Samples: ${summary.samples}`,
     `Average score: ${summary.averageOverallScore}`,
     `Results: ${summary.outputPath}`,
@@ -131,4 +148,30 @@ function formatProviderSummary(
   }
 
   return `${label} live proof: ${details.join("; ")}`;
+}
+
+function uniqueValues(values: Array<string | null>) {
+  return Array.from(
+    new Set(values.filter((value): value is string => Boolean(value))),
+  );
+}
+
+function firstNonEmpty(values: Array<string | null>) {
+  return values.find((value): value is string => Boolean(value)) ?? null;
+}
+
+function formatGitSummary(branchName: string | null, gitSha: string | null) {
+  if (branchName && gitSha) {
+    return `${branchName} @ ${gitSha.slice(0, 12)}`;
+  }
+
+  if (gitSha) {
+    return gitSha.slice(0, 12);
+  }
+
+  if (branchName) {
+    return branchName;
+  }
+
+  return "unavailable";
 }

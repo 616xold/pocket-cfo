@@ -4,6 +4,7 @@ import type {
   AppContainer,
   EmbeddedWorkerContainer,
   OperatorControlAvailability,
+  ServerContainer,
   WorkerContainer,
 } from "./lib/types";
 import { DrizzleApprovalRepository } from "./modules/approvals/drizzle-repository";
@@ -41,6 +42,11 @@ import {
 } from "./modules/validation";
 
 type KernelMode = "api_only" | "embedded_worker" | "standalone_worker";
+type ServerControlMode = Extract<KernelMode, "api_only" | "embedded_worker">;
+type ServerContainerFactories = {
+  createApiOnlyContainer: () => Promise<AppContainer>;
+  createEmbeddedWorkerContainer: () => Promise<EmbeddedWorkerContainer>;
+};
 
 type SharedKernel = {
   approvalService: ApprovalService;
@@ -51,6 +57,28 @@ type SharedKernel = {
   liveSessionRegistry: InMemoryRuntimeSessionRegistry;
   worker: OrchestratorWorker | null;
 };
+
+export function resolveServerControlMode(
+  env: Pick<Env, "CONTROL_PLANE_EMBEDDED_WORKER">,
+): ServerControlMode {
+  return env.CONTROL_PLANE_EMBEDDED_WORKER ? "embedded_worker" : "api_only";
+}
+
+export async function createServerContainer(input?: {
+  env?: Pick<Env, "CONTROL_PLANE_EMBEDDED_WORKER">;
+  factories?: Partial<ServerContainerFactories>;
+}): Promise<ServerContainer> {
+  const mode = resolveServerControlMode(input?.env ?? loadEnv());
+  const createApiOnlyContainer =
+    input?.factories?.createApiOnlyContainer ?? createContainer;
+  const createEmbeddedWorkerContainer =
+    input?.factories?.createEmbeddedWorkerContainer ??
+    createEmbeddedWorkerContainerFactory;
+
+  return mode === "embedded_worker"
+    ? await createEmbeddedWorkerContainer()
+    : await createApiOnlyContainer();
+}
 
 export async function createContainer(): Promise<AppContainer> {
   const env = loadEnv();
@@ -85,6 +113,10 @@ export async function createEmbeddedWorkerContainer(): Promise<EmbeddedWorkerCon
     }),
     worker: getRequiredWorker(kernel),
   };
+}
+
+async function createEmbeddedWorkerContainerFactory() {
+  return createEmbeddedWorkerContainer();
 }
 
 export async function createWorkerContainer(): Promise<WorkerContainer> {

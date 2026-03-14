@@ -8,6 +8,12 @@ describe("eval run summary formatter", () => {
       averageOverallScore: 4.8,
       candidateModel: "gpt-5-mini",
       graderModel: "gpt-5-mini",
+      provenance: {
+        branchName: "main",
+        datasetNames: ["planner"],
+        gitSha: "abc123def456",
+        promptVersions: ["planner-prompt.v1"],
+      },
       live: {
         candidate: {
           calls: 0,
@@ -35,6 +41,9 @@ describe("eval run summary formatter", () => {
     expect(text).toContain("Mode: dry-run");
     expect(text).toContain("Candidate model: gpt-5-mini");
     expect(text).toContain("Grader model: gpt-5-mini");
+    expect(text).toContain("Dataset: planner");
+    expect(text).toContain("Prompt version: planner-prompt.v1");
+    expect(text).toContain("Git: main @ abc123def456");
     expect(text).toContain("Dry-run: no OpenAI API calls were made.");
   });
 
@@ -43,6 +52,12 @@ describe("eval run summary formatter", () => {
       averageOverallScore: 4.3,
       candidateModel: "gpt-5-mini",
       graderModel: "gpt-5-mini",
+      provenance: {
+        branchName: "main",
+        datasetNames: ["planner"],
+        gitSha: "abc123def456",
+        promptVersions: ["planner-prompt.v1"],
+      },
       live: {
         candidate: {
           calls: 1,

@@ -1,16 +1,15 @@
 import React from "react";
 import type { MissionDetailView } from "@pocket-cto/domain";
+import { getWebOperatorIdentity } from "../../../lib/operator-identity";
 import {
-  submitApprovalResolution,
-  submitTaskInterrupt,
-} from "./actions";
+  ApprovalActionForm,
+  TaskInterruptForm,
+} from "./mission-action-forms";
 
 type MissionActionsProps = Pick<
   MissionDetailView,
   "approvals" | "liveControl" | "mission" | "tasks"
 >;
-
-const OPERATOR_IDENTITY = "web-operator";
 
 export function MissionActions({
   approvals,
@@ -18,6 +17,7 @@ export function MissionActions({
   mission,
   tasks,
 }: MissionActionsProps) {
+  const operatorIdentity = getWebOperatorIdentity();
   const pendingApprovals = approvals.filter(
     (approval) => approval.status === "pending",
   );
@@ -29,8 +29,13 @@ export function MissionActions({
       <h2>Operator actions</h2>
       <p className="muted">
         {controlsUnavailable
-          ? `Actions are unavailable while the control-plane server is running in ${liveControl.mode} mode. Start it with CONTROL_PLANE_EMBEDDED_WORKER=true to enable approval resolution and task interrupts.`
+          ? `Actions are unavailable while the control-plane server is running in ${liveControl.mode} mode. Run pnpm dev:embedded to enable local approval resolution and task interrupts.`
           : "These controls call the current approval-resolution and task-interrupt routes, then refresh the mission detail without optimistic updates."}
+      </p>
+      <p className="muted" style={{ marginTop: 10 }}>
+        Actions are recorded as <code>{operatorIdentity}</code>. Set{" "}
+        <code>POCKET_CTO_WEB_OPERATOR_NAME</code> in your local env if you want
+        a different operator label in approval and interrupt records.
       </p>
 
       <div className="stack" style={{ marginTop: 18 }}>
@@ -46,43 +51,12 @@ export function MissionActions({
                 </p>
               </div>
 
-              <div className="button-row">
-                <form action={submitApprovalResolution}>
-                  <input name="missionId" type="hidden" value={mission.id} />
-                  <input name="approvalId" type="hidden" value={approval.id} />
-                  <input
-                    name="resolvedBy"
-                    type="hidden"
-                    value={OPERATOR_IDENTITY}
-                  />
-                  <input name="decision" type="hidden" value="accept" />
-                  <button
-                    className="action-button"
-                    disabled={controlsUnavailable}
-                    type="submit"
-                  >
-                    Approve
-                  </button>
-                </form>
-
-                <form action={submitApprovalResolution}>
-                  <input name="missionId" type="hidden" value={mission.id} />
-                  <input name="approvalId" type="hidden" value={approval.id} />
-                  <input
-                    name="resolvedBy"
-                    type="hidden"
-                    value={OPERATOR_IDENTITY}
-                  />
-                  <input name="decision" type="hidden" value="decline" />
-                  <button
-                    className="action-button secondary"
-                    disabled={controlsUnavailable}
-                    type="submit"
-                  >
-                    Decline
-                  </button>
-                </form>
-              </div>
+              <ApprovalActionForm
+                approvalId={approval.id}
+                disabled={controlsUnavailable}
+                missionId={mission.id}
+                operatorIdentity={operatorIdentity}
+              />
             </div>
           ))
         )}
@@ -104,22 +78,12 @@ export function MissionActions({
                 </p>
               </div>
 
-              <form action={submitTaskInterrupt}>
-                <input name="missionId" type="hidden" value={mission.id} />
-                <input
-                  name="requestedBy"
-                  type="hidden"
-                  value={OPERATOR_IDENTITY}
-                />
-                <input name="taskId" type="hidden" value={task.id} />
-                <button
-                  className="action-button secondary"
-                  disabled={controlsUnavailable}
-                  type="submit"
-                >
-                  Interrupt task
-                </button>
-              </form>
+              <TaskInterruptForm
+                disabled={controlsUnavailable}
+                missionId={mission.id}
+                operatorIdentity={operatorIdentity}
+                taskId={task.id}
+              />
             </div>
           ))
         )}

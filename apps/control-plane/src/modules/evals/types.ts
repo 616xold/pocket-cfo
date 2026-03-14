@@ -18,6 +18,13 @@ export type EvalPromptRecord = {
   version: string;
 };
 
+export type EvalRecordProvenance = {
+  branchName: string | null;
+  datasetName: string;
+  gitSha: string | null;
+  promptVersion: string;
+};
+
 export type EvalProviderUsage = {
   inputTokens: number | null;
   outputTokens: number | null;
@@ -72,6 +79,7 @@ export type EvalResultRecord = {
   mode: EvalMode;
   notes: string[];
   prompt: EvalPromptRecord;
+  provenance: EvalRecordProvenance;
   reference: EvalOutputRecord | null;
   rubric: {
     path: string;
@@ -97,6 +105,12 @@ export type EvalRunSummary = {
   averageOverallScore: number;
   candidateModel: string;
   graderModel: string;
+  provenance: {
+    branchName: string | null;
+    datasetNames: string[];
+    gitSha: string | null;
+    promptVersions: string[];
+  };
   live: {
     candidate: EvalProviderCallSummary;
     grader: EvalProviderCallSummary;

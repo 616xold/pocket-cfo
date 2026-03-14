@@ -22,6 +22,12 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 - [x] (2026-03-14T01:45Z) Added focused tests for doctor reporting, CLI summary formatting, provider metadata persistence, and smoke-command refusal when live mode is not truly enabled.
 - [x] (2026-03-14T01:45Z) Re-ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, and `pnpm test`; all passed after the live-visibility changes.
 - [x] (2026-03-14T01:45Z) Verified the live proof path by running `OPENAI_EVALS_ENABLED=true pnpm eval:doctor` and `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner`. The planner smoke wrote `evals/results/20260314T014428Z-planner.jsonl` with real OpenAI response ids, resolved model names, and token usage for both the candidate and grader calls.
+- [x] (2026-03-14T02:05Z) Re-inspected the eval-iteration usefulness gap. Confirmed that the live planner smoke now proves provider round-trips, but the saved records still lack git provenance, the text rules still penalize harmless `email-login` versus `email login` variation, there is no executor smoke path, and there is no built-in run comparison helper.
+- [x] (2026-03-14T03:05Z) Added compact result provenance for git SHA, branch name, dataset name, dataset item id, and prompt version so saved JSONL records are more useful for later prompt-iteration comparisons.
+- [x] (2026-03-14T03:05Z) Tightened the rule normalizer to collapse case, whitespace, and harmless hyphen-versus-space variation without weakening the underlying section and constraint checks.
+- [x] (2026-03-14T03:05Z) Added `eval:smoke:executor` plus a simple `eval:compare` helper so the lane now supports both live executor smoke checks and local run-to-run comparisons.
+- [x] (2026-03-14T03:05Z) Re-ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, and `pnpm test` successfully after the prompt-iteration improvements.
+- [x] (2026-03-14T03:05Z) Verified the new prompt-iteration ergonomics by running `OPENAI_EVALS_ENABLED=true pnpm eval:doctor`, `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner`, `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:executor`, and `pnpm eval:compare` against stored result files.
 
 ## Surprises & Discoveries
 
@@ -51,6 +57,12 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 
 - Observation: local `.env` loading can make the eval key available to the harness even when the shell does not export `OPENAI_API_KEY`.
   Evidence: `if [ -n "${OPENAI_API_KEY:-}" ]; then echo present; else echo absent; fi` returned `absent`, while `pnpm eval:doctor` loaded the repo `.env` file and reported `OPENAI_API_KEY: present (***pw4A)`.
+
+- Observation: the current rule matcher is still brittle enough to turn harmless formatting variation into misleading iteration guidance.
+  Evidence: the live planner smoke record at `evals/results/20260314T014428Z-planner.jsonl` reported `Missing expected topic: email login.` even though the candidate output repeatedly used the equivalent phrase `email-login`.
+
+- Observation: stored compare inputs can come from the repo root or a package-local working directory, so result-file resolution must not depend on the current package cwd.
+  Evidence: the first `pnpm eval:compare -- --a evals/results/... --b evals/results/...` attempt failed until result-file loading resolved relative paths from the repository root instead of `apps/control-plane/`.
 
 ## Decision Log
 
@@ -84,6 +96,18 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 
 - Decision: Persist narrow provider metadata on each live candidate, grader, and optional reference call.
   Rationale: Response ids, resolved model names, and token usage are stable enough to prove live usage and aid comparisons, while keeping the checked-in schema small and deterministic.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Add compact repo and dataset provenance to each result record, plus a small local compare helper instead of a heavier hosted history feature.
+  Rationale: Prompt iteration needs enough context to answer “what changed between runs” without adding a database or widening the eval lane into a broader benchmarking product surface.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Normalize case, whitespace, and hyphen-vs-space variation inside rule checks while keeping section and constraint checks strict.
+  Rationale: The rules should stop penalizing harmless formatting changes like `email-login` versus `email login`, but they still need to enforce real content requirements.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Resolve compare input paths from the repository root and backfill missing provenance when reading legacy result files.
+  Rationale: Developers should be able to compare older and newer result files with the same helper even if earlier artifacts predate the provenance fields added in this follow-up slice.
   Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
@@ -207,6 +231,33 @@ Validation results captured after implementation:
   - candidate usage: `334` input, `3523` output, `3857` total tokens
   - grader response id: `resp_008feee904be165f0169b4bd70db78819689c12e03ea3d92d0`
   - grader usage: `3154` input, `811` output, `3965` total tokens
+- `OPENAI_EVALS_ENABLED=true pnpm eval:doctor` passed again after the prompt-iteration follow-up.
+  - reported `OPENAI_API_KEY: present (***pw4A)`
+  - reported `OPENAI_API_KEY source: loaded .env`
+  - reported default mode `live`
+- `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner` passed again after the rule-normalization and provenance changes.
+  - output path: `evals/results/20260314T030401Z-planner.jsonl`
+  - samples: `1`
+  - average live score: `4.8`
+  - candidate response id: `resp_003249bb3bd2b9360169b4cfe5188c81a1895c3c519b613a73`
+  - candidate usage: `334` input, `3742` output, `4076` total tokens
+  - grader response id: `resp_0d70ce82f7b040bf0169b4d015f1d8819592242d5148781b40`
+  - grader usage: `3372` input, `771` output, `4143` total tokens
+  - saved provenance: `codex/next-push-ci @ c24535385298e8a745a1202d9e05f03d113c6770`, dataset `planner`, prompt version `planner-prompt.v1`
+  - rule result: the earlier `email-login` versus `email login` false negative is gone and the planner sample now passes all rule checks
+- `OPENAI_EVALS_ENABLED=true pnpm eval:smoke:executor` passed.
+  - output path: `evals/results/20260314T030442Z-executor.jsonl`
+  - samples: `1`
+  - average live score: `1.8`
+  - candidate response id: `resp_09e2694f3e003d170169b4d027900481908d94bbcf9ff4c9ee`
+  - candidate usage: `526` input, `1603` output, `2129` total tokens
+  - grader response id: `resp_0524ad985dbb61020169b4d03b83c881928dcb3b32ac77119f`
+  - grader usage: `1738` input, `1043` output, `2781` total tokens
+  - saved provenance: `codex/next-push-ci @ c24535385298e8a745a1202d9e05f03d113c6770`, dataset `executor`, prompt version `executor-prompt.v1`
+- `pnpm eval:compare -- --a evals/results/20260314T014428Z-planner.jsonl --b evals/results/20260314T030401Z-planner.jsonl` passed.
+  - showed `overall 4.8 -> 4.8 (+0.0)`
+  - showed dimension deltas: `constraintCompliance +0.2`, `clarity -0.5`, `evidenceReadiness +0.0`, `actionability +0.2`
+  - showed model pairing and git provenance progression from legacy `unavailable` metadata to the new recorded branch and SHA
 
 Live-run note:
 
@@ -242,10 +293,10 @@ This slice should not introduce new database schema, replay event types, mission
 
 ## Outcomes & Retrospective
 
-EP-0010 is complete for the intended first slice and its live-visibility follow-up.
-Pocket CTO now has a checked-in, opt-in real-LLM eval lane that stays outside required CI, evaluates the current planner, executor, and compiler-quality surfaces with small seeded datasets, and writes timestamped JSONL results to a gitignored comparison folder.
+EP-0010 is complete for the intended first slice, the live-visibility follow-up, and the prompt-iteration usefulness follow-up.
+Pocket CTO now has a checked-in, opt-in real-LLM eval lane that stays outside required CI, evaluates the current planner, executor, and compiler-quality surfaces with small seeded datasets, writes timestamped JSONL results to a gitignored comparison folder, records provider plus repo provenance, and exposes small doctor, smoke, and compare commands that make prompt iteration practical instead of opaque.
 
-The implementation stayed modular and out of the runtime hot path.
+The implementation stayed modular and out of the runtime hot path. The latest live planner smoke confirms that the lane now gives stronger iteration guidance: the saved record proves the provider round-trip, the rule checks no longer fail on harmless hyphenation, and the compare helper can show how dimension-level scores moved between runs. The executor smoke also exposed a real weak point in the current final-report prompt contract, which is exactly the kind of iteration signal this lane was meant to surface.
 The new bounded context lives under `apps/control-plane/src/modules/evals/`, the CLI entrypoint lives under `apps/control-plane/src/evals/`, configuration lives in `packages/config`, and the checked-in rubric and datasets live under `evals/`.
 
 The live proof path is now demonstrated, not just configured.

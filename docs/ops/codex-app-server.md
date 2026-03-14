@@ -61,6 +61,7 @@ The local bootstrap env remains:
 ```bash
 CODEX_APP_SERVER_COMMAND=codex
 CODEX_APP_SERVER_ARGS=app-server
+CONTROL_PLANE_EMBEDDED_WORKER=false
 CODEX_DEFAULT_MODEL=gpt-5.2-codex
 CODEX_DEFAULT_APPROVAL_POLICY=untrusted
 CODEX_DEFAULT_SANDBOX=workspace-write
@@ -68,6 +69,11 @@ CODEX_DEFAULT_SERVICE_NAME=pocket-cto-control-plane
 ```
 
 `CODEX_APP_SERVER_COMMAND` and `CODEX_APP_SERVER_ARGS` are parsed separately with shell-style quoting support before the process is spawned.
+`CONTROL_PLANE_EMBEDDED_WORKER` is a typed control-plane config flag, not an ad hoc process-env read.
+When it stays `false`, the API runs in `api_only` mode.
+When it is `true`, the API runs in `embedded_worker` mode and can resolve approvals or interrupts against the same in-memory live session registry.
+The standalone `src/worker.ts` entrypoint still reports `standalone_worker`.
+Both entrypoints now emit a compact startup log with the active `controlMode`.
 The env default approval policy remains `untrusted`, but Pocket CTO now resolves per-turn policy explicitly:
 
 - planner and other read-only turns use `approvalPolicy = "never"`

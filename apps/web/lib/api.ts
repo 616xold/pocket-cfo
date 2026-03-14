@@ -5,6 +5,10 @@ import {
 } from "@pocket-cto/domain";
 import type { ApprovalDecision } from "@pocket-cto/domain";
 import { z } from "zod";
+import {
+  controlPlaneActionErrorResponseSchema,
+  type ControlPlaneMutationResult,
+} from "./operator-actions";
 
 const healthSchema = z.object({
   ok: z.boolean(),
@@ -68,23 +72,53 @@ async function postJson<TSchema extends z.ZodTypeAny>(
   input: string,
   body: unknown,
   schema: TSchema,
-): Promise<z.output<TSchema>> {
-  const response = await fetch(`${controlPlaneUrl}${input}`, {
-    method: "POST",
-    headers: {
-      "content-type": "application/json",
-    },
-    body: JSON.stringify(body),
-    cache: "no-store",
-  });
+): Promise<ControlPlaneMutationResult<z.output<TSchema>>> {
+  let response: Response;
 
-  if (!response.ok) {
-    throw new Error(
-      `Control-plane request failed (${response.status}) for ${input}`,
-    );
+  try {
+    response = await fetch(`${controlPlaneUrl}${input}`, {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+  } catch {
+    return {
+      ok: false,
+      errorCode: "request_failed",
+      message: "Control-plane request failed",
+    };
   }
 
-  return schema.parse(await response.json());
+  if (!response.ok) {
+    const errorJson = await readJson(response);
+    const parsedError =
+      controlPlaneActionErrorResponseSchema.safeParse(errorJson);
+
+    if (parsedError.success) {
+      return {
+        ok: false,
+        statusCode: response.status,
+        errorCode: parsedError.data.error.code,
+        message: parsedError.data.error.message,
+      };
+    }
+
+    return {
+      ok: false,
+      statusCode: response.status,
+      errorCode: "request_failed",
+      message: `Control-plane request failed (${response.status})`,
+    };
+  }
+
+  return {
+    ok: true,
+    statusCode: response.status,
+    data: schema.parse(await response.json()),
+  };
 }
 
 export async function getControlPlaneHealth(): Promise<ControlPlaneHealth> {
@@ -137,4 +171,12 @@ export async function interruptMissionTask(input: {
     },
     interruptTaskResponseSchema,
   );
+}
+
+async function readJson(response: Response): Promise<unknown> {
+  try {
+    return await response.json();
+  } catch {
+    return null;
+  }
 }

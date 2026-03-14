@@ -1,4 +1,5 @@
 export * from "./args";
+export * from "./compare";
 export * from "./config";
 export * from "./dataset";
 export * from "./doctor";
@@ -6,6 +7,8 @@ export * from "./grader";
 export * from "./openai-client";
 export * from "./paths";
 export * from "./prompt-sources";
+export * from "./provenance";
+export * from "./result-files";
 export * from "./rules";
 export * from "./run";
 export * from "./smoke";

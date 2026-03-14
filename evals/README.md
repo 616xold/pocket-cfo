@@ -20,7 +20,9 @@ Live usage:
 pnpm eval:doctor
 pnpm eval:planner -- --dry-run
 OPENAI_EVALS_ENABLED=true pnpm eval:smoke:planner
+OPENAI_EVALS_ENABLED=true pnpm eval:smoke:executor
 OPENAI_EVALS_ENABLED=true pnpm eval:planner
+pnpm eval:compare -- --a evals/results/<older>.jsonl --b evals/results/<newer>.jsonl
 ```
 
 Live runs require both:
@@ -34,8 +36,17 @@ Default model envs:
 - `OPENAI_EVAL_GRADER_MODEL=gpt-5-mini`
 - `OPENAI_EVAL_REFERENCE_MODEL=gpt-5-codex`
 
-`pnpm eval:doctor` shows whether the current shell is dry-run-only or live-ready and prints the results directory without exposing the full API key.
-`pnpm eval:smoke:planner` is the intentional one-sample live proof path and fails if it would fall back to dry-run.
+`pnpm eval:doctor` shows whether the current shell is dry-run-only or live-ready, reports the best-known key source (`shell env`, `loaded .env`, or `unknown`), and prints the results directory without exposing the full API key.
+`pnpm eval:smoke:planner` and `pnpm eval:smoke:executor` are the intentional one-sample live proof paths and fail if they would fall back to dry-run.
+`pnpm eval:compare` compares two saved JSONL runs so you can see score movement, dimension movement, and model changes without manually diffing raw files.
+
+Saved result records now keep compact provenance for later iteration work:
+
+- dataset name
+- dataset item id
+- prompt version
+- git SHA when available
+- branch name when available
 
 Important:
 this repo uses a custom local harness that calls the OpenAI Responses API directly.

@@ -34,6 +34,8 @@ export type EmbeddedWorkerContainer = AppContainer & {
   worker: OrchestratorWorker;
 };
 
+export type ServerContainer = AppContainer | EmbeddedWorkerContainer;
+
 export type WorkerContainer = {
   liveControl: OperatorControlAvailability;
   worker: OrchestratorWorker;

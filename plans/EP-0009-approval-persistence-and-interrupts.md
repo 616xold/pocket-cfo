@@ -31,6 +31,9 @@ It does not add GitHub integration, richer artifact plumbing beyond approval per
 - [x] (2026-03-13T19:00Z) Added a focused approval-service durability spec for live-handoff failure and re-ran the DB-backed approval or interrupt suite against the hardened behavior before the full validation pass.
 - [x] (2026-03-14T01:15Z) Added a shared single-process control kernel for the API and worker entrypoints, thin approval or interrupt HTTP routes, and explicit `live_control_unavailable` semantics when the current process does not own the live in-memory session registry.
 - [x] (2026-03-14T01:15Z) Added route-level control-surface tests plus DB-backed fake-runtime HTTP approval-resolution and interrupt integration coverage, then updated the ops docs and local-dev guidance for embedded-worker mode.
+- [x] (2026-03-14T11:40Z) Promoted `CONTROL_PLANE_EMBEDDED_WORKER` into typed config, routed server container selection through that typed flag, added explicit `dev:embedded` scripts, and emitted startup logs that state `api_only`, `embedded_worker`, or `standalone_worker` directly.
+- [x] (2026-03-14T11:40Z) Added focused server-mode tests for typed config parsing and container selection, then refreshed the local-dev and app-server docs so the single-process operator loop is obvious without reading raw env wiring.
+- [x] (2026-03-14T12:05Z) Updated the operator-facing mission action copy to point at `pnpm dev:embedded`, then re-ran the required runtime and control-plane validation commands plus a web typecheck for the small UI hint change.
 
 ## Surprises & Discoveries
 
@@ -75,6 +78,9 @@ It does not add GitHub integration, richer artifact plumbing beyond approval per
 
 - Observation: runtime `item/permissions/requestApproval` carries a grant payload shape that does not fit Pocket CTO's existing decision-based approval records cleanly in M1.6.
   Evidence: `packages/codex-runtime/src/protocol.ts` defines `PermissionsRequestApprovalResponseSchema` as granted permissions plus scope rather than a simple accept or decline decision, so the M1.6 worker now rejects that request explicitly with an operator-visible unsupported-surface error instead of pretending it can persist or resume it.
+
+- Observation: the earlier embedded-worker surface was honest at the route layer, but the deciding flag still bypassed typed config and the developer path still depended on remembering a raw shell prefix.
+  Evidence: before this hardening pass, `apps/control-plane/src/server.ts` read `process.env.CONTROL_PLANE_EMBEDDED_WORKER` directly, `.env.example` did not declare it, and the root package scripts offered no dedicated embedded-mode command.
 
 ## Decision Log
 
@@ -128,6 +134,10 @@ It does not add GitHub integration, richer artifact plumbing beyond approval per
 
 - Decision: Reject runtime `item/permissions/requestApproval` explicitly in M1.6 instead of storing a partial approval row that Pocket CTO cannot resume correctly.
   Rationale: the stable permissions approval response is a granted-permissions payload, not the decision-based shape Pocket CTO persists for file-change or command approvals, so a truthful unsupported-surface failure is narrower and safer for this milestone.
+  Date/Author: 2026-03-14 / Codex
+
+- Decision: Keep embedded-worker enablement as one explicit typed config flag, `CONTROL_PLANE_EMBEDDED_WORKER`, with a default of `false`, then surface it through dedicated `dev:embedded` scripts instead of more raw shell-only instructions.
+  Rationale: the HTTP approval or interrupt surface only works when the API process owns the live in-memory registry, so one explicit typed flag plus dedicated commands makes that mode easy to run locally without implying that API-only or standalone-worker modes changed semantics.
   Date/Author: 2026-03-14 / Codex
 
 ## Context and Orientation
@@ -195,7 +205,8 @@ The intended edit surface for this slice is:
 - `packages/testkit/src/runtime/fake-codex-app-server.mjs`
 - focused specs under `packages/codex-runtime/src/` and `apps/control-plane/src/modules/`
 
-This slice is not expected to change GitHub App permissions, webhook expectations, stack packs, or add new environment variables.
+This slice does not change GitHub App permissions, webhook expectations, or stack packs.
+It now does include one explicit typed local server-mode flag, `CONTROL_PLANE_EMBEDDED_WORKER`, because the M1.6 HTTP operator surface needs an honest way to advertise whether the current API process owns the live in-memory session registry.
 It does need explicit docs that approval continuity across worker restart is not yet guaranteed.
 
 ## Plan of Work
@@ -339,12 +350,18 @@ Validation results captured after implementation:
   Result: passed.
 - `pnpm --filter @pocket-cto/codex-runtime typecheck`
   Result: passed.
+- `pnpm --filter @pocket-cto/config build`
+  Result: refreshed the local referenced package output after this workspace still held stale `@pocket-cto/config` project-reference artifacts from before the new flag was added; no tracked files changed.
 - `pnpm --filter @pocket-cto/control-plane test`
-  Result: passed with 16 files and 56 tests after the approval-resolution durability and DB-backed wait-helper hardening.
+  Result: passed with 23 files and 80 tests after the typed embedded-mode config and bootstrap selection coverage was added.
 - `pnpm --filter @pocket-cto/control-plane typecheck`
   Result: passed.
 - `pnpm --filter @pocket-cto/control-plane lint`
   Result: passed.
+- `pnpm --filter @pocket-cto/web typecheck`
+  Result: passed after updating the mission action hint to advertise `pnpm dev:embedded`.
+- `CONTROL_PLANE_EMBEDDED_WORKER=true` config hardening
+  Result: the flag now parses through `@pocket-cto/config`, `.env.example`, bootstrap container selection, startup logs, and dedicated `dev:embedded` scripts instead of a direct `process.env` read in `src/server.ts`.
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/orchestrator/drizzle-service.spec.ts --repeat 5`
   Result: the installed Vitest version rejected `--repeat` as an unknown option, so the same DB-backed spec was re-run five times through a small local Node loop instead.
 - repeated `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/orchestrator/drizzle-service.spec.ts`
@@ -381,6 +398,9 @@ External or runtime dependencies:
 - fake app-server fixture for automated tests and manual acceptance
 - existing Postgres dev and test databases
 - one server-mode env flag for local embedded worker operation: `CONTROL_PLANE_EMBEDDED_WORKER=true`
+- root and package-local embedded developer commands:
+  `pnpm dev:embedded`
+  `pnpm --filter @pocket-cto/control-plane dev:embedded`
 
 ## Outcomes & Retrospective
 
@@ -393,7 +413,8 @@ The durability hardening pass also means accepted approvals do not move task or 
 The DB-backed approval or interrupt coverage now uses one shared 5-second wait helper with last-observation timeout reporting, and the full DB-heavy spec stayed green across five consecutive reruns.
 The operator loop is now materially more complete as well: the API can list persisted approvals for a mission, resolve an approval through `POST /approvals/:approvalId/resolve`, and interrupt an active task through `POST /tasks/:taskId/interrupt` when the server is running with an embedded worker and therefore owns the live in-memory session registry for that process.
 When the server is running in API-only mode, those same routes now fail honestly with `live_control_unavailable` instead of implying cross-process continuity that Pocket CTO does not have yet.
-The web mission page now surfaces the persisted mission approvals and whether the current control-plane process has live control enabled, so operators can see the limitation without hunting through docs or replay.
+The embedded control mode is also easier to run and reason about locally now: the flag is typed in shared config, `.env.example` documents its safe default, the repo root exposes `pnpm dev:embedded`, and both the server and standalone worker log the active control mode at startup.
+The web mission page now surfaces the persisted mission approvals, whether the current control-plane process has live control enabled, and the concrete `pnpm dev:embedded` hint when it does not, so operators can see the limitation without hunting through docs or replay.
 Runtime permissions approvals also fail more honestly now: Pocket CTO rejects that unsupported surface explicitly in M1.6 instead of surfacing a generic missing-handler surprise.
 
 The known intentional limitation for the end of this slice is single-process approval continuity.

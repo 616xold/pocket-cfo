@@ -42,6 +42,7 @@ describe("web api module", () => {
       .fn()
       .mockResolvedValueOnce({
         ok: true,
+        status: 200,
         async json() {
           return {
             approval: {
@@ -71,6 +72,7 @@ describe("web api module", () => {
       })
       .mockResolvedValueOnce({
         ok: true,
+        status: 200,
         async json() {
           return {
             interrupt: {
@@ -91,14 +93,23 @@ describe("web api module", () => {
 
     const mod = await import("./api");
 
-    await mod.resolveMissionApproval({
+    const approvalResult = await mod.resolveMissionApproval({
       approvalId,
       decision: "accept",
       resolvedBy: "web-operator",
     });
-    await mod.interruptMissionTask({
+    const interruptResult = await mod.interruptMissionTask({
       requestedBy: "web-operator",
       taskId,
+    });
+
+    expect(approvalResult).toMatchObject({
+      ok: true,
+      statusCode: 200,
+    });
+    expect(interruptResult).toMatchObject({
+      ok: true,
+      statusCode: 200,
     });
 
     expect(fetchMock).toHaveBeenNthCalledWith(
@@ -132,6 +143,64 @@ describe("web api module", () => {
         method: "POST",
       },
     );
+  });
+
+  it("returns typed route failures instead of throwing for normal operator-action errors", async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 501,
+        async json() {
+          return {
+            error: {
+              code: "live_control_unavailable",
+              message:
+                "Live approval and interrupt control is unavailable in this process",
+            },
+          };
+        },
+      })
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 409,
+        async json() {
+          return {
+            error: {
+              code: "task_conflict",
+              message: `Task ${taskId} has no active live turn to interrupt`,
+            },
+          };
+        },
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await import("./api");
+
+    await expect(
+      mod.resolveMissionApproval({
+        approvalId,
+        decision: "accept",
+        resolvedBy: "web-operator",
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      statusCode: 501,
+      errorCode: "live_control_unavailable",
+      message: "Live approval and interrupt control is unavailable in this process",
+    });
+
+    await expect(
+      mod.interruptMissionTask({
+        requestedBy: "web-operator",
+        taskId,
+      }),
+    ).resolves.toEqual({
+      ok: false,
+      statusCode: 409,
+      errorCode: "task_conflict",
+      message: `Task ${taskId} has no active live turn to interrupt`,
+    });
   });
 });
 

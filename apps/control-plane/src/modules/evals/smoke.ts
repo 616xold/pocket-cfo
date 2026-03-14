@@ -1,4 +1,5 @@
 import { type EvalEnv } from "@pocket-cto/config";
+import type { EvalTarget } from "./dataset";
 import { runEvalCommand } from "./run";
 
 export async function runPlannerSmokeCommand(input?: {
@@ -6,8 +7,27 @@ export async function runPlannerSmokeCommand(input?: {
   env?: EvalEnv;
   outputDirectory?: string;
 }): Promise<Awaited<ReturnType<typeof runEvalCommand>>> {
+  return runSmokeEvalCommand("planner", input);
+}
+
+export async function runExecutorSmokeCommand(input?: {
+  argv?: string[];
+  env?: EvalEnv;
+  outputDirectory?: string;
+}): Promise<Awaited<ReturnType<typeof runEvalCommand>>> {
+  return runSmokeEvalCommand("executor", input);
+}
+
+async function runSmokeEvalCommand(
+  target: EvalTarget,
+  input?: {
+    argv?: string[];
+    env?: EvalEnv;
+    outputDirectory?: string;
+  },
+) {
   const summary = await runEvalCommand(
-    ["planner", "--limit", "1", ...(input?.argv ?? [])],
+    [target, "--limit", "1", ...(input?.argv ?? [])],
     {
       env: input?.env,
       outputDirectory: input?.outputDirectory,
@@ -20,9 +40,13 @@ export async function runPlannerSmokeCommand(input?: {
 
   if (!candidateProven && !graderProven) {
     throw new Error(
-      "Planner smoke eval did not capture any OpenAI response ids. Live smoke requires provider metadata proof.",
+      `${capitalize(target)} smoke eval did not capture any OpenAI response ids. Live smoke requires provider metadata proof.`,
     );
   }
 
   return summary;
+}
+
+function capitalize(value: string) {
+  return value.charAt(0).toUpperCase().concat(value.slice(1));
 }

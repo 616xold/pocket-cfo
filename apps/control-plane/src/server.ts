@@ -1,22 +1,19 @@
 import { closeAllPools } from "@pocket-cto/db";
 import { buildApp } from "./app";
-import {
-  createContainer,
-  createEmbeddedWorkerContainer,
-} from "./bootstrap";
+import { createServerContainer } from "./bootstrap";
 import { getEnv } from "./lib/env";
 import { createProcessLogger } from "./lib/logger";
-import type { AppContainer, EmbeddedWorkerContainer } from "./lib/types";
+import type { EmbeddedWorkerContainer, ServerContainer } from "./lib/types";
 
 async function main() {
   const env = getEnv();
   const log = createProcessLogger();
   const abortController = new AbortController();
-  const embeddedWorkerEnabled = readEmbeddedWorkerFlag();
-  const container: AppContainer | EmbeddedWorkerContainer = embeddedWorkerEnabled
-    ? await createEmbeddedWorkerContainer()
-    : await createContainer();
+  const container = await createServerContainer({
+    env,
+  });
   const app = await buildApp({ container });
+  const controlMode = container.operatorControl.liveControl.mode;
   let shuttingDown = false;
 
   const shutdown = async (signal: NodeJS.Signals | "embedded-worker-error") => {
@@ -27,7 +24,7 @@ async function main() {
     shuttingDown = true;
     log.info(
       {
-        embeddedWorker: embeddedWorkerEnabled,
+        controlMode,
         event: "server.shutdown",
         signal,
       },
@@ -65,6 +62,14 @@ async function main() {
     host: "0.0.0.0",
     port: env.CONTROL_PLANE_PORT,
   });
+  log.info(
+    {
+      controlMode,
+      event: "control_plane.startup",
+      port: env.CONTROL_PLANE_PORT,
+    },
+    "Control-plane started",
+  );
 }
 
 main().catch((error) => {
@@ -73,11 +78,7 @@ main().catch((error) => {
 });
 
 function hasEmbeddedWorker(
-  container: AppContainer | EmbeddedWorkerContainer,
+  container: ServerContainer,
 ): container is EmbeddedWorkerContainer {
   return "worker" in container;
-}
-
-function readEmbeddedWorkerFlag() {
-  return process.env.CONTROL_PLANE_EMBEDDED_WORKER === "true";
 }

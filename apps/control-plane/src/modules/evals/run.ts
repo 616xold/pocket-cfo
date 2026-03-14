@@ -21,6 +21,11 @@ import {
   buildExecutorPromptEnvelope,
   buildPlannerPromptEnvelope,
 } from "./prompt-sources";
+import {
+  buildEvalRecordProvenance,
+  loadEvalRepoProvenance,
+  type EvalRepoProvenance,
+} from "./provenance";
 import { evaluateCompilerOutput, evaluateTextOutput } from "./rules";
 import { parseEvalCliArgs, expandEvalTargets } from "./args";
 import { assertLiveEvalEnabled, resolveEvalRunConfig } from "./config";
@@ -34,6 +39,7 @@ export async function runEvalCommand(
     env?: EvalEnv;
     outputDirectory?: string;
     requireLive?: boolean;
+    repoProvenance?: EvalRepoProvenance;
   },
 ) {
   const args = parseEvalCliArgs(argv);
@@ -60,6 +66,8 @@ export async function runEvalCommand(
   const client = config.dryRun
     ? null
     : new OpenAIResponsesClient(config.apiKey as string);
+  const repoProvenance =
+    options?.repoProvenance ?? (await loadEvalRepoProvenance());
   const records: EvalResultRecord[] = [];
 
   for (const target of targets) {
@@ -73,6 +81,7 @@ export async function runEvalCommand(
             client,
             config,
             item,
+            repoProvenance,
             rubric,
             startedAt,
           }),
@@ -92,6 +101,7 @@ export async function runEvalCommand(
             client,
             config,
             item,
+            repoProvenance,
             rubric,
             startedAt,
           }),
@@ -110,6 +120,7 @@ export async function runEvalCommand(
           client,
           config,
           item,
+          repoProvenance,
           rubric,
           startedAt,
         }),
@@ -142,6 +153,7 @@ async function runPlannerItem(input: {
   client: OpenAIResponsesClient | null;
   config: ReturnType<typeof resolveEvalRunConfig>;
   item: PlannerEvalDatasetItem;
+  repoProvenance: EvalRepoProvenance;
   rubric: Awaited<ReturnType<typeof loadEvalRubric>>;
   startedAt: string;
 }): Promise<EvalResultRecord> {
@@ -201,6 +213,11 @@ async function runPlannerItem(input: {
     mode: input.config.dryRun ? "dry-run" : "live",
     notes: mergeNotes(rule.notes, grader.notes, input.item.notes),
     prompt,
+    provenance: buildEvalRecordProvenance({
+      datasetName: "planner",
+      promptVersion: prompt.version,
+      repo: input.repoProvenance,
+    }),
     reference,
     referenceModel:
       input.config.useReference && reference
@@ -219,6 +236,7 @@ async function runExecutorItem(input: {
   client: OpenAIResponsesClient | null;
   config: ReturnType<typeof resolveEvalRunConfig>;
   item: ExecutorEvalDatasetItem;
+  repoProvenance: EvalRepoProvenance;
   rubric: Awaited<ReturnType<typeof loadEvalRubric>>;
   startedAt: string;
 }): Promise<EvalResultRecord> {
@@ -278,6 +296,11 @@ async function runExecutorItem(input: {
     mode: input.config.dryRun ? "dry-run" : "live",
     notes: mergeNotes(rule.notes, grader.notes, input.item.notes),
     prompt,
+    provenance: buildEvalRecordProvenance({
+      datasetName: "executor",
+      promptVersion: prompt.version,
+      repo: input.repoProvenance,
+    }),
     reference,
     referenceModel:
       input.config.useReference && reference
@@ -296,6 +319,7 @@ async function runCompilerItem(input: {
   client: OpenAIResponsesClient | null;
   config: ReturnType<typeof resolveEvalRunConfig>;
   item: CompilerEvalDatasetItem;
+  repoProvenance: EvalRepoProvenance;
   rubric: Awaited<ReturnType<typeof loadEvalRubric>>;
   startedAt: string;
 }): Promise<EvalResultRecord> {
@@ -360,6 +384,11 @@ async function runCompilerItem(input: {
     mode: input.config.dryRun ? "dry-run" : "live",
     notes: mergeNotes(rule.notes, grader.notes, input.item.notes),
     prompt,
+    provenance: buildEvalRecordProvenance({
+      datasetName: "compiler",
+      promptVersion: prompt.version,
+      repo: input.repoProvenance,
+    }),
     reference,
     referenceModel:
       input.config.useReference && reference
@@ -454,6 +483,7 @@ function buildResultRecord(input: {
   mode: "dry-run" | "live";
   notes: string[];
   prompt: ReturnType<typeof createPromptRecord>;
+  provenance: ReturnType<typeof buildEvalRecordProvenance>;
   reference: {
     output: unknown;
     provider: Awaited<ReturnType<typeof runLiveCandidate>>["provider"] | null;
@@ -481,6 +511,7 @@ function buildResultRecord(input: {
     mode: input.mode,
     notes: input.notes,
     prompt: input.prompt,
+    provenance: input.provenance,
     reference: input.reference
       ? {
           model: input.referenceModel ?? "unknown-reference-model",
