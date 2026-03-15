@@ -26,6 +26,7 @@ It does not implement issue intake, approval-card formatting, or larger M2.7 UI 
 - [x] (2026-03-15T22:24Z) Wired proof-bundle refresh through the intended milestone boundaries: planner evidence persistence, executor evidence persistence, PR-link persistence, and approval resolution or approval cancellation paths that change operator posture.
 - [x] (2026-03-15T22:24Z) Updated the mission-detail read model and narrow web proof-bundle section so operators can see readiness, completeness, repo and branch and PR metadata, approval posture, replay counts, timestamps, and concise decision-oriented summaries without a broader UI redesign.
 - [x] (2026-03-15T22:24Z) Added focused tests for ready, incomplete, and failed assembly paths plus richer mission-detail rendering, updated the affected DB-backed orchestrator expectations, refreshed replay and local-dev docs, and ran the required validation matrix successfully.
+- [ ] (2026-03-16T00:00Z) Localize the remaining M2.5 static-surface red from repo repro, apply the smallest correctness-preserving fix only if the localized failure is still real, rerun the static matrix, and record whether any remaining red is product drift or clean-tree gating.
 
 ## Surprises & Discoveries
 
@@ -40,6 +41,9 @@ It does not implement issue intake, approval-card formatting, or larger M2.7 UI 
 
 - Observation: preserving `riskSummary` and `rollbackSummary` from the previously persisted bundle caused stale incomplete-path text to survive after the executor later failed.
   Evidence: the DB-backed no-changes executor spec initially returned the planner-era rollback message until proof-bundle summary derivation stopped carrying those fields forward when fresh execution evidence existed.
+
+- Observation: the current repo-level static red localizes to a shared testkit placeholder fixture that lagged the richer M2.5 `ProofBundleManifest` contract; the live checkout also fails the clean-tree gate because that narrow fixture/spec fix is already present as uncommitted changes.
+  Evidence: `pnpm ci:static` on 2026-03-16 failed at `ci:clean-tree`, while the dirty diff in `packages/testkit/src/fixtures.ts` and `packages/testkit/src/fixtures.spec.ts` updates `proofBundlePlaceholderFixture(...)` and its regression spec to the current manifest shape described in `packages/domain/src/proof-bundle.ts`.
 
 ## Decision Log
 
@@ -58,6 +62,10 @@ It does not implement issue intake, approval-card formatting, or larger M2.7 UI 
 - Decision: keep `riskSummary` and `rollbackSummary` dynamically derived from current execution posture instead of carrying them forward from an older manifest once executor or PR evidence exists.
   Rationale: those summaries describe current operator posture, so stale planner-era fallback text is worse than recomputing a conservative current summary.
   Date/Author: 2026-03-15 / Codex
+
+- Decision: treat the remaining M2.5 static issue as a narrow testkit contract-drift fix unless the validation rerun proves a real product bug.
+  Rationale: the proof-bundle assembly modules, status rules, and operator read model are already aligned; broadening logic would add risk without addressing the localized repro.
+  Date/Author: 2026-03-16 / Codex
 
 ## Context and Orientation
 

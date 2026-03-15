@@ -36,14 +36,37 @@ export function proofBundlePlaceholderFixture(
 ): ProofBundleManifest {
   return {
     missionId,
+    missionTitle: "",
     objective: "Placeholder objective",
+    targetRepoFullName: null,
+    branchName: null,
+    pullRequestNumber: null,
+    pullRequestUrl: null,
     changeSummary: "",
+    validationSummary: "",
     verificationSummary: "",
     riskSummary: "",
     rollbackSummary: "",
+    latestApproval: null,
+    evidenceCompleteness: {
+      status: "missing",
+      expectedArtifactKinds: [],
+      presentArtifactKinds: [],
+      missingArtifactKinds: [],
+      notes: [],
+    },
     decisionTrace: [],
     artifactIds: [],
+    artifacts: [],
     replayEventCount: 0,
+    timestamps: {
+      missionCreatedAt: "",
+      latestPlannerEvidenceAt: null,
+      latestExecutorEvidenceAt: null,
+      latestPullRequestAt: null,
+      latestApprovalAt: null,
+      latestArtifactAt: null,
+    },
     status: "placeholder",
   };
 }
