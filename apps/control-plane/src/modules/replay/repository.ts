@@ -9,6 +9,11 @@ export interface ReplayRepository {
     session?: PersistenceSession,
   ): Promise<ReplayEvent>;
 
+  countByMissionId(
+    missionId: string,
+    session?: PersistenceSession,
+  ): Promise<number>;
+
   listByMissionId(
     missionId: string,
     session?: PersistenceSession,
@@ -40,6 +45,10 @@ export class InMemoryReplayRepository implements ReplayRepository {
     this.events.set(event.missionId, existingEvents);
 
     return storedEvent;
+  }
+
+  async countByMissionId(missionId: string): Promise<number> {
+    return (this.events.get(missionId) ?? []).length;
   }
 
   async listByMissionId(missionId: string): Promise<ReplayEvent[]> {

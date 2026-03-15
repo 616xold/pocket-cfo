@@ -1,13 +1,13 @@
 import type {
   MissionRecord,
   MissionTaskRecord,
-  ProofBundleManifest,
 } from "@pocket-cto/domain";
 import type { PersistenceSession } from "../../lib/persistence";
 import type { MissionRepository } from "../missions/repository";
 import type { ReplayService } from "../replay/service";
 import type { PlannerPromptContext } from "../runtime-codex/planner-context";
 import type { RuntimeCodexRunTurnResult } from "../runtime-codex/types";
+import type { ProofBundleAssemblyService } from "./proof-bundle-assembly";
 import type {
   EvidenceArtifactDraft,
   EvidenceService,
@@ -19,17 +19,15 @@ const PLANNER_TEXT_OUTPUT_TYPES = new Set(["plan", "agentMessage"]);
 
 export type PreparedPlannerTurnEvidence = {
   artifactDraft: EvidenceArtifactDraft;
-  proofBundle: ProofBundleManifest | null;
   summary: string;
 };
 
 type PlannerOutputDeps = {
-  evidenceService: Pick<EvidenceService, "attachPlannerArtifactToProofBundle">;
   missionRepository: Pick<
     MissionRepository,
     | "saveArtifact"
-    | "upsertProofBundle"
   >;
+  proofBundleAssembly?: Pick<ProofBundleAssemblyService, "refreshProofBundle">;
   replayService: Pick<ReplayService, "append">;
 };
 
@@ -43,6 +41,7 @@ export async function persistPlannerTurnEvidence(input: {
   if (input.task.role !== "planner" || input.turn.status !== "completed") {
     return input.task;
   }
+
   const artifact = await input.deps.missionRepository.saveArtifact(
     input.preparedEvidence.artifactDraft,
     input.session,
@@ -61,18 +60,11 @@ export async function persistPlannerTurnEvidence(input: {
     input.session,
   );
 
-  if (input.preparedEvidence.proofBundle) {
-    await input.deps.missionRepository.upsertProofBundle(
-      input.deps.evidenceService.attachPlannerArtifactToProofBundle(
-        input.preparedEvidence.proofBundle,
-        {
-          artifactId: artifact.id,
-          task: input.task,
-        },
-      ),
-      input.session,
-    );
-  }
+  await input.deps.proofBundleAssembly?.refreshProofBundle({
+    missionId: input.task.missionId,
+    session: input.session,
+    trigger: "planner_evidence",
+  });
 
   return input.task;
 }
@@ -84,7 +76,6 @@ export function preparePlannerTurnEvidence(input: {
   >;
   mission: MissionRecord;
   plannerContext: PlannerPromptContext | null;
-  proofBundle: ProofBundleManifest | null;
   task: MissionTaskRecord;
   turn: RuntimeCodexRunTurnResult;
 }): PreparedPlannerTurnEvidence | null {
@@ -113,7 +104,6 @@ export function preparePlannerTurnEvidence(input: {
       task: input.task,
       turn: input.turn,
     }),
-    proofBundle: input.proofBundle,
     summary,
   };
 }

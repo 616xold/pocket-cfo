@@ -1,11 +1,11 @@
 import type {
   MissionRecord,
   MissionTaskRecord,
-  ProofBundleManifest,
 } from "@pocket-cto/domain";
 import type { PersistenceSession } from "../../lib/persistence";
 import type { MissionRepository } from "../missions/repository";
 import type { ReplayService } from "../replay/service";
+import type { ProofBundleAssemblyService } from "./proof-bundle-assembly";
 import type { EvidenceArtifactDraft, EvidenceService } from "./service";
 
 export type PreparedPullRequestLinkEvidence = {
@@ -19,15 +19,12 @@ export type PreparedPullRequestLinkEvidence = {
 };
 
 type PullRequestLinkDeps = {
-  evidenceService: Pick<
-    EvidenceService,
-    "attachPullRequestArtifactToProofBundle" | "buildPullRequestArtifact"
-  >;
+  evidenceService: Pick<EvidenceService, "buildPullRequestArtifact">;
   missionRepository: Pick<
     MissionRepository,
-    | "saveArtifact"
-    | "upsertProofBundle"
+    "saveArtifact"
   >;
+  proofBundleAssembly?: Pick<ProofBundleAssemblyService, "refreshProofBundle">;
   replayService: Pick<ReplayService, "append">;
 };
 
@@ -72,7 +69,6 @@ export function preparePullRequestLinkEvidence(input: {
 export async function persistPullRequestLinkEvidence(input: {
   deps: PullRequestLinkDeps;
   preparedEvidence: PreparedPullRequestLinkEvidence;
-  proofBundle: ProofBundleManifest | null;
   session: PersistenceSession;
   task: MissionTaskRecord;
 }): Promise<void> {
@@ -98,17 +94,9 @@ export async function persistPullRequestLinkEvidence(input: {
     input.session,
   );
 
-  if (input.proofBundle) {
-    await input.deps.missionRepository.upsertProofBundle(
-      input.deps.evidenceService.attachPullRequestArtifactToProofBundle(
-        input.proofBundle,
-        {
-          artifactId: artifact.id,
-          pr: input.preparedEvidence.pr,
-          task: input.task,
-        },
-      ),
-      input.session,
-    );
-  }
+  await input.deps.proofBundleAssembly?.refreshProofBundle({
+    missionId: input.task.missionId,
+    session: input.session,
+    trigger: "pull_request_link",
+  });
 }

@@ -16,6 +16,7 @@ export const replayEventTypeEnum = pgEnum("replay_event_type", [
   "task.created",
   "task.status_changed",
   "artifact.created",
+  "proof_bundle.refreshed",
   "approval.requested",
   "approval.resolved",
   "runtime.thread_replaced",

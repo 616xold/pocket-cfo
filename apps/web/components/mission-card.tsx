@@ -139,18 +139,56 @@ export function MissionCard({
 
       <section className="card">
         <h2>Proof bundle</h2>
+        <p className="muted">{buildProofBundleReadinessMessage(proofBundle)}</p>
+
         <div className="meta-grid">
           <div>
             <dt>Status</dt>
             <dd>{proofBundle.status}</dd>
           </div>
           <div>
-            <dt>Objective</dt>
-            <dd>{proofBundle.objective}</dd>
+            <dt>Completeness</dt>
+            <dd>{proofBundle.evidenceCompleteness.status}</dd>
+          </div>
+          <div>
+            <dt>Target repo</dt>
+            <dd>{proofBundle.targetRepoFullName ?? "Pending repo resolution."}</dd>
+          </div>
+          <div>
+            <dt>Branch</dt>
+            <dd>{proofBundle.branchName ?? "Pending branch publication."}</dd>
+          </div>
+          <div>
+            <dt>Pull request</dt>
+            <dd>
+              {proofBundle.pullRequestUrl && proofBundle.pullRequestNumber ? (
+                <a href={proofBundle.pullRequestUrl} target="_blank" rel="noreferrer">
+                  #{proofBundle.pullRequestNumber}
+                </a>
+              ) : (
+                "Pending PR publication."
+              )}
+            </dd>
+          </div>
+          <div>
+            <dt>Replay events</dt>
+            <dd>{proofBundle.replayEventCount}</dd>
+          </div>
+          <div>
+            <dt>Latest approval</dt>
+            <dd>
+              {proofBundle.latestApproval
+                ? `${proofBundle.latestApproval.kind} · ${proofBundle.latestApproval.status}`
+                : "No approvals recorded."}
+            </dd>
           </div>
           <div>
             <dt>Change summary</dt>
             <dd>{proofBundle.changeSummary || "Pending evidence generation."}</dd>
+          </div>
+          <div>
+            <dt>Validation</dt>
+            <dd>{proofBundle.validationSummary || "Pending validation evidence."}</dd>
           </div>
           <div>
             <dt>Verification</dt>
@@ -164,6 +202,45 @@ export function MissionCard({
             <dt>Rollback</dt>
             <dd>{proofBundle.rollbackSummary || "Pending rollback note."}</dd>
           </div>
+        </div>
+
+        <div className="stack" style={{ marginTop: 18 }}>
+          <h3>Missing evidence</h3>
+          {proofBundle.evidenceCompleteness.notes.length > 0 ? (
+            <ul className="list-clean">
+              {proofBundle.evidenceCompleteness.notes.map((entry) => (
+                <li key={entry}>{entry}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">The final-package evidence set is complete.</p>
+          )}
+        </div>
+
+        <div className="stack" style={{ marginTop: 18 }}>
+          <h3>Key timestamps</h3>
+          <ul className="list-clean">
+            <li>Mission created: {proofBundle.timestamps.missionCreatedAt}</li>
+            <li>
+              Planner evidence:{" "}
+              {proofBundle.timestamps.latestPlannerEvidenceAt ??
+                "Pending planner evidence."}
+            </li>
+            <li>
+              Executor evidence:{" "}
+              {proofBundle.timestamps.latestExecutorEvidenceAt ??
+                "Pending executor evidence."}
+            </li>
+            <li>
+              Pull request:{" "}
+              {proofBundle.timestamps.latestPullRequestAt ??
+                "Pending PR publication."}
+            </li>
+            <li>
+              Latest approval:{" "}
+              {proofBundle.timestamps.latestApprovalAt ?? "No approvals recorded."}
+            </li>
+          </ul>
         </div>
 
         <div className="stack" style={{ marginTop: 18 }}>
@@ -198,4 +275,22 @@ function readStatusTone(status: string) {
   }
 
   return "default" as const;
+}
+
+function buildProofBundleReadinessMessage(
+  proofBundle: MissionCardProps["proofBundle"],
+) {
+  if (proofBundle.status === "ready") {
+    return "The proof bundle now reads like a final GitHub-aware decision package with planner, validation, and PR evidence linked together.";
+  }
+
+  if (proofBundle.status === "failed") {
+    return "The current bundle is non-shippable. Review the validation, approval, and runtime evidence before retrying.";
+  }
+
+  if (proofBundle.status === "incomplete") {
+    return "The bundle is partially assembled, but the final GitHub-first evidence package is still missing one or more required artifacts.";
+  }
+
+  return "The proof bundle is still at the placeholder stage and has not yet accumulated meaningful persisted evidence.";
 }

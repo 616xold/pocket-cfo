@@ -40,14 +40,45 @@ export class EvidenceService {
   createPlaceholder(mission: MissionRecord): ProofBundleManifest {
     return {
       missionId: mission.id,
+      missionTitle: mission.title,
       objective: mission.objective,
+      targetRepoFullName:
+        mission.primaryRepo && mission.primaryRepo.includes("/")
+          ? mission.primaryRepo
+          : null,
+      branchName: null,
+      pullRequestNumber: null,
+      pullRequestUrl: null,
       changeSummary: "",
+      validationSummary: "",
       verificationSummary: "",
       riskSummary: "",
       rollbackSummary: "",
+      latestApproval: null,
+      evidenceCompleteness: {
+        status: "missing",
+        expectedArtifactKinds: ["plan", "diff_summary", "test_report", "pr_link"],
+        presentArtifactKinds: [],
+        missingArtifactKinds: ["plan", "diff_summary", "test_report", "pr_link"],
+        notes: [
+          "Planner evidence is missing.",
+          "Change-summary evidence is missing.",
+          "Validation evidence is missing.",
+          "GitHub pull request evidence is missing.",
+        ],
+      },
       decisionTrace: [],
       artifactIds: [],
+      artifacts: [],
       replayEventCount: 0,
+      timestamps: {
+        missionCreatedAt: mission.createdAt,
+        latestPlannerEvidenceAt: null,
+        latestExecutorEvidenceAt: null,
+        latestPullRequestAt: null,
+        latestApprovalAt: null,
+        latestArtifactAt: null,
+      },
       status: "placeholder",
     };
   }

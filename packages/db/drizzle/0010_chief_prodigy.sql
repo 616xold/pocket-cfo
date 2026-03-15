@@ -1,0 +1,1 @@
+ALTER TYPE "public"."replay_event_type" ADD VALUE 'proof_bundle.refreshed' BEFORE 'approval.requested';

@@ -71,9 +71,19 @@ function readArtifactSummary(artifact: ArtifactRecord) {
       return "Proof bundle manifest persisted.";
     }
 
-    return manifest.status === "ready"
-      ? `Proof bundle ready with ${manifest.artifactIds.length} linked artifacts.`
-      : "Proof bundle placeholder manifest persisted.";
+    if (manifest.status === "ready") {
+      return `Proof bundle ready with ${manifest.artifacts.length} linked artifacts for ${manifest.targetRepoFullName ?? "the target repo"}.`;
+    }
+
+    if (manifest.status === "failed") {
+      return `Proof bundle failed with ${manifest.evidenceCompleteness.missingArtifactKinds.length} missing final-package artifacts.`;
+    }
+
+    if (manifest.status === "incomplete") {
+      return `Proof bundle incomplete: ${manifest.evidenceCompleteness.missingArtifactKinds.join(", ") || "final evidence still pending"}.`;
+    }
+
+    return "Proof bundle placeholder manifest persisted.";
   }
 
   const body =

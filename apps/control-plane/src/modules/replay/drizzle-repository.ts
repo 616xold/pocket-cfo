@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, count, eq, sql } from "drizzle-orm";
 import {
   missions,
   type Db,
@@ -35,6 +35,16 @@ export class DrizzleReplayRepository implements ReplayRepository {
       .orderBy(replayEvents.sequence);
 
     return events.map(mapReplayEventRow);
+  }
+
+  async countByMissionId(missionId: string, session?: PersistenceSession) {
+    const executor = getSessionExecutor(session) ?? this.db;
+    const [result] = await executor
+      .select({ count: count() })
+      .from(replayEvents)
+      .where(eq(replayEvents.missionId, missionId));
+
+    return result?.count ?? 0;
   }
 
   async hasTaskEventType(

@@ -17,6 +17,7 @@ import {
   resetTestDatabase,
 } from "../../test/database";
 import { waitForValue } from "../../test/wait-for";
+import { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import { EvidenceService } from "../evidence/service";
 import { GitHubAppService } from "../github-app/service";
 import { InMemoryInstallationTokenCache } from "../github-app/token-cache";
@@ -226,6 +227,7 @@ describe("OrchestratorWorker (DB-backed)", () => {
       "runtime.turn_completed",
       "task.status_changed",
       "artifact.created",
+      "proof_bundle.refreshed",
     ]);
     expect(replayEvents[7]).toMatchObject({
       type: "runtime.turn_started",
@@ -841,10 +843,13 @@ describe("OrchestratorWorker (DB-backed)", () => {
       replayEvents.filter((event) => event.type === "artifact.created"),
     ).toHaveLength(2);
     expect(replayEvents.at(-1)).toMatchObject({
-      type: "artifact.created",
+      type: "proof_bundle.refreshed",
       payload: {
-        artifactId: planArtifact!.id,
-        kind: "plan",
+        artifactCount: 1,
+        missingArtifactKinds: ["diff_summary", "test_report", "pr_link"],
+        missionId: created.mission.id,
+        status: "incomplete",
+        trigger: "planner_evidence",
       },
     });
   });
@@ -918,10 +923,13 @@ describe("OrchestratorWorker (DB-backed)", () => {
         "Plan the passkey rollout without changing files and preserve the existing email-login path.",
     });
     expect(replayEvents.at(-1)).toMatchObject({
-      type: "artifact.created",
+      type: "proof_bundle.refreshed",
       payload: {
-        artifactId: planArtifact!.id,
-        kind: "plan",
+        artifactCount: 1,
+        missingArtifactKinds: ["diff_summary", "test_report", "pr_link"],
+        missionId: created.mission.id,
+        status: "incomplete",
+        trigger: "planner_evidence",
       },
     });
   });
@@ -1289,7 +1297,7 @@ describe("OrchestratorWorker (DB-backed)", () => {
     await setMissionAllowedPaths(created.mission.id, created.mission.spec, [
       "README.md",
     ]);
-    await setMissionPrimaryRepo(created.mission.id, created.mission.spec, "616xold/pocket-cto");
+    await setMissionPrimaryRepo(created.mission.id, created.mission.spec, "pocket-cto");
     await seedWritableRepository("616xold/pocket-cto");
 
     await plannerHarness.worker.run({
@@ -1702,7 +1710,7 @@ describe("OrchestratorWorker (DB-backed)", () => {
       validationStatus: "failed",
     });
     expect(detail.proofBundle).toMatchObject({
-      status: "ready",
+      status: "failed",
     });
     expect(detail.proofBundle.artifactIds).toEqual(
       expect.arrayContaining([testReportArtifact!.id, logExcerptArtifact!.id]),
@@ -2221,6 +2229,11 @@ async function createHarness(options?: {
   const workspaceRepository = new DrizzleWorkspaceRepository(db);
   const replayService = new ReplayService(replayRepository, missionRepository);
   const liveSessionRegistry = new InMemoryRuntimeSessionRegistry();
+  const proofBundleAssembly = new ProofBundleAssemblyService({
+    approvalRepository,
+    missionRepository,
+    replayService,
+  });
   const missionService = new MissionService(
     new StubMissionCompiler(),
     missionRepository,
@@ -2268,6 +2281,7 @@ async function createHarness(options?: {
     missionRepository,
     replayService,
     liveSessionRegistry,
+    proofBundleAssembly,
   );
   const orchestratorService = new OrchestratorService(
     missionRepository,
@@ -2298,6 +2312,7 @@ async function createHarness(options?: {
         };
       },
     },
+    proofBundleAssembly,
   );
   const runtimeControlService = new RuntimeControlService(
     missionRepository,

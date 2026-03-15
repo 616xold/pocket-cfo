@@ -1,8 +1,13 @@
+import type { MissionRecord } from "@pocket-cto/domain";
 import type { PersistenceSession } from "../../lib/persistence";
 import type { GitHubAppConfigResolution } from "./config";
 import {
   GitHubAppNotConfiguredError,
   GitHubInstallationNotFoundError,
+  GitHubMissionNoActiveRepositoriesError,
+  GitHubMissionRepositoryHintAmbiguousError,
+  GitHubMissionRepositoryHintNotFoundError,
+  GitHubMissionRepositorySelectionAmbiguousError,
   GitHubRepositoryArchivedError,
   GitHubRepositoryDisabledError,
   GitHubRepositoryInactiveError,
@@ -28,6 +33,7 @@ import type {
   GitHubInstallationAccessToken,
   GitHubInstallationSnapshot,
   GitHubRepositorySnapshot,
+  ResolvedGitHubMissionRepositoryTarget,
   PersistedGitHubInstallation,
   PersistedGitHubRepository,
   WritableGitHubRepositoryTarget,
@@ -248,6 +254,80 @@ export class GitHubAppService {
     };
   }
 
+  async resolveMissionRepositoryTarget(input: {
+    missionId: string;
+    primaryRepo: MissionRecord["primaryRepo"];
+    specRepos: MissionRecord["spec"]["repos"];
+  }): Promise<ResolvedGitHubMissionRepositoryTarget> {
+    this.requireConfigured();
+    const hintSelection = readMissionRepositoryHint(input);
+
+    if (hintSelection.originalHint) {
+      const exactRepository = await this.input.repository.getRepositoryByFullName(
+        hintSelection.originalHint,
+      );
+
+      if (exactRepository) {
+        return {
+          hintSource: hintSelection.hintSource,
+          normalizedFullName: exactRepository.fullName,
+          originalHint: hintSelection.originalHint,
+          repository: exactRepository,
+          resolutionStrategy: "exact_full_name",
+        };
+      }
+
+      const shortNameMatches =
+        await this.input.repository.listActiveRepositoriesByName(
+          hintSelection.originalHint,
+        );
+
+      if (shortNameMatches.length === 1) {
+        return {
+          hintSource: hintSelection.hintSource,
+          normalizedFullName: shortNameMatches[0]!.fullName,
+          originalHint: hintSelection.originalHint,
+          repository: shortNameMatches[0]!,
+          resolutionStrategy: "unique_short_name",
+        };
+      }
+
+      if (shortNameMatches.length > 1) {
+        throw new GitHubMissionRepositoryHintAmbiguousError(
+          input.missionId,
+          hintSelection.originalHint,
+          shortNameMatches.map((repository) => repository.fullName),
+        );
+      }
+
+      throw new GitHubMissionRepositoryHintNotFoundError(
+        input.missionId,
+        hintSelection.originalHint,
+      );
+    }
+
+    const activeRepositories = await this.input.repository.listActiveRepositories();
+
+    if (activeRepositories.length === 1) {
+      return {
+        hintSource: "none",
+        normalizedFullName: activeRepositories[0]!.fullName,
+        originalHint: null,
+        repository: activeRepositories[0]!,
+        resolutionStrategy: "single_active_repo_default",
+      };
+    }
+
+    if (activeRepositories.length === 0) {
+      throw new GitHubMissionNoActiveRepositoriesError(input.missionId);
+    }
+
+    throw new GitHubMissionRepositorySelectionAmbiguousError(
+      input.missionId,
+      activeRepositories.map((repository) => repository.fullName),
+    );
+  }
+
   async resolveWritableRepository(
     fullName: string,
   ): Promise<WritableGitHubRepositoryTarget> {
@@ -415,4 +495,40 @@ function getRepositoryWriteReadinessFailure(
   }
 
   return null;
+}
+
+function readMissionRepositoryHint(input: {
+  primaryRepo: MissionRecord["primaryRepo"];
+  specRepos: MissionRecord["spec"]["repos"];
+}) {
+  const primaryRepo = normalizeMissionRepositoryHint(input.primaryRepo);
+
+  if (primaryRepo) {
+    return {
+      hintSource: "primary_repo" as const,
+      originalHint: primaryRepo,
+    };
+  }
+
+  const specRepo =
+    input.specRepos
+      .map((repo) => normalizeMissionRepositoryHint(repo))
+      .find((repo): repo is string => repo !== null) ?? null;
+
+  if (specRepo) {
+    return {
+      hintSource: "spec_repo" as const,
+      originalHint: specRepo,
+    };
+  }
+
+  return {
+    hintSource: "none" as const,
+    originalHint: null,
+  };
+}
+
+function normalizeMissionRepositoryHint(value: string | null | undefined) {
+  const normalized = value?.trim() ?? "";
+  return normalized.length > 0 ? normalized : null;
 }
