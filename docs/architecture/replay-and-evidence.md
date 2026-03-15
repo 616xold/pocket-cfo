@@ -20,13 +20,38 @@ During M0, the placeholder proof bundle is persisted explicitly as an
 The manifest JSON lives under `artifacts.metadata.manifest` so the evidence
 ledger can expose the placeholder before real bundle assembly exists.
 
-During M1.7, Pocket CTO starts enriching that placeholder manifest in place.
-Executor completion can now attach `diff_summary`, `test_report`, and `log_excerpt`
-artifact ids, promote the manifest `status` from `placeholder` to `ready` once
-runtime evidence exists, and fill `changeSummary`, `verificationSummary`,
-`riskSummary`, and `rollbackSummary` conservatively from local validation and
-compact runtime output. `pr_link` remains explicitly deferred until M2 GitHub
-App integration lands.
+During M2.5, Pocket CTO stops treating the proof bundle as a mutable notes blob
+and instead assembles a final manifest from persisted state inside the evidence
+boundary. The manifest now includes:
+
+- mission identity and objective
+- target repo full name
+- branch name
+- PR number and URL when present
+- artifact ids plus artifact kinds
+- latest approval summary
+- validation summary
+- concise change summary
+- concise verification summary
+- concise risk summary
+- concise rollback summary
+- evidence completeness
+- replay event count
+- key timestamps for mission creation, planner evidence, executor evidence, PR publication, approval updates, and latest artifact persistence
+
+The manifest status is explicit and deterministic:
+
+- `placeholder` when no meaningful evidence exists beyond the initial placeholder artifact
+- `incomplete` when meaningful evidence exists but one or more GitHub-first proof requirements are still missing, or a blocking approval is still pending
+- `ready` when `plan`, `diff_summary`, `test_report`, and `pr_link` all exist, the latest executor task succeeded, and there is no pending approval
+- `failed` when the latest planner, executor, or mission posture is terminal and non-shippable, or the latest approval resolved to `declined`, `cancelled`, or `expired`
+
+Proof-bundle refresh is triggered narrowly after:
+
+1. planner evidence persistence
+2. executor evidence persistence
+3. PR-link persistence
+4. approval resolution when it changes operator posture
 
 The operator mission-detail read model now exposes that persisted evidence
 directly. `GET /missions/:missionId` includes approval summaries and artifact
@@ -82,6 +107,14 @@ For M1.7 runtime evidence mapping, replay remains compact and artifact-first:
 4. proof-bundle manifest enrichment in place without separate verbose replay
 
 This keeps replay reconstructable without storing token-by-token runtime text.
+
+For M2.5 proof-bundle manifest assembly, replay stays compact but becomes more
+truthful about operator-facing bundle changes:
+
+1. the initial proof-bundle placeholder still appends `artifact.created`
+2. later material manifest updates append `proof_bundle.refreshed`
+3. refreshes are only emitted for planner evidence, executor evidence, PR-link persistence, and approval resolution
+4. no replay event is appended when the assembled manifest is identical to the currently persisted manifest
 
 ## Required artifact classes
 

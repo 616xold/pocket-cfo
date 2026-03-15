@@ -2,6 +2,7 @@ import { setTimeout as delay } from "node:timers/promises";
 import { describe, expect, it, vi } from "vitest";
 import { InMemoryApprovalRepository } from "../approvals/repository";
 import { ApprovalService } from "../approvals/service";
+import { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import { EvidenceService } from "../evidence/service";
 import { StubMissionCompiler } from "../missions/compiler";
 import { InMemoryMissionRepository } from "../missions/repository";
@@ -309,6 +310,7 @@ function createHarness(options?: {
   validationService?: Pick<ExecutorValidationService, "validateExecutorTurn">;
 }) {
   const missionRepository = new InMemoryMissionRepository();
+  const approvalRepository = new InMemoryApprovalRepository();
   const replayRepository = new InMemoryReplayRepository();
   const replayService = new ReplayService(replayRepository, missionRepository);
   const evidenceService = new EvidenceService();
@@ -319,11 +321,17 @@ function createHarness(options?: {
     evidenceService,
   );
   const liveSessionRegistry = new InMemoryRuntimeSessionRegistry();
+  const proofBundleAssembly = new ProofBundleAssemblyService({
+    approvalRepository,
+    missionRepository,
+    replayService,
+  });
   const approvalService = new ApprovalService(
-    new InMemoryApprovalRepository(),
+    approvalRepository,
     missionRepository,
     replayService,
     liveSessionRegistry,
+    proofBundleAssembly,
   );
   const workspaceService = new WorkspaceService(
     new InMemoryWorkspaceRepository(),
@@ -378,6 +386,7 @@ function createHarness(options?: {
         };
       },
     },
+    proofBundleAssembly,
   );
   const runtimeControlService = new RuntimeControlService(
     missionRepository,

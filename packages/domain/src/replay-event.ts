@@ -14,6 +14,7 @@ export const ReplayEventTypeSchema = z.enum([
   "task.created",
   "task.status_changed",
   "artifact.created",
+  "proof_bundle.refreshed",
   "approval.requested",
   "approval.resolved",
   "runtime.thread_replaced",
@@ -180,6 +181,21 @@ export const ApprovalResolvedPayloadSchema = z.object({
   details: z.record(z.string(), z.unknown()).default({}),
 });
 
+export const ProofBundleRefreshTriggerSchema = z.enum([
+  "planner_evidence",
+  "executor_evidence",
+  "pull_request_link",
+  "approval_resolution",
+]);
+
+export const ProofBundleRefreshedPayloadSchema = z.object({
+  artifactCount: z.number().int().nonnegative(),
+  missingArtifactKinds: z.array(z.string()).default([]),
+  missionId: z.string().uuid(),
+  status: z.enum(["placeholder", "ready", "incomplete", "failed"]),
+  trigger: ProofBundleRefreshTriggerSchema,
+});
+
 export type ReplayEventType = z.infer<typeof ReplayEventTypeSchema>;
 export type ReplayEvent = z.infer<typeof ReplayEventSchema>;
 export type MissionStatusChangeReason = z.infer<
@@ -230,4 +246,10 @@ export type ApprovalRequestedPayload = z.infer<
 >;
 export type ApprovalResolvedPayload = z.infer<
   typeof ApprovalResolvedPayloadSchema
+>;
+export type ProofBundleRefreshTrigger = z.infer<
+  typeof ProofBundleRefreshTriggerSchema
+>;
+export type ProofBundleRefreshedPayload = z.infer<
+  typeof ProofBundleRefreshedPayloadSchema
 >;

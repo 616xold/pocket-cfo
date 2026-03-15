@@ -2,7 +2,6 @@ import type { MissionRecord, MissionTaskRecord } from "@pocket-cto/domain";
 import type { WorkspaceRecord } from "../workspaces";
 import {
   GitHubBranchAlreadyExistsError,
-  GitHubMissionRepositoryMissingError,
   GitHubPullRequestCreateError,
   GitHubWorkspaceBranchMissingError,
 } from "./errors";
@@ -21,6 +20,13 @@ type GitHubPublishTargetResolver = {
   getInstallationAccessToken(
     installationId: string,
   ): Promise<GitHubInstallationAccessToken>;
+  resolveMissionRepositoryTarget(input: {
+    missionId: string;
+    primaryRepo: MissionRecord["primaryRepo"];
+    specRepos: MissionRecord["spec"]["repos"];
+  }): Promise<{
+    normalizedFullName: string;
+  }>;
   resolveWritableRepository(
     fullName: string,
   ): Promise<WritableGitHubRepositoryTarget>;
@@ -89,12 +95,6 @@ export class GitHubPublishService {
     task: Pick<MissionTaskRecord, "id" | "role" | "sequence">;
     workspace: Pick<WorkspaceRecord, "branchName" | "rootPath">;
   }): Promise<PublishedGitHubPullRequest> {
-    const repoFullName = resolveMissionRepoFullName(input.mission);
-
-    if (!repoFullName) {
-      throw new GitHubMissionRepositoryMissingError(input.mission.id);
-    }
-
     const branchName = input.workspace.branchName?.trim();
 
     if (!branchName) {
@@ -102,8 +102,16 @@ export class GitHubPublishService {
     }
 
     const apiClient = this.requireApiClient();
+    const missionTarget =
+      await this.input.targetResolver.resolveMissionRepositoryTarget({
+        missionId: input.mission.id,
+        primaryRepo: input.mission.primaryRepo,
+        specRepos: input.mission.spec.repos,
+      });
     const { installation, repository } =
-      await this.input.targetResolver.resolveWritableRepository(repoFullName);
+      await this.input.targetResolver.resolveWritableRepository(
+        missionTarget.normalizedFullName,
+      );
     const installationAccessToken =
       await this.input.targetResolver.getInstallationAccessToken(
         installation.installationId,
@@ -190,12 +198,6 @@ export class GitHubPublishService {
 
     return this.input.apiClient;
   }
-}
-
-function resolveMissionRepoFullName(
-  mission: Pick<MissionRecord, "primaryRepo" | "spec">,
-) {
-  return mission.primaryRepo ?? mission.spec.repos[0] ?? null;
 }
 
 function buildGitHubRepositoryRemoteUrl(repoFullName: string) {

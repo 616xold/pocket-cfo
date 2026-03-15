@@ -280,14 +280,42 @@ Expected response shape:
   ],
   "proofBundle": {
     "missionId": "<mission-uuid>",
+    "missionTitle": "Implement passkeys for sign-in",
     "objective": "Implement passkeys for sign-in",
+    "targetRepoFullName": null,
+    "branchName": null,
+    "pullRequestNumber": null,
+    "pullRequestUrl": null,
     "status": "placeholder",
     "changeSummary": "",
+    "validationSummary": "",
     "verificationSummary": "",
     "riskSummary": "",
     "rollbackSummary": "",
+    "latestApproval": null,
+    "evidenceCompleteness": {
+      "status": "missing",
+      "expectedArtifactKinds": ["plan", "diff_summary", "test_report", "pr_link"],
+      "presentArtifactKinds": [],
+      "missingArtifactKinds": ["plan", "diff_summary", "test_report", "pr_link"],
+      "notes": [
+        "Planner evidence is missing.",
+        "Change-summary evidence is missing.",
+        "Validation evidence is missing.",
+        "GitHub pull request evidence is missing."
+      ]
+    },
     "decisionTrace": [],
     "artifactIds": [],
+    "artifacts": [],
+    "timestamps": {
+      "missionCreatedAt": "<timestamp>",
+      "latestPlannerEvidenceAt": null,
+      "latestExecutorEvidenceAt": null,
+      "latestPullRequestAt": null,
+      "latestApprovalAt": null,
+      "latestArtifactAt": null
+    },
     "replayEventCount": 0
   }
 }
@@ -518,7 +546,11 @@ After M1.7, a successful executor worker tick now persists more than replay and
 - `artifacts.kind = 'test_report'` captures local executor validation results as a placeholder verification artifact
 - terminalized executor failures can also persist `artifacts.kind = 'log_excerpt'`
 - replay appends one `artifact.created` entry for each persisted runtime artifact
-- the proof-bundle manifest moves to `status = 'ready'` once runtime evidence artifacts exist and references their artifact ids
+- the proof-bundle manifest is re-assembled after planner evidence, executor evidence, PR-link persistence, and approval resolution
+- replay appends `proof_bundle.refreshed` when that re-assembly materially changes an existing manifest
+- the manifest only becomes `status = 'ready'` after `plan`, `diff_summary`, `test_report`, and `pr_link` all exist for a successful publish path
+- planner-only or executor-only paths stay `status = 'incomplete'`
+- terminal validation, publish, or approval failures move the manifest to `status = 'failed'`
 
 Local DB inspection should show deterministic URIs of the form:
 
@@ -540,6 +572,9 @@ repository row, Pocket CTO can now:
 The `pr_link` artifact stores the draft PR URL as its `uri` and keeps additive
 metadata such as `repoFullName`, `branchName`, `prNumber`, `baseBranch`,
 `headBranch`, `draft`, and `publishedAt`.
+When that artifact lands, the proof bundle refresh includes the repo, branch,
+and PR summary fields directly in the manifest so the mission detail view reads
+like one coherent decision package instead of a loose artifact list.
 
 For a long-running local worker loop instead of a single tick:
 
@@ -793,13 +828,21 @@ Write-readiness is intentionally narrower than simple visibility:
 Executor publish now happens after local validation, not inside the model turn.
 The current M2.4 write path is:
 
-1. resolve one writable repository from mission context and the durable repository registry
+1. normalize one repository target from mission context and the durable repository registry
 2. keep the existing deterministic task branch `pocket-cto/<missionId>/<task.sequence>-<task.role>`
 3. fail explicitly if that remote branch already exists
 4. commit validated worktree changes locally
 5. push with `git` over HTTPS using a process-local auth header derived from the installation token
 6. create a draft PR against `defaultBranch`
 7. persist a `pr_link` artifact and link it into the proof bundle
+
+Mission repo target normalization is intentionally narrow and explicit in v1:
+
+- Pocket CTO reads `mission.primaryRepo` first and otherwise falls back to the first non-empty `mission.spec.repos[]` entry as the repo hint.
+- If that hint exactly matches one persisted repository `fullName`, Pocket CTO uses it.
+- Otherwise, if that hint uniquely matches one active synced repository by short `name`, Pocket CTO uses that repo's `fullName`.
+- If there is no usable repo hint and exactly one active synced repository exists in the registry, Pocket CTO uses that single active repo as the v1 default.
+- If the hint is missing, not found, or ambiguous under those rules, publish fails explicitly before any branch or PR success is persisted.
 
 Local smoke coverage for this slice is the DB-backed orchestrator spec:
 
@@ -818,7 +861,7 @@ mocked test path, make sure all of these are true first:
 
 - `POST /github/installations/sync` has persisted the installation
 - `POST /github/repositories/sync` has persisted the target repository row
-- the mission `primaryRepo` matches that synced repository full name
+- the mission repo hint is either the synced repository full name, a unique active short repo name, or omitted only when exactly one active synced repo exists
 - the repository `writeReadiness.ready` is `true`
 
 Expected live result for a successful executor publish:
@@ -827,6 +870,8 @@ Expected live result for a successful executor publish:
 - one new draft PR against the registry `defaultBranch`
 - one persisted `pr_link` artifact
 - one extra `artifact.created` replay event for that PR artifact
+- one `proof_bundle.refreshed` replay event that moves the manifest to `ready`
+- a mission-detail proof bundle that now includes repo, branch, PR metadata, artifact ids plus kinds, completeness, and refreshed timestamps
 
 ### Required webhook headers
 

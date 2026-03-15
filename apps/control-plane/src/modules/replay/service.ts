@@ -38,6 +38,13 @@ export class ReplayService {
     return this.repository.listByMissionId(missionId);
   }
 
+  async countByMissionId(
+    missionId: string,
+    session?: PersistenceSession,
+  ): Promise<number> {
+    return this.repository.countByMissionId(missionId, session);
+  }
+
   async taskHasEventType(
     taskId: string,
     type: ReplayEventType,

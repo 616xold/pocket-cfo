@@ -113,6 +113,9 @@ describe("GitHubPublishService", () => {
     const service = createPublishService({
       targetResolver: {
         getInstallationAccessToken: vi.fn(),
+        resolveMissionRepositoryTarget: vi.fn().mockResolvedValue({
+          normalizedFullName: "616xold/pocket-cto",
+        }),
         resolveWritableRepository: vi.fn().mockRejectedValue(error),
       },
     });
@@ -275,6 +278,13 @@ function createPublishService(input?: {
       permissions: Record<string, string>;
       token: string;
     }>;
+    resolveMissionRepositoryTarget(input: {
+      missionId: string;
+      primaryRepo: string | null;
+      specRepos: string[];
+    }): Promise<{
+      normalizedFullName: string;
+    }>;
     resolveWritableRepository(fullName: string): Promise<{
       installation: {
         accountLogin: string;
@@ -338,6 +348,11 @@ function createPublishService(input?: {
             token: "installation-token-123",
           };
         },
+        async resolveMissionRepositoryTarget() {
+          return {
+            normalizedFullName: "616xold/pocket-cto",
+          };
+        },
         async resolveWritableRepository() {
           return {
             installation: {
@@ -388,13 +403,19 @@ function createMission(
     id: string;
     objective: string;
     primaryRepo: string | null;
+    specRepos: string[];
     title: string;
   }> = {},
 ) {
+  const primaryRepo =
+    "primaryRepo" in overrides
+      ? (overrides.primaryRepo ?? null)
+      : "616xold/pocket-cto";
+
   return {
     id: overrides.id ?? "mission-123",
     objective: overrides.objective ?? "Update the README copy.",
-    primaryRepo: overrides.primaryRepo ?? "616xold/pocket-cto",
+    primaryRepo,
     spec: {
       acceptance: ["update README"],
       constraints: {
@@ -404,7 +425,7 @@ function createMission(
       deliverables: ["pull request"],
       evidenceRequirements: ["test report"],
       objective: overrides.objective ?? "Update the README copy.",
-      repos: ["616xold/pocket-cto"],
+      repos: overrides.specRepos ?? (primaryRepo ? [primaryRepo] : []),
       riskBudget: {
         allowNetwork: false,
         maxCostUsd: 10,

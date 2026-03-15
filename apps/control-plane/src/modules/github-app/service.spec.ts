@@ -9,6 +9,10 @@ import type { GitHubAppConfigResolution } from "./config";
 import { DrizzleGitHubAppRepository } from "./drizzle-repository";
 import {
   GitHubAppNotConfiguredError,
+  GitHubMissionNoActiveRepositoriesError,
+  GitHubMissionRepositoryHintAmbiguousError,
+  GitHubMissionRepositoryHintNotFoundError,
+  GitHubMissionRepositorySelectionAmbiguousError,
   GitHubRepositoryArchivedError,
   GitHubRepositoryDisabledError,
   GitHubRepositoryInactiveError,
@@ -282,6 +286,193 @@ describe("GitHubAppService", () => {
     ).rejects.toBeInstanceOf(GitHubAppNotConfiguredError);
   });
 
+  it("resolves an exact fullName mission repo hint", async () => {
+    await repository.upsertInstallation(createInstallationSnapshot());
+    await repository.upsertInstallationRepositories({
+      installationId: "12345",
+      repositories: [createRepositorySnapshot()],
+    });
+
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: "616xold/pocket-cto",
+        }),
+      ),
+    ).resolves.toMatchObject({
+      normalizedFullName: "616xold/pocket-cto",
+      originalHint: "616xold/pocket-cto",
+      resolutionStrategy: "exact_full_name",
+      repository: expect.objectContaining({
+        fullName: "616xold/pocket-cto",
+      }),
+    });
+  });
+
+  it("resolves a unique short repository name hint against active repos", async () => {
+    await repository.upsertInstallation(createInstallationSnapshot());
+    await repository.upsertInstallationRepositories({
+      installationId: "12345",
+      repositories: [
+        createRepositorySnapshot({
+          githubRepositoryId: "100",
+          fullName: "616xold/pocket-cto",
+          name: "pocket-cto",
+        }),
+        createRepositorySnapshot({
+          githubRepositoryId: "101",
+          fullName: "616xold/mission-control",
+          name: "mission-control",
+        }),
+      ],
+    });
+
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: "pocket-cto",
+        }),
+      ),
+    ).resolves.toMatchObject({
+      normalizedFullName: "616xold/pocket-cto",
+      originalHint: "pocket-cto",
+      resolutionStrategy: "unique_short_name",
+      repository: expect.objectContaining({
+        fullName: "616xold/pocket-cto",
+      }),
+    });
+  });
+
+  it("falls back to the single active synced repo when no usable hint exists", async () => {
+    await repository.upsertInstallation(createInstallationSnapshot());
+    await repository.upsertInstallationRepositories({
+      installationId: "12345",
+      repositories: [createRepositorySnapshot()],
+    });
+
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: null,
+          specRepos: [],
+        }),
+      ),
+    ).resolves.toMatchObject({
+      hintSource: "none",
+      normalizedFullName: "616xold/pocket-cto",
+      originalHint: null,
+      resolutionStrategy: "single_active_repo_default",
+    });
+  });
+
+  it("fails explicitly when a short repository hint matches multiple active repos", async () => {
+    await repository.upsertInstallation(createInstallationSnapshot());
+    await repository.upsertInstallation(createInstallationSnapshot({
+      installationId: "67890",
+      accountLogin: "another-owner",
+      targetId: "67890",
+    }));
+    await repository.upsertInstallationRepositories({
+      installationId: "12345",
+      repositories: [
+        createRepositorySnapshot({
+          githubRepositoryId: "100",
+          fullName: "616xold/pocket-cto",
+          ownerLogin: "616xold",
+          name: "pocket-cto",
+        }),
+      ],
+    });
+    await repository.upsertInstallationRepositories({
+      installationId: "67890",
+      repositories: [
+        createRepositorySnapshot({
+          githubRepositoryId: "200",
+          fullName: "another-owner/pocket-cto",
+          ownerLogin: "another-owner",
+          name: "pocket-cto",
+        }),
+      ],
+    });
+
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: "pocket-cto",
+        }),
+      ),
+    ).rejects.toBeInstanceOf(GitHubMissionRepositoryHintAmbiguousError);
+  });
+
+  it("fails explicitly when a repo hint does not match any synced repository", async () => {
+    await repository.upsertInstallation(createInstallationSnapshot());
+    await repository.upsertInstallationRepositories({
+      installationId: "12345",
+      repositories: [createRepositorySnapshot()],
+    });
+
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: "missing-repo",
+        }),
+      ),
+    ).rejects.toBeInstanceOf(GitHubMissionRepositoryHintNotFoundError);
+  });
+
+  it("fails explicitly when no hint exists and multiple active repos are synced", async () => {
+    await repository.upsertInstallation(createInstallationSnapshot());
+    await repository.upsertInstallationRepositories({
+      installationId: "12345",
+      repositories: [
+        createRepositorySnapshot({
+          githubRepositoryId: "100",
+          fullName: "616xold/pocket-cto",
+          name: "pocket-cto",
+        }),
+        createRepositorySnapshot({
+          githubRepositoryId: "101",
+          fullName: "616xold/mission-control",
+          name: "mission-control",
+        }),
+      ],
+    });
+
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: null,
+          specRepos: [],
+        }),
+      ),
+    ).rejects.toBeInstanceOf(GitHubMissionRepositorySelectionAmbiguousError);
+  });
+
+  it("fails explicitly when no hint exists and no active synced repositories exist", async () => {
+    const service = createRepositoryResolutionService(repository);
+
+    await expect(
+      service.resolveMissionRepositoryTarget(
+        createMissionRepositoryTargetInput({
+          primaryRepo: null,
+          specRepos: [],
+        }),
+      ),
+    ).rejects.toBeInstanceOf(GitHubMissionNoActiveRepositoriesError);
+  });
+
   it("resolves an active repository into one writable target", async () => {
     await repository.upsertInstallation(createInstallationSnapshot());
     await repository.upsertInstallationRepositories({
@@ -423,6 +614,26 @@ function createRepositoryResolutionService(repository: DrizzleGitHubAppRepositor
     repository,
     tokenCache: new InMemoryInstallationTokenCache(),
   });
+}
+
+function createMissionRepositoryTargetInput(
+  overrides: Partial<{
+    missionId: string;
+    primaryRepo: string | null;
+    specRepos: string[];
+  }> = {},
+) {
+  return {
+    missionId: overrides.missionId ?? "mission-123",
+    primaryRepo:
+      "primaryRepo" in overrides
+        ? (overrides.primaryRepo ?? null)
+        : "616xold/pocket-cto",
+    specRepos:
+      "specRepos" in overrides
+        ? (overrides.specRepos ?? [])
+        : ["616xold/pocket-cto"],
+  };
 }
 
 function createInstallationSnapshot(

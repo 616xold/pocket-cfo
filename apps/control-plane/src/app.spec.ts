@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
+import type { ProofBundleManifest } from "@pocket-cto/domain";
 import { buildApp } from "./app";
 import { createInMemoryContainer } from "./bootstrap";
 import type { AppContainer } from "./lib/types";
@@ -190,21 +191,60 @@ describe("control-plane app", () => {
               },
             ],
             proofBundle: {
-              artifactIds: [
-                "66666666-6666-4666-8666-666666666666",
-                "77777777-7777-4777-8777-777777777777",
-              ],
-              changeSummary: "Updated the mission detail read model for approvals and artifacts.",
-              decisionTrace: [
-                "Executor task 1 produced diff_summary artifact 77777777-7777-4777-8777-777777777777.",
-              ],
-              missionId: unknownMissionId,
-              objective: "Ship passkeys without breaking email login.",
-              replayEventCount: 12,
-              riskSummary: "Action controls still require embedded-worker mode.",
-              rollbackSummary: "Disable the action panel and fall back to the API route surface.",
-              status: "ready",
-              verificationSummary: "Route and web render tests cover the new read model.",
+              ...buildProofBundleFixture({
+                artifactIds: ["77777777-7777-4777-8777-777777777777"],
+                artifacts: [
+                  {
+                    id: "77777777-7777-4777-8777-777777777777",
+                    kind: "diff_summary",
+                  },
+                ],
+                changeSummary:
+                  "Updated the mission detail read model for approvals and artifacts.",
+                decisionTrace: [
+                  "Executor task 1 produced diff_summary artifact 77777777-7777-4777-8777-777777777777.",
+                ],
+                evidenceCompleteness: {
+                  status: "partial",
+                  expectedArtifactKinds: [
+                    "plan",
+                    "diff_summary",
+                    "test_report",
+                    "pr_link",
+                  ],
+                  presentArtifactKinds: ["diff_summary"],
+                  missingArtifactKinds: ["plan", "test_report", "pr_link"],
+                  notes: [
+                    "Planner evidence is missing.",
+                    "Validation evidence is missing.",
+                    "GitHub pull request evidence is missing.",
+                  ],
+                },
+                latestApproval: {
+                  createdAt: "2026-03-14T10:01:00.000Z",
+                  id: "44444444-4444-4444-8444-444444444444",
+                  kind: "file_change",
+                  rationale: null,
+                  requestedBy: "system",
+                  resolvedBy: null,
+                  status: "pending",
+                  updatedAt: "2026-03-14T10:01:00.000Z",
+                },
+                replayEventCount: 12,
+                riskSummary: "Action controls still require embedded-worker mode.",
+                status: "incomplete",
+                timestamps: {
+                  missionCreatedAt: "2026-03-14T10:00:00.000Z",
+                  latestPlannerEvidenceAt: null,
+                  latestExecutorEvidenceAt: "2026-03-14T10:04:00.000Z",
+                  latestPullRequestAt: null,
+                  latestApprovalAt: "2026-03-14T10:01:00.000Z",
+                  latestArtifactAt: "2026-03-14T10:04:00.000Z",
+                },
+                validationSummary: "Pending local executor validation evidence.",
+                verificationSummary:
+                  "A runtime approval is still pending, so the proof bundle is not final yet.",
+              }),
             },
             approvals: [
               {
@@ -326,24 +366,60 @@ describe("control-plane app", () => {
         },
       ],
       proofBundle: {
-        artifactIds: [
-          "66666666-6666-4666-8666-666666666666",
-          "77777777-7777-4777-8777-777777777777",
-        ],
-        changeSummary:
-          "Updated the mission detail read model for approvals and artifacts.",
-        decisionTrace: [
-          "Executor task 1 produced diff_summary artifact 77777777-7777-4777-8777-777777777777.",
-        ],
-        missionId: unknownMissionId,
-        objective: "Ship passkeys without breaking email login.",
-        replayEventCount: 12,
-        riskSummary: "Action controls still require embedded-worker mode.",
-        rollbackSummary:
-          "Disable the action panel and fall back to the API route surface.",
-        status: "ready",
-        verificationSummary:
-          "Route and web render tests cover the new read model.",
+        ...buildProofBundleFixture({
+          artifactIds: ["77777777-7777-4777-8777-777777777777"],
+          artifacts: [
+            {
+              id: "77777777-7777-4777-8777-777777777777",
+              kind: "diff_summary",
+            },
+          ],
+          changeSummary:
+            "Updated the mission detail read model for approvals and artifacts.",
+          decisionTrace: [
+            "Executor task 1 produced diff_summary artifact 77777777-7777-4777-8777-777777777777.",
+          ],
+          evidenceCompleteness: {
+            status: "partial",
+            expectedArtifactKinds: [
+              "plan",
+              "diff_summary",
+              "test_report",
+              "pr_link",
+            ],
+            presentArtifactKinds: ["diff_summary"],
+            missingArtifactKinds: ["plan", "test_report", "pr_link"],
+            notes: [
+              "Planner evidence is missing.",
+              "Validation evidence is missing.",
+              "GitHub pull request evidence is missing.",
+            ],
+          },
+          latestApproval: {
+            createdAt: "2026-03-14T10:01:00.000Z",
+            id: "44444444-4444-4444-8444-444444444444",
+            kind: "file_change",
+            rationale: null,
+            requestedBy: "system",
+            resolvedBy: null,
+            status: "pending",
+            updatedAt: "2026-03-14T10:01:00.000Z",
+          },
+          replayEventCount: 12,
+          riskSummary: "Action controls still require embedded-worker mode.",
+          status: "incomplete",
+          timestamps: {
+            missionCreatedAt: "2026-03-14T10:00:00.000Z",
+            latestPlannerEvidenceAt: null,
+            latestExecutorEvidenceAt: "2026-03-14T10:04:00.000Z",
+            latestPullRequestAt: null,
+            latestApprovalAt: "2026-03-14T10:01:00.000Z",
+            latestArtifactAt: "2026-03-14T10:04:00.000Z",
+          },
+          validationSummary: "Pending local executor validation evidence.",
+          verificationSummary:
+            "A runtime approval is still pending, so the proof bundle is not final yet.",
+        }),
       },
       approvals: [
         {
@@ -1474,5 +1550,53 @@ async function createMission(app: FastifyInstance) {
     mission: {
       id: string;
     };
+  };
+}
+
+function buildProofBundleFixture(
+  overrides: Partial<ProofBundleManifest> = {},
+): ProofBundleManifest {
+  return {
+    missionId: unknownMissionId,
+    missionTitle: "Implement passkeys for sign-in",
+    objective: "Ship passkeys without breaking email login.",
+    targetRepoFullName: null,
+    branchName: null,
+    pullRequestNumber: null,
+    pullRequestUrl: null,
+    changeSummary: "",
+    validationSummary: "",
+    verificationSummary: "",
+    riskSummary: "",
+    rollbackSummary: "",
+    latestApproval: null,
+    evidenceCompleteness: {
+      status: "missing",
+      expectedArtifactKinds: ["plan", "diff_summary", "test_report", "pr_link"],
+      presentArtifactKinds: [],
+      missingArtifactKinds: ["plan", "diff_summary", "test_report", "pr_link"],
+      notes: [
+        "Planner evidence is missing.",
+        "Change-summary evidence is missing.",
+        "Validation evidence is missing.",
+        "GitHub pull request evidence is missing.",
+      ],
+      ...overrides.evidenceCompleteness,
+    },
+    decisionTrace: [],
+    artifactIds: [],
+    artifacts: [],
+    replayEventCount: 0,
+    timestamps: {
+      missionCreatedAt: "2026-03-14T10:00:00.000Z",
+      latestPlannerEvidenceAt: null,
+      latestExecutorEvidenceAt: null,
+      latestPullRequestAt: null,
+      latestApprovalAt: null,
+      latestArtifactAt: null,
+      ...overrides.timestamps,
+    },
+    status: "placeholder",
+    ...overrides,
   };
 }

@@ -11,6 +11,7 @@ import {
   buildExecutorTerminalizationFailureSummary,
   buildMissingPlannerArtifactSummary,
 } from "../evidence/executor-output";
+import type { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import {
   persistPullRequestLinkEvidence,
   preparePullRequestLinkEvidence,
@@ -119,9 +120,6 @@ export class OrchestratorRuntimePhase {
     private readonly runtimeCodexService: Pick<CodexRuntimeService, "runTurn">,
     private readonly evidenceService: Pick<
       EvidenceService,
-      | "attachPullRequestArtifactToProofBundle"
-      | "attachPlannerArtifactToProofBundle"
-      | "attachRuntimeArtifactsToProofBundle"
       | "buildPlannerArtifact"
       | "buildPullRequestArtifact"
       | "buildPlannerTaskSummary"
@@ -137,6 +135,10 @@ export class OrchestratorRuntimePhase {
     private readonly githubPublishService: Pick<
       GitHubPublishService,
       "publishValidatedExecutorWorkspace"
+    >,
+    private readonly proofBundleAssembly?: Pick<
+      ProofBundleAssemblyService,
+      "refreshProofBundle"
     >,
   ) {}
 
@@ -616,7 +618,6 @@ export class OrchestratorRuntimePhase {
             }),
             preparedRuntimeEvidence: prepareExecutorRuntimeEvidence({
               mission: input.mission,
-              proofBundle: input.proofBundle,
               task: input.task,
               terminalSummary: validationSummary,
               terminalTaskStatus,
@@ -635,7 +636,6 @@ export class OrchestratorRuntimePhase {
             preparedPullRequestEvidence: null,
             preparedRuntimeEvidence: prepareExecutorRuntimeEvidence({
               mission: input.mission,
-              proofBundle: input.proofBundle,
               task: input.task,
               terminalSummary: publishFailureSummary,
               terminalTaskStatus: "failed",
@@ -654,7 +654,6 @@ export class OrchestratorRuntimePhase {
         preparedPullRequestEvidence: null,
         preparedRuntimeEvidence: prepareExecutorRuntimeEvidence({
           mission: input.mission,
-          proofBundle: input.proofBundle,
           task: input.task,
           terminalSummary: validationSummary,
           terminalTaskStatus,
@@ -676,7 +675,6 @@ export class OrchestratorRuntimePhase {
         preparedPullRequestEvidence: null,
         preparedRuntimeEvidence: prepareExecutorRuntimeEvidence({
           mission: input.mission,
-          proofBundle: input.proofBundle,
           task: input.task,
           terminalSummary: summary,
           terminalTaskStatus: "failed",
@@ -701,7 +699,6 @@ export class OrchestratorRuntimePhase {
         evidenceService: this.evidenceService,
         mission: input.mission,
         plannerContext: input.plannerContext,
-        proofBundle: input.proofBundle,
         task: input.task,
         turn: input.turn,
       });
@@ -779,8 +776,8 @@ export class OrchestratorRuntimePhase {
       if (completionOutcome.preparedPlannerEvidence) {
         await persistPlannerTurnEvidence({
           deps: {
-            evidenceService: this.evidenceService,
             missionRepository: this.missionRepository,
+            proofBundleAssembly: this.proofBundleAssembly,
             replayService: this.replayService,
           },
           preparedEvidence: completionOutcome.preparedPlannerEvidence,
@@ -793,8 +790,8 @@ export class OrchestratorRuntimePhase {
       if (completionOutcome.preparedRuntimeEvidence) {
         await persistExecutorRuntimeEvidence({
           deps: {
-            evidenceService: this.evidenceService,
             missionRepository: this.missionRepository,
+            proofBundleAssembly: this.proofBundleAssembly,
             replayService: this.replayService,
           },
           preparedEvidence: completionOutcome.preparedRuntimeEvidence,
@@ -804,20 +801,14 @@ export class OrchestratorRuntimePhase {
       }
 
       if (completionOutcome.preparedPullRequestEvidence) {
-        const currentProofBundle =
-          await this.missionRepository.getProofBundleByMissionId(
-            task.missionId,
-            session,
-          );
-
         await persistPullRequestLinkEvidence({
           deps: {
             evidenceService: this.evidenceService,
             missionRepository: this.missionRepository,
+            proofBundleAssembly: this.proofBundleAssembly,
             replayService: this.replayService,
           },
           preparedEvidence: completionOutcome.preparedPullRequestEvidence,
-          proofBundle: currentProofBundle,
           session,
           task: finalizedTask,
         });

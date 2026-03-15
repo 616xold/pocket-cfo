@@ -2,7 +2,6 @@ import type {
   MissionRecord,
   MissionTaskRecord,
   MissionTaskStatus,
-  ProofBundleManifest,
 } from "@pocket-cto/domain";
 import type { PersistenceSession } from "../../lib/persistence";
 import type { MissionRepository } from "../missions/repository";
@@ -11,7 +10,8 @@ import type { RuntimeCodexRunTurnResult } from "../runtime-codex/types";
 import type { ExecutorValidationReport } from "../validation";
 import { buildDiffSummaryArtifact } from "./diff-summary";
 import { buildLogExcerptArtifact } from "./log-excerpt";
-import type { EvidenceArtifactDraft, EvidenceService } from "./service";
+import type { ProofBundleAssemblyService } from "./proof-bundle-assembly";
+import type { EvidenceArtifactDraft } from "./service";
 import { extractMarkdownSection, flattenMarkdownText, truncate } from "./text";
 import { buildTestReportArtifact } from "./test-report";
 
@@ -20,7 +20,6 @@ const PROOF_BUNDLE_SUMMARY_MAX_LENGTH = 240;
 export type PreparedRuntimeArtifactEvidence = {
   artifactDrafts: EvidenceArtifactDraft[];
   changeSummary: string | null;
-  proofBundle: ProofBundleManifest | null;
   riskSummary: string | null;
   rollbackSummary: string | null;
   terminalTaskStatus: MissionTaskStatus;
@@ -28,18 +27,16 @@ export type PreparedRuntimeArtifactEvidence = {
 };
 
 type RuntimeArtifactDeps = {
-  evidenceService: Pick<EvidenceService, "attachRuntimeArtifactsToProofBundle">;
   missionRepository: Pick<
     MissionRepository,
-    | "saveArtifact"
-    | "upsertProofBundle"
+    "saveArtifact"
   >;
+  proofBundleAssembly?: Pick<ProofBundleAssemblyService, "refreshProofBundle">;
   replayService: Pick<ReplayService, "append">;
 };
 
 export function prepareExecutorRuntimeEvidence(input: {
   mission: MissionRecord;
-  proofBundle: ProofBundleManifest | null;
   task: MissionTaskRecord;
   terminalSummary: string | null;
   terminalTaskStatus: MissionTaskStatus;
@@ -96,7 +93,6 @@ export function prepareExecutorRuntimeEvidence(input: {
     changeSummary:
       diffSummaryArtifact?.summary ??
       buildFallbackChangeSummary(input.turn, input.terminalSummary),
-    proofBundle: input.proofBundle,
     riskSummary: buildRiskSummary(input.turn, input.terminalSummary),
     rollbackSummary: buildRollbackSummary(input.terminalTaskStatus),
     terminalTaskStatus: input.terminalTaskStatus,
@@ -137,25 +133,12 @@ export async function persistExecutorRuntimeEvidence(input: {
     );
   }
 
-  if (
-    input.preparedEvidence.proofBundle &&
-    persistedArtifacts.length > 0
-  ) {
-    await input.deps.missionRepository.upsertProofBundle(
-      input.deps.evidenceService.attachRuntimeArtifactsToProofBundle(
-        input.preparedEvidence.proofBundle,
-        {
-          artifacts: persistedArtifacts,
-          changeSummary: input.preparedEvidence.changeSummary,
-          riskSummary: input.preparedEvidence.riskSummary,
-          rollbackSummary: input.preparedEvidence.rollbackSummary,
-          task: input.task,
-          terminalTaskStatus: input.preparedEvidence.terminalTaskStatus,
-          verificationSummary: input.preparedEvidence.verificationSummary,
-        },
-      ),
-      input.session,
-    );
+  if (persistedArtifacts.length > 0) {
+    await input.deps.proofBundleAssembly?.refreshProofBundle({
+      missionId: input.task.missionId,
+      session: input.session,
+      trigger: "executor_evidence",
+    });
   }
 }
 

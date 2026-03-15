@@ -81,6 +81,31 @@ export class DrizzleGitHubAppRepository implements GitHubAppRepository {
     return row ? mapRepositoryRow(row) : null;
   }
 
+  async listActiveRepositories(session?: PersistenceSession) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(repositories)
+      .where(eq(repositories.isActive, true))
+      .orderBy(asc(repositories.fullName));
+
+    return rows.map(mapRepositoryRow);
+  }
+
+  async listActiveRepositoriesByName(
+    name: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(repositories)
+      .where(and(eq(repositories.isActive, true), eq(repositories.name, name)))
+      .orderBy(asc(repositories.fullName));
+
+    return rows.map(mapRepositoryRow);
+  }
+
   async listInstallations(session?: PersistenceSession) {
     const executor = this.getExecutor(session);
     const rows = await executor

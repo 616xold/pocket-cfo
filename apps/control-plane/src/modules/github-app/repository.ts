@@ -27,6 +27,15 @@ export interface GitHubAppRepository extends TransactionalRepository {
     session?: PersistenceSession,
   ): Promise<PersistedGitHubRepository | null>;
 
+  listActiveRepositories(
+    session?: PersistenceSession,
+  ): Promise<PersistedGitHubRepository[]>;
+
+  listActiveRepositoriesByName(
+    name: string,
+    session?: PersistenceSession,
+  ): Promise<PersistedGitHubRepository[]>;
+
   listInstallations(
     session?: PersistenceSession,
   ): Promise<PersistedGitHubInstallation[]>;
@@ -114,6 +123,23 @@ export class InMemoryGitHubAppRepository implements GitHubAppRepository {
     }
 
     return null;
+  }
+
+  async listActiveRepositories(_session?: PersistenceSession) {
+    return sortRepositories(
+      [...this.repositories.values()].filter((repository) => repository.isActive),
+    );
+  }
+
+  async listActiveRepositoriesByName(
+    name: string,
+    _session?: PersistenceSession,
+  ) {
+    return sortRepositories(
+      [...this.repositories.values()].filter(
+        (repository) => repository.isActive && repository.name === name,
+      ),
+    );
   }
 
   async listInstallations(_session?: PersistenceSession) {

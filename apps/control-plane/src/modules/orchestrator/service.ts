@@ -4,6 +4,7 @@ import type {
   TaskStatusChangeReason,
 } from "@pocket-cto/domain";
 import type { ApprovalService } from "../approvals/service";
+import type { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import type { EvidenceService } from "../evidence/service";
 import type { GitHubPublishService } from "../github-app/publish-service";
 import { taskStatusChangeReasons } from "./events";
@@ -71,9 +72,6 @@ export class OrchestratorService {
     runtimeCodexService: Pick<CodexRuntimeService, "runTurn">,
     evidenceService: Pick<
       EvidenceService,
-      | "attachPullRequestArtifactToProofBundle"
-      | "attachPlannerArtifactToProofBundle"
-      | "attachRuntimeArtifactsToProofBundle"
       | "buildPlannerArtifact"
       | "buildPullRequestArtifact"
       | "buildPlannerTaskSummary"
@@ -90,6 +88,10 @@ export class OrchestratorService {
       GitHubPublishService,
       "publishValidatedExecutorWorkspace"
     >,
+    proofBundleAssembly?: Pick<
+      ProofBundleAssemblyService,
+      "refreshProofBundle"
+    >,
   ) {
     this.runtimePhase = new OrchestratorRuntimePhase(
       missionRepository,
@@ -100,6 +102,7 @@ export class OrchestratorService {
       workspaceService,
       validationService,
       githubPublishService,
+      proofBundleAssembly,
     );
   }
 

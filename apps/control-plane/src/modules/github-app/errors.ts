@@ -83,6 +83,44 @@ export class GitHubMissionRepositoryMissingError extends Error {
   }
 }
 
+export class GitHubMissionRepositoryHintNotFoundError extends Error {
+  constructor(
+    readonly missionId: string,
+    readonly repoHint: string,
+  ) {
+    super("Mission repository hint does not match a synced repository");
+    this.name = "GitHubMissionRepositoryHintNotFoundError";
+  }
+}
+
+export class GitHubMissionRepositoryHintAmbiguousError extends Error {
+  constructor(
+    readonly missionId: string,
+    readonly repoHint: string,
+    readonly matchedFullNames: string[],
+  ) {
+    super("Mission repository hint matches multiple active repositories");
+    this.name = "GitHubMissionRepositoryHintAmbiguousError";
+  }
+}
+
+export class GitHubMissionNoActiveRepositoriesError extends Error {
+  constructor(readonly missionId: string) {
+    super("No active synced repositories are available for mission publish");
+    this.name = "GitHubMissionNoActiveRepositoriesError";
+  }
+}
+
+export class GitHubMissionRepositorySelectionAmbiguousError extends Error {
+  constructor(
+    readonly missionId: string,
+    readonly activeRepositoryFullNames: string[],
+  ) {
+    super("Mission repository selection is ambiguous");
+    this.name = "GitHubMissionRepositorySelectionAmbiguousError";
+  }
+}
+
 export class GitHubWorkspaceBranchMissingError extends Error {
   constructor(readonly taskId: string) {
     super("Workspace is missing a deterministic branch name");

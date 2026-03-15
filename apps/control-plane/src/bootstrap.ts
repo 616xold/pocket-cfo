@@ -10,6 +10,7 @@ import type {
 import { DrizzleApprovalRepository } from "./modules/approvals/drizzle-repository";
 import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
+import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
 import { GitHubAppAuth } from "./modules/github-app/auth";
 import {
@@ -75,6 +76,7 @@ type SharedKernel = {
   githubWebhookService: GitHubWebhookService;
   missionService: MissionService;
   missionRepository: ConstructorParameters<typeof MissionService>[1];
+  proofBundleAssembly: ProofBundleAssemblyService;
   replayService: ReplayService;
   runtimeControlService: RuntimeControlService;
   liveSessionRegistry: InMemoryRuntimeSessionRegistry;
@@ -267,11 +269,17 @@ function buildSharedKernel(input: {
     repository: input.githubWebhookRepository,
   });
   const liveSessionRegistry = new InMemoryRuntimeSessionRegistry();
+  const proofBundleAssembly = new ProofBundleAssemblyService({
+    approvalRepository: input.approvalRepository,
+    missionRepository: input.missionRepository,
+    replayService,
+  });
   const approvalService = new ApprovalService(
     input.approvalRepository,
     input.missionRepository,
     replayService,
     liveSessionRegistry,
+    proofBundleAssembly,
   );
   const runtimeControlService = new RuntimeControlService(
     input.missionRepository,
@@ -297,6 +305,7 @@ function buildSharedKernel(input: {
     liveSessionRegistry,
     missionService,
     missionRepository: input.missionRepository,
+    proofBundleAssembly,
     replayService,
     runtimeControlService,
     worker: null,
@@ -349,6 +358,7 @@ async function buildWorker(input: {
     workspaceService,
     validationService,
     githubPublishService,
+    input.kernel.proofBundleAssembly,
   );
 
   return new OrchestratorWorker(orchestratorService, {

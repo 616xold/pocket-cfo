@@ -21,6 +21,7 @@ import {
   buildApprovalResolvedMissionStatusChangedPayload,
 } from "../missions/events";
 import type { MissionRepository } from "../missions/repository";
+import type { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import {
   buildTaskStatusChangedPayload,
   taskStatusChangeReasons,
@@ -74,6 +75,10 @@ export class ApprovalService {
       | "awaitApprovalResolution"
       | "hasTaskSession"
       | "tryResolveApproval"
+    >,
+    private readonly proofBundleAssembly?: Pick<
+      ProofBundleAssemblyService,
+      "refreshProofBundle"
     >,
   ) {}
 
@@ -229,6 +234,11 @@ export class ApprovalService {
       );
     }
 
+    await this.proofBundleAssembly?.refreshProofBundle({
+      missionId: resolution.approval.missionId,
+      trigger: "approval_resolution",
+    });
+
     return resolution.approval;
   }
 
@@ -299,7 +309,7 @@ export class ApprovalService {
       },
     );
 
-    return Promise.all(
+    const resolvedApprovals = await Promise.all(
       updatedApprovals.map(async (approval) => {
         const delivery = this.liveSessionRegistry.tryResolveApproval({
           approvalId: approval.id,
@@ -319,6 +329,19 @@ export class ApprovalService {
         });
       }),
     );
+
+    await Promise.all(
+      Array.from(
+        new Set(resolvedApprovals.map((approval) => approval.missionId)),
+      ).map((missionId) =>
+        this.proofBundleAssembly?.refreshProofBundle({
+          missionId,
+          trigger: "approval_resolution",
+        }),
+      ),
+    );
+
+    return resolvedApprovals;
   }
 
   private async requestRuntimeApproval(input: {

@@ -127,6 +127,26 @@ export const WritableGitHubRepositoryTargetSchema = z.object({
   repository: PersistedGitHubRepositorySchema,
 });
 
+export const GitHubMissionRepositoryHintSourceSchema = z.enum([
+  "primary_repo",
+  "spec_repo",
+  "none",
+]);
+
+export const GitHubMissionRepositoryResolutionStrategySchema = z.enum([
+  "exact_full_name",
+  "unique_short_name",
+  "single_active_repo_default",
+]);
+
+export const ResolvedGitHubMissionRepositoryTargetSchema = z.object({
+  hintSource: GitHubMissionRepositoryHintSourceSchema,
+  normalizedFullName: z.string().min(1),
+  originalHint: z.string().min(1).nullable(),
+  repository: PersistedGitHubRepositorySchema,
+  resolutionStrategy: GitHubMissionRepositoryResolutionStrategySchema,
+});
+
 export const GitHubInstallationAccessTokenSchema = z.object({
   installationId: z.string().min(1),
   token: z.string().min(1),
@@ -181,6 +201,15 @@ export type PersistedGitHubRepository = z.infer<
 >;
 export type WritableGitHubRepositoryTarget = z.infer<
   typeof WritableGitHubRepositoryTargetSchema
+>;
+export type GitHubMissionRepositoryHintSource = z.infer<
+  typeof GitHubMissionRepositoryHintSourceSchema
+>;
+export type GitHubMissionRepositoryResolutionStrategy = z.infer<
+  typeof GitHubMissionRepositoryResolutionStrategySchema
+>;
+export type ResolvedGitHubMissionRepositoryTarget = z.infer<
+  typeof ResolvedGitHubMissionRepositoryTargetSchema
 >;
 export type GitHubInstallationAccessToken = z.infer<
   typeof GitHubInstallationAccessTokenSchema

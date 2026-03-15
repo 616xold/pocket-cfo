@@ -20,6 +20,9 @@ It does not implement issue-to-mission intake, merge automation, approval cards,
 - [x] (2026-03-15T20:40Z) Wired the publish step into executor completion, added explicit `executor_publish_failed` replay reasoning, persisted `pr_link` artifacts with compact `artifact.created` replay, and linked those artifacts into the proof bundle manifest without widening into full M2.5 bundle assembly.
 - [x] (2026-03-15T20:44Z) Added the DB-backed orchestrator spec that proves a successful executor run can commit, push, create a draft PR through mocked GitHub write services, persist the `pr_link` artifact, and expose that artifact through the proof bundle.
 - [x] (2026-03-15T20:46Z) Updated `docs/ops/local-dev.md` and `README.md`, ran the requested validation commands successfully, rebuilt `@pocket-cto/domain` so the new replay reason propagated to downstream typecheck, and completed one live smoke against `616xold/pocket-cto` that created draft PR `#19` and persisted artifact `210e102d-0ee3-4eb2-bb13-1640b5480e92`.
+- [x] (2026-03-15T20:58Z) Re-read the mission compiler, mission persistence, GitHub App service, publish path, docs, and the requested `primaryRepo` or `spec.repos` inspections for the M2.4 polish slice; confirmed that mission context still carries repo hints like `web` while publish still assumes a normalized `owner/name` full repo.
+- [x] (2026-03-15T21:31Z) Added mission repo target normalization to the GitHub App bounded context: the repository layer can now query active repos by short name, `GitHubAppService.resolveMissionRepositoryTarget(...)` applies the exact full-name then unique short-name then single-active-default precedence, and `GitHubPublishService` now normalizes mission context through that resolver before enforcing existing write readiness.
+- [x] (2026-03-15T21:41Z) Added focused resolver coverage in `service.spec.ts`, kept the publish happy path green in `publish-service.spec.ts`, switched the DB-backed orchestrator PR-publish test to a short repo hint, updated local-dev and README notes for the normalization rules, and reran the full required validation matrix successfully.
 
 ## Surprises & Discoveries
 
@@ -37,6 +40,12 @@ It does not implement issue-to-mission intake, merge automation, approval cards,
 
 - Observation: the current stub text compiler still emits `spec.repos = ["web"]`, so a true live smoke had to seed mission repo context explicitly with a synced full repository name instead of relying on manual-text compilation alone.
   Evidence: `apps/control-plane/src/modules/missions/compiler.ts` and the live smoke used `primaryRepo = "616xold/pocket-cto"` explicitly.
+
+- Observation: the current mission contract already has the right narrow data for v1 normalization without a compiler redesign: `primaryRepo` plus `spec.repos` provide one repo hint slot, and the durable repository registry already persists both `fullName` and short `name`.
+  Evidence: `apps/control-plane/src/modules/missions/service.ts`, `packages/domain/src/mission.ts`, and `packages/db/src/schema/integrations.ts`.
+
+- Observation: the previous publish helpers and tests were defaulting explicit `null` repo hints back to a full repo string, which would have masked the intended single-active-repository fallback path until those helpers were corrected.
+  Evidence: `apps/control-plane/src/modules/github-app/publish-service.spec.ts` and `apps/control-plane/src/modules/github-app/service.spec.ts`.
 
 - Observation: because runtime artifacts and the PR artifact both update the proof bundle manifest in place, PR-link persistence must read the latest manifest after runtime-artifact persistence or it risks overwriting the newer artifact ids.
   Evidence: the first implementation draft passed the original proof-bundle snapshot into PR-link persistence, which would have dropped the just-persisted runtime artifact ids until the flow was changed to fetch the current manifest inside the completion transaction.
@@ -69,6 +78,14 @@ It does not implement issue-to-mission intake, merge automation, approval cards,
 
 - Decision: use a process-local `GIT_CONFIG_*` extraheader with `Authorization: Basic <base64(x-access-token:token)>` for HTTPS pushes and avoid tokenized remote URLs.
   Rationale: this keeps the installation token out of git config on disk, out of remotes, and out of logged command arguments while still using ordinary `git push`.
+  Date/Author: 2026-03-15 / Codex
+
+- Decision: keep mission repo target normalization inside the GitHub App bounded-context service as one typed resolver that consumes `mission.primaryRepo`, `mission.spec.repos`, and the durable registry before delegating normalized `fullName` into `resolveWritableRepository`.
+  Rationale: this removes the publish path's direct full-name assumption without scattering fallback logic across the compiler, orchestrator, and publish service, and it preserves the existing write-readiness policy after normalization.
+  Date/Author: 2026-03-15 / Codex
+
+- Decision: use this exact v1 precedence for mission repo target normalization: exact persisted `fullName`, then unique active short `name`, then single active synced repository only when no usable hint exists, otherwise explicit typed failure.
+  Rationale: the user asked for this exact order, it matches the current mission contract without redesigning the compiler, and it keeps ambiguous multi-repo state honest instead of guessing.
   Date/Author: 2026-03-15 / Codex
 
 ## Context and Orientation
@@ -254,6 +271,30 @@ Validation results captured after implementation:
 - `pnpm --filter @pocket-cto/web typecheck`
   Result: passed.
 
+Normalization-polish validation captured after the repo-target resolver change:
+
+- `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/github-app/service.spec.ts src/modules/github-app/publish-service.spec.ts src/modules/orchestrator/drizzle-service.spec.ts`
+  Result: passed with 3 files and 46 tests.
+- `pnpm db:generate`
+  Result: passed with `No schema changes, nothing to migrate`.
+- `pnpm db:migrate`
+  Result: passed.
+- `pnpm run db:migrate:ci`
+  Result: passed for both `pocket_cto` and `pocket_cto_test`.
+- `pnpm --filter @pocket-cto/control-plane test`
+  Result: passed with 33 files and 151 tests.
+- `pnpm --filter @pocket-cto/control-plane typecheck`
+  Result: passed.
+- `pnpm --filter @pocket-cto/control-plane lint`
+  Result: passed.
+- `pnpm --filter @pocket-cto/web typecheck`
+  Result: passed.
+
+Live GitHub App smoke for the normalization-polish slice:
+
+- Current shell environment check showed `GITHUB_APP_ID` and `GITHUB_APP_PRIVATE_KEY_BASE64` as missing, so no additional live smoke was run for the non-full-name mission hint case in this session.
+- The prior M2.4 live smoke evidence above remains valid for branch or PR creation, but this follow-up polish relied on deterministic mocked and DB-backed publish coverage instead of pretending a new live smoke occurred without credentials.
+
 Live GitHub App smoke evidence captured after implementation:
 
 - Environment detection:
@@ -276,6 +317,7 @@ The live smoke intentionally used a temp worktree plus a temp branch and created
 
 Important existing dependencies for this slice:
 
+- `GitHubAppService.resolveMissionRepositoryTarget()` for mission-context repo hint normalization before write-readiness enforcement
 - `GitHubAppService.resolveWritableRepository()` for repo-registry backed target resolution
 - `GitHubAppService.getInstallationAccessToken()` for short-lived installation-scoped tokens
 - `GitHubAppClient` for GitHub REST API calls
@@ -320,6 +362,9 @@ PR creation failures after a successful push still terminalize the executor as f
 One scope boundary remains visible on purpose:
 the stub text compiler still does not infer a synced repository full name from manual-text input, so fully automatic text-intake-to-PR still needs later mission-context improvement.
 That gap is outside this slice and should stay separate from M2.5 proof-bundle assembly.
+
+This polish does make the publish boundary cleaner.
+M2.5 no longer has to care whether the mission carried `owner/repo`, a unique short repo name, or no hint in a one-repo setup; it can build on a single normalized GitHub App resolver boundary and keep evidence or manifest work separate from target selection policy.
 
 The next M2 slice can start cleanly.
 M2.5 now has a durable PR artifact to assemble into richer proof-bundle output instead of having to invent branch or PR state itself.

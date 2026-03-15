@@ -78,21 +78,60 @@ describe("MissionCard", () => {
           updatedAt: "2026-03-14T10:05:00.000Z",
         }}
         proofBundle={{
-          artifactIds: [
-            "66666666-6666-4666-8666-666666666666",
-            "77777777-7777-4777-8777-777777777777",
+          artifactIds: ["77777777-7777-4777-8777-777777777777"],
+          artifacts: [
+            {
+              id: "77777777-7777-4777-8777-777777777777",
+              kind: "diff_summary",
+            },
           ],
+          branchName: null,
           changeSummary: "Updated the mission detail read model for approvals and artifacts.",
           decisionTrace: [
             "Executor task 1 produced diff_summary artifact 77777777-7777-4777-8777-777777777777.",
           ],
+          evidenceCompleteness: {
+            status: "partial",
+            expectedArtifactKinds: ["plan", "diff_summary", "test_report", "pr_link"],
+            presentArtifactKinds: ["diff_summary"],
+            missingArtifactKinds: ["plan", "test_report", "pr_link"],
+            notes: [
+              "Planner evidence is missing.",
+              "Validation evidence is missing.",
+              "GitHub pull request evidence is missing.",
+            ],
+          },
+          latestApproval: {
+            createdAt: "2026-03-14T10:01:00.000Z",
+            id: "22222222-2222-4222-8222-222222222222",
+            kind: "file_change",
+            rationale: null,
+            requestedBy: "system",
+            resolvedBy: null,
+            status: "pending",
+            updatedAt: "2026-03-14T10:01:00.000Z",
+          },
           missionId: "11111111-1111-4111-8111-111111111111",
+          missionTitle: "Implement passkeys for sign-in",
           objective: "Ship passkeys without breaking email login.",
+          pullRequestNumber: null,
+          pullRequestUrl: null,
           replayEventCount: 14,
           riskSummary: "Action controls still require embedded-worker mode.",
           rollbackSummary: "Disable the action panel and fall back to the API route surface.",
-          status: "ready",
-          verificationSummary: "API parsing and render tests cover the new view.",
+          status: "incomplete",
+          targetRepoFullName: null,
+          timestamps: {
+            missionCreatedAt: "2026-03-14T10:00:00.000Z",
+            latestPlannerEvidenceAt: null,
+            latestExecutorEvidenceAt: "2026-03-14T10:04:00.000Z",
+            latestPullRequestAt: null,
+            latestApprovalAt: "2026-03-14T10:01:00.000Z",
+            latestArtifactAt: "2026-03-14T10:04:00.000Z",
+          },
+          validationSummary: "Pending local executor validation evidence.",
+          verificationSummary:
+            "A runtime approval is still pending, so the proof bundle is not final yet.",
         }}
         tasks={[
           {
