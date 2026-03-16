@@ -190,6 +190,24 @@ curl -i 'http://localhost:4000/github/webhooks/deliveries?eventName=issues&handl
 
 If that already returns an `issues` delivery, use its `deliveryId` with the intake routes above.
 
+If you want a real GitHub-hosted proof and your GitHub App webhook URL currently points at a live public tunnel for this local server:
+
+```bash
+pnpm smoke:github-issue-intake:live
+```
+
+The live helper:
+
+- uses GitHub App installation auth only
+- checks that the synced installation reports `issues: write`
+- creates one short-lived issue on `616xold/pocket-cto`
+- waits for a real persisted `issues` webhook delivery
+- proves `GET /github/intake/issues`, first create `created`, repeat create `already_bound`, and truthful mission detail source context
+- closes the smoke issue after capture when possible
+
+If the helper creates the issue but no persisted delivery appears, treat that as a webhook-routing problem, not as proof that issue-intake code regressed.
+The usual local blocker is that no public tunnel such as `ngrok` or `cloudflared` is currently forwarding GitHub App webhooks to `http://localhost:4000/github/webhooks`.
+
 If no persisted live delivery exists yet, run the smallest honest fallback:
 
 ```bash

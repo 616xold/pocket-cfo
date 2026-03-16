@@ -40,7 +40,8 @@
     "db:migrate": "pnpm --filter @pocket-cto/db db:migrate",
     "compose:up": "docker compose up -d",
     "compose:down": "docker compose down -v",
-    "smoke:github-issue-intake:local": "node tools/github-issue-intake-local-smoke.mjs"
+    "smoke:github-issue-intake:local": "node tools/github-issue-intake-local-smoke.mjs",
+    "smoke:github-issue-intake:live": "node tools/github-issue-intake-local-smoke.mjs --mode live_github_hosted_issue"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

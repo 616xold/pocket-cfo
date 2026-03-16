@@ -169,6 +169,42 @@ Cleanup results:
 No live GitHub issue was created on GitHub.com during this local closeout slice.
 The issue-intake run used a correctly signed local replay into the real webhook ingress route and then the real persisted intake route.
 
+## Live GitHub-hosted issue proof follow-up
+
+Date:
+
+- `2026-03-16`
+
+Command:
+
+```bash
+pnpm smoke:github-issue-intake:live
+```
+
+Observed result:
+
+- GitHub App installation `116452352` was synced locally and reported `issues: write`
+- A real short-lived GitHub issue was created on GitHub.com: [#33](https://github.com/616xold/pocket-cto/issues/33)
+- GitHub issue id: `4084928319`
+- GitHub issue node id: `I_kwDORh8JF87zew8_`
+- GitHub issue title: `Pocket CTO live issue intake smoke 2026-03-16T21:42:16.527Z`
+- GitHub issue state after cleanup: `closed`
+- Persisted webhook delivery id: none
+- Created mission id: none
+- Cleanup result: the helper closed issue `#33` successfully at `2026-03-16T21:44:17Z`
+
+Operational blocker:
+
+- No persisted `issues` delivery appeared at `GET /github/webhooks/deliveries?eventName=issues&handledAs=issue_envelope_recorded&installationId=116452352` within the helper timeout window
+- Control-plane logs showed repeated polling but no live `POST /github/webhooks` request from GitHub during that window
+- No `ngrok` or `cloudflared` process was running locally when the smoke was executed
+
+Interpretation:
+
+- This was a real GitHub-hosted issue, not a fake or PAT-backed shortcut
+- The blocker was not GitHub App permissioning and not the intake service itself
+- The remaining proof gap is live webhook routing from GitHub.com into the local control-plane server
+
 ## Validation matrix
 
 | Command | Result | Notes |
