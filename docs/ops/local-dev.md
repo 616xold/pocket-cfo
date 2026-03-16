@@ -358,6 +358,7 @@ Expected response shape:
     "status": "placeholder"
   },
   "approvals": [],
+  "approvalCards": [],
   "artifacts": [
     {
       "id": "<artifact-uuid>",
@@ -380,6 +381,7 @@ The richer mission-detail read model is now the preferred operator fetch.
 It includes:
 
 - `approvals`: summary-shaped approval rows in oldest-first order
+- `approvalCards`: concise operator-facing approval cards derived from persisted approvals plus task and proof-bundle context
 - `artifacts`: summary-shaped artifact ledger entries in oldest-first order by `createdAt`
 - `liveControl`: whether the current control-plane process can resolve approvals or interrupt active turns directly
 

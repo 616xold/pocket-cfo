@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { ApprovalKindSchema, ApprovalStatusSchema } from "./approval";
 import { MissionRecordSchema } from "./mission";
-import { MissionTaskRecordSchema } from "./mission-task";
+import { MissionTaskRecordSchema, MissionTaskRoleSchema } from "./mission-task";
 import { ArtifactKindSchema, ProofBundleManifestSchema } from "./proof-bundle";
 
 export const OperatorControlModeSchema = z.enum([
@@ -27,6 +27,36 @@ export const MissionApprovalSummarySchema = z.object({
   updatedAt: z.string(),
 });
 
+export const MissionApprovalCardTaskSchema = z.object({
+  id: z.string().uuid(),
+  label: z.string().min(1),
+  role: MissionTaskRoleSchema,
+  sequence: z.number().int().nonnegative(),
+});
+
+export const MissionApprovalCardRepoContextSchema = z.object({
+  repoLabel: z.string().min(1),
+  branchName: z.string().nullable(),
+  pullRequestNumber: z.number().int().positive().nullable(),
+  pullRequestUrl: z.string().url().nullable(),
+});
+
+export const MissionApprovalCardSchema = z.object({
+  actionHint: z.string().nullable(),
+  approvalId: z.string().uuid(),
+  kind: ApprovalKindSchema,
+  requestedAt: z.string(),
+  requestedBy: z.string(),
+  repoContext: MissionApprovalCardRepoContextSchema.nullable(),
+  resolutionSummary: z.string().nullable(),
+  resolvedAt: z.string().nullable(),
+  resolvedBy: z.string().nullable(),
+  status: ApprovalStatusSchema,
+  summary: z.string().min(1),
+  task: MissionApprovalCardTaskSchema.nullable(),
+  title: z.string().min(1),
+});
+
 export const MissionArtifactSummarySchema = z.object({
   id: z.string().uuid(),
   kind: ArtifactKindSchema,
@@ -41,6 +71,7 @@ export const MissionDetailViewSchema = z.object({
   tasks: z.array(MissionTaskRecordSchema),
   proofBundle: ProofBundleManifestSchema,
   approvals: z.array(MissionApprovalSummarySchema),
+  approvalCards: z.array(MissionApprovalCardSchema),
   artifacts: z.array(MissionArtifactSummarySchema),
   liveControl: OperatorControlAvailabilitySchema,
 });
@@ -52,6 +83,13 @@ export type OperatorControlAvailability = z.infer<
 export type MissionApprovalSummary = z.infer<
   typeof MissionApprovalSummarySchema
 >;
+export type MissionApprovalCardTask = z.infer<
+  typeof MissionApprovalCardTaskSchema
+>;
+export type MissionApprovalCardRepoContext = z.infer<
+  typeof MissionApprovalCardRepoContextSchema
+>;
+export type MissionApprovalCard = z.infer<typeof MissionApprovalCardSchema>;
 export type MissionArtifactSummary = z.infer<
   typeof MissionArtifactSummarySchema
 >;

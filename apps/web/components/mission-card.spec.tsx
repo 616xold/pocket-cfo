@@ -7,16 +7,60 @@ describe("MissionCard", () => {
   it("renders approval and artifact sections without the stale mission-spine placeholder copy", () => {
     const html = renderToStaticMarkup(
       <MissionCard
-        approvals={[
+        approvalCards={[
           {
-            createdAt: "2026-03-14T10:01:00.000Z",
-            id: "22222222-2222-4222-8222-222222222222",
+            actionHint:
+              "Review the requested file-edit scope, then approve only if this task should change those files.",
+            approvalId: "22222222-2222-4222-8222-222222222222",
             kind: "file_change",
-            rationale: null,
+            requestedAt: "2026-03-14T10:01:00.000Z",
             requestedBy: "system",
+            repoContext: {
+              repoLabel: "web",
+              branchName: null,
+              pullRequestNumber: null,
+              pullRequestUrl: null,
+            },
+            resolutionSummary: null,
+            resolvedAt: null,
             resolvedBy: null,
             status: "pending",
-            updatedAt: "2026-03-14T10:01:00.000Z",
+            summary:
+              "Allow file edits in the task workspace. Why it matters: the runtime needs workspace write access to continue.",
+            task: {
+              id: "33333333-3333-4333-8333-333333333333",
+              label: "Task 1 · executor",
+              role: "executor",
+              sequence: 1,
+            },
+            title: "Approve workspace file changes",
+          },
+          {
+            actionHint: null,
+            approvalId: "88888888-8888-4888-8888-888888888888",
+            kind: "command",
+            requestedAt: "2026-03-14T10:03:00.000Z",
+            requestedBy: "system",
+            repoContext: {
+              repoLabel: "web",
+              branchName: "pocket-cto/mission-1/1-executor",
+              pullRequestNumber: 19,
+              pullRequestUrl: "https://github.com/acme/web/pull/19",
+            },
+            resolutionSummary:
+              "Approved by Alicia at 2026-03-14T10:04:00.000Z. Rationale: Local validation should run before publishing.",
+            resolvedAt: "2026-03-14T10:04:00.000Z",
+            resolvedBy: "Alicia",
+            status: "approved",
+            summary:
+              "Run pnpm --filter @pocket-cto/web test. Working directory: .../mission-1/apps/web. Why it matters: verify the updated mission detail UI before publishing.",
+            task: {
+              id: "33333333-3333-4333-8333-333333333333",
+              label: "Task 1 · executor",
+              role: "executor",
+              sequence: 1,
+            },
+            title: "Approve command: pnpm --filter @pocket-cto/web test",
           },
         ]}
         artifacts={[
@@ -155,6 +199,10 @@ describe("MissionCard", () => {
 
     expect(html).toContain("Approvals");
     expect(html).toContain("Artifact ledger");
+    expect(html).toContain("Approve workspace file changes");
+    expect(html).toContain(
+      "Approved by Alicia at 2026-03-14T10:04:00.000Z. Rationale: Local validation should run before publishing.",
+    );
     expect(html).toContain("Proof bundle ready with 3 linked artifacts.");
     expect(html).not.toContain(
       "No approval trace yet. This is expected during the mission-spine milestone.",

@@ -8,17 +8,17 @@ import {
 
 type MissionActionsProps = Pick<
   MissionDetailView,
-  "approvals" | "liveControl" | "mission" | "tasks"
+  "approvalCards" | "liveControl" | "mission" | "tasks"
 >;
 
 export function MissionActions({
-  approvals,
+  approvalCards,
   liveControl,
   mission,
   tasks,
 }: MissionActionsProps) {
   const operatorIdentity = getWebOperatorIdentity();
-  const pendingApprovals = approvals.filter(
+  const pendingApprovals = approvalCards.filter(
     (approval) => approval.status === "pending",
   );
   const runningTasks = tasks.filter((task) => task.status === "running");
@@ -43,16 +43,19 @@ export function MissionActions({
           <p className="muted">No pending approvals need a decision.</p>
         ) : (
           pendingApprovals.map((approval) => (
-            <div key={approval.id} className="task-row">
+            <div key={approval.approvalId} className="task-row">
               <div>
-                <strong>{approval.kind}</strong>
+                <strong>{approval.title}</strong>
                 <p className="muted" style={{ marginTop: 4 }}>
-                  Requested by {approval.requestedBy} at {approval.createdAt}
+                  Requested by {approval.requestedBy} at {approval.requestedAt}
+                </p>
+                <p className="muted" style={{ marginTop: 4 }}>
+                  {approval.summary}
                 </p>
               </div>
 
               <ApprovalActionForm
-                approvalId={approval.id}
+                approvalId={approval.approvalId}
                 disabled={controlsUnavailable}
                 missionId={mission.id}
                 operatorIdentity={operatorIdentity}

@@ -64,6 +64,7 @@ describe("web api module", () => {
 
     expect(detail).not.toBeNull();
     expect(detail?.approvals).toHaveLength(1);
+    expect(detail?.approvalCards).toHaveLength(1);
     expect(detail?.artifacts.map((artifact) => artifact.kind)).toEqual([
       "proof_bundle_manifest",
       "diff_summary",
@@ -403,6 +404,35 @@ function buildMissionDetailPayload() {
         resolvedBy: null,
         status: "pending",
         updatedAt: "2026-03-14T10:01:00.000Z",
+      },
+    ],
+    approvalCards: [
+      {
+        actionHint:
+          "Review the requested file-edit scope, then approve only if this task should change those files.",
+        approvalId,
+        kind: "file_change",
+        requestedAt: "2026-03-14T10:01:00.000Z",
+        requestedBy: "system",
+        repoContext: {
+          repoLabel: "web",
+          branchName: null,
+          pullRequestNumber: null,
+          pullRequestUrl: null,
+        },
+        resolutionSummary: null,
+        resolvedAt: null,
+        resolvedBy: null,
+        status: "pending",
+        summary:
+          "Allow file edits in the task workspace. Why it matters: the runtime needs workspace write access to continue.",
+        task: {
+          id: taskId,
+          label: "Task 1 · executor",
+          role: "executor",
+          sequence: 1,
+        },
+        title: "Approve workspace file changes",
       },
     ],
     artifacts: [
