@@ -1,5 +1,6 @@
 import type {
   ApprovalRecord,
+  MissionApprovalCard,
   ArtifactRecord,
   MissionApprovalSummary,
   MissionArtifactSummary,
@@ -8,6 +9,7 @@ import type {
   MissionTaskRecord,
   ProofBundleManifest,
 } from "@pocket-cto/domain";
+import { buildMissionApprovalCards } from "../approvals/card-formatter";
 import { readProofBundleManifest } from "./repository-mappers";
 
 const ARTIFACT_SUMMARY_MAX_LENGTH = 180;
@@ -25,6 +27,7 @@ export function buildMissionDetailView(input: {
     tasks: input.tasks,
     proofBundle: input.proofBundle,
     approvals: input.approvals.map(summarizeApproval),
+    approvalCards: summarizeApprovalCards(input),
     artifacts: input.artifacts.map(summarizeArtifact),
     liveControl: input.liveControl,
   };
@@ -41,6 +44,20 @@ function summarizeApproval(approval: ApprovalRecord): MissionApprovalSummary {
     createdAt: approval.createdAt,
     updatedAt: approval.updatedAt,
   };
+}
+
+function summarizeApprovalCards(input: {
+  approvals: ApprovalRecord[];
+  mission: MissionRecord;
+  proofBundle: ProofBundleManifest;
+  tasks: MissionTaskRecord[];
+}): MissionApprovalCard[] {
+  return buildMissionApprovalCards({
+    approvals: input.approvals,
+    mission: input.mission,
+    proofBundle: input.proofBundle,
+    tasks: input.tasks,
+  });
 }
 
 function summarizeArtifact(artifact: ArtifactRecord): MissionArtifactSummary {

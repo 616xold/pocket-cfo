@@ -1,14 +1,20 @@
 import React from "react";
 import type { MissionDetailView } from "@pocket-cto/domain";
+import { ApprovalCardList } from "./approval-card-list";
 import { StatusPill } from "./status-pill";
 
 type MissionCardProps = Pick<
   MissionDetailView,
-  "approvals" | "artifacts" | "liveControl" | "mission" | "proofBundle" | "tasks"
+  | "approvalCards"
+  | "artifacts"
+  | "liveControl"
+  | "mission"
+  | "proofBundle"
+  | "tasks"
 >;
 
 export function MissionCard({
-  approvals,
+  approvalCards,
   artifacts,
   liveControl,
   mission,
@@ -70,31 +76,7 @@ export function MissionCard({
         </p>
 
         <div className="stack" style={{ marginTop: 18 }}>
-          {approvals.length > 0 ? (
-            approvals.map((approval) => (
-              <div key={approval.id} className="task-row">
-                <div>
-                  <strong>{approval.kind}</strong>
-                  <p className="muted" style={{ marginTop: 4 }}>
-                    Requested by {approval.requestedBy} at {approval.createdAt}
-                  </p>
-                  {approval.resolvedBy ? (
-                    <p className="muted" style={{ marginTop: 4 }}>
-                      Resolved by {approval.resolvedBy} at {approval.updatedAt}
-                    </p>
-                  ) : null}
-                  {approval.rationale ? (
-                    <p className="muted" style={{ marginTop: 4 }}>
-                      Rationale: {approval.rationale}
-                    </p>
-                  ) : null}
-                </div>
-                <StatusPill label={approval.status} tone={readStatusTone(approval.status)} />
-              </div>
-            ))
-          ) : (
-            <p className="muted">No persisted approvals for this mission yet.</p>
-          )}
+          <ApprovalCardList approvalCards={approvalCards} />
         </div>
       </section>
 

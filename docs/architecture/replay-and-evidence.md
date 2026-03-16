@@ -56,8 +56,11 @@ Proof-bundle refresh is triggered narrowly after:
 The operator mission-detail read model now exposes that persisted evidence
 directly. `GET /missions/:missionId` includes approval summaries and artifact
 summaries alongside the proof bundle so the web surface can show the durable
-evidence ledger without replaying raw rows client-side. Approvals are shown
-oldest-first for decision-trace readability, and artifacts are shown
+evidence ledger without replaying raw rows client-side. That same response now
+also includes concise `approvalCards` derived from persisted approval rows plus
+task and proof-bundle context, so the operator-facing card copy remains tied to
+durable evidence instead of becoming a hidden UI-only narrative. Approvals are
+shown oldest-first for decision-trace readability, and artifacts are shown
 oldest-first by `createdAt` so the ledger lines up with replay order.
 
 ## Replay event philosophy

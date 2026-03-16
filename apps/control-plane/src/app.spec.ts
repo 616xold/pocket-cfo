@@ -117,6 +117,7 @@ describe("control-plane app", () => {
         status: "placeholder",
       },
       approvals: [],
+      approvalCards: [],
       artifacts: [
         {
           kind: "proof_bundle_manifest",
@@ -256,6 +257,35 @@ describe("control-plane app", () => {
                 resolvedBy: null,
                 status: "pending",
                 updatedAt: "2026-03-14T10:01:00.000Z",
+              },
+            ],
+            approvalCards: [
+              {
+                actionHint:
+                  "Review the requested file-edit scope, then approve only if this task should change those files.",
+                approvalId: "44444444-4444-4444-8444-444444444444",
+                kind: "file_change",
+                requestedAt: "2026-03-14T10:01:00.000Z",
+                requestedBy: "system",
+                repoContext: {
+                  repoLabel: "web",
+                  branchName: null,
+                  pullRequestNumber: null,
+                  pullRequestUrl: null,
+                },
+                resolutionSummary: null,
+                resolvedAt: null,
+                resolvedBy: null,
+                status: "pending",
+                summary:
+                  "Allow file edits in the task workspace. Why it matters: the runtime needs workspace write access to continue.",
+                task: {
+                  id: unknownTaskId,
+                  label: "Task 1 · executor",
+                  role: "executor",
+                  sequence: 1,
+                },
+                title: "Approve workspace file changes",
               },
             ],
             artifacts: [
@@ -431,6 +461,35 @@ describe("control-plane app", () => {
           resolvedBy: null,
           status: "pending",
           updatedAt: "2026-03-14T10:01:00.000Z",
+        },
+      ],
+      approvalCards: [
+        {
+          actionHint:
+            "Review the requested file-edit scope, then approve only if this task should change those files.",
+          approvalId: "44444444-4444-4444-8444-444444444444",
+          kind: "file_change",
+          requestedAt: "2026-03-14T10:01:00.000Z",
+          requestedBy: "system",
+          repoContext: {
+            repoLabel: "web",
+            branchName: null,
+            pullRequestNumber: null,
+            pullRequestUrl: null,
+          },
+          resolutionSummary: null,
+          resolvedAt: null,
+          resolvedBy: null,
+          status: "pending",
+          summary:
+            "Allow file edits in the task workspace. Why it matters: the runtime needs workspace write access to continue.",
+          task: {
+            id: unknownTaskId,
+            label: "Task 1 · executor",
+            role: "executor",
+            sequence: 1,
+          },
+          title: "Approve workspace file changes",
         },
       ],
       artifacts: [

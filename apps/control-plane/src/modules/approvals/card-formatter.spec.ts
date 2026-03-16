@@ -1,0 +1,233 @@
+import { describe, expect, it } from "vitest";
+import type {
+  ApprovalRecord,
+  MissionRecord,
+  MissionTaskRecord,
+  ProofBundleManifest,
+} from "@pocket-cto/domain";
+import {
+  buildMissionApprovalCard,
+  buildMissionApprovalCards,
+} from "./card-formatter";
+
+const mission: Pick<MissionRecord, "primaryRepo"> = {
+  primaryRepo: "acme/web",
+};
+
+const proofBundle: Pick<
+  ProofBundleManifest,
+  "branchName" | "pullRequestNumber" | "pullRequestUrl" | "targetRepoFullName"
+> = {
+  branchName: "pocket-cto/mission-1/1-executor",
+  pullRequestNumber: 41,
+  pullRequestUrl: "https://github.com/acme/web/pull/41",
+  targetRepoFullName: "acme/web",
+};
+
+const task: MissionTaskRecord = {
+  attemptCount: 1,
+  codexThreadId: "thread_live_1",
+  codexTurnId: "turn_live_1",
+  createdAt: "2026-03-16T10:00:00.000Z",
+  dependsOnTaskId: null,
+  id: "33333333-3333-4333-8333-333333333333",
+  missionId: "11111111-1111-4111-8111-111111111111",
+  role: "executor",
+  sequence: 1,
+  status: "awaiting_approval",
+  summary: "Waiting for operator approval.",
+  updatedAt: "2026-03-16T10:01:00.000Z",
+  workspaceId: null,
+};
+
+describe("card-formatter", () => {
+  it("formats a pending file-change approval as a compact operator card", () => {
+    const card = buildMissionApprovalCards({
+      approvals: [
+        buildApproval({
+          kind: "file_change",
+          payload: {
+            details: {
+              grantRoot: "/tmp/workspaces/mission-1/apps/web/src",
+              reason: "Need to update the sign-in form and passkey settings UI",
+            },
+          },
+          taskId: task.id,
+        }),
+      ],
+      mission,
+      proofBundle,
+      tasks: [task],
+    })[0]!;
+
+    expect(card).toMatchObject({
+      actionHint:
+        "Review the requested file-edit scope, then approve only if this task should change those files.",
+      approvalId: "22222222-2222-4222-8222-222222222222",
+      kind: "file_change",
+      requestedBy: "system",
+      status: "pending",
+      task: {
+        id: task.id,
+        label: "Task 1 · executor",
+      },
+      title: "Approve file changes in .../apps/web/src",
+    });
+    expect(card.summary).toContain("Allow file edits under .../apps/web/src.");
+    expect(card.summary).toContain("Why it matters:");
+    expect(card.repoContext).toEqual({
+      repoLabel: "acme/web",
+      branchName: "pocket-cto/mission-1/1-executor",
+      pullRequestNumber: 41,
+      pullRequestUrl: "https://github.com/acme/web/pull/41",
+    });
+    expect(card.resolutionSummary).toBeNull();
+  });
+
+  it("formats a pending command approval with command and cwd context", () => {
+    const card = buildMissionApprovalCard({
+      approval: buildApproval({
+        kind: "command",
+        payload: {
+          details: {
+            command: "pnpm --filter @pocket-cto/web test",
+            cwd: "/tmp/workspaces/mission-1/apps/web",
+            reason: "Need to verify the updated mission detail UI before publishing",
+          },
+        },
+        taskId: task.id,
+      }),
+      context: buildContext(),
+    });
+
+    expect(card.title).toContain("Approve command:");
+    expect(card.summary).toContain("Run pnpm --filter @pocket-cto/web test.");
+    expect(card.summary).toContain("Working directory: .../mission-1/apps/web.");
+    expect(card.actionHint).toBe(
+      "Review the command and working directory before approving execution.",
+    );
+  });
+
+  it("formats a pending network escalation with explicit network-policy context", () => {
+    const card = buildMissionApprovalCard({
+      approval: buildApproval({
+        kind: "network_escalation",
+        payload: {
+          details: {
+            command: "pnpm audit --prod",
+            proposedNetworkPolicyAmendments: [{ host: "registry.npmjs.org" }],
+            reason: "Need package metadata from npm to verify the dependency posture",
+          },
+        },
+        taskId: task.id,
+      }),
+      context: buildContext(),
+    });
+
+    expect(card.title).toContain("Approve networked command:");
+    expect(card.summary).toContain("Allow networked command pnpm audit --prod.");
+    expect(card.summary).toContain("The runtime proposed 1 network policy amendment.");
+    expect(card.actionHint).toBe(
+      "Approve only if this task should use network access or adjust network policy to finish the requested work.",
+    );
+  });
+
+  it("keeps unsupported kinds explicit and honest", () => {
+    const card = buildMissionApprovalCard({
+      approval: buildApproval({
+        kind: "merge",
+        payload: {
+          details: {
+            reason: "Merge remains blocked until the release freeze lifts",
+          },
+        },
+        taskId: task.id,
+      }),
+      context: buildContext(),
+    });
+
+    expect(card.title).toBe("Review merge");
+    expect(card.summary).toContain(
+      "does not yet know how to summarize its payload in more detail",
+    );
+    expect(card.summary).toContain("Stored reason:");
+  });
+
+  it("shows pending and resolved cards differently", () => {
+    const pendingCard = buildMissionApprovalCard({
+      approval: buildApproval({
+        kind: "command",
+        payload: {
+          details: {
+            command: "pnpm lint",
+          },
+        },
+        taskId: task.id,
+      }),
+      context: buildContext(),
+    });
+    const resolvedCard = buildMissionApprovalCard({
+      approval: buildApproval({
+        kind: "command",
+        rationale: "The audit passed and the command is safe to rerun.",
+        resolvedBy: "Alicia",
+        status: "approved",
+        updatedAt: "2026-03-16T10:06:00.000Z",
+        payload: {
+          details: {
+            command: "pnpm lint",
+          },
+        },
+        taskId: task.id,
+      }),
+      context: buildContext(),
+    });
+
+    expect(pendingCard.actionHint).not.toBeNull();
+    expect(pendingCard.resolutionSummary).toBeNull();
+    expect(resolvedCard.actionHint).toBeNull();
+    expect(resolvedCard.resolutionSummary).toBe(
+      "Approved by Alicia at 2026-03-16T10:06:00.000Z. Rationale: The audit passed and the command is safe to rerun.",
+    );
+    expect(resolvedCard.resolvedAt).toBe("2026-03-16T10:06:00.000Z");
+  });
+});
+
+function buildContext() {
+  return {
+    repoContext: {
+      repoLabel: "acme/web",
+      branchName: "pocket-cto/mission-1/1-executor",
+      pullRequestNumber: 41,
+      pullRequestUrl: "https://github.com/acme/web/pull/41",
+    },
+    task: {
+      id: task.id,
+      label: "Task 1 · executor",
+      role: "executor" as const,
+      sequence: 1,
+    },
+  };
+}
+
+function buildApproval(
+  overrides: Partial<ApprovalRecord> & {
+    kind: ApprovalRecord["kind"];
+    payload: ApprovalRecord["payload"];
+    taskId: string | null;
+  },
+): ApprovalRecord {
+  return {
+    createdAt: "2026-03-16T10:01:00.000Z",
+    id: "22222222-2222-4222-8222-222222222222",
+    kind: overrides.kind,
+    missionId: "11111111-1111-4111-8111-111111111111",
+    payload: overrides.payload,
+    rationale: overrides.rationale ?? null,
+    requestedBy: overrides.requestedBy ?? "system",
+    resolvedBy: overrides.resolvedBy ?? null,
+    status: overrides.status ?? "pending",
+    taskId: overrides.taskId,
+    updatedAt: overrides.updatedAt ?? "2026-03-16T10:01:00.000Z",
+  };
+}

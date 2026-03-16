@@ -64,7 +64,7 @@ describe("MissionService", () => {
     });
   });
 
-  it("returns summary-shaped approvals and artifacts in mission detail", async () => {
+  it("returns summary-shaped approvals, approval cards, and artifacts in mission detail", async () => {
     const approval: ApprovalRecord = {
       createdAt: "2026-03-14T10:00:00.000Z",
       id: "44444444-4444-4444-8444-444444444444",
@@ -115,6 +115,30 @@ describe("MissionService", () => {
         resolvedBy: null,
         status: "pending",
         updatedAt: "2026-03-14T10:00:00.000Z",
+      },
+    ]);
+    expect(detail.approvalCards).toEqual([
+      {
+        actionHint:
+          "Review the requested file-edit scope, then approve only if this task should change those files.",
+        approvalId: "44444444-4444-4444-8444-444444444444",
+        kind: "file_change",
+        requestedAt: "2026-03-14T10:00:00.000Z",
+        requestedBy: "system",
+        repoContext: {
+          repoLabel: created.mission.primaryRepo ?? "repo context pending",
+          branchName: null,
+          pullRequestNumber: null,
+          pullRequestUrl: null,
+        },
+        resolutionSummary: null,
+        resolvedAt: null,
+        resolvedBy: null,
+        status: "pending",
+        summary:
+          "Allow file edits in the task workspace. Why it matters: the runtime needs workspace write access to continue.",
+        task: null,
+        title: "Approve workspace file changes",
       },
     ]);
     expect(detail.artifacts.map((artifact) => artifact.kind).sort()).toEqual([

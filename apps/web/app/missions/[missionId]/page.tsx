@@ -19,7 +19,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
       return (
         <main className="shell">
           <MissionCard
-            approvals={demoMission.approvals}
+            approvalCards={demoMission.approvalCards}
             artifacts={demoMission.artifacts}
             liveControl={demoMission.liveControl}
             mission={demoMission.mission}
@@ -27,7 +27,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
             tasks={demoMission.tasks}
           />
           <MissionActions
-            approvals={demoMission.approvals}
+            approvalCards={demoMission.approvalCards}
             liveControl={demoMission.liveControl}
             mission={demoMission.mission}
             tasks={demoMission.tasks}
@@ -42,7 +42,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
   return (
     <main className="shell">
       <MissionCard
-        approvals={mission.approvals}
+        approvalCards={mission.approvalCards}
         artifacts={mission.artifacts}
         liveControl={mission.liveControl}
         mission={mission.mission}
@@ -50,7 +50,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
         tasks={mission.tasks}
       />
       <MissionActions
-        approvals={mission.approvals}
+        approvalCards={mission.approvalCards}
         liveControl={mission.liveControl}
         mission={mission.mission}
         tasks={mission.tasks}
@@ -171,6 +171,7 @@ function buildDemoMissionDetail(): MissionDetailView {
       status: "placeholder",
     },
     approvals: [],
+    approvalCards: [],
     artifacts: [],
     liveControl: {
       enabled: false,
