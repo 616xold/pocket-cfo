@@ -225,4 +225,34 @@ describe("DrizzleTwinRepository", () => {
       "2026-03-16T22:31:00.000Z",
     );
   });
+
+  it("maps owner_principal onto the legacy owner enum while preserving the generic kind", async () => {
+    const entity = await repository.upsertEntity({
+      repoFullName: "616xold/pocket-cto",
+      kind: "owner_principal",
+      stableKey: "@platform",
+      title: "@platform",
+      payload: {
+        handle: "@platform",
+        principalKind: "github_user_or_org",
+      },
+      observedAt: "2026-03-18T04:10:00.000Z",
+    });
+
+    const [row] = await db
+      .select()
+      .from(twinEntities)
+      .where(eq(twinEntities.id, entity.id));
+
+    expect(entity).toMatchObject({
+      kind: "owner_principal",
+      stableKey: "@platform",
+    });
+    expect(row).toMatchObject({
+      id: entity.id,
+      kind: "owner_principal",
+      type: "owner",
+      stableKey: "@platform",
+    });
+  });
 });

@@ -294,6 +294,26 @@ function createAppContainer(
       async finishSyncRun() {
         throw new Error("finishSyncRun should not be called in this test");
       },
+      async getRepositoryOwners() {
+        return {
+          repository: {
+            fullName: "616xold/pocket-cto",
+            installationId: "12345",
+            defaultBranch: "main",
+            archived: false,
+            disabled: false,
+            isActive: true,
+            writeReadiness: {
+              ready: true,
+              failureCode: null,
+            },
+          },
+          latestRun: null,
+          codeownersFile: null,
+          ownerCount: 0,
+          owners: [],
+        };
+      },
       async getRepositoryMetadataSummary() {
         return {
           repository: {
@@ -320,6 +340,27 @@ function createAppContainer(
             manifests: [],
             directories: [],
           },
+        };
+      },
+      async getRepositoryOwnershipRules() {
+        return {
+          repository: {
+            fullName: "616xold/pocket-cto",
+            installationId: "12345",
+            defaultBranch: "main",
+            archived: false,
+            disabled: false,
+            isActive: true,
+            writeReadiness: {
+              ready: true,
+              failureCode: null,
+            },
+          },
+          latestRun: null,
+          codeownersFile: null,
+          ruleCount: 0,
+          ownerCount: 0,
+          rules: [],
         };
       },
       async listRepositoryEdges() {
@@ -417,6 +458,46 @@ function createAppContainer(
             errorSummary: null,
             createdAt: "2026-03-15T00:00:00.000Z",
           },
+          entityCount: 0,
+          edgeCount: 0,
+          entityCountsByKind: {},
+          edgeCountsByKind: {},
+        };
+      },
+      async syncRepositoryOwnership() {
+        return {
+          repository: {
+            fullName: "616xold/pocket-cto",
+            installationId: "12345",
+            defaultBranch: "main",
+            archived: false,
+            disabled: false,
+            isActive: true,
+            writeReadiness: {
+              ready: true,
+              failureCode: null,
+            },
+          },
+          syncRun: {
+            id: "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+            repoFullName: "616xold/pocket-cto",
+            extractor: "codeowners_ownership",
+            status: "succeeded",
+            startedAt: "2026-03-15T00:00:00.000Z",
+            completedAt: "2026-03-15T00:01:00.000Z",
+            stats: {
+              entityCount: 0,
+              edgeCount: 0,
+              codeownersFileCount: 0,
+              ruleCount: 0,
+              ownerCount: 0,
+            },
+            errorSummary: null,
+            createdAt: "2026-03-15T00:00:00.000Z",
+          },
+          codeownersFilePath: null,
+          ruleCount: 0,
+          ownerCount: 0,
           entityCount: 0,
           edgeCount: 0,
           entityCountsByKind: {},

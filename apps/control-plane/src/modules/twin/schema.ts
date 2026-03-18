@@ -2,6 +2,8 @@ import { z } from "zod";
 import {
   TwinEdgeListViewSchema,
   TwinEntityListViewSchema,
+  TwinRepositoryOwnersViewSchema,
+  TwinRepositoryOwnershipRulesViewSchema,
   TwinSyncRunListViewSchema,
 } from "@pocket-cto/domain";
 
@@ -17,5 +19,7 @@ export function parseTwinRepositoryParams(params: unknown) {
 export {
   TwinEdgeListViewSchema,
   TwinEntityListViewSchema,
+  TwinRepositoryOwnersViewSchema,
+  TwinRepositoryOwnershipRulesViewSchema,
   TwinSyncRunListViewSchema,
 };

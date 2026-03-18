@@ -43,11 +43,14 @@ export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
 export type TwinServicePort = Pick<
   TwinService,
   | "finishSyncRun"
+  | "getRepositoryOwners"
   | "getRepositoryMetadataSummary"
+  | "getRepositoryOwnershipRules"
   | "listRepositoryEdges"
   | "listRepositoryEntities"
   | "listRepositoryRuns"
   | "syncRepositoryMetadata"
+  | "syncRepositoryOwnership"
   | "startSyncRun"
   | "upsertEdge"
   | "upsertEntity"

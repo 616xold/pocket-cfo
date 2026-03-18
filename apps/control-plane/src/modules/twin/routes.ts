@@ -8,6 +8,25 @@ export async function registerTwinRoutes(
     twinService: TwinServicePort;
   },
 ) {
+  app.post("/twin/repositories/:owner/:repo/ownership-sync", async (request) => {
+    const params = parseTwinRepositoryParams(request.params);
+    return deps.twinService.syncRepositoryOwnership(
+      `${params.owner}/${params.repo}`,
+    );
+  });
+
+  app.get("/twin/repositories/:owner/:repo/ownership-rules", async (request) => {
+    const params = parseTwinRepositoryParams(request.params);
+    return deps.twinService.getRepositoryOwnershipRules(
+      `${params.owner}/${params.repo}`,
+    );
+  });
+
+  app.get("/twin/repositories/:owner/:repo/owners", async (request) => {
+    const params = parseTwinRepositoryParams(request.params);
+    return deps.twinService.getRepositoryOwners(`${params.owner}/${params.repo}`);
+  });
+
   app.post("/twin/repositories/:owner/:repo/metadata-sync", async (request) => {
     const params = parseTwinRepositoryParams(request.params);
     return deps.twinService.syncRepositoryMetadata(
