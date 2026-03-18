@@ -1,8 +1,11 @@
 import type {
   TwinEdgeListView,
   TwinEntityListView,
+  TwinRepositoryOwnersView,
   TwinRepositoryMetadataSummary,
   TwinRepositoryMetadataSyncResult,
+  TwinRepositoryOwnershipRulesView,
+  TwinRepositoryOwnershipSyncResult,
   TwinSyncRunListView,
 } from "@pocket-cto/domain";
 import type { GitHubRepositoryDetailResult } from "../github-app/schema";
@@ -14,6 +17,14 @@ import {
   buildTwinSyncRunListView,
   toTwinRepositorySummary,
 } from "./formatter";
+import {
+  buildTwinRepositoryOwnersView,
+  buildTwinRepositoryOwnershipRulesView,
+} from "./ownership-formatter";
+import {
+  ownershipExtractorName,
+  syncRepositoryOwnership,
+} from "./ownership-sync";
 import type { TwinRepositoryMetadataExtractor } from "./repository-metadata-extractor";
 import { syncRepositoryMetadata } from "./metadata-sync";
 import type { TwinRepositorySourceResolver } from "./source-resolver";
@@ -101,6 +112,36 @@ export class TwinService {
     });
   }
 
+  async getRepositoryOwners(
+    repoFullName: string,
+  ): Promise<TwinRepositoryOwnersView> {
+    const repository = await this.getRepositorySummary(repoFullName);
+    const snapshot = await this.getOwnershipReadSnapshot(repoFullName);
+
+    return buildTwinRepositoryOwnersView({
+      repository,
+      latestRun: snapshot.latestRun,
+      codeownersFileEntity: snapshot.codeownersFileEntity,
+      ownerEntities: snapshot.ownerEntities,
+      ruleAssignOwnerEdges: snapshot.ruleAssignOwnerEdges,
+    });
+  }
+
+  async getRepositoryOwnershipRules(
+    repoFullName: string,
+  ): Promise<TwinRepositoryOwnershipRulesView> {
+    const repository = await this.getRepositorySummary(repoFullName);
+    const snapshot = await this.getOwnershipReadSnapshot(repoFullName);
+
+    return buildTwinRepositoryOwnershipRulesView({
+      repository,
+      latestRun: snapshot.latestRun,
+      codeownersFileEntity: snapshot.codeownersFileEntity,
+      ownerEntities: snapshot.ownerEntities,
+      ruleEntities: snapshot.ruleEntities,
+    });
+  }
+
   async finishSyncRun(input: TwinSyncRunFinishInput): Promise<TwinSyncRunRecord> {
     const parsed = TwinSyncRunFinishInputSchema.parse(input);
 
@@ -124,6 +165,18 @@ export class TwinService {
   ): Promise<TwinRepositoryMetadataSyncResult> {
     return syncRepositoryMetadata({
       metadataExtractor: this.input.metadataExtractor,
+      now: this.now,
+      repoFullName,
+      repository: this.input.repository,
+      repositoryRegistry: this.input.repositoryRegistry,
+      sourceResolver: this.input.sourceResolver,
+    });
+  }
+
+  async syncRepositoryOwnership(
+    repoFullName: string,
+  ): Promise<TwinRepositoryOwnershipSyncResult> {
+    return syncRepositoryOwnership({
       now: this.now,
       repoFullName,
       repository: this.input.repository,
@@ -207,6 +260,56 @@ export class TwinService {
     );
   }
 
+  private async getOwnershipReadSnapshot(repoFullName: string) {
+    const [entities, edges, runs] = await Promise.all([
+      this.input.repository.listRepositoryEntities(repoFullName),
+      this.input.repository.listRepositoryEdges(repoFullName),
+      this.input.repository.listRepositoryRuns(repoFullName),
+    ]);
+    const ownershipRuns = runs.filter(
+      (candidate) => candidate.extractor === ownershipExtractorName,
+    );
+    const latestRun = ownershipRuns[0] ?? null;
+    const latestSucceededRun =
+      ownershipRuns.find((candidate) => candidate.status === "succeeded") ?? null;
+
+    if (
+      !latestSucceededRun ||
+      readNonNegativeInteger(latestSucceededRun.stats, "codeownersFileCount") === 0
+    ) {
+      return {
+        latestRun,
+        codeownersFileEntity: null,
+        ownerEntities: [],
+        ruleEntities: [],
+        ruleAssignOwnerEdges: [],
+      };
+    }
+
+    const snapshotEntities = entities.filter(
+      (candidate) => candidate.sourceRunId === latestSucceededRun.id,
+    );
+    const snapshotEdges = edges.filter(
+      (candidate) => candidate.sourceRunId === latestSucceededRun.id,
+    );
+
+    return {
+      latestRun,
+      codeownersFileEntity:
+        snapshotEntities.find((candidate) => candidate.kind === "codeowners_file") ??
+        null,
+      ownerEntities: snapshotEntities.filter(
+        (candidate) => candidate.kind === "owner_principal",
+      ),
+      ruleEntities: snapshotEntities.filter(
+        (candidate) => candidate.kind === "ownership_rule",
+      ),
+      ruleAssignOwnerEdges: snapshotEdges.filter(
+        (candidate) => candidate.kind === "rule_assigns_owner",
+      ),
+    };
+  }
+
   private async requireEntityMatchesRepo(
     entityId: string,
     repoFullName: string,
@@ -263,4 +366,11 @@ export class TwinService {
 
     return run;
   }
+}
+
+function readNonNegativeInteger(payload: Record<string, unknown>, key: string) {
+  const value = payload[key];
+  return Number.isInteger(value) && typeof value === "number" && value >= 0
+    ? value
+    : null;
 }

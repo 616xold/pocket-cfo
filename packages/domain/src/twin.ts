@@ -126,6 +126,58 @@ export const TwinRepositoryMetadataDirectorySchema = z.object({
   classification: z.string().min(1),
 });
 
+export const TwinCodeownersPrecedenceSlotSchema = z.enum([
+  "github_dotgithub",
+  "repository_root",
+  "docs",
+]);
+
+export const TwinOwnershipPatternShapeSchema = z.enum([
+  "directory_like",
+  "file_like",
+  "ambiguous",
+]);
+
+export const TwinOwnerPrincipalKindSchema = z.enum([
+  "github_user_or_org",
+  "github_team",
+  "email",
+  "unknown",
+]);
+
+export const TwinCodeownersFileSchema = z.object({
+  path: z.string().min(1),
+  precedenceSlot: TwinCodeownersPrecedenceSlotSchema,
+  lineCount: z.number().int().nonnegative(),
+  sizeBytes: z.number().int().nonnegative(),
+  ruleCount: z.number().int().nonnegative(),
+  ownerCount: z.number().int().nonnegative(),
+});
+
+export const TwinOwnershipRuleSchema = z.object({
+  id: z.string().uuid(),
+  sourceFilePath: z.string().min(1),
+  ordinal: z.number().int().positive(),
+  lineNumber: z.number().int().positive(),
+  rawPattern: z.string().min(1),
+  rawOwners: z.array(z.string().min(1)),
+  normalizedOwners: z.array(z.string().min(1)),
+  patternShape: TwinOwnershipPatternShapeSchema,
+  observedAt: z.string().datetime({ offset: true }),
+  sourceRunId: z.string().uuid().nullable(),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
+export const TwinOwnerPrincipalSchema = z.object({
+  id: z.string().uuid(),
+  handle: z.string().min(1),
+  principalKind: TwinOwnerPrincipalKindSchema,
+  assignedRuleCount: z.number().int().nonnegative(),
+  observedAt: z.string().datetime({ offset: true }),
+  sourceRunId: z.string().uuid().nullable(),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
 export const TwinRepositoryMetadataSummarySchema = z.object({
   repository: TwinRepositorySummarySchema,
   latestRun: TwinSyncRunSchema.nullable(),
@@ -145,6 +197,35 @@ export const TwinRepositoryMetadataSummarySchema = z.object({
 export const TwinRepositoryMetadataSyncResultSchema = z.object({
   repository: TwinRepositorySummarySchema,
   syncRun: TwinSyncRunSchema,
+  entityCount: z.number().int().nonnegative(),
+  edgeCount: z.number().int().nonnegative(),
+  entityCountsByKind: TwinKindCountMapSchema,
+  edgeCountsByKind: TwinKindCountMapSchema,
+});
+
+export const TwinRepositoryOwnershipRulesViewSchema = z.object({
+  repository: TwinRepositorySummarySchema,
+  latestRun: TwinSyncRunSchema.nullable(),
+  codeownersFile: TwinCodeownersFileSchema.nullable(),
+  ruleCount: z.number().int().nonnegative(),
+  ownerCount: z.number().int().nonnegative(),
+  rules: z.array(TwinOwnershipRuleSchema),
+});
+
+export const TwinRepositoryOwnersViewSchema = z.object({
+  repository: TwinRepositorySummarySchema,
+  latestRun: TwinSyncRunSchema.nullable(),
+  codeownersFile: TwinCodeownersFileSchema.nullable(),
+  ownerCount: z.number().int().nonnegative(),
+  owners: z.array(TwinOwnerPrincipalSchema),
+});
+
+export const TwinRepositoryOwnershipSyncResultSchema = z.object({
+  repository: TwinRepositorySummarySchema,
+  syncRun: TwinSyncRunSchema,
+  codeownersFilePath: z.string().min(1).nullable(),
+  ruleCount: z.number().int().nonnegative(),
+  ownerCount: z.number().int().nonnegative(),
   entityCount: z.number().int().nonnegative(),
   edgeCount: z.number().int().nonnegative(),
   entityCountsByKind: TwinKindCountMapSchema,
@@ -184,9 +265,30 @@ export type TwinRepositoryMetadataManifest = z.infer<
 export type TwinRepositoryMetadataDirectory = z.infer<
   typeof TwinRepositoryMetadataDirectorySchema
 >;
+export type TwinCodeownersPrecedenceSlot = z.infer<
+  typeof TwinCodeownersPrecedenceSlotSchema
+>;
+export type TwinOwnershipPatternShape = z.infer<
+  typeof TwinOwnershipPatternShapeSchema
+>;
+export type TwinOwnerPrincipalKind = z.infer<
+  typeof TwinOwnerPrincipalKindSchema
+>;
+export type TwinCodeownersFile = z.infer<typeof TwinCodeownersFileSchema>;
+export type TwinOwnershipRule = z.infer<typeof TwinOwnershipRuleSchema>;
+export type TwinOwnerPrincipal = z.infer<typeof TwinOwnerPrincipalSchema>;
 export type TwinRepositoryMetadataSummary = z.infer<
   typeof TwinRepositoryMetadataSummarySchema
 >;
 export type TwinRepositoryMetadataSyncResult = z.infer<
   typeof TwinRepositoryMetadataSyncResultSchema
+>;
+export type TwinRepositoryOwnershipRulesView = z.infer<
+  typeof TwinRepositoryOwnershipRulesViewSchema
+>;
+export type TwinRepositoryOwnersView = z.infer<
+  typeof TwinRepositoryOwnersViewSchema
+>;
+export type TwinRepositoryOwnershipSyncResult = z.infer<
+  typeof TwinRepositoryOwnershipSyncResultSchema
 >;

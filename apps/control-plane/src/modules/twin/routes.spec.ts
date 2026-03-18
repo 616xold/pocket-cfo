@@ -161,6 +161,81 @@ describe("twin routes", () => {
     });
   });
 
+  it("syncs repository ownership and returns stored rules and owners cleanly", async () => {
+    const sourceRepo = await createOwnershipSourceRepo(repoFullName);
+    cleanups.push(sourceRepo.cleanup);
+    const ownershipService = createTwinService({
+      configuredSourceRepoRoot: sourceRepo.repoRoot,
+    });
+    const app = await createTwinApp(apps, ownershipService);
+
+    const syncResponse = await app.inject({
+      method: "POST",
+      url: "/twin/repositories/616xold/pocket-cto/ownership-sync",
+    });
+    const rulesResponse = await app.inject({
+      method: "GET",
+      url: "/twin/repositories/616xold/pocket-cto/ownership-rules",
+    });
+    const ownersResponse = await app.inject({
+      method: "GET",
+      url: "/twin/repositories/616xold/pocket-cto/owners",
+    });
+
+    expect(syncResponse.statusCode).toBe(200);
+    expect(syncResponse.json()).toMatchObject({
+      codeownersFilePath: ".github/CODEOWNERS",
+      ruleCount: 2,
+      ownerCount: 2,
+      syncRun: {
+        status: "succeeded",
+      },
+    });
+    expect(rulesResponse.statusCode).toBe(200);
+    expect(rulesResponse.json()).toMatchObject({
+      repository: {
+        fullName: repoFullName,
+      },
+      codeownersFile: {
+        path: ".github/CODEOWNERS",
+      },
+      ruleCount: 2,
+      ownerCount: 2,
+      rules: [
+        {
+          ordinal: 1,
+          rawPattern: "*",
+          normalizedOwners: ["@platform"],
+        },
+        {
+          ordinal: 2,
+          rawPattern: "docs/",
+          normalizedOwners: ["@platform", "@runtime/team"],
+        },
+      ],
+    });
+    expect(ownersResponse.statusCode).toBe(200);
+    expect(ownersResponse.json()).toMatchObject({
+      repository: {
+        fullName: repoFullName,
+      },
+      codeownersFile: {
+        path: ".github/CODEOWNERS",
+      },
+      ownerCount: 2,
+      owners: [
+        {
+          handle: "@platform",
+          assignedRuleCount: 2,
+        },
+        {
+          handle: "@runtime/team",
+          assignedRuleCount: 1,
+        },
+      ],
+    });
+  });
+
   it("returns the existing repository-not-found error when the registry has no matching repo", async () => {
     const notFoundService = createTwinService({
       getRepository: vi.fn(async (_fullName: string) => {
@@ -328,6 +403,30 @@ async function createMetadataSourceRepo(fullName: string) {
         null,
         2,
       ),
+      "utf8",
+    ),
+  ]);
+
+  return sourceRepo;
+}
+
+async function createOwnershipSourceRepo(fullName: string) {
+  const sourceRepo = await createTempGitRepo();
+
+  await execFile(
+    "git",
+    ["remote", "add", "origin", `https://github.com/${fullName}.git`],
+    {
+      cwd: sourceRepo.repoRoot,
+    },
+  );
+  await Promise.all([
+    mkdir(join(sourceRepo.repoRoot, ".github"), {
+      recursive: true,
+    }),
+    writeFile(
+      join(sourceRepo.repoRoot, ".github", "CODEOWNERS"),
+      ["# Ownership", "* @Platform", "docs/ @Platform @Runtime/Team"].join("\n"),
       "utf8",
     ),
   ]);

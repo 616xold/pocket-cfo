@@ -331,6 +331,10 @@ function readJsonObject(value: unknown) {
 }
 
 function toLegacyTwinEntityType(kind: string): (typeof legacyTwinEntityTypes)[number] {
+  if (kind === "owner_principal") {
+    return "owner";
+  }
+
   return legacyTwinEntityTypes.includes(
     kind as (typeof legacyTwinEntityTypes)[number],
   )
