@@ -213,6 +213,7 @@ async function runPlannerItem(input: {
   });
 
   return buildResultRecord({
+    backend: input.config.backend,
     candidate,
     candidateModel: input.config.dryRun
       ? "dry-run-fixture"
@@ -296,6 +297,7 @@ async function runExecutorItem(input: {
   });
 
   return buildResultRecord({
+    backend: input.config.backend,
     candidate,
     candidateModel: input.config.dryRun
       ? "dry-run-fixture"
@@ -384,6 +386,7 @@ async function runCompilerItem(input: {
   });
 
   return buildResultRecord({
+    backend: input.config.backend,
     candidate,
     candidateModel: input.config.dryRun
       ? "dry-run-fixture"
@@ -481,6 +484,7 @@ async function runOptionalReference(input: {
 }
 
 function buildResultRecord(input: {
+  backend: EvalResultRecord["backend"];
   candidate: {
     output: unknown;
     provider: Awaited<ReturnType<typeof runLiveCandidate>>["provider"] | null;
@@ -508,6 +512,7 @@ function buildResultRecord(input: {
   const timestamp = new Date().toISOString();
 
   return {
+    backend: input.backend,
     candidate: {
       model: input.candidateModel,
       output: input.candidate.output,

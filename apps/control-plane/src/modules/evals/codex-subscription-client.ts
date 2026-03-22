@@ -16,6 +16,7 @@ import type {
 } from "./types";
 
 const evalCodexServiceName = "pocket-cto-evals";
+export const defaultCodexEvalTurnTimeoutMs = 60_000;
 
 export type CodexSubscriptionTurnResult = {
   requestedModel: string;
@@ -114,62 +115,67 @@ export async function runCodexSubscriptionTurn(input: {
       serviceName: evalCodexServiceName,
     });
 
-    const result = await observeTurnLifecycle({
-      client,
-      observer: {
-        onCommandExecutionApprovalRequest() {
-          throw new Error(
-            "codex_subscription evals do not allow command execution approvals.",
-          );
+    const result = await withCodexEvalTimeout(
+      observeTurnLifecycle({
+        client,
+        observer: {
+          onCommandExecutionApprovalRequest() {
+            throw new Error(
+              "codex_subscription evals do not allow command execution approvals.",
+            );
+          },
+          onFileChangeApprovalRequest() {
+            throw new Error(
+              "codex_subscription evals do not allow file-change approvals.",
+            );
+          },
+          onPermissionsApprovalRequest() {
+            throw new Error(
+              "codex_subscription evals do not allow permissions approvals.",
+            );
+          },
         },
-        onFileChangeApprovalRequest() {
-          throw new Error(
-            "codex_subscription evals do not allow file-change approvals.",
-          );
+        start: async ({ emitThreadStarted, execution }) => {
+          const threadStart = await client.startThread({
+            approvalPolicy: "never",
+            cwd,
+            experimentalRawEvents: false,
+            model: input.model,
+            persistExtendedHistory: false,
+            sandbox: "read-only",
+            serviceName: evalCodexServiceName,
+          });
+
+          bootstrapResult = {
+            approvalPolicy: threadStart.approvalPolicy,
+            cwd: threadStart.cwd,
+            model: threadStart.model,
+            modelProvider: threadStart.modelProvider,
+            sandbox: threadStart.sandbox,
+            serviceName: evalCodexServiceName,
+            thread: threadStart.thread,
+            threadId: threadStart.thread.id,
+            userAgent: initializeResult.userAgent,
+          };
+          execution.recoveryStrategy = "same_session_bootstrap";
+          execution.threadId = bootstrapResult.threadId;
+          await emitThreadStarted(bootstrapResult);
+
+          const turnStart = await client.startTurn({
+            approvalPolicy: "never",
+            input: buildEvalPromptInput(input.prompt),
+            model: input.model,
+            sandboxPolicy: buildCodexEvalSandboxPolicy(),
+            threadId: bootstrapResult.threadId,
+          });
+
+          execution.turnId = turnStart.turn.id;
         },
-        onPermissionsApprovalRequest() {
-          throw new Error(
-            "codex_subscription evals do not allow permissions approvals.",
-          );
-        },
+      }),
+      {
+        model: input.model,
       },
-      start: async ({ emitThreadStarted, execution }) => {
-        const threadStart = await client.startThread({
-          approvalPolicy: "never",
-          cwd,
-          experimentalRawEvents: false,
-          model: input.model,
-          persistExtendedHistory: false,
-          sandbox: "read-only",
-          serviceName: evalCodexServiceName,
-        });
-
-        bootstrapResult = {
-          approvalPolicy: threadStart.approvalPolicy,
-          cwd: threadStart.cwd,
-          model: threadStart.model,
-          modelProvider: threadStart.modelProvider,
-          sandbox: threadStart.sandbox,
-          serviceName: evalCodexServiceName,
-          thread: threadStart.thread,
-          threadId: threadStart.thread.id,
-          userAgent: initializeResult.userAgent,
-        };
-        execution.recoveryStrategy = "same_session_bootstrap";
-        execution.threadId = bootstrapResult.threadId;
-        await emitThreadStarted(bootstrapResult);
-
-        const turnStart = await client.startTurn({
-          approvalPolicy: "never",
-          input: buildEvalPromptInput(input.prompt),
-          model: input.model,
-          sandboxPolicy: buildCodexEvalSandboxPolicy(),
-          threadId: bootstrapResult.threadId,
-        });
-
-        execution.turnId = turnStart.turn.id;
-      },
-    });
+    );
 
     if (result.status !== "completed") {
       throw new Error(
@@ -202,6 +208,37 @@ export async function runCodexSubscriptionTurn(input: {
   } finally {
     await client.stop();
   }
+}
+
+export function withCodexEvalTimeout<T>(
+  promise: Promise<T>,
+  input: {
+    model: string;
+    timeoutMs?: number;
+  },
+) {
+  const timeoutMs = input.timeoutMs ?? defaultCodexEvalTurnTimeoutMs;
+
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(
+        new Error(
+          `Codex subscription eval timed out after ${timeoutMs}ms while waiting for a terminal turn on model ${input.model}. Re-run the packaged Codex smoke after confirming local Codex auth, model availability, and app-server responsiveness.`,
+        ),
+      );
+    }, timeoutMs);
+
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
 }
 
 function buildEvalPromptInput(prompt: string): UserInput[] {

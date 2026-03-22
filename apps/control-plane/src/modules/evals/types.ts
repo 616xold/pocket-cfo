@@ -113,6 +113,7 @@ export type CombinedAssessment = {
 };
 
 export type EvalResultRecord = {
+  backend: EvalBackend;
   candidate: EvalOutputRecord;
   combined: CombinedAssessment;
   completedAt: string;

@@ -36,6 +36,7 @@ describe("runEvalCommand", () => {
       promptVersions: ["planner-prompt.v1"],
     });
     expect(record.mode).toBe("dry-run");
+    expect(record.backend).toBe("openai_responses");
     expect(record.target).toBe("planner");
     expect(record.candidate.model).toBe("dry-run-fixture");
     expect(record.candidate.provider).toBeNull();

@@ -11,6 +11,7 @@ describe("eval result writer", () => {
       outputDirectory,
       records: [
         {
+          backend: "openai_responses",
           candidate: {
             model: "dry-run-fixture",
             output: "candidate output",
@@ -181,6 +182,7 @@ describe("eval result writer", () => {
       outputDirectory,
       records: [
         {
+          backend: "codex_subscription",
           candidate: {
             model: "gpt-5.4",
             output: "candidate output",

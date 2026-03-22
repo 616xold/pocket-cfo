@@ -3,6 +3,7 @@ import { EvalEnvSchema } from "@pocket-cto/config";
 import {
   CodexSubscriptionEvalClient,
   createMockCodexSubscriptionTurnResult,
+  withCodexEvalTimeout,
 } from "./codex-subscription-client";
 
 describe("codex subscription eval client", () => {
@@ -90,5 +91,24 @@ describe("codex subscription eval client", () => {
       overallScore: 4.5,
       verdict: "strong",
     });
+  });
+
+  it("fails cleanly when a codex eval turn stalls past the timeout", async () => {
+    vi.useFakeTimers();
+
+    try {
+      const stalled = withCodexEvalTimeout(new Promise<never>(() => {}), {
+        model: "gpt-5.4",
+        timeoutMs: 25,
+      });
+      const expectation = expect(stalled).rejects.toThrow(
+        "Codex subscription eval timed out after 25ms while waiting for a terminal turn on model gpt-5.4.",
+      );
+
+      await vi.advanceTimersByTimeAsync(25);
+      await expectation;
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

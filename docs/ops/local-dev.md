@@ -396,6 +396,7 @@ Default model policy:
 - candidate defaults to `gpt-5.4` so prompt candidates align with the strongest current shared baseline across Codex and API paths
 - grader defaults to `gpt-5.4-mini` so scoring stays strong while remaining cheaper
 - reference defaults to `gpt-5.4`
+- `gpt-5.4-mini` can still be useful as a lower-cost exploratory candidate in ad hoc experiments, but it is not the default benchmark candidate
 - `gpt-5.3-codex-spark` is optional and experimental, not the baseline default
 
 Checked-in datasets live under `evals/datasets/`.
@@ -409,10 +410,11 @@ Check the local eval configuration before spending tokens:
 
 ```bash
 pnpm eval:doctor
+pnpm eval:doctor:codex
 ```
 
-`pnpm eval:doctor` prints the selected backend, whether `OPENAI_API_KEY` is present, where it came from when that can be detected (`shell env`, `loaded .env`, or `unknown`), whether `EVALS_ENABLED` is true, the candidate or grader or reference models, the Codex app-server command, the effective live-vs-dry-run mode, and the results directory.
-If you are using `codex_subscription`, doctor is honest about the limit: it reports config readiness, but a live smoke run is still the proof that local Codex auth works in this shell.
+`pnpm eval:doctor` prints the selected backend, whether `OPENAI_API_KEY` is present, where it came from when that can be detected (`shell env`, `loaded .env`, or `unknown`), whether `EVALS_ENABLED` is true, the candidate or grader or reference models, the transport, the Codex app-server command, the effective live-vs-dry-run mode, and the results directory.
+`pnpm eval:doctor:codex` is the zero-cost Codex-subscription doctor. It pins `codex_subscription`, reports whether the configured Codex binary is present, reports `auth verification` as `verified`, `unverified`, or `unavailable`, and explains why it cannot safely prove more than local binary plus config plus prior saved proof without another live smoke.
 
 Run the lane manually from the repo root:
 
@@ -458,13 +460,15 @@ To intentionally prove the live path with one seeded planner sample:
 ```bash
 EVALS_ENABLED=true pnpm eval:smoke:planner
 EVALS_ENABLED=true pnpm eval:smoke:executor
-EVALS_ENABLED=true EVAL_BACKEND=codex_subscription pnpm eval:smoke:planner
+pnpm eval:smoke:planner:codex
+pnpm eval:smoke:executor:codex
 ```
 
-The smoke commands refuse to proceed if they would become a dry run.
+The smoke commands refuse to proceed if they would become a dry run or if a packaged Codex smoke is redirected back to the API backend.
 On success each one writes a results file under `evals/results/` and prints a compact summary with the mode, backend, dataset, prompt version, git provenance, output path, and whichever proof fields are honestly available for that backend.
 `openai_responses` prints response ids and token usage when the API returns them.
 `codex_subscription` prints thread or turn ids and Codex version when the app-server path provides them.
+If a Codex smoke cannot complete a fresh turn, it now fails cleanly instead of hanging indefinitely.
 
 To compare two saved runs locally:
 

@@ -20,16 +20,30 @@ export async function readEvalResultFile(filePath: string) {
   };
 }
 
-function normalizeEvalResultRecord(record: EvalResultRecord): EvalResultRecord {
+export function normalizeEvalResultRecord(
+  record: EvalResultRecord,
+): EvalResultRecord {
+  const candidateProvider = normalizeProviderMetadata(record.candidate.provider);
+  const graderProvider = normalizeProviderMetadata(record.grader.provider);
+  const referenceProvider = record.reference
+    ? normalizeProviderMetadata(record.reference.provider)
+    : null;
+
   return {
     ...record,
+    backend:
+      record.backend ??
+      candidateProvider?.backend ??
+      graderProvider?.backend ??
+      referenceProvider?.backend ??
+      "openai_responses",
     candidate: {
       ...record.candidate,
-      provider: normalizeProviderMetadata(record.candidate.provider),
+      provider: candidateProvider,
     },
     grader: {
       ...record.grader,
-      provider: normalizeProviderMetadata(record.grader.provider),
+      provider: graderProvider,
     },
     provenance: {
       branchName: record.provenance?.branchName ?? null,
@@ -43,7 +57,7 @@ function normalizeEvalResultRecord(record: EvalResultRecord): EvalResultRecord {
     reference: record.reference
       ? {
           ...record.reference,
-          provider: normalizeProviderMetadata(record.reference.provider),
+          provider: referenceProvider,
         }
       : null,
   };
