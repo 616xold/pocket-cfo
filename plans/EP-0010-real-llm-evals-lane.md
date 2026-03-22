@@ -33,6 +33,8 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 - [x] (2026-03-22T16:15Z) Added generic `EVAL_*` env keys with legacy `OPENAI_EVAL_*` compatibility, changed eval-only defaults to `gpt-5.4` / `gpt-5.4-mini` / `gpt-5.4`, and updated doctor, summary, compare, smoke, and writer paths to handle mixed-backend proof metadata honestly.
 - [x] (2026-03-22T16:15Z) Added focused tests for backend selection, generic-versus-legacy env precedence, new defaults, mixed-backend result persistence, and the mockable Codex backend; then re-ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`, and `pnpm ci:repro:current` successfully.
 - [x] (2026-03-22T16:15Z) Verified Codex config readiness with `EVALS_ENABLED=true EVAL_BACKEND=codex_subscription pnpm eval:doctor -- --backend codex_subscription`. A follow-up live planner smoke spawned `codex app-server` through the supported seam but did not produce a terminal result in this session, so live Codex proof remains an honest blocker instead of a claimed success.
+- [x] (2026-03-22T17:10Z) Added the packaged Codex local-tuning operator path: a zero-cost `eval:doctor:codex`, packaged `eval:smoke:planner:codex` and `eval:smoke:executor:codex` aliases, explicit pinned-backend guards, top-level record backend tagging, and clearer compare plus summary output for mixed `openai_responses` versus `codex_subscription` result files.
+- [x] (2026-03-22T16:36Z) Ran the narrowed eval tests, then re-ran `pnpm repo:hygiene`, `pnpm lint`, `pnpm typecheck`, `pnpm build`, `pnpm test`, `pnpm ci:repro:current`, `pnpm eval:doctor:codex`, `pnpm eval:smoke:planner:codex`, and `pnpm eval:smoke:executor:codex`. The zero-cost doctor now reports truthful saved-proof readiness, while both fresh packaged smokes timed out cleanly after 60s and therefore recorded no new Codex live proof in this session.
 
 ## Surprises & Discoveries
 
@@ -74,6 +76,9 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 
 - Observation: the supported local Codex app-server can start successfully without immediately proving that a fresh eval turn will complete in this desktop session.
   Evidence: `EVALS_ENABLED=true EVAL_BACKEND=codex_subscription pnpm eval:doctor -- --backend codex_subscription` reported a valid `codex app-server` command and live-ready config, while the subsequent `pnpm eval:smoke:planner` attempt spawned `codex app-server` but never emitted a terminal result or result file after repeated polling.
+
+- Observation: a zero-cost Codex doctor can safely report more than raw config if it inspects the local binary and prior saved eval artifacts, but it still cannot prove the current shell can complete a fresh turn.
+  Evidence: the eval result JSONL already contains honest Codex thread or turn proof when available, so a doctor can report `verified`, `unverified`, or `unavailable` status without new paid or live calls, yet a fresh smoke remains the only proof for current-session auth plus turn completion.
 
 ## Decision Log
 
@@ -139,6 +144,14 @@ This change is intentionally narrow. It does not put paid model calls into CI, d
 
 - Decision: Change eval-only model defaults to `gpt-5.4` for candidate and reference plus `gpt-5.4-mini` for grading, without changing product runtime defaults.
   Rationale: The candidate should track the strongest current cross-surface model, the grader should stay cheaper for repeated scoring, and runtime production defaults are outside this slice.
+  Date/Author: 2026-03-22 / Codex
+
+- Decision: Treat packaged Codex tuning commands as pinned wrappers instead of relying on remembered environment overrides.
+  Rationale: Operators need a single truthful low-cost lane that cannot silently drift back to `openai_responses` or dry-run mode, so the packaged wrappers now hard-pin `codex_subscription` and reject conflicting backend overrides.
+  Date/Author: 2026-03-22 / Codex
+
+- Decision: Bound Codex-subscription eval turns with a clean timeout instead of letting local smokes hang indefinitely.
+  Rationale: A stalled local app-server turn is an operator ergonomics failure. Timing out with a clear message is more truthful and usable than leaving the packaged proof path to hang forever.
   Date/Author: 2026-03-22 / Codex
 
 ## Context and Orientation
@@ -308,6 +321,43 @@ Validation results captured after implementation:
   - spawned a fresh `codex app-server` process via the supported runtime seam
   - produced no JSONL result file before manual cleanup
   - therefore no Codex thread id, turn id, or other live proof metadata was recorded for this session
+- `pnpm --filter @pocket-cto/control-plane typecheck` passed after the packaged Codex follow-up.
+- `pnpm --filter @pocket-cto/control-plane test -- src/modules/evals` passed after the packaged Codex follow-up.
+  - `68` test files passed
+  - `263` tests passed
+- `pnpm repo:hygiene` passed after the packaged Codex follow-up.
+- `pnpm lint` passed after the packaged Codex follow-up.
+- `pnpm typecheck` passed after the packaged Codex follow-up.
+- `pnpm build` passed after the packaged Codex follow-up.
+- `pnpm test` passed after the packaged Codex follow-up.
+- `pnpm ci:repro:current` passed after the packaged Codex follow-up.
+  - reproduced the full install, `ci:static`, `ci:integration-db`, test, and clean-tree flow in a temporary worktree
+- `pnpm eval:doctor:codex` passed.
+  - backend: `codex_subscription`
+  - reported `OPENAI_API_KEY: present (***pw4A) (unused for current backend)`
+  - reported `OPENAI_API_KEY source: loaded .env`
+  - reported `EVALS_ENABLED: false`
+  - reported default mode `dry-run`
+  - transport: `codex_app_server`
+  - Codex binary: `present (/Applications/Codex.app/Contents/Resources/codex)`
+  - auth verification: `verified`
+  - auth note: a saved `codex_subscription` result already captured thread or turn proof, but a fresh smoke is still required to verify current-session turn completion
+  - latest saved proof file: `evals/results/20260322T160445Z-planner.jsonl`
+  - latest proof ids: `thread=019d1647-b026-7592-8e05-b2fdc851cf3c`, `turn=019d1647-b62b-7f50-87e1-8999bbc4dbca`
+- `pnpm eval:smoke:planner:codex` failed cleanly.
+  - backend: `codex_subscription`
+  - candidate model: `gpt-5.4`
+  - grader model: `gpt-5.4-mini`
+  - error: `Codex subscription eval timed out after 60000ms while waiting for a terminal turn on model gpt-5.4. Re-run the packaged Codex smoke after confirming local Codex auth, model availability, and app-server responsiveness.`
+  - no output file path was written
+  - no fresh thread or turn proof was recorded
+- `pnpm eval:smoke:executor:codex` failed cleanly.
+  - backend: `codex_subscription`
+  - candidate model: `gpt-5.4`
+  - grader model: `gpt-5.4-mini`
+  - error: `Codex subscription eval timed out after 60000ms while waiting for a terminal turn on model gpt-5.4. Re-run the packaged Codex smoke after confirming local Codex auth, model availability, and app-server responsiveness.`
+  - no output file path was written
+  - no fresh thread or turn proof was recorded
 
 Live-run note:
 
@@ -343,10 +393,10 @@ This slice should not introduce new database schema, replay event types, mission
 
 ## Outcomes & Retrospective
 
-EP-0010 is now complete through four connected slices: the original manual OpenAI eval lane, the live-visibility follow-up, the prompt-iteration usefulness follow-up, and the backend-abstraction follow-up.
-Pocket CTO now has one checked-in eval harness with two honest backends: `openai_responses` for official reported evals and `codex_subscription` for local tuning through the supported Codex app-server seam. The lane stays outside required CI, evaluates the current planner, executor, and compiler-quality surfaces with small seeded datasets, writes timestamped JSONL results to a gitignored comparison folder, records provider plus repo provenance, and exposes doctor, smoke, and compare commands that make prompt iteration practical instead of opaque.
+EP-0010 is now complete through five connected slices: the original manual OpenAI eval lane, the live-visibility follow-up, the prompt-iteration usefulness follow-up, the backend-abstraction follow-up, and the packaged Codex-proof ergonomics follow-up.
+Pocket CTO now has one checked-in eval harness with two honest backends: `openai_responses` for official reported evals and `codex_subscription` for local tuning through the supported Codex app-server seam. The lane stays outside required CI, evaluates the current planner, executor, and compiler-quality surfaces with small seeded datasets, writes timestamped JSONL results to a gitignored comparison folder, records provider plus repo provenance, tags each record with its backend, and exposes doctor, smoke, and compare commands that keep mixed-backend prompt iteration readable instead of opaque.
 
-The implementation stayed modular and out of the runtime hot path. The OpenAI-backed planner and executor smokes still provide a proven API-based lane with response ids and token usage, while the new backend abstraction keeps summary, compare, and writer logic truthful for mixed-backend result files. Eval-only defaults now move to `gpt-5.4` for candidate and reference plus `gpt-5.4-mini` for grading, without changing product runtime defaults.
+The implementation stayed modular and out of the runtime hot path. The OpenAI-backed planner and executor smokes still provide a proven API-based lane with response ids and token usage, while the packaged Codex doctor and smoke wrappers now provide a truthful local-tuning operator path with pinned backend selection, backend-specific proof reporting, and bounded timeout failures instead of silent fallback or indefinite hanging. Eval-only defaults remain `gpt-5.4` for candidate and reference plus `gpt-5.4-mini` for grading, with `gpt-5.4-mini` documented as an optional low-cost exploratory candidate rather than the benchmark default.
 
-The local Codex tuning lane is architecturally ready and test-covered, but this session did not obtain live Codex proof.
-The supported smoke path spawned `codex app-server` yet never reached a terminal result, so the plan records the Codex live run as unverified rather than claiming success. Prompt 2 can start cleanly from the code and test boundary, but the first live Codex smoke still needs follow-up in a session where the local Codex subscription and runtime complete a turn end to end.
+The local Codex tuning lane is now packaged, explicit, and honest, but it is not yet fresh-proof-ready in this session.
+The zero-cost doctor can verify prior saved Codex proof and local binary presence, yet both fresh packaged smokes timed out before a terminal turn completed, so no new Codex JSONL artifact was written for this run. That leaves the repo ready for low-cost local tuning once the local Codex session completes fresh turns again, while the official `openai_responses` reporting lane remains intact and already proven.

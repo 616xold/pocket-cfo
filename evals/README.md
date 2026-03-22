@@ -18,11 +18,13 @@ Live usage:
 
 ```bash
 pnpm eval:doctor
+pnpm eval:doctor:codex
 pnpm eval:planner -- --dry-run
 EVALS_ENABLED=true pnpm eval:smoke:planner
 EVALS_ENABLED=true pnpm eval:smoke:executor
 EVALS_ENABLED=true pnpm eval:planner
-EVALS_ENABLED=true EVAL_BACKEND=codex_subscription pnpm eval:smoke:planner
+pnpm eval:smoke:planner:codex
+pnpm eval:smoke:executor:codex
 pnpm eval:compare -- --a evals/results/<older>.jsonl --b evals/results/<newer>.jsonl
 ```
 
@@ -53,14 +55,17 @@ Default model policy:
 - candidate defaults to `gpt-5.4` so the eval candidate tracks the strongest current cross-Codex/API baseline
 - grader defaults to `gpt-5.4-mini` so scoring stays strong but cheaper
 - reference defaults to `gpt-5.4`
+- `gpt-5.4-mini` can still be used as a low-cost exploratory candidate in ad hoc experiments, but it is not the default benchmark candidate
 - `gpt-5.3-codex-spark` stays optional and experimental, not the baseline default
 
 `pnpm eval:doctor` shows the selected backend, whether the current shell is dry-run-only or live-ready, reports the best-known key source (`shell env`, `loaded .env`, or `unknown`), and prints the results directory without exposing the full API key.
-`pnpm eval:smoke:planner` and `pnpm eval:smoke:executor` are the intentional one-sample live proof paths and fail if they would fall back to dry-run.
+`pnpm eval:doctor:codex` is the packaged zero-cost local-tuning doctor. It pins `codex_subscription`, reports transport, binary presence, and `auth verification` as `verified`, `unverified`, or `unavailable`, and stays honest that only a fresh live smoke proves the current shell can still complete a Codex turn.
+`pnpm eval:smoke:planner` and `pnpm eval:smoke:executor` are the generic one-sample live proof paths. `pnpm eval:smoke:planner:codex` and `pnpm eval:smoke:executor:codex` are the packaged local-tuning proof paths and fail if they would fall back to dry-run or the API backend.
 `pnpm eval:compare` compares two saved JSONL runs so you can see score movement, dimension movement, and model changes without manually diffing raw files.
 
 Saved result records now keep compact provenance for later iteration work:
 
+- backend
 - dataset name
 - dataset item id
 - prompt version

@@ -83,7 +83,9 @@ export function formatEvalRunSummary(summary: EvalRunSummary) {
   ];
 
   if (summary.mode === "dry-run") {
-    lines.push("Dry-run: no OpenAI API calls were made.");
+    lines.push(
+      `Dry-run: no live ${summary.backend} backend calls were made.`,
+    );
     return lines.join("\n").concat("\n");
   }
 
@@ -97,7 +99,7 @@ export function formatEvalRunSummary(summary: EvalRunSummary) {
   return lines.join("\n").concat("\n");
 }
 
-function summarizeProviderCalls(
+export function summarizeProviderCalls(
   providers: Array<EvalProviderMetadata | null>,
 ): EvalProviderCallSummary {
   const liveProviders = providers.filter(

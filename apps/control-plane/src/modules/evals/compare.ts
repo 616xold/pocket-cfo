@@ -1,5 +1,10 @@
 import { basename } from "node:path";
-import type { EvalDimension, EvalResultRecord } from "./types";
+import { summarizeProviderCalls } from "./summary";
+import type {
+  EvalDimension,
+  EvalProviderCallSummary,
+  EvalResultRecord,
+} from "./types";
 import { evalDimensions } from "./types";
 import { readEvalResultFile } from "./result-files";
 
@@ -23,6 +28,8 @@ export function formatEvalCompareReport(report: EvalCompareReport) {
     "Eval compare",
     `A: ${report.a.fileName} (${report.a.candidateBackend}:${report.a.candidateModel} / ${report.a.graderBackend}:${report.a.graderModel})`,
     `B: ${report.b.fileName} (${report.b.candidateBackend}:${report.b.candidateModel} / ${report.b.graderBackend}:${report.b.graderModel})`,
+    `A proof: ${formatCompareProof(report.a.candidateProof, report.a.graderProof)}`,
+    `B proof: ${formatCompareProof(report.b.candidateProof, report.b.graderProof)}`,
     `Overall score: ${report.a.averageOverallScore} -> ${report.b.averageOverallScore} (${formatDelta(report.overallDelta)})`,
     `Dimensions: ${formatDimensionDeltas(report.dimensionDeltas)}`,
     `Datasets: ${report.a.datasetNames.join(", ")} -> ${report.b.datasetNames.join(", ")}`,
@@ -42,11 +49,13 @@ type EvalCompareSide = {
   branchName: string | null;
   candidateBackend: string;
   candidateModel: string;
+  candidateProof: EvalProviderCallSummary;
   datasetNames: string[];
   fileName: string;
   gitSha: string | null;
   graderBackend: string;
   graderModel: string;
+  graderProof: EvalProviderCallSummary;
 };
 
 export type EvalCompareReport = {
@@ -129,21 +138,40 @@ function summarizeCompareSide(
 
   const first = records[0];
 
+  const candidateProof = summarizeProviderCalls(
+    records.map((record) => record.candidate.provider),
+  );
+  const graderProof = summarizeProviderCalls(
+    records.map((record) => record.grader.provider),
+  );
+
+  if (candidateProof.calls === 0 && first?.backend) {
+    candidateProof.backends = [first.backend];
+  }
+
+  if (graderProof.calls === 0 && first?.backend) {
+    graderProof.backends = [first.backend];
+  }
+
   return {
     averageOverallScore: roundOneDecimal(
       records.reduce((sum, record) => sum + record.combined.overallScore, 0) /
         records.length,
     ),
     branchName: first?.provenance.branchName ?? null,
-    candidateBackend: first?.candidate.provider?.backend ?? "dry-run",
+    candidateBackend:
+      first?.candidate.provider?.backend ?? first?.backend ?? "dry-run",
     candidateModel: first?.candidate.model ?? "unknown-candidate-model",
+    candidateProof,
     datasetNames: Array.from(
       new Set(records.map((record) => record.provenance.datasetName)),
     ),
     fileName: basename(filePath),
     gitSha: first?.provenance.gitSha ?? null,
-    graderBackend: first?.grader.provider?.backend ?? "dry-run",
+    graderBackend:
+      first?.grader.provider?.backend ?? first?.backend ?? "dry-run",
     graderModel: first?.grader.model ?? "dry-run",
+    graderProof,
   };
 }
 
@@ -158,6 +186,37 @@ function formatDimensionDeltas(deltas: Record<EvalDimension, number>) {
   return evalDimensions
     .map((dimension) => `${dimension}=${formatDelta(deltas[dimension])}`)
     .join(", ");
+}
+
+function formatCompareProof(
+  candidate: EvalProviderCallSummary,
+  grader: EvalProviderCallSummary,
+) {
+  return [
+    `candidate ${formatProviderProof(candidate)}`,
+    `grader ${formatProviderProof(grader)}`,
+  ].join("; ");
+}
+
+function formatProviderProof(summary: EvalProviderCallSummary) {
+  const backend =
+    summary.backends.length > 0 ? summary.backends.join(", ") : "dry-run";
+  const transport =
+    summary.transports.length > 0
+      ? summary.transports.join(", ")
+      : "transport unavailable";
+  const proofMode =
+    summary.proofModes.length > 0
+      ? summary.proofModes.join(", ")
+      : "proof unavailable";
+  const proofIds =
+    summary.responseIds.length > 0
+      ? `response ids=${summary.responseIds.length}`
+      : summary.threadIds.length > 0 || summary.turnIds.length > 0
+        ? `thread ids=${summary.threadIds.length}, turn ids=${summary.turnIds.length}`
+        : "no proof ids";
+
+  return `${backend} via ${transport} (${proofMode}; ${proofIds})`;
 }
 
 function formatRevision(branchName: string | null, gitSha: string | null) {

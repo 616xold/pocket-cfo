@@ -34,7 +34,9 @@ describe("eval run summary formatter", () => {
     expect(text).toContain("Dataset: planner");
     expect(text).toContain("Prompt version: planner-prompt.v1");
     expect(text).toContain("Git: main @ abc123def456");
-    expect(text).toContain("Dry-run: no OpenAI API calls were made.");
+    expect(text).toContain(
+      "Dry-run: no live openai_responses backend calls were made.",
+    );
   });
 
   it("prints live proof details when usage metadata is available", () => {

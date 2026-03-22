@@ -1,6 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { loadEvalEnv, type EvalEnv } from "@pocket-cto/config";
+import { inspectCodexDoctorState } from "./codex-doctor";
 import { maskApiKey, resolveEvalEnvironment, resolveEvalLiveGuardState } from "./config";
 import { getEvalResultsDirectory } from "./paths";
 import type { EvalBackend } from "./types";
@@ -15,6 +16,7 @@ export type EvalDoctorReport = {
   };
   backend: EvalBackend;
   candidateModel: string;
+  codex: ReturnType<typeof inspectCodexDoctorState> | null;
   codexAppServerCommand: string;
   defaultMode: "dry-run" | "live";
   defaultRunBehavior: "dry-run-required" | "live";
@@ -22,6 +24,7 @@ export type EvalDoctorReport = {
   graderModel: string;
   referenceModel: string;
   resultsDirectory: string;
+  transport: "codex_app_server" | "openai_responses_api";
 };
 
 export function createEvalDoctorReport(input?: {
@@ -49,6 +52,14 @@ export function createEvalDoctorReport(input?: {
       loadedApiKey: liveGuard.apiKey,
       rawEnv: rawEnvBeforeLoad,
     });
+  const resultsDirectory = input?.resultsDirectory ?? getEvalResultsDirectory();
+  const codex =
+    resolvedEnv.backend === "codex_subscription"
+      ? inspectCodexDoctorState({
+          commandLine: `${env.CODEX_APP_SERVER_COMMAND} ${env.CODEX_APP_SERVER_ARGS}`.trim(),
+          resultsDirectory,
+        })
+      : null;
 
   return {
     apiKey: {
@@ -58,13 +69,18 @@ export function createEvalDoctorReport(input?: {
     },
     backend: resolvedEnv.backend,
     candidateModel: resolvedEnv.candidateModel,
+    codex,
     codexAppServerCommand: `${env.CODEX_APP_SERVER_COMMAND} ${env.CODEX_APP_SERVER_ARGS}`.trim(),
     defaultMode: liveGuard.defaultMode,
     defaultRunBehavior: liveGuard.liveReady ? "live" : "dry-run-required",
     evalsEnabled: liveGuard.evalsEnabled,
     graderModel: resolvedEnv.graderModel,
     referenceModel: resolvedEnv.referenceModel,
-    resultsDirectory: input?.resultsDirectory ?? getEvalResultsDirectory(),
+    resultsDirectory,
+    transport:
+      resolvedEnv.backend === "codex_subscription"
+        ? "codex_app_server"
+        : "openai_responses_api",
   };
 }
 
@@ -82,6 +98,7 @@ export function formatEvalDoctorReport(report: EvalDoctorReport) {
     `Candidate model: ${report.candidateModel}`,
     `Grader model: ${report.graderModel}`,
     `Reference model: ${report.referenceModel}`,
+    `Transport: ${report.transport}`,
     `Codex app server: ${report.codexAppServerCommand}`,
     `Default mode: ${report.defaultMode}`,
     `Results directory: ${report.resultsDirectory}`,
@@ -97,11 +114,40 @@ export function formatEvalDoctorReport(report: EvalDoctorReport) {
 
   if (report.backend === "codex_subscription") {
     lines.push(
-      "Local Codex auth is verified only by a live smoke run; doctor reports config readiness, not subscription state.",
+      `Codex binary: ${formatCodexBinary(report.codex)}`,
+      `Auth verification: ${report.codex?.authVerification.status ?? "unavailable"}`,
+      `Auth note: ${report.codex?.authVerification.reason ?? "Doctor could not inspect Codex local proof state."}`,
     );
+
+    if (report.codex?.authVerification.latestProofFileName) {
+      lines.push(
+        `Latest saved Codex proof: ${report.codex.authVerification.latestProofFileName}${report.codex.authVerification.latestCompletedAt ? ` @ ${report.codex.authVerification.latestCompletedAt}` : ""}`,
+      );
+    }
+
+    if (
+      report.codex?.authVerification.threadId ||
+      report.codex?.authVerification.turnId
+    ) {
+      lines.push(
+        `Latest proof ids: thread=${report.codex.authVerification.threadId ?? "unavailable"}, turn=${report.codex.authVerification.turnId ?? "unavailable"}`,
+      );
+    }
   }
 
   return lines.join("\n").concat("\n");
+}
+
+function formatCodexBinary(report: EvalDoctorReport["codex"]) {
+  if (!report) {
+    return "unavailable";
+  }
+
+  if (report.binary.status === "present") {
+    return `present (${report.binary.resolvedPath ?? report.binary.command})`;
+  }
+
+  return `absent (${report.binary.command})`;
 }
 
 function detectApiKeySource(input: {

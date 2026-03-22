@@ -37,4 +37,15 @@ describe("planner smoke eval", () => {
       "Smoke evals require a real live eval backend call. Remove --dry-run and enable EVALS_ENABLED=true (or legacy OPENAI_EVALS_ENABLED=true).",
     );
   });
+
+  it("rejects a packaged codex smoke when the caller tries to switch backends", async () => {
+    await expect(
+      runPlannerSmokeCommand({
+        argv: ["--backend", "openai_responses"],
+        requiredBackend: "codex_subscription",
+      }),
+    ).rejects.toThrow(
+      "planner smoke eval is pinned to codex_subscription and cannot run with openai_responses.",
+    );
+  });
 });
