@@ -1,4 +1,8 @@
-import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
+import {
+  GetObjectCommand,
+  PutObjectCommand,
+  S3Client,
+} from "@aws-sdk/client-s3";
 import type { Env } from "@pocket-cto/config";
 import type { SourceSnapshotStorageKind } from "@pocket-cto/domain";
 
@@ -28,6 +32,7 @@ export type StoredSourceFile = {
 
 export interface SourceFileStorage {
   write(input: SourceFileStorageWriteInput): Promise<StoredSourceFile>;
+  read(storageRef: string): Promise<Buffer>;
 }
 
 export class S3SourceFileStorage implements SourceFileStorage {
@@ -76,6 +81,24 @@ export class S3SourceFileStorage implements SourceFileStorage {
       storageRef: formatS3StorageRef(this.bucket, key),
     };
   }
+
+  async read(storageRef: string) {
+    const objectLocation = parseS3StorageRef(storageRef);
+    const response = await this.client.send(
+      new GetObjectCommand({
+        Bucket: objectLocation.bucket,
+        Key: objectLocation.key,
+      }),
+    );
+
+    const body = await response.Body?.transformToByteArray();
+
+    if (!body) {
+      throw new Error(`Source object ${storageRef} returned an empty body`);
+    }
+
+    return Buffer.from(body);
+  }
 }
 
 export class InMemorySourceFileStorage implements SourceFileStorage {
@@ -105,8 +128,14 @@ export class InMemorySourceFileStorage implements SourceFileStorage {
     };
   }
 
-  read(storageRef: string) {
-    return this.objects.get(storageRef) ?? null;
+  async read(storageRef: string) {
+    const object = this.objects.get(storageRef);
+
+    if (!object) {
+      throw new Error(`Source object ${storageRef} was not found`);
+    }
+
+    return Buffer.from(object);
   }
 }
 
@@ -126,6 +155,19 @@ export function buildSourceObjectKey(input: {
 
 function formatS3StorageRef(bucket: string, key: string) {
   return `s3://${bucket}/${key}`;
+}
+
+function parseS3StorageRef(storageRef: string) {
+  const match = /^s3:\/\/([^/]+)\/(.+)$/u.exec(storageRef);
+
+  if (!match?.[1] || !match[2]) {
+    throw new Error(`Invalid S3 storage ref: ${storageRef}`);
+  }
+
+  return {
+    bucket: match[1],
+    key: match[2],
+  };
 }
 
 function normalizeObjectPrefix(prefix: string) {

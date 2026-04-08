@@ -2,6 +2,7 @@ import { asc, desc, eq, inArray } from "drizzle-orm";
 import {
   provenanceRecords,
   sourceFiles,
+  sourceIngestRuns,
   sourceSnapshots,
   sources,
   type Db,
@@ -15,6 +16,7 @@ import {
 import {
   mapProvenanceRecordRow,
   mapSourceFileRow,
+  mapSourceIngestRunRow,
   mapSourceRow,
   mapSourceSnapshotRow,
 } from "./repository-mappers";
@@ -22,8 +24,11 @@ import type {
   CreateProvenanceRecordInput,
   CreateSourceRecordInput,
   CreateSourceFileRecordInput,
+  CreateSourceIngestRunRecordInput,
   CreateSourceSnapshotRecordInput,
   SourceRepository,
+  UpdateSnapshotIngestStateInput,
+  UpdateSourceIngestRunRecordInput,
 } from "./repository";
 
 export class DrizzleSourceRepository implements SourceRepository {
@@ -148,6 +153,92 @@ export class DrizzleSourceRepository implements SourceRepository {
     return mapProvenanceRecordRow(row);
   }
 
+  async createSourceIngestRun(
+    input: CreateSourceIngestRunRecordInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .insert(sourceIngestRuns)
+      .values({
+        sourceId: input.sourceId,
+        sourceSnapshotId: input.sourceSnapshotId,
+        sourceFileId: input.sourceFileId,
+        parserKey: input.parserSelection.parserKey,
+        parserSelection: input.parserSelection,
+        inputChecksumSha256: input.inputChecksumSha256,
+        storageKind: input.storageKind,
+        storageRef: input.storageRef,
+        status: input.status,
+        warnings: input.warnings,
+        errors: input.errors,
+        receiptSummary: input.receiptSummary,
+        startedAt: new Date(input.startedAt),
+        completedAt: input.completedAt ? new Date(input.completedAt) : null,
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error("Source ingest run insert did not return a row");
+    }
+
+    return mapSourceIngestRunRow(row);
+  }
+
+  async updateSourceIngestRun(
+    input: UpdateSourceIngestRunRecordInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .update(sourceIngestRuns)
+      .set({
+        completedAt: input.completedAt ? new Date(input.completedAt) : null,
+        errors: input.errors,
+        receiptSummary: input.receiptSummary,
+        status: input.status,
+        updatedAt: new Date(),
+        warnings: input.warnings,
+      })
+      .where(eq(sourceIngestRuns.id, input.ingestRunId))
+      .returning();
+
+    if (!row) {
+      throw new Error(`Source ingest run ${input.ingestRunId} was not found`);
+    }
+
+    return mapSourceIngestRunRow(row);
+  }
+
+  async updateSnapshotIngestState(
+    input: UpdateSnapshotIngestStateInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .update(sourceSnapshots)
+      .set({
+        ingestErrorSummary: input.ingestErrorSummary ?? null,
+        ingestStatus: input.ingestStatus,
+        updatedAt: new Date(),
+      })
+      .where(eq(sourceSnapshots.id, input.snapshotId))
+      .returning();
+
+    if (!row) {
+      throw new Error(`Source snapshot ${input.snapshotId} was not found`);
+    }
+
+    await executor
+      .update(sources)
+      .set({
+        updatedAt: new Date(),
+      })
+      .where(eq(sources.id, row.sourceId));
+
+    return mapSourceSnapshotRow(row);
+  }
+
   async getSourceById(sourceId: string, session?: PersistenceSession) {
     const executor = this.getExecutor(session);
     const [row] = await executor
@@ -179,6 +270,20 @@ export class DrizzleSourceRepository implements SourceRepository {
       .limit(1);
 
     return row ? mapSourceFileRow(row) : null;
+  }
+
+  async getSourceIngestRunById(
+    ingestRunId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .select()
+      .from(sourceIngestRuns)
+      .where(eq(sourceIngestRuns.id, ingestRunId))
+      .limit(1);
+
+    return row ? mapSourceIngestRunRow(row) : null;
   }
 
   async listSources(
@@ -280,6 +385,24 @@ export class DrizzleSourceRepository implements SourceRepository {
       .orderBy(desc(provenanceRecords.recordedAt), asc(provenanceRecords.id));
 
     return rows.map(mapProvenanceRecordRow);
+  }
+
+  async listSourceIngestRunsBySourceFileId(
+    sourceFileId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(sourceIngestRuns)
+      .where(eq(sourceIngestRuns.sourceFileId, sourceFileId))
+      .orderBy(
+        desc(sourceIngestRuns.startedAt),
+        desc(sourceIngestRuns.createdAt),
+        asc(sourceIngestRuns.id),
+      );
+
+    return rows.map(mapSourceIngestRunRow);
   }
 
   private getExecutor(session?: PersistenceSession) {

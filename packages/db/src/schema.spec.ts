@@ -4,6 +4,7 @@ import {
   missions,
   provenanceRecords,
   sourceFiles,
+  sourceIngestRuns,
   sourceSnapshots,
   sources,
 } from "./schema";
@@ -16,5 +17,6 @@ describe("db schema exports", () => {
     expect(sourceSnapshots).toBeDefined();
     expect(sourceFiles).toBeDefined();
     expect(provenanceRecords).toBeDefined();
+    expect(sourceIngestRuns).toBeDefined();
   });
 });

@@ -53,6 +53,9 @@ describe("S3SourceFileStorage", () => {
       "april board deck pdf bytes",
     );
     expect(response.ContentType).toBe("application/pdf");
+    expect((await storage.read(result.storageRef)).toString()).toBe(
+      "april board deck pdf bytes",
+    );
   });
 });
 

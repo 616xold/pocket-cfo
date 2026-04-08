@@ -18,3 +18,7 @@ export const sourceIdParamsSchema = z.object({
 export const sourceFileIdParamsSchema = z.object({
   sourceFileId: z.string().uuid(),
 });
+
+export const ingestRunIdParamsSchema = z.object({
+  ingestRunId: z.string().uuid(),
+});

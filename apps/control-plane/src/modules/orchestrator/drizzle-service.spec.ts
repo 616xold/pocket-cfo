@@ -2727,11 +2727,24 @@ async function createHarness(options?: {
         async getSourceFile() {
           throw new Error("Not implemented in orchestrator harness");
         },
+        async getSourceIngestRun() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
+        async ingestSourceFile() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
         async listSourceFiles() {
           return {
             fileCount: 0,
             files: [],
             sourceId: "00000000-0000-4000-8000-000000000000",
+          };
+        },
+        async listSourceIngestRuns() {
+          return {
+            ingestRuns: [],
+            runCount: 0,
+            sourceFileId: "00000000-0000-4000-8000-000000000000",
           };
         },
         async listSources() {

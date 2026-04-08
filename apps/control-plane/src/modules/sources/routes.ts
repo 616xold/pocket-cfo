@@ -3,6 +3,7 @@ import type { SourceServicePort } from "../../lib/types";
 import { SourceFilePayloadParseError } from "./errors";
 import {
   createSourceSchema,
+  ingestRunIdParamsSchema,
   listSourcesQuerySchema,
   registerSourceFileMetadataSchema,
   sourceFileIdParamsSchema,
@@ -63,6 +64,23 @@ export async function registerSourceRoutes(
   app.get("/sources/files/:sourceFileId", async (request) => {
     const { sourceFileId } = sourceFileIdParamsSchema.parse(request.params);
     return deps.sourceService.getSourceFile(sourceFileId);
+  });
+
+  app.post("/sources/files/:sourceFileId/ingest", async (request, reply) => {
+    const { sourceFileId } = sourceFileIdParamsSchema.parse(request.params);
+    const created = await deps.sourceService.ingestSourceFile(sourceFileId);
+    reply.code(201);
+    return created;
+  });
+
+  app.get("/sources/files/:sourceFileId/ingest-runs", async (request) => {
+    const { sourceFileId } = sourceFileIdParamsSchema.parse(request.params);
+    return deps.sourceService.listSourceIngestRuns(sourceFileId);
+  });
+
+  app.get("/sources/ingest-runs/:ingestRunId", async (request) => {
+    const { ingestRunId } = ingestRunIdParamsSchema.parse(request.params);
+    return deps.sourceService.getSourceIngestRun(ingestRunId);
   });
 }
 
