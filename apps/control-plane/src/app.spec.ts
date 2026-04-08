@@ -403,6 +403,120 @@ describe("control-plane app", () => {
     });
   });
 
+  it("POST /sources/files/:sourceFileId/ingest creates durable ingest-run receipt views", async () => {
+    const app = await createTestApp(apps);
+
+    const createResponse = await app.inject({
+      method: "POST",
+      url: "/sources",
+      payload: {
+        kind: "dataset",
+        name: "Cash flow export",
+        createdBy: "finance-operator",
+        snapshot: {
+          originalFileName: "cash-flow-export.txt",
+          mediaType: "text/plain",
+          sizeBytes: 20,
+          checksumSha256:
+            "abababababababababababababababababababababababababababababababab",
+          storageKind: "external_url",
+          storageRef: "https://example.com/cash-flow.txt",
+          capturedAt: "2026-04-08T00:00:00.000Z",
+        },
+      },
+    });
+    const created = createResponse.json() as { source: { id: string } };
+    const uploadResponse = await app.inject({
+      method: "POST",
+      url: `/sources/${created.source.id}/files?originalFileName=cash-flow.csv&mediaType=text%2Fcsv&createdBy=finance-operator&capturedAt=2026-04-08T00:05:00.000Z`,
+      headers: {
+        "content-type": "application/octet-stream",
+      },
+      payload: Buffer.from("name,amount\ncash,10\nrunway,12\n"),
+    });
+    const uploaded = uploadResponse.json() as {
+      sourceFile: { id: string };
+      snapshot: { id: string };
+    };
+
+    const ingestResponse = await app.inject({
+      method: "POST",
+      url: `/sources/files/${uploaded.sourceFile.id}/ingest`,
+    });
+
+    expect(ingestResponse.statusCode).toBe(201);
+    expect(ingestResponse.json()).toMatchObject({
+      ingestRun: {
+        sourceId: created.source.id,
+        sourceFileId: uploaded.sourceFile.id,
+        sourceSnapshotId: uploaded.snapshot.id,
+        status: "ready",
+        parserSelection: {
+          parserKey: "csv_tabular",
+          matchedBy: "media_type",
+        },
+        warningCount: 0,
+        errorCount: 0,
+        receiptSummary: {
+          kind: "csv_tabular",
+          columnCount: 2,
+          header: ["name", "amount"],
+          rowCount: 2,
+        },
+      },
+    });
+
+    const ingested = ingestResponse.json() as {
+      ingestRun: { id: string };
+    };
+    const [listResponse, detailResponse] = await Promise.all([
+      app.inject({
+        method: "GET",
+        url: `/sources/files/${uploaded.sourceFile.id}/ingest-runs`,
+      }),
+      app.inject({
+        method: "GET",
+        url: `/sources/ingest-runs/${ingested.ingestRun.id}`,
+      }),
+    ]);
+
+    expect(listResponse.statusCode).toBe(200);
+    expect(listResponse.json()).toMatchObject({
+      sourceFileId: uploaded.sourceFile.id,
+      runCount: 1,
+      ingestRuns: [
+        {
+          id: ingested.ingestRun.id,
+          status: "ready",
+        },
+      ],
+    });
+    expect(detailResponse.statusCode).toBe(200);
+    expect(detailResponse.json()).toMatchObject({
+      ingestRun: {
+        id: ingested.ingestRun.id,
+        status: "ready",
+      },
+    });
+  });
+
+  it("GET /sources/ingest-runs/:ingestRunId returns 404 for an unknown ingest run", async () => {
+    const app = await createTestApp(apps);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/sources/ingest-runs/11111111-1111-4111-8111-111111111111",
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({
+      error: {
+        code: "source_ingest_run_not_found",
+        message: "Source ingest run not found",
+      },
+    });
+  });
+
   it("GET /missions returns newest-first mission summaries with the list contract", async () => {
     const app = await createTestApp(apps);
     const older = await createMission(app, {

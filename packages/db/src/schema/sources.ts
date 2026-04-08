@@ -1,6 +1,7 @@
 import {
   index,
   integer,
+  jsonb,
   pgEnum,
   pgTable,
   text,
@@ -36,6 +37,20 @@ export const sourceSnapshotIngestStatusEnum = pgEnum(
 
 export const provenanceRecordKindEnum = pgEnum("provenance_record_kind", [
   "source_file_registered",
+]);
+
+export const sourceParserKeyEnum = pgEnum("source_parser_key", [
+  "csv_tabular",
+  "markdown_text",
+  "zip_inventory",
+  "metadata_fallback",
+]);
+
+export const sourceIngestRunStatusEnum = pgEnum("source_ingest_run_status", [
+  "queued",
+  "processing",
+  "ready",
+  "failed",
 ]);
 
 export const sources = pgTable(
@@ -144,6 +159,69 @@ export const provenanceRecords = pgTable(
     ),
     provenanceSourceIndex: index("provenance_records_source_id_idx").on(
       table.sourceId,
+    ),
+  }),
+);
+
+export const sourceIngestRuns = pgTable(
+  "source_ingest_runs",
+  {
+    id: id(),
+    sourceId: uuid("source_id")
+      .references(() => sources.id, { onDelete: "cascade" })
+      .notNull(),
+    sourceSnapshotId: uuid("source_snapshot_id")
+      .references(() => sourceSnapshots.id, { onDelete: "cascade" })
+      .notNull(),
+    sourceFileId: uuid("source_file_id")
+      .references(() => sourceFiles.id, { onDelete: "cascade" })
+      .notNull(),
+    parserKey: sourceParserKeyEnum("parser_key").notNull(),
+    parserSelection: jsonb("parser_selection")
+      .$type<{
+        fileExtension: string | null;
+        matchedBy: "media_type" | "file_extension" | "source_kind" | "fallback";
+        mediaType: string;
+        parserKey:
+          | "csv_tabular"
+          | "markdown_text"
+          | "zip_inventory"
+          | "metadata_fallback";
+        sourceKind:
+          | "document"
+          | "spreadsheet"
+          | "dataset"
+          | "image"
+          | "archive"
+          | "other";
+      }>()
+      .notNull(),
+    inputChecksumSha256: text("input_checksum_sha256").notNull(),
+    storageKind: sourceSnapshotStorageKindEnum("storage_kind").notNull(),
+    storageRef: text("storage_ref").notNull(),
+    status: sourceIngestRunStatusEnum("status").notNull().default("queued"),
+    warnings: jsonb("warnings")
+      .$type<Array<{ code: string; message: string }>>()
+      .notNull()
+      .default([]),
+    errors: jsonb("errors")
+      .$type<Array<{ code: string; message: string }>>()
+      .notNull()
+      .default([]),
+    receiptSummary: jsonb("receipt_summary").$type<Record<string, unknown> | null>(),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => ({
+    sourceIngestRunsFileIndex: index("source_ingest_runs_source_file_id_idx").on(
+      table.sourceFileId,
+      table.createdAt,
+    ),
+    sourceIngestRunsSourceIndex: index("source_ingest_runs_source_id_idx").on(
+      table.sourceId,
+      table.createdAt,
     ),
   }),
 );

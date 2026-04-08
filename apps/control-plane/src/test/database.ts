@@ -11,6 +11,7 @@ import {
 import type {
   provenanceRecords,
   sourceFiles,
+  sourceIngestRuns,
   sourceSnapshots,
   sources,
 } from "@pocket-cto/db";
@@ -35,6 +36,7 @@ export async function resetTestDatabase() {
       twin_edges,
       twin_entities,
       twin_sync_runs,
+      source_ingest_runs,
       provenance_records,
       source_files,
       source_snapshots,
@@ -95,6 +97,7 @@ async function selectCount(
     | typeof sources
     | typeof sourceSnapshots
     | typeof sourceFiles
+    | typeof sourceIngestRuns
     | typeof provenanceRecords,
 ) {
   const [result] = await db.select({ count: count() }).from(table);

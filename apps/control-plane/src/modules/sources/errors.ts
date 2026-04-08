@@ -12,9 +12,29 @@ export class SourceFileNotFoundError extends Error {
   }
 }
 
+export class SourceIngestRunNotFoundError extends Error {
+  constructor(readonly ingestRunId: string) {
+    super("Source ingest run not found");
+    this.name = "SourceIngestRunNotFoundError";
+  }
+}
+
 export class SourceFilePayloadParseError extends Error {
   constructor() {
     super("Source file upload body must be raw binary data");
     this.name = "SourceFilePayloadParseError";
+  }
+}
+
+export class SourceIngestExecutionError extends Error {
+  readonly code: string;
+
+  constructor(
+    code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "SourceIngestExecutionError";
+    this.code = code;
   }
 }

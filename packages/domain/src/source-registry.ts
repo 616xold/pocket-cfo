@@ -114,6 +114,123 @@ export const RegisterSourceFileMetadataSchema = z.object({
   capturedAt: z.string().datetime({ offset: true }).optional(),
 });
 
+export const SourceParserKeySchema = z.enum([
+  "csv_tabular",
+  "markdown_text",
+  "zip_inventory",
+  "metadata_fallback",
+]);
+
+export const SourceParserSelectionMatchSchema = z.enum([
+  "media_type",
+  "file_extension",
+  "source_kind",
+  "fallback",
+]);
+
+export const SourceParserSelectionSchema = z.object({
+  parserKey: SourceParserKeySchema,
+  matchedBy: SourceParserSelectionMatchSchema,
+  mediaType: z.string().min(1),
+  fileExtension: z.string().min(1).nullable(),
+  sourceKind: SourceKindSchema,
+});
+
+export const SourceIngestRunStatusSchema = z.enum([
+  "queued",
+  "processing",
+  "ready",
+  "failed",
+]);
+
+export const SourceIngestMessageSchema = z.object({
+  code: z.string().trim().min(1),
+  message: z.string().trim().min(1),
+});
+
+export const SourceIngestCsvReceiptSummarySchema = z.object({
+  kind: z.literal("csv_tabular"),
+  columnCount: z.number().int().nonnegative(),
+  header: z.array(z.string()).nullable(),
+  rowCount: z.number().int().nonnegative(),
+  sampleRows: z.array(z.array(z.string())),
+});
+
+export const SourceIngestHeadingPreviewSchema = z.object({
+  depth: z.number().int().min(1).max(6),
+  text: z.string().min(1),
+});
+
+export const SourceIngestMarkdownReceiptSummarySchema = z.object({
+  kind: z.literal("markdown_text"),
+  characterCount: z.number().int().nonnegative(),
+  excerpt: z.string(),
+  headingCount: z.number().int().nonnegative(),
+  headingPreview: z.array(SourceIngestHeadingPreviewSchema),
+  lineCount: z.number().int().nonnegative(),
+});
+
+export const SourceIngestZipEntrySchema = z.object({
+  compressedSizeBytes: z.number().int().nonnegative(),
+  isDirectory: z.boolean(),
+  path: z.string().min(1),
+  sizeBytes: z.number().int().nonnegative(),
+});
+
+export const SourceIngestZipReceiptSummarySchema = z.object({
+  kind: z.literal("zip_inventory"),
+  entries: z.array(SourceIngestZipEntrySchema),
+  entryCount: z.number().int().nonnegative(),
+  totalCompressedSizeBytes: z.number().int().nonnegative(),
+  totalSizeBytes: z.number().int().nonnegative(),
+});
+
+export const SourceIngestMetadataFallbackReceiptSummarySchema = z.object({
+  kind: z.literal("metadata_fallback"),
+  note: z.string().min(1),
+});
+
+export const SourceIngestReceiptSummarySchema = z.discriminatedUnion("kind", [
+  SourceIngestCsvReceiptSummarySchema,
+  SourceIngestMarkdownReceiptSummarySchema,
+  SourceIngestZipReceiptSummarySchema,
+  SourceIngestMetadataFallbackReceiptSummarySchema,
+]);
+
+export const SourceIngestRunRecordSchema = z.object({
+  id: z.string().uuid(),
+  sourceId: z.string().uuid(),
+  sourceSnapshotId: z.string().uuid(),
+  sourceFileId: z.string().uuid(),
+  parserSelection: SourceParserSelectionSchema,
+  inputChecksumSha256: SourceChecksumSha256Schema,
+  storageKind: SourceSnapshotStorageKindSchema,
+  storageRef: z.string().min(1),
+  status: SourceIngestRunStatusSchema,
+  warnings: z.array(SourceIngestMessageSchema),
+  errors: z.array(SourceIngestMessageSchema),
+  receiptSummary: SourceIngestReceiptSummarySchema.nullable(),
+  startedAt: z.string().datetime({ offset: true }),
+  completedAt: z.string().datetime({ offset: true }).nullable(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
+export const SourceIngestRunSummarySchema = SourceIngestRunRecordSchema.extend({
+  errorCount: z.number().int().nonnegative(),
+  warningCount: z.number().int().nonnegative(),
+});
+
+export const SourceIngestRunListViewSchema = z.object({
+  ingestRuns: z.array(SourceIngestRunSummarySchema),
+  runCount: z.number().int().nonnegative(),
+  sourceFileId: z.string().uuid(),
+});
+
+export const SourceIngestRunDetailViewSchema = z.object({
+  ingestRun: SourceIngestRunSummarySchema,
+});
+
 export const SourceSummarySchema = SourceRecordSchema.extend({
   latestSnapshot: SourceSnapshotRecordSchema.nullable(),
   snapshotCount: z.number().int().nonnegative(),
@@ -165,6 +282,42 @@ export type SourceFileRecord = z.infer<typeof SourceFileRecordSchema>;
 export type ProvenanceRecord = z.infer<typeof ProvenanceRecordSchema>;
 export type RegisterSourceFileMetadata = z.infer<
   typeof RegisterSourceFileMetadataSchema
+>;
+export type SourceParserKey = z.infer<typeof SourceParserKeySchema>;
+export type SourceParserSelectionMatch = z.infer<
+  typeof SourceParserSelectionMatchSchema
+>;
+export type SourceParserSelection = z.infer<typeof SourceParserSelectionSchema>;
+export type SourceIngestRunStatus = z.infer<typeof SourceIngestRunStatusSchema>;
+export type SourceIngestMessage = z.infer<typeof SourceIngestMessageSchema>;
+export type SourceIngestCsvReceiptSummary = z.infer<
+  typeof SourceIngestCsvReceiptSummarySchema
+>;
+export type SourceIngestHeadingPreview = z.infer<
+  typeof SourceIngestHeadingPreviewSchema
+>;
+export type SourceIngestMarkdownReceiptSummary = z.infer<
+  typeof SourceIngestMarkdownReceiptSummarySchema
+>;
+export type SourceIngestZipEntry = z.infer<typeof SourceIngestZipEntrySchema>;
+export type SourceIngestZipReceiptSummary = z.infer<
+  typeof SourceIngestZipReceiptSummarySchema
+>;
+export type SourceIngestMetadataFallbackReceiptSummary = z.infer<
+  typeof SourceIngestMetadataFallbackReceiptSummarySchema
+>;
+export type SourceIngestReceiptSummary = z.infer<
+  typeof SourceIngestReceiptSummarySchema
+>;
+export type SourceIngestRunRecord = z.infer<typeof SourceIngestRunRecordSchema>;
+export type SourceIngestRunSummary = z.infer<
+  typeof SourceIngestRunSummarySchema
+>;
+export type SourceIngestRunListView = z.infer<
+  typeof SourceIngestRunListViewSchema
+>;
+export type SourceIngestRunDetailView = z.infer<
+  typeof SourceIngestRunDetailViewSchema
 >;
 export type SourceSummary = z.infer<typeof SourceSummarySchema>;
 export type SourceListView = z.infer<typeof SourceListViewSchema>;

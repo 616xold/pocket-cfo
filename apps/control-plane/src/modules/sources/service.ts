@@ -5,20 +5,36 @@ import {
   SourceFileDetailViewSchema,
   SourceFileListViewSchema,
   SourceDetailViewSchema,
+  SourceIngestRunDetailViewSchema,
+  SourceIngestRunListViewSchema,
   SourceListViewSchema,
   type CreateSourceInput,
   type RegisterSourceFileMetadata,
   type SourceFileDetailView,
   type SourceFileListView,
+  type SourceIngestMessage,
+  type SourceIngestRunDetailView,
+  type SourceIngestRunListView,
+  type SourceIngestRunRecord,
+  type SourceIngestRunStatus,
   type SourceFileSummary,
   type SourceDetailView,
   type SourceListView,
   type SourceSnapshotRecord,
   type SourceSummary,
 } from "@pocket-cto/domain";
-import { SourceFileNotFoundError, SourceNotFoundError } from "./errors";
+import { selectSourceParser } from "./dispatch";
+import {
+  SourceFileNotFoundError,
+  SourceIngestExecutionError,
+  SourceIngestRunNotFoundError,
+  SourceNotFoundError,
+} from "./errors";
+import { runSourceParser } from "./parser-registry";
 import type { SourceRepository } from "./repository";
 import type { SourceFileStorage } from "./storage";
+
+const MAX_INGEST_ERROR_SUMMARY_LENGTH = 500;
 
 export class SourceRegistryService {
   private readonly now: () => Date;
@@ -246,6 +262,149 @@ export class SourceRegistryService {
       sourceFile,
     });
   }
+
+  async ingestSourceFile(
+    sourceFileId: string,
+  ): Promise<SourceIngestRunDetailView> {
+    const sourceFile = await this.repository.getSourceFileById(sourceFileId);
+
+    if (!sourceFile) {
+      throw new SourceFileNotFoundError(sourceFileId);
+    }
+
+    const [source, snapshot] = await Promise.all([
+      this.repository.getSourceById(sourceFile.sourceId),
+      this.repository.getSnapshotById(sourceFile.sourceSnapshotId),
+    ]);
+
+    if (!source) {
+      throw new SourceNotFoundError(sourceFile.sourceId);
+    }
+
+    if (!snapshot) {
+      throw new Error(
+        `Source file ${sourceFile.id} is missing its linked snapshot`,
+      );
+    }
+
+    const startedAt = this.now().toISOString();
+    const parserSelection = selectSourceParser(source, sourceFile);
+    const pendingRun = await this.repository.transaction(async (session) => {
+      const ingestRun = await this.repository.createSourceIngestRun(
+        {
+          sourceId: source.id,
+          sourceSnapshotId: snapshot.id,
+          sourceFileId: sourceFile.id,
+          parserSelection,
+          inputChecksumSha256: sourceFile.checksumSha256,
+          storageKind: sourceFile.storageKind,
+          storageRef: sourceFile.storageRef,
+          status: "processing",
+          warnings: [],
+          errors: [],
+          receiptSummary: null,
+          startedAt,
+        },
+        session,
+      );
+
+      await this.repository.updateSnapshotIngestState(
+        {
+          snapshotId: snapshot.id,
+          ingestStatus: "processing",
+          ingestErrorSummary: null,
+        },
+        session,
+      );
+
+      return ingestRun;
+    });
+
+    let status: SourceIngestRunStatus = "ready";
+    let warnings: SourceIngestMessage[] = [];
+    let errors: SourceIngestMessage[] = [];
+    let receiptSummary: SourceIngestRunRecord["receiptSummary"] = null;
+
+    try {
+      const body = await this.storage.read(sourceFile.storageRef);
+      const parsed = runSourceParser(parserSelection.parserKey, {
+        body,
+        source,
+        sourceFile,
+      });
+
+      warnings = parsed.warnings;
+      receiptSummary = parsed.receiptSummary;
+    } catch (error) {
+      status = "failed";
+      errors = [toIngestMessage(error)];
+    }
+
+    const completedAt = this.now().toISOString();
+    const ingestRun = await this.repository.transaction(async (session) => {
+      const finalizedRun = await this.repository.updateSourceIngestRun(
+        {
+          ingestRunId: pendingRun.id,
+          status,
+          warnings,
+          errors,
+          receiptSummary,
+          completedAt,
+        },
+        session,
+      );
+
+      await this.repository.updateSnapshotIngestState(
+        {
+          snapshotId: snapshot.id,
+          ingestStatus: status,
+          ingestErrorSummary:
+            status === "failed" ? summarizeIngestErrors(errors) : null,
+        },
+        session,
+      );
+
+      return finalizedRun;
+    });
+
+    return SourceIngestRunDetailViewSchema.parse({
+      ingestRun: summarizeIngestRun(ingestRun),
+    });
+  }
+
+  async listSourceIngestRuns(
+    sourceFileId: string,
+  ): Promise<SourceIngestRunListView> {
+    const sourceFile = await this.repository.getSourceFileById(sourceFileId);
+
+    if (!sourceFile) {
+      throw new SourceFileNotFoundError(sourceFileId);
+    }
+
+    const ingestRuns = await this.repository.listSourceIngestRunsBySourceFileId(
+      sourceFileId,
+    );
+
+    return SourceIngestRunListViewSchema.parse({
+      ingestRuns: ingestRuns.map(summarizeIngestRun),
+      runCount: ingestRuns.length,
+      sourceFileId,
+    });
+  }
+
+  async getSourceIngestRun(
+    ingestRunId: string,
+  ): Promise<SourceIngestRunDetailView> {
+    const ingestRun = await this.repository.getSourceIngestRunById(ingestRunId);
+
+    if (!ingestRun) {
+      throw new SourceIngestRunNotFoundError(ingestRunId);
+    }
+
+    return SourceIngestRunDetailViewSchema.parse({
+      ingestRun: summarizeIngestRun(ingestRun),
+    });
+  }
 }
 
 function groupSnapshotsBySourceId(snapshots: SourceSnapshotRecord[]) {
@@ -258,4 +417,40 @@ function groupSnapshotsBySourceId(snapshots: SourceSnapshotRecord[]) {
   }
 
   return grouped;
+}
+
+function summarizeIngestRun(ingestRun: SourceIngestRunRecord) {
+  return {
+    ...ingestRun,
+    errorCount: ingestRun.errors.length,
+    warningCount: ingestRun.warnings.length,
+  };
+}
+
+function summarizeIngestErrors(errors: SourceIngestMessage[]) {
+  return errors
+    .map((error) => error.message)
+    .join(" | ")
+    .slice(0, MAX_INGEST_ERROR_SUMMARY_LENGTH);
+}
+
+function toIngestMessage(error: unknown): SourceIngestMessage {
+  if (error instanceof SourceIngestExecutionError) {
+    return {
+      code: error.code,
+      message: error.message,
+    };
+  }
+
+  if (error instanceof Error) {
+    return {
+      code: "ingest_failed",
+      message: error.message,
+    };
+  }
+
+  return {
+    code: "ingest_failed",
+    message: "Source ingest failed with a non-error exception",
+  };
 }

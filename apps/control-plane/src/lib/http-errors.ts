@@ -31,6 +31,7 @@ import {
 } from "../modules/runtime-codex/errors";
 import {
   SourceFileNotFoundError,
+  SourceIngestRunNotFoundError,
   SourceFilePayloadParseError,
   SourceNotFoundError,
 } from "../modules/sources/errors";
@@ -59,6 +60,7 @@ export type ApiErrorCode =
   | "live_control_unavailable"
   | "mission_not_found"
   | "source_file_not_found"
+  | "source_ingest_run_not_found"
   | "source_not_found"
   | "internal_error"
   | "task_conflict"
@@ -220,6 +222,18 @@ function mapHttpError(error: unknown): ErrorMapping {
         error: {
           code: "source_file_not_found",
           message: "Source file not found",
+        },
+      },
+    };
+  }
+
+  if (error instanceof SourceIngestRunNotFoundError) {
+    return {
+      statusCode: 404,
+      body: {
+        error: {
+          code: "source_ingest_run_not_found",
+          message: "Source ingest run not found",
         },
       },
     };

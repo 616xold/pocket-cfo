@@ -2,8 +2,13 @@ import type {
   ProvenanceRecord,
   ProvenanceRecordKind,
   SourceFileRecord,
+  SourceIngestMessage,
+  SourceIngestReceiptSummary,
+  SourceIngestRunRecord,
+  SourceIngestRunStatus,
   SourceKind,
   SourceOriginKind,
+  SourceParserSelection,
   SourceRecord,
   SourceSnapshotIngestStatus,
   SourceSnapshotRecord,
@@ -59,6 +64,37 @@ export type CreateProvenanceRecordInput = {
   recordedAt: string;
 };
 
+export type CreateSourceIngestRunRecordInput = {
+  sourceId: string;
+  sourceSnapshotId: string;
+  sourceFileId: string;
+  parserSelection: SourceParserSelection;
+  inputChecksumSha256: string;
+  storageKind: SourceSnapshotStorageKind;
+  storageRef: string;
+  status: SourceIngestRunStatus;
+  warnings: SourceIngestMessage[];
+  errors: SourceIngestMessage[];
+  receiptSummary: SourceIngestReceiptSummary | null;
+  startedAt: string;
+  completedAt?: string | null;
+};
+
+export type UpdateSourceIngestRunRecordInput = {
+  ingestRunId: string;
+  status: SourceIngestRunStatus;
+  warnings: SourceIngestMessage[];
+  errors: SourceIngestMessage[];
+  receiptSummary: SourceIngestReceiptSummary | null;
+  completedAt?: string | null;
+};
+
+export type UpdateSnapshotIngestStateInput = {
+  snapshotId: string;
+  ingestStatus: SourceSnapshotIngestStatus;
+  ingestErrorSummary?: string | null;
+};
+
 export interface SourceRepository extends TransactionalRepository {
   createSource(
     input: CreateSourceRecordInput,
@@ -80,6 +116,21 @@ export interface SourceRepository extends TransactionalRepository {
     session?: PersistenceSession,
   ): Promise<ProvenanceRecord>;
 
+  createSourceIngestRun(
+    input: CreateSourceIngestRunRecordInput,
+    session?: PersistenceSession,
+  ): Promise<SourceIngestRunRecord>;
+
+  updateSourceIngestRun(
+    input: UpdateSourceIngestRunRecordInput,
+    session?: PersistenceSession,
+  ): Promise<SourceIngestRunRecord>;
+
+  updateSnapshotIngestState(
+    input: UpdateSnapshotIngestStateInput,
+    session?: PersistenceSession,
+  ): Promise<SourceSnapshotRecord>;
+
   getSourceById(
     sourceId: string,
     session?: PersistenceSession,
@@ -94,6 +145,11 @@ export interface SourceRepository extends TransactionalRepository {
     sourceFileId: string,
     session?: PersistenceSession,
   ): Promise<SourceFileRecord | null>;
+
+  getSourceIngestRunById(
+    ingestRunId: string,
+    session?: PersistenceSession,
+  ): Promise<SourceIngestRunRecord | null>;
 
   listSources(
     input: { limit: number },
@@ -124,6 +180,11 @@ export interface SourceRepository extends TransactionalRepository {
     sourceFileId: string,
     session?: PersistenceSession,
   ): Promise<ProvenanceRecord[]>;
+
+  listSourceIngestRunsBySourceFileId(
+    sourceFileId: string,
+    session?: PersistenceSession,
+  ): Promise<SourceIngestRunRecord[]>;
 }
 
 export class InMemorySourceRepository implements SourceRepository {
@@ -131,6 +192,7 @@ export class InMemorySourceRepository implements SourceRepository {
   private readonly snapshots = new Map<string, SourceSnapshotRecord>();
   private readonly sourceFiles = new Map<string, SourceFileRecord>();
   private readonly provenanceRecords = new Map<string, ProvenanceRecord>();
+  private readonly ingestRuns = new Map<string, SourceIngestRunRecord>();
 
   async transaction<T>(
     operation: (session: PersistenceSession) => Promise<T>,
@@ -229,6 +291,86 @@ export class InMemorySourceRepository implements SourceRepository {
     return provenanceRecord;
   }
 
+  async createSourceIngestRun(
+    input: CreateSourceIngestRunRecordInput,
+  ): Promise<SourceIngestRunRecord> {
+    const now = new Date().toISOString();
+    const ingestRun: SourceIngestRunRecord = {
+      id: crypto.randomUUID(),
+      sourceId: input.sourceId,
+      sourceSnapshotId: input.sourceSnapshotId,
+      sourceFileId: input.sourceFileId,
+      parserSelection: input.parserSelection,
+      inputChecksumSha256: input.inputChecksumSha256,
+      storageKind: input.storageKind,
+      storageRef: input.storageRef,
+      status: input.status,
+      warnings: [...input.warnings],
+      errors: [...input.errors],
+      receiptSummary: input.receiptSummary,
+      startedAt: input.startedAt,
+      completedAt: input.completedAt ?? null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    this.ingestRuns.set(ingestRun.id, ingestRun);
+    return ingestRun;
+  }
+
+  async updateSourceIngestRun(
+    input: UpdateSourceIngestRunRecordInput,
+  ): Promise<SourceIngestRunRecord> {
+    const existing = this.ingestRuns.get(input.ingestRunId);
+
+    if (!existing) {
+      throw new Error(`Source ingest run ${input.ingestRunId} was not found`);
+    }
+
+    const updated: SourceIngestRunRecord = {
+      ...existing,
+      status: input.status,
+      warnings: [...input.warnings],
+      errors: [...input.errors],
+      receiptSummary: input.receiptSummary,
+      completedAt: input.completedAt ?? existing.completedAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.ingestRuns.set(updated.id, updated);
+    return updated;
+  }
+
+  async updateSnapshotIngestState(
+    input: UpdateSnapshotIngestStateInput,
+  ): Promise<SourceSnapshotRecord> {
+    const existing = this.snapshots.get(input.snapshotId);
+
+    if (!existing) {
+      throw new Error(`Source snapshot ${input.snapshotId} was not found`);
+    }
+
+    const now = new Date().toISOString();
+    const updated: SourceSnapshotRecord = {
+      ...existing,
+      ingestStatus: input.ingestStatus,
+      ingestErrorSummary: input.ingestErrorSummary ?? null,
+      updatedAt: now,
+    };
+
+    this.snapshots.set(updated.id, updated);
+    const source = this.sources.get(updated.sourceId);
+
+    if (source) {
+      this.sources.set(source.id, {
+        ...source,
+        updatedAt: now,
+      });
+    }
+
+    return updated;
+  }
+
   async getSourceById(sourceId: string): Promise<SourceRecord | null> {
     return this.sources.get(sourceId) ?? null;
   }
@@ -239,6 +381,12 @@ export class InMemorySourceRepository implements SourceRepository {
 
   async getSourceFileById(sourceFileId: string): Promise<SourceFileRecord | null> {
     return this.sourceFiles.get(sourceFileId) ?? null;
+  }
+
+  async getSourceIngestRunById(
+    ingestRunId: string,
+  ): Promise<SourceIngestRunRecord | null> {
+    return this.ingestRuns.get(ingestRunId) ?? null;
   }
 
   async listSources(input: { limit: number }): Promise<SourceRecord[]> {
@@ -288,6 +436,14 @@ export class InMemorySourceRepository implements SourceRepository {
       .filter((record) => record.sourceFileId === sourceFileId)
       .sort(sortProvenanceRecords);
   }
+
+  async listSourceIngestRunsBySourceFileId(
+    sourceFileId: string,
+  ): Promise<SourceIngestRunRecord[]> {
+    return [...this.ingestRuns.values()]
+      .filter((run) => run.sourceFileId === sourceFileId)
+      .sort(sortSourceIngestRuns);
+  }
 }
 
 function sortSources(left: SourceRecord, right: SourceRecord) {
@@ -320,6 +476,17 @@ function sortSourceFiles(left: SourceFileRecord, right: SourceFileRecord) {
 function sortProvenanceRecords(left: ProvenanceRecord, right: ProvenanceRecord) {
   return (
     right.recordedAt.localeCompare(left.recordedAt) ||
+    left.id.localeCompare(right.id)
+  );
+}
+
+function sortSourceIngestRuns(
+  left: SourceIngestRunRecord,
+  right: SourceIngestRunRecord,
+) {
+  return (
+    right.startedAt.localeCompare(left.startedAt) ||
+    right.createdAt.localeCompare(left.createdAt) ||
     left.id.localeCompare(right.id)
   );
 }
