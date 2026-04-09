@@ -1,5 +1,6 @@
 export * from "./approval";
 export * from "./discovery-mission";
+export * from "./finance-twin";
 export * from "./github-issue-intake";
 export * from "./mission-detail";
 export * from "./mission-list";

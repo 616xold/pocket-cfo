@@ -2706,6 +2706,14 @@ async function createHarness(options?: {
           };
         },
       },
+      financeTwinService: {
+        async getCompanySummary() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
+        async syncCompanySourceFile() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
+      },
       missionService,
       operatorControl: {
         approvalService,

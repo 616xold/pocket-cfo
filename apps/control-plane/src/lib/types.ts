@@ -1,5 +1,6 @@
 import type { OperatorControlAvailability as DomainOperatorControlAvailability } from "@pocket-cto/domain";
 import type { ApprovalService } from "../modules/approvals/service";
+import type { FinanceTwinService } from "../modules/finance-twin/service";
 import type { GitHubAppService } from "../modules/github-app/service";
 import type { GitHubIssueIntakeService } from "../modules/github-app/issue-intake-service";
 import type { GitHubWebhookService } from "../modules/github-app/webhook-service";
@@ -54,6 +55,11 @@ export type SourceServicePort = Pick<
   | "registerSourceFile"
 >;
 
+export type FinanceTwinServicePort = Pick<
+  FinanceTwinService,
+  "getCompanySummary" | "syncCompanySourceFile"
+>;
+
 export type TwinServicePort = Pick<
   TwinService,
   | "finishSyncRun"
@@ -87,6 +93,7 @@ export type AppContainer = {
   githubAppService: GitHubAppServicePort;
   githubIssueIntakeService: GitHubIssueIntakeServicePort;
   githubWebhookService: GitHubWebhookServicePort;
+  financeTwinService: FinanceTwinServicePort;
   missionService: MissionServicePort;
   operatorControl: {
     approvalService: Pick<

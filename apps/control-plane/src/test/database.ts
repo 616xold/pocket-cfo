@@ -9,6 +9,12 @@ import {
   replayEvents,
 } from "@pocket-cto/db";
 import type {
+  financeCompanies,
+  financeLedgerAccounts,
+  financeReportingPeriods,
+  financeTrialBalanceLines,
+  financeTwinLineage,
+  financeTwinSyncRuns,
   provenanceRecords,
   sourceFiles,
   sourceIngestRuns,
@@ -33,6 +39,12 @@ export async function resetTestDatabase() {
 
   await db.execute(sql`
     TRUNCATE TABLE
+      finance_twin_lineage,
+      finance_trial_balance_lines,
+      finance_twin_sync_runs,
+      finance_ledger_accounts,
+      finance_reporting_periods,
+      finance_companies,
       twin_edges,
       twin_entities,
       twin_sync_runs,
@@ -98,7 +110,13 @@ async function selectCount(
     | typeof sourceSnapshots
     | typeof sourceFiles
     | typeof sourceIngestRuns
-    | typeof provenanceRecords,
+    | typeof provenanceRecords
+    | typeof financeCompanies
+    | typeof financeReportingPeriods
+    | typeof financeLedgerAccounts
+    | typeof financeTwinSyncRuns
+    | typeof financeTrialBalanceLines
+    | typeof financeTwinLineage,
 ) {
   const [result] = await db.select({ count: count() }).from(table);
   return result?.count ?? 0;

@@ -12,6 +12,12 @@ import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
+import { DrizzleFinanceTwinRepository } from "./modules/finance-twin/drizzle-repository";
+import {
+  InMemoryFinanceTwinRepository,
+  type FinanceTwinRepository,
+} from "./modules/finance-twin/repository";
+import { FinanceTwinService } from "./modules/finance-twin/service";
 import { GitHubAppAuth } from "./modules/github-app/auth";
 import {
   resolveGitHubAppConfig,
@@ -97,6 +103,7 @@ type ServerContainerFactories = {
 
 type SharedKernel = {
   approvalService: ApprovalService;
+  financeTwinService: FinanceTwinService;
   githubAppService: GitHubAppService;
   githubIssueIntakeService: GitHubIssueIntakeService;
   githubWebhookService: GitHubWebhookService;
@@ -195,12 +202,13 @@ export function createInMemoryContainer(): AppContainer {
   const kernel = buildSharedKernel({
     approvalRepository: new InMemoryApprovalRepository(),
     env: {},
+    financeTwinRepository: new InMemoryFinanceTwinRepository(),
     githubAppRepository: new InMemoryGitHubAppRepository(),
     githubIssueIntakeRepository: new InMemoryGitHubIssueIntakeRepository(),
     githubWebhookRepository: new InMemoryGitHubWebhookRepository(),
     missionRepository: new InMemoryMissionRepository(),
     replayRepository: new InMemoryReplayRepository(),
-  sourceRepository: new InMemorySourceRepository(),
+    sourceRepository: new InMemorySourceRepository(),
     sourceFileStorage: new InMemorySourceFileStorage(),
     twinRepository: new InMemoryTwinRepository(),
   });
@@ -235,6 +243,7 @@ async function buildDrizzleKernel(input: {
   const kernel = buildSharedKernel({
     approvalRepository: new DrizzleApprovalRepository(input.db),
     env: input.env,
+    financeTwinRepository: new DrizzleFinanceTwinRepository(input.db),
     githubAppRepository: new DrizzleGitHubAppRepository(input.db),
     githubIssueIntakeRepository: new DrizzleGitHubIssueIntakeRepository(
       input.db,
@@ -274,6 +283,7 @@ function buildSharedKernel(input: {
       | "POCKET_CTO_SOURCE_REPO_ROOT"
     >
   >;
+  financeTwinRepository: FinanceTwinRepository;
   githubAppRepository: GitHubAppRepository;
   githubIssueIntakeRepository: GitHubIssueIntakeRepository;
   githubWebhookRepository: GitHubWebhookRepository;
@@ -344,6 +354,11 @@ function buildSharedKernel(input: {
     input.sourceRepository,
     input.sourceFileStorage,
   );
+  const financeTwinService = new FinanceTwinService({
+    financeTwinRepository: input.financeTwinRepository,
+    sourceFileStorage: input.sourceFileStorage,
+    sourceRepository: input.sourceRepository,
+  });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -362,6 +377,7 @@ function buildSharedKernel(input: {
 
   return {
     approvalService,
+    financeTwinService,
     githubAppService,
     githubIssueIntakeService,
     githubWebhookService,
@@ -438,6 +454,7 @@ function toAppContainer(
   liveControl: OperatorControlAvailability,
 ): AppContainer {
   return {
+    financeTwinService: kernel.financeTwinService,
     githubAppService: kernel.githubAppService,
     githubIssueIntakeService: kernel.githubIssueIntakeService,
     githubWebhookService: kernel.githubWebhookService,
