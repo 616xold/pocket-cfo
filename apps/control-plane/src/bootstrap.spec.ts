@@ -256,6 +256,18 @@ function createAppContainer(
         };
       },
     } as AppContainer["githubWebhookService"],
+    financeTwinService: {
+      async getCompanySummary() {
+        throw new Error(
+          "getCompanySummary should not be called in this test",
+        );
+      },
+      async syncCompanySourceFile() {
+        throw new Error(
+          "syncCompanySourceFile should not be called in this test",
+        );
+      },
+    } as AppContainer["financeTwinService"],
     missionService: {
       async createDiscovery() {
         throw new Error("createDiscovery should not be called in this test");

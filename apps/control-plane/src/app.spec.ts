@@ -517,6 +517,126 @@ describe("control-plane app", () => {
     });
   });
 
+  it("POST /finance-twin/companies/:companyKey/source-files/:sourceFileId/sync persists a finance summary route", async () => {
+    const app = await createTestApp(apps);
+
+    const createResponse = await app.inject({
+      method: "POST",
+      url: "/sources",
+      payload: {
+        kind: "dataset",
+        name: "Trial balance export",
+        createdBy: "finance-operator",
+        snapshot: {
+          originalFileName: "trial-balance-link.txt",
+          mediaType: "text/plain",
+          sizeBytes: 18,
+          checksumSha256:
+            "efefefefefefefefefefefefefefefefefefefefefefefefefefefefefefefef",
+          storageKind: "external_url",
+          storageRef: "https://example.com/trial-balance",
+          capturedAt: "2026-04-09T00:00:00.000Z",
+        },
+      },
+    });
+    const created = createResponse.json() as { source: { id: string } };
+    const uploadResponse = await app.inject({
+      method: "POST",
+      url: `/sources/${created.source.id}/files?originalFileName=trial-balance.csv&mediaType=text%2Fcsv&createdBy=finance-operator&capturedAt=2026-04-09T00:05:00.000Z`,
+      headers: {
+        "content-type": "application/octet-stream",
+      },
+      payload: Buffer.from(
+        [
+          "account_code,account_name,period_end,debit,credit,currency_code,account_type",
+          "1000,Cash,2026-03-31,125000.00,0.00,USD,asset",
+          "2000,Accounts Payable,2026-03-31,0.00,42000.00,USD,liability",
+        ].join("\n"),
+      ),
+    });
+    const uploaded = uploadResponse.json() as {
+      sourceFile: { id: string };
+    };
+
+    const syncResponse = await app.inject({
+      method: "POST",
+      url: `/finance-twin/companies/acme/source-files/${uploaded.sourceFile.id}/sync`,
+      payload: {
+        companyName: "Acme Holdings",
+      },
+    });
+
+    expect(syncResponse.statusCode).toBe(201);
+    expect(syncResponse.json()).toMatchObject({
+      company: {
+        companyKey: "acme",
+        displayName: "Acme Holdings",
+      },
+      latestSource: {
+        sourceFileId: uploaded.sourceFile.id,
+      },
+      syncRun: {
+        extractorKey: "trial_balance_csv",
+        status: "succeeded",
+      },
+      coverage: {
+        reportingPeriodCount: 1,
+        ledgerAccountCount: 2,
+        trialBalanceLineCount: 2,
+        lineageCount: 5,
+      },
+      trialBalance: {
+        totalDebitAmount: "125000.00",
+        totalCreditAmount: "42000.00",
+        totalNetAmount: "83000.00",
+      },
+    });
+
+    const summaryResponse = await app.inject({
+      method: "GET",
+      url: "/finance-twin/companies/acme/summary",
+    });
+
+    expect(summaryResponse.statusCode).toBe(200);
+    expect(summaryResponse.json()).toMatchObject({
+      company: {
+        companyKey: "acme",
+      },
+      latestSyncRun: {
+        sourceFileId: uploaded.sourceFile.id,
+        status: "succeeded",
+      },
+      freshness: {
+        overall: {
+          state: "fresh",
+        },
+        trialBalance: {
+          state: "fresh",
+        },
+      },
+      coverage: {
+        trialBalanceLineCount: 2,
+      },
+    });
+  });
+
+  it("GET /finance-twin/companies/:companyKey/summary returns 404 for an unknown company", async () => {
+    const app = await createTestApp(apps);
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/finance-twin/companies/missing-company/summary",
+    });
+
+    expect(response.statusCode).toBe(404);
+    expect(response.json()).toEqual({
+      error: {
+        code: "finance_company_not_found",
+        message: "Finance company not found",
+      },
+    });
+  });
+
   it("GET /missions returns newest-first mission summaries with the list contract", async () => {
     const app = await createTestApp(apps);
     const older = await createMission(app, {
@@ -2125,6 +2245,7 @@ async function createTestApp(apps: FastifyInstance[]) {
 async function createStubApp(
   apps: FastifyInstance[],
   overrides: {
+    financeTwinService?: Partial<AppContainer["financeTwinService"]>;
     githubAppService?: Partial<AppContainer["githubAppService"]>;
     githubIssueIntakeService?: Partial<AppContainer["githubIssueIntakeService"]>;
     githubWebhookService?: Partial<AppContainer["githubWebhookService"]>;
@@ -2140,6 +2261,10 @@ async function createStubApp(
     container: {
       ...base,
       ...overrides,
+      financeTwinService: {
+        ...base.financeTwinService,
+        ...overrides.financeTwinService,
+      },
       githubAppService: {
         ...base.githubAppService,
         ...overrides.githubAppService,

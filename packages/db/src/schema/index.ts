@@ -1,5 +1,6 @@
 export * from "./missions";
 export * from "./artifacts";
+export * from "./finance-twin";
 export * from "./replay";
 export * from "./twin";
 export * from "./integrations";

@@ -6,6 +6,11 @@ import {
   ApprovalNotPendingError,
 } from "../modules/approvals/errors";
 import {
+  FinanceCompanyNotFoundError,
+  FinanceTwinExtractionError,
+  FinanceTwinUnsupportedSourceError,
+} from "../modules/finance-twin/errors";
+import {
   GitHubAppConfigurationError,
   GitHubInstallationNotFoundError,
   GitHubAppNotConfiguredError,
@@ -41,6 +46,9 @@ export type ApiErrorCode =
   | "invalid_request"
   | "approval_conflict"
   | "approval_not_found"
+  | "finance_company_not_found"
+  | "finance_twin_extraction_failed"
+  | "finance_twin_source_unsupported"
   | "github_app_invalid_configuration"
   | "github_app_not_configured"
   | "github_app_request_failed"
@@ -198,6 +206,42 @@ function mapHttpError(error: unknown): ErrorMapping {
         error: {
           code: "approval_not_found",
           message: "Approval not found",
+        },
+      },
+    };
+  }
+
+  if (error instanceof FinanceCompanyNotFoundError) {
+    return {
+      statusCode: 404,
+      body: {
+        error: {
+          code: "finance_company_not_found",
+          message: "Finance company not found",
+        },
+      },
+    };
+  }
+
+  if (error instanceof FinanceTwinUnsupportedSourceError) {
+    return {
+      statusCode: 422,
+      body: {
+        error: {
+          code: "finance_twin_source_unsupported",
+          message: error.message,
+        },
+      },
+    };
+  }
+
+  if (error instanceof FinanceTwinExtractionError) {
+    return {
+      statusCode: 422,
+      body: {
+        error: {
+          code: "finance_twin_extraction_failed",
+          message: error.message,
         },
       },
     };

@@ -1,5 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  financeCompanies,
+  financeLedgerAccounts,
+  financeReportingPeriods,
+  financeTrialBalanceLines,
+  financeTwinLineage,
+  financeTwinSyncRuns,
   missionTasks,
   missions,
   provenanceRecords,
@@ -18,5 +24,11 @@ describe("db schema exports", () => {
     expect(sourceFiles).toBeDefined();
     expect(provenanceRecords).toBeDefined();
     expect(sourceIngestRuns).toBeDefined();
+    expect(financeCompanies).toBeDefined();
+    expect(financeReportingPeriods).toBeDefined();
+    expect(financeLedgerAccounts).toBeDefined();
+    expect(financeTwinSyncRuns).toBeDefined();
+    expect(financeTrialBalanceLines).toBeDefined();
+    expect(financeTwinLineage).toBeDefined();
   });
 });
