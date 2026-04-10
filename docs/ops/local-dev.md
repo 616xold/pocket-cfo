@@ -1,6 +1,6 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, and F2C finance-twin slices for trial balance, chart of accounts, and general ledger.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, through the merged F2A and F2B finance-twin slices, and through the F2C general-ledger slice on branches that carry it.
 
 That means two things are true at once:
 

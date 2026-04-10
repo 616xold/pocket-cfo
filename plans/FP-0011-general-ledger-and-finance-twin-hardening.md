@@ -18,6 +18,7 @@ It extends the shipped F2A and F2B finance-twin work, but it does not begin AR o
 - [x] 2026-04-11T00:41:00Z Fix the company display-name preservation path, harden ledger-account authority semantics, and make attempted-versus-successful slice semantics explicit enough for a third finance slice.
 - [x] 2026-04-11T00:41:00Z Update `README.md` and `docs/ops/local-dev.md`, and make the smallest additional active-doc touch in `START_HERE.md` so the suggested slice list stays truthful through F2C.
 - [x] 2026-04-11T00:37:40Z Run the required validation ladder in the requested order, fix only in-slice failures, and proceed to one commit, push, and PR because every required validation is green.
+- [x] 2026-04-11T01:00:40Z Run a strict QA pass on the shipped F2C slice, correct the remaining merged-versus-branch wording in `docs/ops/local-dev.md`, and rerun the requested targeted validations plus `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
@@ -277,6 +278,7 @@ Company display names now preserve the last truthful explicit name when later sy
 The finance summary contract now exposes `latestAttemptedSlices` separately from `latestSuccessfulSlices`, and freshness stays explicit for `trialBalance`, `chartOfAccounts`, and `generalLedger`.
 
 Active-doc truthfulness is updated in `README.md`, `docs/ops/local-dev.md`, and the minimal `START_HERE.md` touch so the repo guidance no longer implies the branch is still only at F0 or F2A.
+The follow-up QA pass corrected one remaining wording issue in `docs/ops/local-dev.md` so it no longer implies F2C is already merged when the slice is still branch-carried.
 
 Validation passed in the requested ladder with one in-slice correction during `typecheck`:
 
