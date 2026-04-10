@@ -8,8 +8,8 @@ import { createContainer } from "../apps/control-plane/src/bootstrap.ts";
 import { closeAllPools } from "../packages/db/src/client.ts";
 import { buildRunTag, loadNearestEnvFile } from "./m2-exit-utils.mjs";
 
-const DEFAULT_COMPANY_KEY = "local-smoke-company";
-const DEFAULT_COMPANY_NAME = "Local Smoke Company";
+const DEFAULT_COMPANY_KEY = "local-trial-balance-smoke-company";
+const DEFAULT_COMPANY_NAME = "Local Trial Balance Smoke Company";
 const DEFAULT_CREATED_BY = "finance-twin-smoke";
 const MODULE_PATH = fileURLToPath(import.meta.url);
 

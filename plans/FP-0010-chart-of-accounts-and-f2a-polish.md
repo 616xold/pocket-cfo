@@ -17,6 +17,7 @@ It extends the existing F2A finance-twin foundation, but it does not begin AR or
 - [x] 2026-04-10T12:51:53Z Implement additive finance-twin contracts, schema, persistence, extractor dispatch, tests, and smoke support for `chart_of_accounts_csv`, while tightening summary and freshness truthfulness.
 - [x] 2026-04-10T12:51:53Z Update `plans/FP-0009-finance-twin-foundation-and-first-extractor.md`, `START_HERE.md`, and `docs/ops/local-dev.md` so the active-doc boundary matches the merged repo state truthfully.
 - [x] 2026-04-10T12:51:53Z Run the required validation ladder in the requested order, fix only in-scope failures, and confirm the slice is ready for exactly one commit, push, and PR because every required validation is green.
+- [x] 2026-04-10T12:58:34Z Complete the strict QA follow-up, isolate the packaged finance smokes by default company key, and rerun the focused finance, smoke, engineering-twin, and `pnpm ci:repro:current` validations on the corrected head.
 
 ## Surprises & Discoveries
 
@@ -34,6 +35,9 @@ It extends the existing F2A finance-twin foundation, but it does not begin AR or
 
 - Observation: the generated migration needed a small manual hardening step because the local dev database already contained the new enum label before the finalized migration was applied.
   Evidence: `pnpm db:migrate` failed locally with `enum label "chart_of_accounts_csv" already exists` until the migration used `ALTER TYPE ... ADD VALUE IF NOT EXISTS`, after which both local migration and `pnpm ci:repro:current` succeeded cleanly.
+
+- Observation: the packaged local finance smokes originally shared one default company key, which let a prior chart-of-accounts smoke make the trial-balance smoke look more complete than that command alone proved.
+  Evidence: rerunning `pnpm smoke:finance-twin:local` after `pnpm smoke:finance-twin-account-catalog:local` showed `chartOfAccounts` freshness as `fresh` for the shared default company instead of isolating the trial-balance slice.
 
 ## Decision Log
 
@@ -253,3 +257,6 @@ the merged F2A plan and active docs now describe the repo state honestly, includ
 
 Validation outcome:
 focused finance-twin tests, source-ingest smoke, finance-twin smoke, the new account-catalog smoke, the requested engineering-twin reproducibility tests, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed in this slice.
+
+QA follow-up outcome:
+the packaged finance smokes now use distinct default company keys so the trial-balance smoke and the account-catalog smoke each prove their own slice without cross-contaminating route freshness or summary output in the shared local environment.
