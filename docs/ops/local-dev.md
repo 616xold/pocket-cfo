@@ -1,13 +1,13 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A trial-balance finance-twin slice.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, and F2C finance-twin slices for trial balance, chart of accounts, and general ledger.
 
 That means two things are true at once:
 
 - the active docs now define a finance evidence product
 - parts of the working codebase still reflect the older Pocket CTO implementation
 
-The goal of local development in the current repo state is to keep the repo green while preserving the finished F1 raw-source path, preserving the shipped F2A finance-twin path, and starting later-phase work only through an explicit active Finance Plan.
+The goal of local development in the current repo state is to keep the repo green while preserving the finished F1 raw-source path, preserving the shipped finance-twin slices, and starting later-phase work only through an explicit active Finance Plan.
 
 ## Baseline bootstrap
 
@@ -32,6 +32,7 @@ pnpm smoke:source-registry:local
 pnpm smoke:source-ingest:local
 pnpm smoke:finance-twin:local
 pnpm smoke:finance-twin-account-catalog:local
+pnpm smoke:finance-twin-general-ledger:local
 ```
 
 ## Pivot-foundation baseline
@@ -56,8 +57,11 @@ Today, steps 1 through 4 exist in a narrow form:
 
 - F1 source registration and raw-file ingest are implemented
 - F2A trial-balance CSV sync is implemented
+- F2B chart-of-accounts CSV sync and account-catalog reads are implemented
+- F2C general-ledger CSV sync and persisted journal-entry or journal-line reads are implemented
 - the packaged `pnpm smoke:finance-twin:local` path proves the trial-balance sync from stored raw bytes
-- the packaged `pnpm smoke:finance-twin-account-catalog:local` path proves persisted account-catalog state once the F2B slice is present
+- the packaged `pnpm smoke:finance-twin-account-catalog:local` path proves persisted account-catalog state
+- the packaged `pnpm smoke:finance-twin-general-ledger:local` path proves persisted general-ledger journal state from stored raw bytes
 
 Steps 5 and 6 remain later-phase work.
 Use the docs to guide what gets built next.

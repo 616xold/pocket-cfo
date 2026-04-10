@@ -71,6 +71,7 @@ describe("DrizzleFinanceTwinRepository", () => {
       accountCode: "1000",
       accountName: "Cash",
       accountType: "asset",
+      extractorKey: "trial_balance_csv",
     });
     const syncRun = await repository.startSyncRun({
       companyId: company.id,
@@ -188,6 +189,7 @@ describe("DrizzleFinanceTwinRepository", () => {
       accountCode: "1000",
       accountName: "Cash",
       accountType: "asset",
+      extractorKey: "chart_of_accounts_csv",
     });
     const syncRun = await repository.startSyncRun({
       companyId: company.id,
@@ -253,6 +255,242 @@ describe("DrizzleFinanceTwinRepository", () => {
     ).toMatchObject({
       id: finalized.id,
       status: "succeeded",
+    });
+  });
+
+  it("persists general-ledger journal entries and lines with joined latest-snapshot reads", async () => {
+    const source = await sourceRepository.createSource({
+      kind: "dataset",
+      originKind: "manual",
+      name: "General ledger export",
+      description: "April journal detail",
+      createdBy: "finance-operator",
+    });
+    const snapshot = await sourceRepository.createSnapshot({
+      sourceId: source.id,
+      version: 1,
+      originalFileName: "general-ledger.csv",
+      mediaType: "text/csv",
+      sizeBytes: 512,
+      checksumSha256:
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      storageKind: "object_store",
+      storageRef: "s3://bucket/sources/general-ledger.csv",
+      capturedAt: "2026-04-11T00:00:00.000Z",
+      ingestStatus: "ready",
+    });
+    const sourceFile = await sourceRepository.createSourceFile({
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      originalFileName: "general-ledger.csv",
+      mediaType: "text/csv",
+      sizeBytes: 512,
+      checksumSha256:
+        "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      storageKind: "object_store",
+      storageRef: "s3://bucket/sources/general-ledger.csv",
+      createdBy: "finance-operator",
+      capturedAt: "2026-04-11T00:00:00.000Z",
+    });
+    const company = await repository.upsertCompany({
+      companyKey: "acme",
+      displayName: "Acme Holdings",
+    });
+    const cashAccount = await repository.upsertLedgerAccount({
+      companyId: company.id,
+      accountCode: "1000",
+      accountName: "Cash",
+      accountType: "asset",
+      extractorKey: "general_ledger_csv",
+    });
+    const equityAccount = await repository.upsertLedgerAccount({
+      companyId: company.id,
+      accountCode: "3000",
+      accountName: "Common Stock",
+      accountType: "equity",
+      extractorKey: "general_ledger_csv",
+    });
+    const syncRun = await repository.startSyncRun({
+      companyId: company.id,
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      sourceFileId: sourceFile.id,
+      extractorKey: "general_ledger_csv",
+      startedAt: "2026-04-11T00:10:00.000Z",
+    });
+    const journalEntry = await repository.upsertJournalEntry({
+      companyId: company.id,
+      syncRunId: syncRun.id,
+      externalEntryId: "J-100",
+      transactionDate: "2026-04-11",
+      entryDescription: "Seed funding",
+    });
+    const firstLine = await repository.upsertJournalLine({
+      companyId: company.id,
+      journalEntryId: journalEntry.id,
+      ledgerAccountId: cashAccount.id,
+      syncRunId: syncRun.id,
+      lineNumber: 2,
+      debitAmount: "100.00",
+      creditAmount: "0.00",
+      currencyCode: "USD",
+      lineDescription: "Cash received",
+    });
+    const secondLine = await repository.upsertJournalLine({
+      companyId: company.id,
+      journalEntryId: journalEntry.id,
+      ledgerAccountId: equityAccount.id,
+      syncRunId: syncRun.id,
+      lineNumber: 3,
+      debitAmount: "0.00",
+      creditAmount: "100.00",
+      currencyCode: "USD",
+      lineDescription: "Equity issued",
+    });
+    await repository.createLineage({
+      companyId: company.id,
+      syncRunId: syncRun.id,
+      targetKind: "journal_entry",
+      targetId: journalEntry.id,
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      sourceFileId: sourceFile.id,
+      recordedAt: "2026-04-11T00:10:01.000Z",
+    });
+    await repository.createLineage({
+      companyId: company.id,
+      syncRunId: syncRun.id,
+      targetKind: "journal_line",
+      targetId: firstLine.id,
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      sourceFileId: sourceFile.id,
+      recordedAt: "2026-04-11T00:10:02.000Z",
+    });
+    await repository.createLineage({
+      companyId: company.id,
+      syncRunId: syncRun.id,
+      targetKind: "journal_line",
+      targetId: secondLine.id,
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      sourceFileId: sourceFile.id,
+      recordedAt: "2026-04-11T00:10:03.000Z",
+    });
+    const finalized = await repository.finishSyncRun({
+      syncRunId: syncRun.id,
+      reportingPeriodId: null,
+      status: "succeeded",
+      completedAt: "2026-04-11T00:10:04.000Z",
+      stats: {
+        journalEntryCount: 1,
+        journalLineCount: 2,
+      },
+      errorSummary: null,
+    });
+
+    expect(await repository.listJournalEntriesBySyncRunId(syncRun.id)).toMatchObject([
+      {
+        id: journalEntry.id,
+        externalEntryId: "J-100",
+        entryDescription: "Seed funding",
+      },
+    ]);
+    expect(await repository.listJournalLineViewsBySyncRunId(syncRun.id)).toMatchObject([
+      {
+        ledgerAccount: {
+          accountCode: "1000",
+          accountName: "Cash",
+        },
+        journalLine: {
+          id: firstLine.id,
+          debitAmount: "100.00",
+        },
+      },
+      {
+        ledgerAccount: {
+          accountCode: "3000",
+          accountName: "Common Stock",
+        },
+        journalLine: {
+          id: secondLine.id,
+          creditAmount: "100.00",
+        },
+      },
+    ]);
+    expect(await repository.listGeneralLedgerEntriesBySyncRunId(syncRun.id)).toMatchObject([
+      {
+        journalEntry: {
+          id: journalEntry.id,
+          externalEntryId: "J-100",
+        },
+        lines: [
+          {
+            journalLine: {
+              id: firstLine.id,
+            },
+          },
+          {
+            journalLine: {
+              id: secondLine.id,
+            },
+          },
+        ],
+      },
+    ]);
+    expect(await repository.countLineageBySyncRunId(syncRun.id)).toBe(3);
+    expect(
+      await repository.getLatestSuccessfulSyncRunByCompanyIdAndExtractorKey(
+        company.id,
+        "general_ledger_csv",
+      ),
+    ).toMatchObject({
+      id: finalized.id,
+      status: "succeeded",
+    });
+  });
+
+  it("lets chart-of-accounts metadata override lower-authority slices without later degradation", async () => {
+    const company = await repository.upsertCompany({
+      companyKey: "acme",
+      displayName: "Acme Holdings",
+    });
+
+    const seeded = await repository.upsertLedgerAccount({
+      companyId: company.id,
+      accountCode: "1000",
+      accountName: null,
+      accountType: null,
+      extractorKey: "general_ledger_csv",
+    });
+    expect(seeded).toMatchObject({
+      accountCode: "1000",
+      accountName: null,
+      accountType: null,
+    });
+
+    const authoritative = await repository.upsertLedgerAccount({
+      companyId: company.id,
+      accountCode: "1000",
+      accountName: "Cash and Cash Equivalents",
+      accountType: "asset",
+      extractorKey: "chart_of_accounts_csv",
+    });
+    expect(authoritative).toMatchObject({
+      accountName: "Cash and Cash Equivalents",
+      accountType: "asset",
+    });
+
+    const nonAuthoritative = await repository.upsertLedgerAccount({
+      companyId: company.id,
+      accountCode: "1000",
+      accountName: "Cash",
+      accountType: "expense",
+      extractorKey: "trial_balance_csv",
+    });
+    expect(nonAuthoritative).toMatchObject({
+      accountName: "Cash and Cash Equivalents",
+      accountType: "asset",
     });
   });
 });

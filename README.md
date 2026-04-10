@@ -7,14 +7,21 @@ It turns messy finance questions and raw source bundles into typed finance missi
 
 ## Current repo state
 
-This repository is in **pivot mode**.
+This repository is past the pivot-foundation reset and the first narrow finance-twin slices.
 
 The active guidance layer now describes **Pocket CFO**.
 Some code, package names, database names, and legacy modules still say `pocket-cto`.
-Treat those as migration scaffolding, not as product direction.
-The control-plane spine stays; the domain substrate is what changes.
+Treat those as implementation scaffolding, not as product direction.
+The control-plane spine stays; the finance evidence substrate is what changes.
 
 Read `docs/ACTIVE_DOCS.md` before trusting older plans or engineering-era docs.
+
+Today the shipped backbone is:
+
+- F1 raw source registration and immutable file ingest
+- F2A deterministic trial-balance CSV sync into the Finance Twin
+- F2B deterministic chart-of-accounts CSV sync and account-catalog reads
+- F2C deterministic general-ledger CSV sync and persisted journal-entry or journal-line state on branches that carry that slice
 
 ## Product boundary for v1
 
@@ -88,6 +95,9 @@ Pocket CFO v1 is intentionally narrow:
 ├── plans
 │   ├── ROADMAP.md
 │   ├── FP-0001-pocket-cfo-pivot-foundation.md
+│   ├── FP-0009-finance-twin-foundation-and-first-extractor.md
+│   ├── FP-0010-chart-of-accounts-and-f2a-polish.md
+│   ├── FP-0011-general-ledger-and-finance-twin-hardening.md
 │   └── templates
 └── .agents
     └── skills
@@ -100,9 +110,10 @@ Pocket CFO v1 is intentionally narrow:
 3. Read `AGENTS.md`.
 4. Read `PLANS.md`.
 5. Read `plans/ROADMAP.md`.
-6. Start with `plans/FP-0001-pocket-cfo-pivot-foundation.md`.
-7. Keep progress updates inside the active Finance Plan while working.
-8. Do not delete legacy engineering modules until the finance replacement path exists and a smoke proves it.
+6. Read the current active `plans/FP-*.md` file for the next narrow slice instead of restarting from `FP-0001`.
+7. On this F2C branch, that active plan is `plans/FP-0011-general-ledger-and-finance-twin-hardening.md`.
+8. Keep progress updates inside the active Finance Plan while working.
+9. Do not delete legacy engineering modules until the finance replacement path exists and a smoke proves it.
 
 ## Local development
 
@@ -118,7 +129,17 @@ pnpm dev
 ```
 
 Use `docs/ops/local-dev.md` for the pivot-aware operating pattern.
-During F0 the important success is that the repo becomes **Pocket CFO in its active docs and Codex guidance** without destabilizing the working codebase.
+The current packaged local proofs for the finance path are:
+
+```bash
+pnpm smoke:source-ingest:local
+pnpm smoke:finance-twin:local
+pnpm smoke:finance-twin-account-catalog:local
+pnpm smoke:finance-twin-general-ledger:local
+```
+
+The current success condition is no longer an F0 guidance reset.
+It is preserving the authoritative raw-source ingest spine while extending the deterministic Finance Twin additively and truthfully.
 
 ## North star
 

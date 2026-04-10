@@ -2,6 +2,8 @@ import { and, asc, count, desc, eq } from "drizzle-orm";
 import {
   financeAccountCatalogEntries,
   financeCompanies,
+  financeJournalEntries,
+  financeJournalLines,
   financeLedgerAccounts,
   financeReportingPeriods,
   financeTrialBalanceLines,
@@ -15,10 +17,14 @@ import {
   getDbExecutor,
   type PersistenceSession,
 } from "../../lib/persistence";
+import { mergeLedgerAccountMasterState } from "./account-master";
 import {
   mapFinanceAccountCatalogEntryRow,
   mapFinanceAccountCatalogEntryViewRow,
   mapFinanceCompanyRow,
+  mapFinanceJournalEntryRow,
+  mapFinanceJournalLineRow,
+  mapFinanceJournalLineViewRow,
   mapFinanceLedgerAccountRow,
   mapFinanceReportingPeriodRow,
   mapFinanceTrialBalanceLineRow,
@@ -32,6 +38,8 @@ import type {
   StartFinanceTwinSyncRunInput,
   UpsertFinanceAccountCatalogEntryInput,
   UpsertFinanceCompanyInput,
+  UpsertFinanceJournalEntryInput,
+  UpsertFinanceJournalLineInput,
   UpsertFinanceLedgerAccountInput,
   UpsertFinanceReportingPeriodInput,
   UpsertFinanceTrialBalanceLineInput,
@@ -153,29 +161,57 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
     session?: PersistenceSession,
   ) {
     const executor = this.getExecutor(session);
+    const [existingRow] = await executor
+      .select()
+      .from(financeLedgerAccounts)
+      .where(
+        and(
+          eq(financeLedgerAccounts.companyId, input.companyId),
+          eq(financeLedgerAccounts.accountCode, input.accountCode),
+        ),
+      )
+      .limit(1);
+
+    const existing = existingRow ? mapFinanceLedgerAccountRow(existingRow) : null;
+    const merged = mergeLedgerAccountMasterState({
+      existing,
+      extractorKey: input.extractorKey,
+      incoming: {
+        accountName: input.accountName,
+        accountType: input.accountType,
+      },
+    });
+
+    if (existingRow) {
+      const [row] = await executor
+        .update(financeLedgerAccounts)
+        .set({
+          accountName: merged.accountName,
+          accountType: merged.accountType,
+          updatedAt: new Date(),
+        })
+        .where(eq(financeLedgerAccounts.id, existingRow.id))
+        .returning();
+
+      if (!row) {
+        throw new Error("Finance ledger account update did not return a row");
+      }
+
+      return mapFinanceLedgerAccountRow(row);
+    }
+
     const [row] = await executor
       .insert(financeLedgerAccounts)
       .values({
         companyId: input.companyId,
         accountCode: input.accountCode,
-        accountName: input.accountName,
-        accountType: input.accountType,
-      })
-      .onConflictDoUpdate({
-        target: [
-          financeLedgerAccounts.companyId,
-          financeLedgerAccounts.accountCode,
-        ],
-        set: {
-          accountName: input.accountName,
-          accountType: input.accountType,
-          updatedAt: new Date(),
-        },
+        accountName: merged.accountName,
+        accountType: merged.accountType,
       })
       .returning();
 
     if (!row) {
-      throw new Error("Finance ledger account upsert did not return a row");
+      throw new Error("Finance ledger account insert did not return a row");
     }
 
     return mapFinanceLedgerAccountRow(row);
@@ -459,6 +495,149 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
       .orderBy(asc(financeAccountCatalogEntries.lineNumber));
 
     return rows.map(mapFinanceAccountCatalogEntryViewRow);
+  }
+
+  async upsertJournalEntry(
+    input: UpsertFinanceJournalEntryInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .insert(financeJournalEntries)
+      .values({
+        companyId: input.companyId,
+        syncRunId: input.syncRunId,
+        externalEntryId: input.externalEntryId,
+        transactionDate: input.transactionDate,
+        entryDescription: input.entryDescription,
+      })
+      .onConflictDoUpdate({
+        target: [
+          financeJournalEntries.syncRunId,
+          financeJournalEntries.externalEntryId,
+        ],
+        set: {
+          transactionDate: input.transactionDate,
+          entryDescription: input.entryDescription,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error("Finance journal entry upsert did not return a row");
+    }
+
+    return mapFinanceJournalEntryRow(row);
+  }
+
+  async listJournalEntriesBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(financeJournalEntries)
+      .where(eq(financeJournalEntries.syncRunId, syncRunId))
+      .orderBy(
+        asc(financeJournalEntries.transactionDate),
+        asc(financeJournalEntries.externalEntryId),
+      );
+
+    return rows.map(mapFinanceJournalEntryRow);
+  }
+
+  async upsertJournalLine(
+    input: UpsertFinanceJournalLineInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .insert(financeJournalLines)
+      .values({
+        companyId: input.companyId,
+        journalEntryId: input.journalEntryId,
+        ledgerAccountId: input.ledgerAccountId,
+        syncRunId: input.syncRunId,
+        lineNumber: input.lineNumber,
+        debitAmount: input.debitAmount,
+        creditAmount: input.creditAmount,
+        currencyCode: input.currencyCode,
+        lineDescription: input.lineDescription,
+      })
+      .onConflictDoUpdate({
+        target: [
+          financeJournalLines.syncRunId,
+          financeJournalLines.lineNumber,
+        ],
+        set: {
+          journalEntryId: input.journalEntryId,
+          ledgerAccountId: input.ledgerAccountId,
+          debitAmount: input.debitAmount,
+          creditAmount: input.creditAmount,
+          currencyCode: input.currencyCode,
+          lineDescription: input.lineDescription,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error("Finance journal line upsert did not return a row");
+    }
+
+    return mapFinanceJournalLineRow(row);
+  }
+
+  async listJournalLineViewsBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select({
+        journalLine: financeJournalLines,
+        ledgerAccount: financeLedgerAccounts,
+      })
+      .from(financeJournalLines)
+      .innerJoin(
+        financeLedgerAccounts,
+        eq(financeJournalLines.ledgerAccountId, financeLedgerAccounts.id),
+      )
+      .where(eq(financeJournalLines.syncRunId, syncRunId))
+      .orderBy(asc(financeJournalLines.lineNumber));
+
+    return rows.map(mapFinanceJournalLineViewRow);
+  }
+
+  async listGeneralLedgerEntriesBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ) {
+    const [entries, lineViews] = await Promise.all([
+      this.listJournalEntriesBySyncRunId(syncRunId, session),
+      this.listJournalLineViewsBySyncRunId(syncRunId, session),
+    ]);
+    const linesByJournalEntryId = new Map<
+      string,
+      ReturnType<typeof mapFinanceJournalLineViewRow>[]
+    >();
+
+    for (const lineView of lineViews) {
+      const lines = linesByJournalEntryId.get(lineView.journalLine.journalEntryId) ?? [];
+      lines.push(lineView);
+      linesByJournalEntryId.set(lineView.journalLine.journalEntryId, lines);
+    }
+
+    return entries.map((journalEntry) => ({
+      journalEntry,
+      lines:
+        linesByJournalEntryId.get(journalEntry.id)?.sort(
+          (left, right) =>
+            left.journalLine.lineNumber - right.journalLine.lineNumber,
+        ) ?? [],
+    }));
   }
 
   async createLineage(

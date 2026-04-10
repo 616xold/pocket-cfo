@@ -38,4 +38,12 @@ export async function registerFinanceTwinRoutes(
       return deps.financeTwinService.getAccountCatalog(params.companyKey);
     },
   );
+
+  app.get(
+    "/finance-twin/companies/:companyKey/general-ledger",
+    async (request) => {
+      const params = financeTwinCompanyKeyParamsSchema.parse(request.params);
+      return deps.financeTwinService.getGeneralLedger(params.companyKey);
+    },
+  );
 }

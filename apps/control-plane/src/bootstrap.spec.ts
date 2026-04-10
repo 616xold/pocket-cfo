@@ -262,6 +262,11 @@ function createAppContainer(
           "getAccountCatalog should not be called in this test",
         );
       },
+      async getGeneralLedger() {
+        throw new Error(
+          "getGeneralLedger should not be called in this test",
+        );
+      },
       async getCompanySummary() {
         throw new Error(
           "getCompanySummary should not be called in this test",

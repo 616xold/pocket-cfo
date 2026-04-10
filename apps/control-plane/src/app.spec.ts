@@ -674,6 +674,122 @@ describe("control-plane app", () => {
     });
   });
 
+  it("POST /finance-twin/companies/:companyKey/source-files/:sourceFileId/sync persists a latest general-ledger read route", async () => {
+    const app = await createTestApp(apps);
+
+    const createResponse = await app.inject({
+      method: "POST",
+      url: "/sources",
+      payload: {
+        kind: "dataset",
+        name: "General ledger export",
+        createdBy: "finance-operator",
+        snapshot: {
+          originalFileName: "general-ledger-link.txt",
+          mediaType: "text/plain",
+          sizeBytes: 18,
+          checksumSha256:
+            "f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0f0",
+          storageKind: "external_url",
+          storageRef: "https://example.com/general-ledger",
+          capturedAt: "2026-04-11T00:00:00.000Z",
+        },
+      },
+    });
+    const created = createResponse.json() as { source: { id: string } };
+    const uploadResponse = await app.inject({
+      method: "POST",
+      url: `/sources/${created.source.id}/files?originalFileName=general-ledger.csv&mediaType=text%2Fcsv&createdBy=finance-operator&capturedAt=2026-04-11T00:05:00.000Z`,
+      headers: {
+        "content-type": "application/octet-stream",
+      },
+      payload: Buffer.from(
+        [
+          "journal_id,transaction_date,account_code,account_name,debit,credit,currency_code,memo",
+          "J-100,2026-03-31,1000,Cash,100.00,0.00,USD,Seed funding received",
+          "J-100,2026-03-31,3000,Common Stock,0.00,100.00,USD,Seed funding received",
+        ].join("\n"),
+      ),
+    });
+    const uploaded = uploadResponse.json() as {
+      sourceFile: { id: string };
+    };
+
+    const syncResponse = await app.inject({
+      method: "POST",
+      url: `/finance-twin/companies/acme/source-files/${uploaded.sourceFile.id}/sync`,
+      payload: {
+        companyName: "Acme Holdings",
+      },
+    });
+
+    expect(syncResponse.statusCode).toBe(201);
+    expect(syncResponse.json()).toMatchObject({
+      syncRun: {
+        extractorKey: "general_ledger_csv",
+        status: "succeeded",
+      },
+      latestSuccessfulSlices: {
+        generalLedger: {
+          coverage: {
+            journalEntryCount: 1,
+            journalLineCount: 2,
+            lineageCount: 5,
+          },
+        },
+      },
+    });
+
+    const generalLedgerResponse = await app.inject({
+      method: "GET",
+      url: "/finance-twin/companies/acme/general-ledger",
+    });
+
+    expect(generalLedgerResponse.statusCode).toBe(200);
+    expect(generalLedgerResponse.json()).toMatchObject({
+      company: {
+        companyKey: "acme",
+        displayName: "Acme Holdings",
+      },
+      latestAttemptedSyncRun: {
+        sourceFileId: uploaded.sourceFile.id,
+        extractorKey: "general_ledger_csv",
+      },
+      latestSuccessfulSlice: {
+        coverage: {
+          journalEntryCount: 1,
+          journalLineCount: 2,
+          lineageCount: 5,
+        },
+      },
+      freshness: {
+        state: "fresh",
+      },
+      entries: [
+        {
+          journalEntry: {
+            externalEntryId: "J-100",
+            transactionDate: "2026-03-31",
+          },
+          lines: [
+            {
+              ledgerAccount: {
+                accountCode: "1000",
+                accountName: "Cash",
+              },
+            },
+            {
+              ledgerAccount: {
+                accountCode: "3000",
+                accountName: "Common Stock",
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
   it("GET /missions returns newest-first mission summaries with the list contract", async () => {
     const app = await createTestApp(apps);
     const older = await createMission(app, {

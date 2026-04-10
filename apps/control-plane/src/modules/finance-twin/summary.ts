@@ -1,10 +1,11 @@
 import type {
   FinanceAccountCatalogEntryView,
+  FinanceGeneralLedgerEntryView,
   FinanceTrialBalanceLineRecord,
 } from "@pocket-cto/domain";
 
 export const FINANCE_TWIN_LIMITATIONS = [
-  "F2B only covers deterministic trial-balance CSV and chart-of-accounts CSV extraction.",
+  "F2C only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction.",
   "CFO Wiki, finance discovery answers, reports, monitoring, and close/control flows are not implemented in this slice.",
 ];
 
@@ -48,6 +49,56 @@ export function buildChartOfAccountsSummary(
     parentLinkedCount: accounts.filter(
       (account) => account.catalogEntry.parentAccountCode !== null,
     ).length,
+  };
+}
+
+export function buildGeneralLedgerSummary(
+  entries: FinanceGeneralLedgerEntryView[],
+) {
+  let totalDebit = 0n;
+  let totalCredit = 0n;
+  let earliestEntryDate: string | null = null;
+  let latestEntryDate: string | null = null;
+  let journalLineCount = 0;
+  const ledgerAccountIds = new Set<string>();
+  const currencyCodes = new Set<string>();
+
+  for (const entry of entries) {
+    const entryDate = entry.journalEntry.transactionDate;
+
+    if (earliestEntryDate === null || entryDate < earliestEntryDate) {
+      earliestEntryDate = entryDate;
+    }
+
+    if (latestEntryDate === null || entryDate > latestEntryDate) {
+      latestEntryDate = entryDate;
+    }
+
+    for (const line of entry.lines) {
+      journalLineCount += 1;
+      ledgerAccountIds.add(line.ledgerAccount.id);
+      totalDebit += parseMoney(line.journalLine.debitAmount);
+      totalCredit += parseMoney(line.journalLine.creditAmount);
+      if (line.journalLine.currencyCode) {
+        currencyCodes.add(line.journalLine.currencyCode);
+      }
+    }
+  }
+
+  if (!earliestEntryDate || !latestEntryDate) {
+    throw new Error("General-ledger summary requires at least one journal entry");
+  }
+
+  return {
+    journalEntryCount: entries.length,
+    journalLineCount,
+    ledgerAccountCount: ledgerAccountIds.size,
+    totalDebitAmount: formatMoney(totalDebit),
+    totalCreditAmount: formatMoney(totalCredit),
+    earliestEntryDate,
+    latestEntryDate,
+    currencyCode:
+      currencyCodes.size === 1 ? (Array.from(currencyCodes)[0] ?? null) : null,
   };
 }
 

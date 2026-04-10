@@ -13,6 +13,7 @@ type SliceRuns = {
 
 export function buildFinanceFreshnessView(input: {
   chartOfAccounts: SliceRuns;
+  generalLedger: SliceRuns;
   now: Date;
   trialBalance: SliceRuns;
 }): FinanceFreshnessView {
@@ -26,16 +27,23 @@ export function buildFinanceFreshnessView(input: {
     ...input.chartOfAccounts,
     sliceLabel: "chart-of-accounts",
   });
+  const generalLedger = buildSliceFreshnessSummary({
+    now: input.now,
+    ...input.generalLedger,
+    sliceLabel: "general-ledger",
+  });
 
   return {
     overall: buildOverallFreshnessSummary({
       chartOfAccounts,
+      generalLedger,
       now: input.now,
-      slices: [input.trialBalance, input.chartOfAccounts],
+      slices: [input.trialBalance, input.chartOfAccounts, input.generalLedger],
       trialBalance,
     }),
     trialBalance,
     chartOfAccounts,
+    generalLedger,
   };
 }
 
@@ -121,6 +129,7 @@ function buildSliceFreshnessSummary(
 
 function buildOverallFreshnessSummary(input: {
   chartOfAccounts: FinanceFreshnessSummary;
+  generalLedger: FinanceFreshnessSummary;
   now: Date;
   slices: SliceRuns[];
   trialBalance: FinanceFreshnessSummary;
@@ -135,7 +144,11 @@ function buildOverallFreshnessSummary(input: {
   const ageSeconds = latestSuccessfulCompletedAt
     ? diffSeconds(input.now, latestSuccessfulCompletedAt)
     : null;
-  const sliceStates = [input.trialBalance.state, input.chartOfAccounts.state];
+  const sliceStates = [
+    input.trialBalance.state,
+    input.chartOfAccounts.state,
+    input.generalLedger.state,
+  ];
   const state = sliceStates.includes("failed")
     ? "failed"
     : sliceStates.includes("missing")
