@@ -1,11 +1,15 @@
 import {
   FinanceAccountCatalogViewSchema,
+  FinanceGeneralLedgerViewSchema,
   FinanceTwinCompanySummarySchema,
   FinanceTwinSyncInputSchema,
   FinanceTwinSyncResultSchema,
   type FinanceAccountCatalogEntryView,
   type FinanceAccountCatalogView,
   type FinanceCompanyRecord,
+  type FinanceGeneralLedgerEntryView,
+  type FinanceGeneralLedgerView,
+  type FinanceLatestAttemptedSlices,
   type FinanceLatestSuccessfulSlices,
   type FinanceTwinCompanySummary,
   type FinanceTwinSyncInput,
@@ -21,14 +25,15 @@ import type { SourceFileStorage } from "../sources/storage";
 import type { ChartOfAccountsExtractionResult } from "./chart-of-accounts-csv";
 import {
   FinanceCompanyNotFoundError,
-  FinanceTwinExtractionError,
   FinanceTwinUnsupportedSourceError,
 } from "./errors";
 import { extractFinanceTwinSource } from "./extractor-dispatch";
 import { buildFinanceFreshnessView } from "./freshness";
+import type { GeneralLedgerExtractionResult } from "./general-ledger-csv";
 import type { FinanceTwinRepository } from "./repository";
 import {
   buildChartOfAccountsSummary,
+  buildGeneralLedgerSummary,
   buildTrialBalanceSummary,
   FINANCE_TWIN_LIMITATIONS,
 } from "./summary";
@@ -43,8 +48,11 @@ type CompanyReadState = {
   };
   freshness: ReturnType<typeof buildFinanceFreshnessView>;
   latestAccountCatalogEntries: FinanceAccountCatalogEntryView[];
+  latestAttemptedSlices: FinanceLatestAttemptedSlices;
   latestAttemptedSyncRun: FinanceTwinSyncRunRecord | null;
   latestChartOfAccountsAttemptedSyncRun: FinanceTwinSyncRunRecord | null;
+  latestGeneralLedgerAttemptedSyncRun: FinanceTwinSyncRunRecord | null;
+  latestGeneralLedgerEntries: FinanceGeneralLedgerEntryView[];
   latestSuccessfulSlices: FinanceLatestSuccessfulSlices;
   latestSuccessfulSyncRun: FinanceTwinSyncRunRecord | null;
 };
@@ -105,10 +113,15 @@ export class FinanceTwinService {
       throw new FinanceTwinUnsupportedSourceError(sourceFile.id);
     }
 
+    const existingCompany =
+      await this.input.financeTwinRepository.getCompanyByKey(companyKey);
     const company = await this.input.financeTwinRepository.upsertCompany({
       companyKey,
-      displayName:
-        parsedInput.companyName?.trim() || buildDefaultCompanyName(companyKey),
+      displayName: resolveCompanyDisplayName({
+        companyKey,
+        companyName: parsedInput.companyName,
+        existingCompany,
+      }),
     });
     const startedAt = this.now().toISOString();
     const syncRun = await this.input.financeTwinRepository.startSyncRun({
@@ -131,14 +144,23 @@ export class FinanceTwinService {
               sourceId: source.id,
               syncRun,
             })
-          : await this.persistChartOfAccountsSync({
-              company,
-              extracted: extracted.chartOfAccounts,
-              snapshotId: snapshot.id,
-              sourceFileId: sourceFile.id,
-              sourceId: source.id,
-              syncRun,
-            });
+          : extracted.extractorKey === "chart_of_accounts_csv"
+            ? await this.persistChartOfAccountsSync({
+                company,
+                extracted: extracted.chartOfAccounts,
+                snapshotId: snapshot.id,
+                sourceFileId: sourceFile.id,
+                sourceId: source.id,
+                syncRun,
+              })
+            : await this.persistGeneralLedgerSync({
+                company,
+                extracted: extracted.generalLedger,
+                snapshotId: snapshot.id,
+                sourceFileId: sourceFile.id,
+                sourceId: source.id,
+                syncRun,
+              });
       const readState = await this.readCompanyState(company);
 
       return FinanceTwinSyncResultSchema.parse({
@@ -146,6 +168,7 @@ export class FinanceTwinService {
         syncRun: finalizedRun,
         freshness: readState.freshness,
         companyTotals: readState.companyTotals,
+        latestAttemptedSlices: readState.latestAttemptedSlices,
         latestSuccessfulSlices: readState.latestSuccessfulSlices,
         limitations: FINANCE_TWIN_LIMITATIONS,
       });
@@ -182,6 +205,7 @@ export class FinanceTwinService {
       latestSuccessfulSyncRun: readState.latestSuccessfulSyncRun,
       freshness: readState.freshness,
       companyTotals: readState.companyTotals,
+      latestAttemptedSlices: readState.latestAttemptedSlices,
       latestSuccessfulSlices: readState.latestSuccessfulSlices,
       limitations: FINANCE_TWIN_LIMITATIONS,
     });
@@ -204,6 +228,27 @@ export class FinanceTwinService {
       latestSuccessfulSlice: readState.latestSuccessfulSlices.chartOfAccounts,
       freshness: readState.freshness.chartOfAccounts,
       accounts: readState.latestAccountCatalogEntries,
+      limitations: FINANCE_TWIN_LIMITATIONS,
+    });
+  }
+
+  async getGeneralLedger(companyKey: string): Promise<FinanceGeneralLedgerView> {
+    const company = await this.input.financeTwinRepository.getCompanyByKey(
+      companyKey,
+    );
+
+    if (!company) {
+      throw new FinanceCompanyNotFoundError(companyKey);
+    }
+
+    const readState = await this.readCompanyState(company);
+
+    return FinanceGeneralLedgerViewSchema.parse({
+      company,
+      latestAttemptedSyncRun: readState.latestGeneralLedgerAttemptedSyncRun,
+      latestSuccessfulSlice: readState.latestSuccessfulSlices.generalLedger,
+      freshness: readState.freshness.generalLedger,
+      entries: readState.latestGeneralLedgerEntries,
       limitations: FINANCE_TWIN_LIMITATIONS,
     });
   }
@@ -255,6 +300,7 @@ export class FinanceTwinService {
               accountCode: account.accountCode,
               accountName: account.accountName,
               accountType: account.accountType,
+              extractorKey: "trial_balance_csv",
             },
             session,
           );
@@ -364,6 +410,7 @@ export class FinanceTwinService {
               accountCode: account.accountCode,
               accountName: account.accountName,
               accountType: account.accountType,
+              extractorKey: "chart_of_accounts_csv",
             },
             session,
           );
@@ -442,6 +489,144 @@ export class FinanceTwinService {
     });
   }
 
+  private async persistGeneralLedgerSync(input: {
+    company: FinanceCompanyRecord;
+    extracted: GeneralLedgerExtractionResult;
+    snapshotId: string;
+    sourceFileId: string;
+    sourceId: string;
+    syncRun: FinanceTwinSyncRunRecord;
+  }) {
+    const recordedAt = this.now().toISOString();
+
+    return this.input.financeTwinRepository.transaction(async (session) => {
+      const ledgerAccounts = new Map<string, { id: string }>();
+      const lineagedLedgerAccountIds = new Set<string>();
+      let journalLineCount = 0;
+
+      for (const entry of input.extracted.entries) {
+        const storedEntry = await this.input.financeTwinRepository.upsertJournalEntry(
+          {
+            companyId: input.company.id,
+            syncRunId: input.syncRun.id,
+            externalEntryId: entry.externalEntryId,
+            transactionDate: entry.transactionDate,
+            entryDescription: entry.entryDescription,
+          },
+          session,
+        );
+
+        await this.input.financeTwinRepository.createLineage(
+          {
+            companyId: input.company.id,
+            syncRunId: input.syncRun.id,
+            targetKind: "journal_entry",
+            targetId: storedEntry.id,
+            sourceId: input.sourceId,
+            sourceSnapshotId: input.snapshotId,
+            sourceFileId: input.sourceFileId,
+            recordedAt,
+          },
+          session,
+        );
+
+        for (const line of entry.lines) {
+          let storedAccount = ledgerAccounts.get(line.accountCode);
+
+          if (!storedAccount) {
+            storedAccount =
+              await this.input.financeTwinRepository.upsertLedgerAccount(
+                {
+                  companyId: input.company.id,
+                  accountCode: line.accountCode,
+                  accountName: line.accountName,
+                  accountType: line.accountType,
+                  extractorKey: "general_ledger_csv",
+                },
+                session,
+              );
+            ledgerAccounts.set(line.accountCode, storedAccount);
+          }
+
+          if (!lineagedLedgerAccountIds.has(storedAccount.id)) {
+            await this.input.financeTwinRepository.createLineage(
+              {
+                companyId: input.company.id,
+                syncRunId: input.syncRun.id,
+                targetKind: "ledger_account",
+                targetId: storedAccount.id,
+                sourceId: input.sourceId,
+                sourceSnapshotId: input.snapshotId,
+                sourceFileId: input.sourceFileId,
+                recordedAt,
+              },
+              session,
+            );
+            lineagedLedgerAccountIds.add(storedAccount.id);
+          }
+
+          const storedLine = await this.input.financeTwinRepository.upsertJournalLine(
+            {
+              companyId: input.company.id,
+              journalEntryId: storedEntry.id,
+              ledgerAccountId: storedAccount.id,
+              syncRunId: input.syncRun.id,
+              lineNumber: line.lineNumber,
+              debitAmount: line.debitAmount,
+              creditAmount: line.creditAmount,
+              currencyCode: line.currencyCode,
+              lineDescription: line.lineDescription,
+            },
+            session,
+          );
+
+          await this.input.financeTwinRepository.createLineage(
+            {
+              companyId: input.company.id,
+              syncRunId: input.syncRun.id,
+              targetKind: "journal_line",
+              targetId: storedLine.id,
+              sourceId: input.sourceId,
+              sourceSnapshotId: input.snapshotId,
+              sourceFileId: input.sourceFileId,
+              recordedAt,
+            },
+            session,
+          );
+          journalLineCount += 1;
+        }
+      }
+
+      const [reportingPeriodCount, ledgerAccountCount] = await Promise.all([
+        this.input.financeTwinRepository.countReportingPeriodsByCompanyId(
+          input.company.id,
+          session,
+        ),
+        this.input.financeTwinRepository.countLedgerAccountsByCompanyId(
+          input.company.id,
+          session,
+        ),
+      ]);
+
+      return this.input.financeTwinRepository.finishSyncRun(
+        {
+          syncRunId: input.syncRun.id,
+          reportingPeriodId: null,
+          status: "succeeded",
+          completedAt: recordedAt,
+          stats: {
+            journalEntryCount: input.extracted.entries.length,
+            journalLineCount,
+            ledgerAccountCount,
+            reportingPeriodCount,
+          },
+          errorSummary: null,
+        },
+        session,
+      );
+    });
+  }
+
   private async readCompanyState(
     company: FinanceCompanyRecord,
   ): Promise<CompanyReadState> {
@@ -452,6 +637,8 @@ export class FinanceTwinService {
       trialBalanceLatestSuccessfulRun,
       chartOfAccountsLatestRun,
       chartOfAccountsLatestSuccessfulRun,
+      generalLedgerLatestRun,
+      generalLedgerLatestSuccessfulRun,
       ledgerAccountCount,
       reportingPeriodCount,
     ] = await Promise.all([
@@ -475,20 +662,35 @@ export class FinanceTwinService {
         company.id,
         "chart_of_accounts_csv",
       ),
+      this.input.financeTwinRepository.getLatestSyncRunByCompanyIdAndExtractorKey(
+        company.id,
+        "general_ledger_csv",
+      ),
+      this.input.financeTwinRepository.getLatestSuccessfulSyncRunByCompanyIdAndExtractorKey(
+        company.id,
+        "general_ledger_csv",
+      ),
       this.input.financeTwinRepository.countLedgerAccountsByCompanyId(company.id),
       this.input.financeTwinRepository.countReportingPeriodsByCompanyId(company.id),
     ]);
 
-    const [trialBalanceSlice, chartOfAccountsSlice] = await Promise.all([
-      this.readLatestSuccessfulTrialBalanceSlice(trialBalanceLatestSuccessfulRun),
-      this.readLatestSuccessfulChartOfAccountsSlice(
-        chartOfAccountsLatestSuccessfulRun,
-      ),
-    ]);
+    const [trialBalanceSlice, chartOfAccountsSlice, generalLedgerSlice] =
+      await Promise.all([
+        this.readLatestSuccessfulTrialBalanceSlice(
+          trialBalanceLatestSuccessfulRun,
+        ),
+        this.readLatestSuccessfulChartOfAccountsSlice(
+          chartOfAccountsLatestSuccessfulRun,
+        ),
+        this.readLatestSuccessfulGeneralLedgerSlice(
+          generalLedgerLatestSuccessfulRun,
+        ),
+      ]);
 
     return {
       latestAttemptedSyncRun,
       latestChartOfAccountsAttemptedSyncRun: chartOfAccountsLatestRun,
+      latestGeneralLedgerAttemptedSyncRun: generalLedgerLatestRun,
       latestSuccessfulSyncRun,
       freshness: buildFinanceFreshnessView({
         trialBalance: {
@@ -499,17 +701,28 @@ export class FinanceTwinService {
           latestRun: chartOfAccountsLatestRun,
           latestSuccessfulRun: chartOfAccountsLatestSuccessfulRun,
         },
+        generalLedger: {
+          latestRun: generalLedgerLatestRun,
+          latestSuccessfulRun: generalLedgerLatestSuccessfulRun,
+        },
         now: this.now(),
       }),
       companyTotals: {
         ledgerAccountCount,
         reportingPeriodCount,
       },
+      latestAttemptedSlices: {
+        trialBalance: buildAttemptedSlice(trialBalanceLatestRun),
+        chartOfAccounts: buildAttemptedSlice(chartOfAccountsLatestRun),
+        generalLedger: buildAttemptedSlice(generalLedgerLatestRun),
+      },
       latestSuccessfulSlices: {
         trialBalance: trialBalanceSlice.snapshot,
         chartOfAccounts: chartOfAccountsSlice.snapshot,
+        generalLedger: generalLedgerSlice.snapshot,
       },
       latestAccountCatalogEntries: chartOfAccountsSlice.accounts,
+      latestGeneralLedgerEntries: generalLedgerSlice.entries,
     };
   }
 
@@ -598,6 +811,60 @@ export class FinanceTwinService {
       },
     };
   }
+
+  private async readLatestSuccessfulGeneralLedgerSlice(
+    latestSuccessfulRun: FinanceTwinSyncRunRecord | null,
+  ) {
+    if (!latestSuccessfulRun) {
+      return {
+        entries: [],
+        snapshot: {
+          latestSource: null,
+          latestSyncRun: null,
+          coverage: {
+            journalEntryCount: 0,
+            journalLineCount: 0,
+            lineageCount: 0,
+          },
+          summary: null,
+        },
+      };
+    }
+
+    const [entries, lineageCount] = await Promise.all([
+      this.input.financeTwinRepository.listGeneralLedgerEntriesBySyncRunId(
+        latestSuccessfulRun.id,
+      ),
+      this.input.financeTwinRepository.countLineageBySyncRunId(
+        latestSuccessfulRun.id,
+      ),
+    ]);
+    const journalLineCount = entries.reduce(
+      (count, entry) => count + entry.lines.length,
+      0,
+    );
+
+    return {
+      entries,
+      snapshot: {
+        latestSource: buildSourceRef(latestSuccessfulRun),
+        latestSyncRun: latestSuccessfulRun,
+        coverage: {
+          journalEntryCount: entries.length,
+          journalLineCount,
+          lineageCount,
+        },
+        summary: entries.length > 0 ? buildGeneralLedgerSummary(entries) : null,
+      },
+    };
+  }
+}
+
+function buildAttemptedSlice(syncRun: FinanceTwinSyncRunRecord | null) {
+  return {
+    latestSource: buildSourceRef(syncRun),
+    latestSyncRun: syncRun,
+  };
 }
 
 function buildSourceRef(syncRun: FinanceTwinSyncRunRecord | null) {
@@ -613,6 +880,24 @@ function buildSourceRef(syncRun: FinanceTwinSyncRunRecord | null) {
   };
 }
 
+function resolveCompanyDisplayName(input: {
+  companyKey: string;
+  companyName?: string;
+  existingCompany: FinanceCompanyRecord | null;
+}) {
+  const explicitName = input.companyName?.trim();
+
+  if (explicitName) {
+    return explicitName;
+  }
+
+  if (input.existingCompany?.displayName) {
+    return input.existingCompany.displayName;
+  }
+
+  return buildDefaultCompanyName(input.companyKey);
+}
+
 function buildDefaultCompanyName(companyKey: string) {
   return companyKey
     .split(/[-_]+/u)
@@ -623,13 +908,7 @@ function buildDefaultCompanyName(companyKey: string) {
 
 function summarizeError(error: unknown) {
   const message =
-    error instanceof FinanceTwinUnsupportedSourceError
-      ? error.message
-      : error instanceof FinanceTwinExtractionError
-        ? error.message
-        : error instanceof Error
-          ? error.message
-          : "Finance twin sync failed";
+    error instanceof Error ? error.message : "Unknown finance sync failure";
 
   return message.slice(0, MAX_ERROR_SUMMARY_LENGTH);
 }

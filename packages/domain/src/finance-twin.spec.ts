@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   FinanceAccountCatalogViewSchema,
+  FinanceGeneralLedgerViewSchema,
   FinanceTwinCompanySummarySchema,
   FinanceTwinSyncInputSchema,
 } from "./finance-twin";
@@ -14,7 +15,7 @@ describe("finance twin domain schemas", () => {
     expect(parsed.companyName).toBe("Acme Holdings");
   });
 
-  it("parses a company summary with explicit company totals and per-slice snapshots", () => {
+  it("parses a company summary with explicit attempted and successful per-slice semantics", () => {
     const parsed = FinanceTwinCompanySummarySchema.parse({
       company: {
         id: "11111111-1111-4111-8111-111111111111",
@@ -30,15 +31,15 @@ describe("finance twin domain schemas", () => {
         sourceId: "22222222-2222-4222-8222-222222222222",
         sourceSnapshotId: "33333333-3333-4333-8333-333333333333",
         sourceFileId: "44444444-4444-4444-8444-444444444444",
-        extractorKey: "chart_of_accounts_csv",
+        extractorKey: "general_ledger_csv",
         status: "succeeded",
-        startedAt: "2026-04-09T00:10:00.000Z",
-        completedAt: "2026-04-09T00:10:03.000Z",
+        startedAt: "2026-04-11T00:10:00.000Z",
+        completedAt: "2026-04-11T00:10:03.000Z",
         stats: {
-          accountCatalogEntryCount: 2,
+          journalEntryCount: 2,
         },
         errorSummary: null,
-        createdAt: "2026-04-09T00:10:00.000Z",
+        createdAt: "2026-04-11T00:10:00.000Z",
       },
       latestSuccessfulSyncRun: {
         id: "55555555-5555-4555-8555-555555555555",
@@ -47,28 +48,29 @@ describe("finance twin domain schemas", () => {
         sourceId: "22222222-2222-4222-8222-222222222222",
         sourceSnapshotId: "33333333-3333-4333-8333-333333333333",
         sourceFileId: "44444444-4444-4444-8444-444444444444",
-        extractorKey: "chart_of_accounts_csv",
+        extractorKey: "general_ledger_csv",
         status: "succeeded",
-        startedAt: "2026-04-09T00:10:00.000Z",
-        completedAt: "2026-04-09T00:10:03.000Z",
+        startedAt: "2026-04-11T00:10:00.000Z",
+        completedAt: "2026-04-11T00:10:03.000Z",
         stats: {
-          accountCatalogEntryCount: 2,
+          journalEntryCount: 2,
         },
         errorSummary: null,
-        createdAt: "2026-04-09T00:10:00.000Z",
+        createdAt: "2026-04-11T00:10:00.000Z",
       },
       freshness: {
         overall: {
           state: "missing",
           latestSyncRunId: "55555555-5555-4555-8555-555555555555",
           latestSyncStatus: "succeeded",
-          latestCompletedAt: "2026-04-09T00:10:03.000Z",
+          latestCompletedAt: "2026-04-11T00:10:03.000Z",
           latestSuccessfulSyncRunId: "55555555-5555-4555-8555-555555555555",
-          latestSuccessfulCompletedAt: "2026-04-09T00:10:03.000Z",
+          latestSuccessfulCompletedAt: "2026-04-11T00:10:03.000Z",
           ageSeconds: 1,
           staleAfterSeconds: 86400,
           reasonCode: "implemented_slice_missing",
-          reasonSummary: "At least one implemented finance slice has not completed a successful sync yet.",
+          reasonSummary:
+            "At least one implemented finance slice has not completed a successful sync yet.",
         },
         trialBalance: {
           state: "missing",
@@ -80,37 +82,50 @@ describe("finance twin domain schemas", () => {
           ageSeconds: null,
           staleAfterSeconds: 86400,
           reasonCode: "not_synced",
-          reasonSummary: "No finance twin sync has been recorded yet for the trial-balance slice.",
+          reasonSummary:
+            "No finance twin sync has been recorded yet for the trial-balance slice.",
         },
         chartOfAccounts: {
+          state: "missing",
+          latestSyncRunId: null,
+          latestSyncStatus: null,
+          latestCompletedAt: null,
+          latestSuccessfulSyncRunId: null,
+          latestSuccessfulCompletedAt: null,
+          ageSeconds: null,
+          staleAfterSeconds: 86400,
+          reasonCode: "not_synced",
+          reasonSummary:
+            "No finance twin sync has been recorded yet for the chart-of-accounts slice.",
+        },
+        generalLedger: {
           state: "fresh",
           latestSyncRunId: "55555555-5555-4555-8555-555555555555",
           latestSyncStatus: "succeeded",
-          latestCompletedAt: "2026-04-09T00:10:03.000Z",
+          latestCompletedAt: "2026-04-11T00:10:03.000Z",
           latestSuccessfulSyncRunId: "55555555-5555-4555-8555-555555555555",
-          latestSuccessfulCompletedAt: "2026-04-09T00:10:03.000Z",
+          latestSuccessfulCompletedAt: "2026-04-11T00:10:03.000Z",
           ageSeconds: 1,
           staleAfterSeconds: 86400,
           reasonCode: "latest_successful_sync_fresh",
-          reasonSummary: "The latest successful chart-of-accounts sync is within the 24 hour freshness window.",
+          reasonSummary:
+            "The latest successful general-ledger sync is within the 24 hour freshness window.",
         },
       },
       companyTotals: {
         reportingPeriodCount: 1,
         ledgerAccountCount: 2,
       },
-      latestSuccessfulSlices: {
+      latestAttemptedSlices: {
         trialBalance: {
           latestSource: null,
           latestSyncRun: null,
-          reportingPeriod: null,
-          coverage: {
-            lineCount: 0,
-            lineageCount: 0,
-          },
-          summary: null,
         },
         chartOfAccounts: {
+          latestSource: null,
+          latestSyncRun: null,
+        },
+        generalLedger: {
           latestSource: {
             sourceId: "22222222-2222-4222-8222-222222222222",
             sourceSnapshotId: "33333333-3333-4333-8333-333333333333",
@@ -124,33 +139,86 @@ describe("finance twin domain schemas", () => {
             sourceId: "22222222-2222-4222-8222-222222222222",
             sourceSnapshotId: "33333333-3333-4333-8333-333333333333",
             sourceFileId: "44444444-4444-4444-8444-444444444444",
-            extractorKey: "chart_of_accounts_csv",
+            extractorKey: "general_ledger_csv",
             status: "succeeded",
-            startedAt: "2026-04-09T00:10:00.000Z",
-            completedAt: "2026-04-09T00:10:03.000Z",
+            startedAt: "2026-04-11T00:10:00.000Z",
+            completedAt: "2026-04-11T00:10:03.000Z",
             stats: {
-              accountCatalogEntryCount: 2,
+              journalEntryCount: 2,
             },
             errorSummary: null,
-            createdAt: "2026-04-09T00:10:00.000Z",
+            createdAt: "2026-04-11T00:10:00.000Z",
+          },
+        },
+      },
+      latestSuccessfulSlices: {
+        trialBalance: {
+          latestSource: null,
+          latestSyncRun: null,
+          reportingPeriod: null,
+          coverage: {
+            lineCount: 0,
+            lineageCount: 0,
+          },
+          summary: null,
+        },
+        chartOfAccounts: {
+          latestSource: null,
+          latestSyncRun: null,
+          coverage: {
+            accountCatalogEntryCount: 0,
+            lineageCount: 0,
+          },
+          summary: null,
+        },
+        generalLedger: {
+          latestSource: {
+            sourceId: "22222222-2222-4222-8222-222222222222",
+            sourceSnapshotId: "33333333-3333-4333-8333-333333333333",
+            sourceFileId: "44444444-4444-4444-8444-444444444444",
+            syncRunId: "55555555-5555-4555-8555-555555555555",
+          },
+          latestSyncRun: {
+            id: "55555555-5555-4555-8555-555555555555",
+            companyId: "11111111-1111-4111-8111-111111111111",
+            reportingPeriodId: null,
+            sourceId: "22222222-2222-4222-8222-222222222222",
+            sourceSnapshotId: "33333333-3333-4333-8333-333333333333",
+            sourceFileId: "44444444-4444-4444-8444-444444444444",
+            extractorKey: "general_ledger_csv",
+            status: "succeeded",
+            startedAt: "2026-04-11T00:10:00.000Z",
+            completedAt: "2026-04-11T00:10:03.000Z",
+            stats: {
+              journalEntryCount: 2,
+            },
+            errorSummary: null,
+            createdAt: "2026-04-11T00:10:00.000Z",
           },
           coverage: {
-            accountCatalogEntryCount: 2,
-            lineageCount: 4,
+            journalEntryCount: 2,
+            journalLineCount: 4,
+            lineageCount: 6,
           },
           summary: {
-            accountCount: 2,
-            activeAccountCount: 1,
-            inactiveAccountCount: 1,
-            parentLinkedCount: 1,
+            journalEntryCount: 2,
+            journalLineCount: 4,
+            ledgerAccountCount: 2,
+            totalDebitAmount: "100.00",
+            totalCreditAmount: "100.00",
+            earliestEntryDate: "2026-03-31",
+            latestEntryDate: "2026-04-30",
+            currencyCode: "USD",
           },
         },
       },
       limitations: ["Only deterministic CSV extraction is implemented."],
     });
 
-    expect(parsed.freshness.chartOfAccounts.state).toBe("fresh");
-    expect(parsed.latestSuccessfulSlices.chartOfAccounts.coverage.accountCatalogEntryCount).toBe(2);
+    expect(parsed.freshness.generalLedger.state).toBe("fresh");
+    expect(parsed.latestAttemptedSlices.generalLedger.latestSyncRun?.extractorKey).toBe(
+      "general_ledger_csv",
+    );
   });
 
   it("parses an account catalog view", () => {
@@ -182,12 +250,53 @@ describe("finance twin domain schemas", () => {
         ageSeconds: null,
         staleAfterSeconds: 86400,
         reasonCode: "not_synced",
-        reasonSummary: "No finance twin sync has been recorded yet for the chart-of-accounts slice.",
+        reasonSummary:
+          "No finance twin sync has been recorded yet for the chart-of-accounts slice.",
       },
       accounts: [],
       limitations: ["Only deterministic CSV extraction is implemented."],
     });
 
     expect(parsed.accounts).toHaveLength(0);
+  });
+
+  it("parses a general-ledger latest-snapshot view", () => {
+    const parsed = FinanceGeneralLedgerViewSchema.parse({
+      company: {
+        id: "11111111-1111-4111-8111-111111111111",
+        companyKey: "acme",
+        displayName: "Acme",
+        createdAt: "2026-04-09T00:00:00.000Z",
+        updatedAt: "2026-04-09T00:00:00.000Z",
+      },
+      latestAttemptedSyncRun: null,
+      latestSuccessfulSlice: {
+        latestSource: null,
+        latestSyncRun: null,
+        coverage: {
+          journalEntryCount: 0,
+          journalLineCount: 0,
+          lineageCount: 0,
+        },
+        summary: null,
+      },
+      freshness: {
+        state: "missing",
+        latestSyncRunId: null,
+        latestSyncStatus: null,
+        latestCompletedAt: null,
+        latestSuccessfulSyncRunId: null,
+        latestSuccessfulCompletedAt: null,
+        ageSeconds: null,
+        staleAfterSeconds: 86400,
+        reasonCode: "not_synced",
+        reasonSummary:
+          "No finance twin sync has been recorded yet for the general-ledger slice.",
+      },
+      entries: [],
+      limitations: ["Only deterministic CSV extraction is implemented."],
+    });
+
+    expect(parsed.entries).toHaveLength(0);
   });
 });

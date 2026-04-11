@@ -111,6 +111,17 @@ describe("FinanceTwinService", () => {
         chartOfAccounts: {
           state: "fresh",
         },
+        generalLedger: {
+          state: "missing",
+        },
+      },
+      latestAttemptedSlices: {
+        chartOfAccounts: {
+          latestSyncRun: {
+            id: synced.syncRun.id,
+            status: "succeeded",
+          },
+        },
       },
       companyTotals: {
         reportingPeriodCount: 0,
@@ -164,7 +175,7 @@ describe("FinanceTwinService", () => {
     });
   });
 
-  it("syncs one uploaded trial-balance CSV and leaves chart-of-accounts freshness missing", async () => {
+  it("syncs one uploaded trial-balance CSV and leaves the other slices missing", async () => {
     const now = () => new Date("2026-04-09T23:15:00.000Z");
     const sourceRepository = new InMemorySourceRepository();
     const sourceStorage = new InMemorySourceFileStorage();
@@ -257,6 +268,9 @@ describe("FinanceTwinService", () => {
         chartOfAccounts: {
           state: "missing",
         },
+        generalLedger: {
+          state: "missing",
+        },
       },
       latestSuccessfulSlices: {
         trialBalance: {
@@ -269,6 +283,255 @@ describe("FinanceTwinService", () => {
             accountCatalogEntryCount: 0,
           },
         },
+        generalLedger: {
+          coverage: {
+            journalEntryCount: 0,
+            journalLineCount: 0,
+          },
+        },
+      },
+    });
+  });
+
+  it("syncs one uploaded general-ledger CSV into persisted journal state", async () => {
+    const now = () => new Date("2026-04-11T08:00:00.000Z");
+    const sourceRepository = new InMemorySourceRepository();
+    const sourceStorage = new InMemorySourceFileStorage();
+    const sourceService = new SourceRegistryService(
+      sourceRepository,
+      sourceStorage,
+      now,
+    );
+    const financeRepository = new InMemoryFinanceTwinRepository();
+    const financeTwinService = new FinanceTwinService({
+      financeTwinRepository: financeRepository,
+      sourceFileStorage: sourceStorage,
+      sourceRepository,
+      now,
+    });
+    const created = await sourceService.createSource({
+      kind: "dataset",
+      name: "General ledger",
+      createdBy: "finance-operator",
+      originKind: "manual",
+      snapshot: {
+        originalFileName: "general-ledger-link.txt",
+        mediaType: "text/plain",
+        sizeBytes: 18,
+        checksumSha256:
+          "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+        storageKind: "external_url",
+        storageRef: "https://example.com/general-ledger",
+        ingestStatus: "registered",
+      },
+    });
+    const registered = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "general-ledger.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "journal_id,transaction_date,account_code,account_name,debit,credit,currency_code,memo",
+          "J-100,2026-03-31,1000,Cash,100.00,0.00,USD,Seed funding received",
+          "J-100,2026-03-31,3000,Common Stock,0.00,100.00,USD,Seed funding received",
+          "J-101,2026-04-01,6100,,25.00,0.00,USD,Office expense",
+        ].join("\n"),
+      ),
+    );
+
+    const synced = await financeTwinService.syncCompanySourceFile(
+      "acme",
+      registered.sourceFile.id,
+      {
+        companyName: "Acme Holdings",
+      },
+    );
+    const summary = await financeTwinService.getCompanySummary("acme");
+    const generalLedger = await financeTwinService.getGeneralLedger("acme");
+
+    expect(synced).toMatchObject({
+      syncRun: {
+        extractorKey: "general_ledger_csv",
+        status: "succeeded",
+      },
+      latestSuccessfulSlices: {
+        generalLedger: {
+          coverage: {
+            journalEntryCount: 2,
+            journalLineCount: 3,
+            lineageCount: 8,
+          },
+          summary: {
+            journalEntryCount: 2,
+            journalLineCount: 3,
+            ledgerAccountCount: 3,
+            totalDebitAmount: "125.00",
+            totalCreditAmount: "100.00",
+            earliestEntryDate: "2026-03-31",
+            latestEntryDate: "2026-04-01",
+            currencyCode: "USD",
+          },
+        },
+      },
+    });
+    expect(summary).toMatchObject({
+      freshness: {
+        overall: {
+          state: "missing",
+        },
+        generalLedger: {
+          state: "fresh",
+        },
+      },
+      latestAttemptedSlices: {
+        generalLedger: {
+          latestSyncRun: {
+            id: synced.syncRun.id,
+            status: "succeeded",
+          },
+        },
+      },
+      latestSuccessfulSlices: {
+        generalLedger: {
+          coverage: {
+            journalEntryCount: 2,
+            journalLineCount: 3,
+            lineageCount: 8,
+          },
+        },
+      },
+    });
+    expect(generalLedger).toMatchObject({
+      company: {
+        companyKey: "acme",
+        displayName: "Acme Holdings",
+      },
+      latestAttemptedSyncRun: {
+        id: synced.syncRun.id,
+        extractorKey: "general_ledger_csv",
+      },
+      latestSuccessfulSlice: {
+        coverage: {
+          journalEntryCount: 2,
+          journalLineCount: 3,
+          lineageCount: 8,
+        },
+      },
+      freshness: {
+        state: "fresh",
+      },
+      entries: [
+        {
+          journalEntry: {
+            externalEntryId: "J-100",
+            transactionDate: "2026-03-31",
+          },
+          lines: [
+            {
+              ledgerAccount: {
+                accountCode: "1000",
+                accountName: "Cash",
+              },
+            },
+            {
+              ledgerAccount: {
+                accountCode: "3000",
+                accountName: "Common Stock",
+              },
+            },
+          ],
+        },
+        {
+          journalEntry: {
+            externalEntryId: "J-101",
+            transactionDate: "2026-04-01",
+          },
+          lines: [
+            {
+              ledgerAccount: {
+                accountCode: "6100",
+                accountName: null,
+              },
+            },
+          ],
+        },
+      ],
+    });
+  });
+
+  it("preserves an existing company display name when a later sync omits companyName", async () => {
+    const now = () => new Date("2026-04-11T10:00:00.000Z");
+    const sourceRepository = new InMemorySourceRepository();
+    const sourceStorage = new InMemorySourceFileStorage();
+    const sourceService = new SourceRegistryService(
+      sourceRepository,
+      sourceStorage,
+      now,
+    );
+    const financeRepository = new InMemoryFinanceTwinRepository();
+    const financeTwinService = new FinanceTwinService({
+      financeTwinRepository: financeRepository,
+      sourceFileStorage: sourceStorage,
+      sourceRepository,
+      now,
+    });
+    const created = await sourceService.createSource({
+      kind: "dataset",
+      name: "Display name preservation",
+      createdBy: "finance-operator",
+      originKind: "manual",
+      snapshot: {
+        originalFileName: "display-name-link.txt",
+        mediaType: "text/plain",
+        sizeBytes: 18,
+        checksumSha256:
+          "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        storageKind: "external_url",
+        storageRef: "https://example.com/display-name",
+        ingestStatus: "registered",
+      },
+    });
+    const firstFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "trial-balance.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "account_code,account_name,period_end,debit,credit",
+          "1000,Cash,2026-03-31,10.00,0.00",
+        ].join("\n"),
+      ),
+    );
+    const secondFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "general-ledger.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "journal_id,transaction_date,account_code,debit,credit",
+          "J-100,2026-03-31,1000,10.00,0.00",
+        ].join("\n"),
+      ),
+    );
+
+    await financeTwinService.syncCompanySourceFile("acme", firstFile.sourceFile.id, {
+      companyName: "Acme Holdings",
+    });
+    await financeTwinService.syncCompanySourceFile("acme", secondFile.sourceFile.id, {});
+
+    await expect(financeTwinService.getCompanySummary("acme")).resolves.toMatchObject({
+      company: {
+        companyKey: "acme",
+        displayName: "Acme Holdings",
       },
     });
   });

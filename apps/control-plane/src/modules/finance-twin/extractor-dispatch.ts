@@ -6,6 +6,12 @@ import {
   type ChartOfAccountsExtractionResult,
 } from "./chart-of-accounts-csv";
 import {
+  extractGeneralLedgerCsv,
+  looksLikeGeneralLedgerCsv,
+  supportsGeneralLedgerCsvSource,
+  type GeneralLedgerExtractionResult,
+} from "./general-ledger-csv";
+import {
   extractTrialBalanceCsv,
   looksLikeTrialBalanceCsv,
   supportsTrialBalanceCsvSource,
@@ -18,6 +24,10 @@ export type FinanceTwinExtraction =
       trialBalance: TrialBalanceExtractionResult;
     }
   | {
+      extractorKey: "general_ledger_csv";
+      generalLedger: GeneralLedgerExtractionResult;
+    }
+  | {
       extractorKey: "chart_of_accounts_csv";
       chartOfAccounts: ChartOfAccountsExtractionResult;
     };
@@ -27,6 +37,7 @@ export function supportsFinanceTwinSourceFile(
 ) {
   return (
     supportsTrialBalanceCsvSource(sourceFile) ||
+    supportsGeneralLedgerCsvSource(sourceFile) ||
     supportsChartOfAccountsCsvSource(sourceFile)
   );
 }
@@ -35,6 +46,13 @@ export function extractFinanceTwinSource(input: {
   body: Buffer;
   sourceFile: Pick<SourceFileRecord, "mediaType" | "originalFileName">;
 }): FinanceTwinExtraction | null {
+  if (looksLikeGeneralLedgerCsv(input)) {
+    return {
+      extractorKey: "general_ledger_csv",
+      generalLedger: extractGeneralLedgerCsv(input),
+    };
+  }
+
   if (looksLikeTrialBalanceCsv(input)) {
     return {
       extractorKey: "trial_balance_csv",

@@ -27,6 +27,7 @@ Suggested thread naming:
 - `F1-source-registry-bridge`
 - `F2A-finance-twin-trial-balance`
 - `F2B-chart-of-accounts`
+- `F2C-general-ledger-and-hardening`
 - `F3-cfo-wiki-compiler`
 - `F4-finance-discovery-answer`
 - `F5-memo-and-packet-compiler`

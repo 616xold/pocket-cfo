@@ -1,6 +1,8 @@
 import type {
   financeAccountCatalogEntries,
   financeCompanies,
+  financeJournalEntries,
+  financeJournalLines,
   financeLedgerAccounts,
   financeReportingPeriods,
   financeTrialBalanceLines,
@@ -11,6 +13,9 @@ import type {
   FinanceAccountCatalogEntryRecord,
   FinanceAccountCatalogEntryView,
   FinanceCompanyRecord,
+  FinanceJournalEntryRecord,
+  FinanceJournalLineRecord,
+  FinanceJournalLineView,
   FinanceLedgerAccountRecord,
   FinanceReportingPeriodRecord,
   FinanceTrialBalanceLineRecord,
@@ -21,6 +26,8 @@ import type {
 type FinanceAccountCatalogEntryRow =
   typeof financeAccountCatalogEntries.$inferSelect;
 type FinanceCompanyRow = typeof financeCompanies.$inferSelect;
+type FinanceJournalEntryRow = typeof financeJournalEntries.$inferSelect;
+type FinanceJournalLineRow = typeof financeJournalLines.$inferSelect;
 type FinanceReportingPeriodRow = typeof financeReportingPeriods.$inferSelect;
 type FinanceLedgerAccountRow = typeof financeLedgerAccounts.$inferSelect;
 type FinanceTwinSyncRunRow = typeof financeTwinSyncRuns.$inferSelect;
@@ -53,6 +60,40 @@ export function mapFinanceCompanyRow(
     id: row.id,
     companyKey: row.companyKey,
     displayName: row.displayName,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export function mapFinanceJournalEntryRow(
+  row: FinanceJournalEntryRow,
+): FinanceJournalEntryRecord {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    syncRunId: row.syncRunId,
+    externalEntryId: row.externalEntryId,
+    transactionDate: row.transactionDate,
+    entryDescription: row.entryDescription,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export function mapFinanceJournalLineRow(
+  row: FinanceJournalLineRow,
+): FinanceJournalLineRecord {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    journalEntryId: row.journalEntryId,
+    ledgerAccountId: row.ledgerAccountId,
+    syncRunId: row.syncRunId,
+    lineNumber: row.lineNumber,
+    debitAmount: row.debitAmount,
+    creditAmount: row.creditAmount,
+    currencyCode: row.currencyCode,
+    lineDescription: row.lineDescription,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };
@@ -150,6 +191,16 @@ export function mapFinanceAccountCatalogEntryViewRow(input: {
 }): FinanceAccountCatalogEntryView {
   return {
     catalogEntry: mapFinanceAccountCatalogEntryRow(input.catalogEntry),
+    ledgerAccount: mapFinanceLedgerAccountRow(input.ledgerAccount),
+  };
+}
+
+export function mapFinanceJournalLineViewRow(input: {
+  journalLine: FinanceJournalLineRow;
+  ledgerAccount: FinanceLedgerAccountRow;
+}): FinanceJournalLineView {
+  return {
+    journalLine: mapFinanceJournalLineRow(input.journalLine),
     ledgerAccount: mapFinanceLedgerAccountRow(input.ledgerAccount),
   };
 }

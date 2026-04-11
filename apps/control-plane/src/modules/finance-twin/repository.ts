@@ -2,6 +2,10 @@ import type {
   FinanceAccountCatalogEntryRecord,
   FinanceAccountCatalogEntryView,
   FinanceCompanyRecord,
+  FinanceGeneralLedgerEntryView,
+  FinanceJournalEntryRecord,
+  FinanceJournalLineRecord,
+  FinanceJournalLineView,
   FinanceLedgerAccountRecord,
   FinanceReportingPeriodRecord,
   FinanceTrialBalanceLineRecord,
@@ -16,6 +20,7 @@ import {
   type PersistenceSession,
   type TransactionalRepository,
 } from "../../lib/persistence";
+import { mergeLedgerAccountMasterState } from "./account-master";
 
 export type UpsertFinanceCompanyInput = {
   companyKey: string;
@@ -33,8 +38,9 @@ export type UpsertFinanceReportingPeriodInput = {
 export type UpsertFinanceLedgerAccountInput = {
   companyId: string;
   accountCode: string;
-  accountName: string;
+  accountName: string | null;
   accountType: string | null;
+  extractorKey: FinanceTwinExtractorKey;
 };
 
 export type StartFinanceTwinSyncRunInput = {
@@ -78,6 +84,26 @@ export type UpsertFinanceAccountCatalogEntryInput = {
   parentAccountCode: string | null;
   isActive: boolean | null;
   observedAt: string;
+};
+
+export type UpsertFinanceJournalEntryInput = {
+  companyId: string;
+  syncRunId: string;
+  externalEntryId: string;
+  transactionDate: string;
+  entryDescription: string | null;
+};
+
+export type UpsertFinanceJournalLineInput = {
+  companyId: string;
+  journalEntryId: string;
+  ledgerAccountId: string;
+  syncRunId: string;
+  lineNumber: number;
+  debitAmount: string;
+  creditAmount: string;
+  currencyCode: string | null;
+  lineDescription: string | null;
 };
 
 export type CreateFinanceTwinLineageInput = {
@@ -162,6 +188,26 @@ export interface FinanceTwinRepository extends TransactionalRepository {
     syncRunId: string,
     session?: PersistenceSession,
   ): Promise<FinanceAccountCatalogEntryView[]>;
+  upsertJournalEntry(
+    input: UpsertFinanceJournalEntryInput,
+    session?: PersistenceSession,
+  ): Promise<FinanceJournalEntryRecord>;
+  listJournalEntriesBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ): Promise<FinanceJournalEntryRecord[]>;
+  upsertJournalLine(
+    input: UpsertFinanceJournalLineInput,
+    session?: PersistenceSession,
+  ): Promise<FinanceJournalLineRecord>;
+  listJournalLineViewsBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ): Promise<FinanceJournalLineView[]>;
+  listGeneralLedgerEntriesBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ): Promise<FinanceGeneralLedgerEntryView[]>;
   createLineage(
     input: CreateFinanceTwinLineageInput,
     session?: PersistenceSession,
@@ -187,6 +233,10 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
     FinanceAccountCatalogEntryRecord
   >();
   private readonly accountCatalogEntriesByScope = new Map<string, string>();
+  private readonly journalEntries = new Map<string, FinanceJournalEntryRecord>();
+  private readonly journalEntriesByScope = new Map<string, string>();
+  private readonly journalLines = new Map<string, FinanceJournalLineRecord>();
+  private readonly journalLinesByScope = new Map<string, string>();
   private readonly lineage = new Map<string, FinanceTwinLineageRecord>();
   private readonly lineageByScope = new Map<string, string>();
 
@@ -262,25 +312,32 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
   }
 
   async upsertLedgerAccount(input: UpsertFinanceLedgerAccountInput) {
-    const existing = this.ledgerAccounts.get(
-      this.ledgerAccountsByScope.get(
-        `${input.companyId}::${input.accountCode}`,
-      ) ?? "",
-    );
+    const existingId =
+      this.ledgerAccountsByScope.get(`${input.companyId}::${input.accountCode}`) ??
+      null;
+    const existing = existingId ? (this.ledgerAccounts.get(existingId) ?? null) : null;
     const now = new Date().toISOString();
+    const merged = mergeLedgerAccountMasterState({
+      existing,
+      extractorKey: input.extractorKey,
+      incoming: {
+        accountName: input.accountName,
+        accountType: input.accountType,
+      },
+    });
     const ledgerAccount: FinanceLedgerAccountRecord = existing
       ? {
           ...existing,
-          accountName: input.accountName,
-          accountType: input.accountType,
+          accountName: merged.accountName,
+          accountType: merged.accountType,
           updatedAt: now,
         }
       : {
           id: crypto.randomUUID(),
           companyId: input.companyId,
           accountCode: input.accountCode,
-          accountName: input.accountName,
-          accountType: input.accountType,
+          accountName: merged.accountName,
+          accountType: merged.accountType,
           createdAt: now,
           updatedAt: now,
         };
@@ -493,6 +550,133 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
           ledgerAccount,
         };
       });
+  }
+
+  async upsertJournalEntry(input: UpsertFinanceJournalEntryInput) {
+    const existing = this.journalEntries.get(
+      this.journalEntriesByScope.get(
+        `${input.syncRunId}::${input.externalEntryId}`,
+      ) ?? "",
+    );
+    const now = new Date().toISOString();
+    const journalEntry: FinanceJournalEntryRecord = existing
+      ? {
+          ...existing,
+          transactionDate: input.transactionDate,
+          entryDescription: input.entryDescription,
+          updatedAt: now,
+        }
+      : {
+          id: crypto.randomUUID(),
+          companyId: input.companyId,
+          syncRunId: input.syncRunId,
+          externalEntryId: input.externalEntryId,
+          transactionDate: input.transactionDate,
+          entryDescription: input.entryDescription,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+    this.journalEntries.set(journalEntry.id, journalEntry);
+    this.journalEntriesByScope.set(
+      `${input.syncRunId}::${input.externalEntryId}`,
+      journalEntry.id,
+    );
+    return journalEntry;
+  }
+
+  async listJournalEntriesBySyncRunId(syncRunId: string) {
+    return [...this.journalEntries.values()]
+      .filter((entry) => entry.syncRunId === syncRunId)
+      .sort((left, right) => {
+        return (
+          left.transactionDate.localeCompare(right.transactionDate) ||
+          left.externalEntryId.localeCompare(right.externalEntryId)
+        );
+      });
+  }
+
+  async upsertJournalLine(input: UpsertFinanceJournalLineInput) {
+    const existing = this.journalLines.get(
+      this.journalLinesByScope.get(`${input.syncRunId}::${input.lineNumber}`) ??
+        "",
+    );
+    const now = new Date().toISOString();
+    const journalLine: FinanceJournalLineRecord = existing
+      ? {
+          ...existing,
+          journalEntryId: input.journalEntryId,
+          ledgerAccountId: input.ledgerAccountId,
+          debitAmount: input.debitAmount,
+          creditAmount: input.creditAmount,
+          currencyCode: input.currencyCode,
+          lineDescription: input.lineDescription,
+          updatedAt: now,
+        }
+      : {
+          id: crypto.randomUUID(),
+          companyId: input.companyId,
+          journalEntryId: input.journalEntryId,
+          ledgerAccountId: input.ledgerAccountId,
+          syncRunId: input.syncRunId,
+          lineNumber: input.lineNumber,
+          debitAmount: input.debitAmount,
+          creditAmount: input.creditAmount,
+          currencyCode: input.currencyCode,
+          lineDescription: input.lineDescription,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+    this.journalLines.set(journalLine.id, journalLine);
+    this.journalLinesByScope.set(
+      `${input.syncRunId}::${input.lineNumber}`,
+      journalLine.id,
+    );
+    return journalLine;
+  }
+
+  async listJournalLineViewsBySyncRunId(syncRunId: string) {
+    return [...this.journalLines.values()]
+      .filter((line) => line.syncRunId === syncRunId)
+      .sort((left, right) => left.lineNumber - right.lineNumber)
+      .map((journalLine) => {
+        const ledgerAccount = this.ledgerAccounts.get(journalLine.ledgerAccountId);
+
+        if (!ledgerAccount) {
+          throw new Error(
+            `Ledger account ${journalLine.ledgerAccountId} missing for journal line ${journalLine.id}`,
+          );
+        }
+
+        return {
+          journalLine,
+          ledgerAccount,
+        };
+      });
+  }
+
+  async listGeneralLedgerEntriesBySyncRunId(syncRunId: string) {
+    const [entries, lineViews] = await Promise.all([
+      this.listJournalEntriesBySyncRunId(syncRunId),
+      this.listJournalLineViewsBySyncRunId(syncRunId),
+    ]);
+    const linesByJournalEntryId = new Map<string, FinanceJournalLineView[]>();
+
+    for (const lineView of lineViews) {
+      const lines = linesByJournalEntryId.get(lineView.journalLine.journalEntryId) ?? [];
+      lines.push(lineView);
+      linesByJournalEntryId.set(lineView.journalLine.journalEntryId, lines);
+    }
+
+    return entries.map((journalEntry) => ({
+      journalEntry,
+      lines:
+        linesByJournalEntryId.get(journalEntry.id)?.sort(
+          (left, right) =>
+            left.journalLine.lineNumber - right.journalLine.lineNumber,
+        ) ?? [],
+    }));
   }
 
   async createLineage(input: CreateFinanceTwinLineageInput) {

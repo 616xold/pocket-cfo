@@ -2710,6 +2710,9 @@ async function createHarness(options?: {
         async getAccountCatalog() {
           throw new Error("Not implemented in orchestrator harness");
         },
+        async getGeneralLedger() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
         async getCompanySummary() {
           throw new Error("Not implemented in orchestrator harness");
         },

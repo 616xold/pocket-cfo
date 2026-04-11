@@ -134,6 +134,13 @@
       "when": 1775825067266,
       "tag": "0018_spooky_captain_cross",
       "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1775863697923,
+      "tag": "0019_true_cobalt_man",
+      "breakpoints": true
     }
   ]
 }
