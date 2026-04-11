@@ -57,6 +57,7 @@ export type SourceServicePort = Pick<
 
 export type FinanceTwinServicePort = Pick<
   FinanceTwinService,
+  | "getAccountBridgeReadiness"
   | "getAccountCatalog"
   | "getGeneralLedgerAccountActivityLineage"
   | "getCompanySnapshot"

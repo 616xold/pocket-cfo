@@ -24,12 +24,13 @@ Today the merged backbone is:
 - F2C deterministic general-ledger CSV sync and persisted journal-entry or journal-line state
 - F2D additive company snapshot and lineage reads across the latest successful implemented finance slices
 - F2E additive backend-first reconciliation-readiness reads, source-grounded slice-alignment truthfulness, and more specific general-ledger activity lineage drill behavior
+- F2F additive reporting-window truth hardening, explicit general-ledger period-context reads, and period-scoped reconciliation semantics without fake variance
 
-The active next slice is F2F:
+The active next slice is F2G:
 
-- additive reporting-window truth hardening for trial-balance-versus-general-ledger reconciliation
-- clearer distinction between source-declared general-ledger period context and activity-window-only evidence
-- more explicit period-scoped window relation semantics without faking a balance variance
+- additive matched-period account-bridge-readiness reads for trial-balance-versus-general-ledger account scope
+- stricter bridge-readiness gating than F2E reconciliation readiness, while still refusing fake bridge numbers or variance
+- merged-doc truthfulness cleanup and the remaining narrow F2F period-context polish now visible on `main`
 
 ## Product boundary for v1
 
@@ -109,6 +110,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0012-cross-slice-finance-snapshot-and-lineage.md
 │   ├── FP-0013-reconciliation-readiness-and-snapshot-hardening.md
 │   ├── FP-0014-reporting-window-truth-and-period-scoped-reconciliation.md
+│   ├── FP-0015-account-bridge-readiness-and-f2f-polish.md
 │   └── templates
 └── .agents
     └── skills
@@ -122,7 +124,7 @@ Pocket CFO v1 is intentionally narrow:
 4. Read `PLANS.md`.
 5. Read `plans/ROADMAP.md`.
 6. Read the current active `plans/FP-*.md` file for the next narrow slice instead of restarting from `FP-0001`.
-7. The current active plan is `plans/FP-0014-reporting-window-truth-and-period-scoped-reconciliation.md`.
+7. The current active plan is `plans/FP-0015-account-bridge-readiness-and-f2f-polish.md`.
 8. Keep progress updates inside the active Finance Plan while working.
 9. Do not delete legacy engineering modules until the finance replacement path exists and a smoke proves it.
 
@@ -145,6 +147,7 @@ The current packaged local proofs for the finance path are:
 ```bash
 pnpm smoke:source-ingest:local
 pnpm smoke:finance-twin:local
+pnpm smoke:finance-twin-account-bridge:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
@@ -160,6 +163,7 @@ The current backend-first finance-twin read surface is:
 - general ledger
 - lineage drill
 - trial-balance-versus-general-ledger reconciliation readiness
+- trial-balance-versus-general-ledger matched-period account-bridge readiness
 - general-ledger account activity lineage
 
 The current success condition is no longer an F0 guidance reset.

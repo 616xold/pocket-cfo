@@ -257,6 +257,11 @@ function createAppContainer(
       },
     } as AppContainer["githubWebhookService"],
     financeTwinService: {
+      async getAccountBridgeReadiness() {
+        throw new Error(
+          "getAccountBridgeReadiness should not be called in this test",
+        );
+      },
       async getAccountCatalog() {
         throw new Error(
           "getAccountCatalog should not be called in this test",
