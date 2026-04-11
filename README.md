@@ -102,6 +102,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0009-finance-twin-foundation-and-first-extractor.md
 │   ├── FP-0010-chart-of-accounts-and-f2a-polish.md
 │   ├── FP-0011-general-ledger-and-finance-twin-hardening.md
+│   ├── FP-0012-cross-slice-finance-snapshot-and-lineage.md
 │   └── templates
 └── .agents
     └── skills
