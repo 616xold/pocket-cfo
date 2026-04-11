@@ -592,10 +592,12 @@ function resolveSourceDeclaredPeriod(input: {
     );
   }
 
-  if (periodStart !== null && periodEnd === null && asOf === null) {
+  if (periodStart !== null && periodEnd === null) {
     throw new FinanceTwinExtractionError(
       "general_ledger_period_context_incomplete",
-      "General-ledger CSV included a source-declared period start without a matching period end or as-of date.",
+      asOf !== null
+        ? "General-ledger CSV included a source-declared period start plus as-of date without a matching period end."
+        : "General-ledger CSV included a source-declared period start without a matching period end.",
     );
   }
 

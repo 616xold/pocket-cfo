@@ -1,4 +1,5 @@
 import {
+  FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
   FinanceGeneralLedgerViewSchema,
@@ -9,6 +10,7 @@ import {
   FinanceTwinSyncInputSchema,
   FinanceTwinSyncResultSchema,
   type FinanceAccountCatalogEntryView,
+  type FinanceAccountBridgeReadinessView,
   type FinanceAccountCatalogView,
   type FinanceCompanyRecord,
   type FinanceGeneralLedgerActivityLineageView,
@@ -48,6 +50,7 @@ import {
 } from "./general-ledger-period-context";
 import { buildFinanceLineageDrillView, buildLineageTargetCounts } from "./lineage";
 import type { GeneralLedgerExtractionResult } from "./general-ledger-csv";
+import { buildFinanceAccountBridgeReadinessView } from "./account-bridge";
 import { buildFinanceReconciliationReadinessView } from "./reconciliation";
 import type {
   FinanceTrialBalanceLineView,
@@ -298,6 +301,45 @@ export class FinanceTwinService {
         chartOfAccountsEntries: readState.latestAccountCatalogEntries,
         trialBalanceLineViews: readState.latestTrialBalanceLineViews,
         generalLedgerEntries: readState.latestGeneralLedgerEntries,
+        limitations: FINANCE_TWIN_LIMITATIONS,
+      }),
+    );
+  }
+
+  async getAccountBridgeReadiness(
+    companyKey: string,
+  ): Promise<FinanceAccountBridgeReadinessView> {
+    const company = await this.input.financeTwinRepository.getCompanyByKey(
+      companyKey,
+    );
+
+    if (!company) {
+      throw new FinanceCompanyNotFoundError(companyKey);
+    }
+
+    const readState = await this.readCompanyState(company);
+    const reconciliation = buildFinanceReconciliationReadinessView({
+      company,
+      trialBalanceSlice: readState.latestSuccessfulSlices.trialBalance,
+      generalLedgerSlice: readState.latestSuccessfulSlices.generalLedger,
+      freshness: readState.freshness,
+      trialBalanceLineViews: readState.latestTrialBalanceLineViews,
+      generalLedgerEntries: readState.latestGeneralLedgerEntries,
+      limitations: FINANCE_TWIN_LIMITATIONS,
+    });
+
+    return FinanceAccountBridgeReadinessViewSchema.parse(
+      buildFinanceAccountBridgeReadinessView({
+        company,
+        chartOfAccountsSlice: readState.latestSuccessfulSlices.chartOfAccounts,
+        chartOfAccountsEntries: readState.latestAccountCatalogEntries,
+        trialBalanceSlice: readState.latestSuccessfulSlices.trialBalance,
+        generalLedgerSlice: readState.latestSuccessfulSlices.generalLedger,
+        freshness: readState.freshness,
+        trialBalanceLineViews: readState.latestTrialBalanceLineViews,
+        generalLedgerEntries: readState.latestGeneralLedgerEntries,
+        sliceAlignment: reconciliation.sliceAlignment,
+        comparability: reconciliation.comparability,
         limitations: FINANCE_TWIN_LIMITATIONS,
       }),
     );

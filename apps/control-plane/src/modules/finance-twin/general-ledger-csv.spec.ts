@@ -113,6 +113,23 @@ describe("general-ledger CSV extractor", () => {
     ).toThrowError(FinanceTwinExtractionError);
   });
 
+  it("rejects ambiguous source-declared period start plus as-of context without period end", () => {
+    expect(() =>
+      extractGeneralLedgerCsv({
+        body: Buffer.from(
+          [
+            "journal_id,transaction_date,period_start,as_of,account_code,debit,credit",
+            "J-100,2026-03-31,2026-03-01,2026-03-31,1000,10.00,0.00",
+          ].join("\n"),
+        ),
+        sourceFile: {
+          mediaType: "text/csv",
+          originalFileName: "general-ledger.csv",
+        },
+      }),
+    ).toThrowError(FinanceTwinExtractionError);
+  });
+
   it("rejects files that lack a stable journal identity column", () => {
     expect(() =>
       extractGeneralLedgerCsv({

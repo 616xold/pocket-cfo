@@ -1073,6 +1073,171 @@ describe("FinanceTwinService", () => {
     });
   });
 
+  it("builds matched-period account-bridge readiness with chart diagnostics and no fake numeric bridge", async () => {
+    const now = () => new Date("2026-04-11T12:00:00.000Z");
+    const sourceRepository = new InMemorySourceRepository();
+    const sourceStorage = new InMemorySourceFileStorage();
+    const sourceService = new SourceRegistryService(
+      sourceRepository,
+      sourceStorage,
+      now,
+    );
+    const financeTwinService = new FinanceTwinService({
+      financeTwinRepository: new InMemoryFinanceTwinRepository(),
+      sourceFileStorage: sourceStorage,
+      sourceRepository,
+      now,
+    });
+    const created = await sourceService.createSource({
+      kind: "dataset",
+      name: "March close package with matched-period bridge inputs",
+      createdBy: "finance-operator",
+      originKind: "manual",
+      snapshot: {
+        originalFileName: "march-close-package-link.txt",
+        mediaType: "text/plain",
+        sizeBytes: 18,
+        checksumSha256:
+          "f333333333333333333333333333333333333333333333333333333333333333",
+        storageKind: "external_url",
+        storageRef: "https://example.com/march-close-package-bridge",
+        ingestStatus: "registered",
+      },
+    });
+    const chartFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "chart-of-accounts.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "account_code,account_name,account_type,detail_type,parent_account_code,is_active,description",
+          "1000,Cash,asset,current_asset,,true,Operating cash",
+          "2000,Accounts Payable,liability,current_liability,,true,Supplier balances",
+          "3000,Archived Clearing,liability,current_liability,,false,Legacy clearing account",
+        ].join("\n"),
+      ),
+    );
+    const trialBalanceFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "trial-balance.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "account_code,account_name,period_start,period_end,debit,credit,currency_code,account_type",
+          "1000,Cash,2026-03-01,2026-03-31,120.00,0.00,USD,asset",
+          "2000,Accounts Payable,2026-03-01,2026-03-31,0.00,90.00,USD,liability",
+          "4000,Deferred Revenue,2026-03-01,2026-03-31,0.00,30.00,USD,liability",
+        ].join("\n"),
+      ),
+    );
+    const generalLedgerFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "general-ledger.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "journal_id,transaction_date,period_start,period_end,period_key,account_code,account_name,account_type,debit,credit,currency_code,memo",
+          "J-100,2026-03-15,2026-03-01,2026-03-31,2026-03,1000,Cash,asset,120.00,0.00,USD,Customer receipt",
+          "J-100,2026-03-15,2026-03-01,2026-03-31,2026-03,3000,Archived Clearing,liability,0.00,50.00,USD,Customer receipt",
+          "J-100,2026-03-15,2026-03-01,2026-03-31,2026-03,5000,Product Revenue,income,0.00,70.00,USD,Customer receipt",
+        ].join("\n"),
+      ),
+    );
+
+    await financeTwinService.syncCompanySourceFile("acme", chartFile.sourceFile.id, {
+      companyName: "Acme Holdings",
+    });
+    await financeTwinService.syncCompanySourceFile(
+      "acme",
+      trialBalanceFile.sourceFile.id,
+      {},
+    );
+    const generalLedgerSync = await financeTwinService.syncCompanySourceFile(
+      "acme",
+      generalLedgerFile.sourceFile.id,
+      {},
+    );
+
+    const accountBridge = await financeTwinService.getAccountBridgeReadiness(
+      "acme",
+    );
+    const archivedClearingRow = accountBridge.accounts.find(
+      (account) => account.ledgerAccount.accountCode === "3000",
+    );
+    const deferredRevenueRow = accountBridge.accounts.find(
+      (account) => account.ledgerAccount.accountCode === "4000",
+    );
+    const productRevenueRow = accountBridge.accounts.find(
+      (account) => account.ledgerAccount.accountCode === "5000",
+    );
+
+    expect(accountBridge.bridgeReadiness).toMatchObject({
+      state: "matched_period_ready",
+      reasonCode: "account_bridge_matched_period_ready",
+      basis: "source_declared_period",
+      windowRelation: "exact_match",
+      sameSource: true,
+      sameSourceSnapshot: false,
+      sameSyncRun: false,
+      sharedSourceId: created.source.id,
+    });
+    expect(accountBridge.coverageSummary).toMatchObject({
+      accountRowCount: 5,
+      presentInChartOfAccountsCount: 3,
+      presentInTrialBalanceCount: 3,
+      presentInGeneralLedgerCount: 3,
+      overlapCount: 1,
+      trialBalanceOnlyCount: 2,
+      generalLedgerOnlyCount: 2,
+      missingFromChartOfAccountsCount: 2,
+      inactiveWithGeneralLedgerActivityCount: 1,
+    });
+    expect(accountBridge.limitations).toContain(
+      "This route does not compute a direct account balance bridge or variance because trial-balance ending balances are not equivalent to general-ledger activity totals.",
+    );
+    expect(accountBridge.limitations).toContain(
+      "The latest successful trial-balance and general-ledger slices share one registered source, but span different uploaded file snapshots and sync runs. Under the current per-file upload flow, sameSourceSnapshot and sameSyncRun are diagnostic fields rather than expected positive comparison signals.",
+    );
+    expect(archivedClearingRow).toMatchObject({
+      presentInChartOfAccounts: true,
+      presentInTrialBalance: false,
+      presentInGeneralLedger: true,
+      generalLedgerOnly: true,
+      inactiveWithGeneralLedgerActivity: true,
+      activityLineageRef: {
+        ledgerAccountId: archivedClearingRow?.ledgerAccount.id,
+        syncRunId: generalLedgerSync.syncRun.id,
+      },
+    });
+    expect(deferredRevenueRow).toMatchObject({
+      presentInChartOfAccounts: false,
+      presentInTrialBalance: true,
+      presentInGeneralLedger: false,
+      trialBalanceOnly: true,
+      missingFromChartOfAccounts: true,
+    });
+    expect(productRevenueRow).toMatchObject({
+      presentInChartOfAccounts: false,
+      presentInTrialBalance: false,
+      presentInGeneralLedger: true,
+      generalLedgerOnly: true,
+      missingFromChartOfAccounts: true,
+      activityLineageRef: {
+        ledgerAccountId: productRevenueRow?.ledgerAccount.id,
+        syncRunId: generalLedgerSync.syncRun.id,
+      },
+    });
+  });
+
   it("preserves an existing company display name when a later sync omits companyName", async () => {
     const now = () => new Date("2026-04-11T10:00:00.000Z");
     const sourceRepository = new InMemorySourceRepository();

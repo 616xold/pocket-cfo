@@ -1,6 +1,6 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, and F2E finance-twin slices.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, F2E, and F2F finance-twin slices.
 
 That means two things are true at once:
 
@@ -31,6 +31,7 @@ pnpm check
 pnpm smoke:source-registry:local
 pnpm smoke:source-ingest:local
 pnpm smoke:finance-twin:local
+pnpm smoke:finance-twin-account-bridge:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
@@ -64,8 +65,10 @@ Today, steps 1 through 4 exist in a narrow form:
 - F2C general-ledger CSV sync and persisted journal-entry or journal-line reads are implemented
 - F2D additive company snapshot and lineage reads now tie the latest successful implemented finance slices together truthfully
 - F2E adds a company-level reconciliation-readiness read that stays explicit about coverage, comparability, and limitations rather than faking a balance reconciliation
-- F2F is the active next slice and hardens reporting-window truth so reconciliation can distinguish source-declared general-ledger period context from activity-window-only fallback
+- F2F hardens reporting-window truth so reconciliation can distinguish source-declared general-ledger period context from activity-window-only fallback
+- F2G is the active next slice and adds matched-period account-bridge readiness plus chart-of-accounts-backed unmatched diagnostics without inventing a numeric bridge
 - the packaged `pnpm smoke:finance-twin:local` path proves the trial-balance sync from stored raw bytes
+- the packaged `pnpm smoke:finance-twin-account-bridge:local` path proves matched-period account-bridge readiness, explicit unmatched diagnostics, and activity-lineage drill-through from persisted state
 - the packaged `pnpm smoke:finance-twin-account-catalog:local` path proves persisted account-catalog state
 - the packaged `pnpm smoke:finance-twin-general-ledger:local` path proves persisted general-ledger journal state from stored raw bytes
 - the packaged `pnpm smoke:finance-twin-snapshot:local` path proves mixed-slice snapshot and lineage drill behavior from persisted state
@@ -83,6 +86,7 @@ The active finance-twin read surface is currently backend-first:
 - general ledger
 - lineage drill
 - trial-balance-versus-general-ledger reconciliation readiness
+- trial-balance-versus-general-ledger matched-period account-bridge readiness
 - general-ledger account activity lineage
 
 ## GitHub setup is optional

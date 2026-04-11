@@ -41,6 +41,14 @@ export async function registerFinanceTwinRoutes(
   });
 
   app.get(
+    "/finance-twin/companies/:companyKey/reconciliation/trial-balance-vs-general-ledger/account-bridge",
+    async (request) => {
+      const params = financeTwinCompanyKeyParamsSchema.parse(request.params);
+      return deps.financeTwinService.getAccountBridgeReadiness(params.companyKey);
+    },
+  );
+
+  app.get(
     "/finance-twin/companies/:companyKey/reconciliation/trial-balance-vs-general-ledger",
     async (request) => {
       const params = financeTwinCompanyKeyParamsSchema.parse(request.params);

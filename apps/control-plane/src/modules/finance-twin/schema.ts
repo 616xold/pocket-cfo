@@ -1,4 +1,5 @@
 import {
+  FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
   FinanceCompanyKeySchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
@@ -42,6 +43,7 @@ export const financeTwinGeneralLedgerActivityLineageQuerySchema = z.object({
 });
 
 export {
+  FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
   FinanceGeneralLedgerViewSchema,

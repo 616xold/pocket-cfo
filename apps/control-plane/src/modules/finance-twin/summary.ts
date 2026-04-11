@@ -5,7 +5,7 @@ import type {
 } from "@pocket-cto/domain";
 
 export const FINANCE_TWIN_LIMITATIONS = [
-  "F2F only covers deterministic trial-balance CSV, chart-of-accounts CSV, general-ledger CSV extraction, additive finance snapshot and reconciliation read models, and reporting-window truth hardening.",
+  "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, and period-context read models.",
   "CFO Wiki, finance discovery answers, reports, monitoring, and close/control flows are not implemented in this slice.",
 ];
 
