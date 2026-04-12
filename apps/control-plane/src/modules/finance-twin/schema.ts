@@ -2,6 +2,7 @@ import {
   FinanceBalanceBridgePrerequisitesViewSchema,
   FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
+  FinanceGeneralLedgerBalanceProofViewSchema,
   FinanceCompanyKeySchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
   FinanceGeneralLedgerViewSchema,
@@ -41,7 +42,16 @@ export const financeTwinGeneralLedgerActivityLineageParamsSchema =
     ledgerAccountId: z.string().uuid(),
   });
 
+export const financeTwinGeneralLedgerBalanceProofParamsSchema =
+  financeTwinCompanyKeyParamsSchema.extend({
+    ledgerAccountId: z.string().uuid(),
+  });
+
 export const financeTwinGeneralLedgerActivityLineageQuerySchema = z.object({
+  syncRunId: z.string().uuid().optional(),
+});
+
+export const financeTwinGeneralLedgerBalanceProofQuerySchema = z.object({
   syncRunId: z.string().uuid().optional(),
 });
 
@@ -49,6 +59,7 @@ export {
   FinanceBalanceBridgePrerequisitesViewSchema,
   FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
+  FinanceGeneralLedgerBalanceProofViewSchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
   FinanceGeneralLedgerViewSchema,
   FinanceLineageDrillViewSchema,

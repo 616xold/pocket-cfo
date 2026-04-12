@@ -56,17 +56,14 @@ export function buildLineageTargetCounts(
   return counts;
 }
 
-export function buildFinanceLineageDrillView(input: {
-  company: FinanceCompanyRecord;
-  limitations: string[];
+export function buildFinanceLineageRecordViews(input: {
   records: FinanceTwinLineageRecord[];
   sourceFilesById: Map<string, SourceFileRecord>;
   sourcesById: Map<string, SourceRecord>;
   sourceSnapshotsById: Map<string, SourceSnapshotRecord>;
   syncRunsById: Map<string, FinanceTwinSyncRunRecord>;
-  target: FinanceLineageLookupRef;
-}): FinanceLineageDrillView {
-  const records = input.records.map((record) => {
+}): FinanceLineageRecordView[] {
+  return input.records.map((record) => {
     const syncRun = input.syncRunsById.get(record.syncRunId);
     const source = input.sourcesById.get(record.sourceId);
     const sourceSnapshot = input.sourceSnapshotsById.get(
@@ -87,6 +84,25 @@ export function buildFinanceLineageDrillView(input: {
       sourceSnapshot,
       sourceFile,
     } satisfies FinanceLineageRecordView;
+  });
+}
+
+export function buildFinanceLineageDrillView(input: {
+  company: FinanceCompanyRecord;
+  limitations: string[];
+  records: FinanceTwinLineageRecord[];
+  sourceFilesById: Map<string, SourceFileRecord>;
+  sourcesById: Map<string, SourceRecord>;
+  sourceSnapshotsById: Map<string, SourceSnapshotRecord>;
+  syncRunsById: Map<string, FinanceTwinSyncRunRecord>;
+  target: FinanceLineageLookupRef;
+}): FinanceLineageDrillView {
+  const records = buildFinanceLineageRecordViews({
+    records: input.records,
+    syncRunsById: input.syncRunsById,
+    sourcesById: input.sourcesById,
+    sourceSnapshotsById: input.sourceSnapshotsById,
+    sourceFilesById: input.sourceFilesById,
   });
 
   return FinanceLineageDrillViewSchema.parse({

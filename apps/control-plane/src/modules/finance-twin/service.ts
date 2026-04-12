@@ -3,6 +3,7 @@ import {
   FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
+  type FinanceGeneralLedgerBalanceProofView,
   FinanceGeneralLedgerViewSchema,
   FinanceLineageDrillViewSchema,
   FinanceReconciliationReadinessViewSchema,
@@ -46,12 +47,16 @@ import {
 } from "./errors";
 import { extractFinanceTwinSource } from "./extractor-dispatch";
 import { buildFinanceFreshnessView } from "./freshness";
+import { buildGeneralLedgerActivityByAccountId } from "./general-ledger-activity";
 import { buildFinanceGeneralLedgerActivityLineageView } from "./general-ledger-activity-lineage";
+import { buildFinanceGeneralLedgerBalanceProof } from "./general-ledger-balance-proof";
+import { buildFinanceGeneralLedgerBalanceProofView } from "./general-ledger-balance-proof-view";
 import {
   buildFinanceGeneralLedgerPeriodContext,
   buildPersistedGeneralLedgerPeriodContextStats,
 } from "./general-ledger-period-context";
 import {
+  buildFinanceLineageRecordViews,
   buildFinanceLineageDrillView,
   buildLineageTargetCounts,
 } from "./lineage";
@@ -404,45 +409,28 @@ export class FinanceTwinService {
     }
 
     const readState = await this.readCompanyState(company);
-    const latestSuccessfulRun =
-      readState.latestSuccessfulSlices.generalLedger.latestSyncRun;
-    const latestSuccessfulEntries = readState.latestGeneralLedgerEntries;
-    const requestedSyncRun = input.syncRunId
-      ? await this.input.financeTwinRepository.getSyncRunById(input.syncRunId)
-      : latestSuccessfulRun;
-    const syncRun =
-      requestedSyncRun &&
-      requestedSyncRun.companyId === company.id &&
-      requestedSyncRun.extractorKey === "general_ledger_csv" &&
-      requestedSyncRun.status === "succeeded"
-        ? requestedSyncRun
-        : null;
-    const entries =
-      syncRun === null
-        ? []
-        : input.syncRunId === undefined ||
-            syncRun.id === latestSuccessfulRun?.id
-          ? latestSuccessfulEntries
-          : await this.input.financeTwinRepository.listGeneralLedgerEntriesBySyncRunId(
-              syncRun.id,
-            );
+    const generalLedgerSlice = await this.readRequestedGeneralLedgerSlice({
+      company,
+      readState,
+      syncRunId: input.syncRunId,
+    });
     const limitations = [...FINANCE_TWIN_LIMITATIONS];
 
-    if (!latestSuccessfulRun && input.syncRunId === undefined) {
+    if (!generalLedgerSlice.latestSuccessfulRun && input.syncRunId === undefined) {
       limitations.push(
         "No successful general-ledger slice exists yet for this activity-lineage drill.",
       );
     }
 
-    if (input.syncRunId && syncRun === null) {
+    if (input.syncRunId && generalLedgerSlice.syncRun === null) {
       limitations.push(
         "The requested sync run is not a successful general-ledger slice for this company.",
       );
     }
 
     if (
-      syncRun !== null &&
-      !entries.some((entry) =>
+      generalLedgerSlice.syncRun !== null &&
+      !generalLedgerSlice.entries.some((entry) =>
         entry.lines.some(
           (line) => line.ledgerAccount.id === input.ledgerAccountId,
         ),
@@ -457,11 +445,123 @@ export class FinanceTwinService {
       buildFinanceGeneralLedgerActivityLineageView({
         company,
         ledgerAccountId: input.ledgerAccountId,
-        syncRunId: syncRun?.id ?? null,
-        entries,
+        syncRunId: generalLedgerSlice.syncRun?.id ?? null,
+        entries: generalLedgerSlice.entries,
         limitations,
       }),
     );
+  }
+
+  async getGeneralLedgerAccountBalanceProof(input: {
+    companyKey: string;
+    ledgerAccountId: string;
+    syncRunId?: string;
+  }): Promise<FinanceGeneralLedgerBalanceProofView> {
+    const company = await this.input.financeTwinRepository.getCompanyByKey(
+      input.companyKey,
+    );
+
+    if (!company) {
+      throw new FinanceCompanyNotFoundError(input.companyKey);
+    }
+
+    const readState = await this.readCompanyState(company);
+    const generalLedgerSlice = await this.readRequestedGeneralLedgerSlice({
+      company,
+      readState,
+      syncRunId: input.syncRunId,
+    });
+    const limitations = [
+      ...FINANCE_TWIN_LIMITATIONS,
+      "This route returns persisted balance-proof rows and lineage only; it does not compute a balance bridge or variance.",
+    ];
+    const diagnostics: string[] = [];
+
+    if (!generalLedgerSlice.latestSuccessfulRun && input.syncRunId === undefined) {
+      limitations.push(
+        "No successful general-ledger slice exists yet for this balance-proof drill.",
+      );
+    }
+
+    if (input.syncRunId && generalLedgerSlice.syncRun === null) {
+      limitations.push(
+        "The requested sync run is not a successful general-ledger slice for this company.",
+      );
+    }
+
+    if (
+      generalLedgerSlice.syncRun !== null &&
+      generalLedgerSlice.latestSuccessfulRun !== null &&
+      generalLedgerSlice.syncRun.id !== generalLedgerSlice.latestSuccessfulRun.id
+    ) {
+      diagnostics.push(
+        "This balance-proof drill is scoped to the requested successful general-ledger slice instead of the latest successful general-ledger slice.",
+      );
+    }
+
+    const generalLedgerActivity =
+      buildGeneralLedgerActivityByAccountId(generalLedgerSlice.entries).get(
+        input.ledgerAccountId,
+      )?.activity ?? null;
+    const proofRecord =
+      generalLedgerSlice.balanceProofs.find(
+        (proof) => proof.ledgerAccountId === input.ledgerAccountId,
+      ) ?? null;
+    const proof =
+      proofRecord === null
+        ? null
+        : buildFinanceGeneralLedgerBalanceProof({
+            generalLedgerActivity,
+            sourceBackedBalanceProof: proofRecord,
+          });
+
+    let lineageRecords: ReturnType<typeof buildFinanceLineageRecordViews> = [];
+
+    if (proofRecord !== null) {
+      const records = await this.input.financeTwinRepository.listLineageByTarget({
+        companyId: company.id,
+        targetKind: "general_ledger_balance_proof",
+        targetId: proofRecord.id,
+        syncRunId: proofRecord.syncRunId,
+      });
+
+      if (records.length === 0) {
+        limitations.push(
+          "A persisted general-ledger balance-proof row exists for this account, but no lineage records were found for that proof row.",
+        );
+      } else {
+        const metadata = await this.readLineageMetadata(records);
+        lineageRecords = buildFinanceLineageRecordViews({
+          records,
+          syncRunsById: metadata.syncRunsById,
+          sourcesById: metadata.sourcesById,
+          sourceSnapshotsById: metadata.sourceSnapshotsById,
+          sourceFilesById: metadata.sourceFilesById,
+        });
+      }
+    } else if (generalLedgerSlice.syncRun !== null) {
+      limitations.push(
+        buildFinanceGeneralLedgerBalanceProof({
+          generalLedgerActivity,
+          sourceBackedBalanceProof: null,
+        }).reasonSummary,
+      );
+    }
+
+    return buildFinanceGeneralLedgerBalanceProofView({
+      company,
+      target: {
+        ledgerAccountId: input.ledgerAccountId,
+        syncRunId: generalLedgerSlice.syncRun?.id ?? null,
+      },
+      latestSuccessfulGeneralLedgerSlice:
+        readState.latestSuccessfulSlices.generalLedger,
+      proofRecord,
+      proof,
+      lineageRecords,
+      diagnostics,
+      limitations,
+    });
   }
 
   async getLineageDrill(input: {
@@ -1077,6 +1177,59 @@ export class FinanceTwinService {
       latestGeneralLedgerBalanceProofs: generalLedgerSlice.balanceProofs,
       latestGeneralLedgerEntries: generalLedgerSlice.entries,
       latestTrialBalanceLineViews: trialBalanceSlice.lineViews,
+    };
+  }
+
+  private async readRequestedGeneralLedgerSlice(input: {
+    company: FinanceCompanyRecord;
+    readState: CompanyReadState;
+    syncRunId?: string;
+  }) {
+    const latestSuccessfulRun =
+      input.readState.latestSuccessfulSlices.generalLedger.latestSyncRun;
+    const requestedSyncRun = input.syncRunId
+      ? await this.input.financeTwinRepository.getSyncRunById(input.syncRunId)
+      : latestSuccessfulRun;
+    const syncRun =
+      requestedSyncRun &&
+      requestedSyncRun.companyId === input.company.id &&
+      requestedSyncRun.extractorKey === "general_ledger_csv" &&
+      requestedSyncRun.status === "succeeded"
+        ? requestedSyncRun
+        : null;
+
+    if (syncRun === null) {
+      return {
+        latestSuccessfulRun,
+        syncRun: null,
+        entries: [] as FinanceGeneralLedgerEntryView[],
+        balanceProofs: [] as FinanceGeneralLedgerBalanceProofRecord[],
+      };
+    }
+
+    if (input.syncRunId === undefined || syncRun.id === latestSuccessfulRun?.id) {
+      return {
+        latestSuccessfulRun,
+        syncRun,
+        entries: input.readState.latestGeneralLedgerEntries,
+        balanceProofs: input.readState.latestGeneralLedgerBalanceProofs,
+      };
+    }
+
+    const [entries, balanceProofs] = await Promise.all([
+      this.input.financeTwinRepository.listGeneralLedgerEntriesBySyncRunId(
+        syncRun.id,
+      ),
+      this.input.financeTwinRepository.listGeneralLedgerBalanceProofsBySyncRunId(
+        syncRun.id,
+      ),
+    ]);
+
+    return {
+      latestSuccessfulRun,
+      syncRun,
+      entries,
+      balanceProofs,
     };
   }
 
