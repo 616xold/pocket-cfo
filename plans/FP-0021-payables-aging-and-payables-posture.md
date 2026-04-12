@@ -17,9 +17,10 @@ It also absorbs the known root-doc truthfulness lag now visible after the merged
 - [x] 2026-04-12T20:26:14Z Create the active F2M Finance Plan in `plans/FP-0021-payables-aging-and-payables-posture.md` before code changes.
 - [x] 2026-04-12T20:26:14Z Implement additive payables-aging contracts, schema, extractor dispatch, persistence, read models, targeted tests, packaged smoke coverage, and truthful doc updates.
 - [x] 2026-04-12T20:26:14Z Run the required validation ladder in the requested order, fix only in-scope failures, and confirm every required command is green before commit, push, or PR work.
-- [ ] 2026-04-12T20:26:14Z Create the one requested local commit, push `codex/f2m-payables-aging-and-payables-posture-local-v1`, verify the remote head, and create or report the PR into `main`.
+- [x] 2026-04-12T20:26:14Z Create the one requested local commit, push `codex/f2m-payables-aging-and-payables-posture-local-v1`, verify the remote head, and create PR `#80` into `main`.
 - [x] 2026-04-12T20:49:00Z Landed additive `payables_aging_csv` contracts, schema, repository persistence, service reads, routes, packaged smoke coverage, and stale-root-doc updates without widening into bill detail, payment forecasting, reserve logic, DPO, or non-finance slices.
 - [x] 2026-04-12T20:49:00Z Generated and applied the additive migration for `finance_vendors` and `finance_payables_aging_rows`, then ran the requested targeted tests, all finance smokes, unchanged engineering-twin sync tests, repo lint, repo typecheck, repo test, and `pnpm ci:repro:current` successfully.
+- [x] 2026-04-12T20:56:20Z Ran the requested strict QA pass on the shipped F2M branch, confirmed the payables routes are real persisted-state reads from the raw-source-backed sync path, confirmed the F2L doc lag cleanup remained truthful, and corrected the stale active-plan release bookkeeping before a narrow follow-up repro run.
 
 ## Surprises & Discoveries
 
@@ -348,3 +349,6 @@ The slice also closed the active-doc lag that reopened after F2L merged.
 
 Validation stayed fully green after narrow in-scope follow-up fixes.
 The only notable fallout was additive type-shape maintenance in a few existing mocks and lineage-count fixtures, which confirms the new read-model seam stayed reviewable and did not require widening into unrelated product areas.
+
+The QA pass found one narrow bookkeeping miss after the initial ship: the active Finance Plan still showed the commit/push/PR step as incomplete even though the branch and PR were already live.
+That did not affect product behavior, provenance, or route truthfulness, but it did leave the active execution record stale, so the fix is limited to the plan itself plus a follow-up repro check.
