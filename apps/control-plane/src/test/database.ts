@@ -11,6 +11,7 @@ import {
 import type {
   financeAccountCatalogEntries,
   financeCompanies,
+  financeGeneralLedgerBalanceProofs,
   financeJournalEntries,
   financeJournalLines,
   financeLedgerAccounts,
@@ -43,6 +44,7 @@ export async function resetTestDatabase() {
   await db.execute(sql`
     TRUNCATE TABLE
       finance_twin_lineage,
+      finance_general_ledger_balance_proofs,
       finance_journal_lines,
       finance_journal_entries,
       finance_trial_balance_lines,
@@ -121,6 +123,7 @@ async function selectCount(
     | typeof financeCompanies
     | typeof financeReportingPeriods
     | typeof financeLedgerAccounts
+    | typeof financeGeneralLedgerBalanceProofs
     | typeof financeJournalEntries
     | typeof financeJournalLines
     | typeof financeTwinSyncRuns

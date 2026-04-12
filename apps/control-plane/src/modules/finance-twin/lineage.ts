@@ -19,6 +19,7 @@ export const EMPTY_FINANCE_LINEAGE_TARGET_COUNTS: FinanceLineageTargetCounts = {
   accountCatalogEntryCount: 0,
   journalEntryCount: 0,
   journalLineCount: 0,
+  generalLedgerBalanceProofCount: 0,
 };
 
 export function buildLineageTargetCounts(
@@ -46,6 +47,9 @@ export function buildLineageTargetCounts(
       case "journal_line":
         counts.journalLineCount += 1;
         break;
+      case "general_ledger_balance_proof":
+        counts.generalLedgerBalanceProofCount += 1;
+        break;
     }
   }
 
@@ -65,7 +69,9 @@ export function buildFinanceLineageDrillView(input: {
   const records = input.records.map((record) => {
     const syncRun = input.syncRunsById.get(record.syncRunId);
     const source = input.sourcesById.get(record.sourceId);
-    const sourceSnapshot = input.sourceSnapshotsById.get(record.sourceSnapshotId);
+    const sourceSnapshot = input.sourceSnapshotsById.get(
+      record.sourceSnapshotId,
+    );
     const sourceFile = input.sourceFilesById.get(record.sourceFileId);
 
     if (!syncRun || !source || !sourceSnapshot || !sourceFile) {

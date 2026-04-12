@@ -34,6 +34,7 @@ export const financeTwinLineageTargetKindEnum = pgEnum(
     "account_catalog_entry",
     "journal_entry",
     "journal_line",
+    "general_ledger_balance_proof",
   ],
 );
 
@@ -167,10 +168,9 @@ export const financeAccountCatalogEntries = pgTable(
     syncRunLedgerAccountUnique: uniqueIndex(
       "finance_account_catalog_entries_sync_run_ledger_account_key",
     ).on(table.syncRunId, table.ledgerAccountId),
-    companySyncIndex: index("finance_account_catalog_entries_company_sync_idx").on(
-      table.companyId,
-      table.syncRunId,
-    ),
+    companySyncIndex: index(
+      "finance_account_catalog_entries_company_sync_idx",
+    ).on(table.companyId, table.syncRunId),
   }),
 );
 
@@ -285,6 +285,47 @@ export const financeJournalLines = pgTable(
   }),
 );
 
+export const financeGeneralLedgerBalanceProofs = pgTable(
+  "finance_general_ledger_balance_proofs",
+  {
+    id: id(),
+    companyId: uuid("company_id")
+      .references(() => financeCompanies.id, { onDelete: "cascade" })
+      .notNull(),
+    ledgerAccountId: uuid("ledger_account_id")
+      .references(() => financeLedgerAccounts.id, { onDelete: "cascade" })
+      .notNull(),
+    syncRunId: uuid("sync_run_id")
+      .references(() => financeTwinSyncRuns.id, { onDelete: "cascade" })
+      .notNull(),
+    openingBalanceAmount: numeric("opening_balance_amount", {
+      precision: 18,
+      scale: 2,
+    }),
+    openingBalanceSourceColumn: text("opening_balance_source_column"),
+    openingBalanceLineNumber: integer("opening_balance_line_number"),
+    endingBalanceAmount: numeric("ending_balance_amount", {
+      precision: 18,
+      scale: 2,
+    }),
+    endingBalanceSourceColumn: text("ending_balance_source_column"),
+    endingBalanceLineNumber: integer("ending_balance_line_number"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => ({
+    syncRunLedgerAccountUnique: uniqueIndex(
+      "finance_general_ledger_balance_proofs_sync_run_ledger_account_key",
+    ).on(table.syncRunId, table.ledgerAccountId),
+    companySyncIndex: index(
+      "finance_general_ledger_balance_proofs_company_sync_idx",
+    ).on(table.companyId, table.syncRunId),
+    ledgerAccountIndex: index(
+      "finance_general_ledger_balance_proofs_ledger_account_idx",
+    ).on(table.ledgerAccountId),
+  }),
+);
+
 export const financeTwinLineage = pgTable(
   "finance_twin_lineage",
   {
@@ -317,8 +358,8 @@ export const financeTwinLineage = pgTable(
       table.targetKind,
       table.targetId,
     ),
-    sourceSnapshotIndex: index("finance_twin_lineage_source_snapshot_id_idx").on(
-      table.sourceSnapshotId,
-    ),
+    sourceSnapshotIndex: index(
+      "finance_twin_lineage_source_snapshot_id_idx",
+    ).on(table.sourceSnapshotId),
   }),
 );

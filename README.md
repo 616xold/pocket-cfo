@@ -26,12 +26,13 @@ Today the merged backbone is:
 - F2E additive backend-first reconciliation-readiness reads, source-grounded slice-alignment truthfulness, and more specific general-ledger activity lineage drill behavior
 - F2F additive reporting-window truth hardening, explicit general-ledger period-context reads, and period-scoped reconciliation semantics without fake variance
 - F2G additive matched-period account-bridge-readiness reads plus chart-of-accounts-backed unmatched diagnostics without inventing a numeric bridge
+- F2H additive balance-bridge-prerequisites reads for trial-balance-versus-general-ledger account scope, explicit account-level proof diagnostics, and diagnostic-versus-limitation hardening without fake bridge numbers or variance
 
-The active next slice is F2H:
+The active next slice is F2I:
 
-- additive balance-bridge-prerequisites reads for trial-balance-versus-general-ledger account scope
-- explicit account-level proof diagnostics that stop before any fake balance bridge or variance
-- merged-doc truthfulness cleanup and diagnostic-versus-limitation hardening now visible on `main`
+- additive source-backed general-ledger opening-balance and ending-balance proof support from explicit persisted fields only
+- balance-bridge-prerequisites truthfulness that lights up only when real source-backed proof exists and stays blocked otherwise
+- snapshot diagnostic-versus-limitation polish plus merged-doc cleanup now that F2H is already on `main`
 
 ## Product boundary for v1
 
@@ -113,6 +114,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0014-reporting-window-truth-and-period-scoped-reconciliation.md
 │   ├── FP-0015-account-bridge-readiness-and-f2f-polish.md
 │   ├── FP-0016-balance-bridge-prerequisites-and-diagnostic-hardening.md
+│   ├── FP-0017-source-backed-balance-proof-and-snapshot-polish.md
 │   └── templates
 └── .agents
     └── skills
@@ -126,7 +128,7 @@ Pocket CFO v1 is intentionally narrow:
 4. Read `PLANS.md`.
 5. Read `plans/ROADMAP.md`.
 6. Read the current active `plans/FP-*.md` file for the next narrow slice instead of restarting from `FP-0001`.
-7. The current active plan is `plans/FP-0016-balance-bridge-prerequisites-and-diagnostic-hardening.md`.
+7. The current active plan is `plans/FP-0017-source-backed-balance-proof-and-snapshot-polish.md`.
 8. Keep progress updates inside the active Finance Plan while working.
 9. Do not delete legacy engineering modules until the finance replacement path exists and a smoke proves it.
 
@@ -151,6 +153,7 @@ pnpm smoke:source-ingest:local
 pnpm smoke:finance-twin:local
 pnpm smoke:finance-twin-account-bridge:local
 pnpm smoke:finance-twin-balance-bridge-prerequisites:local
+pnpm smoke:finance-twin-source-backed-balance-proof:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
@@ -168,6 +171,7 @@ The current backend-first finance-twin read surface is:
 - trial-balance-versus-general-ledger reconciliation readiness
 - trial-balance-versus-general-ledger matched-period account-bridge readiness
 - trial-balance-versus-general-ledger balance-bridge prerequisites
+- truthful source-backed general-ledger balance proof inside balance-bridge prerequisites
 - general-ledger account activity lineage
 
 The current success condition is no longer an F0 guidance reset.

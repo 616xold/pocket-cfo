@@ -2,6 +2,7 @@ import { and, asc, count, desc, eq } from "drizzle-orm";
 import {
   financeAccountCatalogEntries,
   financeCompanies,
+  financeGeneralLedgerBalanceProofs,
   financeJournalEntries,
   financeJournalLines,
   financeLedgerAccounts,
@@ -22,6 +23,7 @@ import {
   mapFinanceAccountCatalogEntryRow,
   mapFinanceAccountCatalogEntryViewRow,
   mapFinanceCompanyRow,
+  mapFinanceGeneralLedgerBalanceProofRow,
   mapFinanceJournalEntryRow,
   mapFinanceJournalLineRow,
   mapFinanceJournalLineViewRow,
@@ -40,6 +42,7 @@ import type {
   StartFinanceTwinSyncRunInput,
   UpsertFinanceAccountCatalogEntryInput,
   UpsertFinanceCompanyInput,
+  UpsertFinanceGeneralLedgerBalanceProofInput,
   UpsertFinanceJournalEntryInput,
   UpsertFinanceJournalLineInput,
   UpsertFinanceLedgerAccountInput,
@@ -174,7 +177,9 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
       )
       .limit(1);
 
-    const existing = existingRow ? mapFinanceLedgerAccountRow(existingRow) : null;
+    const existing = existingRow
+      ? mapFinanceLedgerAccountRow(existingRow)
+      : null;
     const merged = mergeLedgerAccountMasterState({
       existing,
       extractorKey: input.extractorKey,
@@ -601,10 +606,7 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
         lineDescription: input.lineDescription,
       })
       .onConflictDoUpdate({
-        target: [
-          financeJournalLines.syncRunId,
-          financeJournalLines.lineNumber,
-        ],
+        target: [financeJournalLines.syncRunId, financeJournalLines.lineNumber],
         set: {
           journalEntryId: input.journalEntryId,
           ledgerAccountId: input.ledgerAccountId,
@@ -622,6 +624,50 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
     }
 
     return mapFinanceJournalLineRow(row);
+  }
+
+  async upsertGeneralLedgerBalanceProof(
+    input: UpsertFinanceGeneralLedgerBalanceProofInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .insert(financeGeneralLedgerBalanceProofs)
+      .values({
+        companyId: input.companyId,
+        ledgerAccountId: input.ledgerAccountId,
+        syncRunId: input.syncRunId,
+        openingBalanceAmount: input.openingBalanceAmount,
+        openingBalanceSourceColumn: input.openingBalanceSourceColumn,
+        openingBalanceLineNumber: input.openingBalanceLineNumber,
+        endingBalanceAmount: input.endingBalanceAmount,
+        endingBalanceSourceColumn: input.endingBalanceSourceColumn,
+        endingBalanceLineNumber: input.endingBalanceLineNumber,
+      })
+      .onConflictDoUpdate({
+        target: [
+          financeGeneralLedgerBalanceProofs.syncRunId,
+          financeGeneralLedgerBalanceProofs.ledgerAccountId,
+        ],
+        set: {
+          openingBalanceAmount: input.openingBalanceAmount,
+          openingBalanceSourceColumn: input.openingBalanceSourceColumn,
+          openingBalanceLineNumber: input.openingBalanceLineNumber,
+          endingBalanceAmount: input.endingBalanceAmount,
+          endingBalanceSourceColumn: input.endingBalanceSourceColumn,
+          endingBalanceLineNumber: input.endingBalanceLineNumber,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error(
+        "Finance general-ledger balance proof upsert did not return a row",
+      );
+    }
+
+    return mapFinanceGeneralLedgerBalanceProofRow(row);
   }
 
   async listJournalLineViewsBySyncRunId(
@@ -659,7 +705,8 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
     >();
 
     for (const lineView of lineViews) {
-      const lines = linesByJournalEntryId.get(lineView.journalLine.journalEntryId) ?? [];
+      const lines =
+        linesByJournalEntryId.get(lineView.journalLine.journalEntryId) ?? [];
       lines.push(lineView);
       linesByJournalEntryId.set(lineView.journalLine.journalEntryId, lines);
     }
@@ -667,11 +714,31 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
     return entries.map((journalEntry) => ({
       journalEntry,
       lines:
-        linesByJournalEntryId.get(journalEntry.id)?.sort(
-          (left, right) =>
-            left.journalLine.lineNumber - right.journalLine.lineNumber,
-        ) ?? [],
+        linesByJournalEntryId
+          .get(journalEntry.id)
+          ?.sort(
+            (left, right) =>
+              left.journalLine.lineNumber - right.journalLine.lineNumber,
+          ) ?? [],
     }));
+  }
+
+  async listGeneralLedgerBalanceProofsBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(financeGeneralLedgerBalanceProofs)
+      .where(eq(financeGeneralLedgerBalanceProofs.syncRunId, syncRunId))
+      .orderBy(
+        asc(financeGeneralLedgerBalanceProofs.ledgerAccountId),
+        asc(financeGeneralLedgerBalanceProofs.openingBalanceLineNumber),
+        asc(financeGeneralLedgerBalanceProofs.endingBalanceLineNumber),
+      );
+
+    return rows.map(mapFinanceGeneralLedgerBalanceProofRow);
   }
 
   async createLineage(
@@ -739,7 +806,10 @@ export class DrizzleFinanceTwinRepository implements FinanceTwinRepository {
       .select()
       .from(financeTwinLineage)
       .where(eq(financeTwinLineage.syncRunId, syncRunId))
-      .orderBy(asc(financeTwinLineage.targetKind), asc(financeTwinLineage.targetId));
+      .orderBy(
+        asc(financeTwinLineage.targetKind),
+        asc(financeTwinLineage.targetId),
+      );
 
     return rows.map(mapFinanceTwinLineageRow);
   }

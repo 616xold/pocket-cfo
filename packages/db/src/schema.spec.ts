@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   financeAccountCatalogEntries,
   financeCompanies,
+  financeGeneralLedgerBalanceProofs,
   financeJournalEntries,
   financeJournalLines,
   financeLedgerAccounts,
@@ -31,6 +32,7 @@ describe("db schema exports", () => {
     expect(financeCompanies).toBeDefined();
     expect(financeReportingPeriods).toBeDefined();
     expect(financeLedgerAccounts).toBeDefined();
+    expect(financeGeneralLedgerBalanceProofs).toBeDefined();
     expect(financeJournalEntries).toBeDefined();
     expect(financeJournalLines).toBeDefined();
     expect(financeTwinSyncRuns).toBeDefined();

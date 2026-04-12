@@ -10,6 +10,10 @@ import {
   supportsCsvLikeSource,
 } from "./csv-utils";
 import { FinanceTwinExtractionError } from "./errors";
+import {
+  createGeneralLedgerBalanceProofAccumulator,
+  type ExtractedGeneralLedgerBalanceProof,
+} from "./general-ledger-balance-proof-extraction";
 
 const JOURNAL_ID_HEADERS = [
   "journal_id",
@@ -93,6 +97,7 @@ type ExtractedGeneralLedgerLine = {
 };
 
 export type GeneralLedgerExtractionResult = {
+  balanceProofs: ExtractedGeneralLedgerBalanceProof[];
   entries: Array<{
     entryDescription: string | null;
     externalEntryId: string;
@@ -133,7 +138,9 @@ export function looksLikeGeneralLedgerCsv(input: {
     getOptionalHeaderIndex(headerLookup, DEBIT_HEADERS) !== null ||
     getOptionalHeaderIndex(headerLookup, CREDIT_HEADERS) !== null;
 
-  return hasJournalId && hasTransactionDate && hasAccountCode && hasAmountColumn;
+  return (
+    hasJournalId && hasTransactionDate && hasAccountCode && hasAmountColumn
+  );
 }
 
 export function extractGeneralLedgerCsv(input: {
@@ -195,7 +202,10 @@ export function extractGeneralLedgerCsv(input: {
     headerLookup,
     PERIOD_END_HEADERS,
   );
-  const periodKeyIndex = getOptionalHeaderIndex(headerLookup, PERIOD_KEY_HEADERS);
+  const periodKeyIndex = getOptionalHeaderIndex(
+    headerLookup,
+    PERIOD_KEY_HEADERS,
+  );
   const asOfIndex = getOptionalHeaderIndex(headerLookup, AS_OF_HEADERS);
   const accountTypeIndex = getOptionalHeaderIndex(
     headerLookup,
@@ -210,6 +220,8 @@ export function extractGeneralLedgerCsv(input: {
     headerLookup,
     LINE_DESCRIPTION_HEADERS,
   );
+  const balanceProofs =
+    createGeneralLedgerBalanceProofAccumulator(headerLookup);
 
   const accountsByCode = new Map<string, ExtractedLedgerAccount>();
   const sourceDeclaredPeriodStarts = new Set<string>();
@@ -258,11 +270,17 @@ export function extractGeneralLedgerCsv(input: {
       lineNumber,
     );
     const accountName =
-      accountNameIndex === null ? null : readOptionalCell(row[accountNameIndex]);
+      accountNameIndex === null
+        ? null
+        : readOptionalCell(row[accountNameIndex]);
     const sourceDeclaredPeriodStart =
       periodStartIndex === null
         ? null
-        : readOptionalIsoDate(row[periodStartIndex], "period start", lineNumber);
+        : readOptionalIsoDate(
+            row[periodStartIndex],
+            "period start",
+            lineNumber,
+          );
     const sourceDeclaredPeriodEnd =
       periodEndIndex === null
         ? null
@@ -274,7 +292,9 @@ export function extractGeneralLedgerCsv(input: {
         ? null
         : readOptionalIsoDate(row[asOfIndex], "as-of date", lineNumber);
     const accountType =
-      accountTypeIndex === null ? null : readOptionalCell(row[accountTypeIndex]);
+      accountTypeIndex === null
+        ? null
+        : readOptionalCell(row[accountTypeIndex]);
     const debitAmount =
       debitIndex === null
         ? 0n
@@ -312,6 +332,11 @@ export function extractGeneralLedgerCsv(input: {
     });
 
     accountsByCode.set(accountCode, mergedAccount);
+    balanceProofs.addRow({
+      accountCode,
+      lineNumber,
+      row,
+    });
     if (sourceDeclaredPeriodStart) {
       sourceDeclaredPeriodStarts.add(sourceDeclaredPeriodStart);
     }
@@ -327,10 +352,7 @@ export function extractGeneralLedgerCsv(input: {
 
     const existingEntry = entriesById.get(externalEntryId);
 
-    if (
-      existingEntry &&
-      existingEntry.transactionDate !== transactionDate
-    ) {
+    if (existingEntry && existingEntry.transactionDate !== transactionDate) {
       throw new FinanceTwinExtractionError(
         "general_ledger_entry_date_conflict",
         `General-ledger CSV row ${lineNumber} conflicts with the earlier transaction date for journal ${externalEntryId}.`,
@@ -348,15 +370,13 @@ export function extractGeneralLedgerCsv(input: {
       );
     }
 
-    const entry =
-      existingEntry ??
-      {
-        externalEntryId,
-        transactionDate,
-        entryDescription,
-        firstLineNumber: lineNumber,
-        lines: [],
-      };
+    const entry = existingEntry ?? {
+      externalEntryId,
+      transactionDate,
+      entryDescription,
+      firstLineNumber: lineNumber,
+      lines: [],
+    };
 
     entry.entryDescription = entry.entryDescription ?? entryDescription;
     entry.lines.push({
@@ -378,6 +398,7 @@ export function extractGeneralLedgerCsv(input: {
   }
 
   return {
+    balanceProofs: balanceProofs.list(),
     sourceDeclaredPeriod: resolveSourceDeclaredPeriod({
       asOfDates: sourceDeclaredAsOfDates,
       periodEnds: sourceDeclaredPeriodEnds,
@@ -456,7 +477,11 @@ function getRequiredHeaderIndex(
   return index;
 }
 
-function requireCell(value: string | undefined, label: string, lineNumber: number) {
+function requireCell(
+  value: string | undefined,
+  label: string,
+  lineNumber: number,
+) {
   const normalized = value?.trim();
 
   if (!normalized) {

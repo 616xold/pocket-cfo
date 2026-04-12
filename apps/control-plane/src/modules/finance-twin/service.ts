@@ -16,6 +16,7 @@ import {
   type FinanceAccountCatalogView,
   type FinanceCompanyRecord,
   type FinanceGeneralLedgerActivityLineageView,
+  type FinanceGeneralLedgerBalanceProofRecord,
   type FinanceLineageDrillView,
   type FinanceGeneralLedgerEntryView,
   type FinanceGeneralLedgerView,
@@ -83,6 +84,7 @@ type CompanyReadState = {
   latestAttemptedSlices: FinanceLatestAttemptedSlices;
   latestAttemptedSyncRun: FinanceTwinSyncRunRecord | null;
   latestChartOfAccountsAttemptedSyncRun: FinanceTwinSyncRunRecord | null;
+  latestGeneralLedgerBalanceProofs: FinanceGeneralLedgerBalanceProofRecord[];
   latestGeneralLedgerAttemptedSyncRun: FinanceTwinSyncRunRecord | null;
   latestGeneralLedgerEntries: FinanceGeneralLedgerEntryView[];
   latestTrialBalanceLineViews: FinanceTrialBalanceLineView[];
@@ -360,6 +362,7 @@ export class FinanceTwinService {
         generalLedgerSlice: readState.latestSuccessfulSlices.generalLedger,
         freshness: readState.freshness,
         trialBalanceLineViews: readState.latestTrialBalanceLineViews,
+        generalLedgerBalanceProofs: readState.latestGeneralLedgerBalanceProofs,
         generalLedgerEntries: readState.latestGeneralLedgerEntries,
         sliceAlignment: reconciliation.sliceAlignment,
         comparability: reconciliation.comparability,
@@ -896,6 +899,47 @@ export class FinanceTwinService {
         }
       }
 
+      for (const balanceProof of input.extracted.balanceProofs) {
+        const storedAccount = ledgerAccounts.get(balanceProof.accountCode);
+
+        if (!storedAccount) {
+          throw new Error(
+            `Ledger account ${balanceProof.accountCode} was not available for balance-proof persistence`,
+          );
+        }
+
+        const storedBalanceProof =
+          await this.input.financeTwinRepository.upsertGeneralLedgerBalanceProof(
+            {
+              companyId: input.company.id,
+              ledgerAccountId: storedAccount.id,
+              syncRunId: input.syncRun.id,
+              openingBalanceAmount: balanceProof.openingBalanceAmount,
+              openingBalanceSourceColumn:
+                balanceProof.openingBalanceSourceColumn,
+              openingBalanceLineNumber: balanceProof.openingBalanceLineNumber,
+              endingBalanceAmount: balanceProof.endingBalanceAmount,
+              endingBalanceSourceColumn: balanceProof.endingBalanceSourceColumn,
+              endingBalanceLineNumber: balanceProof.endingBalanceLineNumber,
+            },
+            session,
+          );
+
+        await this.input.financeTwinRepository.createLineage(
+          {
+            companyId: input.company.id,
+            syncRunId: input.syncRun.id,
+            targetKind: "general_ledger_balance_proof",
+            targetId: storedBalanceProof.id,
+            sourceId: input.sourceId,
+            sourceSnapshotId: input.snapshotId,
+            sourceFileId: input.sourceFileId,
+            recordedAt,
+          },
+          session,
+        );
+      }
+
       const [reportingPeriodCount, ledgerAccountCount] = await Promise.all([
         this.input.financeTwinRepository.countReportingPeriodsByCompanyId(
           input.company.id,
@@ -916,6 +960,8 @@ export class FinanceTwinService {
           stats: {
             journalEntryCount: input.extracted.entries.length,
             journalLineCount,
+            generalLedgerBalanceProofCount:
+              input.extracted.balanceProofs.length,
             ledgerAccountCount,
             reportingPeriodCount,
             ...buildPersistedGeneralLedgerPeriodContextStats({
@@ -1028,6 +1074,7 @@ export class FinanceTwinService {
         generalLedger: generalLedgerSlice.snapshot,
       },
       latestAccountCatalogEntries: chartOfAccountsSlice.accounts,
+      latestGeneralLedgerBalanceProofs: generalLedgerSlice.balanceProofs,
       latestGeneralLedgerEntries: generalLedgerSlice.entries,
       latestTrialBalanceLineViews: trialBalanceSlice.lineViews,
     };
@@ -1244,6 +1291,7 @@ export class FinanceTwinService {
   ) {
     if (!latestSuccessfulRun) {
       return {
+        balanceProofs: [],
         entries: [],
         snapshot: {
           latestSource: null,
@@ -1263,11 +1311,14 @@ export class FinanceTwinService {
       };
     }
 
-    const [entries, lineages] = await Promise.all([
+    const [entries, lineages, balanceProofs] = await Promise.all([
       this.input.financeTwinRepository.listGeneralLedgerEntriesBySyncRunId(
         latestSuccessfulRun.id,
       ),
       this.input.financeTwinRepository.listLineageBySyncRunId(
+        latestSuccessfulRun.id,
+      ),
+      this.input.financeTwinRepository.listGeneralLedgerBalanceProofsBySyncRunId(
         latestSuccessfulRun.id,
       ),
     ]);
@@ -1279,6 +1330,7 @@ export class FinanceTwinService {
       entries.length > 0 ? buildGeneralLedgerSummary(entries) : null;
 
     return {
+      balanceProofs,
       entries,
       snapshot: {
         latestSource: buildSourceRef(latestSuccessfulRun),

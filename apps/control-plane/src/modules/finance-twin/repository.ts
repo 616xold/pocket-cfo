@@ -3,6 +3,7 @@ import type {
   FinanceAccountCatalogEntryView,
   FinanceCompanyRecord,
   FinanceGeneralLedgerEntryView,
+  FinanceGeneralLedgerBalanceProofRecord,
   FinanceJournalEntryRecord,
   FinanceJournalLineRecord,
   FinanceJournalLineView,
@@ -104,6 +105,18 @@ export type UpsertFinanceJournalLineInput = {
   creditAmount: string;
   currencyCode: string | null;
   lineDescription: string | null;
+};
+
+export type UpsertFinanceGeneralLedgerBalanceProofInput = {
+  companyId: string;
+  ledgerAccountId: string;
+  syncRunId: string;
+  openingBalanceAmount: string | null;
+  openingBalanceSourceColumn: string | null;
+  openingBalanceLineNumber: number | null;
+  endingBalanceAmount: string | null;
+  endingBalanceSourceColumn: string | null;
+  endingBalanceLineNumber: number | null;
 };
 
 export type CreateFinanceTwinLineageInput = {
@@ -220,6 +233,10 @@ export interface FinanceTwinRepository extends TransactionalRepository {
     input: UpsertFinanceJournalLineInput,
     session?: PersistenceSession,
   ): Promise<FinanceJournalLineRecord>;
+  upsertGeneralLedgerBalanceProof(
+    input: UpsertFinanceGeneralLedgerBalanceProofInput,
+    session?: PersistenceSession,
+  ): Promise<FinanceGeneralLedgerBalanceProofRecord>;
   listJournalLineViewsBySyncRunId(
     syncRunId: string,
     session?: PersistenceSession,
@@ -228,6 +245,10 @@ export interface FinanceTwinRepository extends TransactionalRepository {
     syncRunId: string,
     session?: PersistenceSession,
   ): Promise<FinanceGeneralLedgerEntryView[]>;
+  listGeneralLedgerBalanceProofsBySyncRunId(
+    syncRunId: string,
+    session?: PersistenceSession,
+  ): Promise<FinanceGeneralLedgerBalanceProofRecord[]>;
   createLineage(
     input: CreateFinanceTwinLineageInput,
     session?: PersistenceSession,
@@ -249,22 +270,42 @@ export interface FinanceTwinRepository extends TransactionalRepository {
 export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
   private readonly companies = new Map<string, FinanceCompanyRecord>();
   private readonly companiesByKey = new Map<string, string>();
-  private readonly reportingPeriods = new Map<string, FinanceReportingPeriodRecord>();
+  private readonly reportingPeriods = new Map<
+    string,
+    FinanceReportingPeriodRecord
+  >();
   private readonly reportingPeriodsByScope = new Map<string, string>();
-  private readonly ledgerAccounts = new Map<string, FinanceLedgerAccountRecord>();
+  private readonly ledgerAccounts = new Map<
+    string,
+    FinanceLedgerAccountRecord
+  >();
   private readonly ledgerAccountsByScope = new Map<string, string>();
   private readonly syncRuns = new Map<string, FinanceTwinSyncRunRecord>();
-  private readonly trialBalanceLines = new Map<string, FinanceTrialBalanceLineRecord>();
+  private readonly trialBalanceLines = new Map<
+    string,
+    FinanceTrialBalanceLineRecord
+  >();
   private readonly trialBalanceLinesByScope = new Map<string, string>();
   private readonly accountCatalogEntries = new Map<
     string,
     FinanceAccountCatalogEntryRecord
   >();
   private readonly accountCatalogEntriesByScope = new Map<string, string>();
-  private readonly journalEntries = new Map<string, FinanceJournalEntryRecord>();
+  private readonly journalEntries = new Map<
+    string,
+    FinanceJournalEntryRecord
+  >();
   private readonly journalEntriesByScope = new Map<string, string>();
   private readonly journalLines = new Map<string, FinanceJournalLineRecord>();
   private readonly journalLinesByScope = new Map<string, string>();
+  private readonly generalLedgerBalanceProofs = new Map<
+    string,
+    FinanceGeneralLedgerBalanceProofRecord
+  >();
+  private readonly generalLedgerBalanceProofsByScope = new Map<
+    string,
+    string
+  >();
   private readonly lineage = new Map<string, FinanceTwinLineageRecord>();
   private readonly lineageByScope = new Map<string, string>();
 
@@ -341,9 +382,12 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
 
   async upsertLedgerAccount(input: UpsertFinanceLedgerAccountInput) {
     const existingId =
-      this.ledgerAccountsByScope.get(`${input.companyId}::${input.accountCode}`) ??
-      null;
-    const existing = existingId ? (this.ledgerAccounts.get(existingId) ?? null) : null;
+      this.ledgerAccountsByScope.get(
+        `${input.companyId}::${input.accountCode}`,
+      ) ?? null;
+    const existing = existingId
+      ? (this.ledgerAccounts.get(existingId) ?? null)
+      : null;
     const now = new Date().toISOString();
     const merged = mergeLedgerAccountMasterState({
       existing,
@@ -426,9 +470,13 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
   }
 
   async getLatestSyncRunByCompanyId(companyId: string) {
-    return sortSyncRuns(
-      [...this.syncRuns.values()].filter((run) => run.companyId === companyId),
-    )[0] ?? null;
+    return (
+      sortSyncRuns(
+        [...this.syncRuns.values()].filter(
+          (run) => run.companyId === companyId,
+        ),
+      )[0] ?? null
+    );
   }
 
   async getLatestSuccessfulSyncRunByCompanyId(companyId: string) {
@@ -545,7 +593,9 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
       });
   }
 
-  async upsertAccountCatalogEntry(input: UpsertFinanceAccountCatalogEntryInput) {
+  async upsertAccountCatalogEntry(
+    input: UpsertFinanceAccountCatalogEntryInput,
+  ) {
     const existing = this.accountCatalogEntries.get(
       this.accountCatalogEntriesByScope.get(
         `${input.syncRunId}::${input.ledgerAccountId}`,
@@ -591,7 +641,9 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
       .filter((entry) => entry.syncRunId === syncRunId)
       .sort((left, right) => left.lineNumber - right.lineNumber)
       .map((catalogEntry) => {
-        const ledgerAccount = this.ledgerAccounts.get(catalogEntry.ledgerAccountId);
+        const ledgerAccount = this.ledgerAccounts.get(
+          catalogEntry.ledgerAccountId,
+        );
 
         if (!ledgerAccount) {
           throw new Error(
@@ -690,12 +742,57 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
     return journalLine;
   }
 
+  async upsertGeneralLedgerBalanceProof(
+    input: UpsertFinanceGeneralLedgerBalanceProofInput,
+  ) {
+    const existing = this.generalLedgerBalanceProofs.get(
+      this.generalLedgerBalanceProofsByScope.get(
+        `${input.syncRunId}::${input.ledgerAccountId}`,
+      ) ?? "",
+    );
+    const now = new Date().toISOString();
+    const balanceProof: FinanceGeneralLedgerBalanceProofRecord = existing
+      ? {
+          ...existing,
+          openingBalanceAmount: input.openingBalanceAmount,
+          openingBalanceSourceColumn: input.openingBalanceSourceColumn,
+          openingBalanceLineNumber: input.openingBalanceLineNumber,
+          endingBalanceAmount: input.endingBalanceAmount,
+          endingBalanceSourceColumn: input.endingBalanceSourceColumn,
+          endingBalanceLineNumber: input.endingBalanceLineNumber,
+          updatedAt: now,
+        }
+      : {
+          id: crypto.randomUUID(),
+          companyId: input.companyId,
+          ledgerAccountId: input.ledgerAccountId,
+          syncRunId: input.syncRunId,
+          openingBalanceAmount: input.openingBalanceAmount,
+          openingBalanceSourceColumn: input.openingBalanceSourceColumn,
+          openingBalanceLineNumber: input.openingBalanceLineNumber,
+          endingBalanceAmount: input.endingBalanceAmount,
+          endingBalanceSourceColumn: input.endingBalanceSourceColumn,
+          endingBalanceLineNumber: input.endingBalanceLineNumber,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+    this.generalLedgerBalanceProofs.set(balanceProof.id, balanceProof);
+    this.generalLedgerBalanceProofsByScope.set(
+      `${input.syncRunId}::${input.ledgerAccountId}`,
+      balanceProof.id,
+    );
+    return balanceProof;
+  }
+
   async listJournalLineViewsBySyncRunId(syncRunId: string) {
     return [...this.journalLines.values()]
       .filter((line) => line.syncRunId === syncRunId)
       .sort((left, right) => left.lineNumber - right.lineNumber)
       .map((journalLine) => {
-        const ledgerAccount = this.ledgerAccounts.get(journalLine.ledgerAccountId);
+        const ledgerAccount = this.ledgerAccounts.get(
+          journalLine.ledgerAccountId,
+        );
 
         if (!ledgerAccount) {
           throw new Error(
@@ -718,7 +815,8 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
     const linesByJournalEntryId = new Map<string, FinanceJournalLineView[]>();
 
     for (const lineView of lineViews) {
-      const lines = linesByJournalEntryId.get(lineView.journalLine.journalEntryId) ?? [];
+      const lines =
+        linesByJournalEntryId.get(lineView.journalLine.journalEntryId) ?? [];
       lines.push(lineView);
       linesByJournalEntryId.set(lineView.journalLine.journalEntryId, lines);
     }
@@ -726,11 +824,26 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
     return entries.map((journalEntry) => ({
       journalEntry,
       lines:
-        linesByJournalEntryId.get(journalEntry.id)?.sort(
-          (left, right) =>
-            left.journalLine.lineNumber - right.journalLine.lineNumber,
-        ) ?? [],
+        linesByJournalEntryId
+          .get(journalEntry.id)
+          ?.sort(
+            (left, right) =>
+              left.journalLine.lineNumber - right.journalLine.lineNumber,
+          ) ?? [],
     }));
+  }
+
+  async listGeneralLedgerBalanceProofsBySyncRunId(syncRunId: string) {
+    return [...this.generalLedgerBalanceProofs.values()]
+      .filter((proof) => proof.syncRunId === syncRunId)
+      .sort((left, right) => {
+        return (
+          (left.openingBalanceLineNumber ?? left.endingBalanceLineNumber ?? 0) -
+            (right.openingBalanceLineNumber ??
+              right.endingBalanceLineNumber ??
+              0) || left.ledgerAccountId.localeCompare(right.ledgerAccountId)
+        );
+      });
   }
 
   async createLineage(input: CreateFinanceTwinLineageInput) {
@@ -789,7 +902,8 @@ export class InMemoryFinanceTwinRepository implements FinanceTwinRepository {
           lineage.companyId === input.companyId &&
           lineage.targetKind === input.targetKind &&
           lineage.targetId === input.targetId &&
-          (input.syncRunId === undefined || lineage.syncRunId === input.syncRunId)
+          (input.syncRunId === undefined ||
+            lineage.syncRunId === input.syncRunId)
         );
       })
       .sort((left, right) => {

@@ -33,6 +33,7 @@ Suggested thread naming:
 - `F2F-reporting-window-truth-and-period-scoped-reconciliation`
 - `F2G-account-bridge-readiness-and-f2f-polish`
 - `F2H-balance-bridge-prerequisites-and-diagnostic-hardening`
+- `F2I-source-backed-balance-proof-and-snapshot-polish`
 - `F3-cfo-wiki-compiler`
 - `F4-finance-discovery-answer`
 - `F5-memo-and-packet-compiler`
