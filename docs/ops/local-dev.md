@@ -1,6 +1,6 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, F2E, F2F, F2G, and F2H finance-twin slices.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, F2E, F2F, F2G, F2H, and F2I finance-twin slices.
 
 That means two things are true at once:
 
@@ -34,6 +34,7 @@ pnpm smoke:finance-twin:local
 pnpm smoke:finance-twin-account-bridge:local
 pnpm smoke:finance-twin-balance-bridge-prerequisites:local
 pnpm smoke:finance-twin-source-backed-balance-proof:local
+pnpm smoke:finance-twin-balance-proof-lineage:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
@@ -70,11 +71,13 @@ Today, steps 1 through 4 exist in a narrow form:
 - F2F hardens reporting-window truth so reconciliation can distinguish source-declared general-ledger period context from activity-window-only fallback
 - F2G adds matched-period account-bridge readiness plus chart-of-accounts-backed unmatched diagnostics without inventing a numeric bridge
 - F2H adds balance-bridge-prerequisites reads that stop at explicit missing-proof diagnostics instead of inventing fake bridge numbers or variance
-- F2I is the active next slice and adds truthful source-backed general-ledger balance proof from explicit opening-balance or ending-balance fields while keeping snapshot alignment notes diagnostic-only
+- F2I adds truthful source-backed general-ledger balance proof from explicit opening-balance or ending-balance fields while keeping snapshot alignment notes diagnostic-only
+- F2J is the active next slice and adds direct balance-proof lineage drill behavior on top of persisted proof rows and proof lineage
 - the packaged `pnpm smoke:finance-twin:local` path proves the trial-balance sync from stored raw bytes
 - the packaged `pnpm smoke:finance-twin-account-bridge:local` path proves matched-period account-bridge readiness, explicit unmatched diagnostics, and activity-lineage drill-through from persisted state
 - the packaged `pnpm smoke:finance-twin-balance-bridge-prerequisites:local` path proves blocked balance-bridge prerequisites, explicit missing-proof diagnostics, and no-fake-variance behavior from persisted state
 - the packaged `pnpm smoke:finance-twin-source-backed-balance-proof:local` path proves explicit opening-balance or ending-balance fields can light up truthful per-account balance proof from persisted state
+- the packaged `pnpm smoke:finance-twin-balance-proof-lineage:local` path proves proof-bearing account rows can drill directly to the persisted balance-proof row and lineage from persisted state
 - the packaged `pnpm smoke:finance-twin-account-catalog:local` path proves persisted account-catalog state
 - the packaged `pnpm smoke:finance-twin-general-ledger:local` path proves persisted general-ledger journal state from stored raw bytes
 - the packaged `pnpm smoke:finance-twin-snapshot:local` path proves mixed-slice snapshot and lineage drill behavior from persisted state
@@ -95,6 +98,7 @@ The active finance-twin read surface is currently backend-first:
 - trial-balance-versus-general-ledger matched-period account-bridge readiness
 - trial-balance-versus-general-ledger balance-bridge prerequisites
 - truthful source-backed general-ledger balance proof inside balance-bridge prerequisites
+- general-ledger balance-proof lineage drill
 - general-ledger account activity lineage
 
 ## GitHub setup is optional

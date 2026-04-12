@@ -691,6 +691,26 @@ export const FinanceGeneralLedgerBalanceProofSchema = z.object({
   reasonSummary: z.string().min(1),
 });
 
+export const FinanceGeneralLedgerBalanceProofLineageRefSchema =
+  FinanceLineageLookupRefSchema;
+
+export const FinancePersistedGeneralLedgerBalanceProofSchema = z.object({
+  record: FinanceGeneralLedgerBalanceProofRecordSchema,
+  balanceProof: FinanceGeneralLedgerBalanceProofSchema,
+  lineageRef: FinanceGeneralLedgerBalanceProofLineageRefSchema,
+});
+
+export const FinanceGeneralLedgerBalanceProofTargetSchema = z.object({
+  ledgerAccountId: z.string().uuid(),
+  syncRunId: z.string().uuid().nullable(),
+});
+
+export const FinanceGeneralLedgerBalanceProofLineageSchema = z.object({
+  target: FinanceGeneralLedgerBalanceProofLineageRefSchema,
+  recordCount: z.number().int().nonnegative(),
+  records: z.array(FinanceLineageRecordViewSchema),
+});
+
 export const FinanceBalanceBridgePrerequisitesStateSchema = z.enum([
   "missing_slice",
   "not_prereq_ready",
@@ -751,6 +771,8 @@ export const FinanceBalanceBridgePrerequisitesAccountRowSchema = z.object({
   blockedReasonCode: z.string().min(1).nullable(),
   blockedReasonSummary: z.string().min(1).nullable(),
   activityLineageRef: FinanceGeneralLedgerActivityLineageRefSchema.nullable(),
+  balanceProofLineageRef:
+    FinanceGeneralLedgerBalanceProofLineageRefSchema.nullable(),
 });
 
 export const FinanceBalanceBridgePrerequisitesViewSchema = z.object({
@@ -765,6 +787,17 @@ export const FinanceBalanceBridgePrerequisitesViewSchema = z.object({
   balanceBridgePrerequisites: FinanceBalanceBridgePrerequisitesStatusSchema,
   coverageSummary: FinanceBalanceBridgePrerequisitesCoverageSummarySchema,
   accounts: z.array(FinanceBalanceBridgePrerequisitesAccountRowSchema),
+  diagnostics: z.array(z.string().min(1)).default([]),
+  limitations: z.array(z.string().min(1)),
+});
+
+export const FinanceGeneralLedgerBalanceProofViewSchema = z.object({
+  company: FinanceCompanyRecordSchema,
+  target: FinanceGeneralLedgerBalanceProofTargetSchema,
+  latestSuccessfulGeneralLedgerSlice:
+    FinanceLatestSuccessfulGeneralLedgerSliceSchema,
+  proof: FinancePersistedGeneralLedgerBalanceProofSchema.nullable(),
+  lineage: FinanceGeneralLedgerBalanceProofLineageSchema.nullable(),
   diagnostics: z.array(z.string().min(1)).default([]),
   limitations: z.array(z.string().min(1)),
 });
@@ -983,6 +1016,18 @@ export type FinanceGeneralLedgerBalanceProofBasis = z.infer<
 export type FinanceGeneralLedgerBalanceProof = z.infer<
   typeof FinanceGeneralLedgerBalanceProofSchema
 >;
+export type FinanceGeneralLedgerBalanceProofLineageRef = z.infer<
+  typeof FinanceGeneralLedgerBalanceProofLineageRefSchema
+>;
+export type FinancePersistedGeneralLedgerBalanceProof = z.infer<
+  typeof FinancePersistedGeneralLedgerBalanceProofSchema
+>;
+export type FinanceGeneralLedgerBalanceProofTarget = z.infer<
+  typeof FinanceGeneralLedgerBalanceProofTargetSchema
+>;
+export type FinanceGeneralLedgerBalanceProofLineage = z.infer<
+  typeof FinanceGeneralLedgerBalanceProofLineageSchema
+>;
 export type FinanceBalanceBridgePrerequisitesState = z.infer<
   typeof FinanceBalanceBridgePrerequisitesStateSchema
 >;
@@ -997,6 +1042,9 @@ export type FinanceBalanceBridgePrerequisitesAccountRow = z.infer<
 >;
 export type FinanceBalanceBridgePrerequisitesView = z.infer<
   typeof FinanceBalanceBridgePrerequisitesViewSchema
+>;
+export type FinanceGeneralLedgerBalanceProofView = z.infer<
+  typeof FinanceGeneralLedgerBalanceProofViewSchema
 >;
 export type FinanceGeneralLedgerActivityLineageTarget = z.infer<
   typeof FinanceGeneralLedgerActivityLineageTargetSchema
