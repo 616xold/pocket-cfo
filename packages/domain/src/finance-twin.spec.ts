@@ -4,6 +4,7 @@ import {
   FinanceAccountBridgeReadinessViewSchema,
   FinanceAccountCatalogViewSchema,
   FinanceGeneralLedgerActivityLineageViewSchema,
+  FinanceGeneralLedgerBalanceProofViewSchema,
   FinanceGeneralLedgerViewSchema,
   FinanceLineageDrillViewSchema,
   FinanceReconciliationReadinessViewSchema,
@@ -711,7 +712,7 @@ describe("finance twin domain schemas", () => {
         },
       ],
       limitations: [
-        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, and source-backed general-ledger balance-proof read models.",
+        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, source-backed general-ledger balance-proof, and balance-proof lineage drill read models.",
       ],
     });
 
@@ -1385,7 +1386,7 @@ describe("finance twin domain schemas", () => {
         },
       ],
       limitations: [
-        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, and source-backed general-ledger balance-proof read models.",
+        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, source-backed general-ledger balance-proof, and balance-proof lineage drill read models.",
         "CFO Wiki, finance discovery answers, reports, monitoring, and close/control flows are not implemented in this slice.",
       ],
     });
@@ -1723,13 +1724,14 @@ describe("finance twin domain schemas", () => {
             ledgerAccountId: "77777777-7777-4777-8777-777777777777",
             syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
           },
+          balanceProofLineageRef: null,
         },
       ],
       diagnostics: [
         "The latest successful trial-balance and general-ledger slices share one registered source, but span different uploaded file snapshots and sync runs. Under the current per-file upload flow, sameSourceSnapshot and sameSyncRun are diagnostic fields rather than expected positive comparison signals.",
       ],
       limitations: [
-        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, and source-backed general-ledger balance-proof read models.",
+        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, source-backed general-ledger balance-proof, and balance-proof lineage drill read models.",
         "CFO Wiki, finance discovery answers, reports, monitoring, and close/control flows are not implemented in this slice.",
         "No successful chart-of-accounts slice exists yet for this balance-bridge-prerequisites view, so chart-of-accounts enrichment is unavailable.",
         "This route does not compute a direct balance bridge or variance because trial-balance ending balances are not equivalent to general-ledger activity totals, and general-ledger activity totals do not prove opening or ending balances.",
@@ -1741,6 +1743,202 @@ describe("finance twin domain schemas", () => {
     expect(parsed.accounts[0]?.generalLedgerBalanceProof.proofBasis).toBe(
       "activity_only_no_balance_proof",
     );
+  });
+
+  it("parses a general-ledger balance-proof drill view", () => {
+    const parsed = FinanceGeneralLedgerBalanceProofViewSchema.parse({
+      company: {
+        id: "11111111-1111-4111-8111-111111111111",
+        companyKey: "acme",
+        displayName: "Acme",
+        createdAt: "2026-04-09T00:00:00.000Z",
+        updatedAt: "2026-04-09T00:00:00.000Z",
+      },
+      target: {
+        ledgerAccountId: "77777777-7777-4777-8777-777777777777",
+        syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
+      },
+      latestSuccessfulGeneralLedgerSlice: {
+        latestSource: {
+          sourceId: "22222222-2222-4222-8222-222222222222",
+          sourceSnapshotId: "cccccccc-3333-4333-8333-cccccccccccc",
+          sourceFileId: "cccccccc-4444-4444-8444-cccccccccccc",
+          syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
+        },
+        latestSyncRun: {
+          id: "cccccccc-5555-4555-8555-cccccccccccc",
+          companyId: "11111111-1111-4111-8111-111111111111",
+          reportingPeriodId: null,
+          sourceId: "22222222-2222-4222-8222-222222222222",
+          sourceSnapshotId: "cccccccc-3333-4333-8333-cccccccccccc",
+          sourceFileId: "cccccccc-4444-4444-8444-cccccccccccc",
+          extractorKey: "general_ledger_csv",
+          status: "succeeded",
+          startedAt: "2026-04-11T00:10:00.000Z",
+          completedAt: "2026-04-11T00:10:03.000Z",
+          stats: {},
+          errorSummary: null,
+          createdAt: "2026-04-11T00:10:00.000Z",
+        },
+        coverage: {
+          journalEntryCount: 1,
+          journalLineCount: 2,
+          lineageCount: 3,
+        },
+        periodContext: {
+          basis: "source_declared_period",
+          sourceDeclaredPeriod: {
+            contextKind: "period_window",
+            periodKey: "2026-03",
+            periodStart: "2026-03-01",
+            periodEnd: "2026-03-31",
+            asOf: null,
+          },
+          activityWindowEarliestEntryDate: "2026-03-15",
+          activityWindowLatestEntryDate: "2026-03-15",
+          reasonCode: "source_declared_period_window",
+          reasonSummary:
+            "The latest successful general-ledger slice includes explicit source-declared period start and period end fields.",
+        },
+        summary: {
+          journalEntryCount: 1,
+          journalLineCount: 2,
+          ledgerAccountCount: 2,
+          totalDebitAmount: "150.00",
+          totalCreditAmount: "150.00",
+          earliestEntryDate: "2026-03-15",
+          latestEntryDate: "2026-03-15",
+          currencyCode: "USD",
+        },
+      },
+      proof: {
+        record: {
+          id: "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+          companyId: "11111111-1111-4111-8111-111111111111",
+          ledgerAccountId: "77777777-7777-4777-8777-777777777777",
+          syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
+          openingBalanceAmount: "30.00",
+          openingBalanceSourceColumn: "opening_balance",
+          openingBalanceLineNumber: 2,
+          endingBalanceAmount: "180.00",
+          endingBalanceSourceColumn: "closing_balance",
+          endingBalanceLineNumber: 2,
+          createdAt: "2026-04-11T00:10:03.000Z",
+          updatedAt: "2026-04-11T00:10:03.000Z",
+        },
+        balanceProof: {
+          openingBalanceAmount: "30.00",
+          endingBalanceAmount: "180.00",
+          openingBalanceEvidencePresent: true,
+          endingBalanceEvidencePresent: true,
+          openingBalanceSourceColumn: "opening_balance",
+          openingBalanceLineNumber: 2,
+          endingBalanceSourceColumn: "closing_balance",
+          endingBalanceLineNumber: 2,
+          proofBasis: "source_backed_balance_field",
+          proofSource:
+            "Opening balance came from the explicit opening_balance column on row 2. Ending balance came from the explicit closing_balance column on row 2.",
+          reasonCode: "source_backed_opening_and_ending_balance_proof",
+          reasonSummary:
+            "The latest successful general-ledger slice includes explicit source-backed opening-balance and ending-balance fields for this account.",
+        },
+        lineageRef: {
+          targetKind: "general_ledger_balance_proof",
+          targetId: "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+          syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
+        },
+      },
+      lineage: {
+        target: {
+          targetKind: "general_ledger_balance_proof",
+          targetId: "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+          syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
+        },
+        recordCount: 1,
+        records: [
+          {
+            lineage: {
+              id: "bbbbbbbb-1111-4111-8111-bbbbbbbbbbbb",
+              companyId: "11111111-1111-4111-8111-111111111111",
+              syncRunId: "cccccccc-5555-4555-8555-cccccccccccc",
+              targetKind: "general_ledger_balance_proof",
+              targetId: "aaaaaaaa-1111-4111-8111-aaaaaaaaaaaa",
+              sourceId: "22222222-2222-4222-8222-222222222222",
+              sourceSnapshotId: "cccccccc-3333-4333-8333-cccccccccccc",
+              sourceFileId: "cccccccc-4444-4444-8444-cccccccccccc",
+              recordedAt: "2026-04-11T00:10:03.000Z",
+              createdAt: "2026-04-11T00:10:03.000Z",
+            },
+            syncRun: {
+              id: "cccccccc-5555-4555-8555-cccccccccccc",
+              companyId: "11111111-1111-4111-8111-111111111111",
+              reportingPeriodId: null,
+              sourceId: "22222222-2222-4222-8222-222222222222",
+              sourceSnapshotId: "cccccccc-3333-4333-8333-cccccccccccc",
+              sourceFileId: "cccccccc-4444-4444-8444-cccccccccccc",
+              extractorKey: "general_ledger_csv",
+              status: "succeeded",
+              startedAt: "2026-04-11T00:10:00.000Z",
+              completedAt: "2026-04-11T00:10:03.000Z",
+              stats: {},
+              errorSummary: null,
+              createdAt: "2026-04-11T00:10:00.000Z",
+            },
+            source: {
+              id: "22222222-2222-4222-8222-222222222222",
+              kind: "dataset",
+              originKind: "manual",
+              name: "March close package",
+              description: null,
+              createdBy: "finance-operator",
+              createdAt: "2026-04-11T00:00:00.000Z",
+              updatedAt: "2026-04-11T00:00:00.000Z",
+            },
+            sourceSnapshot: {
+              id: "cccccccc-3333-4333-8333-cccccccccccc",
+              sourceId: "22222222-2222-4222-8222-222222222222",
+              version: 1,
+              originalFileName: "march-close-package-link.txt",
+              mediaType: "text/plain",
+              sizeBytes: 18,
+              checksumSha256:
+                "abababababababababababababababababababababababababababababababab",
+              storageKind: "external_url",
+              storageRef: "https://example.com/march-close-package-balance-proof",
+              capturedAt: "2026-04-11T00:00:00.000Z",
+              ingestStatus: "registered",
+              ingestErrorSummary: null,
+              createdAt: "2026-04-11T00:00:00.000Z",
+              updatedAt: "2026-04-11T00:00:00.000Z",
+            },
+            sourceFile: {
+              id: "cccccccc-4444-4444-8444-cccccccccccc",
+              sourceId: "22222222-2222-4222-8222-222222222222",
+              sourceSnapshotId: "cccccccc-3333-4333-8333-cccccccccccc",
+              originalFileName: "general-ledger.csv",
+              mediaType: "text/csv",
+              sizeBytes: 128,
+              checksumSha256:
+                "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd",
+              storageKind: "object_store",
+              storageRef: "s3://bucket/general-ledger.csv",
+              createdBy: "finance-operator",
+              capturedAt: "2026-04-11T00:10:00.000Z",
+              createdAt: "2026-04-11T00:10:00.000Z",
+            },
+          },
+        ],
+      },
+      diagnostics: [],
+      limitations: [
+        "The current finance-twin surface only covers deterministic trial-balance CSV, chart-of-accounts CSV, and general-ledger CSV extraction, plus additive summary, snapshot, reconciliation, account-bridge, balance-bridge-prerequisites, period-context, source-backed general-ledger balance-proof, and balance-proof lineage drill read models.",
+        "CFO Wiki, finance discovery answers, reports, monitoring, and close/control flows are not implemented in this slice.",
+        "This route returns persisted balance-proof rows and lineage only; it does not compute a balance bridge or variance.",
+      ],
+    });
+
+    expect(parsed.proof?.record.openingBalanceAmount).toBe("30.00");
+    expect(parsed.lineage?.recordCount).toBe(1);
   });
 
   it("parses a general-ledger activity lineage drill view", () => {

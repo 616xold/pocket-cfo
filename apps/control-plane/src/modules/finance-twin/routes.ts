@@ -2,6 +2,8 @@ import type { FastifyInstance } from "fastify";
 import type { FinanceTwinServicePort } from "../../lib/types";
 import {
   financeTwinCompanyKeyParamsSchema,
+  financeTwinGeneralLedgerBalanceProofParamsSchema,
+  financeTwinGeneralLedgerBalanceProofQuerySchema,
   financeTwinGeneralLedgerActivityLineageParamsSchema,
   financeTwinGeneralLedgerActivityLineageQuerySchema,
   financeTwinLineageParamsSchema,
@@ -83,6 +85,24 @@ export async function registerFinanceTwinRoutes(
     async (request) => {
       const params = financeTwinCompanyKeyParamsSchema.parse(request.params);
       return deps.financeTwinService.getGeneralLedger(params.companyKey);
+    },
+  );
+
+  app.get(
+    "/finance-twin/companies/:companyKey/general-ledger/accounts/:ledgerAccountId/balance-proof",
+    async (request) => {
+      const params = financeTwinGeneralLedgerBalanceProofParamsSchema.parse(
+        request.params,
+      );
+      const query = financeTwinGeneralLedgerBalanceProofQuerySchema.parse(
+        request.query ?? {},
+      );
+
+      return deps.financeTwinService.getGeneralLedgerAccountBalanceProof({
+        companyKey: params.companyKey,
+        ledgerAccountId: params.ledgerAccountId,
+        syncRunId: query.syncRunId,
+      });
     },
   );
 

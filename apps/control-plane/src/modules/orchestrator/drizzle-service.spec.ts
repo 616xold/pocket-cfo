@@ -2722,6 +2722,9 @@ async function createHarness(options?: {
         async getGeneralLedger() {
           throw new Error("Not implemented in orchestrator harness");
         },
+        async getGeneralLedgerAccountBalanceProof() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
         async getGeneralLedgerAccountActivityLineage() {
           throw new Error("Not implemented in orchestrator harness");
         },

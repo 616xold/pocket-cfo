@@ -1309,6 +1309,7 @@ describe("FinanceTwinService", () => {
         openingBalanceEvidencePresent: false,
         endingBalanceEvidencePresent: false,
       },
+      balanceProofLineageRef: null,
     });
     expect(
       balanceBridgePrerequisites.accounts.find(
@@ -1327,6 +1328,28 @@ describe("FinanceTwinService", () => {
       matchedPeriodAccountBridgeReady: false,
       balanceBridgePrereqReady: false,
       blockedReasonCode: "balance_bridge_missing_trial_balance_overlap",
+    });
+
+    const cashRow = balanceBridgePrerequisites.accounts.find(
+      (account) => account.ledgerAccount.accountCode === "1000",
+    );
+    const cashBalanceProof =
+      await financeTwinService.getGeneralLedgerAccountBalanceProof({
+        companyKey: "acme",
+        ledgerAccountId: cashRow?.ledgerAccount.id ?? "",
+        syncRunId: generalLedgerSync.syncRun.id,
+      });
+
+    expect(cashBalanceProof).toMatchObject({
+      target: {
+        ledgerAccountId: cashRow?.ledgerAccount.id,
+        syncRunId: generalLedgerSync.syncRun.id,
+      },
+      proof: null,
+      lineage: null,
+      limitations: expect.arrayContaining([
+        "The latest successful general-ledger slice only provides activity totals for this account; it does not expose source-backed opening-balance or ending-balance proof.",
+      ]),
     });
   });
 
@@ -1476,6 +1499,10 @@ describe("FinanceTwinService", () => {
         endingBalanceLineNumber: 2,
         reasonCode: "source_backed_opening_and_ending_balance_proof",
       },
+      balanceProofLineageRef: {
+        targetKind: "general_ledger_balance_proof",
+        targetId: expect.any(String),
+      },
     });
     expect(
       balanceBridgePrerequisites.accounts.find(
@@ -1486,6 +1513,53 @@ describe("FinanceTwinService", () => {
       balanceBridgePrereqReady: false,
       blockedReasonCode: "balance_bridge_missing_general_ledger_overlap",
     });
+
+    const cashRow = balanceBridgePrerequisites.accounts.find(
+      (account) => account.ledgerAccount.accountCode === "1000",
+    );
+    const cashBalanceProof =
+      await financeTwinService.getGeneralLedgerAccountBalanceProof({
+        companyKey: "acme",
+        ledgerAccountId: cashRow?.ledgerAccount.id ?? "",
+      });
+
+    expect(cashBalanceProof).toMatchObject({
+      target: {
+        ledgerAccountId: cashRow?.ledgerAccount.id,
+      },
+      proof: {
+        record: {
+          ledgerAccountId: cashRow?.ledgerAccount.id,
+          openingBalanceAmount: "30.00",
+          endingBalanceAmount: "150.00",
+          openingBalanceSourceColumn: "opening_balance",
+          endingBalanceSourceColumn: "closing_balance",
+        },
+        balanceProof: {
+          proofBasis: "source_backed_balance_field",
+          proofSource:
+            "Opening balance came from the explicit opening_balance column on row 2. Ending balance came from the explicit closing_balance column on row 2.",
+          reasonCode: "source_backed_opening_and_ending_balance_proof",
+        },
+      },
+      lineage: {
+        target: cashRow?.balanceProofLineageRef,
+        recordCount: 1,
+        records: [
+          {
+            syncRun: {
+              extractorKey: "general_ledger_csv",
+            },
+            sourceFile: {
+              originalFileName: "general-ledger.csv",
+            },
+          },
+        ],
+      },
+    });
+    expect(cashBalanceProof.proof?.lineageRef).toEqual(
+      cashRow?.balanceProofLineageRef,
+    );
   });
 
   it("preserves an existing company display name when a later sync omits companyName", async () => {

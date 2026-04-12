@@ -122,6 +122,13 @@ export function buildBalanceBridgePrerequisitesAccountRows(input: {
                 syncRunId: input.generalLedgerSlice.latestSyncRun.id,
               }
             : null,
+        balanceProofLineageRef: sourceBackedBalanceProof
+          ? {
+              targetKind: "general_ledger_balance_proof",
+              targetId: sourceBackedBalanceProof.id,
+              syncRunId: sourceBackedBalanceProof.syncRunId,
+            }
+          : null,
       };
     });
 }

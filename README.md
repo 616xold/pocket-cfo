@@ -27,12 +27,13 @@ Today the merged backbone is:
 - F2F additive reporting-window truth hardening, explicit general-ledger period-context reads, and period-scoped reconciliation semantics without fake variance
 - F2G additive matched-period account-bridge-readiness reads plus chart-of-accounts-backed unmatched diagnostics without inventing a numeric bridge
 - F2H additive balance-bridge-prerequisites reads for trial-balance-versus-general-ledger account scope, explicit account-level proof diagnostics, and diagnostic-versus-limitation hardening without fake bridge numbers or variance
+- F2I additive source-backed general-ledger opening-balance and ending-balance proof support from explicit persisted fields only, plus snapshot diagnostic-versus-limitation polish
 
-The active next slice is F2I:
+The active next slice is F2J:
 
-- additive source-backed general-ledger opening-balance and ending-balance proof support from explicit persisted fields only
-- balance-bridge-prerequisites truthfulness that lights up only when real source-backed proof exists and stays blocked otherwise
-- snapshot diagnostic-versus-limitation polish plus merged-doc cleanup now that F2H is already on `main`
+- additive backend-first balance-proof lineage drill and read behavior on top of persisted proof rows and lineage
+- direct drill from proof-bearing account rows to the actual persisted proof row without guessing target IDs manually
+- merged-doc truthfulness cleanup now that F2I is already on `main`
 
 ## Product boundary for v1
 
@@ -154,6 +155,7 @@ pnpm smoke:finance-twin:local
 pnpm smoke:finance-twin-account-bridge:local
 pnpm smoke:finance-twin-balance-bridge-prerequisites:local
 pnpm smoke:finance-twin-source-backed-balance-proof:local
+pnpm smoke:finance-twin-balance-proof-lineage:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
@@ -172,6 +174,7 @@ The current backend-first finance-twin read surface is:
 - trial-balance-versus-general-ledger matched-period account-bridge readiness
 - trial-balance-versus-general-ledger balance-bridge prerequisites
 - truthful source-backed general-ledger balance proof inside balance-bridge prerequisites
+- general-ledger balance-proof lineage drill
 - general-ledger account activity lineage
 
 The current success condition is no longer an F0 guidance reset.

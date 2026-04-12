@@ -276,6 +276,11 @@ function createAppContainer(
       async getGeneralLedger() {
         throw new Error("getGeneralLedger should not be called in this test");
       },
+      async getGeneralLedgerAccountBalanceProof() {
+        throw new Error(
+          "getGeneralLedgerAccountBalanceProof should not be called in this test",
+        );
+      },
       async getGeneralLedgerAccountActivityLineage() {
         throw new Error(
           "getGeneralLedgerAccountActivityLineage should not be called in this test",
