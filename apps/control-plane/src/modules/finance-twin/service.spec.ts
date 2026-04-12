@@ -913,6 +913,12 @@ describe("FinanceTwinService", () => {
       sameSourceSnapshot: false,
       reasonCode: "shared_source",
     });
+    expect(snapshot.diagnostics).toContain(
+      snapshot.sliceAlignment.reasonSummary,
+    );
+    expect(snapshot.limitations).not.toContain(
+      snapshot.sliceAlignment.reasonSummary,
+    );
     expect(reconciliation.sliceAlignment).toMatchObject({
       state: "shared_source",
       availableSliceCount: 2,
@@ -1321,6 +1327,164 @@ describe("FinanceTwinService", () => {
       matchedPeriodAccountBridgeReady: false,
       balanceBridgePrereqReady: false,
       blockedReasonCode: "balance_bridge_missing_trial_balance_overlap",
+    });
+  });
+
+  it("lights up source-backed balance proof only when explicit opening or ending balance fields exist", async () => {
+    const now = () => new Date("2026-04-11T12:00:00.000Z");
+    const sourceRepository = new InMemorySourceRepository();
+    const sourceStorage = new InMemorySourceFileStorage();
+    const sourceService = new SourceRegistryService(
+      sourceRepository,
+      sourceStorage,
+      now,
+    );
+    const financeTwinService = new FinanceTwinService({
+      financeTwinRepository: new InMemoryFinanceTwinRepository(),
+      sourceFileStorage: sourceStorage,
+      sourceRepository,
+      now,
+    });
+    const created = await sourceService.createSource({
+      kind: "dataset",
+      name: "March close package with explicit balance proof",
+      createdBy: "finance-operator",
+      originKind: "manual",
+      snapshot: {
+        originalFileName: "march-close-package-link.txt",
+        mediaType: "text/plain",
+        sizeBytes: 18,
+        checksumSha256:
+          "f343333333333333333333333333333333333333333333333333333333333333",
+        storageKind: "external_url",
+        storageRef: "https://example.com/march-close-package-balance-proof",
+        ingestStatus: "registered",
+      },
+    });
+    const chartFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "chart-of-accounts.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "account_code,account_name,account_type,detail_type,parent_account_code,is_active,description",
+          "1000,Cash,asset,current_asset,,true,Operating cash",
+          "2000,Accounts Payable,liability,current_liability,,true,Supplier balances",
+        ].join("\n"),
+      ),
+    );
+    const trialBalanceFile = await sourceService.registerSourceFile(
+      created.source.id,
+      {
+        originalFileName: "trial-balance.csv",
+        mediaType: "text/csv",
+        createdBy: "finance-operator",
+      },
+      Buffer.from(
+        [
+          "account_code,account_name,period_start,period_end,debit,credit,currency_code,account_type",
+          "1000,Cash,2026-03-01,2026-03-31,120.00,0.00,USD,asset",
+          "2000,Accounts Payable,2026-03-01,2026-03-31,0.00,120.00,USD,liability",
+        ].join("\n"),
+      ),
+    );
+    await financeTwinService.syncCompanySourceFile(
+      "acme",
+      chartFile.sourceFile.id,
+      {
+        companyName: "Acme Holdings",
+      },
+    );
+    await financeTwinService.syncCompanySourceFile(
+      "acme",
+      trialBalanceFile.sourceFile.id,
+      {},
+    );
+    await financeTwinService.syncCompanySourceFile(
+      "acme",
+      (
+        await sourceService.registerSourceFile(
+          created.source.id,
+          {
+            originalFileName: "general-ledger.csv",
+            mediaType: "text/csv",
+            createdBy: "finance-operator",
+          },
+          Buffer.from(
+            [
+              "journal_id,transaction_date,period_start,period_end,period_key,account_code,account_name,account_type,debit,credit,opening_balance,closing_balance,currency_code,memo",
+              "J-100,2026-03-15,2026-03-01,2026-03-31,2026-03,1000,Cash,asset,120.00,0.00,30.00,150.00,USD,Customer receipt",
+              "J-100,2026-03-15,2026-03-01,2026-03-31,2026-03,5000,Product Revenue,income,0.00,120.00,,,USD,Customer receipt",
+            ].join("\n"),
+          ),
+        )
+      ).sourceFile.id,
+      {},
+    );
+
+    const balanceBridgePrerequisites =
+      await financeTwinService.getBalanceBridgePrerequisites("acme");
+
+    expect(balanceBridgePrerequisites.balanceBridgePrerequisites).toMatchObject(
+      {
+        state: "source_backed_balance_prereq_ready",
+        reasonCode: "balance_bridge_source_backed_prereq_ready",
+        basis: "source_declared_period",
+        windowRelation: "exact_match",
+        prerequisites: {
+          hasSuccessfulTrialBalanceSlice: true,
+          hasSuccessfulGeneralLedgerSlice: true,
+          matchedPeriodAccountBridgeReady: true,
+          anySourceBackedGeneralLedgerBalanceProof: true,
+        },
+      },
+    );
+    expect(balanceBridgePrerequisites.coverageSummary).toMatchObject({
+      matchedPeriodAccountBridgeReadyCount: 1,
+      accountsWithOpeningBalanceProofCount: 1,
+      accountsWithEndingBalanceProofCount: 1,
+      accountsBlockedByMissingOverlapCount: 2,
+      accountsBlockedByMissingBalanceProofCount: 0,
+      prereqReadyAccountCount: 1,
+    });
+    expect(balanceBridgePrerequisites.limitations).toContain(
+      "This route does not compute a direct balance bridge or variance because trial-balance ending balances are not equivalent to general-ledger activity totals, and general-ledger activity totals do not prove opening or ending balances.",
+    );
+    expect(balanceBridgePrerequisites.limitations).not.toContain(
+      "Matched-period account overlap exists, but none of those accounts include source-backed general-ledger opening-balance or ending-balance proof in the persisted Finance Twin state, so this route stops at blocked prerequisites rather than inventing a balance bridge.",
+    );
+    expect(
+      balanceBridgePrerequisites.accounts.find(
+        (account) => account.ledgerAccount.accountCode === "1000",
+      ),
+    ).toMatchObject({
+      matchedPeriodAccountBridgeReady: true,
+      balanceBridgePrereqReady: true,
+      blockedReasonCode: null,
+      generalLedgerBalanceProof: {
+        proofBasis: "source_backed_balance_field",
+        openingBalanceAmount: "30.00",
+        endingBalanceAmount: "150.00",
+        openingBalanceEvidencePresent: true,
+        endingBalanceEvidencePresent: true,
+        openingBalanceSourceColumn: "opening_balance",
+        openingBalanceLineNumber: 2,
+        endingBalanceSourceColumn: "closing_balance",
+        endingBalanceLineNumber: 2,
+        reasonCode: "source_backed_opening_and_ending_balance_proof",
+      },
+    });
+    expect(
+      balanceBridgePrerequisites.accounts.find(
+        (account) => account.ledgerAccount.accountCode === "2000",
+      ),
+    ).toMatchObject({
+      matchedPeriodAccountBridgeReady: false,
+      balanceBridgePrereqReady: false,
+      blockedReasonCode: "balance_bridge_missing_general_ledger_overlap",
     });
   });
 

@@ -15,6 +15,7 @@ import {
   buildGeneralLedgerActivityByAccountId,
   type GeneralLedgerActivityByAccount,
 } from "./general-ledger-activity";
+import { buildSharedSourceDiagnostics } from "./diagnostics";
 import { buildFinanceSliceAlignment } from "./slice-alignment";
 
 const IMPLEMENTED_SLICE_COUNT = 3;
@@ -36,10 +37,11 @@ export function buildFinanceSnapshotView(input: {
   limitations: string[];
   trialBalanceLineViews: FinanceTrialBalanceLineView[];
 }): FinanceSnapshotView {
-  const sliceAvailability = resolveSliceAvailability(input.latestSuccessfulSlices);
-  const generalLedgerActivityByAccountId = buildGeneralLedgerActivityByAccountId(
-    input.generalLedgerEntries,
+  const sliceAvailability = resolveSliceAvailability(
+    input.latestSuccessfulSlices,
   );
+  const generalLedgerActivityByAccountId =
+    buildGeneralLedgerActivityByAccountId(input.generalLedgerEntries);
   const accounts = buildSnapshotAccounts({
     chartOfAccountsEntries: input.chartOfAccountsEntries,
     generalLedgerActivityByAccountId,
@@ -62,6 +64,7 @@ export function buildFinanceSnapshotView(input: {
     sliceAlignment,
     sliceAvailability,
   });
+  const diagnostics = buildSharedSourceDiagnostics(sliceAlignment);
 
   return FinanceSnapshotViewSchema.parse({
     company: input.company,
@@ -72,6 +75,7 @@ export function buildFinanceSnapshotView(input: {
     sliceAlignment,
     coverageSummary: buildCoverageSummary(accounts),
     accounts,
+    diagnostics,
     limitations,
   });
 }
@@ -84,12 +88,21 @@ function buildSnapshotAccounts(input: {
   trialBalanceLineViews: FinanceTrialBalanceLineView[];
 }) {
   const accountCatalogByAccountId = new Map(
-    input.chartOfAccountsEntries.map((entry) => [entry.ledgerAccount.id, entry]),
+    input.chartOfAccountsEntries.map((entry) => [
+      entry.ledgerAccount.id,
+      entry,
+    ]),
   );
   const trialBalanceByAccountId = new Map(
-    input.trialBalanceLineViews.map((lineView) => [lineView.ledgerAccount.id, lineView]),
+    input.trialBalanceLineViews.map((lineView) => [
+      lineView.ledgerAccount.id,
+      lineView,
+    ]),
   );
-  const ledgerAccountsById = new Map<string, FinanceSnapshotAccountRow["ledgerAccount"]>();
+  const ledgerAccountsById = new Map<
+    string,
+    FinanceSnapshotAccountRow["ledgerAccount"]
+  >();
 
   for (const entry of input.chartOfAccountsEntries) {
     ledgerAccountsById.set(entry.ledgerAccount.id, entry.ledgerAccount);
@@ -99,7 +112,10 @@ function buildSnapshotAccounts(input: {
     ledgerAccountsById.set(lineView.ledgerAccount.id, lineView.ledgerAccount);
   }
 
-  for (const [ledgerAccountId, activity] of input.generalLedgerActivityByAccountId) {
+  for (const [
+    ledgerAccountId,
+    activity,
+  ] of input.generalLedgerActivityByAccountId) {
     ledgerAccountsById.set(ledgerAccountId, activity.ledgerAccount);
   }
 
@@ -108,14 +124,17 @@ function buildSnapshotAccounts(input: {
     .map((ledgerAccount) => {
       const chartOfAccountsEntry =
         accountCatalogByAccountId.get(ledgerAccount.id) ?? null;
-      const trialBalanceLineView = trialBalanceByAccountId.get(ledgerAccount.id) ?? null;
+      const trialBalanceLineView =
+        trialBalanceByAccountId.get(ledgerAccount.id) ?? null;
       const generalLedgerActivity =
-        input.generalLedgerActivityByAccountId.get(ledgerAccount.id)?.activity ?? null;
+        input.generalLedgerActivityByAccountId.get(ledgerAccount.id)
+          ?.activity ?? null;
       const presentInChartOfAccounts = chartOfAccountsEntry !== null;
       const presentInTrialBalance = trialBalanceLineView !== null;
       const presentInGeneralLedger = generalLedgerActivity !== null;
       const inactiveWithGeneralLedgerActivity =
-        chartOfAccountsEntry?.catalogEntry.isActive === false && presentInGeneralLedger;
+        chartOfAccountsEntry?.catalogEntry.isActive === false &&
+        presentInGeneralLedger;
 
       return {
         ledgerAccount,
@@ -137,7 +156,8 @@ function buildSnapshotAccounts(input: {
           input.latestSuccessfulSlices.generalLedger.latestSyncRun
             ? {
                 ledgerAccountId: ledgerAccount.id,
-                syncRunId: input.latestSuccessfulSlices.generalLedger.latestSyncRun.id,
+                syncRunId:
+                  input.latestSuccessfulSlices.generalLedger.latestSyncRun.id,
               }
             : null,
         lineageTargets: {
@@ -231,13 +251,6 @@ function buildSnapshotLimitations(input: {
     limitations.push(input.sliceAlignment.reasonSummary);
   }
 
-  if (
-    input.sliceAlignment.state === "shared_source" &&
-    (!input.sliceAlignment.sameSourceSnapshot || !input.sliceAlignment.sameSyncRun)
-  ) {
-    limitations.push(input.sliceAlignment.reasonSummary);
-  }
-
   if (input.sliceAlignment.state === "mixed") {
     limitations.push(
       "Do not treat this company snapshot as one coherent close package because the latest successful slices are mixed across different registered sources.",
@@ -251,7 +264,8 @@ function resolveSliceAvailability(
   latestSuccessfulSlices: FinanceLatestSuccessfulSlices,
 ): SliceAvailability {
   return {
-    chartOfAccounts: latestSuccessfulSlices.chartOfAccounts.latestSyncRun !== null,
+    chartOfAccounts:
+      latestSuccessfulSlices.chartOfAccounts.latestSyncRun !== null,
     generalLedger: latestSuccessfulSlices.generalLedger.latestSyncRun !== null,
     trialBalance: latestSuccessfulSlices.trialBalance.latestSyncRun !== null,
   };

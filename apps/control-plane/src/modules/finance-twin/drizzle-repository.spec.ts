@@ -118,20 +118,28 @@ describe("DrizzleFinanceTwinRepository", () => {
       id: company.id,
       displayName: "Acme Holdings",
     });
-    expect(await repository.getReportingPeriodById(reportingPeriod.id)).toMatchObject({
+    expect(
+      await repository.getReportingPeriodById(reportingPeriod.id),
+    ).toMatchObject({
       id: reportingPeriod.id,
       periodEnd: "2026-03-31",
     });
-    expect(await repository.countReportingPeriodsByCompanyId(company.id)).toBe(1);
+    expect(await repository.countReportingPeriodsByCompanyId(company.id)).toBe(
+      1,
+    );
     expect(await repository.countLedgerAccountsByCompanyId(company.id)).toBe(1);
-    expect(await repository.listTrialBalanceLinesBySyncRunId(syncRun.id)).toMatchObject([
+    expect(
+      await repository.listTrialBalanceLinesBySyncRunId(syncRun.id),
+    ).toMatchObject([
       {
         id: line.id,
         debitAmount: "125000.00",
       },
     ]);
     expect(await repository.countLineageBySyncRunId(syncRun.id)).toBe(1);
-    expect(await repository.getLatestSyncRunByCompanyId(company.id)).toMatchObject({
+    expect(
+      await repository.getLatestSyncRunByCompanyId(company.id),
+    ).toMatchObject({
       id: finalized.id,
       status: "succeeded",
     });
@@ -389,14 +397,18 @@ describe("DrizzleFinanceTwinRepository", () => {
       errorSummary: null,
     });
 
-    expect(await repository.listJournalEntriesBySyncRunId(syncRun.id)).toMatchObject([
+    expect(
+      await repository.listJournalEntriesBySyncRunId(syncRun.id),
+    ).toMatchObject([
       {
         id: journalEntry.id,
         externalEntryId: "J-100",
         entryDescription: "Seed funding",
       },
     ]);
-    expect(await repository.listJournalLineViewsBySyncRunId(syncRun.id)).toMatchObject([
+    expect(
+      await repository.listJournalLineViewsBySyncRunId(syncRun.id),
+    ).toMatchObject([
       {
         ledgerAccount: {
           accountCode: "1000",
@@ -418,7 +430,9 @@ describe("DrizzleFinanceTwinRepository", () => {
         },
       },
     ]);
-    expect(await repository.listGeneralLedgerEntriesBySyncRunId(syncRun.id)).toMatchObject([
+    expect(
+      await repository.listGeneralLedgerEntriesBySyncRunId(syncRun.id),
+    ).toMatchObject([
       {
         journalEntry: {
           id: journalEntry.id,
@@ -448,6 +462,87 @@ describe("DrizzleFinanceTwinRepository", () => {
       id: finalized.id,
       status: "succeeded",
     });
+  });
+
+  it("persists source-backed general-ledger balance proofs by sync run", async () => {
+    const company = await repository.upsertCompany({
+      companyKey: "acme",
+      displayName: "Acme Holdings",
+    });
+    const ledgerAccount = await repository.upsertLedgerAccount({
+      companyId: company.id,
+      accountCode: "1000",
+      accountName: "Cash",
+      accountType: "asset",
+      extractorKey: "general_ledger_csv",
+    });
+    const source = await sourceRepository.createSource({
+      kind: "dataset",
+      originKind: "manual",
+      name: "General ledger export",
+      description: "March journal detail",
+      createdBy: "finance-operator",
+    });
+    const snapshot = await sourceRepository.createSnapshot({
+      sourceId: source.id,
+      version: 1,
+      originalFileName: "general-ledger.csv",
+      mediaType: "text/csv",
+      sizeBytes: 512,
+      checksumSha256:
+        "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      storageKind: "object_store",
+      storageRef: "s3://bucket/sources/general-ledger.csv",
+      capturedAt: "2026-04-12T00:00:00.000Z",
+      ingestStatus: "ready",
+    });
+    const sourceFile = await sourceRepository.createSourceFile({
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      originalFileName: "general-ledger.csv",
+      mediaType: "text/csv",
+      sizeBytes: 512,
+      checksumSha256:
+        "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+      storageKind: "object_store",
+      storageRef: "s3://bucket/sources/general-ledger.csv",
+      createdBy: "finance-operator",
+      capturedAt: "2026-04-12T00:00:00.000Z",
+    });
+    const syncRun = await repository.startSyncRun({
+      companyId: company.id,
+      sourceId: source.id,
+      sourceSnapshotId: snapshot.id,
+      sourceFileId: sourceFile.id,
+      extractorKey: "general_ledger_csv",
+      startedAt: "2026-04-12T00:10:00.000Z",
+    });
+    const proof = await repository.upsertGeneralLedgerBalanceProof({
+      companyId: company.id,
+      ledgerAccountId: ledgerAccount.id,
+      syncRunId: syncRun.id,
+      openingBalanceAmount: "90.00",
+      openingBalanceSourceColumn: "opening_balance",
+      openingBalanceLineNumber: 2,
+      endingBalanceAmount: "100.00",
+      endingBalanceSourceColumn: "closing_balance",
+      endingBalanceLineNumber: 2,
+    });
+
+    expect(
+      await repository.listGeneralLedgerBalanceProofsBySyncRunId(syncRun.id),
+    ).toMatchObject([
+      {
+        id: proof.id,
+        ledgerAccountId: ledgerAccount.id,
+        openingBalanceAmount: "90.00",
+        openingBalanceSourceColumn: "opening_balance",
+        openingBalanceLineNumber: 2,
+        endingBalanceAmount: "100.00",
+        endingBalanceSourceColumn: "closing_balance",
+        endingBalanceLineNumber: 2,
+      },
+    ]);
   });
 
   it("lets chart-of-accounts metadata override lower-authority slices without later degradation", async () => {

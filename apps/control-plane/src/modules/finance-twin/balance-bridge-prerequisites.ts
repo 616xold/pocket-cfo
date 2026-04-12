@@ -5,6 +5,7 @@ import {
   type FinanceBalanceBridgePrerequisitesView,
   type FinanceCompanyRecord,
   type FinanceFreshnessView,
+  type FinanceGeneralLedgerBalanceProofRecord,
   type FinanceGeneralLedgerEntryView,
   type FinanceLatestSuccessfulChartOfAccountsSlice,
   type FinanceLatestSuccessfulGeneralLedgerSlice,
@@ -30,6 +31,7 @@ export function buildFinanceBalanceBridgePrerequisitesView(input: {
   company: FinanceCompanyRecord;
   comparability: FinanceReconciliationComparabilityView;
   freshness: FinanceFreshnessView;
+  generalLedgerBalanceProofs: FinanceGeneralLedgerBalanceProofRecord[];
   generalLedgerEntries: FinanceGeneralLedgerEntryView[];
   generalLedgerSlice: FinanceLatestSuccessfulGeneralLedgerSlice;
   limitations: string[];

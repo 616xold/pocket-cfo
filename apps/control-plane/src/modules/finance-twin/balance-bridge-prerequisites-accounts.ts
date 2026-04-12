@@ -2,6 +2,7 @@ import type {
   FinanceAccountBridgeReadinessStatus,
   FinanceAccountCatalogEntryView,
   FinanceBalanceBridgePrerequisitesAccountRow,
+  FinanceGeneralLedgerBalanceProofRecord,
   FinanceBalanceBridgePrerequisitesCoverageSummary,
   FinanceGeneralLedgerEntryView,
   FinanceLatestSuccessfulChartOfAccountsSlice,
@@ -19,6 +20,7 @@ export function buildBalanceBridgePrerequisitesAccountRows(input: {
   accountBridgeReadiness: FinanceAccountBridgeReadinessStatus;
   chartOfAccountsEntries: FinanceAccountCatalogEntryView[];
   chartOfAccountsSlice: FinanceLatestSuccessfulChartOfAccountsSlice;
+  generalLedgerBalanceProofs: FinanceGeneralLedgerBalanceProofRecord[];
   generalLedgerEntries: FinanceGeneralLedgerEntryView[];
   generalLedgerSlice: FinanceLatestSuccessfulGeneralLedgerSlice;
   trialBalanceLineViews: FinanceTrialBalanceLineView[];
@@ -37,6 +39,12 @@ export function buildBalanceBridgePrerequisitesAccountRows(input: {
   );
   const generalLedgerActivityByAccountId =
     buildGeneralLedgerActivityByAccountId(input.generalLedgerEntries);
+  const generalLedgerBalanceProofsByAccountId = new Map(
+    input.generalLedgerBalanceProofs.map((proof) => [
+      proof.ledgerAccountId,
+      proof,
+    ]),
+  );
   const ledgerAccountsById = new Map<string, FinanceLedgerAccountRecord>();
   const chartOfAccountsAvailable =
     input.chartOfAccountsSlice.latestSyncRun !== null;
@@ -65,8 +73,11 @@ export function buildBalanceBridgePrerequisitesAccountRows(input: {
       const generalLedgerActivity =
         generalLedgerActivityByAccountId.get(ledgerAccount.id)?.activity ??
         null;
+      const sourceBackedBalanceProof =
+        generalLedgerBalanceProofsByAccountId.get(ledgerAccount.id) ?? null;
       const generalLedgerBalanceProof = buildFinanceGeneralLedgerBalanceProof({
         generalLedgerActivity,
+        sourceBackedBalanceProof,
       });
       const presentInChartOfAccounts = chartOfAccountsEntry !== null;
       const presentInTrialBalance = trialBalanceLineView !== null;

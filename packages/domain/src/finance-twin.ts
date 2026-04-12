@@ -46,6 +46,7 @@ export const FinanceTwinLineageTargetKindSchema = z.enum([
   "account_catalog_entry",
   "journal_entry",
   "journal_line",
+  "general_ledger_balance_proof",
 ]);
 
 export const FinanceFreshnessStateSchema = z.enum([
@@ -147,6 +148,21 @@ export const FinanceJournalLineRecordSchema = z.object({
   updatedAt: z.string().datetime({ offset: true }),
 });
 
+export const FinanceGeneralLedgerBalanceProofRecordSchema = z.object({
+  id: z.string().uuid(),
+  companyId: z.string().uuid(),
+  ledgerAccountId: z.string().uuid(),
+  syncRunId: z.string().uuid(),
+  openingBalanceAmount: FinanceAmountSchema.nullable(),
+  openingBalanceSourceColumn: z.string().min(1).nullable(),
+  openingBalanceLineNumber: z.number().int().positive().nullable(),
+  endingBalanceAmount: FinanceAmountSchema.nullable(),
+  endingBalanceSourceColumn: z.string().min(1).nullable(),
+  endingBalanceLineNumber: z.number().int().positive().nullable(),
+  createdAt: z.string().datetime({ offset: true }),
+  updatedAt: z.string().datetime({ offset: true }),
+});
+
 export const FinanceTwinSyncRunRecordSchema = z.object({
   id: z.string().uuid(),
   companyId: z.string().uuid(),
@@ -194,6 +210,7 @@ const FinanceEmptyLineageTargetCounts = {
   accountCatalogEntryCount: 0,
   journalEntryCount: 0,
   journalLineCount: 0,
+  generalLedgerBalanceProofCount: 0,
 } as const;
 
 export const FinanceLineageTargetCountsSchema = z.object({
@@ -203,6 +220,7 @@ export const FinanceLineageTargetCountsSchema = z.object({
   accountCatalogEntryCount: z.number().int().nonnegative().default(0),
   journalEntryCount: z.number().int().nonnegative().default(0),
   journalLineCount: z.number().int().nonnegative().default(0),
+  generalLedgerBalanceProofCount: z.number().int().nonnegative().default(0),
 });
 
 export const FinanceLineageLookupRefSchema = z.object({
@@ -486,6 +504,7 @@ export const FinanceSnapshotViewSchema = z.object({
   sliceAlignment: FinanceSliceAlignmentViewSchema,
   coverageSummary: FinanceSnapshotCoverageSummarySchema,
   accounts: z.array(FinanceSnapshotAccountRowSchema),
+  diagnostics: z.array(z.string().min(1)).default([]),
   limitations: z.array(z.string().min(1)),
 });
 
@@ -657,6 +676,15 @@ export const FinanceGeneralLedgerBalanceProofSchema = z.object({
   endingBalanceAmount: FinanceAmountSchema.nullable(),
   openingBalanceEvidencePresent: z.boolean(),
   endingBalanceEvidencePresent: z.boolean(),
+  openingBalanceSourceColumn: z.string().min(1).nullable().default(null),
+  openingBalanceLineNumber: z
+    .number()
+    .int()
+    .positive()
+    .nullable()
+    .default(null),
+  endingBalanceSourceColumn: z.string().min(1).nullable().default(null),
+  endingBalanceLineNumber: z.number().int().positive().nullable().default(null),
   proofBasis: FinanceGeneralLedgerBalanceProofBasisSchema,
   proofSource: z.string().min(1).nullable(),
   reasonCode: z.string().min(1),
@@ -798,6 +826,9 @@ export type FinanceJournalEntryRecord = z.infer<
 >;
 export type FinanceJournalLineRecord = z.infer<
   typeof FinanceJournalLineRecordSchema
+>;
+export type FinanceGeneralLedgerBalanceProofRecord = z.infer<
+  typeof FinanceGeneralLedgerBalanceProofRecordSchema
 >;
 export type FinanceTwinSyncRunRecord = z.infer<
   typeof FinanceTwinSyncRunRecordSchema

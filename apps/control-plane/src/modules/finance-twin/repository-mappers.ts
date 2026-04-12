@@ -1,6 +1,7 @@
 import type {
   financeAccountCatalogEntries,
   financeCompanies,
+  financeGeneralLedgerBalanceProofs,
   financeJournalEntries,
   financeJournalLines,
   financeLedgerAccounts,
@@ -13,6 +14,7 @@ import type {
   FinanceAccountCatalogEntryRecord,
   FinanceAccountCatalogEntryView,
   FinanceCompanyRecord,
+  FinanceGeneralLedgerBalanceProofRecord,
   FinanceJournalEntryRecord,
   FinanceJournalLineRecord,
   FinanceJournalLineView,
@@ -26,6 +28,8 @@ import type {
 type FinanceAccountCatalogEntryRow =
   typeof financeAccountCatalogEntries.$inferSelect;
 type FinanceCompanyRow = typeof financeCompanies.$inferSelect;
+type FinanceGeneralLedgerBalanceProofRow =
+  typeof financeGeneralLedgerBalanceProofs.$inferSelect;
 type FinanceJournalEntryRow = typeof financeJournalEntries.$inferSelect;
 type FinanceJournalLineRow = typeof financeJournalLines.$inferSelect;
 type FinanceReportingPeriodRow = typeof financeReportingPeriods.$inferSelect;
@@ -75,6 +79,25 @@ export function mapFinanceJournalEntryRow(
     externalEntryId: row.externalEntryId,
     transactionDate: row.transactionDate,
     entryDescription: row.entryDescription,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+export function mapFinanceGeneralLedgerBalanceProofRow(
+  row: FinanceGeneralLedgerBalanceProofRow,
+): FinanceGeneralLedgerBalanceProofRecord {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    ledgerAccountId: row.ledgerAccountId,
+    syncRunId: row.syncRunId,
+    openingBalanceAmount: row.openingBalanceAmount,
+    openingBalanceSourceColumn: row.openingBalanceSourceColumn,
+    openingBalanceLineNumber: row.openingBalanceLineNumber,
+    endingBalanceAmount: row.endingBalanceAmount,
+    endingBalanceSourceColumn: row.endingBalanceSourceColumn,
+    endingBalanceLineNumber: row.endingBalanceLineNumber,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

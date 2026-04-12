@@ -76,6 +76,7 @@ describe("general-ledger CSV extractor", () => {
         ],
       },
     ]);
+    expect(extracted.balanceProofs).toEqual([]);
   });
 
   it("returns null source-declared period context when only journal activity dates are present", () => {
@@ -93,6 +94,70 @@ describe("general-ledger CSV extractor", () => {
     });
 
     expect(extracted.sourceDeclaredPeriod).toBeNull();
+    expect(extracted.balanceProofs).toEqual([]);
+  });
+
+  it("extracts explicit opening-balance and ending-balance proof fields without inferring from activity totals", () => {
+    const extracted = extractGeneralLedgerCsv({
+      body: Buffer.from(
+        [
+          "journal_id,transaction_date,period_start,period_end,account_code,debit,credit,opening_balance,closing_balance",
+          "J-100,2026-03-31,2026-03-01,2026-03-31,1000,10.00,0.00,90.00,100.00",
+          "J-101,2026-03-31,2026-03-01,2026-03-31,1000,0.00,5.00,90.00,100.00",
+        ].join("\n"),
+      ),
+      sourceFile: {
+        mediaType: "text/csv",
+        originalFileName: "general-ledger.csv",
+      },
+    });
+
+    expect(extracted.balanceProofs).toEqual([
+      {
+        accountCode: "1000",
+        openingBalanceAmount: "90.00",
+        openingBalanceSourceColumn: "opening_balance",
+        openingBalanceLineNumber: 2,
+        endingBalanceAmount: "100.00",
+        endingBalanceSourceColumn: "closing_balance",
+        endingBalanceLineNumber: 2,
+      },
+    ]);
+  });
+
+  it("does not treat ambiguous generic balance columns as source-backed proof", () => {
+    const extracted = extractGeneralLedgerCsv({
+      body: Buffer.from(
+        [
+          "journal_id,transaction_date,account_code,debit,credit,balance,running_balance,current_balance",
+          "J-100,2026-03-31,1000,10.00,0.00,90.00,100.00,100.00",
+        ].join("\n"),
+      ),
+      sourceFile: {
+        mediaType: "text/csv",
+        originalFileName: "general-ledger.csv",
+      },
+    });
+
+    expect(extracted.balanceProofs).toEqual([]);
+  });
+
+  it("fails when explicit balance-proof values conflict for the same account", () => {
+    expect(() =>
+      extractGeneralLedgerCsv({
+        body: Buffer.from(
+          [
+            "journal_id,transaction_date,account_code,debit,credit,opening_balance",
+            "J-100,2026-03-31,1000,10.00,0.00,90.00",
+            "J-101,2026-03-31,1000,0.00,10.00,80.00",
+          ].join("\n"),
+        ),
+        sourceFile: {
+          mediaType: "text/csv",
+          originalFileName: "general-ledger.csv",
+        },
+      }),
+    ).toThrowError(FinanceTwinExtractionError);
   });
 
   it("rejects conflicting source-declared period values", () => {
