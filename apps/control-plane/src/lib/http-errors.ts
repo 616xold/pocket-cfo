@@ -13,6 +13,7 @@ import {
 import {
   CfoWikiCompileAlreadyRunningError,
   CfoWikiPageNotFoundError,
+  CfoWikiSourceBindingUnsupportedError,
 } from "../modules/wiki/errors";
 import {
   GitHubAppConfigurationError,
@@ -52,6 +53,7 @@ export type ApiErrorCode =
   | "approval_not_found"
   | "cfo_wiki_compile_conflict"
   | "cfo_wiki_page_not_found"
+  | "cfo_wiki_source_binding_unsupported"
   | "finance_company_not_found"
   | "finance_twin_extraction_failed"
   | "finance_twin_source_unsupported"
@@ -247,6 +249,18 @@ function mapHttpError(error: unknown): ErrorMapping {
       body: {
         error: {
           code: "cfo_wiki_page_not_found",
+          message: error.message,
+        },
+      },
+    };
+  }
+
+  if (error instanceof CfoWikiSourceBindingUnsupportedError) {
+    return {
+      statusCode: 422,
+      body: {
+        error: {
+          code: "cfo_wiki_source_binding_unsupported",
           message: error.message,
         },
       },

@@ -89,7 +89,7 @@ This plan is the active F3A implementation contract and must stay current while 
   Rationale: the slice needs a reviewable evidence spine now, and the persisted wiki artifacts plus compile-run summary are enough to reconstruct what changed without overcommitting to a replay shape that is not yet ready.
 
 - Decision: refresh only the smallest active-doc surface that becomes stale as F3A lands.
-  Rationale: `FP-0026` needs implementation-tightening now, `README.md` still omits this active plan from the repo map, and later doc touch points should stay limited to the explicit F3A shipped-state clarifications requested by the user.
+  Rationale: `FP-0026` needed implementation-tightening during F3A, and later doc touch points should stay limited to the explicit F3A shipped-state clarifications requested by the user.
 
 - Decision: polish `FP-0026` during QA so its context describes the refreshed repo state truthfully instead of preserving one stale present-tense statement from the pre-refresh audit.
   Rationale: the active plan is now part of the active-doc surface, so its orientation needs to match the repo state after the doc refresh lands.

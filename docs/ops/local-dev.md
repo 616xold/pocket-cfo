@@ -46,6 +46,7 @@ pnpm smoke:finance-twin-payables-aging:local
 pnpm smoke:finance-twin-contract-metadata:local
 pnpm smoke:finance-twin-card-expense:local
 pnpm smoke:cfo-wiki-foundation:local
+pnpm smoke:cfo-wiki-document-pages:local
 ```
 
 ## Pivot-foundation baseline
@@ -102,10 +103,12 @@ Today, steps 1 through 5 exist in a narrow form:
 - the packaged `pnpm smoke:finance-twin-card-expense:local` path proves stored raw card-expense CSV bytes sync into persisted spend-item inventory and truthful spend-posture state
 - F3A shipped the backend-first CFO Wiki foundation for one company: deterministic compile runs, compiler-owned pages, page links, page refs, and route-backed reads for `index.md`, `log.md`, `company/overview.md`, `periods/<periodKey>/index.md`, and `sources/coverage.md`
 - the packaged `pnpm smoke:cfo-wiki-foundation:local` path proves a trial-balance-backed Finance Twin sync can compile and read back the deterministic F3A wiki surface without runtime-codex, document-body parsing, or vector search
+- F3B shipped explicit company-scoped document bindings plus deterministic markdown or plain-text source digest pages, persisted document extracts, and route-backed backlinks while unsupported PDFs or fileless snapshots remain visible as gaps
+- the packaged `pnpm smoke:cfo-wiki-document-pages:local` path proves one company can bind document sources, compile current plus superseded source digest pages, and read back extracted versus unsupported coverage without runtime-codex, OCR, or vector search
 
 Step 6 remains later-phase work.
 If an unfinished `plans/FP-*.md` file exists, continue that plan.
-If none exists, F3A is already shipped and the next new implementation phase is F3B CFO Wiki document-page compiler work, so create the next F3 plan before code changes.
+If none exists, the first narrow F3B document-page slice is already shipped and the next new implementation phase is F3C CFO Wiki lint, export, and durable filing work, so create the next F3 plan before code changes.
 Use the docs to guide what gets built next.
 
 The active finance-twin read surface is currently backend-first:

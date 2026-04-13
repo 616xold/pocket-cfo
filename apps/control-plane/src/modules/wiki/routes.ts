@@ -1,8 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import type { CfoWikiServicePort } from "../../lib/types";
 import {
+  cfoWikiBindSourceBodySchema,
   cfoWikiCompanyKeyParamsSchema,
   cfoWikiCompileBodySchema,
+  cfoWikiSourceParamsSchema,
   cfoWikiWildcardPageParamsSchema,
   parseWildcardPageKey,
 } from "./schema";
@@ -26,6 +28,27 @@ export async function registerCfoWikiRoutes(
   app.get("/cfo-wiki/companies/:companyKey", async (request) => {
     const params = cfoWikiCompanyKeyParamsSchema.parse(request.params);
     return deps.cfoWikiService.getCompanySummary(params.companyKey);
+  });
+
+  app.post(
+    "/cfo-wiki/companies/:companyKey/sources/:sourceId/bind",
+    async (request, reply) => {
+      const params = cfoWikiSourceParamsSchema.parse(request.params);
+      const body = cfoWikiBindSourceBodySchema.parse(request.body ?? {});
+      const binding = await deps.cfoWikiService.bindCompanySource(
+        params.companyKey,
+        params.sourceId,
+        body,
+      );
+
+      reply.code(201);
+      return binding;
+    },
+  );
+
+  app.get("/cfo-wiki/companies/:companyKey/sources", async (request) => {
+    const params = cfoWikiCompanyKeyParamsSchema.parse(request.params);
+    return deps.cfoWikiService.listCompanySources(params.companyKey);
   });
 
   app.get("/cfo-wiki/companies/:companyKey/index", async (request) => {

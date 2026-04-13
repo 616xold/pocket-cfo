@@ -2761,6 +2761,9 @@ async function createHarness(options?: {
         },
       },
       cfoWikiService: {
+        async bindCompanySource() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
         async compileCompanyWiki() {
           throw new Error("Not implemented in orchestrator harness");
         },
@@ -2774,6 +2777,9 @@ async function createHarness(options?: {
           throw new Error("Not implemented in orchestrator harness");
         },
         async getPage() {
+          throw new Error("Not implemented in orchestrator harness");
+        },
+        async listCompanySources() {
           throw new Error("Not implemented in orchestrator harness");
         },
       } as AppContainer["cfoWikiService"],

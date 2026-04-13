@@ -1,4 +1,5 @@
 import type {
+  CfoWikiDocumentExtractStatus,
   CfoWikiPageKind,
   CfoWikiPageKey,
   CfoWikiPageTemporalStatus,
@@ -12,6 +13,8 @@ import type {
   SourceRecord,
   SourceSnapshotRecord,
 } from "@pocket-cto/domain";
+import { buildCfoWikiSourceDigestPageKey } from "@pocket-cto/domain";
+import type { WikiDocumentSourceState, WikiDocumentSnapshotState } from "./document-state";
 
 export type WikiSliceDescriptor = {
   extractorKey: FinanceTwinExtractorKey;
@@ -41,6 +44,7 @@ export type WikiSliceState = {
 export type WikiCompileState = {
   company: FinanceCompanyRecord;
   companyTotals: FinanceCompanyTotals;
+  compiledDocumentSources: WikiDocumentSourceState[];
   derivedSourceCoverageLimitation: string;
   generalLimitations: string[];
   overallFreshnessSummary: {
@@ -61,6 +65,7 @@ export type WikiCompileState = {
 };
 
 export type WikiRegistryEntry = {
+  documentSnapshot: WikiDocumentSnapshotState | null;
   pageKey: CfoWikiPageKey;
   pageKind: CfoWikiPageKind;
   period: FinanceReportingPeriodRecord | null;
@@ -126,6 +131,7 @@ export function buildPeriodPageKey(periodKey: string): CfoWikiPageKey {
 export function buildWikiPageRegistry(
   company: FinanceCompanyRecord,
   reportingPeriods: FinanceReportingPeriodRecord[],
+  compiledDocumentSources: WikiDocumentSourceState[],
 ): WikiRegistryEntry[] {
   const latestPeriodEnd =
     [...reportingPeriods]
@@ -134,6 +140,7 @@ export function buildWikiPageRegistry(
   const pages: WikiRegistryEntry[] = [
     {
       pageKey: "index",
+      documentSnapshot: null,
       pageKind: "index",
       period: null,
       temporalStatus: "current",
@@ -141,6 +148,7 @@ export function buildWikiPageRegistry(
     },
     {
       pageKey: "log",
+      documentSnapshot: null,
       pageKind: "log",
       period: null,
       temporalStatus: "current",
@@ -148,6 +156,7 @@ export function buildWikiPageRegistry(
     },
     {
       pageKey: "company/overview",
+      documentSnapshot: null,
       pageKind: "company_overview",
       period: null,
       temporalStatus: "current",
@@ -155,12 +164,14 @@ export function buildWikiPageRegistry(
     },
     {
       pageKey: "sources/coverage",
+      documentSnapshot: null,
       pageKind: "source_coverage",
       period: null,
       temporalStatus: "current",
       title: `${company.displayName} Source Coverage`,
     },
     ...reportingPeriods.map((period) => ({
+      documentSnapshot: null,
       pageKey: buildPeriodPageKey(period.periodKey),
       pageKind: "period_index" as const,
       period,
@@ -170,7 +181,52 @@ export function buildWikiPageRegistry(
           : ("current" as const),
       title: `${company.displayName} Period ${period.label}`,
     })),
+    ...buildSourceDigestRegistryEntries(compiledDocumentSources),
   ];
 
   return pages.sort((left, right) => left.pageKey.localeCompare(right.pageKey));
+}
+
+function buildSourceDigestRegistryEntries(
+  compiledDocumentSources: WikiDocumentSourceState[],
+) {
+  return compiledDocumentSources.flatMap((documentSource) =>
+    documentSource.snapshots.map((snapshotState) => ({
+      documentSnapshot: snapshotState,
+      pageKey: buildCfoWikiSourceDigestPageKey(
+        documentSource.source.id,
+        snapshotState.snapshot.version,
+      ),
+      pageKind: "source_digest" as const,
+      period: null,
+      temporalStatus: snapshotState.temporalStatus,
+      title: buildSourceDigestTitle(documentSource, snapshotState),
+    })),
+  );
+}
+
+function buildSourceDigestTitle(
+  documentSource: WikiDocumentSourceState,
+  snapshotState: WikiDocumentSnapshotState,
+) {
+  const extractTitle = snapshotState.extract.title;
+  const baseTitle =
+    extractTitle && extractTitle.length > 0
+      ? extractTitle
+      : documentSource.source.name;
+  const statusSuffix = buildSourceDigestStatusSuffix(
+    snapshotState.extract.extractStatus,
+  );
+
+  return `${baseTitle} Snapshot v${snapshotState.snapshot.version}${statusSuffix}`;
+}
+
+function buildSourceDigestStatusSuffix(
+  extractStatus: CfoWikiDocumentExtractStatus,
+) {
+  if (extractStatus === "extracted") {
+    return "";
+  }
+
+  return extractStatus === "unsupported" ? " (Unsupported)" : " (Failed)";
 }

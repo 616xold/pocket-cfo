@@ -371,6 +371,7 @@ function buildSharedKernel(input: {
   });
   const cfoWikiService = new CfoWikiService({
     financeTwinRepository: input.financeTwinRepository,
+    sourceFileStorage: input.sourceFileStorage,
     sourceRepository: input.sourceRepository,
     wikiRepository: input.wikiRepository,
   });

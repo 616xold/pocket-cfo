@@ -1,15 +1,22 @@
 import {
   buildCfoWikiMarkdownPath,
+  CfoWikiCompanySourceListViewSchema,
   CfoWikiCompanySummarySchema,
   CfoWikiCompileResultSchema,
   CfoWikiPageViewSchema,
+  CfoWikiSourceBindingViewSchema,
   type CfoWikiCompileRunRecord,
+  type CfoWikiDocumentExtractRecord,
   type CfoWikiFreshnessSummary,
   type CfoWikiPageKindCounts,
   type CfoWikiPageLinkRecord,
   type CfoWikiPageRecord,
   type CfoWikiPageRefRecord,
+  type CfoWikiSourceBindingRecord,
   type FinanceCompanyRecord,
+  type SourceFileRecord,
+  type SourceRecord,
+  type SourceSnapshotRecord,
 } from "@pocket-cto/domain";
 
 export function buildCfoWikiCompanySummary(input: {
@@ -33,6 +40,7 @@ export function buildCfoWikiCompanySummary(input: {
 }
 
 export function buildCfoWikiPageView(input: {
+  backlinks: CfoWikiPageLinkRecord[];
   company: FinanceCompanyRecord;
   freshnessSummary: CfoWikiFreshnessSummary;
   latestCompileRun: CfoWikiCompileRunRecord | null;
@@ -66,6 +74,22 @@ export function buildCfoWikiPageView(input: {
         toPageKey: target.pageKey,
         toMarkdownPath: buildCfoWikiMarkdownPath(target.pageKey),
         toTitle: target.title,
+      };
+    }),
+    backlinks: input.backlinks.map((link) => {
+      const source = pagesById.get(link.fromPageId);
+
+      if (!source) {
+        throw new Error(
+          `CFO Wiki page backlink ${link.id} points from missing page ${link.fromPageId}`,
+        );
+      }
+
+      return {
+        ...link,
+        fromPageKey: source.pageKey,
+        fromMarkdownPath: buildCfoWikiMarkdownPath(source.pageKey),
+        fromTitle: source.title,
       };
     }),
     refs: input.refs,
@@ -106,6 +130,7 @@ export function buildPageKindCounts(
     company_overview: 0,
     period_index: 0,
     source_coverage: 0,
+    source_digest: 0,
   };
 
   for (const page of pages) {
@@ -127,4 +152,50 @@ export function buildPageInventory(pages: CfoWikiPageRecord[]) {
     limitations: page.limitations,
     lastCompiledAt: page.lastCompiledAt,
   }));
+}
+
+export function buildCfoWikiSourceBindingView(input: {
+  binding: CfoWikiSourceBindingRecord;
+  company: FinanceCompanyRecord;
+  latestExtract: CfoWikiDocumentExtractRecord | null;
+  latestSnapshot: SourceSnapshotRecord | null;
+  latestSourceFile: SourceFileRecord | null;
+  limitations: string[];
+  source: SourceRecord;
+}) {
+  return CfoWikiSourceBindingViewSchema.parse({
+    companyId: input.company.id,
+    companyKey: input.company.companyKey,
+    companyDisplayName: input.company.displayName,
+    source: {
+      binding: input.binding,
+      source: input.source,
+      latestSnapshot: input.latestSnapshot,
+      latestSourceFile: input.latestSourceFile,
+      latestExtract: input.latestExtract,
+      limitations: input.limitations,
+    },
+  });
+}
+
+export function buildCfoWikiCompanySourceListView(input: {
+  company: FinanceCompanyRecord;
+  limitations: string[];
+  sources: Array<{
+    binding: CfoWikiSourceBindingRecord;
+    latestExtract: CfoWikiDocumentExtractRecord | null;
+    latestSnapshot: SourceSnapshotRecord | null;
+    latestSourceFile: SourceFileRecord | null;
+    limitations: string[];
+    source: SourceRecord;
+  }>;
+}) {
+  return CfoWikiCompanySourceListViewSchema.parse({
+    companyId: input.company.id,
+    companyKey: input.company.companyKey,
+    companyDisplayName: input.company.displayName,
+    sourceCount: input.sources.length,
+    sources: input.sources,
+    limitations: input.limitations,
+  });
 }

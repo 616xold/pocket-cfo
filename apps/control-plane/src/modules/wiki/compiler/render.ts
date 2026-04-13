@@ -10,6 +10,12 @@ import type {
   PersistCfoWikiPageRefInput,
 } from "../repository";
 import type { WikiCompileState, WikiRegistryEntry, WikiSliceState } from "./page-registry";
+import {
+  buildSourceDigestFreshnessSummary,
+  buildSourceDigestLimitations,
+  buildSourceDigestPageSummary,
+  renderSourceDigestSections,
+} from "./source-digest-render";
 
 type RenderCurrentRun = {
   completedAt: string;
@@ -20,6 +26,7 @@ type RenderCurrentRun = {
 };
 
 export function renderWikiPages(input: {
+  backlinksByPageKey: Map<CfoWikiPageKey, PersistCfoWikiPageLinkInput[]>;
   compiledAt: string;
   currentRun: RenderCurrentRun;
   linksByPageKey: Map<CfoWikiPageKey, PersistCfoWikiPageLinkInput[]>;
@@ -32,6 +39,7 @@ export function renderWikiPages(input: {
   );
 
   return input.registry.map((entry) => {
+    const backlinks = input.backlinksByPageKey.get(entry.pageKey) ?? [];
     const refs = input.refsByPageKey.get(entry.pageKey) ?? [];
     const links = input.linksByPageKey.get(entry.pageKey) ?? [];
     const freshnessSummary = buildPageFreshnessSummary(entry, input.state);
@@ -50,6 +58,7 @@ export function renderWikiPages(input: {
         entry,
         freshnessSummary,
         limitations,
+        backlinks,
         links,
         refs,
         registry: input.registry,
@@ -64,6 +73,7 @@ export function renderWikiPages(input: {
 }
 
 function renderPageMarkdown(input: {
+  backlinks: PersistCfoWikiPageLinkInput[];
   currentRun: RenderCurrentRun;
   entry: WikiRegistryEntry;
   freshnessSummary: CfoWikiFreshnessSummary;
@@ -99,10 +109,21 @@ function renderPageMarkdown(input: {
     "",
     "## Related Links",
     ...renderRelatedLinks(input.entry.pageKey, input.links, input.registryByKey),
+    "",
+    "## Backlinks",
+    ...renderBacklinks(input.entry.pageKey, input.backlinks, input.registryByKey),
   ]).join("\n");
 }
 
 function buildPageSummary(entry: WikiRegistryEntry, state: WikiCompileState) {
+  if (entry.pageKind === "source_digest" && entry.documentSnapshot) {
+    const documentSource = getRequiredDocumentSource(state, entry);
+    return buildSourceDigestPageSummary({
+      documentSource,
+      snapshotState: entry.documentSnapshot,
+    });
+  }
+
   switch (entry.pageKind) {
     case "index":
       return `Deterministic entrypoint for ${state.company.displayName} covering company overview, source coverage, compile history, and ${state.reportingPeriods.length} stored reporting period page(s).`;
@@ -111,9 +132,11 @@ function buildPageSummary(entry: WikiRegistryEntry, state: WikiCompileState) {
     case "company_overview":
       return `Deterministic company overview compiled from stored Finance Twin totals, reporting periods, and source-linked finance slice freshness.`;
     case "source_coverage":
-      return `Source-backed finance coverage derived from linked Finance Twin sync runs plus source inventory metadata, without parsing document bodies in F3A.`;
+      return `Source-backed coverage across linked Finance Twin slices plus any company-bound F3B document sources, keeping unsupported or unextracted document gaps visible.`;
     case "period_index":
       return `Deterministic period index for ${entry.period?.label ?? "the stored period"} based only on persisted reporting-period records and linked Finance Twin coverage.`;
+    case "source_digest":
+      return `Deterministic source digest for ${state.company.displayName}.`;
   }
 }
 
@@ -121,6 +144,15 @@ function buildPageFreshnessSummary(
   entry: WikiRegistryEntry,
   state: WikiCompileState,
 ): CfoWikiFreshnessSummary {
+  if (entry.pageKind === "source_digest" && entry.documentSnapshot) {
+    const documentSource = getRequiredDocumentSource(state, entry);
+
+    return buildSourceDigestFreshnessSummary({
+      documentSource,
+      snapshotState: entry.documentSnapshot,
+    });
+  }
+
   if (entry.pageKind !== "period_index" || !entry.period) {
     return state.overallFreshnessSummary;
   }
@@ -152,6 +184,16 @@ function buildPageFreshnessSummary(
 
 function buildPageLimitations(entry: WikiRegistryEntry, state: WikiCompileState) {
   const limitations = [...state.generalLimitations];
+
+  if (entry.pageKind === "source_digest" && entry.documentSnapshot) {
+    const documentSource = getRequiredDocumentSource(state, entry);
+    limitations.push(
+      ...buildSourceDigestLimitations({
+        documentSource,
+        snapshotState: entry.documentSnapshot,
+      }),
+    );
+  }
 
   if (entry.pageKind === "index" && state.reportingPeriods.length === 0) {
     limitations.push("The page registry contains no period index pages because no reporting periods are stored yet.");
@@ -213,6 +255,9 @@ function renderPageSpecificSection(input: {
       return [
         "## Source-Backed Coverage",
         ...renderSourceCoverage(input.state.slices),
+        "",
+        "## Bound Document Sources",
+        ...renderBoundDocumentCoverage(input.state.compiledDocumentSources),
       ];
     case "period_index":
       return [
@@ -228,6 +273,11 @@ function renderPageSpecificSection(input: {
           "No linked finance slice currently maps to this stored reporting period.",
         ),
       ];
+    case "source_digest":
+      return renderSourceDigestSections({
+        documentSource: getRequiredDocumentSource(input.state, input.entry),
+        snapshotState: input.entry.documentSnapshot!,
+      });
   }
 }
 
@@ -277,6 +327,20 @@ function renderSourceCoverage(slices: WikiSliceState[]) {
   });
 }
 
+function renderBoundDocumentCoverage(
+  documentSources: WikiCompileState["compiledDocumentSources"],
+) {
+  if (documentSources.length === 0) {
+    return ["- No bound document sources are currently included in compile."];
+  }
+
+  return documentSources.map((documentSource) => {
+    const latestSnapshot = documentSource.snapshots[0];
+
+    return `- ${documentSource.source.name}: latest snapshot v${latestSnapshot?.snapshot.version ?? "unknown"}; extract \`${latestSnapshot?.extract.extractStatus ?? "missing"}\`${documentSource.binding.documentRole ? `; role ${documentSource.binding.documentRole}` : ""}`;
+  });
+}
+
 function renderEvidenceSection(refs: PersistCfoWikiPageRefInput[]) {
   const groups: Array<[PersistCfoWikiPageRefInput["refKind"], string]> = [
     ["twin_fact", "### Twin Facts"],
@@ -322,7 +386,28 @@ function renderRelatedLinks(
   });
 }
 
+function renderBacklinks(
+  toPageKey: CfoWikiPageKey,
+  backlinks: PersistCfoWikiPageLinkInput[],
+  registryByKey: Map<CfoWikiPageKey, WikiRegistryEntry>,
+) {
+  if (backlinks.length === 0) {
+    return ["- No backlinks are registered for this page."];
+  }
+
+  return backlinks.map((link) => {
+    const source = registryByKey.get(link.fromPageKey);
+    const href = buildRelativeMarkdownPath(toPageKey, link.fromPageKey);
+
+    return `- [${link.label}](${href})${source ? `: ${source.title}` : ""}`;
+  });
+}
+
 function buildScopeLine(entry: WikiRegistryEntry, state: WikiCompileState) {
+  if (entry.pageKind === "source_digest" && entry.documentSnapshot) {
+    return `source \`${entry.documentSnapshot.extract.sourceId}\` snapshot \`${entry.documentSnapshot.snapshot.version}\` for ${state.company.displayName}`;
+  }
+
   if (entry.period) {
     return `reporting period \`${entry.period.periodKey}\` for ${state.company.displayName}`;
   }
@@ -370,4 +455,20 @@ function toWikiFreshnessState(
     case "failed":
       return "failed";
   }
+}
+
+function getRequiredDocumentSource(
+  state: WikiCompileState,
+  entry: WikiRegistryEntry,
+) {
+  const sourceId = entry.documentSnapshot?.extract.sourceId;
+  const documentSource = sourceId
+    ? state.compiledDocumentSources.find((source) => source.source.id === sourceId)
+    : null;
+
+  if (!documentSource) {
+    throw new Error(`Missing document source state for wiki page ${entry.pageKey}`);
+  }
+
+  return documentSource;
 }

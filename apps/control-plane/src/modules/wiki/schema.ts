@@ -1,9 +1,12 @@
 import {
+  CfoWikiBindSourceRequestSchema,
+  CfoWikiCompanySourceListViewSchema,
   CfoWikiCompanySummarySchema,
   CfoWikiCompileRequestSchema,
   CfoWikiCompileResultSchema,
   CfoWikiPageKeySchema,
   CfoWikiPageViewSchema,
+  CfoWikiSourceBindingViewSchema,
   FinanceCompanyKeySchema,
 } from "@pocket-cto/domain";
 import { z } from "zod";
@@ -13,6 +16,11 @@ export const cfoWikiCompanyKeyParamsSchema = z.object({
 });
 
 export const cfoWikiCompileBodySchema = CfoWikiCompileRequestSchema;
+export const cfoWikiBindSourceBodySchema = CfoWikiBindSourceRequestSchema;
+
+export const cfoWikiSourceParamsSchema = cfoWikiCompanyKeyParamsSchema.extend({
+  sourceId: z.string().uuid(),
+});
 
 export const cfoWikiWildcardPageParamsSchema = cfoWikiCompanyKeyParamsSchema.extend({
   "*": z.string().min(1),
@@ -31,7 +39,9 @@ function safelyDecodePageKey(rawPageKey: string) {
 }
 
 export {
+  CfoWikiCompanySourceListViewSchema,
   CfoWikiCompanySummarySchema,
   CfoWikiCompileResultSchema,
   CfoWikiPageViewSchema,
+  CfoWikiSourceBindingViewSchema,
 };

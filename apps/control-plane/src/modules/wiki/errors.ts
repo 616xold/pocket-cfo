@@ -11,3 +11,12 @@ export class CfoWikiPageNotFoundError extends Error {
     this.name = "CfoWikiPageNotFoundError";
   }
 }
+
+export class CfoWikiSourceBindingUnsupportedError extends Error {
+  constructor(sourceId: string, sourceKind: string) {
+    super(
+      `Source ${sourceId} has kind ${sourceKind} and cannot be bound into F3B document compilation`,
+    );
+    this.name = "CfoWikiSourceBindingUnsupportedError";
+  }
+}

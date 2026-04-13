@@ -1,9 +1,15 @@
 import type {
+  CfoWikiDocumentExtractRecord,
+  CfoWikiDocumentExtractStatus,
+  CfoWikiDocumentKind,
+  CfoWikiDocumentRole,
+  CfoWikiExcerptBlock,
   CfoWikiCompileRunRecord,
   CfoWikiCompileRunStatus,
   CfoWikiCompileTriggerKind,
   CfoWikiCompileRunStats,
   CfoWikiFreshnessSummary,
+  CfoWikiHeadingOutlineEntry,
   CfoWikiLinkKind,
   CfoWikiPageKind,
   CfoWikiPageLinkRecord,
@@ -13,6 +19,7 @@ import type {
   CfoWikiPageTemporalStatus,
   CfoWikiRefKind,
   CfoWikiRefTargetKind,
+  CfoWikiSourceBindingRecord,
 } from "@pocket-cto/domain";
 import {
   createMemorySession,
@@ -69,6 +76,32 @@ export type PersistCfoWikiPageRefInput = {
   notes: string | null;
 };
 
+export type UpsertCfoWikiSourceBindingInput = {
+  companyId: string;
+  sourceId: string;
+  includeInCompile: boolean;
+  documentRole: CfoWikiDocumentRole | null;
+  boundBy: string;
+};
+
+export type PersistCfoWikiDocumentExtractInput = {
+  sourceId: string;
+  sourceSnapshotId: string;
+  sourceFileId: string | null;
+  extractStatus: CfoWikiDocumentExtractStatus;
+  documentKind: CfoWikiDocumentKind;
+  title: string | null;
+  headingOutline: CfoWikiHeadingOutlineEntry[];
+  excerptBlocks: CfoWikiExcerptBlock[];
+  extractedText: string | null;
+  renderedMarkdown: string | null;
+  warnings: string[];
+  errorSummary: string | null;
+  parserVersion: string;
+  inputChecksumSha256: string;
+  extractedAt: string;
+};
+
 export interface CfoWikiRepository extends TransactionalRepository {
   startCompileRun(
     input: StartCfoWikiCompileRunInput,
@@ -86,6 +119,30 @@ export interface CfoWikiRepository extends TransactionalRepository {
     companyId: string,
     session?: PersistenceSession,
   ): Promise<CfoWikiCompileRunRecord | null>;
+  upsertSourceBinding(
+    input: UpsertCfoWikiSourceBindingInput,
+    session?: PersistenceSession,
+  ): Promise<CfoWikiSourceBindingRecord>;
+  getSourceBindingByCompanyIdAndSourceId(
+    companyId: string,
+    sourceId: string,
+    session?: PersistenceSession,
+  ): Promise<CfoWikiSourceBindingRecord | null>;
+  listSourceBindingsByCompanyId(
+    companyId: string,
+    session?: PersistenceSession,
+  ): Promise<CfoWikiSourceBindingRecord[]>;
+  upsertDocumentExtracts(
+    input: {
+      companyId: string;
+      extracts: PersistCfoWikiDocumentExtractInput[];
+    },
+    session?: PersistenceSession,
+  ): Promise<CfoWikiDocumentExtractRecord[]>;
+  listDocumentExtractsByCompanyId(
+    companyId: string,
+    session?: PersistenceSession,
+  ): Promise<CfoWikiDocumentExtractRecord[]>;
   listCompileRunsByCompanyId(
     companyId: string,
     session?: PersistenceSession,
@@ -113,6 +170,10 @@ export interface CfoWikiRepository extends TransactionalRepository {
     pageId: string,
     session?: PersistenceSession,
   ): Promise<CfoWikiPageLinkRecord[]>;
+  listBacklinksByPageId(
+    pageId: string,
+    session?: PersistenceSession,
+  ): Promise<CfoWikiPageLinkRecord[]>;
   listRefsByPageId(
     pageId: string,
     session?: PersistenceSession,
@@ -121,6 +182,10 @@ export interface CfoWikiRepository extends TransactionalRepository {
 
 export class InMemoryCfoWikiRepository implements CfoWikiRepository {
   private readonly compileRuns = new Map<string, CfoWikiCompileRunRecord>();
+  private readonly sourceBindings = new Map<string, CfoWikiSourceBindingRecord>();
+  private readonly sourceBindingsByScope = new Map<string, string>();
+  private readonly documentExtracts = new Map<string, CfoWikiDocumentExtractRecord>();
+  private readonly documentExtractsByScope = new Map<string, string>();
   private readonly pages = new Map<string, CfoWikiPageRecord>();
   private readonly links = new Map<string, CfoWikiPageLinkRecord>();
   private readonly refs = new Map<string, CfoWikiPageRefRecord>();
@@ -191,6 +256,99 @@ export class InMemoryCfoWikiRepository implements CfoWikiRepository {
         .sort((left, right) => right.startedAt.localeCompare(left.startedAt))[0] ??
       null
     );
+  }
+
+  async upsertSourceBinding(input: UpsertCfoWikiSourceBindingInput) {
+    const scopeKey = buildSourceBindingScopeKey(input.companyId, input.sourceId);
+    const existingId = this.sourceBindingsByScope.get(scopeKey);
+    const existing = existingId
+      ? (this.sourceBindings.get(existingId) ?? null)
+      : null;
+    const now = new Date().toISOString();
+    const binding: CfoWikiSourceBindingRecord = existing
+      ? {
+          ...existing,
+          boundBy: input.boundBy,
+          documentRole: input.documentRole,
+          includeInCompile: input.includeInCompile,
+          updatedAt: now,
+        }
+      : {
+          id: crypto.randomUUID(),
+          companyId: input.companyId,
+          sourceId: input.sourceId,
+          includeInCompile: input.includeInCompile,
+          documentRole: input.documentRole,
+          boundBy: input.boundBy,
+          createdAt: now,
+          updatedAt: now,
+        };
+
+    this.sourceBindings.set(binding.id, binding);
+    this.sourceBindingsByScope.set(scopeKey, binding.id);
+    return binding;
+  }
+
+  async getSourceBindingByCompanyIdAndSourceId(companyId: string, sourceId: string) {
+    const bindingId = this.sourceBindingsByScope.get(
+      buildSourceBindingScopeKey(companyId, sourceId),
+    );
+    return bindingId ? (this.sourceBindings.get(bindingId) ?? null) : null;
+  }
+
+  async listSourceBindingsByCompanyId(companyId: string) {
+    return [...this.sourceBindings.values()]
+      .filter((binding) => binding.companyId === companyId)
+      .sort((left, right) => left.sourceId.localeCompare(right.sourceId));
+  }
+
+  async upsertDocumentExtracts(input: {
+    companyId: string;
+    extracts: PersistCfoWikiDocumentExtractInput[];
+  }) {
+    const persisted = input.extracts.map((extract) => {
+      const scopeKey = buildDocumentExtractScopeKey(
+        input.companyId,
+        extract.sourceSnapshotId,
+      );
+      const existingId = this.documentExtractsByScope.get(scopeKey);
+      const existing = existingId
+        ? (this.documentExtracts.get(existingId) ?? null)
+        : null;
+      const record: CfoWikiDocumentExtractRecord = existing
+        ? {
+            ...existing,
+            ...extract,
+            companyId: input.companyId,
+            updatedAt: extract.extractedAt,
+          }
+        : {
+            id: crypto.randomUUID(),
+            companyId: input.companyId,
+            ...extract,
+            createdAt: extract.extractedAt,
+            updatedAt: extract.extractedAt,
+          };
+
+      this.documentExtracts.set(record.id, record);
+      this.documentExtractsByScope.set(scopeKey, record.id);
+      return record;
+    });
+
+    return persisted.sort((left, right) =>
+      left.sourceSnapshotId.localeCompare(right.sourceSnapshotId),
+    );
+  }
+
+  async listDocumentExtractsByCompanyId(companyId: string) {
+    return [...this.documentExtracts.values()]
+      .filter((extract) => extract.companyId === companyId)
+      .sort((left, right) =>
+        compareDocumentExtracts(
+          `${left.sourceId}::${left.sourceSnapshotId}`,
+          `${right.sourceId}::${right.sourceSnapshotId}`,
+        ),
+      );
   }
 
   async listCompileRunsByCompanyId(companyId: string) {
@@ -328,9 +486,27 @@ export class InMemoryCfoWikiRepository implements CfoWikiRepository {
       .sort((left, right) => left.label.localeCompare(right.label));
   }
 
+  async listBacklinksByPageId(pageId: string) {
+    return [...this.links.values()]
+      .filter((link) => link.toPageId === pageId)
+      .sort((left, right) => left.label.localeCompare(right.label));
+  }
+
   async listRefsByPageId(pageId: string) {
     return [...this.refs.values()]
       .filter((ref) => ref.pageId === pageId)
       .sort((left, right) => left.label.localeCompare(right.label));
   }
+}
+
+function buildSourceBindingScopeKey(companyId: string, sourceId: string) {
+  return `${companyId}::${sourceId}`;
+}
+
+function buildDocumentExtractScopeKey(companyId: string, sourceSnapshotId: string) {
+  return `${companyId}::${sourceSnapshotId}`;
+}
+
+function compareDocumentExtracts(left: string, right: string) {
+  return left.localeCompare(right);
 }

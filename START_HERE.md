@@ -55,7 +55,8 @@ Broad F2 Finance Twin work now runs through F2O.
 `F2P-final-f2-exit-audit-and-polish` and `F2Q-final-f2-handoff-and-plan-chain-polish` are the historical closeout and handoff threads for that completed breadth.
 The first F3 thread is the master-plan and active-doc refresh slice.
 `F3A-cfo-wiki-foundation-and-page-registry` is now the shipped CFO Wiki foundation slice.
-The next new implementation thread after that is `F3B-cfo-wiki-document-page-compiler-and-backlinks`.
+`F3B-cfo-wiki-document-page-compiler-and-backlinks` is now the shipped first document-aware wiki slice.
+The next new implementation thread after that is `F3C-cfo-wiki-lint-export-and-durable-filing`.
 
 ## Review ritual
 
