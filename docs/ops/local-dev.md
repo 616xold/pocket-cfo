@@ -1,6 +1,6 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, F2E, F2F, F2G, F2H, F2I, F2J, F2K, F2L, F2M, and F2N finance-twin slices.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, F2E, F2F, F2G, F2H, F2I, F2J, F2K, F2L, F2M, F2N, and F2O finance-twin slices.
 
 That means two things are true at once:
 
@@ -31,20 +31,20 @@ pnpm check
 pnpm smoke:source-registry:local
 pnpm smoke:source-ingest:local
 pnpm smoke:finance-twin:local
-pnpm smoke:finance-twin-account-bridge:local
-pnpm smoke:finance-twin-balance-bridge-prerequisites:local
-pnpm smoke:finance-twin-source-backed-balance-proof:local
-pnpm smoke:finance-twin-balance-proof-lineage:local
-pnpm smoke:finance-twin-bank-account-summary:local
-pnpm smoke:finance-twin-card-expense:local
-pnpm smoke:finance-twin-contract-metadata:local
-pnpm smoke:finance-twin-payables-aging:local
-pnpm smoke:finance-twin-receivables-aging:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
 pnpm smoke:finance-twin-reconciliation:local
 pnpm smoke:finance-twin-period-context:local
+pnpm smoke:finance-twin-account-bridge:local
+pnpm smoke:finance-twin-balance-bridge-prerequisites:local
+pnpm smoke:finance-twin-source-backed-balance-proof:local
+pnpm smoke:finance-twin-balance-proof-lineage:local
+pnpm smoke:finance-twin-bank-account-summary:local
+pnpm smoke:finance-twin-receivables-aging:local
+pnpm smoke:finance-twin-payables-aging:local
+pnpm smoke:finance-twin-contract-metadata:local
+pnpm smoke:finance-twin-card-expense:local
 ```
 
 ## Pivot-foundation baseline
@@ -82,24 +82,26 @@ Today, steps 1 through 4 exist in a narrow form:
 - F2L shipped deterministic receivables-aging ingest plus backend-first receivables-aging and collections-posture reads without fake invoice detail, expected cash timing, reserve logic, or DSO
 - F2M shipped deterministic payables-aging ingest plus backend-first payables-aging and payables-posture reads without fake bill detail, expected payment timing, reserve logic, or DPO
 - F2N shipped deterministic contract-metadata ingest plus backend-first contract inventory and obligation-calendar reads without clause parsing, legal interpretation, payment forecasting, or covenant logic
-- F2O is the active next slice and adds deterministic card-expense ingest plus backend-first spend-item inventory and spend-posture reads without fake policy scores, reimbursement inference, accrual logic, or payment forecasting
+- F2O shipped deterministic card-expense ingest plus backend-first spend-item inventory and spend-posture reads without fake policy scores, reimbursement inference, accrual logic, or payment forecasting
+- broad F2 Finance Twin breadth is now shipped through F2O; the remaining closeout work is truthfulness polish before the next major phase begins
 - the packaged `pnpm smoke:finance-twin:local` path proves the trial-balance sync from stored raw bytes
-- the packaged `pnpm smoke:finance-twin-account-bridge:local` path proves matched-period account-bridge readiness, explicit unmatched diagnostics, and activity-lineage drill-through from persisted state
-- the packaged `pnpm smoke:finance-twin-balance-bridge-prerequisites:local` path proves blocked balance-bridge prerequisites, explicit missing-proof diagnostics, and no-fake-variance behavior from persisted state
-- the packaged `pnpm smoke:finance-twin-source-backed-balance-proof:local` path proves explicit opening-balance or ending-balance fields can light up truthful per-account balance proof from persisted state
-- the packaged `pnpm smoke:finance-twin-balance-proof-lineage:local` path proves proof-bearing account rows can drill directly to the persisted balance-proof row and lineage from persisted state
-- the packaged `pnpm smoke:finance-twin-bank-account-summary:local` path proves stored raw bank-summary CSV bytes sync into persisted bank-account inventory and truthful cash-posture state
-- the packaged `pnpm smoke:finance-twin-card-expense:local` path proves stored raw card-expense CSV bytes sync into persisted spend-item inventory and truthful spend-posture state
-- the packaged `pnpm smoke:finance-twin-contract-metadata:local` path proves stored raw contract-metadata CSV bytes sync into persisted contract inventory and truthful obligation-calendar state
-- the packaged `pnpm smoke:finance-twin-payables-aging:local` path proves stored raw payables-aging CSV bytes sync into persisted payables-aging inventory and truthful payables-posture state
-- the packaged `pnpm smoke:finance-twin-receivables-aging:local` path proves stored raw receivables-aging CSV bytes sync into persisted receivables-aging inventory and truthful collections-posture state
 - the packaged `pnpm smoke:finance-twin-account-catalog:local` path proves persisted account-catalog state
 - the packaged `pnpm smoke:finance-twin-general-ledger:local` path proves persisted general-ledger journal state from stored raw bytes
 - the packaged `pnpm smoke:finance-twin-snapshot:local` path proves mixed-slice snapshot and lineage drill behavior from persisted state
 - the packaged `pnpm smoke:finance-twin-reconciliation:local` path proves reconciliation-readiness, explicit basis semantics, and general-ledger activity lineage drill behavior from persisted state
 - the packaged `pnpm smoke:finance-twin-period-context:local` path proves explicit source-declared general-ledger period-context capture and period-scoped reconciliation truth from persisted state
+- the packaged `pnpm smoke:finance-twin-account-bridge:local` path proves matched-period account-bridge readiness, explicit unmatched diagnostics, and activity-lineage drill-through from persisted state
+- the packaged `pnpm smoke:finance-twin-balance-bridge-prerequisites:local` path proves blocked balance-bridge prerequisites, explicit missing-proof diagnostics, and no-fake-variance behavior from persisted state
+- the packaged `pnpm smoke:finance-twin-source-backed-balance-proof:local` path proves explicit opening-balance or ending-balance fields can light up truthful per-account balance proof from persisted state
+- the packaged `pnpm smoke:finance-twin-balance-proof-lineage:local` path proves proof-bearing account rows can drill directly to the persisted balance-proof row and lineage from persisted state
+- the packaged `pnpm smoke:finance-twin-bank-account-summary:local` path proves stored raw bank-summary CSV bytes sync into persisted bank-account inventory and truthful cash-posture state
+- the packaged `pnpm smoke:finance-twin-receivables-aging:local` path proves stored raw receivables-aging CSV bytes sync into persisted receivables-aging inventory and truthful collections-posture state
+- the packaged `pnpm smoke:finance-twin-payables-aging:local` path proves stored raw payables-aging CSV bytes sync into persisted payables-aging inventory and truthful payables-posture state
+- the packaged `pnpm smoke:finance-twin-contract-metadata:local` path proves stored raw contract-metadata CSV bytes sync into persisted contract inventory and truthful obligation-calendar state
+- the packaged `pnpm smoke:finance-twin-card-expense:local` path proves stored raw card-expense CSV bytes sync into persisted spend-item inventory and truthful spend-posture state
 
 Steps 5 and 6 remain later-phase work.
+The next major phase after the F2 closeout plan is F3 CFO Wiki compiler work.
 Use the docs to guide what gets built next.
 
 The active finance-twin read surface is currently backend-first:

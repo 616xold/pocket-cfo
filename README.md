@@ -33,12 +33,10 @@ Today the merged backbone is:
 - F2L additive deterministic `receivables_aging_csv` extraction plus backend-first receivables-aging and collections-posture reads without fake invoice detail, expected cash timing, reserve logic, or DSO
 - F2M additive deterministic `payables_aging_csv` extraction plus backend-first payables-aging and payables-posture reads without fake bill detail, expected payment timing, reserve logic, or DPO
 - F2N additive deterministic `contract_metadata_csv` extraction plus backend-first contract inventory and obligation-calendar reads without clause parsing, legal interpretation, payment forecasting, or covenant logic
+- F2O additive deterministic `card_expense_csv` extraction plus backend-first spend-item inventory and spend-posture reads without fake policy scores, reimbursement inference, accrual logic, or payment forecasting
 
-The active next slice is F2O:
-
-- additive deterministic `card_expense_csv` extraction from stored raw source bytes
-- persisted spend-row state plus backend-first spend-item inventory and spend-posture reads
-- truthful spend-posture limits around currencies, amount semantics, dates, weak status helpers, and raw-source-backed provenance without fake policy scores, reimbursement inference, accrual logic, or payment forecasting
+Broad F2 Finance Twin breadth is now shipped through F2O.
+The active closeout plan is `plans/FP-0024-final-f2-exit-audit-and-polish.md`, and the next major phase after that closeout is F3 CFO Wiki compiler work rather than another broad F2 extractor slice.
 
 ## Product boundary for v1
 
@@ -127,6 +125,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0021-payables-aging-and-payables-posture.md
 │   ├── FP-0022-contract-metadata-and-obligation-calendar.md
 │   ├── FP-0023-card-expense-and-spend-posture.md
+│   ├── FP-0024-final-f2-exit-audit-and-polish.md
 │   └── templates
 └── .agents
     └── skills
@@ -139,8 +138,8 @@ Pocket CFO v1 is intentionally narrow:
 3. Read `AGENTS.md`.
 4. Read `PLANS.md`.
 5. Read `plans/ROADMAP.md`.
-6. Read the current active `plans/FP-*.md` file for the next narrow slice instead of restarting from `FP-0001`.
-7. The current active plan is `plans/FP-0023-card-expense-and-spend-posture.md`.
+6. Read the current active `plans/FP-*.md` file instead of restarting from `FP-0001`.
+7. The current active plan is `plans/FP-0024-final-f2-exit-audit-and-polish.md`.
 8. Keep progress updates inside the active Finance Plan while working.
 9. Do not delete legacy engineering modules until the finance replacement path exists and a smoke proves it.
 
@@ -163,20 +162,20 @@ The current packaged local proofs for the finance path are:
 ```bash
 pnpm smoke:source-ingest:local
 pnpm smoke:finance-twin:local
-pnpm smoke:finance-twin-account-bridge:local
-pnpm smoke:finance-twin-balance-bridge-prerequisites:local
-pnpm smoke:finance-twin-source-backed-balance-proof:local
-pnpm smoke:finance-twin-balance-proof-lineage:local
-pnpm smoke:finance-twin-bank-account-summary:local
-pnpm smoke:finance-twin-card-expense:local
-pnpm smoke:finance-twin-contract-metadata:local
-pnpm smoke:finance-twin-payables-aging:local
-pnpm smoke:finance-twin-receivables-aging:local
 pnpm smoke:finance-twin-account-catalog:local
 pnpm smoke:finance-twin-general-ledger:local
 pnpm smoke:finance-twin-snapshot:local
 pnpm smoke:finance-twin-reconciliation:local
 pnpm smoke:finance-twin-period-context:local
+pnpm smoke:finance-twin-account-bridge:local
+pnpm smoke:finance-twin-balance-bridge-prerequisites:local
+pnpm smoke:finance-twin-source-backed-balance-proof:local
+pnpm smoke:finance-twin-balance-proof-lineage:local
+pnpm smoke:finance-twin-bank-account-summary:local
+pnpm smoke:finance-twin-receivables-aging:local
+pnpm smoke:finance-twin-payables-aging:local
+pnpm smoke:finance-twin-contract-metadata:local
+pnpm smoke:finance-twin-card-expense:local
 ```
 
 The current backend-first finance-twin read surface is:
