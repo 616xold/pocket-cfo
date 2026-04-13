@@ -1,18 +1,22 @@
-import { and, asc, desc, eq } from "drizzle-orm";
+import { and, asc, desc, eq, sql } from "drizzle-orm";
 import {
+  cfoWikiDocumentExtracts,
   cfoWikiCompileRuns,
   cfoWikiPages,
   cfoWikiPageLinks,
   cfoWikiPageRefs,
+  cfoWikiSourceBindings,
   type Db,
   type DbTransaction,
 } from "@pocket-cto/db";
 import {
+  type CfoWikiDocumentExtractRecord,
   CfoWikiFreshnessSummarySchema,
   type CfoWikiCompileRunRecord,
   type CfoWikiPageLinkRecord,
   type CfoWikiPageRecord,
   type CfoWikiPageRefRecord,
+  type CfoWikiSourceBindingRecord,
 } from "@pocket-cto/domain";
 import {
   createDbSession,
@@ -23,10 +27,12 @@ import { CfoWikiCompileAlreadyRunningError } from "./errors";
 import type {
   CfoWikiRepository,
   FinishCfoWikiCompileRunInput,
+  PersistCfoWikiDocumentExtractInput,
   PersistCfoWikiPageLinkInput,
   PersistCfoWikiPageRefInput,
   PersistCfoWikiPageInput,
   StartCfoWikiCompileRunInput,
+  UpsertCfoWikiSourceBindingInput,
 } from "./repository";
 
 export class DrizzleCfoWikiRepository implements CfoWikiRepository {
@@ -132,6 +138,155 @@ export class DrizzleCfoWikiRepository implements CfoWikiRepository {
       .limit(1);
 
     return row ? mapCompileRunRow(row) : null;
+  }
+
+  async upsertSourceBinding(
+    input: UpsertCfoWikiSourceBindingInput,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .insert(cfoWikiSourceBindings)
+      .values({
+        companyId: input.companyId,
+        sourceId: input.sourceId,
+        includeInCompile: input.includeInCompile,
+        documentRole: input.documentRole,
+        boundBy: input.boundBy,
+      })
+      .onConflictDoUpdate({
+        target: [cfoWikiSourceBindings.companyId, cfoWikiSourceBindings.sourceId],
+        set: {
+          includeInCompile: input.includeInCompile,
+          documentRole: input.documentRole,
+          boundBy: input.boundBy,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    if (!row) {
+      throw new Error("CFO Wiki source binding upsert did not return a row");
+    }
+
+    return mapSourceBindingRow(row);
+  }
+
+  async getSourceBindingByCompanyIdAndSourceId(
+    companyId: string,
+    sourceId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const [row] = await executor
+      .select()
+      .from(cfoWikiSourceBindings)
+      .where(
+        and(
+          eq(cfoWikiSourceBindings.companyId, companyId),
+          eq(cfoWikiSourceBindings.sourceId, sourceId),
+        ),
+      )
+      .limit(1);
+
+    return row ? mapSourceBindingRow(row) : null;
+  }
+
+  async listSourceBindingsByCompanyId(
+    companyId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(cfoWikiSourceBindings)
+      .where(eq(cfoWikiSourceBindings.companyId, companyId))
+      .orderBy(asc(cfoWikiSourceBindings.sourceId));
+
+    return rows.map((row) => mapSourceBindingRow(row));
+  }
+
+  async upsertDocumentExtracts(
+    input: {
+      companyId: string;
+      extracts: PersistCfoWikiDocumentExtractInput[];
+    },
+    session?: PersistenceSession,
+  ) {
+    if (input.extracts.length === 0) {
+      return [] satisfies CfoWikiDocumentExtractRecord[];
+    }
+
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .insert(cfoWikiDocumentExtracts)
+      .values(
+        input.extracts.map((extract) => ({
+          companyId: input.companyId,
+          sourceId: extract.sourceId,
+          sourceSnapshotId: extract.sourceSnapshotId,
+          sourceFileId: extract.sourceFileId,
+          extractStatus: extract.extractStatus,
+          documentKind: extract.documentKind,
+          title: extract.title,
+          headingOutline: extract.headingOutline,
+          excerptBlocks: extract.excerptBlocks,
+          extractedText: extract.extractedText,
+          renderedMarkdown: extract.renderedMarkdown,
+          warnings: extract.warnings,
+          errorSummary: extract.errorSummary,
+          parserVersion: extract.parserVersion,
+          inputChecksumSha256: extract.inputChecksumSha256,
+          extractedAt: new Date(extract.extractedAt),
+        })),
+      )
+      .onConflictDoUpdate({
+        target: [
+          cfoWikiDocumentExtracts.companyId,
+          cfoWikiDocumentExtracts.sourceSnapshotId,
+        ],
+        set: {
+          sourceId: sql`excluded.source_id`,
+          sourceFileId: sql`excluded.source_file_id`,
+          extractStatus: sql`excluded.extract_status`,
+          documentKind: sql`excluded.document_kind`,
+          title: sql`excluded.title`,
+          headingOutline: sql`excluded.heading_outline`,
+          excerptBlocks: sql`excluded.excerpt_blocks`,
+          extractedText: sql`excluded.extracted_text`,
+          renderedMarkdown: sql`excluded.rendered_markdown`,
+          warnings: sql`excluded.warnings`,
+          errorSummary: sql`excluded.error_summary`,
+          parserVersion: sql`excluded.parser_version`,
+          inputChecksumSha256: sql`excluded.input_checksum_sha256`,
+          extractedAt: sql`excluded.extracted_at`,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+
+    return rows
+      .map((row) => mapDocumentExtractRow(row))
+      .sort((left, right) =>
+        left.sourceSnapshotId.localeCompare(right.sourceSnapshotId),
+      );
+  }
+
+  async listDocumentExtractsByCompanyId(
+    companyId: string,
+    session?: PersistenceSession,
+  ) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(cfoWikiDocumentExtracts)
+      .where(eq(cfoWikiDocumentExtracts.companyId, companyId))
+      .orderBy(
+        asc(cfoWikiDocumentExtracts.sourceId),
+        asc(cfoWikiDocumentExtracts.sourceSnapshotId),
+      );
+
+    return rows.map((row) => mapDocumentExtractRow(row));
   }
 
   async listCompileRunsByCompanyId(
@@ -263,6 +418,17 @@ export class DrizzleCfoWikiRepository implements CfoWikiRepository {
     return rows.map((row) => mapPageLinkRow(row));
   }
 
+  async listBacklinksByPageId(pageId: string, session?: PersistenceSession) {
+    const executor = this.getExecutor(session);
+    const rows = await executor
+      .select()
+      .from(cfoWikiPageLinks)
+      .where(eq(cfoWikiPageLinks.toPageId, pageId))
+      .orderBy(asc(cfoWikiPageLinks.label));
+
+    return rows.map((row) => mapPageLinkRow(row));
+  }
+
   async listRefsByPageId(pageId: string, session?: PersistenceSession) {
     const executor = this.getExecutor(session);
     const rows = await executor
@@ -313,6 +479,47 @@ function mapPageRow(row: typeof cfoWikiPages.$inferSelect): CfoWikiPageRecord {
     freshnessSummary: CfoWikiFreshnessSummarySchema.parse(row.freshnessSummary),
     limitations: row.limitations,
     lastCompiledAt: row.lastCompiledAt.toISOString(),
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+function mapSourceBindingRow(
+  row: typeof cfoWikiSourceBindings.$inferSelect,
+): CfoWikiSourceBindingRecord {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    sourceId: row.sourceId,
+    includeInCompile: row.includeInCompile,
+    documentRole: row.documentRole,
+    boundBy: row.boundBy,
+    createdAt: row.createdAt.toISOString(),
+    updatedAt: row.updatedAt.toISOString(),
+  };
+}
+
+function mapDocumentExtractRow(
+  row: typeof cfoWikiDocumentExtracts.$inferSelect,
+): CfoWikiDocumentExtractRecord {
+  return {
+    id: row.id,
+    companyId: row.companyId,
+    sourceId: row.sourceId,
+    sourceSnapshotId: row.sourceSnapshotId,
+    sourceFileId: row.sourceFileId,
+    extractStatus: row.extractStatus,
+    documentKind: row.documentKind,
+    title: row.title,
+    headingOutline: row.headingOutline,
+    excerptBlocks: row.excerptBlocks,
+    extractedText: row.extractedText,
+    renderedMarkdown: row.renderedMarkdown,
+    warnings: row.warnings,
+    errorSummary: row.errorSummary,
+    parserVersion: row.parserVersion,
+    inputChecksumSha256: row.inputChecksumSha256,
+    extractedAt: row.extractedAt.toISOString(),
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

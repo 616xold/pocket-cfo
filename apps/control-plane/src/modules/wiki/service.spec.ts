@@ -40,6 +40,7 @@ describe("CfoWikiService", () => {
         company_overview: 1,
         period_index: 1,
         source_coverage: 1,
+        source_digest: 0,
       },
       compileRun: {
         status: "succeeded",
@@ -59,6 +60,7 @@ describe("CfoWikiService", () => {
       pageCount: 5,
       pageCountsByKind: {
         period_index: 1,
+        source_digest: 0,
       },
       latestSuccessfulCompileRun: {
         status: "succeeded",
@@ -103,6 +105,7 @@ describe("CfoWikiService", () => {
       pageCount: 4,
       pageCountsByKind: {
         period_index: 0,
+        source_digest: 0,
       },
       changedPageKeys: [
         "company/overview",
@@ -157,10 +160,11 @@ describe("CfoWikiService", () => {
 
     const failingService = new CfoWikiService({
       financeTwinRepository: context.financeRepository,
+      sourceFileStorage: context.sourceStorage,
       sourceRepository: context.sourceRepository,
       wikiRepository: context.wikiRepository,
       now: context.now,
-      compileFoundation: () => {
+      compilePages: () => {
         throw new Error("forced compile failure");
       },
       compilerVersion: "test",
@@ -202,6 +206,7 @@ function createWikiTestContext() {
   const wikiRepository = new InMemoryCfoWikiRepository();
   const wikiService = new CfoWikiService({
     financeTwinRepository: financeRepository,
+    sourceFileStorage: sourceStorage,
     sourceRepository,
     wikiRepository,
     now,
@@ -213,6 +218,7 @@ function createWikiTestContext() {
     financeTwinService,
     now,
     sourceRepository,
+    sourceStorage,
     sourceService,
     wikiRepository,
     wikiService,

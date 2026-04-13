@@ -139,6 +139,10 @@ The initial compiler-owned page kinds for F3A are:
 - `period_index`
 - `source_coverage`
 
+The first shipped F3B page kind adds:
+
+- `source_digest`
+
 The first required deterministic pages are:
 
 - `index.md`
@@ -252,6 +256,8 @@ Current shipped state:
 - it persists compile runs, compiler-owned pages, page links, and page refs additively
 - it always produces `index.md` and `log.md` on successful compile
 - it does not parse broad document bodies, call runtime-codex, or add vector search
+- the first narrow F3B slice now adds explicit company-scoped document bindings by `sourceId`, persisted deterministic markdown or plain-text extracts from stored raw bytes, compiler-owned source digest pages, and route-backed backlinks
+- unsupported PDFs, scans, unreadable files, or snapshots without stored raw source bytes remain visible as unsupported coverage instead of fake digests
 
 ## Ingest flow
 

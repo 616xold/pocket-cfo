@@ -1,12 +1,16 @@
 import type { CfoWikiPageKey } from "@pocket-cto/domain";
 import type { PersistCfoWikiPageRefInput } from "../repository";
 import type { WikiCompileState, WikiRegistryEntry, WikiSliceState } from "./page-registry";
+import { buildSourceDigestPageRefs } from "./source-digest-refs";
 
 export function buildWikiPageRefs(input: {
   registry: WikiRegistryEntry[];
   state: WikiCompileState;
 }) {
   const refs: PersistCfoWikiPageRefInput[] = [];
+  const documentSourceById = new Map(
+    input.state.compiledDocumentSources.map((source) => [source.source.id, source] as const),
+  );
 
   for (const entry of input.registry) {
     refs.push(
@@ -56,6 +60,26 @@ export function buildWikiPageRefs(input: {
     if (entry.pageKey === "sources/coverage") {
       refs.push(
         ...input.state.slices.flatMap((slice) => buildSourceCoverageRefs(entry.pageKey, slice)),
+      );
+    }
+
+    if (entry.pageKind === "source_digest" && entry.documentSnapshot) {
+      const documentSource = documentSourceById.get(
+        entry.documentSnapshot.extract.sourceId,
+      );
+
+      if (!documentSource) {
+        throw new Error(
+          `Missing compiled document source state for source digest page ${entry.pageKey}`,
+        );
+      }
+
+      refs.push(
+        ...buildSourceDigestPageRefs(
+          entry.pageKey,
+          documentSource,
+          entry.documentSnapshot,
+        ),
       );
     }
   }

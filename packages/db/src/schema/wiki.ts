@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import {
+  boolean,
   index,
   jsonb,
   pgEnum,
@@ -10,6 +11,7 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 import { financeCompanies } from "./finance-twin";
+import { sourceFiles, sourceSnapshots, sources } from "./sources";
 import { createdAt, id, updatedAt } from "./shared";
 
 const cfoWikiCompileRunStatuses = ["running", "succeeded", "failed"] as const;
@@ -20,8 +22,26 @@ const cfoWikiPageKinds = [
   "company_overview",
   "period_index",
   "source_coverage",
+  "source_digest",
 ] as const;
 const cfoWikiPageOwnershipKinds = ["compiler_owned"] as const;
+const cfoWikiDocumentRoles = [
+  "general_document",
+  "policy_document",
+  "board_material",
+  "lender_document",
+] as const;
+const cfoWikiDocumentExtractStatuses = [
+  "extracted",
+  "unsupported",
+  "failed",
+] as const;
+const cfoWikiDocumentKinds = [
+  "markdown_text",
+  "plain_text",
+  "pdf_text",
+  "unsupported_document",
+] as const;
 const cfoWikiPageTemporalStatuses = [
   "current",
   "historical",
@@ -45,6 +65,10 @@ type CfoWikiCompileRunStatus = (typeof cfoWikiCompileRunStatuses)[number];
 type CfoWikiCompileTriggerKind = (typeof cfoWikiCompileTriggerKinds)[number];
 type CfoWikiPageKind = (typeof cfoWikiPageKinds)[number];
 type CfoWikiPageOwnershipKind = (typeof cfoWikiPageOwnershipKinds)[number];
+type CfoWikiDocumentRole = (typeof cfoWikiDocumentRoles)[number];
+type CfoWikiDocumentExtractStatus =
+  (typeof cfoWikiDocumentExtractStatuses)[number];
+type CfoWikiDocumentKind = (typeof cfoWikiDocumentKinds)[number];
 type CfoWikiPageTemporalStatus = (typeof cfoWikiPageTemporalStatuses)[number];
 type CfoWikiLinkKind = (typeof cfoWikiLinkKinds)[number];
 type CfoWikiRefKind = (typeof cfoWikiRefKinds)[number];
@@ -60,6 +84,14 @@ type CfoWikiCompileRunStats = Record<string, unknown>;
 type CfoWikiFreshnessSummary = {
   state: CfoWikiFreshnessState;
   summary: string;
+};
+type CfoWikiHeadingOutlineEntry = {
+  depth: number;
+  text: string;
+};
+type CfoWikiExcerptBlock = {
+  heading: string | null;
+  text: string;
 };
 
 export const cfoWikiCompileRunStatusEnum = pgEnum(
@@ -77,6 +109,21 @@ export const cfoWikiPageKindEnum = pgEnum("cfo_wiki_page_kind", cfoWikiPageKinds
 export const cfoWikiPageOwnershipKindEnum = pgEnum(
   "cfo_wiki_page_ownership_kind",
   cfoWikiPageOwnershipKinds,
+);
+
+export const cfoWikiDocumentRoleEnum = pgEnum(
+  "cfo_wiki_document_role",
+  cfoWikiDocumentRoles,
+);
+
+export const cfoWikiDocumentExtractStatusEnum = pgEnum(
+  "cfo_wiki_document_extract_status",
+  cfoWikiDocumentExtractStatuses,
+);
+
+export const cfoWikiDocumentKindEnum = pgEnum(
+  "cfo_wiki_document_kind",
+  cfoWikiDocumentKinds,
 );
 
 export const cfoWikiPageTemporalStatusEnum = pgEnum(
@@ -174,6 +221,88 @@ export const cfoWikiPages = pgTable(
     companyTemporalStatusIndex: index(
       "cfo_wiki_pages_company_temporal_status_idx",
     ).on(table.companyId, table.temporalStatus),
+  }),
+);
+
+export const cfoWikiSourceBindings = pgTable(
+  "cfo_wiki_source_bindings",
+  {
+    id: id(),
+    companyId: uuid("company_id")
+      .references(() => financeCompanies.id, { onDelete: "cascade" })
+      .notNull(),
+    sourceId: uuid("source_id")
+      .references(() => sources.id, { onDelete: "cascade" })
+      .notNull(),
+    includeInCompile: boolean("include_in_compile").notNull().default(true),
+    documentRole: cfoWikiDocumentRoleEnum("document_role").$type<CfoWikiDocumentRole>(),
+    boundBy: text("bound_by").notNull().default("operator"),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => ({
+    companySourceUnique: uniqueIndex(
+      "cfo_wiki_source_bindings_company_source_key",
+    ).on(table.companyId, table.sourceId),
+    companyIncludeIndex: index(
+      "cfo_wiki_source_bindings_company_include_idx",
+    ).on(table.companyId, table.includeInCompile),
+  }),
+);
+
+export const cfoWikiDocumentExtracts = pgTable(
+  "cfo_wiki_document_extracts",
+  {
+    id: id(),
+    companyId: uuid("company_id")
+      .references(() => financeCompanies.id, { onDelete: "cascade" })
+      .notNull(),
+    sourceId: uuid("source_id")
+      .references(() => sources.id, { onDelete: "cascade" })
+      .notNull(),
+    sourceSnapshotId: uuid("source_snapshot_id")
+      .references(() => sourceSnapshots.id, { onDelete: "cascade" })
+      .notNull(),
+    sourceFileId: uuid("source_file_id").references(() => sourceFiles.id, {
+      onDelete: "set null",
+    }),
+    extractStatus: cfoWikiDocumentExtractStatusEnum("extract_status")
+      .$type<CfoWikiDocumentExtractStatus>()
+      .notNull(),
+    documentKind: cfoWikiDocumentKindEnum("document_kind")
+      .$type<CfoWikiDocumentKind>()
+      .notNull(),
+    title: text("title"),
+    headingOutline: jsonb("heading_outline")
+      .$type<CfoWikiHeadingOutlineEntry[]>()
+      .notNull()
+      .default([]),
+    excerptBlocks: jsonb("excerpt_blocks")
+      .$type<CfoWikiExcerptBlock[]>()
+      .notNull()
+      .default([]),
+    extractedText: text("extracted_text"),
+    renderedMarkdown: text("rendered_markdown"),
+    warnings: jsonb("warnings").$type<string[]>().notNull().default([]),
+    errorSummary: text("error_summary"),
+    parserVersion: text("parser_version").notNull(),
+    inputChecksumSha256: text("input_checksum_sha256").notNull(),
+    extractedAt: timestamp("extracted_at", { withTimezone: true }).notNull(),
+    createdAt: createdAt(),
+    updatedAt: updatedAt(),
+  },
+  (table) => ({
+    companySnapshotUnique: uniqueIndex(
+      "cfo_wiki_document_extracts_company_snapshot_key",
+    ).on(table.companyId, table.sourceSnapshotId),
+    companySourceIndex: index("cfo_wiki_document_extracts_company_source_idx").on(
+      table.companyId,
+      table.sourceId,
+    ),
+    companyStatusIndex: index("cfo_wiki_document_extracts_company_status_idx").on(
+      table.companyId,
+      table.extractStatus,
+    ),
   }),
 );
 

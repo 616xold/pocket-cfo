@@ -11,16 +11,23 @@ import type {
 import { buildFinanceSliceFreshnessSummary } from "../../finance-twin/freshness";
 import type { FinanceTwinRepository } from "../../finance-twin/repository";
 import type { SourceRepository } from "../../sources/repository";
+import type { SourceFileStorage } from "../../sources/storage";
+import type { CfoWikiRepository } from "../repository";
 import {
   WIKI_SLICE_DESCRIPTORS,
   type WikiCompileState,
   type WikiSliceState,
 } from "./page-registry";
+import { resolveCompiledDocumentSources } from "./document-state";
 
 const SOURCE_COVERAGE_LIMITATION =
   "Source coverage is derived only from Finance Twin sync runs linked to this company because the F1 source registry is authoritative but not company-keyed yet.";
-const DETERMINISTIC_F3A_LIMITATION =
-  "F3A compiles deterministic markdown from stored source inventory metadata and Finance Twin state only. It does not parse document bodies, call runtime-codex, or use freeform LLM synthesis.";
+const DETERMINISTIC_F3_LIMITATION =
+  "F3 pages remain deterministic compiler-owned artifacts. They do not call runtime-codex, use freeform LLM synthesis, or treat generated prose as a source of truth.";
+const DOCUMENT_BINDING_LIMITATION =
+  "F3B only compiles document pages for sources explicitly bound to the company inside the wiki bounded context; unbound document sources are excluded.";
+const DOCUMENT_EXTRACTION_LIMITATION =
+  "F3B currently supports deterministic markdown and plain-text extraction from stored raw bytes. Unsupported PDFs, scans, image-only files, or unreadable documents remain visible as gaps instead of synthesized digests.";
 
 type LoadedSourceInventoryRecord = {
   source: SourceRecord;
@@ -41,12 +48,27 @@ export async function loadWikiCompileState(input: {
   >;
   now: Date;
   priorCompletedRuns: WikiCompileState["priorCompletedRuns"];
+  sourceFileStorage: Pick<SourceFileStorage, "read">;
   sourceRepository: Pick<
     SourceRepository,
-    "getSnapshotById" | "getSourceById" | "getSourceFileById"
+    | "getSnapshotById"
+    | "getSourceById"
+    | "getSourceFileById"
+    | "listSnapshotsBySourceId"
+    | "listSourceFilesBySourceId"
+  >;
+  wikiRepository: Pick<
+    CfoWikiRepository,
+    "listDocumentExtractsByCompanyId" | "listSourceBindingsByCompanyId"
   >;
 }): Promise<WikiCompileState> {
-  const [ledgerAccountCount, reportingPeriodCount, reportingPeriods, slices] =
+  const [
+    ledgerAccountCount,
+    reportingPeriodCount,
+    reportingPeriods,
+    slices,
+    compiledDocumentSources,
+  ] =
     await Promise.all([
       input.financeTwinRepository.countLedgerAccountsByCompanyId(
         input.company.id,
@@ -66,10 +88,18 @@ export async function loadWikiCompileState(input: {
           }),
         ),
       ),
+      resolveCompiledDocumentSources({
+        companyId: input.company.id,
+        now: input.now,
+        sourceFileStorage: input.sourceFileStorage,
+        sourceRepository: input.sourceRepository,
+        wikiRepository: input.wikiRepository,
+      }),
     ]);
 
   const overallFreshnessSummary = buildOverallFreshnessSummary(slices);
   const generalLimitations = buildGeneralLimitations({
+    compiledDocumentSources,
     overallFreshnessSummary,
     reportingPeriods,
     slices,
@@ -81,6 +111,7 @@ export async function loadWikiCompileState(input: {
       ledgerAccountCount,
       reportingPeriodCount,
     },
+    compiledDocumentSources,
     derivedSourceCoverageLimitation: SOURCE_COVERAGE_LIMITATION,
     generalLimitations,
     overallFreshnessSummary,
@@ -192,12 +223,15 @@ async function loadSourceInventoryRecord(
 }
 
 function buildGeneralLimitations(input: {
+  compiledDocumentSources: WikiCompileState["compiledDocumentSources"];
   overallFreshnessSummary: CfoWikiFreshnessSummary;
   reportingPeriods: FinanceReportingPeriodRecord[];
   slices: WikiSliceState[];
 }) {
   const limitations = [
-    DETERMINISTIC_F3A_LIMITATION,
+    DETERMINISTIC_F3_LIMITATION,
+    DOCUMENT_BINDING_LIMITATION,
+    DOCUMENT_EXTRACTION_LIMITATION,
     SOURCE_COVERAGE_LIMITATION,
   ];
 
@@ -240,6 +274,12 @@ function buildGeneralLimitations(input: {
   if (input.overallFreshnessSummary.state === "mixed") {
     limitations.push(
       "Freshness is mixed across supported finance slices, so page summaries may combine fresh, stale, failed, and missing coverage.",
+    );
+  }
+
+  if (input.compiledDocumentSources.length === 0) {
+    limitations.push(
+      "No company-scoped wiki document bindings are currently included in compile for this company, so F3B source digest pages are absent.",
     );
   }
 

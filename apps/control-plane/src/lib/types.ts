@@ -58,10 +58,12 @@ export type SourceServicePort = Pick<
 
 export type CfoWikiServicePort = Pick<
   CfoWikiService,
+  | "bindCompanySource"
   | "compileCompanyWiki"
   | "getCompanySummary"
   | "getIndexPage"
   | "getLogPage"
+  | "listCompanySources"
   | "getPage"
 >;
 

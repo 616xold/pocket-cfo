@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  CfoWikiBindSourceRequestSchema,
   CfoWikiCompileResultSchema,
   CfoWikiCompileRunRecordSchema,
   CfoWikiCompileRequestSchema,
+  CfoWikiCompanySourceListViewSchema,
+  CfoWikiDocumentExtractRecordSchema,
   CfoWikiPageKeySchema,
+  buildCfoWikiSourceDigestPageKey,
   buildCfoWikiMarkdownPath,
 } from "./cfo-wiki";
 
@@ -16,6 +20,11 @@ describe("cfo wiki domain schemas", () => {
     expect(CfoWikiPageKeySchema.parse("periods/2026-03-31/index")).toBe(
       "periods/2026-03-31/index",
     );
+    expect(
+      CfoWikiPageKeySchema.parse(
+        "sources/11111111-1111-4111-8111-111111111111/snapshots/2",
+      ),
+    ).toBe("sources/11111111-1111-4111-8111-111111111111/snapshots/2");
     expect(() => CfoWikiPageKeySchema.parse("company/overview.md")).toThrow();
   });
 
@@ -29,6 +38,114 @@ describe("cfo wiki domain schemas", () => {
     expect(buildCfoWikiMarkdownPath("sources/coverage")).toBe(
       "sources/coverage.md",
     );
+    expect(
+      buildCfoWikiMarkdownPath(
+        buildCfoWikiSourceDigestPageKey(
+          "11111111-1111-4111-8111-111111111111",
+          2,
+        ),
+      ),
+    ).toBe("sources/11111111-1111-4111-8111-111111111111/snapshots/2.md");
+  });
+
+  it("defaults the bind request to an operator-owned included binding", () => {
+    expect(CfoWikiBindSourceRequestSchema.parse({})).toEqual({
+      boundBy: "operator",
+      includeInCompile: true,
+    });
+  });
+
+  it("parses persisted document extracts and bound-source list views", () => {
+    const extract = CfoWikiDocumentExtractRecordSchema.parse({
+      id: "11111111-1111-4111-8111-111111111111",
+      companyId: "22222222-2222-4222-8222-222222222222",
+      sourceId: "33333333-3333-4333-8333-333333333333",
+      sourceSnapshotId: "44444444-4444-4444-8444-444444444444",
+      sourceFileId: "55555555-5555-4555-8555-555555555555",
+      extractStatus: "extracted",
+      documentKind: "markdown_text",
+      title: "Board Deck",
+      headingOutline: [{ depth: 1, text: "Highlights" }],
+      excerptBlocks: [{ heading: "Highlights", text: "Revenue grew 20%." }],
+      extractedText: "# Highlights\n\nRevenue grew 20%.",
+      renderedMarkdown: "# Highlights\n\nRevenue grew 20%.",
+      warnings: [],
+      errorSummary: null,
+      parserVersion: "f3b-document-extract-v1",
+      inputChecksumSha256:
+        "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      extractedAt: "2026-04-13T21:00:01.000Z",
+      createdAt: "2026-04-13T21:00:01.000Z",
+      updatedAt: "2026-04-13T21:00:01.000Z",
+    });
+
+    const parsed = CfoWikiCompanySourceListViewSchema.parse({
+      companyId: extract.companyId,
+      companyKey: "acme",
+      companyDisplayName: "Acme Holdings",
+      sourceCount: 1,
+      sources: [
+        {
+          binding: {
+            id: "66666666-6666-4666-8666-666666666666",
+            companyId: extract.companyId,
+            sourceId: extract.sourceId,
+            includeInCompile: true,
+            documentRole: "board_material",
+            boundBy: "finance-operator",
+            createdAt: "2026-04-13T21:00:00.000Z",
+            updatedAt: "2026-04-13T21:00:00.000Z",
+          },
+          source: {
+            id: extract.sourceId,
+            kind: "document",
+            originKind: "manual",
+            name: "April board deck",
+            description: null,
+            createdBy: "finance-operator",
+            createdAt: "2026-04-13T20:59:00.000Z",
+            updatedAt: "2026-04-13T21:00:00.000Z",
+          },
+          latestSnapshot: {
+            id: extract.sourceSnapshotId,
+            sourceId: extract.sourceId,
+            version: 2,
+            originalFileName: "april-board-deck.md",
+            mediaType: "text/markdown",
+            sizeBytes: 128,
+            checksumSha256:
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            storageKind: "object_store",
+            storageRef: "s3://bucket/sources/april-board-deck.md",
+            capturedAt: "2026-04-13T21:00:00.000Z",
+            ingestStatus: "ready",
+            ingestErrorSummary: null,
+            createdAt: "2026-04-13T21:00:00.000Z",
+            updatedAt: "2026-04-13T21:00:00.000Z",
+          },
+          latestSourceFile: {
+            id: extract.sourceFileId,
+            sourceId: extract.sourceId,
+            sourceSnapshotId: extract.sourceSnapshotId,
+            originalFileName: "april-board-deck.md",
+            mediaType: "text/markdown",
+            sizeBytes: 128,
+            checksumSha256:
+              "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            storageKind: "object_store",
+            storageRef: "s3://bucket/sources/april-board-deck.md",
+            createdBy: "finance-operator",
+            capturedAt: "2026-04-13T21:00:00.000Z",
+            createdAt: "2026-04-13T21:00:00.000Z",
+          },
+          latestExtract: extract,
+          limitations: [],
+        },
+      ],
+      limitations: [],
+    });
+
+    expect(parsed.sources[0]?.latestExtract?.documentKind).toBe("markdown_text");
   });
 
   it("parses a compile result with persisted run and page inventory state", () => {
@@ -78,6 +195,7 @@ describe("cfo wiki domain schemas", () => {
         company_overview: 0,
         period_index: 0,
         source_coverage: 0,
+        source_digest: 0,
       },
       freshnessSummary: {
         state: "mixed",

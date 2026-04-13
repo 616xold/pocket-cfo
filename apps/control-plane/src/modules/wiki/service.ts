@@ -1,23 +1,40 @@
 import {
+  CfoWikiBindSourceRequestSchema,
   CfoWikiCompileRequestSchema,
+  type CfoWikiBindSourceRequest,
   type CfoWikiCompileRequest,
   type CfoWikiPageKey,
   type CfoWikiPageRecord,
 } from "@pocket-cto/domain";
 import { FinanceCompanyNotFoundError } from "../finance-twin/errors";
 import type { FinanceTwinRepository } from "../finance-twin/repository";
+import { SourceNotFoundError } from "../sources/errors";
 import type { SourceRepository } from "../sources/repository";
-import { buildCfoWikiCompanySummary, buildCfoWikiCompileResult, buildCfoWikiPageView } from "./formatter";
-import { CfoWikiPageNotFoundError } from "./errors";
+import type { SourceFileStorage } from "../sources/storage";
+import {
+  buildCfoWikiCompanySourceListView,
+  buildCfoWikiCompanySummary,
+  buildCfoWikiCompileResult,
+  buildCfoWikiPageView,
+  buildCfoWikiSourceBindingView,
+} from "./formatter";
+import {
+  buildBoundSourceListLimitations,
+  loadBoundSourceSummaries,
+} from "./bound-sources";
+import {
+  CfoWikiPageNotFoundError,
+  CfoWikiSourceBindingUnsupportedError,
+} from "./errors";
 import type { CfoWikiRepository } from "./repository";
-import { compileCfoWikiFoundation } from "./compiler/compile";
+import { compileCfoWikiPages } from "./compiler/compile";
 import { loadWikiCompileState } from "./compiler/compile-state";
 
-const DEFAULT_COMPILER_VERSION = "f3a-foundation-v1";
+const DEFAULT_COMPILER_VERSION = "f3b-document-pages-v1";
 const MAX_ERROR_SUMMARY_LENGTH = 500;
 
 export class CfoWikiService {
-  private readonly compileFoundation: typeof compileCfoWikiFoundation;
+  private readonly compilePages: typeof compileCfoWikiPages;
   private readonly compilerVersion: string;
   private readonly now: () => Date;
 
@@ -35,15 +52,20 @@ export class CfoWikiService {
       >;
       sourceRepository: Pick<
         SourceRepository,
-        "getSnapshotById" | "getSourceById" | "getSourceFileById"
+        | "getSnapshotById"
+        | "getSourceById"
+        | "getSourceFileById"
+        | "listSnapshotsBySourceId"
+        | "listSourceFilesBySourceId"
       >;
+      sourceFileStorage: Pick<SourceFileStorage, "read">;
       wikiRepository: CfoWikiRepository;
       now?: () => Date;
       compilerVersion?: string;
-      compileFoundation?: typeof compileCfoWikiFoundation;
+      compilePages?: typeof compileCfoWikiPages;
     },
   ) {
-    this.compileFoundation = input.compileFoundation ?? compileCfoWikiFoundation;
+    this.compilePages = input.compilePages ?? compileCfoWikiPages;
     this.compilerVersion = input.compilerVersion ?? DEFAULT_COMPILER_VERSION;
     this.now = input.now ?? (() => new Date());
   }
@@ -78,10 +100,12 @@ export class CfoWikiService {
         priorCompletedRuns: priorRuns.filter(
           (run) => run.id !== compileRun.id && run.status !== "running",
         ),
+        sourceFileStorage: this.input.sourceFileStorage,
         sourceRepository: this.input.sourceRepository,
+        wikiRepository: this.input.wikiRepository,
       });
       const compiledAt = this.now().toISOString();
-      const compiled = this.compileFoundation({
+      const compiled = this.compilePages({
         compiledAt,
         currentRun: {
           id: compileRun.id,
@@ -93,6 +117,15 @@ export class CfoWikiService {
       const changedPageKeys = diffChangedPageKeys(existingPages, compiled.pages);
       const persisted = await this.input.wikiRepository.transaction(
         async (session) => {
+          await this.input.wikiRepository.upsertDocumentExtracts(
+            {
+              companyId: company.id,
+              extracts: compiled.registry
+                .map((entry) => entry.documentSnapshot?.extract ?? null)
+                .filter((extract): extract is NonNullable<typeof extract> => extract !== null),
+            },
+            session,
+          );
           const pages = await this.input.wikiRepository.replaceCompiledState(
             {
               companyId: company.id,
@@ -188,13 +221,15 @@ export class CfoWikiService {
       throw new CfoWikiPageNotFoundError(companyKey, pageKey);
     }
 
-    const [links, refs] = await Promise.all([
+    const [links, backlinks, refs] = await Promise.all([
       this.input.wikiRepository.listLinksByPageId(page.id),
+      this.input.wikiRepository.listBacklinksByPageId(page.id),
       this.input.wikiRepository.listRefsByPageId(page.id),
     ]);
     const latestCompileRun = compileRuns.at(-1) ?? latestSuccessfulCompileRun;
 
     return buildCfoWikiPageView({
+      backlinks,
       company,
       freshnessSummary: page.freshnessSummary,
       latestCompileRun,
@@ -208,6 +243,67 @@ export class CfoWikiService {
       page,
       pages,
       refs,
+    });
+  }
+
+  async bindCompanySource(
+    companyKey: string,
+    sourceId: string,
+    input: CfoWikiBindSourceRequest,
+  ) {
+    const request = CfoWikiBindSourceRequestSchema.parse(input);
+    const company = await this.requireCompany(companyKey);
+    const source = await this.input.sourceRepository.getSourceById(sourceId);
+
+    if (!source) {
+      throw new SourceNotFoundError(sourceId);
+    }
+
+    if (source.kind !== "document") {
+      throw new CfoWikiSourceBindingUnsupportedError(source.id, source.kind);
+    }
+
+    const binding = await this.input.wikiRepository.upsertSourceBinding({
+      companyId: company.id,
+      sourceId: source.id,
+      includeInCompile: request.includeInCompile,
+      documentRole: request.documentRole ?? null,
+      boundBy: request.boundBy,
+    });
+    const sources = await loadBoundSourceSummaries({
+      companyId: company.id,
+      sourceRepository: this.input.sourceRepository,
+      wikiRepository: this.input.wikiRepository,
+    });
+    const summary = sources.find((candidate) => candidate.binding.id === binding.id);
+
+    if (!summary) {
+      throw new Error(`Missing bound-source summary for binding ${binding.id}`);
+    }
+
+    return buildCfoWikiSourceBindingView({
+      binding,
+      company,
+      latestExtract: summary.latestExtract,
+      latestSnapshot: summary.latestSnapshot,
+      latestSourceFile: summary.latestSourceFile,
+      limitations: summary.limitations,
+      source: summary.source,
+    });
+  }
+
+  async listCompanySources(companyKey: string) {
+    const company = await this.requireCompany(companyKey);
+    const sources = await loadBoundSourceSummaries({
+      companyId: company.id,
+      sourceRepository: this.input.sourceRepository,
+      wikiRepository: this.input.wikiRepository,
+    });
+
+    return buildCfoWikiCompanySourceListView({
+      company,
+      limitations: buildBoundSourceListLimitations(sources.length),
+      sources,
     });
   }
 

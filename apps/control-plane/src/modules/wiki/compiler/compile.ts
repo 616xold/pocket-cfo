@@ -24,7 +24,7 @@ export type CompiledCfoWikiFoundation = {
   stats: Record<string, unknown>;
 };
 
-export function compileCfoWikiFoundation(input: {
+export function compileCfoWikiPages(input: {
   compiledAt: string;
   currentRun: {
     id: string;
@@ -32,10 +32,11 @@ export function compileCfoWikiFoundation(input: {
     triggeredBy: string;
   };
   state: WikiCompileState;
-}) : CompiledCfoWikiFoundation {
+}): CompiledCfoWikiFoundation {
   const registry = buildWikiPageRegistry(
     input.state.company,
     input.state.reportingPeriods,
+    input.state.compiledDocumentSources,
   );
   const links = buildWikiPageLinks({ registry });
   const refs = buildWikiPageRefs({
@@ -57,6 +58,7 @@ export function compileCfoWikiFoundation(input: {
       stats,
       triggeredBy: input.currentRun.triggeredBy,
     },
+    backlinksByPageKey: groupBacklinksByPageKey(links),
     linksByPageKey: groupLinksByFromPageKey(links),
     refsByPageKey: groupRefsByPageKey(refs),
     registry,
@@ -85,16 +87,32 @@ function buildCompileStats(input: {
     attemptedSliceCount: input.state.slices.filter(
       (slice) => slice.latestAttemptedRun !== null,
     ).length,
+    boundDocumentSourceCount: input.state.compiledDocumentSources.length,
+    extractedDocumentCount: countDocumentExtracts(
+      input.state.compiledDocumentSources,
+      "extracted",
+    ),
     failedSliceCount: input.state.slices.filter(
       (slice) => slice.latestAttemptedRun?.status === "failed",
     ).length,
+    failedDocumentCount: countDocumentExtracts(
+      input.state.compiledDocumentSources,
+      "failed",
+    ),
     linkCount: input.links.length,
     pageCount: input.registry.length,
     refCount: input.refs.length,
     reportingPeriodCount: input.state.reportingPeriods.length,
+    sourceDigestPageCount: input.registry.filter(
+      (entry) => entry.pageKind === "source_digest",
+    ).length,
     successfulSliceCount: input.state.slices.filter(
       (slice) => slice.latestSuccessfulRun !== null,
     ).length,
+    unsupportedDocumentCount: countDocumentExtracts(
+      input.state.compiledDocumentSources,
+      "unsupported",
+    ),
   } satisfies Record<string, unknown>;
 }
 
@@ -133,3 +151,37 @@ function groupRefsByPageKey(values: PersistCfoWikiPageRefInput[]) {
 
   return grouped;
 }
+
+function groupBacklinksByPageKey(values: PersistCfoWikiPageLinkInput[]) {
+  const grouped = new Map<CfoWikiPageKey, PersistCfoWikiPageLinkInput[]>();
+
+  for (const value of values) {
+    const pageKey = value.toPageKey;
+    const current = grouped.get(pageKey);
+
+    if (current) {
+      current.push(value);
+      continue;
+    }
+
+    grouped.set(pageKey, [value]);
+  }
+
+  return grouped;
+}
+
+function countDocumentExtracts(
+  documentSources: WikiCompileState["compiledDocumentSources"],
+  status: "extracted" | "failed" | "unsupported",
+) {
+  return documentSources.reduce(
+    (count, documentSource) =>
+      count +
+      documentSource.snapshots.filter(
+        (snapshot) => snapshot.extract.extractStatus === status,
+      ).length,
+    0,
+  );
+}
+
+export const compileCfoWikiFoundation = compileCfoWikiPages;

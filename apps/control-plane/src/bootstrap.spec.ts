@@ -257,6 +257,9 @@ function createAppContainer(
       },
     } as AppContainer["githubWebhookService"],
     cfoWikiService: {
+      async bindCompanySource() {
+        throw new Error("bindCompanySource should not be called in this test");
+      },
       async compileCompanyWiki() {
         throw new Error("compileCompanyWiki should not be called in this test");
       },
@@ -271,6 +274,9 @@ function createAppContainer(
       },
       async getPage() {
         throw new Error("getPage should not be called in this test");
+      },
+      async listCompanySources() {
+        throw new Error("listCompanySources should not be called in this test");
       },
     } as AppContainer["cfoWikiService"],
     financeTwinService: {

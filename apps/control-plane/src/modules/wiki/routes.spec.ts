@@ -1,9 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import type { FastifyInstance } from "fastify";
 import type {
+  CfoWikiCompanySourceListView,
   CfoWikiCompanySummary,
   CfoWikiCompileResult,
   CfoWikiCompileRunRecord,
+  CfoWikiSourceBindingView,
   CfoWikiPageView,
 } from "@pocket-cto/domain";
 import { buildApp } from "../../app";
@@ -62,6 +64,56 @@ describe("CFO Wiki routes", () => {
     });
   });
 
+  it("POST /cfo-wiki/companies/:companyKey/sources/:sourceId/bind defaults the binding body and returns 201", async () => {
+    const bindCompanySource = vi.fn(async () => buildSourceBindingView());
+    const app = await createTestApp(apps, {
+      bindCompanySource,
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/cfo-wiki/companies/acme/sources/11111111-1111-4111-8111-111111111111/bind",
+      payload: {},
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(bindCompanySource).toHaveBeenCalledWith(
+      "acme",
+      "11111111-1111-4111-8111-111111111111",
+      {
+        boundBy: "operator",
+        includeInCompile: true,
+      },
+    );
+    expect(response.json()).toMatchObject({
+      companyKey: "acme",
+      source: {
+        binding: {
+          includeInCompile: true,
+        },
+      },
+    });
+  });
+
+  it("GET /cfo-wiki/companies/:companyKey/sources returns bound-source summaries", async () => {
+    const listCompanySources = vi.fn(async () => buildCompanySourcesView());
+    const app = await createTestApp(apps, {
+      listCompanySources,
+    });
+
+    const response = await app.inject({
+      method: "GET",
+      url: "/cfo-wiki/companies/acme/sources",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(listCompanySources).toHaveBeenCalledWith("acme");
+    expect(response.json()).toMatchObject({
+      companyKey: "acme",
+      sourceCount: 1,
+    });
+  });
+
   it("returns 400 when the wildcard page key is not a valid canonical F3A key", async () => {
     const getPage = vi.fn(async () => buildPageView());
     const app = await createTestApp(apps, {
@@ -105,11 +157,13 @@ async function createTestApp(
 
 function createWikiServiceMock() {
   return {
+    bindCompanySource: vi.fn(async () => buildSourceBindingView()),
     compileCompanyWiki: vi.fn(async () => buildCompileResult()),
     getCompanySummary: vi.fn(async () => buildCompanySummary()),
     getIndexPage: vi.fn(async () => buildPageView()),
     getLogPage: vi.fn(async () => buildPageView()),
     getPage: vi.fn(async () => buildPageView()),
+    listCompanySources: vi.fn(async () => buildCompanySourcesView()),
   } satisfies CfoWikiServicePort;
 }
 
@@ -145,6 +199,7 @@ function buildCompanySummary(): CfoWikiCompanySummary {
       company_overview: 1,
       period_index: 0,
       source_coverage: 1,
+      source_digest: 0,
     },
     pages: [],
     freshnessSummary: {
@@ -170,6 +225,7 @@ function buildCompileResult(): CfoWikiCompileResult {
       company_overview: 1,
       period_index: 0,
       source_coverage: 1,
+      source_digest: 0,
     },
     freshnessSummary: {
       state: "missing",
@@ -206,12 +262,58 @@ function buildPageView(): CfoWikiPageView {
       markdownPath: "periods/2026-03/index.md",
     },
     links: [],
+    backlinks: [],
     refs: [],
     latestCompileRun: buildCompileRun(),
     freshnessSummary: {
       state: "fresh",
       summary: "Fresh",
     },
+    limitations: [],
+  };
+}
+
+function buildSourceBindingView(): CfoWikiSourceBindingView {
+  return {
+    companyId: "22222222-2222-4222-8222-222222222222",
+    companyKey: "acme",
+    companyDisplayName: "Acme Holdings",
+    source: {
+      binding: {
+        id: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+        companyId: "22222222-2222-4222-8222-222222222222",
+        sourceId: "11111111-1111-4111-8111-111111111111",
+        includeInCompile: true,
+        documentRole: null,
+        boundBy: "operator",
+        createdAt: "2026-04-13T12:00:01.000Z",
+        updatedAt: "2026-04-13T12:00:01.000Z",
+      },
+      source: {
+        id: "11111111-1111-4111-8111-111111111111",
+        kind: "document",
+        originKind: "manual",
+        name: "Board deck",
+        description: null,
+        createdBy: "finance-operator",
+        createdAt: "2026-04-13T12:00:00.000Z",
+        updatedAt: "2026-04-13T12:00:01.000Z",
+      },
+      latestSnapshot: null,
+      latestSourceFile: null,
+      latestExtract: null,
+      limitations: [],
+    },
+  };
+}
+
+function buildCompanySourcesView(): CfoWikiCompanySourceListView {
+  return {
+    companyId: "22222222-2222-4222-8222-222222222222",
+    companyKey: "acme",
+    companyDisplayName: "Acme Holdings",
+    sourceCount: 1,
+    sources: [buildSourceBindingView().source],
     limitations: [],
   };
 }
