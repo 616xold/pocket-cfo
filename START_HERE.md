@@ -40,10 +40,14 @@ Suggested thread naming:
 - `F2M-payables-aging-and-payables-posture`
 - `F2N-contract-metadata-and-obligation-calendar`
 - `F2O-card-expense-and-spend-posture`
+- `F2P-final-f2-exit-audit-and-polish`
 - `F3-cfo-wiki-compiler`
 - `F4-finance-discovery-answer`
 - `F5-memo-and-packet-compiler`
 - `F6-monitoring-and-controls`
+
+Broad F2 Finance Twin work now runs through F2O.
+Use `F2P-final-f2-exit-audit-and-polish` only for the final F2 closeout pass, and treat F3 as the next major implementation phase after that closeout.
 
 ## Review ritual
 
