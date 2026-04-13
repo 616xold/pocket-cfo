@@ -19,7 +19,8 @@ It is not another finance breadth feature, does not add another extractor family
 - [x] 2026-04-13T09:07:00Z Record the pre-edit F2Q verdict: broad F2 is already shipped through F2O, the remaining work is active-doc truthfulness plus plan-chain bookkeeping, and no confirmed finance-twin code copy bug has been found so far.
 - [x] 2026-04-13T09:28:00Z Apply the smallest truthful updates to active docs and clearly merged F1 or F2 plans so the repo no longer hardcodes an always-active unfinished `FP-*` plan or stale final publish-step checkboxes.
 - [x] 2026-04-13T09:46:00Z Run the full required validation ladder, fix only in-scope failures, and confirm the full smoke, test, lint, typecheck, and reproducibility sequence is green without widening scope.
-- [ ] 2026-04-13T09:46:00Z Publish exactly one commit, push, and PR only after the already-green validation ladder is preserved on the current branch.
+- [x] 2026-04-13T15:42:38Z Confirm the slice published exactly one follow-up commit, pushed `codex/f2q-final-f2-handoff-and-plan-chain-polish-local-v1`, verified the remote head, and opened PR `#84` after the already-green validation ladder.
+- [x] 2026-04-13T15:45:19Z Run the strict QA pass, correct the stale final publication bookkeeping in this plan only, and re-run the required F1 or F2 smokes, engineering-twin trio, and `pnpm ci:repro:current` successfully.
 
 ## Surprises & Discoveries
 
@@ -34,6 +35,9 @@ It is not another finance breadth feature, does not add another extractor family
 
 - Observation: `WORKFLOW.md` and `apps/control-plane/src/modules/finance-twin/summary.ts` already read truthfully for this handoff slice.
   Evidence: `WORKFLOW.md` does not hardcode an always-active unfinished Finance Plan or another F2 breadth step, and `summary.ts` already states the shipped deterministic source families through `card_expense_csv` without overclaiming wiki or F3 behavior.
+
+- Observation: the first publish pass left this plan’s final progress checkbox stale even though the branch, remote head, and PR were already in the expected state.
+  Evidence: QA found `git status --short --untracked-files=all` clean, `git diff --name-status HEAD~1..HEAD` limited to docs and plan files, and `gh pr list --head codex/f2q-final-f2-handoff-and-plan-chain-polish-local-v1 --base main` returning open PR `#84` while this plan still showed the publication step unchecked.
 
 ## Decision Log
 
@@ -54,6 +58,9 @@ It is not another finance breadth feature, does not add another extractor family
 
 - Decision: leave `WORKFLOW.md`, `package.json`, and `apps/control-plane/src/modules/finance-twin/summary.ts` unchanged.
   Rationale: the audit found no truthfulness drift in those files, and this slice should not create symmetry edits that do not improve repo accuracy.
+
+- Decision: correct only `FP-0025` during the QA pass unless another in-scope truthfulness gap appears.
+  Rationale: the branch is otherwise clean, the active docs and audited prior plans already match the intended F2 handoff state, and the user asked for a narrow audit-and-correction pass.
 
 ## Context and Orientation
 
@@ -257,6 +264,13 @@ Key dependencies and seams:
 - no new environment variables, connector permissions, workflow contract changes, or package-scope renames are expected
 
 ## Outcomes & Retrospective
+
+Final outcome:
+
+- Broad F2 remains explicitly closed through F2O, active docs now handle the “unfinished plan exists” versus “create the next-phase plan” transition truthfully, and the next new implementation phase remains F3 CFO Wiki compiler work.
+- The only QA correction needed after publication was to close the stale final publication bookkeeping inside this plan itself; no active-doc wording, finance-twin route copy, package script, or prior-plan bookkeeping needed further changes.
+- The strict QA rerun stayed green for `pnpm smoke:source-ingest:local`, every requested finance-twin smoke through `pnpm smoke:finance-twin-card-expense:local`, the engineering-twin Vitest trio, and `pnpm ci:repro:current`.
+- PR `#84` remains the active review artifact for this slice, and no new finance features, source families, or connector behavior were introduced during the QA pass.
 
 Implementation status before validation:
 
