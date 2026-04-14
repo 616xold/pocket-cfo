@@ -32,11 +32,35 @@ When using those commands during the pivot:
 
 ## Target finance eval families
 
-1. finance discovery answers
-2. finance memo or packet compilation
-3. wiki compilation quality
-4. provenance and freshness disclosure
-5. contradiction handling
+1. deterministic finance discovery answers, with `cash_posture` as the first F4A family
+2. later posture, aging, spend, and obligation answers that stay grounded in already-shipped Finance Twin reads
+3. policy lookup from explicit `policy_document` bindings and stored deterministic extracts
+4. finance memo or packet compilation
+5. wiki compilation quality
+6. provenance, freshness disclosure, and contradiction handling
+
+## F4 staging
+
+Early F4 evals should distinguish what the repo can truthfully support from what belongs to later deterministic work.
+
+During F4A:
+
+- the first discovery eval family should be `cash_posture`
+- eval prompts should require twin/wiki-grounded answers with explicit freshness and limitations
+- runtime-codex, vector retrieval, OCR, deep-read, and report compilation should stay out of scope
+
+During later F4B and F4C work:
+
+- add only the posture, aging, spend, obligation, and policy families the repo can already ground deterministically
+
+Do not treat these as early F4 supported families:
+
+- `runway`
+- `burn_variance`
+- `concentration`
+- `covenant_risk`
+- `anomaly_review`
+- `spend_exceptions` based on policy scoring or exception inference
 
 ## Minimum grading questions
 

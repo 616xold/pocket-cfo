@@ -137,6 +137,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0027-cfo-wiki-document-page-compiler-and-backlinks.md
 │   ├── FP-0028-cfo-wiki-lint-export-and-durable-filing.md
 │   ├── FP-0029-cfo-wiki-concept-metric-and-policy-pages.md
+│   ├── FP-0030-finance-discovery-foundation-and-first-answer.md
 │   └── templates
 └── .agents
     └── skills
