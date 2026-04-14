@@ -166,19 +166,94 @@ Exit criteria:
 ## F4 — Finance discovery and analysis missions
 
 Goal:
-Make deterministic finance question-answering the primary mission type.
+Make deterministic, mission-based finance discovery the first real answer path without turning Pocket CFO into generic finance chat.
+
+Pocket CFO F4 is **not**:
+
+- a generic finance chat box
+- a runtime-codex-first answer engine
+- a vector-search, OCR, or deep-read dependency project
+
+The authority model stays fixed:
+
+- raw sources remain authoritative for document claims
+- the Finance Twin remains authoritative for structured finance facts
+- the CFO Wiki remains the derived operator-readable layer
+- the mission engine remains the primary product path for discovery answers
+
+The first F4 answer path must:
+
+- be typed and company-scoped
+- run from stored Finance Twin plus stored CFO Wiki state
+- expose freshness, provenance posture, and limitations explicitly
+- stay deterministic and read-only
+- produce durable finance answer artifacts and finance-ready proof bundles
+- avoid runtime-codex in the first answer path
 
 Focus:
 
-- typed finance discovery questions
-- answer artifacts
+- typed company-scoped finance discovery questions
+- deterministic answer artifacts
+- finance-ready proof bundles
 - explicit freshness and limitation posture
-- seeded smoke paths and eval hooks
+- seeded smoke paths and eval hooks for truthfully supported families
+
+Slice map:
+
+- `F4A — finance discovery foundation and first supported answer`
+  - retarget the discovery mission contract from engineering blast radius to company-scoped finance discovery
+  - define the finance discovery question contract
+  - define the finance discovery answer artifact contract
+  - define finance-ready proof-bundle expectations for analysis missions
+  - keep execution deterministic and read-only
+  - first shipped question family:
+    - `cash_posture`
+  - answer only from stored Finance Twin plus stored CFO Wiki state and explicit freshness
+  - no runtime-codex
+  - no report compiler
+  - no new Finance Twin extractor
+
+- `F4B — supported posture, aging, spend, and obligation answers`
+  - expand only into question families already truthfully supported by shipped F2/F3 surfaces such as:
+    - `collections_pressure`
+    - `payables_pressure`
+    - `spend_posture`
+    - `obligation_calendar_review`
+    - optionally `receivables_aging_review` and `payables_aging_review` if they stay purely route-backed and deterministic
+  - keep answers grounded in existing Finance Twin reads, wiki pages, and lineage
+  - keep question families narrow and typed
+  - still no runtime-codex, F5 reports, or F6 monitoring
+
+- `F4C — policy lookup and discovery quality hardening`
+  - add policy lookup from explicit `policy_document` bindings and stored deterministic extracts only
+  - extend seeded finance smoke and eval hooks
+  - harden operator-facing answer detail and proof-bundle presentation
+  - do not introduce PageIndex/QMD/MinerU, vector search, OCR, or deep-read dependencies unless an actual evidence-precision gap is proven during F4A/F4B
+
+Supported now vs blocked for later:
+
+- the first supportable F4A family is `cash_posture`
+- F4B may later expand into the existing truthful posture, aging, spend, and obligation families listed above
+- policy lookup belongs to F4C rather than F4A unless code later proves otherwise
+- the following families remain explicitly blocked until new deterministic Finance Twin support exists:
+  - `runway`
+  - `burn_variance`
+  - `concentration`
+  - `covenant_risk`
+  - `anomaly_review`
+  - `spend_exceptions` based on policy scoring or exception inference
+
+Deferred precision dependencies:
+
+- PageIndex, QMD, MinerU, OCR, vector search, vector DB, and PDF-heavy deep read are later precision concerns, not first-slice dependencies
+- deeper document precision should be justified by a proven evidence gap during F4A/F4B, not assumed up front
 
 Exit criteria:
 
-- one finance discovery mission completes end to end
+- one company-scoped finance discovery mission completes end to end through the mission engine
+- the first answer path is deterministic, read-only, twin/wiki-grounded, and explicit about freshness and limitations
 - proof bundles are finance-ready rather than PR-ready
+- blocked question families remain clearly blocked until deterministic support exists
 
 ## F5 — Reporting, memo, and packet compiler
 

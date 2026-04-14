@@ -26,29 +26,29 @@ A mixed bundle of finance exports and docs.
 Success:
 The system registers each file as source truth, records checksums and ingest status, and emits an operator-readable ingest proof artifact.
 
-### 2. Runway answer
+### 2. F4A cash-posture answer
 
 Input:
-Cash summary, trial balance, burn assumptions, and policy notes.
+Stored bank-account summary state plus the related deterministic wiki context.
 
 Success:
-The system returns a cited runway answer with freshness posture, assumptions, and clear limitations.
+The system returns a typed `cash_posture` answer with freshness posture, route-backed evidence, related wiki pages, and clear limitations.
 
-### 3. Concentration answer
+### 3. F4B posture, aging, spend, and obligation answers
 
 Input:
-AR aging plus customer revenue or invoice exports.
+Stored receivables-aging, payables-aging, spend, or contract-obligation state plus the related deterministic wiki context.
 
 Success:
-The system identifies concentration risk and cites which source records support the result.
+The system answers narrow typed questions such as `collections_pressure`, `payables_pressure`, `spend_posture`, or `obligation_calendar_review` from stored state with explicit freshness and limitations.
 
-### 4. Policy lookup
+### 4. F4C policy lookup
 
 Input:
 One or more policy, SOP, or board documents.
 
 Success:
-The system answers a typed policy question with section-level evidence and explicit uncertainty where the policy is ambiguous.
+The system answers a typed policy question from explicit `policy_document` bindings and stored deterministic extracts with explicit uncertainty where the policy is ambiguous.
 
 ### 5. Memo or packet compilation
 
@@ -57,6 +57,17 @@ A stored answer plus relevant twin or wiki context.
 
 Success:
 The system produces a short memo or packet with linked evidence, freshness notes, and an appendix-ready structure.
+
+## Blocked for now
+
+These discovery families should stay out of the first F4 slice and out of early seeded-finance grading until new deterministic Finance Twin support exists:
+
+- `runway`
+- `burn_variance`
+- `concentration`
+- `covenant_risk`
+- `anomaly_review`
+- `spend_exceptions` based on policy scoring or exception inference
 
 ## Rubric dimensions
 

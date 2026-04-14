@@ -38,6 +38,24 @@ Codex is especially valuable for:
 
 Codex should **not** be treated as the raw source of financial truth.
 
+## First F4 posture
+
+The first F4 finance discovery answer path should **not** depend on runtime-codex.
+
+For F4A, the control plane should:
+
+- accept a typed company-scoped finance discovery mission
+- read stored Finance Twin plus stored CFO Wiki state
+- assemble the first answer deterministically and read-only
+- persist the answer artifact and finance-ready proof bundle without creating a runtime thread
+
+Codex remains valuable after that first answer path exists for:
+
+- later investigative writeups
+- wiki filing or durable note drafting
+- memo or packet drafting in F5
+- evidence-summary or formatting assistance when a deterministic answer already exists
+
 ## Prompt ownership
 
 Build product prompts in control-plane modules such as:

@@ -48,7 +48,10 @@ Suggested thread naming:
 - `F3B-cfo-wiki-document-page-compiler-and-backlinks`
 - `F3C-cfo-wiki-lint-export-and-durable-filing`
 - `F3D-cfo-wiki-concept-metric-and-policy-pages`
-- `F4-finance-discovery-answer`
+- `F4-finance-discovery-master-plan-and-doc-refresh`
+- `F4A-finance-discovery-foundation-and-first-answer`
+- `F4B-finance-discovery-supported-posture-and-obligation-families`
+- `F4C-finance-policy-lookup-and-discovery-quality-hardening`
 - `F5-memo-and-packet-compiler`
 - `F6-monitoring-and-controls`
 
@@ -59,7 +62,9 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `F3B-cfo-wiki-document-page-compiler-and-backlinks` is now the shipped first document-aware wiki slice.
 `F3C-cfo-wiki-lint-export-and-durable-filing` is now the shipped wiki quality, export, and filed-artifact slice.
 `F3D-cfo-wiki-concept-metric-and-policy-pages` is now the shipped deterministic knowledge-page slice.
-The next new major implementation thread after that should be `F4-finance-discovery-answer` rather than reopening earlier wiki slices.
+`F4-finance-discovery-master-plan-and-doc-refresh` is the planning and active-doc slice that creates the first implementation-ready F4 contract.
+If that slice has already produced an unfinished `plans/FP-0030-finance-discovery-foundation-and-first-answer.md`, continue that plan in the next F4A implementation thread rather than creating a different F4 plan.
+The next new implementation thread after the F4 master-plan refresh should be `F4A-finance-discovery-foundation-and-first-answer` rather than reopening earlier wiki slices.
 
 ## Review ritual
 

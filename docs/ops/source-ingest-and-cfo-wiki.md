@@ -287,10 +287,79 @@ A trustworthy ingest flow should look like this:
 
 A trustworthy query flow should look like this:
 
-1. read the twin and relevant wiki pages
-2. answer only from stored state and explicit freshness posture
-3. surface assumptions, gaps, and conflicts
-4. if the result is durable and useful, file it back into the wiki
+1. accept a typed company-scoped mission question rather than using generic chat as the execution contract
+2. read the twin and relevant wiki pages
+3. answer only from stored state and explicit freshness posture
+4. surface assumptions, gaps, and conflicts
+5. if the result is durable and useful, file it back into the wiki
+
+## F4 discovery contract
+
+Pocket CFO F4 should treat finance discovery as a mission-based read path, not as a generic finance chatbot.
+
+The first F4 contract should therefore be:
+
+- one typed company-scoped finance discovery question
+- one deterministic answer artifact
+- one finance-ready proof bundle
+- explicit freshness posture
+- explicit related routes and wiki pages
+- explicit visible limitations
+
+The authority boundary remains:
+
+- raw sources remain authoritative for document claims
+- the Finance Twin remains authoritative for structured finance facts
+- the CFO Wiki remains the derived operator-readable layer built from those two sources of truth
+
+The first F4A question contract should stay typed and narrow:
+
+- `companyKey`
+- `questionKind`
+- optional operator wording stored for display only
+
+The first F4A answer artifact should be durable enough to survive outside chat and later feed F5 reporting work.
+At minimum it should carry:
+
+- company key
+- question kind
+- one concise answer summary
+- freshness posture
+- visible limitations
+- explicit related routes or route-backed evidence
+- explicit related wiki pages
+- structured evidence sections that later report compilation can reuse
+- deterministic markdown or another renderable body plus structured metadata
+
+Numeric claims should only appear when route-backed stored state or explicit refs support them.
+If the stored state is partial, stale, conflicting, or insufficient, the answer should say so plainly instead of inventing certainty.
+
+## First F4A answer posture
+
+The first F4A answer path must stay deterministic and read-only.
+
+It should:
+
+- execute through the mission engine rather than an ad hoc chat route
+- answer from stored Finance Twin plus stored CFO Wiki state only
+- use the shipped cash-posture read, bank-account inventory read when useful, and relevant wiki pages such as `metrics/cash-posture`, `concepts/cash`, and `company/overview`
+- surface currency buckets
+- surface dated versus undated balance posture when relevant
+- reuse diagnostics already present in stored views
+- state explicit limitations rather than collapsing everything into a fake single-number cash claim
+
+The first F4A slice must not do any of the following:
+
+- no generic finance chat
+- no runtime-codex in the first answer path
+- no vector DB or generic retrieval layer
+- no PageIndex, QMD, MinerU, OCR, or PDF-heavy deep read dependency
+- no new Finance Twin extractor
+- no F5 report compiler work
+- no F6 monitoring work
+
+Policy lookup is later than the first `cash_posture` answer.
+It belongs in a later F4C slice and should read only from explicit `policy_document` bindings plus stored deterministic extracts unless later code truthfully ships a narrower earlier path.
 
 ## Lint flow
 
