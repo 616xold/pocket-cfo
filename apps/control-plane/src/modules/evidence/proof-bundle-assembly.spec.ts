@@ -394,7 +394,7 @@ describe("assembleProofBundleManifest", () => {
             "collections_pressure",
             {
               reasonSummary:
-                "Required Finance Twin reads for collections pressure do not agree for acme. Collections posture is fresh: Stored collections posture state is fresh. Receivables aging is stale: Stored receivables-aging coverage is stale relative to the freshness threshold.",
+                "Required Finance Twin reads for collections pressure do not agree for acme. Collections posture is Fresh: Stored collections posture state is fresh. Receivables aging is Stale: Stored receivables-aging coverage is stale relative to the freshness threshold.",
               state: "mixed",
             },
           ),
@@ -415,6 +415,42 @@ describe("assembleProofBundleManifest", () => {
     );
   });
 
+  it("surfaces stale required-read limitations in the finance proof-bundle summary", () => {
+    const mission = buildFinanceDiscoveryMission("collections_pressure");
+    const manifest = assembleProofBundleManifest({
+      approvals: [],
+      artifacts: [
+        buildArtifact({
+          id: readFinanceArtifactId("collections_pressure"),
+          kind: "discovery_answer",
+          taskId: scoutTaskId,
+          createdAt: "2026-04-15T09:05:30.000Z",
+          metadata: buildFinanceDiscoveryAnswerMetadata(
+            "collections_pressure",
+            {
+              reasonSummary:
+                "Required Finance Twin reads for collections pressure do not agree for acme. Collections posture is Fresh: Stored collections posture state is fresh. Receivables aging is Stale: Stored receivables-aging coverage is stale relative to the freshness threshold.",
+              state: "mixed",
+            },
+            [
+              "Required Finance Twin read Receivables aging is stale for acme: Stored receivables-aging coverage is stale relative to the freshness threshold.",
+              "Visible limitations remain preserved.",
+            ],
+          ),
+        }),
+      ],
+      existingBundle: buildPlaceholderBundle(mission),
+      mission,
+      replayEventCount: 8,
+      tasks: buildDiscoveryTasks("succeeded"),
+    });
+
+    expect(manifest.freshnessState).toBe("mixed");
+    expect(manifest.limitationsSummary).toContain(
+      "Required Finance Twin read Receivables aging is stale for acme",
+    );
+  });
+
   it("surfaces missing or failed required-read limitations in the finance proof-bundle summary", () => {
     const mission = buildFinanceDiscoveryMission("payables_pressure");
     const manifest = assembleProofBundleManifest({
@@ -429,7 +465,7 @@ describe("assembleProofBundleManifest", () => {
             "payables_pressure",
             {
               reasonSummary:
-                "Required Finance Twin reads for payables pressure do not agree for acme. Payables posture is fresh: Stored finance slice state is fresh. Payables aging is failed: The latest payables-aging sync failed after an earlier successful snapshot was stored.",
+                "Required Finance Twin reads for payables pressure do not agree for acme. Payables posture is Fresh: Stored finance slice state is fresh. Payables aging is Failed: The latest payables-aging sync failed after an earlier successful snapshot was stored.",
               state: "mixed",
             },
             [

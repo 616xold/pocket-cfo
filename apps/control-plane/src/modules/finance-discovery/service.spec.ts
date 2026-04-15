@@ -134,13 +134,13 @@ describe("FinanceDiscoveryService", () => {
     );
     expect(answer.freshnessPosture.state).toBe("fresh");
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "All required Finance Twin reads for cash posture are fresh for acme.",
+      "All required Finance Twin reads for cash posture are Fresh for acme.",
     );
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "Cash posture is fresh: Stored bank-account summary state is fresh.",
+      "Cash posture is Fresh: Stored bank-account summary state is fresh.",
     );
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "Bank account inventory is fresh: Stored bank-account summary state is fresh.",
+      "Bank account inventory is Fresh: Stored bank-account summary state is fresh.",
     );
     expect(answer.relatedRoutes.map((route) => route.routePath)).toEqual([
       "/finance-twin/companies/acme/cash-posture",
@@ -159,6 +159,8 @@ describe("FinanceDiscoveryService", () => {
       "wiki_company_overview",
     ]);
     expect(answer.bodyMarkdown).toContain("## Freshness posture");
+    expect(answer.bodyMarkdown).toContain("- State: Fresh");
+    expect(answer.evidenceSections[0]?.summary).toContain("Freshness: Fresh.");
     expect(answer.bodyMarkdown).toContain("## Evidence sections");
   });
 
@@ -220,10 +222,10 @@ describe("FinanceDiscoveryService", () => {
       "Required Finance Twin reads for cash posture do not agree for acme.",
     );
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "Cash posture is stale:",
+      "Cash posture is Stale:",
     );
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "Bank account inventory is fresh:",
+      "Bank account inventory is Fresh:",
     );
     expect(answer.answerSummary).toContain("is limited");
     expect(answer.limitations).toContain(
@@ -268,10 +270,10 @@ describe("FinanceDiscoveryService", () => {
       ),
     });
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "Collections posture is fresh: Stored finance slice state is fresh.",
+      "Collections posture is Fresh: Stored finance slice state is fresh.",
     );
     expect(answer.freshnessPosture.reasonSummary).toContain(
-      "Receivables aging is stale: Stored receivables-aging coverage is stale relative to the freshness threshold.",
+      "Receivables aging is Stale: Stored receivables-aging coverage is stale relative to the freshness threshold.",
     );
   });
 
@@ -310,6 +312,42 @@ describe("FinanceDiscoveryService", () => {
     expect(answer.freshnessPosture.state).toBe("mixed");
     expect(answer.limitations).toContain(
       "Required Finance Twin read Receivables aging is missing for acme: No successful receivables-aging sync has completed yet for this company.",
+    );
+  });
+
+  it("adds an explicit limitation when a required supported-family read is stale", async () => {
+    const service = new FinanceDiscoveryService({
+      cfoWikiService: {
+        async getPage(companyKey, pageKey) {
+          return buildWikiPage({
+            companyKey,
+            pageKey: pageKey as TestWikiPageKey,
+            title: buildWikiTitle(pageKey as TestWikiPageKey),
+          });
+        },
+      },
+      financeTwinService: createFinanceTwinService({
+        async getReceivablesAging() {
+          return {
+            ...buildReceivablesAgingView(),
+            freshness: buildFreshnessSummary({
+              reasonSummary:
+                "Stored receivables-aging coverage is stale relative to the freshness threshold.",
+              state: "stale",
+            }),
+          };
+        },
+      }),
+    });
+
+    const answer = await service.answerQuestion({
+      companyKey: "acme",
+      questionKind: "collections_pressure",
+    });
+
+    expect(answer.freshnessPosture.state).toBe("mixed");
+    expect(answer.limitations).toContain(
+      "Required Finance Twin read Receivables aging is stale for acme: Stored receivables-aging coverage is stale relative to the freshness threshold.",
     );
   });
 
@@ -438,7 +476,7 @@ describe("FinanceDiscoveryService", () => {
         "All required Finance Twin reads for",
       );
       expect(answer.freshnessPosture.reasonSummary).toContain(
-        "are missing for missing-company.",
+        "are Missing for missing-company.",
       );
       expect(answer.answerSummary).toContain("No stored");
       expect(
