@@ -34,6 +34,17 @@ describe("Discovery mission domain schemas", () => {
     ).toThrow();
   });
 
+  it("rejects the legacy repo-scoped discovery mission create payload", () => {
+    expect(() =>
+      CreateDiscoveryMissionInputSchema.parse({
+        repoFullName: "616xold/pocket-cfo",
+        questionKind: "auth_change",
+        changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+        requestedBy: "legacy-operator",
+      }),
+    ).toThrow();
+  });
+
   it("parses a durable finance discovery answer artifact", () => {
     const parsed = DiscoveryAnswerArtifactMetadataSchema.parse({
       source: "stored_finance_twin_and_cfo_wiki",
