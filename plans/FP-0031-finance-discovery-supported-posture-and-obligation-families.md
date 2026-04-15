@@ -17,7 +17,7 @@ GitHub connector work is explicitly out of scope for this slice. This plan is th
 - [x] 2026-04-15T11:38:43Z Extend the `finance-discovery` bounded context, mission creation path, proof-bundle shaping, and mission read models so each supported family produces deterministic finance-ready answers from stored Finance Twin plus stored CFO Wiki state only.
 - [x] 2026-04-15T11:38:43Z Update the web intake and mission answer presentation so the new supported families are visible and truthful without implying unsupported finance capabilities.
 - [x] 2026-04-15T11:38:43Z Add the narrow tests and the new `tools/finance-discovery-supported-families-smoke.mjs` coverage, then run the required F4B validation ladder through `pnpm ci:repro:current`.
-- [ ] 2026-04-15T11:38:43Z Create the single local commit, push the existing branch, and open the requested PR now that the full requested validation ladder is green.
+- [x] 2026-04-15T14:20:31Z Refresh the stale final publication status now that F4B is already merged on `main`, and hand any narrow post-merge truthfulness follow-up to `plans/FP-0032-finance-discovery-polish-and-compatibility.md` instead of leaving this shipped plan looking unfinished.
 
 ## Surprises & Discoveries
 
@@ -285,7 +285,7 @@ Expected dependencies:
   - The new smoke initially failed because a derived company key exceeded the current length constraint, so the fixture builder was tightened to keep keys deterministic and within the stored limit.
 
 - Remaining work after this slice:
-  - Publish the already-validated branch as the single requested commit, push, and PR.
+  - Leave any narrow post-merge truthfulness or compatibility cleanup to `plans/FP-0032-finance-discovery-polish-and-compatibility.md`.
   - Leave `receivables_aging_review`, `payables_aging_review`, policy lookup, and the wider F4C/F5/F6 work for later slices.
 
 - Recommendation:

@@ -156,6 +156,86 @@ describe("control-plane app", () => {
     }
   });
 
+  it("POST /missions/discovery remains a finance-shaped alias to /missions/analysis", async () => {
+    const app = await createTestApp(apps);
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/missions/discovery",
+      payload: {
+        companyKey: "acme",
+        questionKind: "cash_posture",
+        operatorPrompt: "Review cash posture from stored state.",
+        requestedBy: "operator",
+      },
+    });
+
+    expect(response.statusCode).toBe(201);
+    expect(response.json()).toMatchObject({
+      mission: {
+        type: "discovery",
+        status: "queued",
+        sourceKind: "manual_discovery",
+        createdBy: "operator",
+        primaryRepo: null,
+        spec: {
+          input: {
+            discoveryQuestion: {
+              companyKey: "acme",
+              questionKind: "cash_posture",
+              operatorPrompt: "Review cash posture from stored state.",
+            },
+          },
+        },
+      },
+      tasks: [{ role: "scout", sequence: 0, status: "pending" }],
+      proofBundle: {
+        status: "placeholder",
+        companyKey: "acme",
+        questionKind: "cash_posture",
+      },
+    });
+  });
+
+  it("POST /missions/discovery rejects the legacy repo-scoped engineering payload truthfully", async () => {
+    const app = await createTestApp(apps);
+
+    const response = await app.inject({
+      method: "POST",
+      url: "/missions/discovery",
+      payload: {
+        repoFullName: "616xold/pocket-cfo",
+        questionKind: "auth_change",
+        changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+        requestedBy: "operator",
+      },
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.json()).toEqual({
+      error: {
+        code: "invalid_request",
+        message: "Invalid request",
+        details: [
+          {
+            path: "companyKey",
+            message: "Required",
+          },
+          {
+            path: "questionKind",
+            message:
+              "Invalid enum value. Expected 'cash_posture' | 'collections_pressure' | 'payables_pressure' | 'spend_posture' | 'obligation_calendar_review', received 'auth_change'",
+          },
+          {
+            path: "request",
+            message:
+              "Unrecognized key(s) in object: 'repoFullName', 'changedPaths'",
+          },
+        ],
+      },
+    });
+  });
+
   it("POST /sources registers a source with its first snapshot and GET /sources surfaces the registry summary", async () => {
     const app = await createTestApp(apps);
 

@@ -536,4 +536,4 @@ What changed from the pre-existing repo state:
 - the implementation stayed additive-first and did not require new Finance Twin extractors, vector search, OCR, deep-read dependencies, wiki UI work, or DB migrations
 
 What remains:
-start F4B in a new narrow slice that reuses this foundation for the next already-supported finance posture or aging families. Do not reopen F4A unless a small post-merge truthfulness fix is discovered during review.
+F4B is now shipped on top of this foundation, and the next new major implementation phase is F4C policy lookup plus finance-discovery quality hardening. If a small post-merge truthfulness fix is discovered instead, handle it through `plans/FP-0032-finance-discovery-polish-and-compatibility.md` rather than reopening F4A scope.
