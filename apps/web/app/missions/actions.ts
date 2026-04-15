@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
-  createDiscoveryMission,
+  createAnalysisMission,
   createMissionFromGitHubIssueDelivery,
   createMissionFromText,
 } from "../../lib/api";
@@ -20,9 +20,9 @@ const githubIssueMissionCreateSchema = z.object({
 });
 
 const discoveryMissionIntakeFormSchema = z.object({
-  changedPaths: z.string().trim().min(1),
-  questionKind: z.literal("auth_change"),
-  repoFullName: z.string().trim().min(1),
+  companyKey: z.string().trim().min(1),
+  operatorPrompt: z.string().trim().optional(),
+  questionKind: z.literal("cash_posture"),
   requestedBy: z.string().trim().min(1),
 });
 
@@ -44,18 +44,18 @@ export async function submitMissionTextIntake(formData: FormData) {
 
 export async function submitDiscoveryMissionIntake(formData: FormData) {
   const rawInput = discoveryMissionIntakeFormSchema.parse({
-    changedPaths: formData.get("changedPaths"),
+    companyKey: formData.get("companyKey"),
+    operatorPrompt: formData.get("operatorPrompt"),
     questionKind: formData.get("questionKind"),
-    repoFullName: formData.get("repoFullName"),
     requestedBy: formData.get("requestedBy"),
   });
   const input = CreateDiscoveryMissionInputSchema.parse({
-    repoFullName: rawInput.repoFullName,
+    companyKey: rawInput.companyKey,
     questionKind: rawInput.questionKind,
-    changedPaths: normalizeChangedPaths(rawInput.changedPaths),
+    operatorPrompt: rawInput.operatorPrompt?.trim() || undefined,
     requestedBy: rawInput.requestedBy,
   });
-  const created = await createDiscoveryMission(input);
+  const created = await createAnalysisMission(input);
 
   revalidatePath("/");
   revalidatePath("/missions");
@@ -73,8 +73,4 @@ export async function submitGitHubIssueMissionCreate(formData: FormData) {
   revalidatePath("/");
   revalidatePath("/missions");
   redirect(`/missions/${created.mission.id}`);
-}
-
-function normalizeChangedPaths(value: string) {
-  return [...new Set(value.split(/[\n,]/u).map((entry) => entry.trim()).filter(Boolean))];
 }

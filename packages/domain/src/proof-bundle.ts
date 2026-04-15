@@ -1,5 +1,13 @@
 import { z } from "zod";
 import { ApprovalKindSchema, ApprovalStatusSchema } from "./approval";
+import { CfoWikiPageKeySchema } from "./cfo-wiki";
+import {
+  DiscoveryQuestionKindSchema,
+  FinanceDiscoveryFreshnessStateSchema,
+} from "./discovery-mission";
+import {
+  FinanceCompanyKeySchema,
+} from "./finance-twin";
 
 export const ArtifactKindSchema = z.enum([
   "plan",
@@ -79,6 +87,14 @@ export const ProofBundleManifestSchema = z.object({
   missionId: z.string().uuid(),
   missionTitle: z.string().default(""),
   objective: z.string(),
+  companyKey: FinanceCompanyKeySchema.nullable().default(null),
+  questionKind: DiscoveryQuestionKindSchema.nullable().default(null),
+  answerSummary: z.string().default(""),
+  freshnessState: FinanceDiscoveryFreshnessStateSchema.nullable().default(null),
+  freshnessSummary: z.string().default(""),
+  limitationsSummary: z.string().default(""),
+  relatedRoutePaths: z.array(z.string().min(1)).default([]),
+  relatedWikiPageKeys: z.array(CfoWikiPageKeySchema).default([]),
   targetRepoFullName: z.string().nullable().default(null),
   branchName: z.string().nullable().default(null),
   pullRequestNumber: z.number().int().positive().nullable().default(null),

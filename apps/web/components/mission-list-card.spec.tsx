@@ -8,7 +8,10 @@ describe("MissionListCard", () => {
     const html = renderToStaticMarkup(
       <MissionListCard
         mission={{
+          answerSummary: null,
+          companyKey: null,
           createdAt: "2026-03-16T01:00:00.000Z",
+          freshnessState: null,
           id: "11111111-1111-4111-8111-111111111111",
           latestTask: {
             id: "33333333-3333-4333-8333-333333333333",
@@ -23,6 +26,7 @@ describe("MissionListCard", () => {
           proofBundleStatus: "incomplete",
           pullRequestNumber: 19,
           pullRequestUrl: "https://github.com/acme/web/pull/19",
+          questionKind: null,
           sourceKind: "github_issue",
           sourceRef: "https://github.com/acme/web/issues/19",
           status: "running",

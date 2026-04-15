@@ -1,6 +1,7 @@
 import type {
   ArtifactRecord,
   ArtifactKind,
+  DiscoveryMissionQuestion,
   MissionRecord,
   MissionTaskRecord,
   MissionTaskStatus,
@@ -39,11 +40,24 @@ export type PlannerArtifactCapture = {
 export class EvidenceService {
   createPlaceholder(mission: MissionRecord): ProofBundleManifest {
     const isDiscoveryMission = mission.type === "discovery";
+    const discoveryQuestion = mission.spec.input?.discoveryQuestion;
+    const financeCompanyKey =
+      isFinanceDiscoveryQuestion(discoveryQuestion) ? discoveryQuestion.companyKey : null;
+    const discoveryQuestionKind =
+      discoveryQuestion?.questionKind ?? null;
 
-    return {
+    return ProofBundleManifestSchema.parse({
       missionId: mission.id,
       missionTitle: mission.title,
       objective: mission.objective,
+      companyKey: financeCompanyKey,
+      questionKind: discoveryQuestionKind,
+      answerSummary: "",
+      freshnessState: null,
+      freshnessSummary: "",
+      limitationsSummary: "",
+      relatedRoutePaths: [],
+      relatedWikiPageKeys: [],
       targetRepoFullName:
         mission.primaryRepo && mission.primaryRepo.includes("/")
           ? mission.primaryRepo
@@ -88,7 +102,7 @@ export class EvidenceService {
         latestArtifactAt: null,
       },
       status: "placeholder",
-    };
+    });
   }
 
   buildPlannerArtifact(input: {
@@ -282,6 +296,14 @@ export class EvidenceService {
       decisionTrace: nextDecisionTrace,
     });
   }
+}
+
+function isFinanceDiscoveryQuestion(
+  question: DiscoveryMissionQuestion | null | undefined,
+): question is Extract<DiscoveryMissionQuestion, { companyKey: string }> {
+  return (
+    typeof question === "object" && question !== null && "companyKey" in question
+  );
 }
 
 function appendUniqueDecisionTrace(existing: string[], lines: string[]) {

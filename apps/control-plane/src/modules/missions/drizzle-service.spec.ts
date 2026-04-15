@@ -104,9 +104,8 @@ describe("MissionService (DB-backed)", () => {
   it("persists the full discovery mission spine for createDiscovery", async () => {
     const service = createMissionService(new DrizzleMissionRepository(db));
     const created = await service.createDiscovery({
-      repoFullName: "616xold/pocket-cto",
-      questionKind: "auth_change",
-      changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+      companyKey: "acme",
+      questionKind: "cash_posture",
       requestedBy: "operator",
     });
 
@@ -132,9 +131,9 @@ describe("MissionService (DB-backed)", () => {
 
     expect(storedMission?.type).toBe("discovery");
     expect(storedMission?.sourceKind).toBe("manual_discovery");
-    expect(storedMission?.primaryRepo).toBe("616xold/pocket-cto");
+    expect(storedMission?.primaryRepo).toBeNull();
     expect(storedInputs).toHaveLength(1);
-    expect(storedInputs[0]?.rawText).toContain("\"repoFullName\": \"616xold/pocket-cto\"");
+    expect(storedInputs[0]?.rawText).toContain("\"companyKey\": \"acme\"");
     expect(storedTasks.map((task) => task.role)).toEqual(["scout"]);
     expect(storedReplayEvents.map((event) => event.type)).toEqual([
       "mission.created",

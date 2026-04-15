@@ -1,5 +1,7 @@
 import type {
   DiscoveryMissionQuestion,
+  FinanceDiscoveryAnswerArtifactMetadata,
+  FinanceDiscoveryQuestion,
   MissionRecord,
   MissionTaskRecord,
   MissionTaskStatus,
@@ -9,6 +11,8 @@ import type {
 import type { PersistenceSession } from "../../lib/persistence";
 import { truncate } from "../evidence/text";
 import { buildDiscoveryAnswerArtifact } from "../evidence/discovery-answer";
+import { buildFinanceDiscoveryAnswerArtifact } from "../finance-discovery/artifact";
+import type { FinanceDiscoveryService } from "../finance-discovery/service";
 import type { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import {
   buildTaskStartedMissionStatusChangedPayload,
@@ -37,7 +41,11 @@ export class DiscoveryOrchestratorPhase {
       | "updateTaskSummary"
     >,
     private readonly replayService: Pick<ReplayService, "append">,
-    private readonly twinService: Pick<TwinService, "queryRepositoryBlastRadius">,
+    private readonly financeDiscoveryService: Pick<
+      FinanceDiscoveryService,
+      "answerQuestion"
+    >,
+    private readonly twinService?: Pick<TwinService, "queryRepositoryBlastRadius">,
     private readonly proofBundleAssembly?: Pick<
       ProofBundleAssemblyService,
       "refreshProofBundle"
@@ -48,6 +56,22 @@ export class DiscoveryOrchestratorPhase {
     const { mission, question, task } = await this.markTaskRunning(taskId);
 
     try {
+      if (isFinanceDiscoveryQuestion(question)) {
+        const answer = await this.financeDiscoveryService.answerQuestion(question);
+
+        return this.completeFinanceTask({
+          answer,
+          mission,
+          task,
+        });
+      }
+
+      if (!this.twinService) {
+        throw new Error(
+          "Legacy engineering discovery execution is unavailable because no twin service was configured",
+        );
+      }
+
       const result = await this.twinService.queryRepositoryBlastRadius(
         question.repoFullName,
         {
@@ -59,7 +83,7 @@ export class DiscoveryOrchestratorPhase {
 
       return unavailableSummary
         ? await this.failTask(task.id, unavailableSummary)
-        : await this.completeTask({
+        : await this.completeLegacyTask({
             mission,
             result,
             task,
@@ -127,7 +151,69 @@ export class DiscoveryOrchestratorPhase {
     });
   }
 
-  private async completeTask(input: {
+  private async completeFinanceTask(input: {
+    answer: FinanceDiscoveryAnswerArtifactMetadata;
+    mission: MissionRecord;
+    task: MissionTaskRecord;
+  }) {
+    return this.missionRepository.transaction(async (session) => {
+      const task = await this.getRequiredTask(input.task.id, session);
+      const mission = await this.getRequiredMission(task.missionId, session);
+      const artifactDraft = buildFinanceDiscoveryAnswerArtifact({
+        answer: input.answer,
+        mission,
+        task,
+      });
+      const artifact = await this.missionRepository.saveArtifact(artifactDraft, session);
+
+      await this.replayService.append(
+        {
+          missionId: mission.id,
+          taskId: task.id,
+          type: "artifact.created",
+          payload: {
+            artifactId: artifact.id,
+            kind: artifact.kind,
+          },
+        },
+        session,
+      );
+
+      await this.missionRepository.updateTaskSummary(
+        task.id,
+        truncate(input.answer.answerSummary, TASK_SUMMARY_MAX_LENGTH),
+        session,
+      );
+      const succeededTask = await this.missionRepository.updateTaskStatus(
+        task.id,
+        "succeeded",
+        session,
+      );
+
+      await this.appendTaskStatusChanged(
+        succeededTask,
+        task.status,
+        succeededTask.status,
+        taskStatusChangeReasons.taskCompleted,
+        session,
+      );
+      await this.persistMissionTerminalStatus({
+        mission,
+        task: succeededTask,
+        session,
+      });
+
+      await this.proofBundleAssembly?.refreshProofBundle({
+        missionId: mission.id,
+        session,
+        trigger: "discovery_answer",
+      });
+
+      return succeededTask;
+    });
+  }
+
+  private async completeLegacyTask(input: {
     mission: MissionRecord;
     result: TwinRepositoryBlastRadiusQueryResult;
     task: MissionTaskRecord;
@@ -312,6 +398,12 @@ function readDiscoveryQuestion(
   mission: MissionRecord,
 ): DiscoveryMissionQuestion | null {
   return mission.spec.input?.discoveryQuestion ?? null;
+}
+
+function isFinanceDiscoveryQuestion(
+  question: DiscoveryMissionQuestion,
+): question is FinanceDiscoveryQuestion {
+  return "companyKey" in question;
 }
 
 function buildUnavailableDiscoverySummary(

@@ -16,8 +16,9 @@ This plan is the active F4A implementation contract and must stay current while 
 - [x] 2026-04-14T16:40:48Z Audit the active docs, prior F3 plans, eval guidance, and the current discovery, mission, evidence, twin, wiki, and web seams before defining the first real F4 execution contract.
 - [x] 2026-04-14T16:40:48Z Create `plans/FP-0030-finance-discovery-foundation-and-first-answer.md` and refresh the smallest truthful active-doc set so a fresh F4A implementation thread can start without ambiguity.
 - [x] 2026-04-14T16:50:12Z Run the required docs-and-plan validation ladder for this master-plan slice and confirm the repo stays green without starting F4/F5/F6 implementation, including the full smoke ladder, the twin reproducibility trio, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-- [ ] 2026-04-14T16:40:48Z Implement the F4A domain, control-plane, evidence, web, and smoke changes described in this plan without widening into runtime-codex, new Finance Twin extractors, or later F4B/F4C/F5/F6 work.
-- [ ] 2026-04-14T16:40:48Z Run the full F4A implementation validation ladder, publish one green commit, and then push or PR from the future implementation thread.
+- [x] 2026-04-14T23:48:00Z Run the F4A local-thread preflight against fetched `origin/main`, confirm the requested branch and clean worktree posture, audit the current discovery, proof-bundle, twin, wiki, and web seams again, and land the smallest required doc-truthfulness polish before code changes.
+- [x] 2026-04-15T00:35:07Z Implement the F4A domain, control-plane, evidence, web, and smoke changes described in this plan without widening into runtime-codex, new Finance Twin extractors, or later F4B/F4C/F5/F6 work.
+- [x] 2026-04-15T00:35:07Z Run the full F4A implementation validation ladder through `pnpm ci:repro:current`, confirm the new finance-discovery smoke and the historical engineering-twin reproducibility trio stay green, and prepare the single publishable commit for the implementation thread.
 
 ## Surprises & Discoveries
 
@@ -35,6 +36,12 @@ This plan is the active F4A implementation contract and must stay current while 
 
 - Observation: Codex App Server remains useful for later writeups and reports, but the first F4 answer path should not depend on it.
   Evidence: `docs/ops/codex-app-server.md` already says Codex is not the raw source of financial truth and is best used for wiki maintenance, writeups, memo drafting, and formatting assistance. The current runtime-codex module is therefore a later assistive seam, not the first deterministic finance answer engine.
+
+- Observation: the existing mission and artifact tables appear flexible enough to carry the first F4A question and answer retarget in JSON-backed contracts without an obvious mandatory schema migration.
+  Evidence: `packages/db/src/schema/missions.ts` and `packages/db/src/schema/artifacts.ts` already persist `spec`, mission-input compiler output, and artifact metadata as JSON, while `packages/domain/src/mission.ts`, `packages/domain/src/discovery-mission.ts`, and `packages/domain/src/proof-bundle.ts` currently impose the engineering-discovery semantics that need retargeting.
+
+- Observation: the shipped F4A slice was able to stay fully additive and avoid DB schema churn.
+  Evidence: the landed implementation completed through typed domain-contract changes, new `apps/control-plane/src/modules/finance-discovery/**` bounded-context files, mission-route retargeting, finance-ready proof-bundle shaping, web read-model updates, and `tools/finance-discovery-answer-smoke.mjs` without any `packages/db/drizzle/**` migration edits.
 
 ## Decision Log
 
@@ -73,6 +80,12 @@ This plan is the active F4A implementation contract and must stay current while 
 
 - Decision: mark `runway`, `burn_variance`, `concentration`, `covenant_risk`, `anomaly_review`, and policy-scored `spend_exceptions` as explicitly blocked for now.
   Rationale: those families do not yet have truthful deterministic Finance Twin support in the current repo, so the active docs and implementation plan must name them as later work instead of implying they are ready.
+
+- Decision: prefer an additive JSON-backed retarget first and avoid DB migrations unless a concrete F4A contract gap appears during implementation.
+  Rationale: the existing mission spec, mission input, and artifact metadata persistence seams already provide room for a typed company-scoped finance question, durable answer artifact, and finance-ready proof-bundle fields without destructive enum or column churn.
+
+- Decision: keep `POST /missions/analysis` as the primary finance-discovery create route while preserving `POST /missions/discovery` as a thin compatibility alias for the transition.
+  Rationale: the new route makes the company-scoped finance-analysis posture explicit, while the alias keeps already-shipped mission surfaces compatible and avoids widening this slice into a broader transport rewrite.
 
 ## Context and Orientation
 
@@ -512,15 +525,15 @@ Runtime-codex, vector retrieval, OCR, PageIndex, QMD, MinerU, and PDF-heavy deep
 ## Outcomes & Retrospective
 
 Current outcome:
-the F4 master-plan and active-doc refresh are complete, and this plan is now the live execution contract for the first F4A implementation slice.
+F4A is now shipped as a narrow deterministic finance-discovery slice with one truthful `cash_posture` mission family, a durable finance discovery answer artifact, a finance-ready proof bundle, a dedicated control-plane finance-discovery bounded context, an operator-facing mission route at `POST /missions/analysis`, and a green finance-discovery smoke plus clean detached-worktree repro.
 
 What changed from the pre-existing repo state:
 
-- F4 is no longer a generic roadmap placeholder; it is now defined as mission-based finance discovery from stored Finance Twin plus stored CFO Wiki state
-- the `F4A` / `F4B` / `F4C` slice map is now explicit
-- the first supported F4A question family is locked to `cash_posture`
-- blocked later families are named explicitly instead of being implied as already supportable
-- the first answer path is now documented as deterministic, read-only, twin/wiki-grounded, and independent of runtime-codex
+- the old engineering blast-radius discovery contract now coexists with a typed company-scoped finance discovery question contract that supports `cash_posture` only for new intake
+- the control plane now assembles finance discovery answers deterministically from stored Finance Twin plus stored CFO Wiki state and persists finance-ready answer and proof artifacts without runtime-codex
+- mission list, mission detail, proof-bundle summaries, and web mission cards now expose company key, question kind, freshness posture, limitations, related routes, related wiki pages, and reusable evidence sections truthfully
+- the new `pnpm smoke:finance-discovery-answer:local` proof is green while the existing F1, F2, F3, and engineering-twin reproducibility surfaces remain intact and green
+- the implementation stayed additive-first and did not require new Finance Twin extractors, vector search, OCR, deep-read dependencies, wiki UI work, or DB migrations
 
 What remains:
-implement the additive F4A domain, mission, finance-discovery, evidence, orchestrator, web, and smoke work described above, then validate and publish it without widening into later roadmap phases.
+start F4B in a new narrow slice that reuses this foundation for the next already-supported finance posture or aging families. Do not reopen F4A unless a small post-merge truthfulness fix is discovered during review.

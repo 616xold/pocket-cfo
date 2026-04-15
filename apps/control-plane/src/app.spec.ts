@@ -1,6 +1,9 @@
 import { afterEach, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
-import type { ProofBundleManifest } from "@pocket-cto/domain";
+import {
+  type ProofBundleManifest,
+  ProofBundleManifestSchema,
+} from "@pocket-cto/domain";
 import { buildApp } from "./app";
 import { createInMemoryContainer } from "./bootstrap";
 import type { AppContainer } from "./lib/types";
@@ -101,16 +104,16 @@ describe("control-plane app", () => {
     });
   });
 
-  it("POST /missions/discovery returns 201 with one scout task and a discovery proof placeholder", async () => {
+  it("POST /missions/analysis returns 201 with one scout task and a finance discovery proof placeholder", async () => {
     const app = await createTestApp(apps);
 
     const response = await app.inject({
       method: "POST",
-      url: "/missions/discovery",
+      url: "/missions/analysis",
       payload: {
-        repoFullName: "616xold/pocket-cto",
-        questionKind: "auth_change",
-        changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+        companyKey: "acme",
+        questionKind: "cash_posture",
+        operatorPrompt: "What is our current cash posture?",
         requestedBy: "operator",
       },
     });
@@ -120,22 +123,20 @@ describe("control-plane app", () => {
       mission: {
         type: "discovery",
         status: "queued",
-        title: "Assess auth-change blast radius for 616xold/pocket-cto",
+        title: "Assess cash posture for acme",
         sourceKind: "manual_discovery",
         createdBy: "operator",
-        primaryRepo: "616xold/pocket-cto",
+        primaryRepo: null,
         spec: {
-          repos: ["616xold/pocket-cto"],
+          repos: [],
           constraints: {
-            allowedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+            allowedPaths: [],
           },
           input: {
             discoveryQuestion: {
-              repoFullName: "616xold/pocket-cto",
-              questionKind: "auth_change",
-              changedPaths: [
-                "apps/control-plane/src/modules/github-app/auth.ts",
-              ],
+              companyKey: "acme",
+              questionKind: "cash_posture",
+              operatorPrompt: "What is our current cash posture?",
             },
           },
         },
@@ -143,8 +144,10 @@ describe("control-plane app", () => {
       tasks: [{ role: "scout", sequence: 0, status: "pending" }],
       proofBundle: {
         status: "placeholder",
+        companyKey: "acme",
+        questionKind: "cash_posture",
         objective:
-          "Answer the stored auth-change blast radius for 616xold/pocket-cto across: apps/control-plane/src/modules/github-app/auth.ts.",
+          "Answer the stored cash posture question for acme from persisted Finance Twin and CFO Wiki state only.",
         evidenceCompleteness: {
           expectedArtifactKinds: ["discovery_answer"],
           missingArtifactKinds: ["discovery_answer"],
@@ -3948,10 +3951,18 @@ async function createMission(
 function buildProofBundleFixture(
   overrides: Partial<ProofBundleManifest> = {},
 ): ProofBundleManifest {
-  return {
+  return ProofBundleManifestSchema.parse({
     missionId: unknownMissionId,
     missionTitle: "Implement passkeys for sign-in",
     objective: "Ship passkeys without breaking email login.",
+    companyKey: null,
+    questionKind: null,
+    answerSummary: "",
+    freshnessState: null,
+    freshnessSummary: "",
+    limitationsSummary: "",
+    relatedRoutePaths: [],
+    relatedWikiPageKeys: [],
     targetRepoFullName: null,
     branchName: null,
     pullRequestNumber: null,
@@ -3990,5 +4001,5 @@ function buildProofBundleFixture(
     },
     status: "placeholder",
     ...overrides,
-  };
+  });
 }

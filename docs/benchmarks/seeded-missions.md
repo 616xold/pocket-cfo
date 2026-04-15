@@ -45,7 +45,7 @@ The system answers narrow typed questions such as `collections_pressure`, `payab
 ### 4. F4C policy lookup
 
 Input:
-One or more policy, SOP, or board documents.
+One or more sources explicitly bound as `policy_document` for the company; generic SOP docs or board materials do not count unless they are intentionally bound that way.
 
 Success:
 The system answers a typed policy question from explicit `policy_document` bindings and stored deterministic extracts with explicit uncertainty where the policy is ambiguous.

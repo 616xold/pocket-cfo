@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-const createDiscoveryMission = vi.fn();
+const createAnalysisMission = vi.fn();
 const createMissionFromText = vi.fn();
 const createMissionFromGitHubIssueDelivery = vi.fn();
 const redirect = vi.fn();
@@ -15,7 +15,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 vi.mock("../../lib/api", () => ({
-  createDiscoveryMission,
+  createAnalysisMission,
   createMissionFromGitHubIssueDelivery,
   createMissionFromText,
 }));
@@ -47,7 +47,7 @@ describe("mission intake server action", () => {
   });
 
   it("creates a discovery mission, revalidates list surfaces, and redirects to detail", async () => {
-    createDiscoveryMission.mockResolvedValue({
+    createAnalysisMission.mockResolvedValue({
       mission: {
         id: missionId,
       },
@@ -56,13 +56,10 @@ describe("mission intake server action", () => {
     const mod = await import("./actions");
     await mod.submitDiscoveryMissionIntake(buildDiscoveryFormData());
 
-    expect(createDiscoveryMission).toHaveBeenCalledWith({
-      repoFullName: "616xold/pocket-cto",
-      questionKind: "auth_change",
-      changedPaths: [
-        "apps/control-plane/src/modules/github-app/auth.ts",
-        "packages/domain/src/twin.ts",
-      ],
+    expect(createAnalysisMission).toHaveBeenCalledWith({
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      operatorPrompt: "What is our current cash posture?",
       requestedBy: "Local web operator",
     });
     expect(revalidatePath).toHaveBeenNthCalledWith(1, "/");
@@ -105,12 +102,9 @@ function buildIssueFormData() {
 
 function buildDiscoveryFormData() {
   const formData = new FormData();
-  formData.set("repoFullName", "616xold/pocket-cto");
-  formData.set("questionKind", "auth_change");
-  formData.set(
-    "changedPaths",
-    "apps/control-plane/src/modules/github-app/auth.ts\npackages/domain/src/twin.ts",
-  );
+  formData.set("companyKey", "acme");
+  formData.set("questionKind", "cash_posture");
+  formData.set("operatorPrompt", "What is our current cash posture?");
   formData.set("requestedBy", "Local web operator");
   return formData;
 }

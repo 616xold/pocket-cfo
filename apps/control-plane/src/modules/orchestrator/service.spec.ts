@@ -1,18 +1,12 @@
 import { setTimeout as delay } from "node:timers/promises";
-import type {
-  TwinBlastRadiusLimitation,
-  TwinFreshnessSlice,
-  TwinFreshnessSliceName,
-  TwinRepositoryBlastRadiusQueryResult,
-  TwinRepositoryFreshnessView,
-} from "@pocket-cto/domain";
+import type { FinanceDiscoveryAnswerArtifactMetadata } from "@pocket-cto/domain";
 import { describe, expect, it, vi } from "vitest";
 import { InMemoryApprovalRepository } from "../approvals/repository";
 import { ApprovalService } from "../approvals/service";
 import { readDiscoveryAnswerArtifactMetadata } from "../evidence/discovery-answer";
 import { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import { EvidenceService } from "../evidence/service";
-import { GitHubRepositoryNotFoundError } from "../github-app/errors";
+import type { FinanceDiscoveryService } from "../finance-discovery/service";
 import { StubMissionCompiler } from "../missions/compiler";
 import { InMemoryMissionRepository } from "../missions/repository";
 import { MissionService } from "../missions/service";
@@ -21,7 +15,6 @@ import { ReplayService } from "../replay/service";
 import { RuntimeControlService } from "../runtime-codex/control-service";
 import { InMemoryRuntimeSessionRegistry } from "../runtime-codex/live-session-registry";
 import type { RuntimeCodexRunTurnResult } from "../runtime-codex/types";
-import type { TwinService } from "../twin/service";
 import type { ExecutorValidationService } from "../validation";
 import {
   InMemoryWorkspaceRepository,
@@ -314,42 +307,22 @@ describe("OrchestratorWorker", () => {
     );
   });
 
-  it("executes discovery missions through TwinService, not Codex runtime, and stores a durable answer artifact", async () => {
+  it("executes finance discovery missions through stored finance reads, not Codex runtime, and stores a durable answer artifact", async () => {
     const runtimeRunTurn = vi.fn(async () => {
       throw new Error("runtime should not be called for discovery");
     });
-    const queryRepositoryBlastRadius = vi.fn(async () =>
-      createDiscoveryQueryResult({
-        limitations: [
-          {
-            code: "repository_freshness_stale",
-            summary: "Stored workflow and test-suite state is stale.",
-            changedPaths: [],
-            targetPaths: [],
-            manifestPaths: [],
-            jobKeys: [],
-            reasonCodes: [],
-            sliceNames: ["workflows", "testSuites"],
-          },
-        ],
-        rollupState: "stale",
-        rollupReasonCode: "stale_twin_state",
-        rollupReasonSummary:
-          "Stored twin state is stale for: workflows, testSuites.",
-      }),
-    );
+    const answerQuestion = vi.fn(async () => createFinanceDiscoveryAnswer());
     const { missionRepository, missionService, worker } = createHarness({
+      financeDiscoveryService: {
+        answerQuestion,
+      },
       runtimeCodexService: {
         runTurn: runtimeRunTurn,
       },
-      twinService: {
-        queryRepositoryBlastRadius,
-      },
     });
     const created = await missionService.createDiscovery({
-      repoFullName: "616xold/pocket-cto",
-      questionKind: "auth_change",
-      changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+      companyKey: "acme",
+      questionKind: "cash_posture",
       requestedBy: "operator",
     });
 
@@ -370,13 +343,11 @@ describe("OrchestratorWorker", () => {
       },
     });
     expect(runtimeRunTurn).not.toHaveBeenCalled();
-    expect(queryRepositoryBlastRadius).toHaveBeenCalledWith(
-      "616xold/pocket-cto",
-      {
-        questionKind: "auth_change",
-        changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
-      },
-    );
+    expect(answerQuestion).toHaveBeenCalledWith({
+      companyKey: "acme",
+      operatorPrompt: null,
+      questionKind: "cash_posture",
+    });
 
     const artifacts = await missionRepository.listArtifactsByMissionId(
       created.mission.id,
@@ -387,25 +358,22 @@ describe("OrchestratorWorker", () => {
     const detail = await missionService.getMissionDetail(created.mission.id);
 
     expect(metadata).toMatchObject({
-      repoFullName: "616xold/pocket-cto",
-      questionKind: "auth_change",
+      companyKey: "acme",
+      questionKind: "cash_posture",
       answerSummary:
-        "Stored twin state shows apps as the main impacted directory for this auth change.",
-      freshnessRollup: {
+        "Stored cash posture for acme covers 4 bank accounts across 2 currency buckets: USD statement or ledger 1200.00, available 1400.00, unspecified 250.00 (as of 2026-04-10 to 2026-04-11). 1 additional currency bucket is also present.",
+      freshnessPosture: {
         state: "stale",
       },
       limitations: [
-        expect.objectContaining({
-          code: "repository_freshness_stale",
-        }),
+        expect.any(String),
       ],
     });
     expect(detail.proofBundle.status).toBe("ready");
     expect(detail.discoveryAnswer).toMatchObject({
-      repoFullName: "616xold/pocket-cto",
-      questionKind: "auth_change",
-      changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
-      freshnessRollup: {
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      freshnessPosture: {
         state: "stale",
       },
     });
@@ -414,24 +382,23 @@ describe("OrchestratorWorker", () => {
     ).toEqual(["discovery_answer", "proof_bundle_manifest"]);
   });
 
-  it("fails discovery missions explicitly when the target repository is unavailable", async () => {
+  it("fails discovery missions explicitly when finance discovery raises an unexpected error", async () => {
     const runtimeRunTurn = vi.fn(async () => {
       throw new Error("runtime should not be called for discovery");
     });
     const { missionService, worker } = createHarness({
+      financeDiscoveryService: {
+        async answerQuestion() {
+          throw new Error("unexpected finance discovery failure");
+        },
+      },
       runtimeCodexService: {
         runTurn: runtimeRunTurn,
       },
-      twinService: {
-        async queryRepositoryBlastRadius() {
-          throw new GitHubRepositoryNotFoundError("missing/repo");
-        },
-      },
     });
     const created = await missionService.createDiscovery({
-      repoFullName: "missing/repo",
-      questionKind: "auth_change",
-      changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+      companyKey: "acme",
+      questionKind: "cash_posture",
       requestedBy: "operator",
     });
 
@@ -457,15 +424,15 @@ describe("OrchestratorWorker", () => {
     expect(detail.mission.status).toBe("failed");
     expect(detail.tasks[0]).toMatchObject({
       status: "failed",
-      summary: "Discovery execution failed: GitHub repository not found",
+      summary: "Discovery execution failed: unexpected finance discovery failure",
     });
     expect(detail.proofBundle.status).toBe("failed");
   });
 });
 
 function createHarness(options?: {
+  financeDiscoveryService?: Pick<FinanceDiscoveryService, "answerQuestion">;
   runtimeCodexService?: Pick<OrchestratorServiceRuntimeDeps, "runTurn">;
-  twinService?: Pick<TwinService, "queryRepositoryBlastRadius">;
   validationService?: Pick<ExecutorValidationService, "validateExecutorTurn">;
 }) {
   const missionRepository = new InMemoryMissionRepository();
@@ -527,9 +494,14 @@ function createHarness(options?: {
     evidenceService,
     workspaceService,
     options?.validationService ?? createValidationService(),
-    options?.twinService ?? {
+    options?.financeDiscoveryService ?? {
+      async answerQuestion() {
+        return createFinanceDiscoveryAnswer();
+      },
+    },
+    {
       async queryRepositoryBlastRadius() {
-        return createDiscoveryQueryResult();
+        throw new Error("legacy engineering discovery is not exercised in this spec");
       },
     },
     {
@@ -576,99 +548,54 @@ type OrchestratorServiceRuntimeDeps = ConstructorParameters<
   typeof OrchestratorService
 >[3];
 
-function createFreshnessSlices(): TwinRepositoryFreshnessView["slices"] {
+function createFinanceDiscoveryAnswer(): FinanceDiscoveryAnswerArtifactMetadata {
   return {
-    metadata: createFreshnessSlice(),
-    ownership: createFreshnessSlice(),
-    workflows: createFreshnessSlice(),
-    testSuites: createFreshnessSlice(),
-    docs: createFreshnessSlice(),
-    runbooks: createFreshnessSlice(),
-  };
-}
-
-function createFreshnessSlice(): TwinFreshnessSlice {
-  return {
-    state: "fresh" as const,
-    scorePercent: 100,
-    latestRunStatus: "succeeded" as const,
-    ageSeconds: 10,
-    staleAfterSeconds: 3600,
-    reasonCode: "fresh",
-    reasonSummary: "Stored twin state is fresh.",
-    latestRunId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    latestCompletedAt: "2026-03-20T00:15:00.000Z",
-    latestSuccessfulRunId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
-    latestSuccessfulCompletedAt: "2026-03-20T00:15:00.000Z",
-  };
-}
-
-function createDiscoveryQueryResult(input?: {
-  limitations?: TwinBlastRadiusLimitation[];
-  rollupReasonCode?: string;
-  rollupReasonSummary?: string;
-  rollupState?: "failed" | "fresh" | "never_synced" | "stale";
-}): TwinRepositoryBlastRadiusQueryResult {
-  return {
-    repository: {
-      fullName: "616xold/pocket-cto",
-      installationId: "12345",
-      defaultBranch: "main",
-      archived: false,
-      disabled: false,
-      isActive: true,
-      writeReadiness: {
-        ready: true,
-        failureCode: null,
-      },
+    source: "stored_finance_twin_and_cfo_wiki",
+    summary:
+      "Stored cash posture for acme covers 4 bank accounts across 2 currency buckets: USD statement or ledger 1200.00, available 1400.00, unspecified 250.00 (as of 2026-04-10 to 2026-04-11). 1 additional currency bucket is also present.",
+    companyKey: "acme",
+    questionKind: "cash_posture",
+    answerSummary:
+      "Stored cash posture for acme covers 4 bank accounts across 2 currency buckets: USD statement or ledger 1200.00, available 1400.00, unspecified 250.00 (as of 2026-04-10 to 2026-04-11). 1 additional currency bucket is also present.",
+    freshnessPosture: {
+      state: "stale",
+      reasonSummary:
+        "The latest bank-account summary sync is older than the freshness threshold.",
     },
-    queryEcho: {
-      questionKind: "auth_change" as const,
-      changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
-    },
-    unmatchedPaths: [],
-    impactedDirectories: [
+    limitations: [
+      "Cash posture is grouped by reported currency only; this route does not perform FX conversion or emit one company-wide cash total.",
+    ],
+    relatedRoutes: [
       {
-        path: "apps",
-        label: "Apps",
-        classification: "application_group",
-        matchedChangedPaths: [
-          "apps/control-plane/src/modules/github-app/auth.ts",
-        ],
-        ownershipState: "unknown" as const,
-        effectiveOwners: [],
-        appliedRule: null,
+        label: "Cash posture",
+        routePath: "/finance-twin/companies/acme/cash-posture",
+      },
+      {
+        label: "Bank account inventory",
+        routePath: "/finance-twin/companies/acme/bank-accounts",
       },
     ],
-    impactedManifests: [],
-    ownersByTarget: [],
-    relatedTestSuites: [],
-    relatedMappedCiJobs: [],
-    ciCoverageLimitations: [],
-    freshness: {
-      rollup: {
-        state: input?.rollupState ?? "fresh",
-        scorePercent: input?.rollupState === "stale" ? 72 : 100,
-        latestRunStatus: "succeeded" as const,
-        ageSeconds: 10,
-        staleAfterSeconds: 3600,
-        reasonCode: input?.rollupReasonCode ?? "fresh",
-        reasonSummary:
-          input?.rollupReasonSummary ?? "Stored twin state is fresh.",
-        freshSliceCount: input?.rollupState === "stale" ? 4 : 6,
-        staleSliceCount: input?.rollupState === "stale" ? 2 : 0,
-        failedSliceCount: 0,
-        neverSyncedSliceCount: 0,
-        blockingSlices:
-          input?.rollupState === "stale"
-            ? (["workflows", "testSuites"] satisfies TwinFreshnessSliceName[])
-            : [],
+    relatedWikiPages: [
+      {
+        pageKey: "metrics/cash-posture",
+        title: "Cash posture",
       },
-      slices: createFreshnessSlices(),
-    },
-    limitations: input?.limitations ?? [],
-    answerSummary:
-      "Stored twin state shows apps as the main impacted directory for this auth change.",
+      {
+        pageKey: "concepts/cash",
+        title: "Cash",
+      },
+    ],
+    evidenceSections: [
+      {
+        key: "cash_posture_route",
+        title: "Cash posture route",
+        summary:
+          "Read 4 persisted bank-summary balances across 2 currency buckets. Freshness is stale.",
+        routePath: "/finance-twin/companies/acme/cash-posture",
+      },
+    ],
+    bodyMarkdown: "# Cash posture answer\n\nStored cash posture for acme.",
+    structuredData: {},
   };
 }
 

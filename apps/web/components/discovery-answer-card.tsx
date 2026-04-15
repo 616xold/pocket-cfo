@@ -1,5 +1,10 @@
 import React from "react";
-import type { MissionDetailView } from "@pocket-cto/domain";
+import type {
+  DiscoveryAnswerArtifactMetadata,
+  DiscoveryMissionQuestion,
+  MissionDetailView,
+  MissionRecord,
+} from "@pocket-cto/domain";
 import { StatusPill } from "./status-pill";
 
 type DiscoveryAnswerCardProps = {
@@ -12,13 +17,203 @@ export function DiscoveryAnswerCard({
   mission,
 }: DiscoveryAnswerCardProps) {
   const discoveryQuestion = mission.spec.input?.discoveryQuestion ?? null;
+
+  if (
+    isFinanceDiscoveryAnswer(answer) ||
+    isFinanceDiscoveryQuestion(discoveryQuestion)
+  ) {
+    return (
+      <FinanceDiscoveryAnswerCard
+        answer={answer}
+        discoveryQuestion={discoveryQuestion}
+      />
+    );
+  }
+
+  return (
+    <LegacyDiscoveryAnswerCard
+      answer={answer}
+      discoveryQuestion={discoveryQuestion}
+      mission={mission}
+    />
+  );
+}
+
+function FinanceDiscoveryAnswerCard(input: {
+  answer: DiscoveryAnswerCardProps["answer"];
+  discoveryQuestion: DiscoveryMissionQuestion | null;
+}) {
+  const answer = isFinanceDiscoveryAnswer(input.answer) ? input.answer : null;
+  const question = isFinanceDiscoveryQuestion(input.discoveryQuestion)
+    ? input.discoveryQuestion
+    : null;
+  const companyKey = answer?.companyKey ?? question?.companyKey ?? null;
+  const questionKind = answer?.questionKind ?? question?.questionKind ?? null;
+  const relatedRoutes =
+    answer?.relatedRoutes ??
+    (companyKey
+      ? [
+          {
+            label: "Cash posture",
+            routePath: `/finance-twin/companies/${companyKey}/cash-posture`,
+          },
+          {
+            label: "Bank account inventory",
+            routePath: `/finance-twin/companies/${companyKey}/bank-accounts`,
+          },
+        ]
+      : []);
+
+  return (
+    <section className="card">
+      <div className="section-head">
+        <div>
+          <p className="kicker">Discovery answer</p>
+          <h2>Stored finance discovery</h2>
+        </div>
+        {answer ? (
+          <StatusPill
+            label={answer.freshnessPosture.state}
+            tone={readFreshnessTone(answer.freshnessPosture.state)}
+          />
+        ) : null}
+      </div>
+
+      <p className="muted">
+        {answer
+          ? answer.freshnessPosture.reasonSummary
+          : "The mission exists, but no durable finance discovery answer artifact is stored yet. The scout task may still be running, or the mission may have failed before answer persistence."}
+      </p>
+
+      {answer ? <p className="mission-summary-copy">{answer.answerSummary}</p> : null}
+
+      <div className="meta-grid">
+        <div>
+          <dt>Company</dt>
+          <dd>{companyKey ?? "Not recorded yet."}</dd>
+        </div>
+        <div>
+          <dt>Question kind</dt>
+          <dd>{questionKind ?? "Not recorded yet."}</dd>
+        </div>
+        <div>
+          <dt>Freshness</dt>
+          <dd>{answer?.freshnessPosture.state ?? "pending_answer"}</dd>
+        </div>
+        <div>
+          <dt>Limitations</dt>
+          <dd>{answer?.limitations.length ?? 0}</dd>
+        </div>
+      </div>
+
+      {question?.operatorPrompt ? (
+        <div className="stack" style={{ marginTop: 18 }}>
+          <h3>Operator prompt</h3>
+          <p className="muted">{question.operatorPrompt}</p>
+        </div>
+      ) : null}
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        <h3>Related routes</h3>
+        {relatedRoutes.length > 0 ? (
+          <ul className="list-clean">
+            {relatedRoutes.map((route) => (
+              <li key={route.routePath}>
+                {route.label} · <code>{route.routePath}</code>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="muted">No related routes were recorded for this mission.</p>
+        )}
+      </div>
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        <h3>Related CFO Wiki pages</h3>
+        {answer ? (
+          answer.relatedWikiPages.length > 0 ? (
+            <ul className="list-clean">
+              {answer.relatedWikiPages.map((page) => (
+                <li key={page.pageKey}>
+                  <code>{page.pageKey}</code> · {page.title}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">No related CFO Wiki pages were available.</p>
+          )
+        ) : (
+          <p className="muted">
+            Related CFO Wiki pages will appear after a discovery answer artifact is
+            stored.
+          </p>
+        )}
+      </div>
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        <h3>Evidence sections</h3>
+        {answer ? (
+          answer.evidenceSections.length > 0 ? (
+            <ul className="list-clean">
+              {answer.evidenceSections.map((section) => (
+                <li key={section.key}>
+                  <strong>{section.title}</strong> · {section.summary}
+                  {section.routePath ? ` Route: ${section.routePath}.` : ""}
+                  {section.pageKey ? ` Wiki page: ${section.pageKey}.` : ""}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">No evidence sections were stored.</p>
+          )
+        ) : (
+          <p className="muted">
+            Evidence sections will appear after a discovery answer artifact is
+            stored.
+          </p>
+        )}
+      </div>
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        <h3>Limitations</h3>
+        {answer ? (
+          answer.limitations.length > 0 ? (
+            <ul className="list-clean">
+              {answer.limitations.map((limitation) => (
+                <li key={limitation}>{limitation}</li>
+              ))}
+            </ul>
+          ) : (
+            <p className="muted">No explicit limitations were recorded.</p>
+          )
+        ) : (
+          <p className="muted">
+            Limitations will appear after a discovery answer artifact is stored.
+          </p>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function LegacyDiscoveryAnswerCard(input: {
+  answer: DiscoveryAnswerCardProps["answer"];
+  discoveryQuestion: DiscoveryMissionQuestion | null;
+  mission: MissionRecord;
+}) {
+  const answer = isLegacyDiscoveryAnswer(input.answer) ? input.answer : null;
+  const question =
+    input.discoveryQuestion &&
+    !isFinanceDiscoveryQuestion(input.discoveryQuestion)
+      ? input.discoveryQuestion
+      : null;
   const repoFullName =
-    answer?.repoFullName ?? discoveryQuestion?.repoFullName ?? mission.primaryRepo;
-  const questionKind = answer?.questionKind ?? discoveryQuestion?.questionKind;
+    answer?.repoFullName ?? question?.repoFullName ?? input.mission.primaryRepo;
+  const questionKind = answer?.questionKind ?? question?.questionKind;
   const changedPaths =
     answer?.changedPaths ??
-    discoveryQuestion?.changedPaths ??
-    mission.spec.constraints.allowedPaths;
+    question?.changedPaths ??
+    input.mission.spec.constraints.allowedPaths;
 
   return (
     <section className="card">
@@ -220,4 +415,28 @@ function formatOwnershipSummary(
 
 function readFreshnessTone(state: string) {
   return state === "fresh" ? ("good" as const) : ("warn" as const);
+}
+
+function isFinanceDiscoveryQuestion(
+  question: DiscoveryMissionQuestion | null,
+): question is Extract<DiscoveryMissionQuestion, { companyKey: string }> {
+  return typeof question === "object" && question !== null && "companyKey" in question;
+}
+
+function isFinanceDiscoveryAnswer(
+  answer: DiscoveryAnswerArtifactMetadata | null,
+): answer is Extract<
+  DiscoveryAnswerArtifactMetadata,
+  { source: "stored_finance_twin_and_cfo_wiki" }
+> {
+  return answer?.source === "stored_finance_twin_and_cfo_wiki";
+}
+
+function isLegacyDiscoveryAnswer(
+  answer: DiscoveryAnswerArtifactMetadata | null,
+): answer is Extract<
+  DiscoveryAnswerArtifactMetadata,
+  { source: "stored_twin_blast_radius_query" }
+> {
+  return answer?.source === "stored_twin_blast_radius_query";
 }

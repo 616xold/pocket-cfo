@@ -72,6 +72,10 @@ export class MissionService {
   }
 
   async createDiscovery(rawInput: CreateDiscoveryMissionInput) {
+    return this.createAnalysis(rawInput);
+  }
+
+  async createAnalysis(rawInput: CreateDiscoveryMissionInput) {
     return this.createFromCompilation(
       buildDiscoveryMissionCreationInput(rawInput),
       undefined,
@@ -346,7 +350,11 @@ function summarizeMission(input: {
 
   return {
     id: input.mission.id,
+    companyKey: input.proofBundle.companyKey,
     createdAt: input.mission.createdAt,
+    answerSummary: input.proofBundle.answerSummary || null,
+    freshnessState: input.proofBundle.freshnessState,
+    questionKind: input.proofBundle.questionKind,
     latestTask: latestTask
       ? {
           id: latestTask.id,

@@ -61,7 +61,7 @@ export const MissionSpecSchema = z.object({
   type: MissionTypeSchema,
   title: z.string().min(1),
   objective: z.string().min(1),
-  repos: z.array(z.string()).min(1),
+  repos: z.array(z.string()).default([]),
   constraints: MissionConstraintSchema.default({
     mustNot: [],
     allowedPaths: [],

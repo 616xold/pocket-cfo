@@ -312,8 +312,14 @@ export async function createMissionFromText(input: {
 export async function createDiscoveryMission(
   input: CreateDiscoveryMissionInput,
 ) {
+  return createAnalysisMission(input);
+}
+
+export async function createAnalysisMission(
+  input: CreateDiscoveryMissionInput,
+) {
   return postJsonStrict(
-    "/missions/discovery",
+    "/missions/analysis",
     CreateDiscoveryMissionInputSchema.parse(input),
     createMissionResponseSchema,
   );

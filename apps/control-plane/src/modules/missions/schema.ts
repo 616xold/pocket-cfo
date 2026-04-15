@@ -7,6 +7,7 @@ import {
 } from "@pocket-cto/domain";
 
 export const createDiscoveryMissionSchema = CreateDiscoveryMissionInputSchema;
+export const createAnalysisMissionSchema = CreateDiscoveryMissionInputSchema;
 export const createMissionFromTextSchema = CreateMissionFromTextInputSchema;
 
 export const missionIdParamsSchema = z.object({

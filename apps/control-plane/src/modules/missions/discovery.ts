@@ -1,12 +1,12 @@
-import { posix } from "node:path";
 import type {
   CreateDiscoveryMissionInput,
+  FinanceDiscoveryQuestion,
   MissionSpec,
   MissionSourceKind,
 } from "@pocket-cto/domain";
 import {
   CreateDiscoveryMissionInputSchema,
-  DiscoveryMissionQuestionSchema,
+  FinanceDiscoveryQuestionSchema,
 } from "@pocket-cto/domain";
 import type { MissionCompilationResult } from "./compiler";
 
@@ -18,7 +18,7 @@ const DISCOVERY_INTAKE_COMPILER: MissionCompilationResult = {
     type: "discovery",
     title: "placeholder",
     objective: "placeholder",
-    repos: ["placeholder"],
+    repos: [],
     constraints: {
       mustNot: [],
       allowedPaths: [],
@@ -38,10 +38,10 @@ const DISCOVERY_INTAKE_COMPILER: MissionCompilationResult = {
 
 export function buildDiscoveryMissionCreationInput(rawInput: CreateDiscoveryMissionInput) {
   const input = CreateDiscoveryMissionInputSchema.parse(rawInput);
-  const question = DiscoveryMissionQuestionSchema.parse({
-    repoFullName: input.repoFullName.trim(),
+  const question = FinanceDiscoveryQuestionSchema.parse({
+    companyKey: input.companyKey.trim(),
     questionKind: input.questionKind,
-    changedPaths: normalizeChangedPaths(input.changedPaths),
+    operatorPrompt: input.operatorPrompt?.trim() || null,
   });
   const spec = buildDiscoveryMissionSpec(question);
 
@@ -55,7 +55,7 @@ export function buildDiscoveryMissionCreationInput(rawInput: CreateDiscoveryMiss
       spec,
     } satisfies Record<string, unknown>,
     createdBy: input.requestedBy,
-    primaryRepo: question.repoFullName,
+    primaryRepo: null,
     rawText: JSON.stringify(question, null, 2),
     sourceKind: "manual_discovery" as MissionSourceKind,
     sourceRef: null,
@@ -63,31 +63,29 @@ export function buildDiscoveryMissionCreationInput(rawInput: CreateDiscoveryMiss
   };
 }
 
-function buildDiscoveryMissionSpec(input: {
-  repoFullName: string;
-  questionKind: CreateDiscoveryMissionInput["questionKind"];
-  changedPaths: string[];
-}): MissionSpec {
-  const title = buildDiscoveryTitle(input.repoFullName, input.questionKind);
-  const objective = buildDiscoveryObjective(input.repoFullName, input.changedPaths);
+function buildDiscoveryMissionSpec(input: FinanceDiscoveryQuestion): MissionSpec {
+  const title = buildDiscoveryTitle(input.companyKey, input.questionKind);
+  const objective = buildDiscoveryObjective(input.companyKey);
 
   return {
     type: "discovery",
     title,
     objective,
-    repos: [input.repoFullName],
+    repos: [],
     constraints: {
       mustNot: [
         "do not invoke the codex runtime",
-        "do not resync the engineering twin during execution",
-        "do not hide stale, failed, or missing twin state",
+        "do not resync the finance twin during execution",
+        "do not recompile the CFO Wiki during execution",
+        "do not add generic finance chat or freeform answer generation",
+        "do not hide stale, partial, failed, or missing stored state",
       ],
-      allowedPaths: input.changedPaths,
+      allowedPaths: [],
     },
     acceptance: [
       "persist one durable discovery answer artifact",
-      "surface impacted directories, manifests, owners, related test suites, and mapped CI jobs when stored state supports them",
-      "surface freshness posture and limitations honestly",
+      "persist one finance-ready proof bundle",
+      "surface freshness posture, limitations, related routes, related CFO Wiki pages, and structured evidence sections honestly",
     ],
     riskBudget: {
       sandboxMode: "read-only",
@@ -98,8 +96,10 @@ function buildDiscoveryMissionSpec(input: {
     },
     deliverables: ["discovery_answer", "proof_bundle"],
     evidenceRequirements: [
-      "stored twin blast-radius answer",
-      "freshness limitations",
+      "stored finance-twin cash-posture route",
+      "stored finance-twin bank-account inventory route",
+      "stored CFO Wiki pages when present",
+      "freshness and limitation posture",
     ],
     input: {
       discoveryQuestion: input,
@@ -107,29 +107,13 @@ function buildDiscoveryMissionSpec(input: {
   };
 }
 
-function buildDiscoveryTitle(
-  repoFullName: string,
-  questionKind: CreateDiscoveryMissionInput["questionKind"],
-) {
+function buildDiscoveryTitle(companyKey: string, questionKind: FinanceDiscoveryQuestion["questionKind"]) {
   switch (questionKind) {
-    case "auth_change":
-      return `Assess auth-change blast radius for ${repoFullName}`;
+    case "cash_posture":
+      return `Assess cash posture for ${companyKey}`;
   }
 }
 
-function buildDiscoveryObjective(repoFullName: string, changedPaths: string[]) {
-  const renderedPaths = changedPaths.join(", ");
-  return `Answer the stored auth-change blast radius for ${repoFullName} across: ${renderedPaths}.`;
-}
-
-function normalizeChangedPaths(paths: string[]) {
-  return [...new Set(paths.map(normalizeRepoRelativePath))];
-}
-
-function normalizeRepoRelativePath(path: string) {
-  const normalized = posix.normalize(path.trim().replaceAll("\\", "/"));
-  const withoutDotPrefix = normalized.startsWith("./")
-    ? normalized.slice(2)
-    : normalized;
-  return withoutDotPrefix === "." ? "" : withoutDotPrefix;
+function buildDiscoveryObjective(companyKey: string) {
+  return `Answer the stored cash posture question for ${companyKey} from persisted Finance Twin and CFO Wiki state only.`;
 }

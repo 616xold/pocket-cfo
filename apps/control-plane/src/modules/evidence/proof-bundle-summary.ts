@@ -2,6 +2,9 @@ import type {
   ApprovalRecord,
   ArtifactKind,
   ArtifactRecord,
+  CfoWikiPageKey,
+  DiscoveryAnswerArtifactMetadata,
+  DiscoveryMissionQuestion,
   MissionRecord,
   MissionTaskRecord,
   ProofBundleArtifactSummary,
@@ -28,18 +31,25 @@ export type ProofBundleAssemblyFacts = {
   artifacts: ProofBundleArtifactSummary[];
   branchName: string | null;
   changeSummary: string | null;
+  companyKey: string | null;
   discoveryAnswerSummary: string | null;
   decisionTrace: string[];
+  freshnessState: ProofBundleManifest["freshnessState"];
+  freshnessSummary: string | null;
   latestApproval: ProofBundleLatestApproval | null;
   latestArtifacts: ProofBundleLatestArtifacts;
   latestExecutorTask: MissionTaskRecord | null;
   latestPlannerTask: MissionTaskRecord | null;
   latestScoutTask: MissionTaskRecord | null;
+  limitationsSummary: string | null;
   missionType: MissionRecord["type"];
   presentArtifactKinds: ArtifactKind[];
   pullRequestIsDraft: boolean | null;
   pullRequestNumber: number | null;
   pullRequestUrl: string | null;
+  questionKind: ProofBundleManifest["questionKind"];
+  relatedRoutePaths: string[];
+  relatedWikiPageKeys: CfoWikiPageKey[];
   riskSummary: string | null;
   rollbackSummary: string | null;
   targetRepoFullName: string | null;
@@ -75,8 +85,11 @@ export function deriveProofBundleAssemblyFacts(input: {
   const latestPlannerTask = readLatestTaskByRole(input.tasks, "planner");
   const latestExecutorTask = readLatestTaskByRole(input.tasks, "executor");
   const latestScoutTask = readLatestTaskByRole(input.tasks, "scout");
+  const discoveryQuestion = input.mission.spec.input?.discoveryQuestion ?? null;
   const targetRepoFullName =
-    discoveryAnswerMetadata?.repoFullName ??
+    (isLegacyDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+      ? discoveryAnswerMetadata.repoFullName
+      : null) ??
     readMetadataString(latestArtifacts.pullRequest?.metadata, "repoFullName") ??
     readFullRepoName(input.mission.primaryRepo) ??
     input.existingBundle?.targetRepoFullName ??
@@ -113,6 +126,15 @@ export function deriveProofBundleAssemblyFacts(input: {
       normalizeSentence(latestScoutTask?.summary ?? null) ??
       normalizeSentence(latestExecutorTask?.summary ?? null) ??
       normalizeSentence(input.existingBundle?.changeSummary ?? null),
+    companyKey:
+      (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+        ? discoveryAnswerMetadata.companyKey
+        : null) ??
+      (isFinanceDiscoveryQuestion(discoveryQuestion)
+        ? discoveryQuestion.companyKey
+        : null) ??
+      input.existingBundle?.companyKey ??
+      null,
     discoveryAnswerSummary: discoveryAnswerMetadata?.answerSummary ?? null,
     decisionTrace: buildDecisionTrace({
       artifacts: evidenceArtifacts,
@@ -123,16 +145,49 @@ export function deriveProofBundleAssemblyFacts(input: {
       pullRequestArtifact: latestArtifacts.pullRequest,
       taskById,
     }),
+    freshnessState:
+      (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+        ? discoveryAnswerMetadata.freshnessPosture.state
+        : null) ??
+      input.existingBundle?.freshnessState ??
+      null,
+    freshnessSummary:
+      (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+        ? discoveryAnswerMetadata.freshnessPosture.reasonSummary
+        : null) ??
+      normalizeSentence(input.existingBundle?.freshnessSummary ?? null),
     latestApproval,
     latestArtifacts,
     latestExecutorTask,
     latestPlannerTask,
     latestScoutTask,
+    limitationsSummary:
+      (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+        ? summarizeLimitations(discoveryAnswerMetadata.limitations)
+        : null) ??
+      normalizeSentence(input.existingBundle?.limitationsSummary ?? null),
     missionType: input.mission.type,
     presentArtifactKinds: readPresentArtifactKinds(evidenceArtifacts),
     pullRequestIsDraft,
     pullRequestNumber,
     pullRequestUrl,
+    questionKind:
+      discoveryAnswerMetadata?.questionKind ??
+      discoveryQuestion?.questionKind ??
+      input.existingBundle?.questionKind ??
+      null,
+    relatedRoutePaths:
+      (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+        ? discoveryAnswerMetadata.relatedRoutes.map((route) => route.routePath)
+        : null) ??
+      input.existingBundle?.relatedRoutePaths ??
+      [],
+    relatedWikiPageKeys:
+      (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
+        ? discoveryAnswerMetadata.relatedWikiPages.map((page) => page.pageKey)
+        : null) ??
+      input.existingBundle?.relatedWikiPageKeys ??
+      [],
     riskSummary:
       readArtifactSummary(latestArtifacts.logExcerpt) ??
       (!hasCurrentExecutionEvidence
@@ -180,6 +235,44 @@ function readLatestTaskByRole(
       )
       .at(-1) ?? null
   );
+}
+
+function isFinanceDiscoveryAnswerMetadata(
+  metadata: DiscoveryAnswerArtifactMetadata | null,
+): metadata is Extract<
+  DiscoveryAnswerArtifactMetadata,
+  { source: "stored_finance_twin_and_cfo_wiki" }
+> {
+  return metadata?.source === "stored_finance_twin_and_cfo_wiki";
+}
+
+function isLegacyDiscoveryAnswerMetadata(
+  metadata: DiscoveryAnswerArtifactMetadata | null,
+): metadata is Extract<
+  DiscoveryAnswerArtifactMetadata,
+  { source: "stored_twin_blast_radius_query" }
+> {
+  return metadata?.source === "stored_twin_blast_radius_query";
+}
+
+function isFinanceDiscoveryQuestion(
+  question: DiscoveryMissionQuestion | null,
+): question is Extract<DiscoveryMissionQuestion, { companyKey: string }> {
+  return typeof question === "object" && question !== null && "companyKey" in question;
+}
+
+function summarizeLimitations(limitations: string[]) {
+  const normalized = limitations.filter((entry) => entry.trim().length > 0);
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  if (normalized.length === 1) {
+    return normalized[0];
+  }
+
+  return `${normalized[0]} ${normalized.length - 1} additional limitation${normalized.length === 2 ? "" : "s"} remain visible.`;
 }
 
 function readLatestApproval(

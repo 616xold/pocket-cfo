@@ -20,9 +20,9 @@ export default async function MissionsPage() {
         <h1>Mission operations remain available, but they are no longer the main F1 flow.</h1>
         <p className="lede">
           Pocket CFO now starts from source inventory and ingest. This page
-          stays available for mission review, text intake, deterministic
-          discovery intake, and legacy GitHub connector handoff without
-          pretending engineering/GitHub work is still the primary operator
+          stays available for mission review, text intake, typed finance
+          analysis intake, and legacy GitHub connector handoff without
+          pretending engineering or GitHub work is still the primary operator
           posture.
         </p>
         <div className="button-row">
@@ -47,12 +47,13 @@ export default async function MissionsPage() {
         </article>
 
         <article className="card">
-          <h2>Start discovery</h2>
+          <h2>Start finance analysis</h2>
           <p className="muted">
-            Ask one stored deterministic question when mission work is actually
-            needed. This page only submits the typed payload and redirects.
+            Ask one stored deterministic finance question when mission work is
+            actually needed. This page only submits the typed payload and
+            redirects.
           </p>
-          <DiscoveryMissionIntakeForm buttonLabel="Create and open discovery mission" />
+          <DiscoveryMissionIntakeForm buttonLabel="Create and open analysis mission" />
         </article>
       </section>
 
@@ -61,7 +62,7 @@ export default async function MissionsPage() {
         <ul className="list-clean">
           <li>Source inventory is the primary F1 operator surface</li>
           <li>Newest-first mission cards</li>
-          <li>Text and deterministic discovery intake stay separate</li>
+          <li>Text and typed finance analysis intake stay separate</li>
           <li>Proof-bundle status and pending approvals stay visible at a glance</li>
           <li>Mission detail stays the evidence-heavy drill-down</li>
         </ul>

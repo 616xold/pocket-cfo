@@ -38,11 +38,13 @@ Today the merged backbone is:
 - F3B additive company-scoped CFO Wiki document bindings, deterministic markdown or plain-text document extracts from stored raw bytes, compiler-owned source digest pages, and route-backed backlinks while unsupported PDFs or fileless snapshots remain visible as gaps
 - F3C additive persisted CFO Wiki lint runs and findings, deterministic markdown-first export runs, and ownership-safe filed artifact pages preserved across later compiler-owned compiles
 - F3D additive deterministic concept pages, metric-definition pages, and policy pages compiled from fixed registries plus explicit `policy_document` bindings while unsupported policy extracts remain visible as gaps
+- F4A additive deterministic finance-discovery missions for one typed `cash_posture` question family, backed only by stored Finance Twin plus stored CFO Wiki state, with durable answer artifacts and finance-ready proof bundles
 
 Broad F2 Finance Twin breadth is now shipped through F2O.
 The final F2 closeout and handoff are recorded in `plans/FP-0024-final-f2-exit-audit-and-polish.md` and `plans/FP-0025-final-f2-handoff-and-plan-chain-polish.md`.
 F3A through F3D are now shipped.
-The next new major implementation phase should be F4 finance discovery answers rather than reopening earlier wiki slices.
+F4A is now the shipped first finance-discovery baseline.
+The next new major implementation phase should be F4B supported posture and obligation families rather than reopening earlier wiki slices or widening into later F5 or F6 work.
 
 ## Product boundary for v1
 
@@ -193,6 +195,7 @@ pnpm smoke:cfo-wiki-foundation:local
 pnpm smoke:cfo-wiki-document-pages:local
 pnpm smoke:cfo-wiki-lint-export:local
 pnpm smoke:cfo-wiki-concept-metric-policy:local
+pnpm smoke:finance-discovery-answer:local
 ```
 
 The current backend-first finance-twin read surface is:
