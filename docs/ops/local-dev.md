@@ -1,6 +1,6 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, and through the merged F2A, F2B, F2C, F2D, F2E, F2F, F2G, F2H, F2I, F2J, F2K, F2L, F2M, F2N, and F2O finance-twin slices.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, through the shipped F2A through F2O finance-twin breadth, through the shipped F3A through F3D CFO Wiki slices, and through the shipped F4A/F4B finance-discovery baseline. `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` is now the active next implementation contract for F4C1 `policy_lookup`, with F4C2 reserved for later discovery-quality hardening and eval extension.
 
 That means two things are true at once:
 

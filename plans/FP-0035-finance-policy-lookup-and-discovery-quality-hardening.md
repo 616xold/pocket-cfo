@@ -14,6 +14,7 @@ This planning thread is docs-and-plan only. It creates the active F4C contract a
 - [x] 2026-04-15T17:59:02Z Audit the active docs, shipped F4 plan chain, discovery-domain contracts, proof-bundle shaping, wiki policy surfaces, and operator-facing mission views before drafting the F4C execution contract.
 - [x] 2026-04-15T17:59:02Z Create `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` and refresh the smallest active-doc set so F4C1 and F4C2 are described consistently.
 - [x] 2026-04-15T18:08:24Z Run the docs-and-plan validation ladder for this planning slice without starting F4C implementation.
+- [x] 2026-04-15T22:20:42Z Apply a tiny follow-on handoff-doc truthfulness polish so `START_HERE.md` and `docs/ops/local-dev.md` point cleanly at the shipped F4A/F4B baseline, the active `FP-0035` contract, the next `F4C1` implementation thread, and the later `F4C2` hardening pass.
 - [ ] Implement `policy_lookup` as the only new F4C1 family through the existing mission engine, discovery bounded context, proof-bundle path, and operator read models.
 - [ ] Land F4C2 discovery-quality hardening and eval extension only after F4C1 proves which operator or evidence gaps are still real.
 
@@ -320,7 +321,7 @@ Dependencies and seams:
 
 ## Outcomes & Retrospective
 
-This planning slice created the first real F4C execution contract and refreshed the smallest active-doc set so a fresh Codex thread can implement F4C cleanly. The active contract now separates `F4C1` from `F4C2`, defines `policy_lookup` as the only new required F4C1 family, requires explicit `policySourceId` scope, and locks the first policy answer path to explicit `policy_document` bindings plus stored deterministic extracts only.
+This planning slice created the first real F4C execution contract and the follow-on handoff-doc polish now leaves the active-doc set pointing cleanly at that contract so a fresh Codex thread can implement F4C cleanly. The active contract now separates `F4C1` from `F4C2`, defines `policy_lookup` as the only new required F4C1 family, requires explicit `policySourceId` scope, and locks the first policy answer path to explicit `policy_document` bindings plus stored deterministic extracts only.
 
 No runtime code, routes, schema changes, migrations, package scripts, smoke aliases, eval datasets, runtime-codex dependencies, vector search, OCR, PageIndex, QMD, MinerU, or deep-read work were added in this slice. F4A and F4B remain the shipped authoritative discovery baseline.
 
