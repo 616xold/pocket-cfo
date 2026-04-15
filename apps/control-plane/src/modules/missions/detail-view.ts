@@ -90,6 +90,22 @@ function readArtifactSummary(artifact: ArtifactRecord) {
       return "Proof bundle manifest persisted.";
     }
 
+    if (isFinanceProofBundle(manifest)) {
+      if (manifest.status === "ready") {
+        return `Finance proof bundle ready with ${manifest.artifacts.length} linked artifacts for ${manifest.companyKey ?? "the target company"}.`;
+      }
+
+      if (manifest.status === "failed") {
+        return `Finance proof bundle failed with ${manifest.evidenceCompleteness.missingArtifactKinds.length} missing final-package artifacts.`;
+      }
+
+      if (manifest.status === "incomplete") {
+        return `Finance proof bundle incomplete: ${manifest.evidenceCompleteness.missingArtifactKinds.join(", ") || "final evidence still pending"}.`;
+      }
+
+      return "Finance proof bundle placeholder manifest persisted.";
+    }
+
     if (manifest.status === "ready") {
       return `Proof bundle ready with ${manifest.artifacts.length} linked artifacts for ${manifest.targetRepoFullName ?? "the target repo"}.`;
     }
@@ -121,4 +137,8 @@ function truncate(value: string) {
   }
 
   return `${value.slice(0, ARTIFACT_SUMMARY_MAX_LENGTH - 3).trimEnd()}...`;
+}
+
+function isFinanceProofBundle(manifest: ProofBundleManifest) {
+  return manifest.companyKey !== null || manifest.questionKind === "cash_posture";
 }

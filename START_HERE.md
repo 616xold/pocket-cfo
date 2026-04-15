@@ -64,7 +64,7 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `F3D-cfo-wiki-concept-metric-and-policy-pages` is now the shipped deterministic knowledge-page slice.
 `F4-finance-discovery-master-plan-and-doc-refresh` is the planning and active-doc slice that creates the first implementation-ready F4 contract.
 If that slice has already produced an unfinished `plans/FP-0030-finance-discovery-foundation-and-first-answer.md`, continue that plan in the next F4A implementation thread rather than creating a different F4 plan.
-The next new implementation thread after the F4 master-plan refresh should be `F4A-finance-discovery-foundation-and-first-answer` rather than reopening earlier wiki slices.
+Once `plans/FP-0030-finance-discovery-foundation-and-first-answer.md` is fully checked off and closed, the next new implementation thread should be `F4B-finance-discovery-supported-posture-and-obligation-families` rather than reopening earlier wiki slices or widening into F5/F6 work.
 
 ## Review ritual
 

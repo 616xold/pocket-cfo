@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { CreateMissionFromTextInputSchema, MissionSpecSchema } from "./mission";
+import {
+  CreateMissionFromTextInputSchema,
+  MissionSpecSchema,
+} from "./mission";
 
 describe("Mission domain schemas", () => {
   it("parses mission text input", () => {
@@ -31,5 +34,25 @@ describe("Mission domain schemas", () => {
 
     expect(spec.type).toBe("build");
     expect(spec.repos[0]).toBe("web");
+  });
+
+  it("allows repo-free finance discovery specs", () => {
+    const spec = MissionSpecSchema.parse({
+      type: "discovery",
+      title: "Assess cash posture for acme",
+      objective: "Answer the stored cash posture question for acme.",
+      repos: [],
+      acceptance: ["persist one durable finance discovery answer artifact"],
+      riskBudget: {
+        sandboxMode: "read-only",
+        maxWallClockMinutes: 5,
+        maxCostUsd: 1,
+        allowNetwork: false,
+        requiresHumanApprovalFor: [],
+      },
+      deliverables: ["discovery_answer", "proof_bundle"],
+    });
+
+    expect(spec.repos).toEqual([]);
   });
 });

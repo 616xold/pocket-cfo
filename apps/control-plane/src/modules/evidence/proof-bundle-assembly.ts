@@ -171,6 +171,14 @@ export function assembleProofBundleManifest(input: {
     missionId: input.mission.id,
     missionTitle: input.mission.title,
     objective: input.mission.objective,
+    companyKey: facts.companyKey,
+    questionKind: facts.questionKind,
+    answerSummary: facts.discoveryAnswerSummary ?? "",
+    freshnessState: facts.freshnessState,
+    freshnessSummary: facts.freshnessSummary ?? "",
+    limitationsSummary: facts.limitationsSummary ?? "",
+    relatedRoutePaths: facts.relatedRoutePaths,
+    relatedWikiPageKeys: facts.relatedWikiPageKeys,
     targetRepoFullName: facts.targetRepoFullName,
     branchName: facts.branchName,
     pullRequestNumber: facts.pullRequestNumber,
@@ -273,6 +281,14 @@ function buildChangeSummary(
     return facts.changeSummary;
   }
 
+  if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
+    if (status === "failed" && facts.latestScoutTask.summary) {
+      return truncate(facts.latestScoutTask.summary, SUMMARY_MAX_LENGTH);
+    }
+
+    return "Finance discovery execution is still pending a stored answer artifact.";
+  }
+
   if (facts.missionType === "discovery" && facts.latestScoutTask) {
     if (status === "failed" && facts.latestScoutTask.summary) {
       return truncate(facts.latestScoutTask.summary, SUMMARY_MAX_LENGTH);
@@ -298,6 +314,22 @@ function buildValidationSummary(
 ) {
   if (facts.validationSummary) {
     return facts.validationSummary;
+  }
+
+  if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
+    if (status === "ready") {
+      return "Finance discovery answer was assembled deterministically from stored Finance Twin and CFO Wiki state without running the Codex runtime.";
+    }
+
+    if (status === "incomplete") {
+      return "Finance discovery answer evidence is still pending from the stored Finance Twin and CFO Wiki path.";
+    }
+
+    if (status === "failed") {
+      return "No finance discovery answer could be persisted for this mission.";
+    }
+
+    return "";
   }
 
   if (facts.missionType === "discovery" && facts.latestScoutTask) {
@@ -331,6 +363,25 @@ function buildVerificationSummary(
   status: ProofBundleStatus,
   facts: ProofBundleAssemblyFacts,
 ) {
+  if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
+    if (status === "ready" && facts.discoveryAnswerSummary) {
+      return truncate(
+        `${facts.discoveryAnswerSummary} Review the stored freshness, route-backed evidence, and visible limitations before acting on the answer.`,
+        SUMMARY_MAX_LENGTH,
+      );
+    }
+
+    if (status === "failed") {
+      return "The stored Finance Twin and CFO Wiki state could not produce a truthful finance discovery answer for this mission.";
+    }
+
+    if (status === "incomplete") {
+      return "Finance discovery execution has not yet persisted its answer artifact.";
+    }
+
+    return "";
+  }
+
   if (facts.missionType === "discovery" && facts.latestScoutTask) {
     if (status === "ready" && facts.discoveryAnswerSummary) {
       return truncate(
@@ -396,6 +447,22 @@ function buildRiskSummary(
     return facts.riskSummary;
   }
 
+  if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
+    if (status === "failed") {
+      return "The finance discovery answer is currently unavailable; inspect the mission timeline and stored freshness posture before retrying.";
+    }
+
+    if (status === "incomplete") {
+      return "Finance readiness depends entirely on stored Finance Twin and CFO Wiki state, and one durable answer artifact still needs to be persisted.";
+    }
+
+    if (status === "ready") {
+      return "The answer is grounded only in stored Finance Twin and CFO Wiki state, so stale, partial, or missing evidence must be weighed before taking follow-up action.";
+    }
+
+    return "";
+  }
+
   if (facts.missionType === "discovery" && facts.latestScoutTask) {
     if (status === "failed") {
       return "The discovery answer is currently unavailable; inspect the mission timeline and twin freshness posture before retrying.";
@@ -421,7 +488,9 @@ function buildRiskSummary(
   }
 
   if (status === "incomplete") {
-    return "The proof bundle is still missing evidence required for a final GitHub-ready decision.";
+    return isFinanceDiscoveryFacts(facts)
+      ? "The proof bundle is still missing evidence required for a final finance-ready decision."
+      : "The proof bundle is still missing evidence required for a final GitHub-ready decision.";
   }
 
   if (facts.pullRequestUrl) {
@@ -437,6 +506,22 @@ function buildRollbackSummary(
 ) {
   if (facts.rollbackSummary) {
     return facts.rollbackSummary;
+  }
+
+  if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
+    if (status === "failed") {
+      return "Safe fallback: refresh the relevant finance-twin slices and CFO Wiki compile truthfully, then retry the finance discovery mission; no code or GitHub changes were produced.";
+    }
+
+    if (status === "incomplete") {
+      return "Wait for the stored finance discovery answer artifact before relying on this mission for operator follow-up.";
+    }
+
+    if (status === "ready") {
+      return "No code, branch, pull request, or deploy side effect was produced; retry only if the stored finance evidence needs to be refreshed.";
+    }
+
+    return "";
   }
 
   if (facts.missionType === "discovery" && facts.latestScoutTask) {
@@ -496,6 +581,10 @@ function proofBundleManifestEquals(
 
 function isDiscoveryMission(mission: MissionRecord) {
   return mission.type === "discovery";
+}
+
+function isFinanceDiscoveryFacts(facts: ProofBundleAssemblyFacts) {
+  return facts.companyKey !== null || facts.questionKind === "cash_posture";
 }
 
 function readExpectedArtifactKinds(facts: ProofBundleAssemblyFacts) {

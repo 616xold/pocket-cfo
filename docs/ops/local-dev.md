@@ -48,6 +48,8 @@ pnpm smoke:finance-twin-card-expense:local
 pnpm smoke:cfo-wiki-foundation:local
 pnpm smoke:cfo-wiki-document-pages:local
 pnpm smoke:cfo-wiki-lint-export:local
+pnpm smoke:cfo-wiki-concept-metric-policy:local
+pnpm smoke:finance-discovery-answer:local
 ```
 
 ## Pivot-foundation baseline
@@ -110,6 +112,8 @@ Today, steps 1 through 5 exist in a narrow form:
 - the packaged `pnpm smoke:cfo-wiki-lint-export:local` path proves one company can preserve a filed artifact page across recompile, persist deterministic lint findings from stored wiki state, and read back a deterministic markdown export bundle without runtime-codex, vector search, or OCR
 - F3D adds deterministic concept pages, metric-definition pages, and policy pages from fixed registries plus explicit `policy_document` bindings while unsupported policy extracts remain visible as gaps
 - the packaged `pnpm smoke:cfo-wiki-concept-metric-policy:local` path proves one company can sync supported cash coverage, compile deterministic concept and metric-definition pages, and read back supported plus unsupported policy pages without runtime-codex, OCR, or vector search
+- F4A adds one deterministic mission-based finance discovery answer path for `cash_posture`, backed only by stored Finance Twin and stored CFO Wiki state, with a durable answer artifact and a finance-ready proof bundle
+- the packaged `pnpm smoke:finance-discovery-answer:local` path proves one company can sync bank-account-summary coverage, compile related wiki pages, run `POST /missions/analysis`, and read back the persisted finance answer plus finance-ready proof bundle without runtime-codex, vector search, OCR, or deep-read dependencies
 
 Step 6 remains later-phase work.
 If an unfinished `plans/FP-*.md` file exists, continue that plan.

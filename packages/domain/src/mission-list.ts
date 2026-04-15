@@ -2,6 +2,11 @@ import { z } from "zod";
 import { MissionSourceKindSchema, MissionStatusSchema } from "./mission";
 import { MissionTaskRoleSchema, MissionTaskStatusSchema } from "./mission-task";
 import { ProofBundleStatusSchema } from "./proof-bundle";
+import {
+  DiscoveryQuestionKindSchema,
+  FinanceDiscoveryFreshnessStateSchema,
+} from "./discovery-mission";
+import { FinanceCompanyKeySchema } from "./finance-twin";
 
 export const MissionListLatestTaskSchema = z.object({
   id: z.string().uuid(),
@@ -15,6 +20,10 @@ export const MissionListItemSchema = z.object({
   id: z.string().uuid(),
   title: z.string().min(1),
   objectiveExcerpt: z.string().min(1),
+  companyKey: FinanceCompanyKeySchema.nullable().default(null),
+  questionKind: DiscoveryQuestionKindSchema.nullable().default(null),
+  answerSummary: z.string().nullable().default(null),
+  freshnessState: FinanceDiscoveryFreshnessStateSchema.nullable().default(null),
   status: MissionStatusSchema,
   sourceKind: MissionSourceKindSchema,
   sourceRef: z.string().nullable(),

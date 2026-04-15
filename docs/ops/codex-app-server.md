@@ -79,7 +79,7 @@ As the product pivots:
 ## Transition note
 
 The current repo still contains Pocket CTO-era terminology around planners, executors, and git worktrees.
-That is acceptable during F0.
+That remains acceptable while the finance-discovery slices continue retargeting the control plane around the stable runtime seam.
 
-Do not force a giant runtime rewrite during the docs reset.
+Do not force a giant runtime rewrite during the finance-discovery transition.
 Keep the seam stable while the finance slices land around it.

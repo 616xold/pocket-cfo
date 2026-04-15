@@ -6,6 +6,7 @@ import type {
 import type { ApprovalService } from "../approvals/service";
 import type { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import type { EvidenceService } from "../evidence/service";
+import type { FinanceDiscoveryService } from "../finance-discovery/service";
 import type { GitHubPublishService } from "../github-app/publish-service";
 import { taskStatusChangeReasons } from "./events";
 import type { MissionRepository } from "../missions/repository";
@@ -92,6 +93,7 @@ export class OrchestratorService {
       ExecutorValidationService,
       "validateExecutorTurn"
     >,
+    financeDiscoveryService: Pick<FinanceDiscoveryService, "answerQuestion">,
     twinService: Pick<TwinService, "queryRepositoryBlastRadius">,
     githubPublishService: Pick<
       GitHubPublishService,
@@ -105,6 +107,7 @@ export class OrchestratorService {
     this.discoveryPhase = new DiscoveryOrchestratorPhase(
       missionRepository,
       replayService,
+      financeDiscoveryService,
       twinService,
       proofBundleAssembly,
     );

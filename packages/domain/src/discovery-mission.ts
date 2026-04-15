@@ -1,17 +1,26 @@
 import { z } from "zod";
+import { CfoWikiPageKeySchema } from "./cfo-wiki";
+import { FinanceCompanyKeySchema } from "./finance-twin";
 import {
+  TwinBlastRadiusImpactedDirectorySchema,
+  TwinBlastRadiusImpactedManifestSchema,
   TwinBlastRadiusLimitationSchema,
   TwinBlastRadiusQuestionKindSchema,
   TwinBlastRadiusRelatedMappedCiJobSchema,
   TwinBlastRadiusRelatedTestSuiteSchema,
   TwinBlastRadiusTargetOwnersSchema,
   TwinRepositoryBlastRadiusFreshnessBlockSchema,
-  TwinBlastRadiusImpactedDirectorySchema,
-  TwinBlastRadiusImpactedManifestSchema,
   TwinRepositoryFreshnessRollupSchema,
 } from "./twin";
 
-export const DiscoveryMissionQuestionSchema = z
+export const FinanceDiscoveryQuestionKindSchema = z.enum(["cash_posture"]);
+export const LegacyDiscoveryQuestionKindSchema = TwinBlastRadiusQuestionKindSchema;
+export const DiscoveryQuestionKindSchema = z.union([
+  FinanceDiscoveryQuestionKindSchema,
+  LegacyDiscoveryQuestionKindSchema,
+]);
+
+export const LegacyDiscoveryMissionQuestionSchema = z
   .object({
     repoFullName: z.string().min(1),
     questionKind: TwinBlastRadiusQuestionKindSchema,
@@ -19,13 +28,76 @@ export const DiscoveryMissionQuestionSchema = z
   })
   .strict();
 
-export const CreateDiscoveryMissionInputSchema = DiscoveryMissionQuestionSchema.extend(
-  {
-    requestedBy: z.string().default("operator"),
-  },
-).strict();
+export const FinanceDiscoveryQuestionSchema = z
+  .object({
+    companyKey: FinanceCompanyKeySchema,
+    questionKind: FinanceDiscoveryQuestionKindSchema,
+    operatorPrompt: z.string().trim().min(1).nullable().optional(),
+  })
+  .strict();
 
-export const DiscoveryAnswerArtifactMetadataSchema = z
+export const CreateFinanceDiscoveryMissionInputSchema =
+  FinanceDiscoveryQuestionSchema.extend({
+    requestedBy: z.string().default("operator"),
+  }).strict();
+
+export const FinanceDiscoveryFreshnessStateSchema = z.enum([
+  "fresh",
+  "stale",
+  "missing",
+  "mixed",
+  "failed",
+]);
+
+export const FinanceDiscoveryFreshnessPostureSchema = z
+  .object({
+    state: FinanceDiscoveryFreshnessStateSchema,
+    reasonSummary: z.string().min(1),
+  })
+  .strict();
+
+export const FinanceDiscoveryRelatedRouteSchema = z
+  .object({
+    label: z.string().min(1),
+    routePath: z.string().min(1),
+  })
+  .strict();
+
+export const FinanceDiscoveryRelatedWikiPageSchema = z
+  .object({
+    pageKey: CfoWikiPageKeySchema,
+    title: z.string().min(1),
+  })
+  .strict();
+
+export const FinanceDiscoveryEvidenceSectionSchema = z
+  .object({
+    key: z.string().min(1),
+    title: z.string().min(1),
+    summary: z.string().min(1),
+    routePath: z.string().min(1).optional(),
+    pageKey: CfoWikiPageKeySchema.optional(),
+  })
+  .strict();
+
+export const FinanceDiscoveryAnswerArtifactMetadataSchema = z
+  .object({
+    source: z.literal("stored_finance_twin_and_cfo_wiki"),
+    summary: z.string().min(1),
+    companyKey: FinanceCompanyKeySchema,
+    questionKind: FinanceDiscoveryQuestionKindSchema,
+    answerSummary: z.string().min(1),
+    freshnessPosture: FinanceDiscoveryFreshnessPostureSchema,
+    limitations: z.array(z.string().min(1)),
+    relatedRoutes: z.array(FinanceDiscoveryRelatedRouteSchema),
+    relatedWikiPages: z.array(FinanceDiscoveryRelatedWikiPageSchema),
+    evidenceSections: z.array(FinanceDiscoveryEvidenceSectionSchema),
+    bodyMarkdown: z.string().min(1),
+    structuredData: z.record(z.string(), z.unknown()).default({}),
+  })
+  .strict();
+
+export const LegacyDiscoveryAnswerArtifactMetadataSchema = z
   .object({
     source: z.literal("stored_twin_blast_radius_query"),
     summary: z.string().min(1),
@@ -44,7 +116,20 @@ export const DiscoveryAnswerArtifactMetadataSchema = z
   })
   .strict();
 
-export const DiscoveryAnswerSummarySchema = z
+export const FinanceDiscoveryAnswerSummarySchema = z
+  .object({
+    companyKey: FinanceCompanyKeySchema,
+    questionKind: FinanceDiscoveryQuestionKindSchema,
+    answerSummary: z.string().min(1),
+    freshnessState: FinanceDiscoveryFreshnessStateSchema,
+    limitationCount: z.number().int().nonnegative(),
+    relatedRouteCount: z.number().int().nonnegative(),
+    relatedWikiPageCount: z.number().int().nonnegative(),
+    evidenceSectionCount: z.number().int().nonnegative(),
+  })
+  .strict();
+
+export const LegacyDiscoveryAnswerSummarySchema = z
   .object({
     repoFullName: z.string().min(1),
     questionKind: TwinBlastRadiusQuestionKindSchema,
@@ -59,15 +144,65 @@ export const DiscoveryAnswerSummarySchema = z
   })
   .strict();
 
-export type DiscoveryMissionQuestion = z.infer<
-  typeof DiscoveryMissionQuestionSchema
+export const DiscoveryMissionQuestionSchema = z.union([
+  FinanceDiscoveryQuestionSchema,
+  LegacyDiscoveryMissionQuestionSchema,
+]);
+export const CreateDiscoveryMissionInputSchema =
+  CreateFinanceDiscoveryMissionInputSchema;
+export const DiscoveryAnswerArtifactMetadataSchema =
+  z.union([
+    FinanceDiscoveryAnswerArtifactMetadataSchema,
+    LegacyDiscoveryAnswerArtifactMetadataSchema,
+  ]);
+export const DiscoveryAnswerSummarySchema = z.union([
+  FinanceDiscoveryAnswerSummarySchema,
+  LegacyDiscoveryAnswerSummarySchema,
+]);
+
+export type FinanceDiscoveryQuestion = z.infer<
+  typeof FinanceDiscoveryQuestionSchema
 >;
-export type CreateDiscoveryMissionInput = z.infer<
-  typeof CreateDiscoveryMissionInputSchema
+export type LegacyDiscoveryMissionQuestion = z.infer<
+  typeof LegacyDiscoveryMissionQuestionSchema
 >;
-export type DiscoveryAnswerArtifactMetadata = z.infer<
-  typeof DiscoveryAnswerArtifactMetadataSchema
+export type DiscoveryMissionQuestion =
+  | FinanceDiscoveryQuestion
+  | LegacyDiscoveryMissionQuestion;
+export type CreateFinanceDiscoveryMissionInput = z.infer<
+  typeof CreateFinanceDiscoveryMissionInputSchema
 >;
-export type DiscoveryAnswerSummary = z.infer<
-  typeof DiscoveryAnswerSummarySchema
+export type CreateDiscoveryMissionInput = CreateFinanceDiscoveryMissionInput;
+export type FinanceDiscoveryFreshnessState = z.infer<
+  typeof FinanceDiscoveryFreshnessStateSchema
 >;
+export type FinanceDiscoveryFreshnessPosture = z.infer<
+  typeof FinanceDiscoveryFreshnessPostureSchema
+>;
+export type FinanceDiscoveryRelatedRoute = z.infer<
+  typeof FinanceDiscoveryRelatedRouteSchema
+>;
+export type FinanceDiscoveryRelatedWikiPage = z.infer<
+  typeof FinanceDiscoveryRelatedWikiPageSchema
+>;
+export type FinanceDiscoveryEvidenceSection = z.infer<
+  typeof FinanceDiscoveryEvidenceSectionSchema
+>;
+export type FinanceDiscoveryAnswerArtifactMetadata = z.infer<
+  typeof FinanceDiscoveryAnswerArtifactMetadataSchema
+>;
+export type LegacyDiscoveryAnswerArtifactMetadata = z.infer<
+  typeof LegacyDiscoveryAnswerArtifactMetadataSchema
+>;
+export type DiscoveryAnswerArtifactMetadata =
+  | FinanceDiscoveryAnswerArtifactMetadata
+  | LegacyDiscoveryAnswerArtifactMetadata;
+export type FinanceDiscoveryAnswerSummary = z.infer<
+  typeof FinanceDiscoveryAnswerSummarySchema
+>;
+export type LegacyDiscoveryAnswerSummary = z.infer<
+  typeof LegacyDiscoveryAnswerSummarySchema
+>;
+export type DiscoveryAnswerSummary =
+  | FinanceDiscoveryAnswerSummary
+  | LegacyDiscoveryAnswerSummary;

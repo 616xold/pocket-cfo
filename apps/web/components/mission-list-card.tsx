@@ -8,6 +8,8 @@ type MissionListCardProps = {
 };
 
 export function MissionListCard({ mission }: MissionListCardProps) {
+  const isFinanceMission = mission.companyKey !== null;
+
   return (
     <article className="mission-summary-card">
       <div className="mission-summary-header">
@@ -29,15 +31,36 @@ export function MissionListCard({ mission }: MissionListCardProps) {
 
       <p className="mission-summary-copy">{mission.objectiveExcerpt}</p>
 
+      {mission.answerSummary ? (
+        <p className="muted mission-summary-inline">{mission.answerSummary}</p>
+      ) : null}
+
       {mission.sourceRef ? (
         <p className="muted mission-summary-inline">Source: {mission.sourceRef}</p>
       ) : null}
 
       <dl className="mission-summary-meta">
-        <div>
-          <dt>Repo</dt>
-          <dd>{mission.primaryRepo ?? "Pending repo target"}</dd>
-        </div>
+        {isFinanceMission ? (
+          <>
+            <div>
+              <dt>Company</dt>
+              <dd>{mission.companyKey}</dd>
+            </div>
+            <div>
+              <dt>Question kind</dt>
+              <dd>{mission.questionKind ?? "Pending question"}</dd>
+            </div>
+            <div>
+              <dt>Freshness</dt>
+              <dd>{mission.freshnessState ?? "pending_answer"}</dd>
+            </div>
+          </>
+        ) : (
+          <div>
+            <dt>Repo</dt>
+            <dd>{mission.primaryRepo ?? "Pending repo target"}</dd>
+          </div>
+        )}
         <div>
           <dt>Created</dt>
           <dd>{mission.createdAt}</dd>

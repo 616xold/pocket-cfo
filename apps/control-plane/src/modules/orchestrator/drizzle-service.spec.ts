@@ -35,6 +35,7 @@ import {
 import { waitForValue } from "../../test/wait-for";
 import { ProofBundleAssemblyService } from "../evidence/proof-bundle-assembly";
 import { EvidenceService } from "../evidence/service";
+import type { FinanceDiscoveryService } from "../finance-discovery/service";
 import { GitHubAppService } from "../github-app/service";
 import { InMemoryInstallationTokenCache } from "../github-app/token-cache";
 import { DrizzleGitHubAppRepository } from "../github-app/drizzle-repository";
@@ -2289,6 +2290,7 @@ async function createHarness(options?: {
     GitHubPublishService,
     "publishValidatedExecutorWorkspace"
   >;
+  financeDiscoveryService?: Pick<FinanceDiscoveryService, "answerQuestion">;
   runtimeCodexService?: Pick<CodexRuntimeService, "runTurn">;
   sourceRepoRoot?: string;
   twinService?: {
@@ -2435,6 +2437,11 @@ async function createHarness(options?: {
       new LocalExecutorValidationService(
         new LocalWorkspaceValidationGitClient(),
       ),
+    options?.financeDiscoveryService ?? {
+      async answerQuestion() {
+        throw new Error("answerQuestion should not be called in this test");
+      },
+    },
     options?.twinService ?? {
       async queryRepositoryBlastRadius() {
         return {
@@ -2497,7 +2504,11 @@ async function createHarness(options?: {
       },
     },
     options?.githubPublishService ?? {
-      async publishValidatedExecutorWorkspace(input) {
+      async publishValidatedExecutorWorkspace(
+        input: Parameters<
+          GitHubPublishService["publishValidatedExecutorWorkspace"]
+        >[0],
+      ) {
         return {
           baseBranch: "main",
           branchName:

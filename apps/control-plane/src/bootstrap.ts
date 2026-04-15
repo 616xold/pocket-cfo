@@ -12,6 +12,7 @@ import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
+import { FinanceDiscoveryService } from "./modules/finance-discovery/service";
 import { DrizzleFinanceTwinRepository } from "./modules/finance-twin/drizzle-repository";
 import {
   InMemoryFinanceTwinRepository,
@@ -111,6 +112,7 @@ type SharedKernel = {
   approvalService: ApprovalService;
   cfoWikiService: CfoWikiService;
   financeTwinService: FinanceTwinService;
+  financeDiscoveryService: FinanceDiscoveryService;
   githubAppService: GitHubAppService;
   githubIssueIntakeService: GitHubIssueIntakeService;
   githubWebhookService: GitHubWebhookService;
@@ -375,6 +377,10 @@ function buildSharedKernel(input: {
     sourceRepository: input.sourceRepository,
     wikiRepository: input.wikiRepository,
   });
+  const financeDiscoveryService = new FinanceDiscoveryService({
+    cfoWikiService,
+    financeTwinService,
+  });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -394,6 +400,7 @@ function buildSharedKernel(input: {
   return {
     approvalService,
     cfoWikiService,
+    financeDiscoveryService,
     financeTwinService,
     githubAppService,
     githubIssueIntakeService,
@@ -455,6 +462,7 @@ async function buildWorker(input: {
     new EvidenceService(),
     workspaceService,
     validationService,
+    input.kernel.financeDiscoveryService,
     input.kernel.twinService,
     githubPublishService,
     input.kernel.proofBundleAssembly,

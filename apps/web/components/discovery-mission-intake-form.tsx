@@ -8,8 +8,8 @@ type DiscoveryMissionIntakeFormProps = {
 };
 
 export function DiscoveryMissionIntakeForm({
-  buttonLabel = "Create discovery mission",
-  helperText = "This calls the existing typed discovery backend and redirects into mission detail after creation.",
+  buttonLabel = "Create finance analysis mission",
+  helperText = "This submits the typed finance-analysis payload and redirects into mission detail after creation.",
 }: DiscoveryMissionIntakeFormProps) {
   const operatorIdentity = getWebOperatorIdentity();
 
@@ -18,14 +18,14 @@ export function DiscoveryMissionIntakeForm({
       action={submitDiscoveryMissionIntake}
       className="mission-intake-form"
     >
-      <label className="field-label" htmlFor="discovery-repo-full-name">
-        Repo full name
+      <label className="field-label" htmlFor="discovery-company-key">
+        Company key
       </label>
       <input
         className="field-control"
-        id="discovery-repo-full-name"
-        name="repoFullName"
-        placeholder="616xold/pocket-cto"
+        id="discovery-company-key"
+        name="companyKey"
+        placeholder="acme"
         required
         type="text"
       />
@@ -35,29 +35,27 @@ export function DiscoveryMissionIntakeForm({
       </label>
       <select
         className="field-control"
-        defaultValue="auth_change"
+        defaultValue="cash_posture"
         id="discovery-question-kind"
         name="questionKind"
       >
-        <option value="auth_change">auth_change</option>
+        <option value="cash_posture">cash_posture</option>
       </select>
 
-      <label className="field-label" htmlFor="discovery-changed-paths">
-        Changed paths
+      <label className="field-label" htmlFor="discovery-operator-prompt">
+        Operator prompt
       </label>
       <textarea
         className="text-area"
-        id="discovery-changed-paths"
-        name="changedPaths"
-        placeholder="apps/control-plane/src/modules/github-app/auth.ts"
-        required
-        rows={4}
+        id="discovery-operator-prompt"
+        name="operatorPrompt"
+        placeholder="What is our current cash posture and what evidence gaps should I keep in mind?"
+        rows={3}
       />
 
       <input type="hidden" name="requestedBy" value={operatorIdentity} />
       <p className="muted" style={{ marginBottom: 0 }}>
-        Created as <code>{operatorIdentity}</code>. {helperText} Use one
-        repo-relative path per line.
+        Created as <code>{operatorIdentity}</code>. {helperText}
       </p>
 
       <div className="button-row" style={{ marginTop: 16 }}>

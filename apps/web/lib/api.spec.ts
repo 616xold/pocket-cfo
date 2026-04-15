@@ -182,7 +182,7 @@ describe("web api module", () => {
     );
   });
 
-  it("posts the discovery mission-create route correctly", async () => {
+  it("posts the finance analysis mission-create route correctly", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
       status: 201,
@@ -194,20 +194,20 @@ describe("web api module", () => {
 
     const mod = await loadApiModuleWithEnv({});
     const created = await mod.createDiscoveryMission({
-      repoFullName: "616xold/pocket-cto",
-      questionKind: "auth_change",
-      changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      operatorPrompt: "What is our current cash posture?",
       requestedBy: "Local web operator",
     });
 
     expect(created.mission.type).toBe("discovery");
     expect(fetchMock).toHaveBeenCalledWith(
-      `${mod.resolveControlPlaneUrl()}/missions/discovery`,
+      `${mod.resolveControlPlaneUrl()}/missions/analysis`,
       {
         body: JSON.stringify({
-          repoFullName: "616xold/pocket-cto",
-          questionKind: "auth_change",
-          changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+          companyKey: "acme",
+          questionKind: "cash_posture",
+          operatorPrompt: "What is our current cash posture?",
           requestedBy: "Local web operator",
         }),
         cache: "no-store",
@@ -832,28 +832,43 @@ function buildDiscoveryMissionCreatePayload() {
       createdBy: "Local web operator",
       id: missionId,
       objective:
-        "Answer the stored auth-change blast radius for 616xold/pocket-cto across: apps/control-plane/src/modules/github-app/auth.ts.",
-      primaryRepo: "616xold/pocket-cto",
+        "Answer the stored cash posture question for acme from persisted Finance Twin and CFO Wiki state only.",
+      primaryRepo: null,
       sourceKind: "manual_discovery",
       sourceRef: null,
       spec: {
-        acceptance: ["persist one durable discovery answer artifact"],
+        acceptance: [
+          "persist one durable discovery answer artifact",
+          "persist one finance-ready proof bundle",
+          "surface freshness posture, limitations, related routes, related CFO Wiki pages, and structured evidence sections honestly",
+        ],
         constraints: {
-          allowedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
-          mustNot: [],
+          allowedPaths: [],
+          mustNot: [
+            "do not invoke the codex runtime",
+            "do not resync the finance twin during execution",
+            "do not recompile the CFO Wiki during execution",
+            "do not add generic finance chat or freeform answer generation",
+            "do not hide stale, partial, failed, or missing stored state",
+          ],
         },
         deliverables: ["discovery_answer", "proof_bundle"],
-        evidenceRequirements: ["stored twin blast-radius answer"],
+        evidenceRequirements: [
+          "stored finance-twin cash-posture route",
+          "stored finance-twin bank-account inventory route",
+          "stored CFO Wiki pages when present",
+          "freshness and limitation posture",
+        ],
         input: {
           discoveryQuestion: {
-            repoFullName: "616xold/pocket-cto",
-            questionKind: "auth_change",
-            changedPaths: ["apps/control-plane/src/modules/github-app/auth.ts"],
+            companyKey: "acme",
+            questionKind: "cash_posture",
+            operatorPrompt: "What is our current cash posture?",
           },
         },
         objective:
-          "Answer the stored auth-change blast radius for 616xold/pocket-cto across: apps/control-plane/src/modules/github-app/auth.ts.",
-        repos: ["616xold/pocket-cto"],
+          "Answer the stored cash posture question for acme from persisted Finance Twin and CFO Wiki state only.",
+        repos: [],
         riskBudget: {
           allowNetwork: false,
           maxCostUsd: 1,
@@ -861,11 +876,11 @@ function buildDiscoveryMissionCreatePayload() {
           requiresHumanApprovalFor: [],
           sandboxMode: "read-only",
         },
-        title: "Assess auth-change blast radius for 616xold/pocket-cto",
+        title: "Assess cash posture for acme",
         type: "discovery",
       },
       status: "queued",
-      title: "Assess auth-change blast radius for 616xold/pocket-cto",
+      title: "Assess cash posture for acme",
       type: "discovery",
       updatedAt: "2026-03-20T03:00:00.000Z",
     },
@@ -874,6 +889,7 @@ function buildDiscoveryMissionCreatePayload() {
       artifacts: [],
       branchName: null,
       changeSummary: "",
+      companyKey: "acme",
       decisionTrace: [],
       evidenceCompleteness: {
         status: "missing",
@@ -882,14 +898,21 @@ function buildDiscoveryMissionCreatePayload() {
         missingArtifactKinds: ["discovery_answer"],
         notes: ["Discovery answer evidence is missing."],
       },
+      freshnessState: null,
+      freshnessSummary: "",
+      answerSummary: "",
       latestApproval: null,
+      limitationsSummary: "",
       missionId,
-      missionTitle: "Assess auth-change blast radius for 616xold/pocket-cto",
+      missionTitle: "Assess cash posture for acme",
       objective:
-        "Answer the stored auth-change blast radius for 616xold/pocket-cto across: apps/control-plane/src/modules/github-app/auth.ts.",
+        "Answer the stored cash posture question for acme from persisted Finance Twin and CFO Wiki state only.",
       pullRequestNumber: null,
       pullRequestUrl: null,
+      questionKind: "cash_posture",
       replayEventCount: 0,
+      relatedRoutePaths: [],
+      relatedWikiPageKeys: [],
       riskSummary: "",
       rollbackSummary: "",
       status: "placeholder",

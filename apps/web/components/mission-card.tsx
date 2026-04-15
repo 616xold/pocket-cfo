@@ -1,5 +1,8 @@
 import React from "react";
-import type { MissionDetailView } from "@pocket-cto/domain";
+import type {
+  DiscoveryMissionQuestion,
+  MissionDetailView,
+} from "@pocket-cto/domain";
 import { ApprovalCardList } from "./approval-card-list";
 import { DiscoveryAnswerCard } from "./discovery-answer-card";
 import { StatusPill } from "./status-pill";
@@ -25,6 +28,11 @@ export function MissionCard({
   tasks,
 }: MissionCardProps) {
   const taskById = new Map(tasks.map((task) => [task.id, task]));
+  const discoveryQuestion = mission.spec.input?.discoveryQuestion ?? null;
+  const financeDiscoveryQuestion = isFinanceDiscoveryQuestion(discoveryQuestion)
+    ? discoveryQuestion
+    : null;
+  const financeProofBundle = isFinanceProofBundle(proofBundle);
 
   return (
     <div className="mission-grid">
@@ -39,14 +47,33 @@ export function MissionCard({
         </div>
 
         <div className="meta-grid">
-          <div>
-            <dt>Mission type</dt>
-            <dd>{mission.type}</dd>
-          </div>
-          <div>
-            <dt>Primary repo</dt>
-            <dd>{mission.primaryRepo ?? "not assigned"}</dd>
-          </div>
+          {financeDiscoveryQuestion ? (
+            <>
+              <div>
+                <dt>Mission type</dt>
+                <dd>{mission.type}</dd>
+              </div>
+              <div>
+                <dt>Company</dt>
+                <dd>{financeDiscoveryQuestion.companyKey}</dd>
+              </div>
+              <div>
+                <dt>Question kind</dt>
+                <dd>{financeDiscoveryQuestion.questionKind}</dd>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <dt>Mission type</dt>
+                <dd>{mission.type}</dd>
+              </div>
+              <div>
+                <dt>Primary repo</dt>
+                <dd>{mission.primaryRepo ?? "not assigned"}</dd>
+              </div>
+            </>
+          )}
           <div>
             <dt>Created</dt>
             <dd>{mission.createdAt}</dd>
@@ -139,26 +166,53 @@ export function MissionCard({
             <dt>Completeness</dt>
             <dd>{proofBundle.evidenceCompleteness.status}</dd>
           </div>
-          <div>
-            <dt>Target repo</dt>
-            <dd>{proofBundle.targetRepoFullName ?? "Not recorded yet."}</dd>
-          </div>
-          <div>
-            <dt>Branch</dt>
-            <dd>{proofBundle.branchName ?? "Not recorded yet."}</dd>
-          </div>
-          <div>
-            <dt>Pull request</dt>
-            <dd>
-              {proofBundle.pullRequestUrl && proofBundle.pullRequestNumber ? (
-                <a href={proofBundle.pullRequestUrl} target="_blank" rel="noreferrer">
-                  #{proofBundle.pullRequestNumber}
-                </a>
-              ) : (
-                "Not recorded yet."
-              )}
-            </dd>
-          </div>
+          {financeProofBundle ? (
+            <>
+              <div>
+                <dt>Company</dt>
+                <dd>{proofBundle.companyKey ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Question kind</dt>
+                <dd>{proofBundle.questionKind ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Freshness</dt>
+                <dd>{proofBundle.freshnessState ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Related routes</dt>
+                <dd>{proofBundle.relatedRoutePaths?.length ?? 0}</dd>
+              </div>
+              <div>
+                <dt>Related wiki pages</dt>
+                <dd>{proofBundle.relatedWikiPageKeys?.length ?? 0}</dd>
+              </div>
+            </>
+          ) : (
+            <>
+              <div>
+                <dt>Target repo</dt>
+                <dd>{proofBundle.targetRepoFullName ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Branch</dt>
+                <dd>{proofBundle.branchName ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Pull request</dt>
+                <dd>
+                  {proofBundle.pullRequestUrl && proofBundle.pullRequestNumber ? (
+                    <a href={proofBundle.pullRequestUrl} target="_blank" rel="noreferrer">
+                      #{proofBundle.pullRequestNumber}
+                    </a>
+                  ) : (
+                    "Not recorded yet."
+                  )}
+                </dd>
+              </div>
+            </>
+          )}
           <div>
             <dt>Replay events</dt>
             <dd>{proofBundle.replayEventCount}</dd>
@@ -175,6 +229,22 @@ export function MissionCard({
             <dt>Change summary</dt>
             <dd>{proofBundle.changeSummary || "Not recorded yet."}</dd>
           </div>
+          {financeProofBundle ? (
+            <>
+              <div>
+                <dt>Answer summary</dt>
+                <dd>{proofBundle.answerSummary || "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Freshness posture</dt>
+                <dd>{proofBundle.freshnessSummary || "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Limitations</dt>
+                <dd>{proofBundle.limitationsSummary || "Not recorded yet."}</dd>
+              </div>
+            </>
+          ) : null}
           <div>
             <dt>Validation</dt>
             <dd>{proofBundle.validationSummary || "Not recorded yet."}</dd>
@@ -210,24 +280,67 @@ export function MissionCard({
           <h3>Key timestamps</h3>
           <ul className="list-clean">
             <li>Mission created: {proofBundle.timestamps.missionCreatedAt}</li>
-            <li>
-              Planner evidence:{" "}
-              {proofBundle.timestamps.latestPlannerEvidenceAt ?? "Not recorded yet."}
-            </li>
-            <li>
-              Executor evidence:{" "}
-              {proofBundle.timestamps.latestExecutorEvidenceAt ?? "Not recorded yet."}
-            </li>
-            <li>
-              Pull request:{" "}
-              {proofBundle.timestamps.latestPullRequestAt ?? "Not recorded yet."}
-            </li>
+            {financeProofBundle ? (
+              <li>
+                Latest artifact:{" "}
+                {proofBundle.timestamps.latestArtifactAt ?? "Not recorded yet."}
+              </li>
+            ) : (
+              <>
+                <li>
+                  Planner evidence:{" "}
+                  {proofBundle.timestamps.latestPlannerEvidenceAt ?? "Not recorded yet."}
+                </li>
+                <li>
+                  Executor evidence:{" "}
+                  {proofBundle.timestamps.latestExecutorEvidenceAt ?? "Not recorded yet."}
+                </li>
+                <li>
+                  Pull request:{" "}
+                  {proofBundle.timestamps.latestPullRequestAt ?? "Not recorded yet."}
+                </li>
+              </>
+            )}
             <li>
               Latest approval:{" "}
               {proofBundle.timestamps.latestApprovalAt ?? "No approvals recorded."}
             </li>
           </ul>
         </div>
+
+        {financeProofBundle ? (
+          <>
+            <div className="stack" style={{ marginTop: 18 }}>
+              <h3>Related routes</h3>
+              {(proofBundle.relatedRoutePaths?.length ?? 0) > 0 ? (
+                <ul className="list-clean">
+                  {(proofBundle.relatedRoutePaths ?? []).map((routePath) => (
+                    <li key={routePath}>
+                      <code>{routePath}</code>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="muted">No related routes were recorded.</p>
+              )}
+            </div>
+
+            <div className="stack" style={{ marginTop: 18 }}>
+              <h3>Related CFO Wiki pages</h3>
+              {(proofBundle.relatedWikiPageKeys?.length ?? 0) > 0 ? (
+                <ul className="list-clean">
+                  {(proofBundle.relatedWikiPageKeys ?? []).map((pageKey) => (
+                    <li key={pageKey}>
+                      <code>{pageKey}</code>
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="muted">No related CFO Wiki pages were recorded.</p>
+              )}
+            </div>
+          </>
+        ) : null}
 
         <div className="stack" style={{ marginTop: 18 }}>
           <h3>Decision trace</h3>
@@ -266,6 +379,22 @@ function readStatusTone(status: string) {
 function buildProofBundleReadinessMessage(
   proofBundle: MissionCardProps["proofBundle"],
 ) {
+  if (isFinanceProofBundle(proofBundle)) {
+    if (proofBundle.status === "ready") {
+      return "The proof bundle now reads like a finance-ready answer package with stored routes, wiki context, freshness posture, and visible limitations linked together.";
+    }
+
+    if (proofBundle.status === "failed") {
+      return "The current finance bundle is non-decision-ready. Review the persisted freshness posture, limitations, and mission evidence before retrying.";
+    }
+
+    if (proofBundle.status === "incomplete") {
+      return "The bundle is partially assembled, but the final finance-ready evidence package is still missing one or more required artifacts.";
+    }
+
+    return "The finance proof bundle is still at the placeholder stage and has not yet accumulated meaningful persisted evidence.";
+  }
+
   if (proofBundle.status === "ready") {
     return "The proof bundle now reads like a final GitHub-aware decision package with planner, validation, and PR evidence linked together.";
   }
@@ -279,4 +408,14 @@ function buildProofBundleReadinessMessage(
   }
 
   return "The proof bundle is still at the placeholder stage and has not yet accumulated meaningful persisted evidence.";
+}
+
+function isFinanceProofBundle(proofBundle: MissionCardProps["proofBundle"]) {
+  return proofBundle.companyKey !== null || proofBundle.questionKind === "cash_posture";
+}
+
+function isFinanceDiscoveryQuestion(
+  question: DiscoveryMissionQuestion | null,
+): question is Extract<DiscoveryMissionQuestion, { companyKey: string }> {
+  return typeof question === "object" && question !== null && "companyKey" in question;
 }
