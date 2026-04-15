@@ -326,6 +326,5 @@ No runtime code, routes, schema changes, migrations, package scripts, smoke alia
 
 Remaining work:
 
-- run the docs-and-plan validation ladder for this planning slice and update the checked progress box
 - execute the unchecked F4C1 implementation steps in a follow-on thread against this plan
 - leave any smoke or eval extension to F4C2 rather than widening F4C1 prematurely
