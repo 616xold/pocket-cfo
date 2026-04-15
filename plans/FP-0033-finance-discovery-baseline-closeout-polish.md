@@ -14,6 +14,7 @@ The user-visible goal is to leave the shipped baseline fully truthful, operator-
 - [x] 2026-04-15T16:09:29Z Apply the narrow implementation fixes for missing or failed required-read limitation visibility, human-readable finance freshness labels, and neutral discovery intake selection without widening the F4 baseline.
 - [x] 2026-04-15T16:09:29Z Refresh only the smallest stale active-doc surfaces that the shipped F4A/F4B baseline now makes inaccurate.
 - [x] 2026-04-15T16:09:29Z Run the full required validation ladder through `pnpm ci:repro:current`, then create the single local commit, push the existing branch, and open or report the PR only if every requested check is green.
+- [x] 2026-04-15T16:26:23Z Run a strict post-push QA pass on the shipped closeout, correct the remaining doc-only drift in `START_HERE.md` and `docs/ops/source-ingest-and-cfo-wiki.md`, and rerun the targeted QA validation set plus `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
@@ -199,5 +200,18 @@ The completed validation record for this slice is:
 - clean-worktree `pnpm ci:repro:current`
 
 The requested bare `bash` `**` glob commands did not expand recursively in this shell, so equivalent explicit-file reruns were added with `rg --files` enumeration to preserve the exact requested coverage instead of silently accepting partial execution.
+
+The later QA follow-up found only doc-only drift:
+
+- `START_HERE.md` still pointed narrow F4 follow-up work at `FP-0032` instead of reflecting the shipped `FP-0033` closeout
+- the shipped F4 posture bullets in `docs/ops/source-ingest-and-cfo-wiki.md` still contained two small grammar slips
+
+The QA rerun record after those doc-only corrections is:
+
+- focused finance-discovery and web component specs
+- `pnpm smoke:finance-discovery-answer:local`
+- `pnpm smoke:finance-discovery-supported-families:local`
+- `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
+- `pnpm ci:repro:current`
 
 This closeout should now hand off directly to F4C planning with no further F4A/F4B baseline revisit.

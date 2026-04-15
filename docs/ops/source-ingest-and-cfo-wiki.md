@@ -349,12 +349,12 @@ The shipped F4A and F4B answer path stays deterministic and read-only.
 It now:
 
 - executes through the mission engine rather than an ad hoc chat route
-- answer from stored Finance Twin plus stored CFO Wiki state only
+- answers from stored Finance Twin plus stored CFO Wiki state only
 - supports only the shipped families listed above
 - uses the relevant stored Finance Twin reads and related wiki pages for each supported family
 - surfaces route-backed freshness posture, visible limitations, related routes, and related wiki pages in every stored answer artifact and proof bundle
 - reuses diagnostics already present in stored views
-- state explicit limitations rather than collapsing everything into a fake single-number finance claim
+- states explicit limitations rather than collapsing everything into a fake single-number finance claim
 
 The shipped F4 baseline still does none of the following:
 
