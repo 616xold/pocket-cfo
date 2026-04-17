@@ -23,6 +23,7 @@ This plan now serves as the shipped F4C record. It preserves the narrow implemen
 - [x] 2026-04-16T16:37:00Z Tighten the F4C2 QA proof so `smoke:finance-discovery-quality:local` renders the mission-list card as well as discovery and mission detail surfaces, keeping the packaged smoke aligned with the shipped local-dev truthfulness claim without widening the slice.
 - [x] 2026-04-17T16:15:03Z Apply a tiny post-merge active-doc truthfulness polish so README, START_HERE, local-dev guidance, source-ingest guidance, seeded benchmarks, and eval staging all point at the shipped F4A through F4C2 baseline while leaving `FP-0035` active only for a possible later eval-hook continuation before F5.
 - [x] 2026-04-17T16:55:32Z Land the narrow later-F4 eval-hook continuation by extending `tools/finance-discovery-quality-hardening-smoke.mjs` with explicit structured-output support, adding finance-native `pnpm eval:finance-discovery-quality` report capture under `evals/results/finance-discovery-quality/`, refreshing the now-stale active docs, and rerunning the full validation ladder through `pnpm ci:repro:current`.
+- [x] 2026-04-17T17:06:41Z Run a strict post-landing QA pass, confirm the branch and PR stay clean, and apply the smallest roadmap truthfulness polish so F4C2 no longer describes the already-landed eval-hook continuation as future work before recommending F5 planning next.
 
 ## Surprises & Discoveries
 
@@ -117,6 +118,9 @@ This plan now serves as the shipped F4C record. It preserves the narrow implemen
 
 - Decision: execute the new eval hook by calling the packaged root `pnpm smoke:finance-discovery-quality:local -- --json` command and parsing its structured payload instead of duplicating the smoke implementation inside the eval layer.
   Rationale: the smoke script remains the source of truth for the shipped quality proof, while the eval layer stays a thin reporting wrapper that can capture git provenance and durable artifacts without drifting from the underlying deterministic assertions.
+
+- Decision: after the QA pass, update roadmap language to describe the finance-native eval hook as shipped rather than as a possible future continuation.
+  Rationale: with `pnpm eval:finance-discovery-quality` already landed, leaving roadmap wording one step behind would misstate current repo truth and blur the F4-to-F5 handoff.
 
 ## Context and Orientation
 
