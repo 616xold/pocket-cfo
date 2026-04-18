@@ -381,6 +381,9 @@ function createAppContainer(
       async createFromText() {
         throw new Error("createFromText should not be called in this test");
       },
+      async createReporting() {
+        throw new Error("createReporting should not be called in this test");
+      },
       async getMissionDetail() {
         throw new Error("getMissionDetail should not be called in this test");
       },

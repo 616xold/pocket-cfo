@@ -5,6 +5,8 @@ import { missions, missionTasks } from "./missions";
 export const artifactKindEnum = pgEnum("artifact_kind", [
   "plan",
   "discovery_answer",
+  "finance_memo",
+  "evidence_appendix",
   "pr_link",
   "diff_summary",
   "test_report",

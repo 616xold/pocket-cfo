@@ -3,6 +3,7 @@ import type {
   CfoWikiCompanySourceListView,
   CreateDiscoveryMissionInput,
   CreateMissionFromTextInput,
+  CreateReportingMissionInput,
   MissionDetailView,
   MissionListItem,
   MissionListView,
@@ -23,6 +24,7 @@ import type { ReplayService } from "../replay/service";
 import type { MissionCompilationResult, MissionCompiler } from "./compiler";
 import { buildDiscoveryMissionCreationInput } from "./discovery";
 import { buildQueuedMissionStatusChangedPayload } from "./events";
+import { buildReportingMissionCreationInput } from "./reporting";
 import type { MissionRepository } from "./repository";
 
 export type MissionDetail = MissionDetailView;
@@ -85,6 +87,15 @@ export class MissionService {
     return this.createFromCompilation(
       await buildDiscoveryMissionCreationInput(rawInput, {
         cfoWikiService: this.readModelDeps.cfoWikiService,
+      }),
+      undefined,
+    );
+  }
+
+  async createReporting(rawInput: CreateReportingMissionInput) {
+    return this.createFromCompilation(
+      await buildReportingMissionCreationInput(rawInput, {
+        missionRepository: this.repository,
       }),
       undefined,
     );
@@ -358,9 +369,14 @@ function summarizeMission(input: {
 
   return {
     id: input.mission.id,
+    sourceDiscoveryMissionId: input.proofBundle.sourceDiscoveryMissionId,
     companyKey: input.proofBundle.companyKey,
     createdAt: input.mission.createdAt,
     answerSummary: input.proofBundle.answerSummary || null,
+    reportKind: input.proofBundle.reportKind,
+    reportDraftStatus: input.proofBundle.reportDraftStatus,
+    reportSummary: input.proofBundle.reportSummary || null,
+    appendixPresent: input.proofBundle.appendixPresent,
     freshnessState: input.proofBundle.freshnessState,
     policySourceId: input.proofBundle.policySourceId,
     policySourceScope: input.proofBundle.policySourceScope,

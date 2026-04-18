@@ -58,6 +58,7 @@ import { InMemoryMissionRepository } from "./modules/missions/repository";
 import { MissionService } from "./modules/missions/service";
 import { OrchestratorService } from "./modules/orchestrator/service";
 import { OrchestratorWorker } from "./modules/orchestrator/worker";
+import { ReportingService } from "./modules/reporting/service";
 import { DrizzleReplayRepository } from "./modules/replay/drizzle-repository";
 import { InMemoryReplayRepository } from "./modules/replay/repository";
 import { ReplayService } from "./modules/replay/service";
@@ -119,6 +120,7 @@ type SharedKernel = {
   missionService: MissionService;
   missionRepository: ConstructorParameters<typeof MissionService>[1];
   proofBundleAssembly: ProofBundleAssemblyService;
+  reportingService: ReportingService;
   replayService: ReplayService;
   runtimeControlService: RuntimeControlService;
   sourceService: SourceRegistryService;
@@ -378,6 +380,9 @@ function buildSharedKernel(input: {
       cfoWikiService,
     },
   );
+  const reportingService = new ReportingService({
+    missionRepository: input.missionRepository,
+  });
   const financeDiscoveryService = new FinanceDiscoveryService({
     cfoWikiService,
     financeTwinService,
@@ -410,6 +415,7 @@ function buildSharedKernel(input: {
     missionService,
     missionRepository: input.missionRepository,
     proofBundleAssembly,
+    reportingService,
     replayService,
     runtimeControlService,
     sourceService,
@@ -464,6 +470,7 @@ async function buildWorker(input: {
     workspaceService,
     validationService,
     input.kernel.financeDiscoveryService,
+    input.kernel.reportingService,
     input.kernel.twinService,
     githubPublishService,
     input.kernel.proofBundleAssembly,

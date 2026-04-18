@@ -167,7 +167,12 @@ describe("MissionCard", () => {
           missionId: "11111111-1111-4111-8111-111111111111",
           missionTitle: "Implement passkeys for sign-in",
           objective: "Ship passkeys without breaking email login.",
+          sourceDiscoveryMissionId: null,
           answerSummary: "",
+          reportKind: null,
+          reportDraftStatus: null,
+          reportSummary: "",
+          appendixPresent: false,
           freshnessState: null,
           freshnessSummary: "",
           limitationsSummary: "",
@@ -196,6 +201,7 @@ describe("MissionCard", () => {
           verificationSummary:
             "A runtime approval is still pending, so the proof bundle is not final yet.",
         }}
+        reporting={null}
         tasks={[
           {
             attemptCount: 1,
@@ -295,7 +301,12 @@ describe("MissionCard", () => {
           missionId: "11111111-1111-4111-8111-111111111111",
           missionTitle: "Truthful failed proof bundle",
           objective: "Ship a truthful failed proof bundle.",
+          sourceDiscoveryMissionId: null,
           answerSummary: "",
+          reportKind: null,
+          reportDraftStatus: null,
+          reportSummary: "",
+          appendixPresent: false,
           freshnessState: null,
           freshnessSummary: "",
           limitationsSummary: "",
@@ -322,6 +333,7 @@ describe("MissionCard", () => {
           validationSummary: "",
           verificationSummary: "",
         }}
+        reporting={null}
         tasks={[]}
       />,
     );
@@ -404,7 +416,12 @@ describe("MissionCard", () => {
           missionTitle: "Assess cash posture for acme",
           objective:
             "Answer the stored cash posture question for acme from persisted Finance Twin and CFO Wiki state only.",
+          sourceDiscoveryMissionId: null,
           answerSummary: "Stored cash posture is available with limitations.",
+          reportKind: null,
+          reportDraftStatus: null,
+          reportSummary: "",
+          appendixPresent: false,
           freshnessState: "fresh",
           freshnessSummary:
             "All required Finance Twin reads for cash posture are fresh for acme.",
@@ -432,6 +449,7 @@ describe("MissionCard", () => {
           validationSummary: "",
           verificationSummary: "",
         }}
+        reporting={null}
         tasks={[
           {
             attemptCount: 1,
@@ -534,8 +552,13 @@ describe("MissionCard", () => {
           missionTitle: "Review policy lookup for acme",
           objective:
             "Answer the stored policy lookup question for acme from scoped policy source only.",
+          sourceDiscoveryMissionId: null,
           answerSummary:
             "Stored policy lookup is scoped to the requested policy source.",
+          reportKind: null,
+          reportDraftStatus: null,
+          reportSummary: "",
+          appendixPresent: false,
           freshnessState: "missing",
           freshnessSummary:
             "Policy source has an unsupported deterministic extract for the latest stored snapshot.",
@@ -572,6 +595,7 @@ describe("MissionCard", () => {
           validationSummary: "",
           verificationSummary: "",
         }}
+        reporting={null}
         tasks={[
           {
             attemptCount: 1,
@@ -601,6 +625,277 @@ describe("MissionCard", () => {
     expect(html).toContain("Unsupported");
     expect(html).toContain("v2");
     expect(html).toContain("Missing");
+  });
+
+  it("renders reporting output with draft memo lineage and appendix evidence", () => {
+    const sourceDiscoveryMissionId = "99999999-9999-4999-8999-999999999999";
+    const financeMemoId = "66666666-6666-4666-8666-666666666666";
+    const evidenceAppendixId = "88888888-8888-4888-8888-888888888888";
+    const discoveryAnswerId = "77777777-7777-4777-8777-777777777777";
+    const proofBundleManifestId = "12121212-1212-4212-8212-121212121212";
+    const html = renderToStaticMarkup(
+      <MissionCard
+        approvalCards={[]}
+        artifacts={[
+          {
+            createdAt: "2026-04-18T10:05:00.000Z",
+            id: financeMemoId,
+            kind: "finance_memo",
+            summary: "Draft finance memo summarizing stored payables pressure.",
+            taskId: "33333333-3333-4333-8333-333333333333",
+            uri: `pocket-cto://missions/11111111-1111-4111-8111-111111111111/tasks/33333333-3333-4333-8333-333333333333/artifacts/${financeMemoId}`,
+          },
+          {
+            createdAt: "2026-04-18T10:05:00.000Z",
+            id: evidenceAppendixId,
+            kind: "evidence_appendix",
+            summary: "Linked evidence appendix for the draft finance memo.",
+            taskId: "33333333-3333-4333-8333-333333333333",
+            uri: `pocket-cto://missions/11111111-1111-4111-8111-111111111111/tasks/33333333-3333-4333-8333-333333333333/artifacts/${evidenceAppendixId}`,
+          },
+        ]}
+        discoveryAnswer={null}
+        liveControl={{
+          enabled: false,
+          limitation: "single_process_only",
+          mode: "api_only",
+        }}
+        mission={{
+          createdAt: "2026-04-18T10:00:00.000Z",
+          createdBy: "operator",
+          id: "11111111-1111-4111-8111-111111111111",
+          objective:
+            "Compile one draft finance memo from the stored payables pressure evidence for acme.",
+          primaryRepo: null,
+          sourceKind: "manual_reporting",
+          sourceRef: null,
+          spec: {
+            acceptance: [
+              "persist one durable finance memo artifact",
+              "persist one linked evidence appendix artifact",
+            ],
+            constraints: {
+              allowedPaths: [],
+              mustNot: [
+                "do not invoke the codex runtime",
+                "do not widen beyond the stored discovery evidence",
+              ],
+            },
+            deliverables: ["finance_memo", "evidence_appendix", "proof_bundle"],
+            evidenceRequirements: [
+              "stored discovery answer artifact",
+              "stored discovery proof bundle",
+            ],
+            input: {
+              reportingRequest: {
+                companyKey: "acme",
+                policySourceId: null,
+                policySourceScope: null,
+                questionKind: "payables_pressure",
+                reportKind: "finance_memo",
+                sourceDiscoveryMissionId,
+              },
+            },
+            objective:
+              "Compile one draft finance memo from the stored payables pressure evidence for acme.",
+            repos: [],
+            riskBudget: {
+              allowNetwork: false,
+              maxCostUsd: 1,
+              maxWallClockMinutes: 5,
+              requiresHumanApprovalFor: [],
+              sandboxMode: "read-only",
+            },
+            title: "Draft finance memo for acme payables pressure",
+            type: "reporting",
+          },
+          status: "succeeded",
+          title: "Draft finance memo for acme payables pressure",
+          type: "reporting",
+          updatedAt: "2026-04-18T10:05:00.000Z",
+        }}
+        proofBundle={{
+          answerSummary: "",
+          appendixPresent: true,
+          artifactIds: [financeMemoId, evidenceAppendixId],
+          artifacts: [
+            {
+              id: financeMemoId,
+              kind: "finance_memo",
+            },
+            {
+              id: evidenceAppendixId,
+              kind: "evidence_appendix",
+            },
+          ],
+          branchName: null,
+          changeSummary:
+            "Draft finance memo summarizing stored payables pressure with linked evidence appendix.",
+          companyKey: "acme",
+          decisionTrace: [
+            "Reporting scout task persisted finance_memo and evidence_appendix artifacts from stored discovery evidence.",
+          ],
+          evidenceCompleteness: {
+            status: "complete",
+            expectedArtifactKinds: ["finance_memo", "evidence_appendix"],
+            presentArtifactKinds: ["finance_memo", "evidence_appendix"],
+            missingArtifactKinds: [],
+            notes: [],
+          },
+          freshnessState: "stale",
+          freshnessSummary:
+            "Stored payables aging evidence is stale for acme and is carried forward into the memo draft.",
+          latestApproval: null,
+          limitationsSummary:
+            "Stored payables aging omits one vendor feed and remains scoped to uploaded evidence.",
+          missionId: "11111111-1111-4111-8111-111111111111",
+          missionTitle: "Draft finance memo for acme payables pressure",
+          objective:
+            "Compile one draft finance memo from the stored payables pressure evidence for acme.",
+          policySourceId: null,
+          policySourceScope: null,
+          pullRequestNumber: null,
+          pullRequestUrl: null,
+          questionKind: "payables_pressure",
+          relatedRoutePaths: ["/finance-twin/companies/acme/payables-aging"],
+          relatedWikiPageKeys: ["metrics/payables-aging"],
+          replayEventCount: 6,
+          reportDraftStatus: "draft_only",
+          reportKind: "finance_memo",
+          reportSummary:
+            "Draft finance memo summarizing stored payables pressure and carried evidence posture.",
+          riskSummary: "",
+          rollbackSummary: "",
+          sourceDiscoveryMissionId,
+          status: "ready",
+          targetRepoFullName: null,
+          timestamps: {
+            missionCreatedAt: "2026-04-18T10:00:00.000Z",
+            latestPlannerEvidenceAt: null,
+            latestExecutorEvidenceAt: null,
+            latestPullRequestAt: null,
+            latestApprovalAt: null,
+            latestArtifactAt: "2026-04-18T10:05:00.000Z",
+          },
+          validationSummary: "",
+          verificationSummary:
+            "Review the linked evidence appendix before sharing the draft memo outside the operator surface.",
+        }}
+        reporting={{
+          appendixPresent: true,
+          companyKey: "acme",
+          draftStatus: "draft_only",
+          evidenceAppendix: {
+            appendixSummary:
+              "Evidence appendix linking the stored discovery answer and proof bundle.",
+            bodyMarkdown:
+              "# Evidence appendix\n\n## Linked stored evidence\n- discovery_answer\n- proof_bundle_manifest",
+            companyKey: "acme",
+            draftStatus: "draft_only",
+            freshnessSummary:
+              "Stored payables aging evidence is stale for acme and is carried forward into the memo draft.",
+            limitations: [
+              "Stored payables aging omits one vendor feed.",
+              "The memo remains scoped to stored evidence only.",
+            ],
+            limitationsSummary:
+              "Stored payables aging omits one vendor feed and remains scoped to uploaded evidence.",
+            policySourceId: null,
+            policySourceScope: null,
+            questionKind: "payables_pressure",
+            relatedRoutePaths: ["/finance-twin/companies/acme/payables-aging"],
+            relatedWikiPageKeys: ["metrics/payables-aging"],
+            reportKind: "finance_memo",
+            source: "stored_discovery_evidence",
+            sourceArtifacts: [
+              {
+                artifactId: discoveryAnswerId,
+                kind: "discovery_answer",
+              },
+              {
+                artifactId: proofBundleManifestId,
+                kind: "proof_bundle_manifest",
+              },
+            ],
+            sourceDiscoveryMissionId,
+            summary:
+              "Evidence appendix linking the stored discovery answer and proof bundle.",
+          },
+          financeMemo: {
+            bodyMarkdown:
+              "# Finance memo\n\n## Summary\nDraft finance memo summarizing stored payables pressure.",
+            companyKey: "acme",
+            draftStatus: "draft_only",
+            freshnessSummary:
+              "Stored payables aging evidence is stale for acme and is carried forward into the memo draft.",
+            limitationsSummary:
+              "Stored payables aging omits one vendor feed and remains scoped to uploaded evidence.",
+            memoSummary:
+              "Draft finance memo summarizing stored payables pressure and carried evidence posture.",
+            policySourceId: null,
+            policySourceScope: null,
+            questionKind: "payables_pressure",
+            relatedRoutePaths: ["/finance-twin/companies/acme/payables-aging"],
+            relatedWikiPageKeys: ["metrics/payables-aging"],
+            reportKind: "finance_memo",
+            source: "stored_discovery_evidence",
+            sourceArtifacts: [
+              {
+                artifactId: discoveryAnswerId,
+                kind: "discovery_answer",
+              },
+              {
+                artifactId: proofBundleManifestId,
+                kind: "proof_bundle_manifest",
+              },
+            ],
+            sourceDiscoveryMissionId,
+            summary: "Draft finance memo summarizing stored payables pressure.",
+          },
+          freshnessSummary:
+            "Stored payables aging evidence is stale for acme and is carried forward into the memo draft.",
+          limitationsSummary:
+            "Stored payables aging omits one vendor feed and remains scoped to uploaded evidence.",
+          policySourceId: null,
+          policySourceScope: null,
+          questionKind: "payables_pressure",
+          relatedRoutePaths: ["/finance-twin/companies/acme/payables-aging"],
+          relatedWikiPageKeys: ["metrics/payables-aging"],
+          reportKind: "finance_memo",
+          reportSummary:
+            "Draft finance memo summarizing stored payables pressure and carried evidence posture.",
+          sourceDiscoveryMissionId,
+        }}
+        tasks={[
+          {
+            attemptCount: 1,
+            codexThreadId: null,
+            codexTurnId: null,
+            createdAt: "2026-04-18T10:00:00.000Z",
+            dependsOnTaskId: null,
+            id: "33333333-3333-4333-8333-333333333333",
+            missionId: "11111111-1111-4111-8111-111111111111",
+            role: "scout",
+            sequence: 0,
+            status: "succeeded",
+            summary:
+              "Draft finance memo summarizing stored payables pressure and carried evidence posture.",
+            updatedAt: "2026-04-18T10:05:00.000Z",
+            workspaceId: null,
+          },
+        ]}
+      />,
+    );
+
+    expect(html).toContain("Reporting output");
+    expect(html).toContain("Finance memo");
+    expect(html).toContain("draft_only");
+    expect(html).toContain(sourceDiscoveryMissionId);
+    expect(html).toContain("Stored");
+    expect(html).toContain("/finance-twin/companies/acme/payables-aging");
+    expect(html).toContain("metrics/payables-aging");
+    expect(html).toContain(discoveryAnswerId);
+    expect(html).toContain("Stored payables aging omits one vendor feed.");
   });
 
   it("renders the stored discovery answer with freshness and limitations prominently", () => {
@@ -873,7 +1168,12 @@ describe("MissionCard", () => {
             "Assess auth-change blast radius for 616xold/pocket-cto",
           objective:
             "Answer the stored auth-change blast radius for 616xold/pocket-cto across: apps/control-plane/src/modules/github-app/auth.ts.",
+          sourceDiscoveryMissionId: null,
           answerSummary: "",
+          reportKind: null,
+          reportDraftStatus: null,
+          reportSummary: "",
+          appendixPresent: false,
           freshnessState: null,
           freshnessSummary: "",
           limitationsSummary: "",
@@ -901,6 +1201,7 @@ describe("MissionCard", () => {
           verificationSummary:
             "Review the stored freshness and limitation details before acting on the answer.",
         }}
+        reporting={null}
         tasks={[
           {
             attemptCount: 1,

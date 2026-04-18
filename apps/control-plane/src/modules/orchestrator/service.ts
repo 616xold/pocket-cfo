@@ -10,6 +10,7 @@ import type { FinanceDiscoveryService } from "../finance-discovery/service";
 import type { GitHubPublishService } from "../github-app/publish-service";
 import { taskStatusChangeReasons } from "./events";
 import type { MissionRepository } from "../missions/repository";
+import type { ReportingService } from "../reporting/service";
 import type { ReplayService } from "../replay/service";
 import type { CodexRuntimeService } from "../runtime-codex/service";
 import type { TwinService } from "../twin/service";
@@ -17,6 +18,7 @@ import type { ExecutorValidationService } from "../validation";
 import type { WorkspaceService } from "../workspaces/service";
 import { DiscoveryOrchestratorPhase } from "./discovery-phase";
 import type { ExecuteClaimedTaskTurnResult } from "./runtime-phase";
+import { ReportingOrchestratorPhase } from "./reporting-phase";
 import { OrchestratorRuntimePhase } from "./runtime-phase";
 import { buildTaskStatusChangedPayload } from "./events";
 
@@ -24,19 +26,19 @@ export type OrchestratorTickResult =
   | { kind: "idle" }
   | {
       kind: "task_completed";
-      stage: "discovery_execution";
+      stage: "discovery_execution" | "reporting_execution";
       task: MissionTaskRecord;
     }
   | {
       kind: "task_failed";
       error: Error;
-      stage: "discovery_execution" | "turn_execution";
+      stage: "discovery_execution" | "reporting_execution" | "turn_execution";
       task: MissionTaskRecord;
     }
   | {
       kind: "runtime_failed";
       error: Error;
-      stage: "discovery_execution" | "turn_execution";
+      stage: "discovery_execution" | "reporting_execution" | "turn_execution";
       task: MissionTaskRecord;
     }
   | {
@@ -47,6 +49,7 @@ export type OrchestratorTickResult =
 
 export class OrchestratorService {
   private readonly discoveryPhase: DiscoveryOrchestratorPhase;
+  private readonly reportingPhase: ReportingOrchestratorPhase;
   private readonly runtimePhase: OrchestratorRuntimePhase;
 
   constructor(
@@ -94,6 +97,7 @@ export class OrchestratorService {
       "validateExecutorTurn"
     >,
     financeDiscoveryService: Pick<FinanceDiscoveryService, "answerQuestion">,
+    reportingService: Pick<ReportingService, "compileDraftReport">,
     twinService: Pick<TwinService, "queryRepositoryBlastRadius">,
     githubPublishService: Pick<
       GitHubPublishService,
@@ -109,6 +113,12 @@ export class OrchestratorService {
       replayService,
       financeDiscoveryService,
       twinService,
+      proofBundleAssembly,
+    );
+    this.reportingPhase = new ReportingOrchestratorPhase(
+      missionRepository,
+      replayService,
+      reportingService,
       proofBundleAssembly,
     );
     this.runtimePhase = new OrchestratorRuntimePhase(
@@ -224,6 +234,50 @@ export class OrchestratorService {
           kind: "runtime_failed",
           error: classifiedError,
           stage: "discovery_execution",
+          task: latestTask ?? task,
+        };
+      }
+    }
+
+    if (mission?.type === "reporting" && task.role === "scout") {
+      try {
+        const completedTask = await this.reportingPhase.executeClaimedReportingTask(
+          task.id,
+        );
+
+        if (completedTask.status === "failed" || completedTask.status === "cancelled") {
+          return {
+            kind: "task_failed",
+            error: new Error(
+              completedTask.summary ?? "Reporting execution failed",
+            ),
+            stage: "reporting_execution",
+            task: completedTask,
+          };
+        }
+
+        return {
+          kind: "task_completed",
+          stage: "reporting_execution",
+          task: completedTask,
+        };
+      } catch (error) {
+        const latestTask = await this.missionRepository.getTaskById(task.id);
+        const classifiedError = asError(error, "Reporting execution failed");
+
+        if (isControlledTaskFailure(latestTask)) {
+          return {
+            kind: "task_failed",
+            error: classifiedError,
+            stage: "reporting_execution",
+            task: latestTask,
+          };
+        }
+
+        return {
+          kind: "runtime_failed",
+          error: classifiedError,
+          stage: "reporting_execution",
           task: latestTask ?? task,
         };
       }

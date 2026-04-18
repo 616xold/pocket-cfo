@@ -13,6 +13,7 @@ import { isFinanceDiscoveryQuestionKind } from "@pocket-cto/domain";
 import { buildMissionApprovalCards } from "../approvals/card-formatter";
 import { readMissionDiscoveryAnswer } from "./discovery-answer-view";
 import { readProofBundleManifest } from "./repository-mappers";
+import { readMissionReportingView } from "../reporting/artifact";
 
 const ARTIFACT_SUMMARY_MAX_LENGTH = 180;
 
@@ -29,6 +30,10 @@ export function buildMissionDetailView(input: {
     tasks: input.tasks,
     proofBundle: input.proofBundle,
     discoveryAnswer: readMissionDiscoveryAnswer(input.artifacts),
+    reporting: readMissionReportingView({
+      artifacts: input.artifacts,
+      proofBundle: input.proofBundle,
+    }),
     approvals: input.approvals.map(summarizeApproval),
     approvalCards: summarizeApprovalCards(input),
     artifacts: input.artifacts.map(summarizeArtifact),
@@ -142,7 +147,9 @@ function truncate(value: string) {
 
 function isFinanceProofBundle(manifest: ProofBundleManifest) {
   return (
-    manifest.companyKey !== null ||
+    manifest.reportKind === null &&
+    (manifest.companyKey !== null ||
     isFinanceDiscoveryQuestionKind(manifest.questionKind)
+    )
   );
 }

@@ -5,10 +5,12 @@ import {
   isFinanceDiscoveryQuestion,
   isFinanceDiscoveryQuestionKind,
   readFinanceDiscoveryQuestionKindLabel,
+  readReportingMissionReportKindLabel,
 } from "@pocket-cto/domain";
 import { ApprovalCardList } from "./approval-card-list";
 import { DiscoveryAnswerCard } from "./discovery-answer-card";
 import { PolicySourceScopeFields } from "./policy-source-scope-fields";
+import { ReportingOutputCard } from "./reporting-output-card";
 import { readFreshnessLabel } from "./freshness-label";
 import { StatusPill } from "./status-pill";
 
@@ -20,6 +22,7 @@ type MissionCardProps = Pick<
   | "liveControl"
   | "mission"
   | "proofBundle"
+  | "reporting"
   | "tasks"
 >;
 
@@ -30,6 +33,7 @@ export function MissionCard({
   liveControl,
   mission,
   proofBundle,
+  reporting,
   tasks,
 }: MissionCardProps) {
   const taskById = new Map(tasks.map((task) => [task.id, task]));
@@ -42,8 +46,11 @@ export function MissionCard({
   )
     ? discoveryAnswer
     : null;
-  const financeProofBundle = isFinanceProofBundle(proofBundle);
+  const reportingView = reporting;
+  const reportProofBundle = proofBundle.reportKind !== null || reportingView !== null;
+  const financeProofBundle = !reportProofBundle && isFinanceProofBundle(proofBundle);
   const policySourceScope =
+    reportingView?.policySourceScope ??
     financeDiscoveryAnswer?.policySourceScope ??
     proofBundle.policySourceScope ??
     null;
@@ -64,7 +71,36 @@ export function MissionCard({
         </div>
 
         <div className="meta-grid">
-          {financeDiscoveryQuestion ? (
+          {reportingView ? (
+            <>
+              <div>
+                <dt>Mission type</dt>
+                <dd>{mission.type}</dd>
+              </div>
+              <div>
+                <dt>Company</dt>
+                <dd>{reportingView.companyKey ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Report kind</dt>
+                <dd>
+                  {readReportingMissionReportKindLabel(reportingView.reportKind)}
+                </dd>
+              </div>
+              <div>
+                <dt>Source discovery mission</dt>
+                <dd>
+                  <a href={`/missions/${reportingView.sourceDiscoveryMissionId}`}>
+                    {reportingView.sourceDiscoveryMissionId}
+                  </a>
+                </dd>
+              </div>
+              <div>
+                <dt>Draft posture</dt>
+                <dd>{reportingView.draftStatus}</dd>
+              </div>
+            </>
+          ) : financeDiscoveryQuestion ? (
             <>
               <div>
                 <dt>Mission type</dt>
@@ -108,7 +144,9 @@ export function MissionCard({
         </div>
       </section>
 
-      {mission.type === "discovery" || discoveryAnswer ? (
+      {reportingView ? (
+        <ReportingOutputCard proofBundle={proofBundle} reporting={reportingView} />
+      ) : mission.type === "discovery" || discoveryAnswer ? (
         <DiscoveryAnswerCard answer={discoveryAnswer} mission={mission} />
       ) : null}
 
@@ -201,7 +239,64 @@ export function MissionCard({
             <dt>Completeness</dt>
             <dd>{proofBundle.evidenceCompleteness.status}</dd>
           </div>
-          {financeProofBundle ? (
+          {reportProofBundle ? (
+            <>
+              <div>
+                <dt>Company</dt>
+                <dd>{proofBundle.companyKey ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Report kind</dt>
+                <dd>
+                  {proofBundle.reportKind
+                    ? readReportingMissionReportKindLabel(proofBundle.reportKind)
+                    : "Not recorded yet."}
+                </dd>
+              </div>
+              <div>
+                <dt>Draft posture</dt>
+                <dd>{proofBundle.reportDraftStatus ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Source discovery mission</dt>
+                <dd>{proofBundle.sourceDiscoveryMissionId ?? "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Source question kind</dt>
+                <dd>
+                  {proofBundle.questionKind &&
+                  isFinanceDiscoveryQuestionKind(proofBundle.questionKind)
+                    ? readFinanceDiscoveryQuestionKindLabel(
+                        proofBundle.questionKind,
+                      )
+                    : "Not recorded yet."}
+                </dd>
+              </div>
+              {proofBundle.questionKind === "policy_lookup" ||
+              proofBundle.policySourceId ? (
+                <PolicySourceScopeFields
+                  fallbackPolicySourceId={proofBundle.policySourceId}
+                  scope={proofBundle.policySourceScope}
+                />
+              ) : null}
+              <div>
+                <dt>Freshness</dt>
+                <dd>{readFreshnessLabel(proofBundle.freshnessState)}</dd>
+              </div>
+              <div>
+                <dt>Related routes</dt>
+                <dd>{proofBundle.relatedRoutePaths?.length ?? 0}</dd>
+              </div>
+              <div>
+                <dt>Related wiki pages</dt>
+                <dd>{proofBundle.relatedWikiPageKeys?.length ?? 0}</dd>
+              </div>
+              <div>
+                <dt>Appendix</dt>
+                <dd>{proofBundle.appendixPresent ? "Stored" : "Pending"}</dd>
+              </div>
+            </>
+          ) : financeProofBundle ? (
             <>
               <div>
                 <dt>Company</dt>
@@ -283,7 +378,22 @@ export function MissionCard({
             <dt>Change summary</dt>
             <dd>{proofBundle.changeSummary || "Not recorded yet."}</dd>
           </div>
-          {financeProofBundle ? (
+          {reportProofBundle ? (
+            <>
+              <div>
+                <dt>Report summary</dt>
+                <dd>{proofBundle.reportSummary || "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Freshness posture</dt>
+                <dd>{proofBundle.freshnessSummary || "Not recorded yet."}</dd>
+              </div>
+              <div>
+                <dt>Limitations</dt>
+                <dd>{proofBundle.limitationsSummary || "Not recorded yet."}</dd>
+              </div>
+            </>
+          ) : financeProofBundle ? (
             <>
               <div>
                 <dt>Answer summary</dt>
@@ -334,7 +444,7 @@ export function MissionCard({
           <h3>Key timestamps</h3>
           <ul className="list-clean">
             <li>Mission created: {proofBundle.timestamps.missionCreatedAt}</li>
-            {financeProofBundle ? (
+            {reportProofBundle || financeProofBundle ? (
               <li>
                 Latest artifact:{" "}
                 {proofBundle.timestamps.latestArtifactAt ?? "Not recorded yet."}
@@ -366,7 +476,7 @@ export function MissionCard({
           </ul>
         </div>
 
-        {financeProofBundle ? (
+        {reportProofBundle || financeProofBundle ? (
           <>
             <div className="stack" style={{ marginTop: 18 }}>
               <h3>Related routes</h3>
@@ -439,6 +549,22 @@ function readStatusTone(status: string) {
 function buildProofBundleReadinessMessage(
   proofBundle: MissionCardProps["proofBundle"],
 ) {
+  if (proofBundle.reportKind) {
+    if (proofBundle.status === "ready") {
+      return "The proof bundle now reads like a draft reporting package with source discovery lineage, memo summary, appendix linkage, freshness posture, and visible limitations tied together.";
+    }
+
+    if (proofBundle.status === "failed") {
+      return "The current draft reporting bundle is non-decision-ready. Review the source discovery lineage, carried limitations, and mission evidence before retrying.";
+    }
+
+    if (proofBundle.status === "incomplete") {
+      return "The bundle is partially assembled, but the draft reporting package is still missing the memo or appendix artifact.";
+    }
+
+    return "The reporting proof bundle is still at the placeholder stage and has not yet accumulated draft memo evidence.";
+  }
+
   if (isFinanceProofBundle(proofBundle)) {
     if (proofBundle.status === "ready") {
       return "The proof bundle now reads like a finance-ready answer package with stored routes, wiki context, freshness posture, and visible limitations linked together.";
@@ -472,7 +598,8 @@ function buildProofBundleReadinessMessage(
 
 function isFinanceProofBundle(proofBundle: MissionCardProps["proofBundle"]) {
   return (
-    proofBundle.companyKey !== null ||
-    isFinanceDiscoveryQuestionKind(proofBundle.questionKind)
+    proofBundle.reportKind === null &&
+    (proofBundle.companyKey !== null ||
+      isFinanceDiscoveryQuestionKind(proofBundle.questionKind))
   );
 }

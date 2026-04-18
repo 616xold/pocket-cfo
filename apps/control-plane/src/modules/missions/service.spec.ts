@@ -318,6 +318,127 @@ describe("MissionService", () => {
     });
   });
 
+  it("creates reporting missions only from a succeeded finance discovery mission with stored evidence", async () => {
+    const { replayService, repository, service } = createService();
+    const source = await service.createDiscovery({
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      operatorPrompt: "Review cash posture from stored state.",
+      requestedBy: "operator",
+    });
+    const scoutTask = source.tasks[0]!;
+
+    await repository.updateTaskStatus(scoutTask.id, "succeeded");
+    await repository.updateMissionStatus(source.mission.id, "succeeded");
+    await repository.saveArtifact(
+      buildFinanceDiscoveryAnswerArtifact({
+        missionId: source.mission.id,
+        taskId: scoutTask.id,
+      }),
+    );
+
+    const created = await service.createReporting({
+      sourceDiscoveryMissionId: source.mission.id,
+      reportKind: "finance_memo",
+      requestedBy: "finance-operator",
+    });
+
+    expect(created.mission.type).toBe("reporting");
+    expect(created.mission.sourceKind).toBe("manual_reporting");
+    expect(created.mission.primaryRepo).toBeNull();
+    expect(created.mission.spec.input?.reportingRequest).toEqual({
+      sourceDiscoveryMissionId: source.mission.id,
+      reportKind: "finance_memo",
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      policySourceId: null,
+      policySourceScope: null,
+    });
+    expect(created.tasks).toMatchObject([
+      {
+        role: "scout",
+        sequence: 0,
+        status: "pending",
+      },
+    ]);
+    expect(created.proofBundle.evidenceCompleteness.expectedArtifactKinds).toEqual([
+      "finance_memo",
+      "evidence_appendix",
+    ]);
+    expect(created.proofBundle.reportKind).toBe("finance_memo");
+    expect(created.proofBundle.sourceDiscoveryMissionId).toBe(source.mission.id);
+
+    const events = await replayService.listByMissionId(created.mission.id);
+    expect(events.slice(-4).map((event) => event.type)).toEqual([
+      "mission.created",
+      "task.created",
+      "mission.status_changed",
+      "artifact.created",
+    ]);
+  });
+
+  it("rejects reporting creation when the source mission is not a completed discovery mission", async () => {
+    const { service } = createService();
+    const buildMission = await service.createFromText({
+      text: "Implement passkeys for sign-in",
+      sourceKind: "manual_text",
+      requestedBy: "operator",
+    });
+
+    await expect(
+      service.createReporting({
+        sourceDiscoveryMissionId: buildMission.mission.id,
+        reportKind: "finance_memo",
+        requestedBy: "finance-operator",
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      body: {
+        error: {
+          details: [
+            {
+              path: "sourceDiscoveryMissionId",
+              message: `Mission ${buildMission.mission.id} is build, not a discovery mission.`,
+            },
+          ],
+        },
+      },
+    });
+  });
+
+  it("rejects reporting creation when the discovery answer artifact is missing", async () => {
+    const { repository, service } = createService();
+    const source = await service.createDiscovery({
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      requestedBy: "operator",
+    });
+    const scoutTask = source.tasks[0]!;
+
+    await repository.updateTaskStatus(scoutTask.id, "succeeded");
+    await repository.updateMissionStatus(source.mission.id, "succeeded");
+
+    await expect(
+      service.createReporting({
+        sourceDiscoveryMissionId: source.mission.id,
+        reportKind: "finance_memo",
+        requestedBy: "finance-operator",
+      }),
+    ).rejects.toMatchObject({
+      statusCode: 400,
+      body: {
+        error: {
+          details: [
+            {
+              path: "sourceDiscoveryMissionId",
+              message: `Discovery mission ${source.mission.id} has no stored discovery answer artifact.`,
+            },
+          ],
+        },
+      },
+    });
+  });
+
   it("returns summary-shaped approvals, approval cards, and artifacts in mission detail", async () => {
     const approval: ApprovalRecord = {
       createdAt: "2026-03-14T10:00:00.000Z",
@@ -523,3 +644,61 @@ describe("MissionService", () => {
     ]);
   });
 });
+
+function buildFinanceDiscoveryAnswerArtifact(input: {
+  missionId: string;
+  taskId: string;
+}) {
+  return {
+    kind: "discovery_answer" as const,
+    metadata: {
+      source: "stored_finance_twin_and_cfo_wiki",
+      summary:
+        "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+      companyKey: "acme",
+      questionKind: "cash_posture",
+      policySourceId: null,
+      policySourceScope: null,
+      answerSummary:
+        "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+      freshnessPosture: {
+        state: "stale",
+        reasonSummary:
+          "Cash posture remains stale because the latest bank account summary sync is older than the freshness threshold.",
+      },
+      limitations: [
+        "Working-capital timing remains approximate because no payment calendar inference is performed.",
+      ],
+      relatedRoutes: [
+        {
+          label: "Cash posture",
+          routePath: "/finance-twin/companies/acme/cash-posture",
+        },
+        {
+          label: "Bank accounts",
+          routePath: "/finance-twin/companies/acme/bank-accounts",
+        },
+      ],
+      relatedWikiPages: [
+        {
+          pageKey: "metrics/cash-posture",
+          title: "Cash posture",
+        },
+      ],
+      evidenceSections: [
+        {
+          key: "cash_posture_route",
+          title: "Cash posture route-backed evidence",
+          summary: "Stored Finance Twin cash posture output.",
+          routePath: "/finance-twin/companies/acme/cash-posture",
+        },
+      ],
+      bodyMarkdown: "# Cash posture\n",
+      structuredData: {},
+    },
+    missionId: input.missionId,
+    mimeType: "application/json",
+    taskId: input.taskId,
+    uri: `pocket-cto://missions/${input.missionId}/tasks/${input.taskId}/discovery-answer`,
+  };
+}

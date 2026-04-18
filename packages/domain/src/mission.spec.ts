@@ -55,4 +55,36 @@ describe("Mission domain schemas", () => {
 
     expect(spec.repos).toEqual([]);
   });
+
+  it("parses a reporting mission spec with a typed reporting request", () => {
+    const spec = MissionSpecSchema.parse({
+      type: "reporting",
+      title: "Draft finance memo for acme",
+      objective:
+        "Compile one draft finance memo plus one linked evidence appendix from stored discovery evidence only.",
+      repos: [],
+      acceptance: ["persist one draft finance_memo artifact"],
+      riskBudget: {
+        sandboxMode: "read-only",
+        maxWallClockMinutes: 5,
+        maxCostUsd: 1,
+        allowNetwork: false,
+        requiresHumanApprovalFor: [],
+      },
+      deliverables: ["finance_memo", "evidence_appendix", "proof_bundle"],
+      input: {
+        reportingRequest: {
+          sourceDiscoveryMissionId: "11111111-1111-4111-8111-111111111111",
+          reportKind: "finance_memo",
+          companyKey: "acme",
+          questionKind: "cash_posture",
+          policySourceId: null,
+          policySourceScope: null,
+        },
+      },
+    });
+
+    expect(spec.type).toBe("reporting");
+    expect(spec.input?.reportingRequest?.reportKind).toBe("finance_memo");
+  });
 });

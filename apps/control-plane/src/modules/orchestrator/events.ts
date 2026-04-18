@@ -13,6 +13,7 @@ export const taskStatusChangeReasons = {
   executorPublishFailed: "executor_publish_failed",
   executorValidationFailed: "executor_validation_failed",
   plannerEvidenceFailed: "planner_evidence_failed",
+  reportingCompileFailed: "reporting_compile_failed",
   runtimeTurnCompleted: "runtime_turn_completed",
   runtimeTurnFailed: "runtime_turn_failed",
   runtimeTurnInterrupted: "runtime_turn_interrupted",

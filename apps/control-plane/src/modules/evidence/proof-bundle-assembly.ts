@@ -29,6 +29,10 @@ const BUILD_EXPECTED_ARTIFACT_KINDS: ArtifactKind[] = [
   "pr_link",
 ];
 const DISCOVERY_EXPECTED_ARTIFACT_KINDS: ArtifactKind[] = ["discovery_answer"];
+const REPORTING_EXPECTED_ARTIFACT_KINDS: ArtifactKind[] = [
+  "finance_memo",
+  "evidence_appendix",
+];
 
 const SUMMARY_MAX_LENGTH = 240;
 
@@ -174,11 +178,16 @@ export function assembleProofBundleManifest(input: {
     missionId: input.mission.id,
     missionTitle: input.mission.title,
     objective: input.mission.objective,
+    sourceDiscoveryMissionId: facts.sourceDiscoveryMissionId,
     companyKey: facts.companyKey,
     questionKind: facts.questionKind,
     policySourceId: facts.policySourceId,
     policySourceScope: facts.policySourceScope,
     answerSummary: facts.discoveryAnswerSummary ?? "",
+    reportKind: facts.reportKind,
+    reportDraftStatus: facts.reportDraftStatus,
+    reportSummary: facts.reportSummary ?? "",
+    appendixPresent: facts.appendixPresent,
     freshnessState: facts.freshnessState,
     freshnessSummary: facts.freshnessSummary ?? "",
     limitationsSummary: facts.limitationsSummary ?? "",
@@ -244,7 +253,7 @@ function buildProofBundleStatus(input: {
   facts: ProofBundleAssemblyFacts;
   mission: MissionRecord;
 }): ProofBundleStatus {
-  const hasTaskFailure = isDiscoveryMission(input.mission)
+  const hasTaskFailure = isScoutOnlyMission(input.mission)
     ? input.facts.latestScoutTask?.status === "failed" ||
       input.facts.latestScoutTask?.status === "cancelled"
     : input.facts.latestPlannerTask?.status === "failed" ||
@@ -259,7 +268,7 @@ function buildProofBundleStatus(input: {
     input.facts.artifacts.length > 0 || input.facts.latestApproval !== null;
   const hasReadyArtifacts =
     input.evidenceCompleteness.missingArtifactKinds.length === 0 &&
-    (isDiscoveryMission(input.mission)
+    (isScoutOnlyMission(input.mission)
       ? input.facts.latestScoutTask?.status === "succeeded"
       : input.facts.latestExecutorTask?.status === "succeeded");
 
@@ -284,6 +293,14 @@ function buildChangeSummary(
 ) {
   if (facts.changeSummary) {
     return facts.changeSummary;
+  }
+
+  if (isReportingFacts(facts) && facts.latestScoutTask) {
+    if (status === "failed" && facts.latestScoutTask.summary) {
+      return truncate(facts.latestScoutTask.summary, SUMMARY_MAX_LENGTH);
+    }
+
+    return "Draft finance memo compilation is still pending persisted reporting artifacts.";
   }
 
   if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
@@ -319,6 +336,22 @@ function buildValidationSummary(
 ) {
   if (facts.validationSummary) {
     return facts.validationSummary;
+  }
+
+  if (isReportingFacts(facts) && facts.latestScoutTask) {
+    if (status === "ready") {
+      return "Draft finance memo and evidence appendix were compiled deterministically from stored discovery evidence without running the Codex runtime.";
+    }
+
+    if (status === "incomplete") {
+      return "Draft reporting evidence is still pending from the stored discovery answer path.";
+    }
+
+    if (status === "failed") {
+      return "No draft finance memo could be persisted for this reporting mission.";
+    }
+
+    return "";
   }
 
   if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
@@ -409,6 +442,18 @@ function buildVerificationSummary(
   }
 
   if (
+    isReportingFacts(facts) &&
+    facts.latestScoutTask &&
+    status === "ready" &&
+    facts.reportSummary
+  ) {
+    return truncate(
+      `${facts.reportSummary} Review the linked evidence appendix, carried-forward freshness, and visible limitations before sharing this draft.`,
+      SUMMARY_MAX_LENGTH,
+    );
+  }
+
+  if (
     status === "ready" &&
     facts.pullRequestNumber &&
     facts.targetRepoFullName &&
@@ -452,6 +497,22 @@ function buildRiskSummary(
 ) {
   if (facts.riskSummary) {
     return facts.riskSummary;
+  }
+
+  if (isReportingFacts(facts) && facts.latestScoutTask) {
+    if (status === "failed") {
+      return "Draft reporting is currently unavailable; inspect the stored source discovery evidence and reporting task timeline before retrying.";
+    }
+
+    if (status === "incomplete") {
+      return "Draft reporting still depends on one persisted finance memo plus one persisted evidence appendix.";
+    }
+
+    if (status === "ready") {
+      return "This memo is draft-only, carries source discovery freshness and limitations forward, and has no release or approval workflow in F5A.";
+    }
+
+    return "";
   }
 
   if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
@@ -515,6 +576,22 @@ function buildRollbackSummary(
     return facts.rollbackSummary;
   }
 
+  if (isReportingFacts(facts) && facts.latestScoutTask) {
+    if (status === "failed") {
+      return "Safe fallback: refresh or rerun the source discovery mission truthfully, then retry draft memo compilation; no release, send, or wiki filing side effect was produced.";
+    }
+
+    if (status === "incomplete") {
+      return "Wait for both the finance memo and evidence appendix artifacts before relying on this reporting mission.";
+    }
+
+    if (status === "ready") {
+      return "No release, approval, wiki filing, PDF export, or slide export side effect was produced; rerun only if the stored discovery evidence should be refreshed first.";
+    }
+
+    return "";
+  }
+
   if (isFinanceDiscoveryFacts(facts) && facts.latestScoutTask) {
     if (status === "failed") {
       return "Safe fallback: refresh the relevant finance-twin slices and CFO Wiki compile truthfully, then retry the finance discovery mission; no code or GitHub changes were produced.";
@@ -568,6 +645,10 @@ function readMissingArtifactNote(kind: ArtifactKind) {
       return "Planner evidence is missing.";
     case "discovery_answer":
       return "Discovery answer evidence is missing.";
+    case "finance_memo":
+      return "Draft finance memo evidence is missing.";
+    case "evidence_appendix":
+      return "Evidence appendix is missing.";
     case "diff_summary":
       return "Change-summary evidence is missing.";
     case "test_report":
@@ -586,18 +667,27 @@ function proofBundleManifestEquals(
   return JSON.stringify(left) === JSON.stringify(right);
 }
 
-function isDiscoveryMission(mission: MissionRecord) {
-  return mission.type === "discovery";
+function isScoutOnlyMission(mission: MissionRecord) {
+  return mission.type === "discovery" || mission.type === "reporting";
 }
 
 function isFinanceDiscoveryFacts(facts: ProofBundleAssemblyFacts) {
   return (
-    facts.companyKey !== null ||
-    isFinanceDiscoveryQuestionKind(facts.questionKind)
+    !isReportingFacts(facts) &&
+    (facts.companyKey !== null ||
+      isFinanceDiscoveryQuestionKind(facts.questionKind))
   );
 }
 
+function isReportingFacts(facts: ProofBundleAssemblyFacts) {
+  return facts.reportKind !== null || facts.sourceDiscoveryMissionId !== null;
+}
+
 function readExpectedArtifactKinds(facts: ProofBundleAssemblyFacts) {
+  if (facts.missionType === "reporting") {
+    return REPORTING_EXPECTED_ARTIFACT_KINDS;
+  }
+
   return facts.missionType === "discovery"
     ? DISCOVERY_EXPECTED_ARTIFACT_KINDS
     : BUILD_EXPECTED_ARTIFACT_KINDS;

@@ -25,10 +25,12 @@ export default async function MissionPage({ params }: MissionPageProps) {
             liveControl={demoMission.liveControl}
             mission={demoMission.mission}
             proofBundle={demoMission.proofBundle}
+            reporting={demoMission.reporting}
             tasks={demoMission.tasks}
           />
           <MissionActions
             approvalCards={demoMission.approvalCards}
+            discoveryAnswer={demoMission.discoveryAnswer}
             liveControl={demoMission.liveControl}
             mission={demoMission.mission}
             tasks={demoMission.tasks}
@@ -49,10 +51,12 @@ export default async function MissionPage({ params }: MissionPageProps) {
         liveControl={mission.liveControl}
         mission={mission.mission}
         proofBundle={mission.proofBundle}
+        reporting={mission.reporting}
         tasks={mission.tasks}
       />
       <MissionActions
         approvalCards={mission.approvalCards}
+        discoveryAnswer={mission.discoveryAnswer}
         liveControl={mission.liveControl}
         mission={mission.mission}
         tasks={mission.tasks}
@@ -136,11 +140,16 @@ function buildDemoMissionDetail(): MissionDetailView {
       missionId: "00000000-0000-4000-8000-000000000001",
       missionTitle: "Implement passkeys for sign-in",
       objective: "Ship passkeys without breaking email login.",
+      sourceDiscoveryMissionId: null,
       companyKey: null,
       questionKind: null,
       policySourceId: null,
       policySourceScope: null,
       answerSummary: "",
+      reportKind: null,
+      reportDraftStatus: null,
+      reportSummary: "",
+      appendixPresent: false,
       freshnessState: null,
       freshnessSummary: "",
       limitationsSummary: "",
@@ -183,6 +192,7 @@ function buildDemoMissionDetail(): MissionDetailView {
       status: "placeholder",
     },
     discoveryAnswer: null,
+    reporting: null,
     approvals: [],
     approvalCards: [],
     artifacts: [],

@@ -5,6 +5,7 @@ import {
   createAnalysisMissionSchema,
   createDiscoveryMissionSchema,
   createMissionFromTextSchema,
+  createReportingMissionSchema,
   listMissionsQuerySchema,
   missionIdParamsSchema,
 } from "./schema";
@@ -42,6 +43,13 @@ export async function registerMissionRoutes(
     const created = await deps.missionService.createAnalysis(
       body as CreateDiscoveryMissionInput,
     );
+    reply.code(201);
+    return created;
+  });
+
+  app.post("/missions/reporting", async (request, reply) => {
+    const body = createReportingMissionSchema.parse(request.body);
+    const created = await deps.missionService.createReporting(body);
     reply.code(201);
     return created;
   });

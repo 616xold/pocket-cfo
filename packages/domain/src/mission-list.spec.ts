@@ -104,4 +104,57 @@ describe("Mission list domain schema", () => {
       "Travel and expense policy",
     );
   });
+
+  it("parses reporting mission summaries with explicit draft reporting fields", () => {
+    const parsed = MissionListViewSchema.parse({
+      filters: {
+        limit: 20,
+        status: null,
+        sourceKind: null,
+      },
+      missions: [
+        {
+          id: "11111111-1111-4111-8111-111111111111",
+          title: "Draft finance memo for acme from cash posture discovery",
+          objectiveExcerpt:
+            "Compile one draft finance memo plus one linked evidence appendix from completed discovery mission 22222222-2222-4222-8222-222222222222.",
+          sourceDiscoveryMissionId: "22222222-2222-4222-8222-222222222222",
+          companyKey: "acme",
+          questionKind: "cash_posture",
+          policySourceId: null,
+          policySourceScope: null,
+          answerSummary: null,
+          reportKind: "finance_memo",
+          reportDraftStatus: "draft_only",
+          reportSummary:
+            "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+          appendixPresent: true,
+          freshnessState: "stale",
+          status: "succeeded",
+          sourceKind: "manual_reporting",
+          sourceRef: null,
+          primaryRepo: null,
+          createdAt: "2026-04-18T12:00:00.000Z",
+          updatedAt: "2026-04-18T12:03:00.000Z",
+          latestTask: {
+            id: "33333333-3333-4333-8333-333333333333",
+            role: "scout",
+            sequence: 0,
+            status: "succeeded",
+            updatedAt: "2026-04-18T12:03:00.000Z",
+          },
+          proofBundleStatus: "ready",
+          pendingApprovalCount: 0,
+          pullRequestNumber: null,
+          pullRequestUrl: null,
+        },
+      ],
+    });
+
+    expect(parsed.missions[0]?.reportKind).toBe("finance_memo");
+    expect(parsed.missions[0]?.sourceDiscoveryMissionId).toBe(
+      "22222222-2222-4222-8222-222222222222",
+    );
+    expect(parsed.missions[0]?.appendixPresent).toBe(true);
+  });
 });

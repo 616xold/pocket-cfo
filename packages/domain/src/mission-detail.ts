@@ -4,6 +4,7 @@ import { DiscoveryAnswerArtifactMetadataSchema } from "./discovery-mission";
 import { MissionRecordSchema } from "./mission";
 import { MissionTaskRecordSchema, MissionTaskRoleSchema } from "./mission-task";
 import { ArtifactKindSchema, ProofBundleManifestSchema } from "./proof-bundle";
+import { ReportingMissionViewSchema } from "./reporting-mission";
 
 export const OperatorControlModeSchema = z.enum([
   "api_only",
@@ -72,6 +73,7 @@ export const MissionDetailViewSchema = z.object({
   tasks: z.array(MissionTaskRecordSchema),
   proofBundle: ProofBundleManifestSchema,
   discoveryAnswer: DiscoveryAnswerArtifactMetadataSchema.nullable().default(null),
+  reporting: ReportingMissionViewSchema.nullable().default(null),
   approvals: z.array(MissionApprovalSummarySchema),
   approvalCards: z.array(MissionApprovalCardSchema),
   artifacts: z.array(MissionArtifactSummarySchema),

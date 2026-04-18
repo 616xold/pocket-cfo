@@ -536,6 +536,106 @@ describe("assembleProofBundleManifest", () => {
       "Review the stored policy page",
     );
   });
+
+  it("yields a ready reporting proof bundle when memo and appendix artifacts are stored", () => {
+    const sourceDiscoveryMissionId = "88888888-8888-4888-8888-888888888888";
+    const mission = buildReportingMission(sourceDiscoveryMissionId);
+    const manifest = assembleProofBundleManifest({
+      approvals: [],
+      artifacts: [
+        buildArtifact({
+          id: "11111111-bbbb-4bbb-8bbb-bbbbbbbbbbb1",
+          kind: "finance_memo",
+          taskId: scoutTaskId,
+          createdAt: "2026-04-18T12:02:00.000Z",
+          metadata: {
+            source: "stored_discovery_evidence",
+            summary:
+              "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+            reportKind: "finance_memo",
+            draftStatus: "draft_only",
+            sourceDiscoveryMissionId,
+            companyKey: "acme",
+            questionKind: "cash_posture",
+            policySourceId: null,
+            policySourceScope: null,
+            memoSummary:
+              "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+            freshnessSummary:
+              "Cash posture remains stale because the latest bank account summary sync is older than the freshness threshold.",
+            limitationsSummary:
+              "This memo is draft-only and carries source discovery freshness and limitation posture forward.",
+            relatedRoutePaths: [
+              "/finance-twin/companies/acme/cash-posture",
+              "/finance-twin/companies/acme/bank-accounts",
+            ],
+            relatedWikiPageKeys: ["metrics/cash-posture", "concepts/cash"],
+            sourceArtifacts: [
+              {
+                artifactId: "11111111-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+                kind: "discovery_answer",
+              },
+            ],
+            bodyMarkdown: "# Draft Finance Memo\n\n## Memo Summary\n",
+          },
+        }),
+        buildArtifact({
+          id: "11111111-bbbb-4bbb-8bbb-bbbbbbbbbbb2",
+          kind: "evidence_appendix",
+          taskId: scoutTaskId,
+          createdAt: "2026-04-18T12:03:00.000Z",
+          metadata: {
+            source: "stored_discovery_evidence",
+            summary:
+              "Evidence appendix for source discovery mission 88888888-8888-4888-8888-888888888888.",
+            reportKind: "finance_memo",
+            draftStatus: "draft_only",
+            sourceDiscoveryMissionId,
+            companyKey: "acme",
+            questionKind: "cash_posture",
+            policySourceId: null,
+            policySourceScope: null,
+            appendixSummary:
+              "Stored evidence appendix for discovery mission 88888888-8888-4888-8888-888888888888.",
+            freshnessSummary:
+              "Cash posture remains stale because the latest bank account summary sync is older than the freshness threshold.",
+            limitationsSummary:
+              "This memo is draft-only and carries source discovery freshness and limitation posture forward.",
+            limitations: [
+              "Working-capital timing remains approximate because no payment calendar inference is performed.",
+            ],
+            relatedRoutePaths: [
+              "/finance-twin/companies/acme/cash-posture",
+              "/finance-twin/companies/acme/bank-accounts",
+            ],
+            relatedWikiPageKeys: ["metrics/cash-posture", "concepts/cash"],
+            sourceArtifacts: [
+              {
+                artifactId: "11111111-aaaa-4aaa-8aaa-aaaaaaaaaaa1",
+                kind: "discovery_answer",
+              },
+            ],
+            bodyMarkdown: "# Evidence Appendix\n\n## Source Discovery Lineage\n",
+          },
+        }),
+      ],
+      existingBundle: buildPlaceholderBundle(mission),
+      mission,
+      replayEventCount: 8,
+      tasks: buildDiscoveryTasks("succeeded"),
+    });
+
+    expect(manifest.status).toBe("ready");
+    expect(manifest.reportKind).toBe("finance_memo");
+    expect(manifest.sourceDiscoveryMissionId).toBe(sourceDiscoveryMissionId);
+    expect(manifest.appendixPresent).toBe(true);
+    expect(manifest.evidenceCompleteness.expectedArtifactKinds).toEqual([
+      "finance_memo",
+      "evidence_appendix",
+    ]);
+    expect(manifest.verificationSummary).toContain("linked evidence appendix");
+    expect(manifest.riskSummary).toContain("draft-only");
+  });
 });
 
 function buildMission(): MissionRecord {
@@ -816,6 +916,55 @@ function buildPolicyLookupDiscoveryMission(policySourceId: string): MissionRecor
     },
     createdAt: "2026-04-15T09:00:00.000Z",
     updatedAt: "2026-04-15T09:03:00.000Z",
+  };
+}
+
+function buildReportingMission(sourceDiscoveryMissionId: string): MissionRecord {
+  return {
+    id: missionId,
+    type: "reporting",
+    status: "succeeded",
+    title: "Draft finance memo for acme from cash posture discovery",
+    objective: `Compile one draft finance memo plus one linked evidence appendix from completed discovery mission ${sourceDiscoveryMissionId} and its stored evidence only.`,
+    sourceKind: "manual_reporting",
+    sourceRef: null,
+    createdBy: "operator",
+    primaryRepo: null,
+    spec: {
+      type: "reporting",
+      title: "Draft finance memo for acme from cash posture discovery",
+      objective: `Compile one draft finance memo plus one linked evidence appendix from completed discovery mission ${sourceDiscoveryMissionId} and its stored evidence only.`,
+      repos: [],
+      constraints: {
+        allowedPaths: [],
+        mustNot: ["do not invoke the codex runtime"],
+      },
+      acceptance: [
+        "persist one draft finance_memo artifact",
+        "persist one linked evidence_appendix artifact",
+      ],
+      riskBudget: {
+        sandboxMode: "read-only",
+        maxWallClockMinutes: 5,
+        maxCostUsd: 1,
+        allowNetwork: false,
+        requiresHumanApprovalFor: [],
+      },
+      deliverables: ["finance_memo", "evidence_appendix", "proof_bundle"],
+      evidenceRequirements: ["stored discovery_answer artifact"],
+      input: {
+        reportingRequest: {
+          sourceDiscoveryMissionId,
+          reportKind: "finance_memo",
+          companyKey: "acme",
+          questionKind: "cash_posture",
+          policySourceId: null,
+          policySourceScope: null,
+        },
+      },
+    },
+    createdAt: "2026-04-18T12:00:00.000Z",
+    updatedAt: "2026-04-18T12:03:00.000Z",
   };
 }
 

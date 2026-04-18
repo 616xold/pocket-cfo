@@ -599,6 +599,11 @@ function createHarness(options?: {
       },
     },
     {
+      async compileDraftReport() {
+        throw new Error("compileDraftReport should not be called in this spec");
+      },
+    },
+    {
       async queryRepositoryBlastRadius() {
         throw new Error("legacy engineering discovery is not exercised in this spec");
       },

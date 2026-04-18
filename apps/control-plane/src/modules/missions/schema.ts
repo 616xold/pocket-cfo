@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   CreateMissionFromTextInputSchema,
+  CreateReportingMissionInputSchema,
   FINANCE_DISCOVERY_QUESTION_KINDS,
   MissionSourceKindSchema,
   MissionStatusSchema,
@@ -37,6 +38,7 @@ const createFinanceMissionQuestionInputSchema = z
 
 export const createDiscoveryMissionSchema = createFinanceMissionQuestionInputSchema;
 export const createAnalysisMissionSchema = createFinanceMissionQuestionInputSchema;
+export const createReportingMissionSchema = CreateReportingMissionInputSchema;
 export const createMissionFromTextSchema = CreateMissionFromTextInputSchema;
 
 export const missionIdParamsSchema = z.object({

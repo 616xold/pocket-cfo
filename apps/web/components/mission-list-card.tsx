@@ -4,6 +4,7 @@ import type { MissionListItem } from "@pocket-cto/domain";
 import {
   isFinanceDiscoveryQuestionKind,
   readFinanceDiscoveryQuestionKindLabel,
+  readReportingMissionReportKindLabel,
 } from "@pocket-cto/domain";
 import { PolicySourceScopeFields } from "./policy-source-scope-fields";
 import { readFreshnessLabel } from "./freshness-label";
@@ -14,6 +15,7 @@ type MissionListCardProps = {
 };
 
 export function MissionListCard({ mission }: MissionListCardProps) {
+  const isReportingMission = mission.reportKind !== null;
   const isFinanceMission = mission.companyKey !== null;
   const questionKindLabel =
     mission.questionKind && isFinanceDiscoveryQuestionKind(mission.questionKind)
@@ -41,8 +43,10 @@ export function MissionListCard({ mission }: MissionListCardProps) {
 
       <p className="mission-summary-copy">{mission.objectiveExcerpt}</p>
 
-      {mission.answerSummary ? (
-        <p className="muted mission-summary-inline">{mission.answerSummary}</p>
+      {mission.reportSummary ?? mission.answerSummary ? (
+        <p className="muted mission-summary-inline">
+          {mission.reportSummary ?? mission.answerSummary}
+        </p>
       ) : null}
 
       {mission.sourceRef ? (
@@ -52,7 +56,42 @@ export function MissionListCard({ mission }: MissionListCardProps) {
       ) : null}
 
       <dl className="mission-summary-meta">
-        {isFinanceMission ? (
+        {isReportingMission ? (
+          <>
+            <div>
+              <dt>Company</dt>
+              <dd>{mission.companyKey}</dd>
+            </div>
+            <div>
+              <dt>Report kind</dt>
+              <dd>
+                {mission.reportKind
+                  ? readReportingMissionReportKindLabel(mission.reportKind)
+                  : "Pending report kind"}
+              </dd>
+            </div>
+            <div>
+              <dt>Source question</dt>
+              <dd>{questionKindLabel ?? "Pending question"}</dd>
+            </div>
+            <div>
+              <dt>Draft posture</dt>
+              <dd>{mission.reportDraftStatus ?? "Not recorded yet."}</dd>
+            </div>
+            <div>
+              <dt>Appendix</dt>
+              <dd>{mission.appendixPresent ? "Stored" : "Pending"}</dd>
+            </div>
+            <div>
+              <dt>Source discovery</dt>
+              <dd>{mission.sourceDiscoveryMissionId ?? "Not recorded yet."}</dd>
+            </div>
+            <div>
+              <dt>Freshness</dt>
+              <dd>{readFreshnessLabel(mission.freshnessState ?? "pending_answer")}</dd>
+            </div>
+          </>
+        ) : isFinanceMission ? (
           <>
             <div>
               <dt>Company</dt>

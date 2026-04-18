@@ -10,6 +10,7 @@ export function buildInitialTaskRolesForMission(spec: MissionSpec) {
     case "build":
       return ["planner", "executor"] as const;
     case "discovery":
+    case "reporting":
       return ["scout"] as const;
     case "incident":
       return ["scout", "executor", "reviewer"] as const;

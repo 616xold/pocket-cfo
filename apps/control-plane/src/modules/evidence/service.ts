@@ -40,23 +40,50 @@ export type PlannerArtifactCapture = {
 export class EvidenceService {
   createPlaceholder(mission: MissionRecord): ProofBundleManifest {
     const isDiscoveryMission = mission.type === "discovery";
+    const isReportingMission = mission.type === "reporting";
     const discoveryQuestion = mission.spec.input?.discoveryQuestion;
+    const reportingRequest = mission.spec.input?.reportingRequest;
     const financeCompanyKey =
-      isFinanceDiscoveryQuestion(discoveryQuestion) ? discoveryQuestion.companyKey : null;
+      isReportingMission && reportingRequest
+        ? reportingRequest.companyKey
+        : isFinanceDiscoveryQuestion(discoveryQuestion)
+          ? discoveryQuestion.companyKey
+          : null;
     const discoveryQuestionKind =
-      discoveryQuestion?.questionKind ?? null;
-    const policySourceId = isPolicyLookupDiscoveryQuestion(discoveryQuestion)
-      ? discoveryQuestion.policySourceId
-      : null;
+      isReportingMission && reportingRequest
+        ? reportingRequest.questionKind
+        : discoveryQuestion?.questionKind ?? null;
+    const policySourceId =
+      isReportingMission && reportingRequest
+        ? reportingRequest.policySourceId
+        : isPolicyLookupDiscoveryQuestion(discoveryQuestion)
+          ? discoveryQuestion.policySourceId
+          : null;
+    const policySourceScope =
+      isReportingMission && reportingRequest
+        ? reportingRequest.policySourceScope
+        : null;
 
     return ProofBundleManifestSchema.parse({
       missionId: mission.id,
       missionTitle: mission.title,
       objective: mission.objective,
+      sourceDiscoveryMissionId:
+        isReportingMission && reportingRequest
+          ? reportingRequest.sourceDiscoveryMissionId
+          : null,
       companyKey: financeCompanyKey,
       questionKind: discoveryQuestionKind,
       policySourceId,
+      policySourceScope,
       answerSummary: "",
+      reportKind:
+        isReportingMission && reportingRequest
+          ? reportingRequest.reportKind
+          : null,
+      reportDraftStatus: isReportingMission ? "draft_only" : null,
+      reportSummary: "",
+      appendixPresent: false,
       freshnessState: null,
       freshnessSummary: "",
       limitationsSummary: "",
@@ -77,21 +104,30 @@ export class EvidenceService {
       latestApproval: null,
       evidenceCompleteness: {
         status: "missing",
-        expectedArtifactKinds: isDiscoveryMission
-          ? ["discovery_answer"]
-          : ["plan", "diff_summary", "test_report", "pr_link"],
+        expectedArtifactKinds: isReportingMission
+          ? ["finance_memo", "evidence_appendix"]
+          : isDiscoveryMission
+            ? ["discovery_answer"]
+            : ["plan", "diff_summary", "test_report", "pr_link"],
         presentArtifactKinds: [],
-        missingArtifactKinds: isDiscoveryMission
-          ? ["discovery_answer"]
-          : ["plan", "diff_summary", "test_report", "pr_link"],
-        notes: isDiscoveryMission
-          ? ["Discovery answer evidence is missing."]
-          : [
-              "Planner evidence is missing.",
-              "Change-summary evidence is missing.",
-              "Validation evidence is missing.",
-              "GitHub pull request evidence is missing.",
-            ],
+        missingArtifactKinds: isReportingMission
+          ? ["finance_memo", "evidence_appendix"]
+          : isDiscoveryMission
+            ? ["discovery_answer"]
+            : ["plan", "diff_summary", "test_report", "pr_link"],
+        notes: isReportingMission
+          ? [
+              "Draft finance memo evidence is missing.",
+              "Evidence appendix is missing.",
+            ]
+          : isDiscoveryMission
+            ? ["Discovery answer evidence is missing."]
+            : [
+                "Planner evidence is missing.",
+                "Change-summary evidence is missing.",
+                "Validation evidence is missing.",
+                "GitHub pull request evidence is missing.",
+              ],
       },
       decisionTrace: [],
       artifactIds: [],

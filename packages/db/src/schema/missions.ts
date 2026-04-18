@@ -17,6 +17,7 @@ export const missionTypeEnum = pgEnum("mission_type", [
   "incident",
   "release",
   "discovery",
+  "reporting",
 ]);
 
 export const missionStatusEnum = pgEnum("mission_status", [
@@ -34,6 +35,7 @@ export const missionStatusEnum = pgEnum("mission_status", [
 export const missionSourceKindEnum = pgEnum("mission_source_kind", [
   "manual_text",
   "manual_discovery",
+  "manual_reporting",
   "github_issue",
   "github_comment",
   "alert",

@@ -52,6 +52,7 @@ pnpm smoke:cfo-wiki-concept-metric-policy:local
 pnpm smoke:finance-discovery-answer:local
 pnpm smoke:finance-discovery-supported-families:local
 pnpm smoke:finance-discovery-quality:local
+pnpm smoke:finance-memo:local
 pnpm smoke:finance-policy-lookup:local
 pnpm eval:finance-discovery-quality
 ```
@@ -120,6 +121,7 @@ Today, steps 1 through 5 exist in a narrow form:
 - the packaged `pnpm smoke:finance-discovery-answer:local` path proves one company can sync bank-account-summary coverage, compile related wiki pages, run `POST /missions/analysis`, and read back the persisted finance answer plus finance-ready proof bundle without runtime-codex, vector search, OCR, or deep-read dependencies
 - F4B widens that deterministic finance-discovery path to the truthful stored-state families `collections_pressure`, `payables_pressure`, `spend_posture`, and `obligation_calendar_review` while keeping policy lookup, aging-review families, runtime-codex, OCR, vector search, and deep-read dependencies out of scope
 - the packaged `pnpm smoke:finance-discovery-supported-families:local` path proves one company can sync the existing cash, receivables-aging, payables-aging, card-expense, and contract-metadata source families, compile the related wiki pages, run `POST /missions/analysis` for each shipped supported family, and read back deterministic finance answers plus finance-ready proof bundles without runtime-codex, vector search, OCR, or deep-read dependencies
+- the packaged `pnpm smoke:finance-memo:local` path proves one completed discovery mission can seed `POST /missions/reporting`, persist one draft `finance_memo` plus one linked `evidence_appendix`, refresh the reporting proof bundle truthfully, and carry forward stored freshness plus limitations without runtime-codex, release workflow, packet specialization, PDF export, or slide export
 - F4C1 adds one deterministic source-scoped `policy_lookup` family that requires explicit `policySourceId`, answers only from the scoped policy page plus related bound-source extract posture, and persists truthful limited answers when the latest bound policy extract is missing, unsupported, or failed
 - the packaged `pnpm smoke:finance-policy-lookup:local` path proves one company can bind policy-document sources, compile scoped policy pages, run `POST /missions/analysis` for both extracted and unsupported `policy_lookup` missions, and read back deterministic source-scoped answers plus finance-ready proof bundles without runtime-codex, generic retrieval, OCR, or deep-read dependencies
 - the packaged `pnpm smoke:finance-discovery-quality:local` path proves the shipped six-family discovery baseline still renders human-readable freshness, visible limitations, route/wiki evidence, and additive policy source scope across stored answer, mission, list, and proof-bundle surfaces without widening into generic retrieval or runtime-codex

@@ -2,6 +2,7 @@ import {
   ApprovalRecordSchema,
   CfoWikiCompanySourceListViewSchema,
   CreateDiscoveryMissionInputSchema,
+  CreateReportingMissionInputSchema,
   CreateSourceInputSchema,
   GitHubIssueIntakeListViewSchema,
   GitHubIssueMissionCreateResultSchema,
@@ -339,6 +340,16 @@ export async function createAnalysisMission(
   return postJsonStrict(
     "/missions/analysis",
     CreateDiscoveryMissionInputSchema.parse(input),
+    createMissionResponseSchema,
+  );
+}
+
+export async function createReportingMission(
+  input: z.input<typeof CreateReportingMissionInputSchema>,
+) {
+  return postJsonStrict(
+    "/missions/reporting",
+    CreateReportingMissionInputSchema.parse(input),
     createMissionResponseSchema,
   );
 }
