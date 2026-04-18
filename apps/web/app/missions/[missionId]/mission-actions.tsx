@@ -1,18 +1,21 @@
 import React from "react";
 import type { MissionDetailView } from "@pocket-cto/domain";
+import { isFinanceDiscoveryAnswerArtifactMetadata } from "@pocket-cto/domain";
 import { getWebOperatorIdentity } from "../../../lib/operator-identity";
 import {
   ApprovalActionForm,
+  CreateReportForm,
   TaskInterruptForm,
 } from "./mission-action-forms";
 
 type MissionActionsProps = Pick<
   MissionDetailView,
-  "approvalCards" | "liveControl" | "mission" | "tasks"
+  "approvalCards" | "discoveryAnswer" | "liveControl" | "mission" | "tasks"
 >;
 
 export function MissionActions({
   approvalCards,
+  discoveryAnswer,
   liveControl,
   mission,
   tasks,
@@ -23,6 +26,10 @@ export function MissionActions({
   );
   const runningTasks = tasks.filter((task) => task.status === "running");
   const controlsUnavailable = !liveControl.enabled;
+  const canCreateDraftFinanceMemo =
+    mission.type === "discovery" &&
+    mission.status === "succeeded" &&
+    isFinanceDiscoveryAnswerArtifactMetadata(discoveryAnswer);
 
   return (
     <section className="card">
@@ -37,6 +44,20 @@ export function MissionActions({
         <code>POCKET_CTO_WEB_OPERATOR_NAME</code> in your local env if you want
         a different operator label in approval and interrupt records.
       </p>
+
+      {canCreateDraftFinanceMemo ? (
+        <div className="stack" style={{ marginTop: 18 }}>
+          <h3>Create reporting</h3>
+          <p className="muted">
+            Create one draft-only finance memo and one linked evidence appendix
+            from this completed discovery mission and its stored evidence.
+          </p>
+          <CreateReportForm
+            operatorIdentity={operatorIdentity}
+            sourceDiscoveryMissionId={mission.id}
+          />
+        </div>
+      ) : null}
 
       <div className="stack" style={{ marginTop: 18 }}>
         {pendingApprovals.length === 0 ? (

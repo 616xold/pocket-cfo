@@ -1,8 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
+  createReportingMission,
   interruptMissionTask,
   resolveMissionApproval,
 } from "../../../lib/api";
@@ -23,6 +25,11 @@ const taskInterruptFormSchema = z.object({
   missionId: z.string().uuid(),
   requestedBy: z.string().trim().min(1),
   taskId: z.string().uuid(),
+});
+
+const createDraftFinanceMemoFormSchema = z.object({
+  requestedBy: z.string().trim().min(1),
+  sourceDiscoveryMissionId: z.string().uuid(),
 });
 
 export async function submitApprovalResolution(
@@ -73,4 +80,22 @@ export async function submitTaskInterrupt(
   }
 
   return buildInterruptActionResult(input.requestedBy, result);
+}
+
+export async function submitCreateDraftFinanceMemo(formData: FormData) {
+  const input = createDraftFinanceMemoFormSchema.parse({
+    requestedBy: formData.get("requestedBy"),
+    sourceDiscoveryMissionId: formData.get("sourceDiscoveryMissionId"),
+  });
+
+  const created = await createReportingMission({
+    requestedBy: input.requestedBy,
+    reportKind: "finance_memo",
+    sourceDiscoveryMissionId: input.sourceDiscoveryMissionId,
+  });
+
+  revalidatePath("/");
+  revalidatePath("/missions");
+  revalidatePath(`/missions/${input.sourceDiscoveryMissionId}`);
+  redirect(`/missions/${created.mission.id}`);
 }

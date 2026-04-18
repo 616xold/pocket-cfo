@@ -1,11 +1,13 @@
 import { z } from "zod";
 import { DiscoveryMissionQuestionSchema } from "./discovery-mission";
+import { ReportingMissionInputSchema } from "./reporting-mission";
 
 export const MissionTypeSchema = z.enum([
   "build",
   "incident",
   "release",
   "discovery",
+  "reporting",
 ]);
 
 export const MissionStatusSchema = z.enum([
@@ -30,6 +32,7 @@ export const SandboxModeSchema = z.enum([
 export const MissionSourceKindSchema = z.enum([
   "manual_text",
   "manual_discovery",
+  "manual_reporting",
   "github_issue",
   "github_comment",
   "alert",
@@ -40,6 +43,7 @@ export const MissionSourceKindSchema = z.enum([
 export const MissionSpecInputSchema = z
   .object({
     discoveryQuestion: DiscoveryMissionQuestionSchema.optional(),
+    reportingRequest: ReportingMissionInputSchema.optional(),
   })
   .strict();
 

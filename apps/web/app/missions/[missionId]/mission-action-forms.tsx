@@ -5,7 +5,11 @@ import {
   INITIAL_MISSION_ACTION_STATE,
   type MissionActionState,
 } from "../../../lib/operator-actions";
-import { submitApprovalResolution, submitTaskInterrupt } from "./actions";
+import {
+  submitApprovalResolution,
+  submitCreateDraftFinanceMemo,
+  submitTaskInterrupt,
+} from "./actions";
 import { ActionFeedback } from "./action-feedback";
 import { ActionSubmitButton } from "./action-submit-button";
 
@@ -21,6 +25,11 @@ type TaskInterruptFormProps = {
   missionId: string;
   operatorIdentity: string;
   taskId: string;
+};
+
+type CreateReportFormProps = {
+  operatorIdentity: string;
+  sourceDiscoveryMissionId: string;
 };
 
 export function ApprovalActionForm({
@@ -94,5 +103,27 @@ export function TaskInterruptForm({
 
       <ActionFeedback result={result} />
     </div>
+  );
+}
+
+export function CreateReportForm({
+  operatorIdentity,
+  sourceDiscoveryMissionId,
+}: CreateReportFormProps) {
+  return (
+    <form action={submitCreateDraftFinanceMemo} className="stack">
+      <input
+        name="sourceDiscoveryMissionId"
+        type="hidden"
+        value={sourceDiscoveryMissionId}
+      />
+      <input name="requestedBy" type="hidden" value={operatorIdentity} />
+
+      <ActionSubmitButton
+        className="action-button"
+        label="Create draft finance memo"
+        pendingLabel="Creating draft memo..."
+      />
+    </form>
   );
 }

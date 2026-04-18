@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
+const createReportingMission = vi.fn();
 const revalidatePath = vi.fn();
+const redirect = vi.fn();
 const resolveMissionApproval = vi.fn();
 const interruptMissionTask = vi.fn();
 
@@ -8,7 +10,12 @@ vi.mock("next/cache", () => ({
   revalidatePath,
 }));
 
+vi.mock("next/navigation", () => ({
+  redirect,
+}));
+
 vi.mock("../../../lib/api", () => ({
+  createReportingMission,
   interruptMissionTask,
   resolveMissionApproval,
 }));
@@ -98,6 +105,33 @@ describe("mission server actions", () => {
     });
     expect(revalidatePath).not.toHaveBeenCalled();
   });
+
+  it("creates a reporting mission, revalidates mission surfaces, and redirects to detail", async () => {
+    createReportingMission.mockResolvedValue({
+      mission: {
+        id: "44444444-4444-4444-8444-444444444444",
+      },
+    });
+
+    const mod = await import("./actions");
+    await mod.submitCreateDraftFinanceMemo(
+      buildCreateDraftFinanceMemoFormData({
+        requestedBy: "Alicia",
+      }),
+    );
+
+    expect(createReportingMission).toHaveBeenCalledWith({
+      requestedBy: "Alicia",
+      reportKind: "finance_memo",
+      sourceDiscoveryMissionId: missionId,
+    });
+    expect(revalidatePath).toHaveBeenNthCalledWith(1, "/");
+    expect(revalidatePath).toHaveBeenNthCalledWith(2, "/missions");
+    expect(revalidatePath).toHaveBeenNthCalledWith(3, `/missions/${missionId}`);
+    expect(redirect).toHaveBeenCalledWith(
+      "/missions/44444444-4444-4444-8444-444444444444",
+    );
+  });
 });
 
 function buildApprovalFormData(input: {
@@ -117,5 +151,12 @@ function buildInterruptFormData(input: { requestedBy: string }) {
   formData.set("missionId", missionId);
   formData.set("requestedBy", input.requestedBy);
   formData.set("taskId", taskId);
+  return formData;
+}
+
+function buildCreateDraftFinanceMemoFormData(input: { requestedBy: string }) {
+  const formData = new FormData();
+  formData.set("requestedBy", input.requestedBy);
+  formData.set("sourceDiscoveryMissionId", missionId);
   return formData;
 }

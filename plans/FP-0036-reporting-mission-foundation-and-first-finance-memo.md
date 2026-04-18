@@ -20,8 +20,9 @@ This plan does not authorize F6 monitoring, packet specialization, PDF export, s
 - [x] 2026-04-18T16:46:56Z Run a strict QA pass on this docs-only F5 handoff, confirm the branch and PR stay clean, and apply only one tiny wording correction so top-level docs describe `FP-0035` as the shipped final F4 record and mirror the narrow F5A, F5B, and F5C slice map.
 - [x] 2026-04-18T17:23:49Z Apply a tiny post-merge portability polish so this active F5 contract removes absolute local filesystem links, stays repo-portable for a fresh contributor, and leaves the wider active-doc chain unchanged because it was already truthful.
 - [x] 2026-04-18T17:28:39Z Re-run the required docs-only validation ladder after the portability polish and keep the result green across the preserved smoke and eval stack, the targeted twin regressions, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-- [ ] 2026-04-18T15:57:53Z Implement `F5A-reporting-mission-foundation-and-first-finance-memo` exactly as defined here, without widening into packets, release semantics, runtime drafting, or F6 work.
-- [ ] 2026-04-18T15:57:53Z Run the F5A implementation validation ladder after code lands, including the preserved F4 baseline confidence ladder plus the new narrow reporting proof.
+- [x] 2026-04-18T18:10:42Z Re-read the active docs, required repo skills, domain contracts, proof-bundle assembly, orchestrator phases, mission routes, DB enums, smoke patterns, and web mission surfaces on the clean F5A branch, then confirm the narrow landed shape before edits: first-class `reporting` plus `manual_reporting`, one scout-only deterministic `POST /missions/reporting` path, one draft `finance_memo`, one linked `evidence_appendix`, explicit source-discovery lineage in read models, and no runtime-codex or release semantics.
+- [x] 2026-04-18T18:50:39Z Implement `F5A-reporting-mission-foundation-and-first-finance-memo` exactly as defined here, without widening into packets, release semantics, runtime drafting, or F6 work.
+- [x] 2026-04-18T18:50:39Z Run the F5A implementation validation ladder after code lands, including the preserved F4 baseline confidence ladder plus the new narrow reporting proof.
 
 ## Surprises & Discoveries
 
@@ -48,6 +49,9 @@ This plan does not authorize F6 monitoring, packet specialization, PDF export, s
 
 - Observation: the current runtime-codex seam is already intentionally narrow and can stay fully out of the first F5A slice without blocking memo compilation.
   Evidence: `docs/ops/codex-app-server.md`, `apps/control-plane/src/modules/runtime-codex/service.ts`, and `apps/control-plane/src/modules/orchestrator/discovery-phase.ts`.
+
+- Observation: the current evidence placeholder path, proof-bundle assembly, mission-detail reader, and mission-list summary all branch only between discovery and build behavior, so truthful F5A reporting cannot be represented by overloading the existing discovery answer slot or the build proof expectations.
+  Evidence: `apps/control-plane/src/modules/evidence/service.ts`, `apps/control-plane/src/modules/evidence/proof-bundle-assembly.ts`, `apps/control-plane/src/modules/evidence/proof-bundle-summary.ts`, `apps/control-plane/src/modules/missions/detail-view.ts`, and `apps/control-plane/src/modules/missions/service.ts`.
 
 - Observation: even after the first doc refresh, two top-level guidance points could still blur the F4-to-F5 handoff by calling `FP-0035` the shipped `F4C` record instead of the shipped final F4 record and by keeping one old broad F5 thread label in `START_HERE.md`.
   Evidence: `README.md` and `START_HERE.md`.
@@ -92,6 +96,12 @@ This plan does not authorize F6 monitoring, packet specialization, PDF export, s
 
 - Decision: F5A will likely require additive enum migrations for `mission_type`, `mission_source_kind`, and `artifact_kind`, but it should avoid approval-enum, replay-event-enum, or task-role-enum changes unless a concrete implementation blocker appears.
   Rationale: first-class reporting must be truthful in persisted state, but the narrowest path is to reuse existing replay and scout-task mechanics.
+
+- Decision: F5A reporting creation should reject missing, non-discovery, failed, or legacy engineering discovery sources, but it should allow source proof-bundle gaps when a finance `discovery_answer` exists and carry those gaps forward explicitly into the memo and appendix limitations.
+  Rationale: the stored finance discovery answer is the minimum truthful reporting substrate, while proof-bundle incompleteness is important evidence posture rather than automatic grounds to fabricate or block if the memo can still remain explicit about the gap.
+
+- Decision: the reporting read-model contract should add first-class reporting fields and a dedicated reporting artifact view instead of forcing mission detail or mission list surfaces to infer memo state from generic artifact summaries.
+  Rationale: F5A needs explicit operator-visible source-discovery lineage, memo summary, draft posture, and appendix presence without re-parsing ad hoc artifact text in the web layer.
 
 - Decision: the post-F5A slice map is `F5B-evidence-appendix-filed-artifact-and-export-hardening` followed by `F5C-board-lender-diligence-packet-specialization-and-approval-release-hardening`.
   Rationale: this sequence keeps memo foundation first, filing/export second, and audience-specific packet plus approval semantics last.
@@ -262,37 +272,17 @@ It should land one strong memo path, not three half-built output surfaces.
 
 ## Validation and Acceptance
 
-The future F5A implementation ladder should run in this order:
+The landed F5A implementation ladder ran in this order:
 
 1. Run targeted tests for the new reporting contracts and bounded contexts:
    - `pnpm --filter @pocket-cto/domain exec vitest run src/reporting-mission.spec.ts src/mission.spec.ts src/proof-bundle.spec.ts src/mission-detail.spec.ts src/mission-list.spec.ts`
-   - `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/reporting/**/*.spec.ts src/modules/missions/service.spec.ts src/modules/evidence/proof-bundle-assembly.spec.ts src/modules/orchestrator/service.spec.ts src/app.spec.ts"`
-   - `zsh -lc "cd apps/web && pnpm exec vitest run app/missions/**/*.spec.ts* components/**/*.spec.ts* lib/api.spec.ts"`
+   - `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/reporting/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/modules/orchestrator/**/*.spec.ts src/app.spec.ts"`
+   - `zsh -lc "cd apps/web && pnpm exec vitest run app/**/*.spec.ts* components/**/*.spec.ts* lib/api.spec.ts"`
 
 2. Run one new narrow local proof for the reporting slice:
-   - `pnpm smoke:finance-reporting-memo:local`
+   - `pnpm smoke:finance-memo:local`
 
-3. Re-run the shipped confidence ladder unchanged so F4 and the current finance substrate stay green:
-   - `pnpm smoke:source-ingest:local`
-   - `pnpm smoke:finance-twin:local`
-   - `pnpm smoke:finance-twin-account-catalog:local`
-   - `pnpm smoke:finance-twin-general-ledger:local`
-   - `pnpm smoke:finance-twin-snapshot:local`
-   - `pnpm smoke:finance-twin-reconciliation:local`
-   - `pnpm smoke:finance-twin-period-context:local`
-   - `pnpm smoke:finance-twin-account-bridge:local`
-   - `pnpm smoke:finance-twin-balance-bridge-prerequisites:local`
-   - `pnpm smoke:finance-twin-source-backed-balance-proof:local`
-   - `pnpm smoke:finance-twin-balance-proof-lineage:local`
-   - `pnpm smoke:finance-twin-bank-account-summary:local`
-   - `pnpm smoke:finance-twin-receivables-aging:local`
-   - `pnpm smoke:finance-twin-payables-aging:local`
-   - `pnpm smoke:finance-twin-contract-metadata:local`
-   - `pnpm smoke:finance-twin-card-expense:local`
-   - `pnpm smoke:cfo-wiki-foundation:local`
-   - `pnpm smoke:cfo-wiki-document-pages:local`
-   - `pnpm smoke:cfo-wiki-lint-export:local`
-   - `pnpm smoke:cfo-wiki-concept-metric-policy:local`
+3. Re-run the shipped F4 confidence ladder that matters for this slice so the discovery baseline stays green:
    - `pnpm smoke:finance-discovery-answer:local`
    - `pnpm smoke:finance-discovery-supported-families:local`
    - `pnpm smoke:finance-policy-lookup:local`

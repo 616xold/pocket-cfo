@@ -40,6 +40,7 @@ export type MissionServicePort = Pick<
   MissionService,
   | "createAnalysis"
   | "createDiscovery"
+  | "createReporting"
   | "createFromText"
   | "getMissionDetail"
   | "listMissions"

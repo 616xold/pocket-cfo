@@ -13,6 +13,7 @@ type MissionCardRenderInput = Pick<
   | "liveControl"
   | "mission"
   | "proofBundle"
+  | "reporting"
   | "tasks"
 >;
 

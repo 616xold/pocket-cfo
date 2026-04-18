@@ -63,6 +63,7 @@ export const TaskStatusChangeReasonSchema = z.enum([
   "runtime_turn_failed",
   "runtime_turn_interrupted",
   "discovery_query_failed",
+  "reporting_compile_failed",
   "planner_evidence_failed",
   "executor_missing_planner_artifact",
   "executor_no_changes",
@@ -189,6 +190,7 @@ export const ProofBundleRefreshTriggerSchema = z.enum([
   "planner_evidence",
   "executor_evidence",
   "discovery_answer",
+  "reporting_artifacts",
   "pull_request_link",
   "approval_resolution",
 ]);

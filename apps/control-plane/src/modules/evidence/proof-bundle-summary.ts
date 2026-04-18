@@ -14,12 +14,18 @@ import type {
   ProofBundleTimestamps,
 } from "@pocket-cto/domain";
 import { readDiscoveryAnswerArtifactMetadata } from "./discovery-answer";
+import {
+  readEvidenceAppendixArtifactMetadata,
+  readFinanceMemoArtifactMetadata,
+} from "../reporting/artifact";
 import { normalizeSentence, truncate } from "./text";
 
 const SUMMARY_MAX_LENGTH = 240;
 
 type ProofBundleLatestArtifacts = {
   discoveryAnswer: ArtifactRecord | null;
+  evidenceAppendix: ArtifactRecord | null;
+  financeMemo: ArtifactRecord | null;
   diffSummary: ArtifactRecord | null;
   logExcerpt: ArtifactRecord | null;
   plan: ArtifactRecord | null;
@@ -37,6 +43,11 @@ export type ProofBundleAssemblyFacts = {
   decisionTrace: string[];
   freshnessState: ProofBundleManifest["freshnessState"];
   freshnessSummary: string | null;
+  reportDraftStatus: ProofBundleManifest["reportDraftStatus"];
+  reportKind: ProofBundleManifest["reportKind"];
+  reportSummary: string | null;
+  sourceDiscoveryMissionId: string | null;
+  appendixPresent: boolean;
   latestApproval: ProofBundleLatestApproval | null;
   latestArtifacts: ProofBundleLatestArtifacts;
   latestExecutorTask: MissionTaskRecord | null;
@@ -75,6 +86,8 @@ export function deriveProofBundleAssemblyFacts(input: {
     [
       "diff_summary",
       "discovery_answer",
+      "finance_memo",
+      "evidence_appendix",
       "test_report",
       "log_excerpt",
       "pr_link",
@@ -83,6 +96,12 @@ export function deriveProofBundleAssemblyFacts(input: {
   const latestArtifacts = readLatestArtifacts(evidenceArtifacts);
   const discoveryAnswerMetadata = readDiscoveryAnswerArtifactMetadata(
     latestArtifacts.discoveryAnswer,
+  );
+  const financeMemoMetadata = readFinanceMemoArtifactMetadata(
+    latestArtifacts.financeMemo,
+  );
+  const evidenceAppendixMetadata = readEvidenceAppendixArtifactMetadata(
+    latestArtifacts.evidenceAppendix,
   );
   const latestApproval = readLatestApproval(input.approvals);
   const latestPlannerTask = readLatestTaskByRole(input.tasks, "planner");
@@ -124,12 +143,15 @@ export function deriveProofBundleAssemblyFacts(input: {
     })),
     branchName,
     changeSummary:
+      financeMemoMetadata?.memoSummary ??
       discoveryAnswerMetadata?.answerSummary ??
       readArtifactSummary(latestArtifacts.diffSummary) ??
       normalizeSentence(latestScoutTask?.summary ?? null) ??
       normalizeSentence(latestExecutorTask?.summary ?? null) ??
       normalizeSentence(input.existingBundle?.changeSummary ?? null),
     companyKey:
+      financeMemoMetadata?.companyKey ??
+      evidenceAppendixMetadata?.companyKey ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? discoveryAnswerMetadata.companyKey
         : null) ??
@@ -141,6 +163,9 @@ export function deriveProofBundleAssemblyFacts(input: {
     discoveryAnswerSummary: discoveryAnswerMetadata?.answerSummary ?? null,
     decisionTrace: buildDecisionTrace({
       artifacts: evidenceArtifacts,
+      appendixPresent:
+        evidenceAppendixMetadata !== null ||
+        input.existingBundle?.appendixPresent === true,
       latestApproval,
       latestExecutorTask,
       latestPlannerTask,
@@ -149,22 +174,51 @@ export function deriveProofBundleAssemblyFacts(input: {
       taskById,
     }),
     freshnessState:
+      inferFreshnessStateFromSummary(financeMemoMetadata?.freshnessSummary ?? null) ??
+      inferFreshnessStateFromSummary(
+        evidenceAppendixMetadata?.freshnessSummary ?? null,
+      ) ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? discoveryAnswerMetadata.freshnessPosture.state
         : null) ??
       input.existingBundle?.freshnessState ??
       null,
     freshnessSummary:
+      financeMemoMetadata?.freshnessSummary ??
+      evidenceAppendixMetadata?.freshnessSummary ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? discoveryAnswerMetadata.freshnessPosture.reasonSummary
         : null) ??
       normalizeSentence(input.existingBundle?.freshnessSummary ?? null),
+    reportDraftStatus:
+      financeMemoMetadata?.draftStatus ??
+      evidenceAppendixMetadata?.draftStatus ??
+      input.existingBundle?.reportDraftStatus ??
+      null,
+    reportKind:
+      financeMemoMetadata?.reportKind ??
+      evidenceAppendixMetadata?.reportKind ??
+      input.existingBundle?.reportKind ??
+      null,
+    reportSummary:
+      financeMemoMetadata?.memoSummary ??
+      input.existingBundle?.reportSummary ??
+      null,
+    sourceDiscoveryMissionId:
+      financeMemoMetadata?.sourceDiscoveryMissionId ??
+      evidenceAppendixMetadata?.sourceDiscoveryMissionId ??
+      input.existingBundle?.sourceDiscoveryMissionId ??
+      null,
+    appendixPresent:
+      evidenceAppendixMetadata !== null || input.existingBundle?.appendixPresent === true,
     latestApproval,
     latestArtifacts,
     latestExecutorTask,
     latestPlannerTask,
     latestScoutTask,
     limitationsSummary:
+      financeMemoMetadata?.limitationsSummary ??
+      evidenceAppendixMetadata?.limitationsSummary ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? summarizeLimitations(discoveryAnswerMetadata.limitations)
         : null) ??
@@ -175,6 +229,8 @@ export function deriveProofBundleAssemblyFacts(input: {
     pullRequestNumber,
     pullRequestUrl,
     policySourceId:
+      financeMemoMetadata?.policySourceId ??
+      evidenceAppendixMetadata?.policySourceId ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? discoveryAnswerMetadata.policySourceId ?? null
         : null) ??
@@ -184,21 +240,29 @@ export function deriveProofBundleAssemblyFacts(input: {
       input.existingBundle?.policySourceId ??
       null,
     policySourceScope:
+      financeMemoMetadata?.policySourceScope ??
+      evidenceAppendixMetadata?.policySourceScope ??
       readFinancePolicySourceScope(discoveryAnswerMetadata) ??
       input.existingBundle?.policySourceScope ??
       null,
     questionKind:
+      financeMemoMetadata?.questionKind ??
+      evidenceAppendixMetadata?.questionKind ??
       discoveryAnswerMetadata?.questionKind ??
       discoveryQuestion?.questionKind ??
       input.existingBundle?.questionKind ??
       null,
     relatedRoutePaths:
+      financeMemoMetadata?.relatedRoutePaths ??
+      evidenceAppendixMetadata?.relatedRoutePaths ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? discoveryAnswerMetadata.relatedRoutes.map((route) => route.routePath)
         : null) ??
       input.existingBundle?.relatedRoutePaths ??
       [],
     relatedWikiPageKeys:
+      financeMemoMetadata?.relatedWikiPageKeys ??
+      evidenceAppendixMetadata?.relatedWikiPageKeys ??
       (isFinanceDiscoveryAnswerMetadata(discoveryAnswerMetadata)
         ? discoveryAnswerMetadata.relatedWikiPages.map((page) => page.pageKey)
         : null) ??
@@ -230,6 +294,8 @@ function readLatestArtifacts(
 ): ProofBundleLatestArtifacts {
   return {
     discoveryAnswer: readLatestArtifactByKind(artifacts, "discovery_answer"),
+    evidenceAppendix: readLatestArtifactByKind(artifacts, "evidence_appendix"),
+    financeMemo: readLatestArtifactByKind(artifacts, "finance_memo"),
     diffSummary: readLatestArtifactByKind(artifacts, "diff_summary"),
     logExcerpt: readLatestArtifactByKind(artifacts, "log_excerpt"),
     plan: readLatestArtifactByKind(artifacts, "plan"),
@@ -382,6 +448,7 @@ function readLatestApproval(
 
 function buildDecisionTrace(input: {
   artifacts: ArtifactRecord[];
+  appendixPresent: boolean;
   latestApproval: ProofBundleLatestApproval | null;
   latestExecutorTask: MissionTaskRecord | null;
   latestPlannerTask: MissionTaskRecord | null;
@@ -419,12 +486,16 @@ function buildDecisionTrace(input: {
     const scoutArtifacts = input.artifacts.filter(
       (artifact) =>
         artifact.taskId === input.latestScoutTask?.id &&
-        artifact.kind === "discovery_answer",
+        ["discovery_answer", "finance_memo", "evidence_appendix"].includes(
+          artifact.kind,
+        ),
     );
 
     if (scoutArtifacts.length > 0) {
       lines.push(
-        `Scout task ${input.latestScoutTask.sequence} terminalized as ${input.latestScoutTask.status} with persisted discovery evidence.`,
+        input.appendixPresent
+          ? `Scout task ${input.latestScoutTask.sequence} terminalized as ${input.latestScoutTask.status} with persisted reporting evidence.`
+          : `Scout task ${input.latestScoutTask.sequence} terminalized as ${input.latestScoutTask.status} with persisted discovery evidence.`,
       );
     }
   }
@@ -529,6 +600,46 @@ function readLatestArtifactByKind(
       )
       .at(-1) ?? null
   );
+}
+
+function inferFreshnessStateFromSummary(
+  summary: string | null,
+): ProofBundleManifest["freshnessState"] {
+  if (!summary) {
+    return null;
+  }
+
+  const normalized = summary.trim().toLowerCase();
+
+  if (normalized.length === 0) {
+    return null;
+  }
+
+  if (normalized.includes("never synced")) {
+    return "missing";
+  }
+
+  if (normalized.includes("failed")) {
+    return "failed";
+  }
+
+  if (normalized.includes("stale")) {
+    return "stale";
+  }
+
+  if (normalized.includes("missing")) {
+    return "missing";
+  }
+
+  if (normalized.includes("mixed")) {
+    return "mixed";
+  }
+
+  if (normalized.includes("fresh")) {
+    return "fresh";
+  }
+
+  return null;
 }
 
 function readPresentArtifactKinds(artifacts: ArtifactRecord[]) {

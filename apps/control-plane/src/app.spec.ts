@@ -2714,6 +2714,7 @@ describe("control-plane app", () => {
                 title: "Approve workspace file changes",
               },
             ],
+            reporting: null,
             artifacts: [
               {
                 createdAt: "2026-03-14T10:00:00.000Z",
@@ -2939,6 +2940,7 @@ describe("control-plane app", () => {
         },
       ],
       discoveryAnswer: null,
+      reporting: null,
       liveControl: {
         enabled: true,
         limitation: "single_process_only",

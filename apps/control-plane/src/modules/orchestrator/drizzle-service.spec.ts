@@ -2442,6 +2442,11 @@ async function createHarness(options?: {
         throw new Error("answerQuestion should not be called in this test");
       },
     },
+    {
+      async compileDraftReport() {
+        throw new Error("compileDraftReport should not be called in this test");
+      },
+    },
     options?.twinService ?? {
       async queryRepositoryBlastRadius() {
         return {

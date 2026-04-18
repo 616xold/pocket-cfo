@@ -9,10 +9,16 @@ import {
 import {
   FinanceCompanyKeySchema,
 } from "./finance-twin";
+import {
+  ReportingDraftStatusSchema,
+  ReportingMissionReportKindSchema,
+} from "./reporting-mission";
 
 export const ArtifactKindSchema = z.enum([
   "plan",
   "discovery_answer",
+  "finance_memo",
+  "evidence_appendix",
   "pr_link",
   "diff_summary",
   "test_report",
@@ -88,6 +94,7 @@ export const ProofBundleManifestSchema = z.object({
   missionId: z.string().uuid(),
   missionTitle: z.string().default(""),
   objective: z.string(),
+  sourceDiscoveryMissionId: z.string().uuid().nullable().default(null),
   companyKey: FinanceCompanyKeySchema.nullable().default(null),
   questionKind: DiscoveryQuestionKindSchema.nullable().default(null),
   policySourceId: z.string().uuid().nullable().default(null),
@@ -95,6 +102,10 @@ export const ProofBundleManifestSchema = z.object({
     null,
   ),
   answerSummary: z.string().default(""),
+  reportKind: ReportingMissionReportKindSchema.nullable().default(null),
+  reportDraftStatus: ReportingDraftStatusSchema.nullable().default(null),
+  reportSummary: z.string().default(""),
+  appendixPresent: z.boolean().default(false),
   freshnessState: FinanceDiscoveryFreshnessStateSchema.nullable().default(null),
   freshnessSummary: z.string().default(""),
   limitationsSummary: z.string().default(""),

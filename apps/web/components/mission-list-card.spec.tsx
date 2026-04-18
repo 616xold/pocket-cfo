@@ -8,6 +8,7 @@ describe("MissionListCard", () => {
     const html = renderToStaticMarkup(
       <MissionListCard
         mission={{
+          appendixPresent: false,
           answerSummary: null,
           companyKey: null,
           createdAt: "2026-03-16T01:00:00.000Z",
@@ -29,7 +30,11 @@ describe("MissionListCard", () => {
           pullRequestNumber: 19,
           pullRequestUrl: "https://github.com/acme/web/pull/19",
           questionKind: null,
+          reportDraftStatus: null,
+          reportKind: null,
+          reportSummary: null,
           sourceKind: "github_issue",
+          sourceDiscoveryMissionId: null,
           sourceRef: "https://github.com/acme/web/issues/19",
           status: "running",
           title: "Implement passkeys for sign-in",
@@ -50,6 +55,7 @@ describe("MissionListCard", () => {
     const html = renderToStaticMarkup(
       <MissionListCard
         mission={{
+          appendixPresent: false,
           answerSummary:
             "Stored payables pressure is available with limitations.",
           companyKey: "acme",
@@ -73,7 +79,11 @@ describe("MissionListCard", () => {
           pullRequestNumber: null,
           pullRequestUrl: null,
           questionKind: "payables_pressure",
+          reportDraftStatus: null,
+          reportKind: null,
+          reportSummary: null,
           sourceKind: "manual_discovery",
+          sourceDiscoveryMissionId: null,
           sourceRef: null,
           status: "succeeded",
           title: "Review payables pressure for acme",
@@ -97,6 +107,7 @@ describe("MissionListCard", () => {
     const html = renderToStaticMarkup(
       <MissionListCard
         mission={{
+          appendixPresent: false,
           answerSummary:
             "Stored policy lookup is scoped to the requested policy source.",
           companyKey: "acme",
@@ -127,7 +138,11 @@ describe("MissionListCard", () => {
           pullRequestNumber: null,
           pullRequestUrl: null,
           questionKind: "policy_lookup",
+          reportDraftStatus: null,
+          reportKind: null,
+          reportSummary: null,
           sourceKind: "manual_discovery",
+          sourceDiscoveryMissionId: null,
           sourceRef: null,
           status: "succeeded",
           title: "Review policy lookup for acme",
@@ -143,6 +158,58 @@ describe("MissionListCard", () => {
     expect(html).toContain("Policy Document");
     expect(html).toContain("Missing");
     expect(html).toContain("v2");
+    expect(html).toContain("proof ready");
+  });
+
+  it("renders reporting mission summaries with explicit draft memo posture", () => {
+    const sourceDiscoveryMissionId = "33333333-3333-4333-8333-333333333333";
+    const html = renderToStaticMarkup(
+      <MissionListCard
+        mission={{
+          appendixPresent: true,
+          answerSummary: null,
+          companyKey: "acme",
+          createdAt: "2026-04-18T01:00:00.000Z",
+          freshnessState: "fresh",
+          id: "44444444-4444-4444-8444-444444444444",
+          latestTask: {
+            id: "55555555-5555-4555-8555-555555555555",
+            role: "scout",
+            sequence: 0,
+            status: "succeeded",
+            updatedAt: "2026-04-18T01:05:00.000Z",
+          },
+          objectiveExcerpt:
+            "Compile one draft finance memo from the stored payables pressure evidence.",
+          pendingApprovalCount: 0,
+          policySourceId: null,
+          policySourceScope: null,
+          primaryRepo: null,
+          proofBundleStatus: "ready",
+          pullRequestNumber: null,
+          pullRequestUrl: null,
+          questionKind: "payables_pressure",
+          reportDraftStatus: "draft_only",
+          reportKind: "finance_memo",
+          reportSummary:
+            "Draft finance memo summarizing stored payables pressure and evidence posture.",
+          sourceDiscoveryMissionId,
+          sourceKind: "manual_reporting",
+          sourceRef: null,
+          status: "succeeded",
+          title: "Create finance memo for acme payables pressure",
+          updatedAt: "2026-04-18T01:05:00.000Z",
+        }}
+      />,
+    );
+
+    expect(html).toContain("Finance memo");
+    expect(html).toContain("draft_only");
+    expect(html).toContain("Stored");
+    expect(html).toContain(sourceDiscoveryMissionId);
+    expect(html).toContain(
+      "Draft finance memo summarizing stored payables pressure and evidence posture.",
+    );
     expect(html).toContain("proof ready");
   });
 });

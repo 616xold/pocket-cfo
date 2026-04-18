@@ -321,6 +321,43 @@ describe("web api module", () => {
     });
   });
 
+  it("posts the reporting mission-create route correctly", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 201,
+      async json() {
+        return buildReportingMissionCreatePayload();
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const created = await mod.createReportingMission({
+      requestedBy: "Local web operator",
+      reportKind: "finance_memo",
+      sourceDiscoveryMissionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    });
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+
+    expect(created.mission.type).toBe("reporting");
+    expect(created.proofBundle.reportKind).toBe("finance_memo");
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/missions/reporting`,
+      expect.objectContaining({
+        cache: "no-store",
+        headers: {
+          "content-type": "application/json",
+        },
+        method: "POST",
+      }),
+    );
+    expect(JSON.parse(String(request.body))).toEqual({
+      requestedBy: "Local web operator",
+      reportKind: "finance_memo",
+      sourceDiscoveryMissionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+    });
+  });
+
   it("parses the source inventory and detail routes", async () => {
     const fetchMock = vi
       .fn()
@@ -872,6 +909,7 @@ function buildMissionDetailPayload() {
       },
     ],
     discoveryAnswer: null,
+    reporting: null,
     approvalCards: [
       {
         actionHint:
@@ -1009,10 +1047,15 @@ function buildDiscoveryMissionCreatePayload() {
       missionTitle: "Review spend posture for acme",
       objective:
         "Answer the stored spend posture question for acme from persisted Finance Twin and CFO Wiki state only.",
+      sourceDiscoveryMissionId: null,
       pullRequestNumber: null,
       pullRequestUrl: null,
       questionKind: "spend_posture",
       replayEventCount: 0,
+      reportDraftStatus: null,
+      reportKind: null,
+      reportSummary: "",
+      appendixPresent: false,
       relatedRoutePaths: [],
       relatedWikiPageKeys: [],
       riskSummary: "",
@@ -1131,11 +1174,16 @@ function buildPolicyLookupDiscoveryMissionCreatePayload() {
         "Review policy lookup for acme from aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       objective:
         "Answer the stored policy lookup question for acme from scoped policy source only.",
+      sourceDiscoveryMissionId: null,
       policySourceId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
       pullRequestNumber: null,
       pullRequestUrl: null,
       questionKind: "policy_lookup",
       replayEventCount: 0,
+      reportDraftStatus: null,
+      reportKind: null,
+      reportSummary: "",
+      appendixPresent: false,
       relatedRoutePaths: [],
       relatedWikiPageKeys: [],
       riskSummary: "",
@@ -1173,6 +1221,136 @@ function buildPolicyLookupDiscoveryMissionCreatePayload() {
   };
 }
 
+function buildReportingMissionCreatePayload() {
+  return {
+    mission: {
+      createdAt: "2026-04-18T10:00:00.000Z",
+      createdBy: "Local web operator",
+      id: missionId,
+      objective:
+        "Compile one draft finance memo from the stored payables pressure evidence for acme.",
+      primaryRepo: null,
+      sourceKind: "manual_reporting",
+      sourceRef: null,
+      spec: {
+        acceptance: [
+          "persist one durable finance memo artifact",
+          "persist one linked evidence appendix artifact",
+        ],
+        constraints: {
+          allowedPaths: [],
+          mustNot: [
+            "do not invoke the codex runtime",
+            "do not widen beyond the stored discovery evidence",
+          ],
+        },
+        deliverables: ["finance_memo", "evidence_appendix", "proof_bundle"],
+        evidenceRequirements: [
+          "stored discovery answer artifact",
+          "stored discovery proof bundle",
+        ],
+        input: {
+          reportingRequest: {
+            companyKey: "acme",
+            policySourceId: null,
+            policySourceScope: null,
+            questionKind: "payables_pressure",
+            reportKind: "finance_memo",
+            sourceDiscoveryMissionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+          },
+        },
+        objective:
+          "Compile one draft finance memo from the stored payables pressure evidence for acme.",
+        repos: [],
+        riskBudget: {
+          allowNetwork: false,
+          maxCostUsd: 1,
+          maxWallClockMinutes: 5,
+          requiresHumanApprovalFor: [],
+          sandboxMode: "read-only",
+        },
+        title: "Draft finance memo for acme payables pressure",
+        type: "reporting",
+      },
+      status: "queued",
+      title: "Draft finance memo for acme payables pressure",
+      type: "reporting",
+      updatedAt: "2026-04-18T10:00:00.000Z",
+    },
+    proofBundle: {
+      answerSummary: "",
+      appendixPresent: false,
+      artifactIds: [],
+      artifacts: [],
+      branchName: null,
+      changeSummary: "",
+      companyKey: "acme",
+      decisionTrace: [],
+      evidenceCompleteness: {
+        status: "missing",
+        expectedArtifactKinds: ["finance_memo", "evidence_appendix"],
+        presentArtifactKinds: [],
+        missingArtifactKinds: ["finance_memo", "evidence_appendix"],
+        notes: [
+          "Finance memo evidence is missing.",
+          "Evidence appendix is missing.",
+        ],
+      },
+      freshnessState: null,
+      freshnessSummary: "",
+      latestApproval: null,
+      limitationsSummary: "",
+      missionId,
+      missionTitle: "Draft finance memo for acme payables pressure",
+      objective:
+        "Compile one draft finance memo from the stored payables pressure evidence for acme.",
+      policySourceId: null,
+      policySourceScope: null,
+      pullRequestNumber: null,
+      pullRequestUrl: null,
+      questionKind: "payables_pressure",
+      replayEventCount: 0,
+      relatedRoutePaths: [],
+      relatedWikiPageKeys: [],
+      reportDraftStatus: "draft_only",
+      reportKind: "finance_memo",
+      reportSummary: "",
+      riskSummary: "",
+      rollbackSummary: "",
+      sourceDiscoveryMissionId: "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      status: "placeholder",
+      targetRepoFullName: null,
+      timestamps: {
+        missionCreatedAt: "2026-04-18T10:00:00.000Z",
+        latestPlannerEvidenceAt: null,
+        latestExecutorEvidenceAt: null,
+        latestPullRequestAt: null,
+        latestApprovalAt: null,
+        latestArtifactAt: null,
+      },
+      validationSummary: "",
+      verificationSummary: "",
+    },
+    tasks: [
+      {
+        attemptCount: 0,
+        codexThreadId: null,
+        codexTurnId: null,
+        createdAt: "2026-04-18T10:00:00.000Z",
+        dependsOnTaskId: null,
+        id: taskId,
+        missionId,
+        role: "scout",
+        sequence: 0,
+        status: "pending",
+        summary: null,
+        updatedAt: "2026-04-18T10:00:00.000Z",
+        workspaceId: null,
+      },
+    ],
+  };
+}
+
 function buildMissionListPayload() {
   return {
     filters: {
@@ -1182,7 +1360,11 @@ function buildMissionListPayload() {
     },
     missions: [
       {
+        appendixPresent: false,
+        answerSummary: null,
+        companyKey: null,
         createdAt: "2026-03-14T10:00:00.000Z",
+        freshnessState: null,
         id: missionId,
         latestTask: {
           id: taskId,
@@ -1193,27 +1375,45 @@ function buildMissionListPayload() {
         },
         objectiveExcerpt: "Ship passkeys without breaking email login.",
         pendingApprovalCount: 1,
+        policySourceId: null,
+        policySourceScope: null,
         primaryRepo: "web",
         proofBundleStatus: "incomplete",
         pullRequestNumber: 19,
         pullRequestUrl: "https://github.com/acme/web/pull/19",
+        questionKind: null,
+        reportDraftStatus: null,
+        reportKind: null,
+        reportSummary: null,
         sourceKind: "github_issue",
+        sourceDiscoveryMissionId: null,
         sourceRef: "https://github.com/acme/web/issues/19",
         status: "queued",
         title: "Implement passkeys for sign-in",
         updatedAt: "2026-03-14T10:05:00.000Z",
       },
       {
+        appendixPresent: false,
+        answerSummary: null,
+        companyKey: null,
         createdAt: "2026-03-13T09:00:00.000Z",
+        freshnessState: null,
         id: "44444444-4444-4444-8444-444444444444",
         latestTask: null,
         objectiveExcerpt: "Draft the rollback notes for a staged release.",
         pendingApprovalCount: 0,
+        policySourceId: null,
+        policySourceScope: null,
         primaryRepo: "ops",
         proofBundleStatus: "placeholder",
         pullRequestNumber: null,
         pullRequestUrl: null,
+        questionKind: null,
+        reportDraftStatus: null,
+        reportKind: null,
+        reportSummary: null,
         sourceKind: "github_issue",
+        sourceDiscoveryMissionId: null,
         sourceRef: null,
         status: "queued",
         title: "Prepare rollback notes",

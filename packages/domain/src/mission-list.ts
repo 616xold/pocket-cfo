@@ -8,6 +8,10 @@ import {
   FinancePolicySourceScopeSummarySchema,
 } from "./discovery-mission";
 import { FinanceCompanyKeySchema } from "./finance-twin";
+import {
+  ReportingDraftStatusSchema,
+  ReportingMissionReportKindSchema,
+} from "./reporting-mission";
 
 export const MissionListLatestTaskSchema = z.object({
   id: z.string().uuid(),
@@ -21,6 +25,7 @@ export const MissionListItemSchema = z.object({
   id: z.string().uuid(),
   title: z.string().min(1),
   objectiveExcerpt: z.string().min(1),
+  sourceDiscoveryMissionId: z.string().uuid().nullable().default(null),
   companyKey: FinanceCompanyKeySchema.nullable().default(null),
   questionKind: DiscoveryQuestionKindSchema.nullable().default(null),
   policySourceId: z.string().uuid().nullable().default(null),
@@ -28,6 +33,10 @@ export const MissionListItemSchema = z.object({
     null,
   ),
   answerSummary: z.string().nullable().default(null),
+  reportKind: ReportingMissionReportKindSchema.nullable().default(null),
+  reportDraftStatus: ReportingDraftStatusSchema.nullable().default(null),
+  reportSummary: z.string().nullable().default(null),
+  appendixPresent: z.boolean().default(false),
   freshnessState: FinanceDiscoveryFreshnessStateSchema.nullable().default(null),
   status: MissionStatusSchema,
   sourceKind: MissionSourceKindSchema,
