@@ -36,7 +36,11 @@ export type ControlPlaneMutationResult<TData> =
       message: string;
     };
 
-export type MissionActionKind = "resolve_approval" | "interrupt_task";
+export type MissionActionKind =
+  | "resolve_approval"
+  | "interrupt_task"
+  | "file_reporting_artifacts"
+  | "export_reporting_markdown";
 
 export type MissionActionResult =
   | {
@@ -102,6 +106,50 @@ export function buildInterruptActionResult(
   };
 }
 
+export function buildFileReportingArtifactsActionResult(
+  operatorName: string,
+  result: ControlPlaneMutationResult<unknown>,
+): MissionActionResult {
+  if (result.ok) {
+    return {
+      ok: true,
+      kind: "file_reporting_artifacts",
+      message: `Draft memo and evidence appendix filed by ${operatorName}. Mission detail refreshed.`,
+      statusCode: result.statusCode,
+    };
+  }
+
+  return {
+    ok: false,
+    kind: "file_reporting_artifacts",
+    message: describeFailure("file_reporting_artifacts", result),
+    statusCode: result.statusCode,
+    errorCode: result.errorCode,
+  };
+}
+
+export function buildExportReportingMarkdownActionResult(
+  operatorName: string,
+  result: ControlPlaneMutationResult<unknown>,
+): MissionActionResult {
+  if (result.ok) {
+    return {
+      ok: true,
+      kind: "export_reporting_markdown",
+      message: `Markdown bundle exported by ${operatorName}. Mission detail refreshed.`,
+      statusCode: result.statusCode,
+    };
+  }
+
+  return {
+    ok: false,
+    kind: "export_reporting_markdown",
+    message: describeFailure("export_reporting_markdown", result),
+    statusCode: result.statusCode,
+    errorCode: result.errorCode,
+  };
+}
+
 function describeFailure(
   kind: MissionActionKind,
   failure: Extract<ControlPlaneMutationResult<unknown>, { ok: false }>,
@@ -130,16 +178,32 @@ function describeFailure(
     case "mission_not_found":
       return "This mission could not be found anymore. Return to the mission list and reopen it.";
     case "invalid_request":
-      return "The submitted action payload was invalid. Refresh the page and try again.";
+      return kind === "file_reporting_artifacts" ||
+        kind === "export_reporting_markdown"
+        ? withRouteReason(
+            "This reporting action is unavailable from the mission's current stored state. Refresh the page and confirm the draft memo, appendix, and filing posture before retrying.",
+            failure.message,
+          )
+        : "The submitted action payload was invalid. Refresh the page and try again.";
     case "internal_error":
       return withRouteReason(
         "The control plane reported an internal error while processing this action.",
         failure.message,
       );
     case "request_failed":
-      return kind === "resolve_approval"
-        ? "The web app could not reach the control plane to resolve this approval. Confirm the local services are running and try again."
-        : "The web app could not reach the control plane to interrupt this task. Confirm the local services are running and try again.";
+      if (kind === "resolve_approval") {
+        return "The web app could not reach the control plane to resolve this approval. Confirm the local services are running and try again.";
+      }
+
+      if (kind === "interrupt_task") {
+        return "The web app could not reach the control plane to interrupt this task. Confirm the local services are running and try again.";
+      }
+
+      if (kind === "file_reporting_artifacts") {
+        return "The web app could not reach the control plane to file the draft report artifacts. Confirm the local services are running and try again.";
+      }
+
+      return "The web app could not reach the control plane to export the markdown bundle. Confirm the local services are running and try again.";
   }
 }
 

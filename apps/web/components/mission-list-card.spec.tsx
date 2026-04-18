@@ -32,6 +32,7 @@ describe("MissionListCard", () => {
           questionKind: null,
           reportDraftStatus: null,
           reportKind: null,
+          reportPublication: null,
           reportSummary: null,
           sourceKind: "github_issue",
           sourceDiscoveryMissionId: null,
@@ -81,6 +82,7 @@ describe("MissionListCard", () => {
           questionKind: "payables_pressure",
           reportDraftStatus: null,
           reportKind: null,
+          reportPublication: null,
           reportSummary: null,
           sourceKind: "manual_discovery",
           sourceDiscoveryMissionId: null,
@@ -140,6 +142,7 @@ describe("MissionListCard", () => {
           questionKind: "policy_lookup",
           reportDraftStatus: null,
           reportKind: null,
+          reportPublication: null,
           reportSummary: null,
           sourceKind: "manual_discovery",
           sourceDiscoveryMissionId: null,
@@ -191,6 +194,39 @@ describe("MissionListCard", () => {
           questionKind: "payables_pressure",
           reportDraftStatus: "draft_only",
           reportKind: "finance_memo",
+          reportPublication: {
+            storedDraft: true,
+            filedMemo: {
+              artifactKind: "finance_memo",
+              pageKey:
+                "filed/reporting-44444444-4444-4444-8444-444444444444-finance_memo",
+              title:
+                "Draft finance memo for acme (44444444-4444-4444-8444-444444444444)",
+              filedAt: "2026-04-18T01:06:00.000Z",
+              filedBy: "finance-operator",
+              provenanceSummary:
+                "Draft-only reporting artifact filed into the CFO Wiki.",
+            },
+            filedEvidenceAppendix: {
+              artifactKind: "evidence_appendix",
+              pageKey:
+                "filed/reporting-44444444-4444-4444-8444-444444444444-evidence_appendix",
+              title:
+                "Evidence appendix for acme draft finance memo (44444444-4444-4444-8444-444444444444)",
+              filedAt: "2026-04-18T01:06:00.000Z",
+              filedBy: "finance-operator",
+              provenanceSummary:
+                "Draft-only reporting artifact filed into the CFO Wiki.",
+            },
+            latestMarkdownExport: {
+              exportRunId: "66666666-6666-4666-8666-666666666666",
+              status: "succeeded",
+              completedAt: "2026-04-18T01:07:00.000Z",
+              includesLatestFiledArtifacts: true,
+            },
+            summary:
+              "Draft memo and evidence appendix are stored. Both filed pages exist in the CFO Wiki: `filed/reporting-44444444-4444-4444-8444-444444444444-finance_memo` and `filed/reporting-44444444-4444-4444-8444-444444444444-evidence_appendix`. Markdown export run 66666666-6666-4666-8666-666666666666 includes the latest filed report pages.",
+          },
           reportSummary:
             "Draft finance memo summarizing stored payables pressure and evidence posture.",
           sourceDiscoveryMissionId,
@@ -206,10 +242,14 @@ describe("MissionListCard", () => {
     expect(html).toContain("Finance memo");
     expect(html).toContain("draft_only");
     expect(html).toContain("Stored");
+    expect(html).toContain(
+      "filed/reporting-44444444-4444-4444-8444-444444444444-finance_memo",
+    );
     expect(html).toContain(sourceDiscoveryMissionId);
     expect(html).toContain(
       "Draft finance memo summarizing stored payables pressure and evidence posture.",
     );
+    expect(html).toContain("Markdown export");
     expect(html).toContain("proof ready");
   });
 });

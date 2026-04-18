@@ -426,6 +426,14 @@ describe("Mission detail domain schema", () => {
         reportDraftStatus: "draft_only",
         reportSummary:
           "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+        reportPublication: {
+          storedDraft: true,
+          filedMemo: null,
+          filedEvidenceAppendix: null,
+          latestMarkdownExport: null,
+          summary:
+            "Draft memo and evidence appendix are stored. Neither draft artifact has been filed into the CFO Wiki yet. No markdown export run has been recorded yet.",
+        },
         appendixPresent: true,
         freshnessState: "stale",
         freshnessSummary:
@@ -502,6 +510,14 @@ describe("Mission detail domain schema", () => {
         relatedRoutePaths: ["/finance-twin/companies/acme/cash-posture"],
         relatedWikiPageKeys: ["metrics/cash-posture"],
         appendixPresent: true,
+        publication: {
+          storedDraft: true,
+          filedMemo: null,
+          filedEvidenceAppendix: null,
+          latestMarkdownExport: null,
+          summary:
+            "Draft memo and evidence appendix are stored. Neither draft artifact has been filed into the CFO Wiki yet. No markdown export run has been recorded yet.",
+        },
         financeMemo: {
           source: "stored_discovery_evidence",
           summary:
@@ -572,6 +588,7 @@ describe("Mission detail domain schema", () => {
 
     expect(parsed.reporting?.reportKind).toBe("finance_memo");
     expect(parsed.reporting?.appendixPresent).toBe(true);
+    expect(parsed.reporting?.publication?.storedDraft).toBe(true);
     expect(parsed.proofBundle.reportSummary).toContain("Cash posture");
   });
 });

@@ -289,6 +289,7 @@ export const CfoWikiBindSourceRequestSchema = z.object({
 });
 
 export const CfoWikiCreateFiledPageRequestSchema = z.object({
+  pageKey: CfoWikiPageKeySchema.optional(),
   title: z.string().trim().min(1),
   markdownBody: z.string().trim().min(1),
   filedBy: z.string().trim().min(1),

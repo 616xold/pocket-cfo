@@ -2,13 +2,12 @@
 
 ## Purpose / Big Picture
 
-This plan is the active F5 implementation contract produced by the docs-only F5B master-plan and active-doc refresh slice.
+This plan is the active F5 implementation contract for the first real F5B code slice.
 The target phase is `F5`, and the next execution slice is `F5B-draft-report-body-filed-artifact-and-markdown-export-hardening`.
 The user-visible goal is narrow and concrete: after the landed F5A reporting mission persists one draft `finance_memo` plus one linked `evidence_appendix`, Pocket CFO should let an operator directly consume those stored draft bodies in mission detail, explicitly file selected draft artifacts back into the CFO Wiki through the existing filed-page seam, and understand markdown export posture through the existing CFO Wiki export seam.
 
 This matters now because F5A already ships the reporting foundation: first-class `reporting` missions, `manual_reporting`, deterministic memo and appendix compilation from completed discovery work, stored `bodyMarkdown` on both report artifacts, and proof bundles that are already ready when both draft artifacts exist.
-What remains underpowered is reuse.
-The current operator reporting card mostly shows metadata, route and wiki references, linked evidence ids, and limitation summaries rather than the stored draft bodies themselves, and the reporting path is not yet wired into the existing CFO Wiki filed-page and markdown export seams.
+This branch now lands the narrowest truthful F5B extension on top of shipped F5A: read-only stored report bodies in mission detail, mission-centric filing and markdown export actions that reuse the existing CFO Wiki seams, additive stored-vs-filed-vs-exported posture across reporting and proof surfaces, and one packaged local smoke for the stored -> filed -> exported path.
 
 GitHub connector work is explicitly out of scope.
 This plan does not authorize packet specialization, release semantics, PDF export, slide export, runtime-codex drafting, new discovery families, raw-source mutation, or a rename from `modules/reporting/**` to `modules/reports/**`.
@@ -18,8 +17,8 @@ This plan does not authorize packet specialization, release semantics, PDF expor
 - [x] 2026-04-18T21:09:53Z Audit the active docs, shipped F5A reporting surfaces, proof-bundle posture, wiki filed-page seam, markdown export seam, and operator mission detail views before choosing the narrowest truthful F5B scope.
 - [x] 2026-04-18T21:09:53Z Create `plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` and refresh the smallest truthful active-doc chain so `FP-0036` remains the shipped F5A record while this file becomes the active F5B implementation contract.
 - [x] 2026-04-18T21:23:00Z Run the preserved source-ingest through finance-memo confidence ladder plus repo-wide validation for this docs-and-plan handoff without starting F5B code.
-- [ ] 2026-04-18T21:09:53Z Land the first F5B implementation slice: direct draft-body visibility, explicit filed artifact reuse, and markdown export posture from the existing CFO Wiki seams only.
-- [ ] 2026-04-18T21:09:53Z Re-run the F5B validation ladder after code lands and keep proof readiness semantics unchanged even when filing or export has not happened yet.
+- [x] 2026-04-18T22:00:50Z Land the first F5B implementation slice: direct draft-body visibility, explicit mission-centric filed artifact reuse, mission-centric markdown export triggering over the existing CFO Wiki seams, additive stored-vs-filed-vs-exported posture, and packaged `pnpm smoke:finance-report-filed-artifact:local`.
+- [x] 2026-04-18T22:24:16Z Reconfirm the landed F5B slice in a strict QA pass: the focused domain, control-plane, and web reruns stayed green; the shipped discovery and reporting smokes plus twin guardrails stayed green; the branch remained clean; and this plan was refreshed so its progress and retrospective match the shipped branch reality without widening into F5C.
 
 ## Surprises & Discoveries
 
@@ -38,6 +37,12 @@ This plan does not authorize packet specialization, release semantics, PDF expor
 - Observation: the current wiki filed-page request is generic and deterministic, which means F5B can reuse it without inventing a second report-publication subsystem.
   Evidence: `packages/domain/src/cfo-wiki.ts` defines `CfoWikiCreateFiledPageRequestSchema` as `title`, `markdownBody`, `filedBy`, and `provenanceSummary`, which is enough for the reporting path to pass the stored report body through untouched and add deterministic filing provenance.
 
+- Observation: the raw proof-bundle publication summary string can lag behind newer filed or export linkage unless the read model normalizes it from the explicit stored publication fields.
+  Evidence: the first end-to-end F5B smoke exposed a stale proof-bundle summary string after export even though `latestMarkdownExport` was already correct, so `apps/control-plane/src/modules/missions/detail-view.ts` now normalizes `proofBundle.reportPublication` from the stored fields before returning mission detail.
+
+- Observation: the active F5B plan can become misleading if branch-local validation completes but the final progress and retrospective text still describe only the pre-code handoff state.
+  Evidence: the first strict QA pass on this branch found the code and proofs green while `Progress` still showed the post-implementation validation item as unfinished and `Outcomes & Retrospective` still described this file as a docs-only handoff record.
+
 ## Decision Log
 
 - Decision: the first real F5B scope is `F5B-draft-report-body-filed-artifact-and-markdown-export-hardening`.
@@ -55,8 +60,8 @@ This plan does not authorize packet specialization, release semantics, PDF expor
 - Decision: filing should be an explicit operator action from reporting mission detail and not an automatic side effect of report compile.
   Rationale: F5A compile stays deterministic and read-only, while filing into the internal wiki is a deliberate follow-on action with its own provenance.
 
-- Decision: the first F5B export posture should harden a markdown-first path only by reusing existing company-level CFO Wiki export runs and surfacing their linkage from reporting detail after filing; the first F5B slice should not add a report-specific export trigger.
-  Rationale: this is the narrowest deterministic export reuse path that still makes filed report artifacts legible in the current markdown export system without implying PDF, slide, packet, or release workflows.
+- Decision: the first F5B slice should add thin mission-centric reporting actions in the control plane, specifically `POST /missions/:missionId/reporting/filed-artifacts` and `POST /missions/:missionId/reporting/export`, while delegating the actual filing and export work to the existing CFO Wiki service seams underneath.
+  Rationale: the product needs the operator path to remain mission-based, but the existing CFO Wiki filed-page and export-run infrastructure is already the right implementation seam and should not be duplicated.
 
 - Decision: proof readiness must remain driven by stored `finance_memo` plus `evidence_appendix`, while filed and export posture should appear as separate reporting-specific summaries or statuses.
   Rationale: already-ready F5A proof bundles must not become “not ready” just because filing or export has not happened yet.
@@ -75,6 +80,9 @@ This plan does not authorize packet specialization, release semantics, PDF expor
 
 - Decision: the post-F5B slice map is `F5C-board-lender-diligence-packet-specialization-and-approval-release-hardening`.
   Rationale: packet specialization, approval posture, and external release semantics belong after the base memo, filing, and markdown export reuse path is stable.
+
+- Decision: keep `plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` as the active implementation record until a dedicated F5C plan is created, but make its progress and retrospective reflect that the first F5B slice is already landed and validated in this branch.
+  Rationale: this QA-only thread must not start F5C, but it still needs truthful documentation of the current F5B branch state and a clean handoff for the next slice.
 
 ## Context and Orientation
 
@@ -106,7 +114,8 @@ The active-doc boundary for this handoff is:
 
 GitHub connector work is out of scope.
 The internal `@pocket-cto/*` package scope remains unchanged.
-This slice is docs-and-plan only; it does not add runtime code, routes, schema changes, migrations, package scripts, smoke commands, or implementation scaffolding.
+This slice is additive implementation work.
+It adds narrow domain types, mission-centric reporting follow-on routes, reporting publication helpers, operator UI surfaces, new local proof coverage, and no schema migration.
 
 The most relevant implementation seams for the next F5B code thread are:
 
@@ -119,7 +128,10 @@ The most relevant implementation seams for the next F5B code thread are:
 - `apps/web/components/mission-card.tsx`
 - `apps/web/components/mission-list-card.tsx` only if a tiny report-status label belongs there
 - `apps/web/lib/api.ts`
-- `apps/control-plane/src/modules/wiki/**` only through the existing filed-page and export routes
+- `apps/control-plane/src/modules/missions/**`
+- `apps/control-plane/src/modules/reporting/**`
+- `apps/control-plane/src/modules/evidence/**`
+- `apps/control-plane/src/modules/wiki/**`
 
 ## Plan of Work
 
@@ -127,11 +139,11 @@ The first F5B code thread should start in the operator surface, not by reopening
 F5A already produced the durable draft artifacts.
 The first F5B move is therefore to expose those stored memo and appendix bodies directly in reporting mission detail so an operator can read what the system already persisted without leaving the mission UI or reverse-engineering metadata.
 
-Once read-only body visibility exists, the next step is to add explicit operator filing that reuses the existing CFO Wiki filed-page seam.
-The reporting path should pass the stored `bodyMarkdown` through untouched, use deterministic titles and provenance summaries that reference the reporting mission id, source discovery mission id, and artifact kind, and create filed wiki pages only when the operator chooses to do so.
+Once read-only body visibility exists, the next step is to add explicit operator filing through a mission-centric route that reuses the existing CFO Wiki filed-page seam underneath.
+The reporting path should pass the stored `bodyMarkdown` through untouched, use deterministic titles, page keys, and provenance summaries that reference the reporting mission id, source discovery mission id, and artifact kind, and create filed wiki pages only when the operator chooses to do so.
 The file action should stay additive and should not mutate the source reporting artifacts.
 
-After filing is in place, the same reporting detail surface should expose separate filing and markdown export posture by reading the existing company filed-page list plus the existing company export-run list.
+After filing is in place, the same reporting detail surface should expose separate filing and markdown export posture by reading the existing company filed-page list plus the existing company export-run list, while export itself is triggered through a mission-centric control-plane route.
 That posture should remain informational and separate from proof readiness.
 The first F5B slice should not add a report editor, automatic filing during compile, a report-specific export trigger, packet specialization, release semantics, or runtime-codex involvement.
 
@@ -147,17 +159,22 @@ The first F5B slice should not add a report editor, automatic filing during comp
    Add a tiny shared helper in `packages/domain/src/reporting-mission.ts` and `packages/domain/src/index.ts` only if deterministic filed/export labels or detail-only status parsing would otherwise be duplicated in the web layer.
    Do not start with new DB schema or artifact-kind work.
 
-2. Reuse the existing CFO Wiki filed-page seam for explicit report filing.
+2. Reuse the existing CFO Wiki filed-page seam for explicit report filing through a mission-centric action.
    Update:
+   - `apps/control-plane/src/modules/missions/routes.ts`
+   - `apps/control-plane/src/modules/missions/reporting-actions.ts`
+   - `apps/control-plane/src/modules/reporting/service.ts`
+   - `apps/control-plane/src/modules/wiki/filed-pages.ts`
    - `apps/web/lib/api.ts`
    - `apps/web/app/missions/[missionId]/actions.ts`
    - `apps/web/app/missions/[missionId]/mission-actions.tsx`
    - `apps/web/app/missions/[missionId]/mission-action-forms.tsx`
 
    The filing action should:
-   - call the existing `POST /cfo-wiki/companies/:companyKey/filed-pages` route
+   - call `POST /missions/:missionId/reporting/filed-artifacts`
+   - delegate under the hood to the existing CFO Wiki filed-page seam
    - file `financeMemo.bodyMarkdown` or `evidenceAppendix.bodyMarkdown` without rewriting the stored report body
-   - use deterministic titles and provenance summaries that include the reporting mission id, source discovery mission id, and filed artifact kind
+   - use deterministic titles, page keys, and provenance summaries that include the reporting mission id, source discovery mission id, and filed artifact kind
    - remain explicit operator work, not compile-time side effect
 
 3. Render stored report bodies directly in mission detail and show separate publication posture.
@@ -174,14 +191,19 @@ The first F5B slice should not add a report editor, automatic filing during comp
    - show separate filing and export posture without implying proof incompleteness
    - avoid an editor, inline body mutation, or freeform report composition
 
-4. Reuse the existing company export seam without adding a report-specific export trigger.
+4. Reuse the existing company export seam through a thin mission-centric export action.
    Update:
+   - `apps/control-plane/src/modules/missions/routes.ts`
+   - `apps/control-plane/src/modules/missions/reporting-actions.ts`
+   - `apps/control-plane/src/modules/reporting/service.ts`
    - `apps/web/lib/api.ts`
    - `apps/web/app/missions/[missionId]/page.tsx`
    - `apps/web/components/reporting-output-card.tsx`
 
    The first F5B export posture should:
-   - call the existing `GET /cfo-wiki/companies/:companyKey/exports` route
+   - trigger `POST /missions/:missionId/reporting/export`
+   - delegate under the hood to the existing company-level CFO Wiki export seam
+   - read back `GET /cfo-wiki/companies/:companyKey/exports` and `GET /cfo-wiki/companies/:companyKey/exports/:exportRunId` for operator linkage
    - show company-level markdown export linkage after filing
    - compare latest relevant filed-page timestamps against the latest company export run when a separate “exported after filing” summary is helpful
    - keep PDF, Marp, slide, packet, and external release output out of scope
@@ -208,8 +230,9 @@ The first F5B code thread should keep the current confidence ladder intact and a
 
 Targeted test batches:
 
-- `pnpm --filter @pocket-cto/domain exec vitest run src/reporting-mission.spec.ts src/mission-detail.spec.ts src/mission-list.spec.ts`
-- `zsh -lc "cd apps/web && pnpm exec vitest run app/missions/[missionId]/actions.spec.ts app/missions/[missionId]/action-feedback.spec.tsx components/**/*.spec.tsx lib/api.spec.ts"`
+- `pnpm --filter @pocket-cto/domain exec vitest run src/reporting-mission.spec.ts src/proof-bundle.spec.ts src/mission-detail.spec.ts src/mission-list.spec.ts`
+- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/reporting/service.spec.ts src/modules/missions/reporting-actions.spec.ts src/modules/missions/detail-view.spec.ts src/modules/missions/routes.spec.ts src/modules/evidence/proof-bundle-assembly.spec.ts src/modules/wiki/filed-pages.spec.ts"`
+- `zsh -lc "cd apps/web && pnpm exec vitest run \"components/reporting-output-card.spec.tsx\" \"app/missions/[missionId]/actions.spec.ts\" \"app/missions/[missionId]/action-feedback.spec.tsx\" \"lib/api.spec.ts\" \"components/mission-list-card.spec.tsx\""`
 
 Preserved finance proof ladder:
 
@@ -239,6 +262,7 @@ Preserved finance proof ladder:
 - `pnpm smoke:finance-discovery-quality:local`
 - `pnpm eval:finance-discovery-quality`
 - `pnpm smoke:finance-memo:local`
+- `pnpm smoke:finance-report-filed-artifact:local`
 
 Targeted twin regressions plus repo-wide validation:
 
@@ -315,11 +339,14 @@ F5B does not depend on:
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice creates the active F5B implementation contract and refreshes the active-doc chain so the next thread can start the first real F5B code slice cleanly.
-No runtime code, routes, schema changes, migrations, package scripts, smoke commands, or implementation scaffolding were added here.
+The first real F5B slice is now landed and validated in this branch.
+It adds read-only memo and appendix body visibility in mission detail, thin mission-centric filing and markdown export actions that reuse the existing CFO Wiki filed-page and export seams, additive stored-vs-filed-vs-exported publication posture across reporting and proof surfaces, and the packaged `pnpm smoke:finance-report-filed-artifact:local` proof for the stored -> filed -> exported path.
+
+The branch-local validation ladder is green for this slice, including the focused domain, control-plane, and web reruns, the shipped discovery/reporting smokes, the new F5B filed-artifact smoke, the preserved twin guardrails, and the repo-wide validation that previously ran before this QA pass.
+The strict QA pass found one documentation truthfulness gap in this plan itself, corrected it here, and did not require any runtime or product-surface changes.
 
 `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` remains the shipped final F4 record.
 `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` remains the shipped F5A record.
-This file is now the active F5B contract.
+This file remains the active F5B record until a dedicated F5C plan exists.
 
-If a bigger issue than body visibility, explicit filing, or markdown export reuse appears during implementation, stop and report it rather than widening into F5C or F6 work.
+The next slice should start from a new F5C plan rather than reopening F5B scope unless a new narrow regression appears.

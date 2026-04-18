@@ -11,6 +11,7 @@ import {
 } from "./finance-twin";
 import {
   ReportingDraftStatusSchema,
+  ReportingPublicationViewSchema,
   ReportingMissionReportKindSchema,
 } from "./reporting-mission";
 
@@ -105,6 +106,7 @@ export const ProofBundleManifestSchema = z.object({
   reportKind: ReportingMissionReportKindSchema.nullable().default(null),
   reportDraftStatus: ReportingDraftStatusSchema.nullable().default(null),
   reportSummary: z.string().default(""),
+  reportPublication: ReportingPublicationViewSchema.nullable().default(null),
   appendixPresent: z.boolean().default(false),
   freshnessState: FinanceDiscoveryFreshnessStateSchema.nullable().default(null),
   freshnessSummary: z.string().default(""),

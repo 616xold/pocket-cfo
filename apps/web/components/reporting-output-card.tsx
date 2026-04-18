@@ -5,7 +5,9 @@ import {
   readFinanceDiscoveryQuestionKindLabel,
   readReportingMissionReportKindLabel,
 } from "@pocket-cto/domain";
+import { resolveControlPlaneUrl } from "../lib/api";
 import { PolicySourceScopeFields } from "./policy-source-scope-fields";
+import { ReadOnlyMarkdownPreview } from "./read-only-markdown-preview";
 import { readFreshnessLabel } from "./freshness-label";
 import { StatusPill } from "./status-pill";
 
@@ -20,6 +22,7 @@ export function ReportingOutputCard({
 }: ReportingOutputCardProps) {
   const financeMemo = reporting.financeMemo;
   const evidenceAppendix = reporting.evidenceAppendix;
+  const publication = reporting.publication;
   const questionKindLabel =
     reporting.questionKind && isFinanceDiscoveryQuestionKind(reporting.questionKind)
       ? readFinanceDiscoveryQuestionKindLabel(reporting.questionKind)
@@ -39,6 +42,10 @@ export function ReportingOutputCard({
         {reporting.freshnessSummary ??
           "The reporting mission exists, but no draft reporting artifact is stored yet."}
       </p>
+
+      {publication?.summary ? (
+        <p className="muted">{publication.summary}</p>
+      ) : null}
 
       {reporting.reportSummary ? (
         <p className="mission-summary-copy">{reporting.reportSummary}</p>
@@ -83,7 +90,75 @@ export function ReportingOutputCard({
           <dt>Appendix</dt>
           <dd>{reporting.appendixPresent ? "Stored" : "Pending"}</dd>
         </div>
+        <div>
+          <dt>Stored draft</dt>
+          <dd>{publication?.storedDraft ? "Memo and appendix stored" : "Pending"}</dd>
+        </div>
+        <div>
+          <dt>Memo page</dt>
+          <dd>
+            {publication?.filedMemo && reporting.companyKey ? (
+              <a
+                href={`${resolveControlPlaneUrl()}/cfo-wiki/companies/${encodeURIComponent(reporting.companyKey)}/pages/${encodeURIComponent(publication.filedMemo.pageKey)}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <code>{publication.filedMemo.pageKey}</code>
+              </a>
+            ) : (
+              "Not filed"
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Appendix page</dt>
+          <dd>
+            {publication?.filedEvidenceAppendix && reporting.companyKey ? (
+              <a
+                href={`${resolveControlPlaneUrl()}/cfo-wiki/companies/${encodeURIComponent(reporting.companyKey)}/pages/${encodeURIComponent(publication.filedEvidenceAppendix.pageKey)}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <code>{publication.filedEvidenceAppendix.pageKey}</code>
+              </a>
+            ) : (
+              "Not filed"
+            )}
+          </dd>
+        </div>
+        <div>
+          <dt>Markdown export</dt>
+          <dd>
+            {publication?.latestMarkdownExport && reporting.companyKey ? (
+              <a
+                href={`${resolveControlPlaneUrl()}/cfo-wiki/companies/${encodeURIComponent(reporting.companyKey)}/exports/${encodeURIComponent(publication.latestMarkdownExport.exportRunId)}`}
+                rel="noreferrer"
+                target="_blank"
+              >
+                {publication.latestMarkdownExport.includesLatestFiledArtifacts
+                  ? `Run ${publication.latestMarkdownExport.exportRunId}`
+                  : `Run ${publication.latestMarkdownExport.exportRunId} (predates latest filing)`}
+              </a>
+            ) : (
+              "No export run recorded"
+            )}
+          </dd>
+        </div>
       </div>
+
+      {financeMemo ? (
+        <ReadOnlyMarkdownPreview
+          bodyMarkdown={financeMemo.bodyMarkdown}
+          title="Draft memo body"
+        />
+      ) : null}
+
+      {evidenceAppendix ? (
+        <ReadOnlyMarkdownPreview
+          bodyMarkdown={evidenceAppendix.bodyMarkdown}
+          title="Evidence appendix body"
+        />
+      ) : null}
 
       <div className="stack" style={{ marginTop: 18 }}>
         <h3>Related routes</h3>

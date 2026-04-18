@@ -47,6 +47,8 @@ export function MissionCard({
     ? discoveryAnswer
     : null;
   const reportingView = reporting;
+  const reportingPublication =
+    reportingView?.publication ?? proofBundle.reportPublication ?? null;
   const reportProofBundle = proofBundle.reportKind !== null || reportingView !== null;
   const financeProofBundle = !reportProofBundle && isFinanceProofBundle(proofBundle);
   const policySourceScope =
@@ -270,6 +272,35 @@ export function MissionCard({
                         proofBundle.questionKind,
                       )
                     : "Not recorded yet."}
+                </dd>
+              </div>
+              <div>
+                <dt>Publication posture</dt>
+                <dd>
+                  {reportingPublication?.summary ??
+                    "Draft reporting publication posture has not been recorded yet."}
+                </dd>
+              </div>
+              <div>
+                <dt>Memo page</dt>
+                <dd>{reportingPublication?.filedMemo?.pageKey ?? "Not filed"}</dd>
+              </div>
+              <div>
+                <dt>Appendix page</dt>
+                <dd>
+                  {reportingPublication?.filedEvidenceAppendix?.pageKey ??
+                    "Not filed"}
+                </dd>
+              </div>
+              <div>
+                <dt>Markdown export</dt>
+                <dd>
+                  {reportingPublication?.latestMarkdownExport
+                    ? reportingPublication.latestMarkdownExport
+                        .includesLatestFiledArtifacts
+                      ? `Run ${reportingPublication.latestMarkdownExport.exportRunId}`
+                      : `Run ${reportingPublication.latestMarkdownExport.exportRunId} (predates latest filing)`
+                    : "No export run recorded"}
                 </dd>
               </div>
               {proofBundle.questionKind === "policy_lookup" ||

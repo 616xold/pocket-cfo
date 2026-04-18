@@ -5,11 +5,15 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 import {
   createReportingMission,
+  exportReportingMissionMarkdown,
+  fileReportingMissionArtifacts,
   interruptMissionTask,
   resolveMissionApproval,
 } from "../../../lib/api";
 import {
   buildApprovalActionResult,
+  buildExportReportingMarkdownActionResult,
+  buildFileReportingArtifactsActionResult,
   buildInterruptActionResult,
   type MissionActionState,
 } from "../../../lib/operator-actions";
@@ -30,6 +34,16 @@ const taskInterruptFormSchema = z.object({
 const createDraftFinanceMemoFormSchema = z.object({
   requestedBy: z.string().trim().min(1),
   sourceDiscoveryMissionId: z.string().uuid(),
+});
+
+const fileReportingMissionArtifactsFormSchema = z.object({
+  filedBy: z.string().trim().min(1),
+  missionId: z.string().uuid(),
+});
+
+const exportReportingMissionMarkdownFormSchema = z.object({
+  missionId: z.string().uuid(),
+  triggeredBy: z.string().trim().min(1),
 });
 
 export async function submitApprovalResolution(
@@ -98,4 +112,50 @@ export async function submitCreateDraftFinanceMemo(formData: FormData) {
   revalidatePath("/missions");
   revalidatePath(`/missions/${input.sourceDiscoveryMissionId}`);
   redirect(`/missions/${created.mission.id}`);
+}
+
+export async function submitExportReportingMissionMarkdown(
+  _previousState: MissionActionState,
+  formData: FormData,
+) {
+  const input = exportReportingMissionMarkdownFormSchema.parse({
+    missionId: formData.get("missionId"),
+    triggeredBy: formData.get("triggeredBy"),
+  });
+
+  const result = await exportReportingMissionMarkdown({
+    missionId: input.missionId,
+    triggeredBy: input.triggeredBy,
+  });
+
+  if (result.ok) {
+    revalidatePath("/");
+    revalidatePath("/missions");
+    revalidatePath(`/missions/${input.missionId}`);
+  }
+
+  return buildExportReportingMarkdownActionResult(input.triggeredBy, result);
+}
+
+export async function submitFileReportingMissionArtifacts(
+  _previousState: MissionActionState,
+  formData: FormData,
+) {
+  const input = fileReportingMissionArtifactsFormSchema.parse({
+    filedBy: formData.get("filedBy"),
+    missionId: formData.get("missionId"),
+  });
+
+  const result = await fileReportingMissionArtifacts({
+    filedBy: input.filedBy,
+    missionId: input.missionId,
+  });
+
+  if (result.ok) {
+    revalidatePath("/");
+    revalidatePath("/missions");
+    revalidatePath(`/missions/${input.missionId}`);
+  }
+
+  return buildFileReportingArtifactsActionResult(input.filedBy, result);
 }

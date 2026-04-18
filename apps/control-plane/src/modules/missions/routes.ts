@@ -1,9 +1,15 @@
 import type { FastifyInstance } from "fastify";
 import type { CreateDiscoveryMissionInput } from "@pocket-cto/domain";
-import type { MissionServicePort, OperatorControlAvailability } from "../../lib/types";
+import type {
+  MissionReportingActionServicePort,
+  MissionServicePort,
+  OperatorControlAvailability,
+} from "../../lib/types";
 import {
   createAnalysisMissionSchema,
   createDiscoveryMissionSchema,
+  exportReportingMissionMarkdownSchema,
+  fileReportingMissionArtifactsSchema,
   createMissionFromTextSchema,
   createReportingMissionSchema,
   listMissionsQuerySchema,
@@ -14,6 +20,7 @@ export async function registerMissionRoutes(
   app: FastifyInstance,
   deps: {
     liveControl: OperatorControlAvailability;
+    missionReportingActionsService: MissionReportingActionServicePort;
     missionService: MissionServicePort;
   },
 ) {
@@ -60,5 +67,33 @@ export async function registerMissionRoutes(
       ...(await deps.missionService.getMissionDetail(params.missionId)),
       liveControl: deps.liveControl,
     };
+  });
+
+  app.post(
+    "/missions/:missionId/reporting/filed-artifacts",
+    async (request, reply) => {
+      const params = missionIdParamsSchema.parse(request.params);
+      const body = fileReportingMissionArtifactsSchema.parse(request.body ?? {});
+      const filed = await deps.missionReportingActionsService.fileDraftArtifacts(
+        params.missionId,
+        body,
+      );
+
+      reply.code(201);
+      return filed;
+    },
+  );
+
+  app.post("/missions/:missionId/reporting/export", async (request, reply) => {
+    const params = missionIdParamsSchema.parse(request.params);
+    const body = exportReportingMissionMarkdownSchema.parse(request.body ?? {});
+    const exported =
+      await deps.missionReportingActionsService.exportMarkdownBundle(
+        params.missionId,
+        body,
+      );
+
+    reply.code(201);
+    return exported;
   });
 }

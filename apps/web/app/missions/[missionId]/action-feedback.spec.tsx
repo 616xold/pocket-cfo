@@ -3,6 +3,8 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import {
   buildApprovalActionResult,
+  buildExportReportingMarkdownActionResult,
+  buildFileReportingArtifactsActionResult,
   buildInterruptActionResult,
 } from "../../../lib/operator-actions";
 import { ActionFeedback } from "./action-feedback";
@@ -37,6 +39,34 @@ describe("ActionFeedback", () => {
 
     expect(html).toContain(
       "Interrupt requested by Alicia. Mission detail refreshed.",
+    );
+  });
+
+  it("renders reporting file and export success feedback clearly", () => {
+    const html = renderToStaticMarkup(
+      <>
+        <ActionFeedback
+          result={buildFileReportingArtifactsActionResult("Alicia", {
+            ok: true,
+            statusCode: 201,
+            data: {},
+          })}
+        />
+        <ActionFeedback
+          result={buildExportReportingMarkdownActionResult("Alicia", {
+            ok: true,
+            statusCode: 201,
+            data: {},
+          })}
+        />
+      </>,
+    );
+
+    expect(html).toContain(
+      "Draft memo and evidence appendix filed by Alicia. Mission detail refreshed.",
+    );
+    expect(html).toContain(
+      "Markdown bundle exported by Alicia. Mission detail refreshed.",
     );
   });
 

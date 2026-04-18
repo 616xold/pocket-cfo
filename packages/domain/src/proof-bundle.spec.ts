@@ -166,6 +166,14 @@ describe("Proof bundle domain schema", () => {
       reportDraftStatus: "draft_only",
       reportSummary:
         "Cash posture remains constrained by stale bank coverage and visible working-capital gaps.",
+      reportPublication: {
+        storedDraft: true,
+        filedMemo: null,
+        filedEvidenceAppendix: null,
+        latestMarkdownExport: null,
+        summary:
+          "Draft memo and evidence appendix are stored. Neither draft artifact has been filed into the CFO Wiki yet. No markdown export run has been recorded yet.",
+      },
       appendixPresent: true,
       freshnessState: "stale",
       freshnessSummary:
@@ -232,6 +240,7 @@ describe("Proof bundle domain schema", () => {
     expect(parsed.sourceDiscoveryMissionId).toBe(
       "22222222-2222-4222-8222-222222222222",
     );
+    expect(parsed.reportPublication?.storedDraft).toBe(true);
     expect(parsed.appendixPresent).toBe(true);
   });
 });

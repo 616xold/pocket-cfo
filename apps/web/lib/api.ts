@@ -4,6 +4,8 @@ import {
   CreateDiscoveryMissionInputSchema,
   CreateReportingMissionInputSchema,
   CreateSourceInputSchema,
+  ExportReportingMissionMarkdownInputSchema,
+  FileReportingMissionArtifactsInputSchema,
   GitHubIssueIntakeListViewSchema,
   GitHubIssueMissionCreateResultSchema,
   MissionDetailViewSchema,
@@ -14,6 +16,8 @@ import {
   MissionTaskRecordSchema,
   OperatorControlAvailabilitySchema,
   ProofBundleManifestSchema,
+  ReportingFiledArtifactsResultSchema,
+  ReportingMarkdownExportResultSchema,
   SourceDetailViewSchema,
   SourceFileDetailViewSchema,
   SourceFileListViewSchema,
@@ -351,6 +355,32 @@ export async function createReportingMission(
     "/missions/reporting",
     CreateReportingMissionInputSchema.parse(input),
     createMissionResponseSchema,
+  );
+}
+
+export async function exportReportingMissionMarkdown(input: {
+  missionId: string;
+  triggeredBy: string;
+}) {
+  return postJson(
+    `/missions/${encodeURIComponent(input.missionId)}/reporting/export`,
+    ExportReportingMissionMarkdownInputSchema.parse({
+      triggeredBy: input.triggeredBy,
+    }),
+    ReportingMarkdownExportResultSchema,
+  );
+}
+
+export async function fileReportingMissionArtifacts(input: {
+  filedBy: string;
+  missionId: string;
+}) {
+  return postJson(
+    `/missions/${encodeURIComponent(input.missionId)}/reporting/filed-artifacts`,
+    FileReportingMissionArtifactsInputSchema.parse({
+      filedBy: input.filedBy,
+    }),
+    ReportingFiledArtifactsResultSchema,
   );
 }
 

@@ -103,9 +103,18 @@ describe("Reporting mission domain schemas", () => {
       appendixPresent: true,
       financeMemo: null,
       evidenceAppendix: null,
+      publication: {
+        storedDraft: true,
+        filedMemo: null,
+        filedEvidenceAppendix: null,
+        latestMarkdownExport: null,
+        summary:
+          "Draft memo and evidence appendix are stored. Neither draft artifact has been filed into the CFO Wiki yet. No markdown export run has been recorded yet.",
+      },
     });
 
     expect(parsed.appendixPresent).toBe(true);
+    expect(parsed.publication?.storedDraft).toBe(true);
     expect(readReportingMissionReportKindLabel(parsed.reportKind)).toBe(
       "Finance memo",
     );

@@ -621,6 +621,39 @@ describe("assembleProofBundleManifest", () => {
       ],
       existingBundle: buildPlaceholderBundle(mission),
       mission,
+      reportPublication: {
+        storedDraft: true,
+        filedMemo: {
+          artifactKind: "finance_memo",
+          pageKey:
+            "filed/reporting-11111111-1111-4111-8111-111111111111-finance_memo",
+          title:
+            "Draft finance memo for acme (11111111-1111-4111-8111-111111111111)",
+          filedAt: "2026-04-18T12:04:00.000Z",
+          filedBy: "finance-operator",
+          provenanceSummary:
+            "Draft-only reporting artifact filed into the CFO Wiki.",
+        },
+        filedEvidenceAppendix: {
+          artifactKind: "evidence_appendix",
+          pageKey:
+            "filed/reporting-11111111-1111-4111-8111-111111111111-evidence_appendix",
+          title:
+            "Evidence appendix for acme draft finance memo (11111111-1111-4111-8111-111111111111)",
+          filedAt: "2026-04-18T12:04:30.000Z",
+          filedBy: "finance-operator",
+          provenanceSummary:
+            "Draft-only reporting artifact filed into the CFO Wiki.",
+        },
+        latestMarkdownExport: {
+          exportRunId: "11111111-cccc-4ccc-8ccc-cccccccccccc",
+          status: "succeeded",
+          completedAt: "2026-04-18T12:05:00.000Z",
+          includesLatestFiledArtifacts: true,
+        },
+        summary:
+          "Draft memo and evidence appendix are stored. Both filed pages exist in the CFO Wiki: `filed/reporting-11111111-1111-4111-8111-111111111111-finance_memo` and `filed/reporting-11111111-1111-4111-8111-111111111111-evidence_appendix`. Markdown export run 11111111-cccc-4ccc-8ccc-cccccccccccc includes the latest filed report pages.",
+      },
       replayEventCount: 8,
       tasks: buildDiscoveryTasks("succeeded"),
     });
@@ -629,10 +662,17 @@ describe("assembleProofBundleManifest", () => {
     expect(manifest.reportKind).toBe("finance_memo");
     expect(manifest.sourceDiscoveryMissionId).toBe(sourceDiscoveryMissionId);
     expect(manifest.appendixPresent).toBe(true);
+    expect(manifest.reportPublication?.filedMemo?.pageKey).toBe(
+      "filed/reporting-11111111-1111-4111-8111-111111111111-finance_memo",
+    );
+    expect(
+      manifest.reportPublication?.latestMarkdownExport?.includesLatestFiledArtifacts,
+    ).toBe(true);
     expect(manifest.evidenceCompleteness.expectedArtifactKinds).toEqual([
       "finance_memo",
       "evidence_appendix",
     ]);
+    expect(manifest.status).toBe("ready");
     expect(manifest.verificationSummary).toContain("linked evidence appendix");
     expect(manifest.riskSummary).toContain("draft-only");
   });

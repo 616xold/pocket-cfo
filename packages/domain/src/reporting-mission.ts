@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { CfoWikiPageKeySchema } from "./cfo-wiki";
+import { CfoWikiExportRunStatusSchema, CfoWikiPageKeySchema } from "./cfo-wiki";
 import {
   FinanceDiscoveryQuestionKindSchema,
   FinancePolicySourceScopeSummarySchema,
@@ -7,22 +7,49 @@ import {
 import { FinanceCompanyKeySchema } from "./finance-twin";
 
 export const REPORTING_MISSION_REPORT_KINDS = ["finance_memo"] as const;
+export const REPORTING_FILED_ARTIFACT_KINDS = [
+  "finance_memo",
+  "evidence_appendix",
+] as const;
 
 export const ReportingMissionReportKindSchema = z.enum(
   REPORTING_MISSION_REPORT_KINDS,
 );
 
 export const ReportingDraftStatusSchema = z.enum(["draft_only"]);
+export const ReportingFiledArtifactKindSchema = z.enum(
+  REPORTING_FILED_ARTIFACT_KINDS,
+);
 
 export const REPORTING_MISSION_REPORT_KIND_LABELS = {
   finance_memo: "Finance memo",
 } satisfies Record<(typeof REPORTING_MISSION_REPORT_KINDS)[number], string>;
+
+export const REPORTING_FILED_ARTIFACT_KIND_LABELS = {
+  finance_memo: "Draft memo page",
+  evidence_appendix: "Evidence appendix page",
+} satisfies Record<
+  (typeof REPORTING_FILED_ARTIFACT_KINDS)[number],
+  string
+>;
 
 export const CreateReportingMissionInputSchema = z
   .object({
     sourceDiscoveryMissionId: z.string().uuid(),
     reportKind: ReportingMissionReportKindSchema,
     requestedBy: z.string().trim().min(1).default("operator"),
+  })
+  .strict();
+
+export const FileReportingMissionArtifactsInputSchema = z
+  .object({
+    filedBy: z.string().trim().min(1).default("operator"),
+  })
+  .strict();
+
+export const ExportReportingMissionMarkdownInputSchema = z
+  .object({
+    triggeredBy: z.string().trim().min(1).default("operator"),
   })
   .strict();
 
@@ -98,6 +125,39 @@ export const EvidenceAppendixArtifactMetadataSchema = z
   })
   .strict();
 
+export const ReportingFiledArtifactViewSchema = z
+  .object({
+    artifactKind: ReportingFiledArtifactKindSchema,
+    pageKey: CfoWikiPageKeySchema,
+    title: z.string().min(1),
+    filedAt: z.string().datetime({ offset: true }),
+    filedBy: z.string().min(1),
+    provenanceSummary: z.string().min(1),
+  })
+  .strict();
+
+export const ReportingMarkdownExportViewSchema = z
+  .object({
+    exportRunId: z.string().uuid(),
+    status: CfoWikiExportRunStatusSchema,
+    completedAt: z.string().datetime({ offset: true }).nullable(),
+    includesLatestFiledArtifacts: z.boolean().default(false),
+  })
+  .strict();
+
+export const ReportingPublicationViewSchema = z
+  .object({
+    storedDraft: z.boolean().default(false),
+    filedMemo: ReportingFiledArtifactViewSchema.nullable().default(null),
+    filedEvidenceAppendix: ReportingFiledArtifactViewSchema.nullable().default(
+      null,
+    ),
+    latestMarkdownExport:
+      ReportingMarkdownExportViewSchema.nullable().default(null),
+    summary: z.string().min(1),
+  })
+  .strict();
+
 export const ReportingMissionViewSchema = z
   .object({
     reportKind: ReportingMissionReportKindSchema,
@@ -119,6 +179,23 @@ export const ReportingMissionViewSchema = z
     evidenceAppendix: EvidenceAppendixArtifactMetadataSchema.nullable().default(
       null,
     ),
+    publication: ReportingPublicationViewSchema.nullable().default(null),
+  })
+  .strict();
+
+export const ReportingFiledArtifactsResultSchema = z
+  .object({
+    missionId: z.string().uuid(),
+    companyKey: FinanceCompanyKeySchema,
+    publication: ReportingPublicationViewSchema,
+  })
+  .strict();
+
+export const ReportingMarkdownExportResultSchema = z
+  .object({
+    missionId: z.string().uuid(),
+    companyKey: FinanceCompanyKeySchema,
+    publication: ReportingPublicationViewSchema,
   })
   .strict();
 
@@ -126,8 +203,17 @@ export type ReportingMissionReportKind = z.infer<
   typeof ReportingMissionReportKindSchema
 >;
 export type ReportingDraftStatus = z.infer<typeof ReportingDraftStatusSchema>;
+export type ReportingFiledArtifactKind = z.infer<
+  typeof ReportingFiledArtifactKindSchema
+>;
 export type CreateReportingMissionInput = z.infer<
   typeof CreateReportingMissionInputSchema
+>;
+export type FileReportingMissionArtifactsInput = z.infer<
+  typeof FileReportingMissionArtifactsInputSchema
+>;
+export type ExportReportingMissionMarkdownInput = z.infer<
+  typeof ExportReportingMissionMarkdownInputSchema
 >;
 export type ReportingMissionInput = z.infer<typeof ReportingMissionInputSchema>;
 export type ReportingSourceArtifactKind = z.infer<
@@ -142,7 +228,22 @@ export type FinanceMemoArtifactMetadata = z.infer<
 export type EvidenceAppendixArtifactMetadata = z.infer<
   typeof EvidenceAppendixArtifactMetadataSchema
 >;
+export type ReportingFiledArtifactView = z.infer<
+  typeof ReportingFiledArtifactViewSchema
+>;
+export type ReportingMarkdownExportView = z.infer<
+  typeof ReportingMarkdownExportViewSchema
+>;
+export type ReportingPublicationView = z.infer<
+  typeof ReportingPublicationViewSchema
+>;
 export type ReportingMissionView = z.infer<typeof ReportingMissionViewSchema>;
+export type ReportingFiledArtifactsResult = z.infer<
+  typeof ReportingFiledArtifactsResultSchema
+>;
+export type ReportingMarkdownExportResult = z.infer<
+  typeof ReportingMarkdownExportResultSchema
+>;
 
 export function isFinanceMemoArtifactMetadata(
   value: unknown,
@@ -160,4 +261,10 @@ export function readReportingMissionReportKindLabel(
   reportKind: ReportingMissionReportKind,
 ) {
   return REPORTING_MISSION_REPORT_KIND_LABELS[reportKind];
+}
+
+export function readReportingFiledArtifactKindLabel(
+  artifactKind: ReportingFiledArtifactKind,
+) {
+  return REPORTING_FILED_ARTIFACT_KIND_LABELS[artifactKind];
 }

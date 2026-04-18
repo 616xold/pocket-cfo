@@ -44,6 +44,7 @@ export async function buildApp(options?: { container?: AppContainer }) {
   });
   await registerMissionRoutes(app, {
     liveControl: container.operatorControl.liveControl,
+    missionReportingActionsService: container.missionReportingActionsService,
     missionService: container.missionService,
   });
   await registerReplayRoutes(app, {

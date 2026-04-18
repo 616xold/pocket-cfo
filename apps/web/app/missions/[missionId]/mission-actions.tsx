@@ -5,12 +5,19 @@ import { getWebOperatorIdentity } from "../../../lib/operator-identity";
 import {
   ApprovalActionForm,
   CreateReportForm,
+  ExportReportingMarkdownForm,
+  FileReportingArtifactsForm,
   TaskInterruptForm,
 } from "./mission-action-forms";
 
 type MissionActionsProps = Pick<
   MissionDetailView,
-  "approvalCards" | "discoveryAnswer" | "liveControl" | "mission" | "tasks"
+  | "approvalCards"
+  | "discoveryAnswer"
+  | "liveControl"
+  | "mission"
+  | "reporting"
+  | "tasks"
 >;
 
 export function MissionActions({
@@ -18,6 +25,7 @@ export function MissionActions({
   discoveryAnswer,
   liveControl,
   mission,
+  reporting,
   tasks,
 }: MissionActionsProps) {
   const operatorIdentity = getWebOperatorIdentity();
@@ -30,15 +38,25 @@ export function MissionActions({
     mission.type === "discovery" &&
     mission.status === "succeeded" &&
     isFinanceDiscoveryAnswerArtifactMetadata(discoveryAnswer);
+  const canFileDraftArtifacts =
+    mission.type === "reporting" &&
+    mission.status === "succeeded" &&
+    Boolean(reporting?.publication?.storedDraft) &&
+    !(
+      reporting?.publication?.filedMemo &&
+      reporting.publication.filedEvidenceAppendix
+    );
+  const canExportMarkdownBundle =
+    mission.type === "reporting" &&
+    mission.status === "succeeded" &&
+    Boolean(
+      reporting?.publication?.filedMemo &&
+        reporting.publication.filedEvidenceAppendix,
+    );
 
   return (
     <section className="card">
       <h2>Operator actions</h2>
-      <p className="muted">
-        {controlsUnavailable
-          ? `Actions are unavailable while the control-plane server is running in ${liveControl.mode} mode. Run pnpm dev:embedded to enable local approval resolution and task interrupts.`
-          : "These controls call the current approval-resolution and task-interrupt routes, then refresh the mission detail without optimistic updates."}
-      </p>
       <p className="muted" style={{ marginTop: 10 }}>
         Actions are recorded as <code>{operatorIdentity}</code>. Set{" "}
         <code>POCKET_CTO_WEB_OPERATOR_NAME</code> in your local env if you want
@@ -58,6 +76,52 @@ export function MissionActions({
           />
         </div>
       ) : null}
+
+      {mission.type === "reporting" ? (
+        <div className="stack" style={{ marginTop: 18 }}>
+          <h3>Reporting follow-on</h3>
+          <p className="muted">
+            Filing and export remain explicit operator actions. They reuse the
+            existing CFO Wiki filed-page and markdown export seams without
+            changing the stored draft artifacts or F5A proof readiness.
+          </p>
+          {canFileDraftArtifacts ? (
+            <FileReportingArtifactsForm
+              missionId={mission.id}
+              operatorIdentity={operatorIdentity}
+            />
+          ) : reporting?.publication?.storedDraft ? (
+            <p className="muted">
+              Draft memo and appendix are already filed into the CFO Wiki.
+            </p>
+          ) : (
+            <p className="muted">
+              Draft filing becomes available once the reporting mission has both
+              stored artifacts and a company scope.
+            </p>
+          )}
+          {canExportMarkdownBundle ? (
+            <ExportReportingMarkdownForm
+              missionId={mission.id}
+              operatorIdentity={operatorIdentity}
+            />
+          ) : (
+            <p className="muted">
+              Markdown export becomes available after both draft artifacts are
+              filed into the CFO Wiki.
+            </p>
+          )}
+        </div>
+      ) : null}
+
+      <div className="stack" style={{ marginTop: 18 }}>
+        <h3>Approvals and interrupts</h3>
+        <p className="muted">
+          {controlsUnavailable
+            ? `Approval resolution and task interrupts are unavailable while the control-plane server is running in ${liveControl.mode} mode. Run pnpm dev:embedded to enable those live controls.`
+            : "These controls call the current approval-resolution and task-interrupt routes, then refresh the mission detail without optimistic updates."}
+        </p>
+      </div>
 
       <div className="stack" style={{ marginTop: 18 }}>
         {pendingApprovals.length === 0 ? (
