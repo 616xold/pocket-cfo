@@ -48,12 +48,29 @@ type ProofBundleAssemblyDeps = {
     | "upsertProofBundle"
   >;
   replayService: Pick<ReplayService, "append" | "countByMissionId">;
+  reportingPublicationReader?: {
+    readPublicationFacts(input: {
+      artifacts: ArtifactRecord[];
+      mission: MissionRecord;
+      proofBundle: ProofBundleManifest | null;
+    }): Promise<
+      | {
+          publication: ProofBundleManifest["reportPublication"];
+        }
+      | null
+    >;
+  };
 };
 
 export class ProofBundleAssemblyService {
   constructor(private readonly deps: ProofBundleAssemblyDeps) {}
 
   async refreshProofBundle(input: {
+    details?: {
+      reportExportRunId?: string | null;
+      reportFiledPageKeys?: string[];
+      reportPublicationSummary?: string | null;
+    };
     missionId: string;
     session?: PersistenceSession;
     trigger: ProofBundleRefreshTrigger;
@@ -88,12 +105,23 @@ export class ProofBundleAssemblyService {
       input.missionId,
       input.session,
     );
+    const reportPublication =
+      mission.type === "reporting" && this.deps.reportingPublicationReader
+        ? (
+            await this.deps.reportingPublicationReader.readPublicationFacts({
+              artifacts,
+              mission,
+              proofBundle: existingBundle,
+            })
+          )?.publication ?? null
+        : null;
 
     const currentManifest = assembleProofBundleManifest({
       approvals,
       existingBundle,
       mission,
       replayEventCount,
+      reportPublication,
       tasks,
       artifacts,
     });
@@ -108,6 +136,7 @@ export class ProofBundleAssemblyService {
       existingBundle,
       mission,
       replayEventCount: replayEventCount + 1,
+      reportPublication,
       tasks,
     });
 
@@ -137,13 +166,19 @@ export class ProofBundleAssemblyService {
       {
         missionId: input.missionId,
         type: "proof_bundle.refreshed",
-        payload: {
-          artifactCount: nextManifest.artifacts.length,
-          missionId: input.missionId,
-          missingArtifactKinds: nextManifest.evidenceCompleteness.missingArtifactKinds,
-          status: nextManifest.status,
-          trigger: input.trigger,
-        },
+          payload: {
+            artifactCount: nextManifest.artifacts.length,
+            missionId: input.missionId,
+            missingArtifactKinds: nextManifest.evidenceCompleteness.missingArtifactKinds,
+            reportExportRunId: input.details?.reportExportRunId ?? null,
+            reportFiledPageKeys: input.details?.reportFiledPageKeys ?? [],
+            reportPublicationSummary:
+              input.details?.reportPublicationSummary ??
+              nextManifest.reportPublication?.summary ??
+              "",
+            status: nextManifest.status,
+            trigger: input.trigger,
+          },
       },
       input.session,
     );
@@ -158,6 +193,7 @@ export function assembleProofBundleManifest(input: {
   existingBundle: ProofBundleManifest | null;
   mission: MissionRecord;
   replayEventCount: number;
+  reportPublication?: ProofBundleManifest["reportPublication"];
   tasks: MissionTaskRecord[];
 }): ProofBundleManifest {
   const facts = deriveProofBundleAssemblyFacts({
@@ -165,6 +201,7 @@ export function assembleProofBundleManifest(input: {
     artifacts: input.artifacts,
     existingBundle: input.existingBundle,
     mission: input.mission,
+    reportPublication: input.reportPublication,
     tasks: input.tasks,
   });
   const evidenceCompleteness = buildEvidenceCompleteness(facts);
@@ -187,6 +224,7 @@ export function assembleProofBundleManifest(input: {
     reportKind: facts.reportKind,
     reportDraftStatus: facts.reportDraftStatus,
     reportSummary: facts.reportSummary ?? "",
+    reportPublication: facts.reportPublication,
     appendixPresent: facts.appendixPresent,
     freshnessState: facts.freshnessState,
     freshnessSummary: facts.freshnessSummary ?? "",

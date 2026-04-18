@@ -391,6 +391,16 @@ function createAppContainer(
         throw new Error("listMissions should not be called in this test");
       },
     } as AppContainer["missionService"],
+    missionReportingActionsService: {
+      async exportMarkdownBundle() {
+        throw new Error(
+          "exportMarkdownBundle should not be called in this test",
+        );
+      },
+      async fileDraftArtifacts() {
+        throw new Error("fileDraftArtifacts should not be called in this test");
+      },
+    } as AppContainer["missionReportingActionsService"],
     operatorControl: {
       approvalService: {
         async listMissionApprovals() {

@@ -47,6 +47,7 @@ export function proofBundlePlaceholderFixture(
     reportKind: null,
     reportDraftStatus: null,
     reportSummary: "",
+    reportPublication: null,
     appendixPresent: false,
     freshnessState: null,
     freshnessSummary: "",

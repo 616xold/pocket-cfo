@@ -11,6 +11,7 @@ import {
   ReportingMissionViewSchema,
 } from "@pocket-cto/domain";
 import type { EvidenceArtifactDraft } from "../evidence/service";
+import { buildReportingPublicationViewFromProofBundle } from "./publication";
 
 export function buildFinanceMemoArtifact(input: {
   memo: FinanceMemoArtifactMetadata;
@@ -139,6 +140,12 @@ export function readMissionReportingView(input: {
       evidenceAppendix !== null || input.proofBundle.appendixPresent,
     financeMemo,
     evidenceAppendix,
+    publication:
+      buildReportingPublicationViewFromProofBundle({
+        evidenceCompleteness: input.proofBundle.evidenceCompleteness,
+        reportKind: input.proofBundle.reportKind,
+        reportPublication: input.proofBundle.reportPublication,
+      }) ?? null,
   });
 }
 

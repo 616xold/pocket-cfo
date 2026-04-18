@@ -2821,6 +2821,18 @@ async function createHarness(options?: {
         },
       } as AppContainer["cfoWikiService"],
       missionService,
+      missionReportingActionsService: {
+        async exportMarkdownBundle() {
+          throw new Error(
+            "exportMarkdownBundle should not be called in orchestrator harness",
+          );
+        },
+        async fileDraftArtifacts() {
+          throw new Error(
+            "fileDraftArtifacts should not be called in orchestrator harness",
+          );
+        },
+      } as AppContainer["missionReportingActionsService"],
       operatorControl: {
         approvalService,
         liveControl: {

@@ -18,7 +18,7 @@ export function buildFiledPageInput(input: {
 }): PersistCfoWikiPageInput {
   const pageKey = buildUniqueFiledPageKey(
     input.existingPages,
-    slugifyTitle(input.request.title),
+    input.request.pageKey ?? slugifyTitle(input.request.title),
   );
   const filedMetadata: CfoWikiFiledArtifactMetadata = {
     filedAt: input.filedAt,
@@ -81,12 +81,21 @@ function renderFiledMarkdown(input: {
 
 function buildUniqueFiledPageKey(
   existingPages: CfoWikiPageRecord[],
-  baseSlug: string,
+  preferredPageKeyOrSlug: string,
 ) {
   const existingPageKeys = new Set(existingPages.map((page) => page.pageKey));
 
+  if (preferredPageKeyOrSlug.startsWith("filed/")) {
+    return buildCfoWikiFiledPageKey(
+      preferredPageKeyOrSlug.replace(/^filed\//u, ""),
+    );
+  }
+
   for (let suffix = 1; suffix < 10_000; suffix += 1) {
-    const slug = suffix === 1 ? baseSlug : `${baseSlug}-${suffix}`;
+    const slug =
+      suffix === 1
+        ? preferredPageKeyOrSlug
+        : `${preferredPageKeyOrSlug}-${suffix}`;
     const candidate = buildCfoWikiFiledPageKey(slug);
 
     if (!existingPageKeys.has(candidate)) {

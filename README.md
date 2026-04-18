@@ -52,7 +52,7 @@ F4C1 adds explicit-source `policy_lookup`, grounded only in `policy_document` bi
 F4C2 hardens that shipped six-family discovery baseline with operator-safe policy source selection from existing `policy_document` bindings, additive policy source-scope rendering across answer, mission, list, and proof-bundle surfaces, packaged deterministic `pnpm smoke:finance-discovery-quality:local`, and finance-native `pnpm eval:finance-discovery-quality` reporting that reuses the deterministic smoke without fake model metadata.
 `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` now serves as the shipped final F4 record.
 `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` now records the landed first F5A slice: a first-class reporting mission that compiles one draft `finance_memo` plus one `evidence_appendix` from a completed discovery mission and its stored evidence rather than from generic chat intake.
-`plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` is now the active F5B implementation contract: expose the stored report bodies directly, explicitly file them into the existing CFO Wiki seam, and reuse company-level markdown export runs without changing proof readiness semantics.
+`plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` is now the active F5B implementation contract and the branch-local first real F5B slice: expose the stored report bodies directly, add mission-centric filing and markdown export actions that reuse the existing CFO Wiki seams, keep reporting deterministic and draft-only, and preserve proof readiness semantics while packaged `pnpm smoke:finance-report-filed-artifact:local` proves the stored -> filed -> exported path.
 
 ## Product boundary for v1
 
@@ -216,6 +216,7 @@ pnpm smoke:finance-policy-lookup:local
 pnpm smoke:finance-discovery-quality:local
 pnpm eval:finance-discovery-quality
 pnpm smoke:finance-memo:local
+pnpm smoke:finance-report-filed-artifact:local
 ```
 
 The current backend-first finance-twin read surface is:

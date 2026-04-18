@@ -26,6 +26,7 @@ import { buildDiscoveryMissionCreationInput } from "./discovery";
 import { buildQueuedMissionStatusChangedPayload } from "./events";
 import { buildReportingMissionCreationInput } from "./reporting";
 import type { MissionRepository } from "./repository";
+import { buildReportingPublicationViewFromProofBundle } from "../reporting/publication";
 
 export type MissionDetail = MissionDetailView;
 export type MissionList = MissionListView;
@@ -376,6 +377,12 @@ function summarizeMission(input: {
     reportKind: input.proofBundle.reportKind,
     reportDraftStatus: input.proofBundle.reportDraftStatus,
     reportSummary: input.proofBundle.reportSummary || null,
+    reportPublication:
+      buildReportingPublicationViewFromProofBundle({
+        evidenceCompleteness: input.proofBundle.evidenceCompleteness,
+        reportKind: input.proofBundle.reportKind,
+        reportPublication: input.proofBundle.reportPublication,
+      }) ?? null,
     appendixPresent: input.proofBundle.appendixPresent,
     freshnessState: input.proofBundle.freshnessState,
     policySourceId: input.proofBundle.policySourceId,

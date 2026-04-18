@@ -43,6 +43,7 @@ export type ProofBundleAssemblyFacts = {
   decisionTrace: string[];
   freshnessState: ProofBundleManifest["freshnessState"];
   freshnessSummary: string | null;
+  reportPublication: ProofBundleManifest["reportPublication"];
   reportDraftStatus: ProofBundleManifest["reportDraftStatus"];
   reportKind: ProofBundleManifest["reportKind"];
   reportSummary: string | null;
@@ -76,6 +77,7 @@ export function deriveProofBundleAssemblyFacts(input: {
   artifacts: ArtifactRecord[];
   existingBundle: ProofBundleManifest | null;
   mission: MissionRecord;
+  reportPublication?: ProofBundleManifest["reportPublication"];
   tasks: MissionTaskRecord[];
 }): ProofBundleAssemblyFacts {
   const taskById = new Map(input.tasks.map((task) => [task.id, task]));
@@ -204,6 +206,8 @@ export function deriveProofBundleAssemblyFacts(input: {
       financeMemoMetadata?.memoSummary ??
       input.existingBundle?.reportSummary ??
       null,
+    reportPublication:
+      input.reportPublication ?? input.existingBundle?.reportPublication ?? null,
     sourceDiscoveryMissionId:
       financeMemoMetadata?.sourceDiscoveryMissionId ??
       evidenceAppendixMetadata?.sourceDiscoveryMissionId ??

@@ -6,6 +6,7 @@ import type { GitHubAppService } from "../modules/github-app/service";
 import type { GitHubIssueIntakeService } from "../modules/github-app/issue-intake-service";
 import type { GitHubWebhookService } from "../modules/github-app/webhook-service";
 import type { MissionService } from "../modules/missions/service";
+import type { MissionReportingActionsService } from "../modules/missions/reporting-actions";
 import type { OrchestratorWorker } from "../modules/orchestrator/worker";
 import type { ReplayService } from "../modules/replay/service";
 import type { RuntimeControlService } from "../modules/runtime-codex/control-service";
@@ -44,6 +45,11 @@ export type MissionServicePort = Pick<
   | "createFromText"
   | "getMissionDetail"
   | "listMissions"
+>;
+
+export type MissionReportingActionServicePort = Pick<
+  MissionReportingActionsService,
+  "exportMarkdownBundle" | "fileDraftArtifacts"
 >;
 
 export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
@@ -145,6 +151,7 @@ export type AppContainer = {
   cfoWikiService: CfoWikiServicePort;
   financeTwinService: FinanceTwinServicePort;
   missionService: MissionServicePort;
+  missionReportingActionsService: MissionReportingActionServicePort;
   operatorControl: {
     approvalService: Pick<
       ApprovalService,

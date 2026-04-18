@@ -14,6 +14,7 @@ import { buildMissionApprovalCards } from "../approvals/card-formatter";
 import { readMissionDiscoveryAnswer } from "./discovery-answer-view";
 import { readProofBundleManifest } from "./repository-mappers";
 import { readMissionReportingView } from "../reporting/artifact";
+import { buildReportingPublicationViewFromProofBundle } from "../reporting/publication";
 
 const ARTIFACT_SUMMARY_MAX_LENGTH = 180;
 
@@ -25,14 +26,16 @@ export function buildMissionDetailView(input: {
   proofBundle: ProofBundleManifest;
   tasks: MissionTaskRecord[];
 }): MissionDetailView {
+  const proofBundle = normalizeProofBundle(input.proofBundle);
+
   return {
     mission: input.mission,
     tasks: input.tasks,
-    proofBundle: input.proofBundle,
+    proofBundle,
     discoveryAnswer: readMissionDiscoveryAnswer(input.artifacts),
     reporting: readMissionReportingView({
       artifacts: input.artifacts,
-      proofBundle: input.proofBundle,
+      proofBundle,
     }),
     approvals: input.approvals.map(summarizeApproval),
     approvalCards: summarizeApprovalCards(input),
@@ -152,4 +155,20 @@ function isFinanceProofBundle(manifest: ProofBundleManifest) {
     isFinanceDiscoveryQuestionKind(manifest.questionKind)
     )
   );
+}
+
+function normalizeProofBundle(
+  proofBundle: ProofBundleManifest,
+): ProofBundleManifest {
+  const reportPublication =
+    buildReportingPublicationViewFromProofBundle({
+      evidenceCompleteness: proofBundle.evidenceCompleteness,
+      reportKind: proofBundle.reportKind,
+      reportPublication: proofBundle.reportPublication,
+    }) ?? null;
+
+  return {
+    ...proofBundle,
+    reportPublication,
+  };
 }

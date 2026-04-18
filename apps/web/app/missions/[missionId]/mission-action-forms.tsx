@@ -6,6 +6,8 @@ import {
   type MissionActionState,
 } from "../../../lib/operator-actions";
 import {
+  submitExportReportingMissionMarkdown,
+  submitFileReportingMissionArtifacts,
   submitApprovalResolution,
   submitCreateDraftFinanceMemo,
   submitTaskInterrupt,
@@ -30,6 +32,16 @@ type TaskInterruptFormProps = {
 type CreateReportFormProps = {
   operatorIdentity: string;
   sourceDiscoveryMissionId: string;
+};
+
+type ExportReportingMarkdownFormProps = {
+  missionId: string;
+  operatorIdentity: string;
+};
+
+type FileReportingArtifactsFormProps = {
+  missionId: string;
+  operatorIdentity: string;
 };
 
 export function ApprovalActionForm({
@@ -125,5 +137,59 @@ export function CreateReportForm({
         pendingLabel="Creating draft memo..."
       />
     </form>
+  );
+}
+
+export function FileReportingArtifactsForm({
+  missionId,
+  operatorIdentity,
+}: FileReportingArtifactsFormProps) {
+  const [result, formAction] = useActionState<
+    MissionActionState,
+    FormData
+  >(submitFileReportingMissionArtifacts, INITIAL_MISSION_ACTION_STATE);
+
+  return (
+    <div className="action-cluster">
+      <form action={formAction} className="stack">
+        <input name="missionId" type="hidden" value={missionId} />
+        <input name="filedBy" type="hidden" value={operatorIdentity} />
+
+        <ActionSubmitButton
+          className="action-button"
+          label="File draft memo into CFO Wiki"
+          pendingLabel="Filing draft artifacts..."
+        />
+      </form>
+
+      <ActionFeedback result={result} />
+    </div>
+  );
+}
+
+export function ExportReportingMarkdownForm({
+  missionId,
+  operatorIdentity,
+}: ExportReportingMarkdownFormProps) {
+  const [result, formAction] = useActionState<
+    MissionActionState,
+    FormData
+  >(submitExportReportingMissionMarkdown, INITIAL_MISSION_ACTION_STATE);
+
+  return (
+    <div className="action-cluster">
+      <form action={formAction} className="stack">
+        <input name="missionId" type="hidden" value={missionId} />
+        <input name="triggeredBy" type="hidden" value={operatorIdentity} />
+
+        <ActionSubmitButton
+          className="action-button secondary"
+          label="Export markdown bundle"
+          pendingLabel="Exporting markdown bundle..."
+        />
+      </form>
+
+      <ActionFeedback result={result} />
+    </div>
   );
 }

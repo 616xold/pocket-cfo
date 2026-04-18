@@ -191,6 +191,8 @@ export const ProofBundleRefreshTriggerSchema = z.enum([
   "executor_evidence",
   "discovery_answer",
   "reporting_artifacts",
+  "reporting_filed_artifacts",
+  "reporting_export",
   "pull_request_link",
   "approval_resolution",
 ]);
@@ -199,6 +201,9 @@ export const ProofBundleRefreshedPayloadSchema = z.object({
   artifactCount: z.number().int().nonnegative(),
   missingArtifactKinds: z.array(z.string()).default([]),
   missionId: z.string().uuid(),
+  reportExportRunId: z.string().uuid().nullable().default(null),
+  reportFiledPageKeys: z.array(z.string()).default([]),
+  reportPublicationSummary: z.string().default(""),
   status: z.enum(["placeholder", "ready", "incomplete", "failed"]),
   trigger: ProofBundleRefreshTriggerSchema,
 });

@@ -1,6 +1,8 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 const createReportingMission = vi.fn();
+const exportReportingMissionMarkdown = vi.fn();
+const fileReportingMissionArtifacts = vi.fn();
 const revalidatePath = vi.fn();
 const redirect = vi.fn();
 const resolveMissionApproval = vi.fn();
@@ -16,6 +18,8 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("../../../lib/api", () => ({
   createReportingMission,
+  exportReportingMissionMarkdown,
+  fileReportingMissionArtifacts,
   interruptMissionTask,
   resolveMissionApproval,
 }));
@@ -132,6 +136,67 @@ describe("mission server actions", () => {
       "/missions/44444444-4444-4444-8444-444444444444",
     );
   });
+
+  it("files reporting artifacts, revalidates mission surfaces, and returns success feedback", async () => {
+    fileReportingMissionArtifacts.mockResolvedValue({
+      ok: true,
+      statusCode: 201,
+      data: {},
+    });
+
+    const mod = await import("./actions");
+    const result = await mod.submitFileReportingMissionArtifacts(
+      null,
+      buildFileReportingArtifactsFormData({
+        filedBy: "Alicia",
+      }),
+    );
+
+    expect(result).toEqual({
+      ok: true,
+      kind: "file_reporting_artifacts",
+      message:
+        "Draft memo and evidence appendix filed by Alicia. Mission detail refreshed.",
+      statusCode: 201,
+    });
+    expect(fileReportingMissionArtifacts).toHaveBeenCalledWith({
+      filedBy: "Alicia",
+      missionId,
+    });
+    expect(revalidatePath).toHaveBeenNthCalledWith(1, "/");
+    expect(revalidatePath).toHaveBeenNthCalledWith(2, "/missions");
+    expect(revalidatePath).toHaveBeenNthCalledWith(3, `/missions/${missionId}`);
+  });
+
+  it("exports reporting markdown, revalidates mission surfaces, and returns success feedback", async () => {
+    exportReportingMissionMarkdown.mockResolvedValue({
+      ok: true,
+      statusCode: 201,
+      data: {},
+    });
+
+    const mod = await import("./actions");
+    const result = await mod.submitExportReportingMissionMarkdown(
+      null,
+      buildExportReportingMissionMarkdownFormData({
+        triggeredBy: "Alicia",
+      }),
+    );
+
+    expect(result).toEqual({
+      ok: true,
+      kind: "export_reporting_markdown",
+      message: "Markdown bundle exported by Alicia. Mission detail refreshed.",
+      statusCode: 201,
+    });
+    expect(exportReportingMissionMarkdown).toHaveBeenCalledWith({
+      missionId,
+      triggeredBy: "Alicia",
+    });
+    expect(revalidatePath).toHaveBeenNthCalledWith(1, "/");
+    expect(revalidatePath).toHaveBeenNthCalledWith(2, "/missions");
+    expect(revalidatePath).toHaveBeenNthCalledWith(3, `/missions/${missionId}`);
+  });
 });
 
 function buildApprovalFormData(input: {
@@ -158,5 +223,21 @@ function buildCreateDraftFinanceMemoFormData(input: { requestedBy: string }) {
   const formData = new FormData();
   formData.set("requestedBy", input.requestedBy);
   formData.set("sourceDiscoveryMissionId", missionId);
+  return formData;
+}
+
+function buildExportReportingMissionMarkdownFormData(input: {
+  triggeredBy: string;
+}) {
+  const formData = new FormData();
+  formData.set("missionId", missionId);
+  formData.set("triggeredBy", input.triggeredBy);
+  return formData;
+}
+
+function buildFileReportingArtifactsFormData(input: { filedBy: string }) {
+  const formData = new FormData();
+  formData.set("missionId", missionId);
+  formData.set("filedBy", input.filedBy);
   return formData;
 }

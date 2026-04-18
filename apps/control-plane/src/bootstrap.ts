@@ -55,6 +55,7 @@ import { GitHubWebhookService } from "./modules/github-app/webhook-service";
 import { StubMissionCompiler } from "./modules/missions/compiler";
 import { DrizzleMissionRepository } from "./modules/missions/drizzle-repository";
 import { InMemoryMissionRepository } from "./modules/missions/repository";
+import { MissionReportingActionsService } from "./modules/missions/reporting-actions";
 import { MissionService } from "./modules/missions/service";
 import { OrchestratorService } from "./modules/orchestrator/service";
 import { OrchestratorWorker } from "./modules/orchestrator/worker";
@@ -118,6 +119,7 @@ type SharedKernel = {
   githubIssueIntakeService: GitHubIssueIntakeService;
   githubWebhookService: GitHubWebhookService;
   missionService: MissionService;
+  missionReportingActionsService: MissionReportingActionsService;
   missionRepository: ConstructorParameters<typeof MissionService>[1];
   proofBundleAssembly: ProofBundleAssemblyService;
   reportingService: ReportingService;
@@ -336,24 +338,6 @@ function buildSharedKernel(input: {
     repository: input.githubWebhookRepository,
   });
   const liveSessionRegistry = new InMemoryRuntimeSessionRegistry();
-  const proofBundleAssembly = new ProofBundleAssemblyService({
-    approvalRepository: input.approvalRepository,
-    missionRepository: input.missionRepository,
-    replayService,
-  });
-  const approvalService = new ApprovalService(
-    input.approvalRepository,
-    input.missionRepository,
-    replayService,
-    liveSessionRegistry,
-    proofBundleAssembly,
-  );
-  const runtimeControlService = new RuntimeControlService(
-    input.missionRepository,
-    replayService,
-    approvalService,
-    liveSessionRegistry,
-  );
   const evidenceService = new EvidenceService();
   const sourceService = new SourceRegistryService(
     input.sourceRepository,
@@ -370,6 +354,29 @@ function buildSharedKernel(input: {
     sourceRepository: input.sourceRepository,
     wikiRepository: input.wikiRepository,
   });
+  const reportingService = new ReportingService({
+    cfoWikiService,
+    missionRepository: input.missionRepository,
+  });
+  const proofBundleAssembly = new ProofBundleAssemblyService({
+    approvalRepository: input.approvalRepository,
+    missionRepository: input.missionRepository,
+    replayService,
+    reportingPublicationReader: reportingService,
+  });
+  const approvalService = new ApprovalService(
+    input.approvalRepository,
+    input.missionRepository,
+    replayService,
+    liveSessionRegistry,
+    proofBundleAssembly,
+  );
+  const runtimeControlService = new RuntimeControlService(
+    input.missionRepository,
+    replayService,
+    approvalService,
+    liveSessionRegistry,
+  );
   const missionService = new MissionService(
     new StubMissionCompiler(),
     input.missionRepository,
@@ -380,8 +387,9 @@ function buildSharedKernel(input: {
       cfoWikiService,
     },
   );
-  const reportingService = new ReportingService({
-    missionRepository: input.missionRepository,
+  const missionReportingActionsService = new MissionReportingActionsService({
+    proofBundleAssembly,
+    reportingService,
   });
   const financeDiscoveryService = new FinanceDiscoveryService({
     cfoWikiService,
@@ -413,6 +421,7 @@ function buildSharedKernel(input: {
     githubWebhookService,
     liveSessionRegistry,
     missionService,
+    missionReportingActionsService,
     missionRepository: input.missionRepository,
     proofBundleAssembly,
     reportingService,
@@ -493,6 +502,7 @@ function toAppContainer(
     githubIssueIntakeService: kernel.githubIssueIntakeService,
     githubWebhookService: kernel.githubWebhookService,
     missionService: kernel.missionService,
+    missionReportingActionsService: kernel.missionReportingActionsService,
     operatorControl: {
       approvalService: kernel.approvalService,
       liveControl,

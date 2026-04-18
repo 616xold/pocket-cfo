@@ -1,7 +1,9 @@
 import { z } from "zod";
 import {
   CreateMissionFromTextInputSchema,
+  ExportReportingMissionMarkdownInputSchema,
   CreateReportingMissionInputSchema,
+  FileReportingMissionArtifactsInputSchema,
   FINANCE_DISCOVERY_QUESTION_KINDS,
   MissionSourceKindSchema,
   MissionStatusSchema,
@@ -44,6 +46,12 @@ export const createMissionFromTextSchema = CreateMissionFromTextInputSchema;
 export const missionIdParamsSchema = z.object({
   missionId: z.string().uuid(),
 });
+
+export const fileReportingMissionArtifactsSchema =
+  FileReportingMissionArtifactsInputSchema;
+
+export const exportReportingMissionMarkdownSchema =
+  ExportReportingMissionMarkdownInputSchema;
 
 export const listMissionsQuerySchema = z.object({
   limit: z.coerce.number().int().positive().max(50).default(20),

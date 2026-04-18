@@ -358,6 +358,125 @@ describe("web api module", () => {
     });
   });
 
+  it("posts the reporting filed-artifacts route correctly", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 201,
+      async json() {
+        return {
+          missionId,
+          companyKey: "acme",
+          publication: {
+            storedDraft: true,
+            filedMemo: {
+              artifactKind: "finance_memo",
+              pageKey: "filed/reporting-111-finance_memo",
+              title: "Draft finance memo",
+              filedAt: "2026-04-18T13:05:00.000Z",
+              filedBy: "Alicia",
+              provenanceSummary: "Draft-only reporting artifact filed.",
+            },
+            filedEvidenceAppendix: {
+              artifactKind: "evidence_appendix",
+              pageKey: "filed/reporting-111-evidence_appendix",
+              title: "Evidence appendix",
+              filedAt: "2026-04-18T13:05:00.000Z",
+              filedBy: "Alicia",
+              provenanceSummary: "Draft-only reporting artifact filed.",
+            },
+            latestMarkdownExport: null,
+            summary: "Draft memo and evidence appendix are stored and filed.",
+          },
+        };
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const result = await mod.fileReportingMissionArtifacts({
+      filedBy: "Alicia",
+      missionId,
+    });
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+
+    expect(result.ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/missions/${missionId}/reporting/filed-artifacts`,
+      expect.objectContaining({
+        cache: "no-store",
+        headers: {
+          "content-type": "application/json",
+        },
+        method: "POST",
+      }),
+    );
+    expect(JSON.parse(String(request.body))).toEqual({
+      filedBy: "Alicia",
+    });
+  });
+
+  it("posts the reporting export route correctly", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      status: 201,
+      async json() {
+        return {
+          missionId,
+          companyKey: "acme",
+          publication: {
+            storedDraft: true,
+            filedMemo: {
+              artifactKind: "finance_memo",
+              pageKey: "filed/reporting-111-finance_memo",
+              title: "Draft finance memo",
+              filedAt: "2026-04-18T13:05:00.000Z",
+              filedBy: "Alicia",
+              provenanceSummary: "Draft-only reporting artifact filed.",
+            },
+            filedEvidenceAppendix: {
+              artifactKind: "evidence_appendix",
+              pageKey: "filed/reporting-111-evidence_appendix",
+              title: "Evidence appendix",
+              filedAt: "2026-04-18T13:05:00.000Z",
+              filedBy: "Alicia",
+              provenanceSummary: "Draft-only reporting artifact filed.",
+            },
+            latestMarkdownExport: {
+              exportRunId: "77777777-7777-4777-8777-777777777777",
+              status: "succeeded",
+              completedAt: "2026-04-18T13:06:00.000Z",
+              includesLatestFiledArtifacts: true,
+            },
+            summary: "Markdown export run includes the latest filed report pages.",
+          },
+        };
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const result = await mod.exportReportingMissionMarkdown({
+      missionId,
+      triggeredBy: "Alicia",
+    });
+    const request = fetchMock.mock.calls[0]?.[1] as RequestInit;
+
+    expect(result.ok).toBe(true);
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/missions/${missionId}/reporting/export`,
+      expect.objectContaining({
+        cache: "no-store",
+        headers: {
+          "content-type": "application/json",
+        },
+        method: "POST",
+      }),
+    );
+    expect(JSON.parse(String(request.body))).toEqual({
+      triggeredBy: "Alicia",
+    });
+  });
+
   it("parses the source inventory and detail routes", async () => {
     const fetchMock = vi
       .fn()

@@ -33,6 +33,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
             discoveryAnswer={demoMission.discoveryAnswer}
             liveControl={demoMission.liveControl}
             mission={demoMission.mission}
+            reporting={demoMission.reporting}
             tasks={demoMission.tasks}
           />
         </main>
@@ -59,6 +60,7 @@ export default async function MissionPage({ params }: MissionPageProps) {
         discoveryAnswer={mission.discoveryAnswer}
         liveControl={mission.liveControl}
         mission={mission.mission}
+        reporting={mission.reporting}
         tasks={mission.tasks}
       />
     </main>
@@ -148,6 +150,7 @@ function buildDemoMissionDetail(): MissionDetailView {
       answerSummary: "",
       reportKind: null,
       reportDraftStatus: null,
+      reportPublication: null,
       reportSummary: "",
       appendixPresent: false,
       freshnessState: null,

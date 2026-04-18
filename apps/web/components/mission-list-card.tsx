@@ -49,6 +49,12 @@ export function MissionListCard({ mission }: MissionListCardProps) {
         </p>
       ) : null}
 
+      {mission.reportPublication?.summary ? (
+        <p className="muted mission-summary-inline">
+          {mission.reportPublication.summary}
+        </p>
+      ) : null}
+
       {mission.sourceRef ? (
         <p className="muted mission-summary-inline">
           Source: {mission.sourceRef}
@@ -81,6 +87,28 @@ export function MissionListCard({ mission }: MissionListCardProps) {
             <div>
               <dt>Appendix</dt>
               <dd>{mission.appendixPresent ? "Stored" : "Pending"}</dd>
+            </div>
+            <div>
+              <dt>Memo page</dt>
+              <dd>{mission.reportPublication?.filedMemo?.pageKey ?? "Not filed"}</dd>
+            </div>
+            <div>
+              <dt>Appendix page</dt>
+              <dd>
+                {mission.reportPublication?.filedEvidenceAppendix?.pageKey ??
+                  "Not filed"}
+              </dd>
+            </div>
+            <div>
+              <dt>Markdown export</dt>
+              <dd>
+                {mission.reportPublication?.latestMarkdownExport
+                  ? mission.reportPublication.latestMarkdownExport
+                      .includesLatestFiledArtifacts
+                    ? "Recorded"
+                    : "Recorded before latest filing"
+                  : "Not exported"}
+              </dd>
             </div>
             <div>
               <dt>Source discovery</dt>
