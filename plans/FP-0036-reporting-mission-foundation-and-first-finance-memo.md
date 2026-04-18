@@ -23,6 +23,7 @@ This plan does not authorize F6 monitoring, packet specialization, PDF export, s
 - [x] 2026-04-18T18:10:42Z Re-read the active docs, required repo skills, domain contracts, proof-bundle assembly, orchestrator phases, mission routes, DB enums, smoke patterns, and web mission surfaces on the clean F5A branch, then confirm the narrow landed shape before edits: first-class `reporting` plus `manual_reporting`, one scout-only deterministic `POST /missions/reporting` path, one draft `finance_memo`, one linked `evidence_appendix`, explicit source-discovery lineage in read models, and no runtime-codex or release semantics.
 - [x] 2026-04-18T18:50:39Z Implement `F5A-reporting-mission-foundation-and-first-finance-memo` exactly as defined here, without widening into packets, release semantics, runtime drafting, or F6 work.
 - [x] 2026-04-18T18:50:39Z Run the F5A implementation validation ladder after code lands, including the preserved F4 baseline confidence ladder plus the new narrow reporting proof.
+- [x] 2026-04-18T18:57:15Z Run a strict post-landing QA pass on the F5A slice, fix only the stale doc handoff language that still described F5A as future work, and keep the same branch and PR posture while re-running the narrow reporting proofs plus the required discovery, eval, and twin guardrails.
 
 ## Surprises & Discoveries
 
@@ -144,10 +145,10 @@ The active-doc boundary for this handoff is:
 
 GitHub connector work is out of scope.
 The internal `@pocket-cto/*` package scope remains unchanged.
-This thread is docs-only; it does not implement F5A code.
-The next thread should implement only the F5A slice defined here.
+This thread now includes the landed F5A implementation plus a narrow post-landing QA pass.
+The next thread should start the narrow F5B follow-on, not reopen F4C2, repeat F5A foundation work, or widen into F6.
 
-The relevant implementation seams for the future F5A code thread are:
+The relevant implementation seams for the landed F5A code are:
 
 - `packages/domain/src/mission.ts`, `packages/domain/src/proof-bundle.ts`, `packages/domain/src/mission-detail.ts`, `packages/domain/src/mission-list.ts`, and a new `packages/domain/src/reporting-mission.ts`
 - `packages/db/src/schema/missions.ts` and `packages/db/src/schema/artifacts.ts` plus one additive migration
@@ -318,12 +319,12 @@ Do not delete source discovery artifacts or raw-source evidence as part of recov
 
 ## Artifacts and Notes
 
-This docs-only slice should leave:
+This landed F5A slice now leaves:
 
-- one active implementation contract at `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md`
-- refreshed active docs that point at the shipped F4 record and the new F5A handoff
+- one active implementation record at `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md`
+- refreshed active docs that point at the shipped F4 record, the landed F5A memo foundation, and the narrow F5B next step
 
-The future F5A implementation should produce:
+The landed F5A implementation now provides:
 
 - one `finance_memo` artifact, preferably persisted as durable markdown plus structured metadata
 - one `evidence_appendix` artifact, preferably persisted as durable markdown plus structured metadata
@@ -362,20 +363,16 @@ F5A does not depend on:
 
 ## Outcomes & Retrospective
 
-This thread ships the F5 master-plan and doc refresh only.
-No runtime code, routes, schema changes, migrations, package scripts, smoke commands, or eval datasets were added in this slice.
-The preserved F4 baseline validation ladder stayed green after the doc refresh, including the full smoke stack, `pnpm eval:finance-discovery-quality`, the targeted twin regression batch, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-The follow-on QA pass kept scope narrow, confirmed the branch and PR state, and applied only a tiny wording correction in top-level docs before rerunning the required docs-and-plan validation ladder.
-This post-merge portability polish keeps the same implementation scope, removes workstation-specific markdown links from the active F5 contract, and leaves the wider active-doc chain unchanged because no further truthfulness drift remained.
-The required validation ladder stayed green again after this portability pass, including every requested packaged smoke, `pnpm eval:finance-discovery-quality`, the targeted twin regression batch, repo-wide checks, and the clean-worktree `pnpm ci:repro:current` reproduction.
+This thread now records the landed first F5A reporting slice rather than only a docs handoff.
+The branch added first-class reporting mission and artifact taxonomy, one typed `POST /missions/reporting` creation path from completed discovery work, one deterministic reporting bounded context, explicit mission-detail and mission-list reporting read models, one packaged `pnpm smoke:finance-memo:local` proof, and the minimum additive docs refresh required to keep the active-doc chain truthful.
+The preserved F4 baseline validation ladder stayed green after the implementation landed, including the targeted domain, control-plane, and web reporting batches, the required discovery smokes, `pnpm eval:finance-discovery-quality`, the targeted twin regression batch, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+The follow-on QA pass kept scope narrow, confirmed the branch and PR state, corrected only the stale post-landing doc language in this plan and the top-level handoff docs, and re-ran the narrow reporting proofs plus the required discovery, eval, and twin guardrails.
 
 `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` remains the shipped final F4 record.
-This file is now the active F5 implementation contract.
-The next remaining work is to start F5A implementation exactly as scoped here:
+This file remains the active F5 implementation record until the next narrow F5B plan supersedes it.
+The next remaining work is to start the narrow F5B follow-on exactly where F5A intentionally stopped:
 
-- first-class reporting mission foundation
-- draft `finance_memo`
-- linked `evidence_appendix`
-- deterministic stored-evidence compiler
-- mission-based operator entry point
-- draft-only posture with no release semantics yet
+- filed-artifact and export hardening for the existing evidence appendix path
+- no reopening of F5A mission foundation work
+- no packet specialization yet
+- no release semantics yet

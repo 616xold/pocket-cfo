@@ -71,8 +71,8 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` now serves as the shipped final F4 record, including the narrow finance-native eval-hook closeout.
 `F4C1-finance-policy-lookup` is now the shipped explicit-source policy lookup slice.
 `F4C2-discovery-quality-hardening-and-evals` is now the shipped discovery-quality hardening slice.
-`plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` is now the active F5 implementation contract.
-The next implementation thread should be `F5A-reporting-mission-foundation-and-first-finance-memo`, not a reopened F4C2 continuation and not a widened F6 start.
+`plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` now records the landed first F5A implementation slice.
+The next implementation thread should start the narrow F5B follow-on from that record, not a reopened F4C2 continuation and not a widened F6 start.
 
 ## Review ritual
 
