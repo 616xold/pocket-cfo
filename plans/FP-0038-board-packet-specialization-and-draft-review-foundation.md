@@ -2,7 +2,8 @@
 
 ## Purpose / Big Picture
 
-This plan is the active F5 implementation contract produced by the docs-only F5C master-plan and active-doc refresh slice.
+This plan now serves as the shipped F5C1 record.
+`plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md` is the active F5C2 implementation contract that follows it.
 The target phase is `F5`, and the first execution slice is `F5C1-board-packet-specialization-and-draft-review-foundation`.
 The user-visible goal is narrow and concrete: after the shipped F5A and F5B reporting path already creates one draft `finance_memo`, one linked `evidence_appendix`, and truthful stored-vs-filed-vs-exported posture, Pocket CFO should be able to compile one specialized draft `board_packet` from that completed reporting work and present it as review-ready draft output without widening into external release, finance approval, lender or diligence specialization, runtime-codex drafting, or non-markdown export formats.
 
@@ -313,10 +314,10 @@ No release, send, approval, PDF export, or slide export side effect should be pr
 
 ## Artifacts and Notes
 
-This docs-and-plan slice leaves:
+This shipped F5C1 record now leaves:
 
-- one new active F5C implementation contract at `plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md`
-- refreshed active docs that point at shipped F5A and F5B history plus this active F5C contract
+- one shipped F5C1 implementation record at `plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md`
+- refreshed active docs that now point at shipped F5A through F5C1 history plus the active F5C2 contract in `plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md`
 
 The first F5C1 code thread is expected to leave:
 
@@ -341,8 +342,8 @@ The first packet path must stay grounded in the stored reporting artifacts that 
 
 ## Outcomes & Retrospective
 
-This thread shipped the F5C master-plan and active-doc refresh only.
-It created `plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md`, moved the active-doc chain from the shipped F5B record to this new active F5C contract, and narrowed the next implementation thread to one deterministic, draft-only, runtime-free `board_packet` specialization path from completed reporting work.
+This plan now records the shipped F5C1 board-packet slice.
+It narrowed the first packet-specialization contract, then the later implementation thread landed one deterministic, draft-only, runtime-free `board_packet` specialization path from completed reporting work and proved it through the packaged `pnpm smoke:board-packet:local` ladder plus the preserved repo-wide validation stack.
 
-This thread did not start F5C1 code, did not reopen F5B, did not widen into F5C2 or F5C3, and did not start F6.
-What remains is the first real F5C1 implementation thread.
+What remains is not more F5C1 work.
+The next active implementation thread should follow `plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md` for one narrow `lender_update` specialization slice without widening into diligence, approval-release, or F6 work.
