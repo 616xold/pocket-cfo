@@ -5,6 +5,7 @@ import { getWebOperatorIdentity } from "../../../lib/operator-identity";
 import {
   ApprovalActionForm,
   CreateBoardPacketForm,
+  CreateLenderUpdateForm,
   CreateReportForm,
   ExportReportingMarkdownForm,
   FileReportingArtifactsForm,
@@ -44,6 +45,7 @@ export function MissionActions({
     mission.status === "succeeded" &&
     reporting?.reportKind === "finance_memo" &&
     Boolean(reporting.financeMemo && reporting.evidenceAppendix);
+  const canCreateDraftLenderUpdate = canCreateDraftBoardPacket;
   const canFileDraftArtifacts =
     mission.type === "reporting" &&
     mission.status === "succeeded" &&
@@ -61,6 +63,12 @@ export function MissionActions({
       reporting?.publication?.filedMemo &&
         reporting.publication.filedEvidenceAppendix,
     );
+  const reportingFollowOnOutOfScopeNote =
+    reporting?.reportKind === "board_packet"
+      ? "Board packet missions remain draft-only in F5C1. Filing, markdown export, approval, release, PDF, and slide actions stay out of scope here."
+      : reporting?.reportKind === "lender_update"
+        ? "Lender update missions remain draft-only in F5C2. Filing, markdown export, approval, release, PDF, and slide actions stay out of scope here."
+        : "Reporting follow-on actions are available only from completed finance memo missions in the shipped F5A through F5C2 path.";
 
   return (
     <section className="card">
@@ -99,6 +107,17 @@ export function MissionActions({
                 operatorIdentity={operatorIdentity}
                 sourceReportingMissionId={mission.id}
               />
+              <p className="muted">
+                Create one draft-only lender update from this completed finance
+                memo reporting mission and its stored memo plus evidence
+                appendix only.
+              </p>
+              {canCreateDraftLenderUpdate ? (
+                <CreateLenderUpdateForm
+                  operatorIdentity={operatorIdentity}
+                  sourceReportingMissionId={mission.id}
+                />
+              ) : null}
             </>
           ) : null}
           {reporting?.reportKind === "finance_memo" ? (
@@ -138,9 +157,7 @@ export function MissionActions({
             </>
           ) : (
             <p className="muted">
-              Board packet missions remain draft-only in F5C1. Filing, markdown
-              export, approval, release, PDF, and slide actions stay out of
-              scope here.
+              {reportingFollowOnOutOfScopeNote}
             </p>
           )}
         </div>
