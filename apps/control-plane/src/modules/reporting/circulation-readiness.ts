@@ -155,8 +155,8 @@ function buildCirculationReadinessSummary(input: {
   switch (input.circulationApprovalStatus) {
     case "pending_review":
       return input.requestedBy
-        ? `Circulation approval was requested by ${input.requestedBy}; the stored ${reportLabel} is not yet approved for internal circulation.`
-        : `Circulation approval is pending review; the stored ${reportLabel} is not yet approved for internal circulation.`;
+        ? `An unresolved circulation approval request from ${input.requestedBy} already exists; the stored ${reportLabel} is not yet approved for internal circulation.`
+        : `An unresolved circulation approval request already exists; the stored ${reportLabel} is not yet approved for internal circulation.`;
     case "approved_for_circulation":
       return input.resolvedBy
         ? `Circulation approval was granted by ${input.resolvedBy}; the stored ${reportLabel} is approved for internal circulation, but no circulation has been logged.`

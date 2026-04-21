@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-This plan is the active F5C4E implementation contract and now also records the first real implementation thread against that contract.
+This plan now serves as the shipped F5C4E implementation record and also records the first real implementation thread against that contract plus one narrow post-merge polish pass.
 `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` remains the shipped F5C4D record that precedes it.
 The target phase is `F5`, and the next execution slice is `F5C4E-board-packet-review-or-circulation-readiness-foundation`.
 The user-visible goal is narrow and concrete: after the shipped F5A through F5C4D baseline already creates draft `finance_memo`, `board_packet`, `lender_update`, and `diligence_packet` artifacts, supports external-facing `report_release` approval and release-log posture for `lender_update` and `diligence_packet`, and keeps delivery outside the system, Pocket CFO should next let an operator request and resolve one internal board-packet review and derive one explicit circulation-ready posture from one completed `board_packet` reporting mission with one stored `board_packet` artifact without widening into actual circulation logging, actual circulation or delivery, runtime-codex drafting, or broader packet rollout.
@@ -22,6 +22,7 @@ This plan does not authorize actual circulation logging, actual send, distribute
 - [x] 2026-04-21T15:55:00Z Re-open the active F5C4E contract for the first real implementation thread, explicitly invoke the required repo skills in-thread, audit the current branch and active code seams, and record the pre-edit verdict: add one additive `report_circulation` approval kind, one mission-scoped board-packet circulation-approval route, and one board-only circulation-readiness view on the existing approvals substrate without reusing `report_release`, without adding circulation logging, and without changing proof readiness.
 - [x] 2026-04-21T18:49:00Z Implement one additive board-packet internal review or circulation-readiness slice: add `report_circulation`, one mission-scoped board-packet circulation-approval request path, one derived circulation-ready posture, and the smallest truthful proof or UI widening without adding circulation logging or delivery behavior.
 - [x] 2026-04-21T18:49:00Z Run the targeted domain, control-plane, web, smoke, twin, repo-wide, and clean-tree CI reproduction ladder for F5C4E after the first real implementation lands, including the new `pnpm smoke:board-packet-circulation-approval:local` proof and `pnpm ci:repro:current`.
+- [x] 2026-04-21T22:20:00Z Record the narrow post-merge polish pass shipped after F5C4E: reopen finance approval requests after resolved non-approval outcomes while keeping pending same-kind requests idempotent, refresh the smallest active-doc set so this file no longer reads as active, and point the next thread at narrow F5C4F planning or execution without creating `FP-0046`.
 
 ## Surprises & Discoveries
 
@@ -93,6 +94,9 @@ This plan does not authorize actual circulation logging, actual send, distribute
 - Decision: the later slice after F5C4E is `F5C4F-circulation-log-and-first-board-packet-circulation-record-foundation`; only after that later delivery-free foundation should bounded runtime-codex phrasing or formatting assistance be reconsidered.
   Rationale: later-F5 hardening should proceed as board review and circulation-ready posture first, board circulation logging second, and optional runtime assistance only after both delivery-free foundations exist.
 
+- Decision: record the post-merge rerequest and doc-freshness correction inside this shipped F5C4E record instead of creating `FP-0046`.
+  Rationale: the user explicitly requested a narrow correction-and-freshness slice only, and the repo needed truthful shipped-doc cleanup plus one shared approval-seam fix rather than a new active implementation contract.
+
 - Decision: preserve the current `modules/reporting/**` vocabulary and do not reopen a `modules/reports/**` rename wave.
   Rationale: the current repo already uses `reporting` as first-class vocabulary, and this task is about truthfulness and sequencing rather than namespace churn.
 
@@ -148,7 +152,7 @@ The active-doc boundary for this plan is:
 - `plans/FP-0042-release-log-and-first-lender-update-release-record-foundation.md`
 - `plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md`
 - `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md`
-- this active plan, `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`
+- this shipped F5C4E record, `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`
 - `docs/ops/local-dev.md`
 - `docs/ops/source-ingest-and-cfo-wiki.md`
 - `docs/ops/codex-app-server.md`
@@ -413,7 +417,7 @@ If the slice proves too wide, keep the existing board packet draft-only behavior
 
 This docs-only handoff already produces:
 
-- this active plan, `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`
+- this shipped F5C4E record, `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`
 - the small active-doc refresh that points the repo at one concrete F5C4E contract
 
 The next implementation thread should produce:
@@ -462,6 +466,8 @@ The main implementation surprise was operational rather than architectural: the 
 The other notable polish fix was keeping the board-packet proof-bundle draft-only wording backward-compatible with the shipped F5C1 smoke while still stating the new F5C4E circulation truth explicitly.
 
 The full validation ladder for this slice is now green, including the targeted domain, control-plane, and web tests; the preserved finance discovery, finance memo, reporting, lender-update, diligence-packet, and new board-packet circulation smokes; the twin guardrails; `pnpm lint`; `pnpm typecheck`; `pnpm test`; and `pnpm ci:repro:current`.
+
+The post-merge polish pass also shipped cleanly: finance-facing `report_release` and `report_circulation` requests now reopen after declined, cancelled, or expired outcomes while remaining idempotent against unresolved same-kind requests, and the smallest active-doc set now treats this file as the shipped F5C4E record rather than the current active contract.
 
 What remains is later work, not more unfinished implementation inside this slice.
 The next truthful successor is `F5C4F-circulation-log-and-first-board-packet-circulation-record-foundation`.

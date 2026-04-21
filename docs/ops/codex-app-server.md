@@ -58,9 +58,8 @@ Codex remains valuable after that first answer path exists for:
 
 ## Current F5 posture
 
-The latest shipped F5 record is `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md`.
-The shipped F5A through F5C4D slices already create first-class reporting missions from completed discovery missions, assemble one draft `finance_memo` plus one linked `evidence_appendix`, expose those stored bodies directly, reuse the existing CFO Wiki filed-page plus markdown export seams for the finance-memo path, compile draft `board_packet`, `lender_update`, and `diligence_packet` artifacts from completed reporting work without creating a runtime thread, resolve one finance-facing `report_release` approval into explicit release-readiness for both `lender_update` and `diligence_packet` without live runtime continuation, and record one operator-entered release record for both `lender_update` and `diligence_packet` without introducing system delivery.
-`plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` is now the active implementation-ready F5C4E contract.
+The latest shipped F5 records are `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` for F5C4D and `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E.
+The shipped F5A through F5C4E slices already create first-class reporting missions from completed discovery missions, assemble one draft `finance_memo` plus one linked `evidence_appendix`, expose those stored bodies directly, reuse the existing CFO Wiki filed-page plus markdown export seams for the finance-memo path, compile draft `board_packet`, `lender_update`, and `diligence_packet` artifacts from completed reporting work without creating a runtime thread, resolve one finance-facing `report_release` approval into explicit release-readiness for both `lender_update` and `diligence_packet` without live runtime continuation, record one operator-entered release record for both `lender_update` and `diligence_packet` without introducing system delivery, and resolve one board-facing `report_circulation` approval into explicit circulation-ready posture for `board_packet` without logging circulation.
 
 For shipped F5C4B, the control plane and operator surface now:
 
@@ -83,14 +82,14 @@ For shipped F5C4D, the control plane and operator surface now:
 - keep the slice deterministic, runtime-free, and delivery-free
 - keep board-packet review or circulation posture, actual delivery, and bounded runtime-codex drafting out of the first F5C4D slice
 
-For active F5C4E, the next code thread should:
+For shipped F5C4E, the repo now:
 
 - start only from one completed `reporting` mission with `reportKind = "board_packet"` and one stored `board_packet` artifact
 - keep `mission.type = "reporting"` and `reportKind = "board_packet"`
-- reuse the existing approvals bounded context but add one new internal-facing `report_circulation` approval kind rather than reusing `report_release`
+- reuse the existing approvals bounded context but add one internal-facing `report_circulation` approval kind rather than reusing `report_release`
 - add review request, approval resolution, and one circulation-ready posture only
 - keep the slice deterministic, runtime-free, and delivery-free
-- keep circulation logging, actual delivery, and bounded runtime-codex drafting out of the first F5C4E slice
+- keep circulation logging, actual delivery, and bounded runtime-codex drafting out of the shipped F5C4E slice
 
 Later F5 slices may use runtime-codex only in a bounded role such as draft phrasing or formatting assistance once the deterministic diligence approval, diligence release-log, board circulation-readiness, and board circulation-log foundations already exist.
 Even then, runtime-codex must not invent finance facts, override stored numbers, or become the approval authority layer.
@@ -116,7 +115,7 @@ As the product pivots:
 - runtime actions that change external communication posture must stay human-reviewable
 
 For F5A through shipped F5C4D, draft report compilation, body exposure, finance-memo filing/export posture, the first three packet specializations, lender-update and diligence release logging, and explicit release-record posture should stay deterministic and draft-only or delivery-free as appropriate.
-The active next later-F5 step is `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`, which should narrow to board-packet internal review or circulation-ready posture rather than reopening diligence release logging or adding runtime-codex delivery behavior.
+No later-F5 implementation contract is checked in yet. The next later-F5 step should define and/or execute the narrow F5C4F board-packet circulation-log or circulation-record slice rather than reopening F5C4E or adding runtime-codex delivery behavior.
 
 ## Transition note
 

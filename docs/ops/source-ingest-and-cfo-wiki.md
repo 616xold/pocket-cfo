@@ -451,7 +451,7 @@ The shipped F4 baseline still does none of the following:
 - raw wiki pages remain derived evidence inputs, not the source of truth for the release record itself
 - actual send, distribute, publish, board-packet review or circulation readiness, bounded runtime-codex drafting, PDF export, and slide export remain later work
 
-`FP-0045` now defines the active F5C4E boundary:
+`FP-0045` now serves as the shipped F5C4E record:
 
 - the first new board-facing review path must start from one completed `reporting` mission with `reportKind = "board_packet"` and one stored `board_packet` artifact
 - the source reporting mission must already be completed and remain a `reporting` mission rather than a new circulation-specific mission family
@@ -470,7 +470,7 @@ The shipped F5B follow-on now hardens body visibility, filed-page reuse, and mar
 The shipped F5C1 follow-on now specializes one draft `board_packet` from that completed reporting state.
 The shipped F5C2 follow-on now specializes only one draft `lender_update` from that same completed reporting state without widening into diligence, approval-release, runtime-codex, or export work.
 The shipped F5C3 follow-on now specializes only one draft `diligence_packet` from that same completed reporting state without widening into approval-release, runtime-codex, or export work.
-The next later-F5 follow-on is no longer abstract: it is `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`, and that implementation should narrow to board-packet internal review or circulation-ready posture rather than reopening diligence-packet release logging, actual delivery, runtime-codex drafting, or export work.
+No later-F5 implementation contract is checked in yet. The next later-F5 follow-on should define and/or execute the narrow F5C4F board-packet circulation-log or circulation-record slice rather than reopening F5C4E, diligence-packet release logging, actual delivery, runtime-codex drafting, or export work.
 
 ## Lint flow
 

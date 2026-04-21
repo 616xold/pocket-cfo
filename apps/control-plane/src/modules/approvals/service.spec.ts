@@ -519,6 +519,261 @@ describe("ApprovalService", () => {
     );
   });
 
+  it("allows lender-update release approvals to be re-requested after decline or cancel while keeping pending requests idempotent", async () => {
+    const missionRepository = new InMemoryMissionRepository();
+    const approvalRepository = new InMemoryApprovalRepository();
+    const replayService = new ReplayService(
+      new InMemoryReplayRepository(),
+      missionRepository,
+    );
+    const missionService = new MissionService(
+      new StubMissionCompiler(),
+      missionRepository,
+      replayService,
+      new EvidenceService(),
+    );
+    const refreshProofBundle = vi.fn(
+      async (): Promise<ProofBundleManifest> =>
+        buildProofBundleManifest(createdMissionId),
+    );
+    const liveSessionRegistry = {
+      awaitApprovalResolution: vi.fn(),
+      hasTaskSession: vi.fn(() => false),
+      tryResolveApproval: vi.fn(() => ({
+        delivered: true as const,
+      })),
+    } satisfies Pick<
+      InMemoryRuntimeSessionRegistry,
+      "awaitApprovalResolution" | "hasTaskSession" | "tryResolveApproval"
+    >;
+    const approvalService = new ApprovalService(
+      approvalRepository,
+      missionRepository,
+      replayService,
+      liveSessionRegistry,
+      {
+        refreshProofBundle,
+      },
+    );
+    const created = await missionService.createFromText({
+      text: "Re-request lender update release approval after non-approval outcomes",
+      sourceKind: "manual_text",
+      requestedBy: "operator",
+    });
+    const createdMissionId = created.mission.id;
+    const payload = {
+      missionId: createdMissionId,
+      reportKind: "lender_update" as const,
+      sourceReportingMissionId: "11111111-1111-4111-8111-111111111111",
+      sourceDiscoveryMissionId: "22222222-2222-4222-8222-222222222222",
+      artifactId: "33333333-3333-4333-8333-333333333333",
+      companyKey: "acme" as const,
+      draftOnlyStatus: "draft_only" as const,
+      summary: "Draft lender update for acme from the completed finance memo.",
+      freshnessSummary: "Cash posture remains stale.",
+      limitationsSummary:
+        "This lender update remains delivery-free until review is completed.",
+      resolution: null,
+      releaseRecord: null,
+    };
+
+    const firstRequest = await approvalService.requestReportReleaseApproval({
+      missionId: createdMissionId,
+      payload,
+      requestedBy: "finance-operator",
+    });
+    const duplicatePending =
+      await approvalService.requestReportReleaseApproval({
+        missionId: createdMissionId,
+        payload,
+        requestedBy: "finance-operator",
+      });
+
+    expect(firstRequest.created).toBe(true);
+    expect(duplicatePending).toEqual({
+      approval: firstRequest.approval,
+      created: false,
+    });
+
+    await approvalService.resolveApproval({
+      approvalId: firstRequest.approval.id,
+      decision: "decline",
+      rationale: "Need clearer evidence before release.",
+      resolvedBy: "finance-reviewer",
+    });
+
+    const secondRequest = await approvalService.requestReportReleaseApproval({
+      missionId: createdMissionId,
+      payload,
+      requestedBy: "finance-operator",
+    });
+    const duplicateSecond =
+      await approvalService.requestReportReleaseApproval({
+        missionId: createdMissionId,
+        payload,
+        requestedBy: "finance-operator",
+      });
+
+    expect(secondRequest.created).toBe(true);
+    expect(secondRequest.approval.id).not.toBe(firstRequest.approval.id);
+    expect(duplicateSecond).toEqual({
+      approval: secondRequest.approval,
+      created: false,
+    });
+
+    await approvalService.resolveApproval({
+      approvalId: secondRequest.approval.id,
+      decision: "cancel",
+      rationale: "Operator withdrew this review request.",
+      resolvedBy: "finance-operator",
+    });
+
+    const thirdRequest = await approvalService.requestReportReleaseApproval({
+      missionId: createdMissionId,
+      payload,
+      requestedBy: "finance-operator",
+    });
+    const approvals = await approvalRepository.listApprovalsByMissionId(
+      createdMissionId,
+    );
+
+    expect(thirdRequest.created).toBe(true);
+    expect(thirdRequest.approval.id).not.toBe(secondRequest.approval.id);
+    expect(approvals.map((approval) => approval.status)).toEqual([
+      "declined",
+      "cancelled",
+      "pending",
+    ]);
+  });
+
+  it("allows board-packet circulation approvals to be re-requested after decline or cancel while keeping pending requests idempotent", async () => {
+    const missionRepository = new InMemoryMissionRepository();
+    const approvalRepository = new InMemoryApprovalRepository();
+    const replayService = new ReplayService(
+      new InMemoryReplayRepository(),
+      missionRepository,
+    );
+    const missionService = new MissionService(
+      new StubMissionCompiler(),
+      missionRepository,
+      replayService,
+      new EvidenceService(),
+    );
+    const refreshProofBundle = vi.fn(
+      async (): Promise<ProofBundleManifest> =>
+        buildProofBundleManifest(createdMissionId, "board_packet"),
+    );
+    const liveSessionRegistry = {
+      awaitApprovalResolution: vi.fn(),
+      hasTaskSession: vi.fn(() => false),
+      tryResolveApproval: vi.fn(() => ({
+        delivered: true as const,
+      })),
+    } satisfies Pick<
+      InMemoryRuntimeSessionRegistry,
+      "awaitApprovalResolution" | "hasTaskSession" | "tryResolveApproval"
+    >;
+    const approvalService = new ApprovalService(
+      approvalRepository,
+      missionRepository,
+      replayService,
+      liveSessionRegistry,
+      {
+        refreshProofBundle,
+      },
+    );
+    const created = await missionService.createFromText({
+      text: "Re-request board packet circulation approval after non-approval outcomes",
+      sourceKind: "manual_text",
+      requestedBy: "operator",
+    });
+    const createdMissionId = created.mission.id;
+    const payload = {
+      missionId: createdMissionId,
+      reportKind: "board_packet" as const,
+      sourceReportingMissionId: "11111111-1111-4111-8111-111111111111",
+      sourceDiscoveryMissionId: "22222222-2222-4222-8222-222222222222",
+      artifactId: "33333333-3333-4333-8333-333333333333",
+      companyKey: "acme" as const,
+      draftOnlyStatus: "draft_only" as const,
+      summary: "Draft board packet for acme from the completed finance memo.",
+      freshnessSummary: "Cash posture remains stale.",
+      limitationsSummary:
+        "This board packet remains delivery-free until review is completed.",
+      resolution: null,
+    };
+
+    const firstRequest = await approvalService.requestReportCirculationApproval({
+      missionId: createdMissionId,
+      payload,
+      requestedBy: "finance-operator",
+    });
+    const duplicatePending =
+      await approvalService.requestReportCirculationApproval({
+        missionId: createdMissionId,
+        payload,
+        requestedBy: "finance-operator",
+      });
+
+    expect(firstRequest.created).toBe(true);
+    expect(duplicatePending).toEqual({
+      approval: firstRequest.approval,
+      created: false,
+    });
+
+    await approvalService.resolveApproval({
+      approvalId: firstRequest.approval.id,
+      decision: "decline",
+      rationale: "Board materials need another draft before circulation review.",
+      resolvedBy: "finance-reviewer",
+    });
+
+    const secondRequest =
+      await approvalService.requestReportCirculationApproval({
+        missionId: createdMissionId,
+        payload,
+        requestedBy: "finance-operator",
+      });
+    const duplicateSecond =
+      await approvalService.requestReportCirculationApproval({
+        missionId: createdMissionId,
+        payload,
+        requestedBy: "finance-operator",
+      });
+
+    expect(secondRequest.created).toBe(true);
+    expect(secondRequest.approval.id).not.toBe(firstRequest.approval.id);
+    expect(duplicateSecond).toEqual({
+      approval: secondRequest.approval,
+      created: false,
+    });
+
+    await approvalService.resolveApproval({
+      approvalId: secondRequest.approval.id,
+      decision: "cancel",
+      rationale: "Operator withdrew this circulation review request.",
+      resolvedBy: "finance-operator",
+    });
+
+    const thirdRequest =
+      await approvalService.requestReportCirculationApproval({
+        missionId: createdMissionId,
+        payload,
+        requestedBy: "finance-operator",
+      });
+    const approvals = await approvalRepository.listApprovalsByMissionId(
+      createdMissionId,
+    );
+
+    expect(thirdRequest.created).toBe(true);
+    expect(thirdRequest.approval.id).not.toBe(secondRequest.approval.id);
+    expect(approvals.map((approval) => approval.status)).toEqual([
+      "declined",
+      "cancelled",
+      "pending",
+    ]);
+  });
+
   it("records one release log on an approved lender-update release approval and replays it", async () => {
     const missionRepository = new InMemoryMissionRepository();
     const approvalRepository = new InMemoryApprovalRepository();
