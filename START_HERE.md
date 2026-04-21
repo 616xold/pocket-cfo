@@ -66,6 +66,7 @@ Suggested thread naming:
 - `F5C4C-diligence-packet-approval-review-and-release-readiness`
 - `F5C4D-release-log-and-first-diligence-packet-release-record-foundation`
 - `F5C4E-board-packet-review-or-circulation-readiness-foundation`
+- `F5C4F-circulation-log-and-first-board-packet-circulation-record-foundation`
 - `F6-monitoring-and-controls`
 
 Broad F2 Finance Twin work now runs through F2O.
@@ -90,7 +91,8 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md` is now the shipped F5C4C record.
 `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` is now the shipped F5C4D implementation record.
 `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` is now the shipped F5C4E record.
-No later-F5 implementation contract is checked in yet. The next implementation thread should define and/or execute the narrow F5C4F board-packet circulation-log or circulation-record slice rather than reopening F5C4E, authoring another broad later-F5 umbrella plan, or widening straight into F6.
+`plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` is now the active F5C4F implementation contract.
+The next implementation thread should execute that narrow board-packet circulation-log and first circulation-record slice rather than reopening F5C4E, authoring another broad later-F5 umbrella plan, or widening straight into F6.
 
 ## Review ritual
 

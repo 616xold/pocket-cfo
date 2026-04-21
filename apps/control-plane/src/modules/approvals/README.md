@@ -41,4 +41,4 @@ The HTTP control surface only needs embedded-worker live control when resolving 
 `report_circulation` approvals are also taskless, replay-backed, and safe to resolve in `api_only` mode because they do not resume a live runtime turn or claim circulation happened.
 Today the shipped finance-facing scope covers approval request and approval resolution for `lender_update`, `diligence_packet`, and `board_packet`, plus external release logging for lender-update and diligence-packet report kinds on the existing `report_release` seam.
 The shipped F5C4E widening keeps board-packet internal review deterministic, runtime-free, and delivery-free while deriving circulation-ready posture only.
-The next later-F5 follow-on should stay narrow: add one explicit board-packet circulation record or log foundation before any broader delivery or export widening.
+The next later-F5 follow-on should stay narrow: `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` should add one explicit board-packet circulation record or log foundation before any broader delivery or export widening.

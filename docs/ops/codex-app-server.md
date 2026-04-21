@@ -59,6 +59,7 @@ Codex remains valuable after that first answer path exists for:
 ## Current F5 posture
 
 The latest shipped F5 records are `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` for F5C4D and `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E.
+`plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` is now the active F5C4F implementation contract.
 The shipped F5A through F5C4E slices already create first-class reporting missions from completed discovery missions, assemble one draft `finance_memo` plus one linked `evidence_appendix`, expose those stored bodies directly, reuse the existing CFO Wiki filed-page plus markdown export seams for the finance-memo path, compile draft `board_packet`, `lender_update`, and `diligence_packet` artifacts from completed reporting work without creating a runtime thread, resolve one finance-facing `report_release` approval into explicit release-readiness for both `lender_update` and `diligence_packet` without live runtime continuation, record one operator-entered release record for both `lender_update` and `diligence_packet` without introducing system delivery, and resolve one board-facing `report_circulation` approval into explicit circulation-ready posture for `board_packet` without logging circulation.
 
 For shipped F5C4B, the control plane and operator surface now:
@@ -114,8 +115,8 @@ As the product pivots:
 - network access should remain restricted by default
 - runtime actions that change external communication posture must stay human-reviewable
 
-For F5A through shipped F5C4D, draft report compilation, body exposure, finance-memo filing/export posture, the first three packet specializations, lender-update and diligence release logging, and explicit release-record posture should stay deterministic and draft-only or delivery-free as appropriate.
-No later-F5 implementation contract is checked in yet. The next later-F5 step should define and/or execute the narrow F5C4F board-packet circulation-log or circulation-record slice rather than reopening F5C4E or adding runtime-codex delivery behavior.
+For F5A through shipped F5C4E, draft report compilation, body exposure, finance-memo filing/export posture, the first three packet specializations, lender-update and diligence release logging, explicit release-record posture, and board circulation-readiness should stay deterministic and draft-only or delivery-free as appropriate.
+The next later-F5 step should execute `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md`: one narrow board-packet circulation-log and first circulation-record slice that keeps runtime-codex and delivery behavior out of scope.
 
 ## Transition note
 
