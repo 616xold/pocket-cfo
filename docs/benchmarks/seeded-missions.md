@@ -130,6 +130,14 @@ One completed `reporting` mission with `reportKind = "board_packet"`, one stored
 Success:
 The system persists one finance-facing `report_circulation` approval request for that completed board-packet reporting mission, resolves it without live runtime continuation, derives circulation readiness as `not_requested`, `pending_review`, `approved_for_circulation`, or `not_approved_for_circulation`, and presents that reviewer trace without circulation logging, send, distribute, publish, runtime-codex drafting, or PDF or slide export behavior.
 
+### 15. F5C4F circulation log and first board-packet circulation-record foundation
+
+Input:
+One completed `reporting` mission with `reportKind = "board_packet"`, one stored `board_packet` artifact, derived circulation readiness already at `approved_for_circulation`, and the carried freshness, limitations, route, and wiki context from completed reporting work.
+
+Success:
+The system records one explicit circulation record for that already-approved board packet, surfaces one circulated posture plus `circulatedAt`, `circulatedBy`, and minimal circulation-channel metadata, preserves the original approval trace, and does so without send, distribute, publish, runtime-codex drafting, or PDF or slide export behavior.
+
 ## Blocked for now
 
 These discovery families should stay out of the shipped F4A through F4C2 baseline and out of early seeded-finance grading until new deterministic Finance Twin support exists:
@@ -167,4 +175,4 @@ The shipped F5C4B reporting benchmark contract now lives in `plans/FP-0042-relea
 The shipped F5C4C reporting benchmark contract now lives in `plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md`.
 The shipped F5C4D reporting benchmark contract now lives in `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md`.
 The shipped F5C4E reporting benchmark contract now lives in `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md`.
-Actual board-packet circulation logging remains later F5C4F work.
+The active F5C4F reporting benchmark contract now lives in `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md`.
