@@ -75,14 +75,18 @@ export function MissionActions({
       Boolean(reporting?.lenderUpdate)) ||
       (reporting?.reportKind === "diligence_packet" &&
         Boolean(reporting?.diligencePacket))) &&
-    reporting.releaseReadiness?.releaseApprovalStatus === "not_requested";
+    (reporting.releaseReadiness?.releaseApprovalStatus === "not_requested" ||
+      reporting.releaseReadiness?.releaseApprovalStatus ===
+        "not_approved_for_release");
   const canRequestReportCirculationApproval =
     mission.type === "reporting" &&
     mission.status === "succeeded" &&
     reporting?.reportKind === "board_packet" &&
     Boolean(reporting?.boardPacket) &&
-    reporting.circulationReadiness?.circulationApprovalStatus ===
-      "not_requested";
+    (reporting.circulationReadiness?.circulationApprovalStatus ===
+      "not_requested" ||
+      reporting.circulationReadiness?.circulationApprovalStatus ===
+        "not_approved_for_circulation");
   const canRecordReportingReleaseLog =
     mission.type === "reporting" &&
     mission.status === "succeeded" &&
@@ -226,7 +230,7 @@ export function MissionActions({
                 <p className="muted">
                   {reporting?.releaseRecord?.summary ??
                     reporting?.releaseReadiness?.summary ??
-                    "Release approval becomes available once the stored lender update is present and no prior release approval request exists for this mission."}
+                    "Release approval becomes available once the stored lender update is present and no unresolved release approval request is already open for this mission."}
                 </p>
               )}
             </>
@@ -263,7 +267,7 @@ export function MissionActions({
                 <p className="muted">
                   {reporting?.releaseRecord?.summary ??
                     reporting?.releaseReadiness?.summary ??
-                    "Release approval becomes available once the stored diligence packet is present and no prior release approval request exists for this mission."}
+                    "Release approval becomes available once the stored diligence packet is present and no unresolved release approval request is already open for this mission."}
                 </p>
               )}
             </>
@@ -286,7 +290,7 @@ export function MissionActions({
               ) : (
                 <p className="muted">
                   {reporting?.circulationReadiness?.summary ??
-                    "Circulation approval becomes available once the stored board packet is present and no prior circulation approval request exists for this mission."}
+                    "Circulation approval becomes available once the stored board packet is present and no unresolved circulation approval request is already open for this mission."}
                 </p>
               )}
             </>

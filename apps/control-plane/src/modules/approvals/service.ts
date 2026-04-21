@@ -194,7 +194,7 @@ export class ApprovalService {
         input.missionId,
         session,
       );
-      const existingApproval = readLatestReportApproval(
+      const existingApproval = readExistingFinanceReportApprovalForRequest(
         approvals,
         "report_release",
       );
@@ -263,7 +263,7 @@ export class ApprovalService {
         input.missionId,
         session,
       );
-      const existingApproval = readLatestReportApproval(
+      const existingApproval = readExistingFinanceReportApprovalForRequest(
         approvals,
         "report_circulation",
       );
@@ -926,20 +926,44 @@ export class ApprovalService {
   }
 }
 
-function readLatestReportApproval(
+function readSortedReportApprovals(
   approvals: ApprovalRecord[],
-  kind: ApprovalRecord["kind"],
+  kind: "report_release" | "report_circulation",
 ) {
-  return (
-    [...approvals]
-      .filter((approval) => approval.kind === kind)
-      .sort(
-        (left, right) =>
-          left.createdAt.localeCompare(right.createdAt) ||
-          left.id.localeCompare(right.id),
-      )
-      .at(-1) ?? null
-  );
+  return [...approvals]
+    .filter((approval) => approval.kind === kind)
+    .sort(
+      (left, right) =>
+        left.createdAt.localeCompare(right.createdAt) ||
+        left.id.localeCompare(right.id),
+    );
+}
+
+function readExistingFinanceReportApprovalForRequest(
+  approvals: ApprovalRecord[],
+  kind: "report_release" | "report_circulation",
+) {
+  const sameKindApprovals = readSortedReportApprovals(approvals, kind);
+  const pendingApproval =
+    [...sameKindApprovals]
+      .reverse()
+      .find((approval) => approval.status === "pending") ?? null;
+
+  if (pendingApproval) {
+    return pendingApproval;
+  }
+
+  const latestApproval = sameKindApprovals.at(-1) ?? null;
+
+  if (!latestApproval) {
+    return null;
+  }
+
+  if (latestApproval.status === "approved") {
+    return latestApproval;
+  }
+
+  return null;
 }
 
 function mapCommandApprovalKind(

@@ -1,6 +1,6 @@
 # Local development
 
-This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, through the shipped F2A through F2O finance-twin breadth, through the shipped F3A through F3D CFO Wiki slices, through the shipped F4A through F4C2 finance-discovery baseline, and through the shipped F5A through F5C4D reporting slices. `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` is the shipped final F4 record, `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` is the shipped F5A record, `plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` is the shipped F5B record, `plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md` is the shipped F5C1 record, `plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md` is the shipped F5C2 record, `plans/FP-0040-diligence-packet-specialization-and-draft-review-foundation.md` is the shipped F5C3 record, `plans/FP-0041-approval-review-and-first-lender-update-release-readiness.md` is the shipped F5C4A record, `plans/FP-0042-release-log-and-first-lender-update-release-record-foundation.md` is the shipped F5C4B record, `plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md` is the shipped F5C4C record, and `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` is the shipped F5C4D record. `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` is now the active later-F5 implementation contract.
+This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, through the shipped F2A through F2O finance-twin breadth, through the shipped F3A through F3D CFO Wiki slices, through the shipped F4A through F4C2 finance-discovery baseline, and through the shipped F5A through F5C4E reporting slices. `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` is the shipped final F4 record, `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` is the shipped F5A record, `plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` is the shipped F5B record, `plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md` is the shipped F5C1 record, `plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md` is the shipped F5C2 record, `plans/FP-0040-diligence-packet-specialization-and-draft-review-foundation.md` is the shipped F5C3 record, `plans/FP-0041-approval-review-and-first-lender-update-release-readiness.md` is the shipped F5C4A record, `plans/FP-0042-release-log-and-first-lender-update-release-record-foundation.md` is the shipped F5C4B record, `plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md` is the shipped F5C4C record, `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` is the shipped F5C4D record, and `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` is the shipped F5C4E record. No later-F5 implementation contract is checked in yet.
 
 That means two things are true at once:
 
@@ -54,6 +54,7 @@ pnpm smoke:finance-discovery-supported-families:local
 pnpm smoke:finance-discovery-quality:local
 pnpm smoke:finance-memo:local
 pnpm smoke:board-packet:local
+pnpm smoke:board-packet-circulation-approval:local
 pnpm smoke:lender-update:local
 pnpm smoke:diligence-packet:local
 pnpm smoke:finance-report-filed-artifact:local
@@ -144,8 +145,8 @@ Today, steps 1 through 5 exist in a narrow form:
 
 Step 6 remains later-phase work.
 If an unfinished `plans/FP-*.md` file exists, continue that plan.
-The latest shipped F5 reporting record is `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md`.
-Do not reopen F4C2, do not repeat F5A through F5C4D work, and do not start F6 early; the next code thread should execute `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` rather than authoring another broad later-F5 umbrella plan.
+The latest shipped later-F5 reporting records are `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` for F5C4D and `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E.
+Do not reopen F4C2, do not repeat F5A through F5C4E work, and do not start F6 early; the next code thread should define and/or execute the narrow F5C4F board-packet circulation-log or circulation-record slice rather than authoring another broad later-F5 umbrella plan.
 
 The active finance-twin read surface is currently backend-first:
 

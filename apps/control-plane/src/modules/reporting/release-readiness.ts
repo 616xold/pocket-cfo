@@ -150,8 +150,8 @@ function buildReleaseReadinessSummary(input: {
   switch (input.releaseApprovalStatus) {
     case "pending_review":
       return input.requestedBy
-        ? `Release approval was requested by ${input.requestedBy}; the stored ${reportLabel} is not yet approved for release.`
-        : `Release approval is pending review; the stored ${reportLabel} is not yet approved for release.`;
+        ? `An unresolved release approval request from ${input.requestedBy} already exists; the stored ${reportLabel} is not yet approved for release.`
+        : `An unresolved release approval request already exists; the stored ${reportLabel} is not yet approved for release.`;
     case "approved_for_release":
       return input.resolvedBy
         ? `Release approval was granted by ${input.resolvedBy}; the stored ${reportLabel} is approved for release, but no delivery has been recorded.`
