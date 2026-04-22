@@ -118,7 +118,7 @@ As the product pivots:
 
 For F5A through shipped F5C4F, draft report compilation, body exposure, finance-memo filing/export posture, the first three packet specializations, lender-update and diligence release logging, explicit release-record posture, and board circulation approval plus circulation-log posture should stay deterministic and draft-only or delivery-free as appropriate.
 The most recent later-F5 shipped step is F5C4H: it keeps the original board `circulationRecord` immutable, appends correction history on the existing `report_circulation` seam, allows corrected actor attribution in the derived effective chronology, and avoids any broader delivery, export, or runtime-codex widening.
-There is not yet a checked-in active later-F5 continuation contract after `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md`; any next work should first prove a concrete operator problem before widening runtime-codex behavior or delivery posture.
+`plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the active later-F5 continuation contract because the shipped correction seam still cannot clear a previously non-null effective `circulationNote` back to absent. Keep runtime-codex behavior and delivery posture out of that slice too.
 
 ## Transition note
 
