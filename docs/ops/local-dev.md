@@ -56,6 +56,7 @@ pnpm smoke:finance-memo:local
 pnpm smoke:board-packet:local
 pnpm smoke:board-packet-circulation-approval:local
 pnpm smoke:board-packet-circulation-log:local
+pnpm smoke:board-packet-circulation-log-correction:local
 pnpm smoke:lender-update:local
 pnpm smoke:diligence-packet:local
 pnpm smoke:finance-report-filed-artifact:local
