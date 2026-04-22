@@ -274,8 +274,8 @@ Goal:
 Turn shipped discovery outputs into reviewable finance reporting artifacts without pretending the repo already has full packet, export, or release workflows.
 
 The latest shipped implementation records for this phase are `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E, `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` for F5C4F, `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` for F5C4G, and `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` for F5C4H.
-There is not yet a checked-in active later-F5 implementation contract after FP-0048.
-Any next execution should first prove a concrete remaining operator problem before opening another later-F5 slice, authoring `FP-0049`, or starting F6 early.
+`plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the active later-F5 implementation contract because the shipped correction seam still cannot truthfully clear a previously non-null effective `circulationNote` back to absent.
+Any next execution should implement only that narrow FP-0049 scope rather than reopening broader later-F5 work or starting F6 early.
 The authority model stays fixed:
 
 - raw sources remain authoritative for document claims
@@ -392,14 +392,23 @@ Slice map:
       - derive one truthful current effective actor identity plus chronology summary on that same seam
       - keep the slice deterministic, runtime-free, and delivery-free in the system sense
       - do not add actual send, distribute, publish, PDF export, slide export, or runtime-codex behavior
-    - after the shipped F5C4H record, the repo should reevaluate whether any broader later-F5 work is still justified before F6, and bounded runtime-codex phrasing or formatting assistance should be reconsidered only if it still solves a proven operator problem
+    - `F5C4I — board-packet circulation note reset and effective-record hardening`
+      - start only from one completed approved-for-circulation `board_packet` reporting mission with one stored `board_packet` artifact, one existing immutable circulation record, and zero or more existing circulation corrections
+      - keep `mission.type = "reporting"` and `reportKind = "board_packet"`
+      - keep the original `circulationRecord` immutable and correction history append-only
+      - distinguish unchanged versus replace versus clear for `circulationNote` only on the existing `report_circulation` correction seam
+      - derive one truthful current effective note plus chronology summary without widening actor, channel, or time reset behavior beyond shipped support
+      - reuse the existing correction route and `approval.circulation_log_corrected` replay seam by default
+      - keep the slice deterministic, runtime-free, and delivery-free in the system sense
+      - do not add actual send, distribute, publish, PDF export, slide export, or runtime-codex behavior
+    - after the active F5C4I contract lands, the repo should reevaluate whether any broader later-F5 work is still justified before F6, and bounded runtime-codex phrasing or formatting assistance should be reconsidered only if it still solves a proven operator problem
 
 Exit criteria:
 
 - one completed finance discovery mission can produce a first-class reporting mission
 - the first report path yields a draft `finance_memo` plus `evidence_appendix`
 - report outputs remain reproducible, evidence-linked, freshness-aware, and explicit about limitations
-- packet specialization now includes shipped `board_packet`, `lender_update`, and `diligence_packet` draft-review paths, lender-update approval and release-record posture are already shipped through F5C4B, diligence approval, release-readiness, and release-record posture are now shipped through F5C4D, board circulation-readiness is now shipped through F5C4E, board circulation-log and first circulation-record posture are now shipped through F5C4F, shipped F5C4G adds immutable correction history plus chronology on that same board seam, shipped F5C4H adds append-only actor-attribution correction on that same seam, and there is not yet a checked-in later-F5 continuation contract after FP-0048; markdown export reuse remains limited to the filed-artifact path defined in F5B
+- packet specialization now includes shipped `board_packet`, `lender_update`, and `diligence_packet` draft-review paths, lender-update approval and release-record posture are already shipped through F5C4B, diligence approval, release-readiness, and release-record posture are now shipped through F5C4D, board circulation-readiness is now shipped through F5C4E, board circulation-log and first circulation-record posture are now shipped through F5C4F, shipped F5C4G adds immutable correction history plus chronology on that same board seam, shipped F5C4H adds append-only actor-attribution correction on that same seam, and active FP-0049 now narrows the only justified remaining board gap to explicit `circulationNote` clear-to-absent semantics on that same seam; markdown export reuse remains limited to the filed-artifact path defined in F5B
 
 ## F6 — Monitoring, controls, and adoption loop
 

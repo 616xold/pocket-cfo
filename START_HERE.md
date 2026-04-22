@@ -69,6 +69,7 @@ Suggested thread naming:
 - `F5C4F-circulation-log-and-first-board-packet-circulation-record-foundation`
 - `F5C4G-board-packet-circulation-record-correction-and-chronology-foundation`
 - `F5C4H-board-packet-circulation-actor-correction-and-chronology-hardening`
+- `F5C4I-board-packet-circulation-note-reset-and-effective-record-hardening`
 - `F6-monitoring-and-controls`
 
 Broad F2 Finance Twin work now runs through F2O.
@@ -96,7 +97,7 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` is now the shipped F5C4F implementation record.
 `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` is now the shipped F5C4G implementation record.
 `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is now the shipped F5C4H record and already includes the first shipped board-packet actor-correction slice.
-There is not yet a checked-in active later-F5 implementation contract after FP-0048, so do not reopen F5C4E through F5C4H, author a broad umbrella plan, or start F6 early from this thread starter alone.
+`plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the single active later-F5 implementation contract, and it exists only because the shipped correction seam still cannot clear a previously non-null effective `circulationNote` back to absent. Do not reopen F5C4E through F5C4H, author a broad umbrella plan, or start F6 early from this thread starter alone.
 
 ## Review ritual
 

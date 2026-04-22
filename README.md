@@ -63,7 +63,8 @@ F4C2 hardens that shipped six-family discovery baseline with operator-safe polic
 `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` now serves as the shipped F5C4E record: the repo already supports one internal `report_circulation` review path plus derived circulation-ready posture for one completed `board_packet` reporting mission with one stored `board_packet` artifact while staying deterministic, runtime-free, delivery-free, and circulation-log-free.
 `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` is now the shipped F5C4F implementation record: the repo already supports one explicit board-packet circulation record on the existing `report_circulation` seam for one completed approved-for-circulation `board_packet` reporting mission with one stored artifact.
 `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` is now the shipped F5C4G implementation record: the repo already supports one append-only board-packet correction-and-chronology slice on that same `report_circulation` seam, keeps the original `circulationRecord` immutable, derives a current effective circulation view plus explicit chronology summary, and stays deterministic, runtime-free, and delivery-free.
-`plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is now the shipped F5C4H record: the repo can append optional corrected `circulatedBy` on that same seam, preserve the immutable original circulation record, derive truthful effective-actor chronology, and stay deterministic, runtime-free, delivery-free, and board-packet-only. There is not yet a checked-in active later-F5 implementation contract after FP-0048, so pause before deciding whether any narrower continuation is still justified rather than starting broader later-F5 or F6 work.
+`plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is now the shipped F5C4H record: the repo can append optional corrected `circulatedBy` on that same seam, preserve the immutable original circulation record, derive truthful effective-actor chronology, and stay deterministic, runtime-free, delivery-free, and board-packet-only.
+`plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the active later-F5 implementation contract because the shipped correction seam still cannot truthfully clear a previously non-null effective `circulationNote` back to absent. Keep that successor narrow; do not widen into broader later-F5 or F6 work from this summary alone.
 
 ## Product boundary for v1
 
@@ -177,6 +178,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md
 │   ├── FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md
 │   ├── FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md
+│   ├── FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md
 │   └── templates
 └── .agents
     └── skills
