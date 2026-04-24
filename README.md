@@ -65,7 +65,7 @@ F4C2 hardens that shipped six-family discovery baseline with operator-safe polic
 `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` is now the shipped F5C4G implementation record: the repo already supports one append-only board-packet correction-and-chronology slice on that same `report_circulation` seam, keeps the original `circulationRecord` immutable, derives a current effective circulation view plus explicit chronology summary, and stays deterministic, runtime-free, and delivery-free.
 `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is now the shipped F5C4H record: the repo can append optional corrected `circulatedBy` on that same seam, preserve the immutable original circulation record, derive truthful effective-actor chronology, and stay deterministic, runtime-free, delivery-free, and board-packet-only.
 `plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the shipped F5C4I record: the repo can append explicit clear-to-absent `circulationNote` correction on that same seam, preserve the immutable original circulation record, derive truthful effective-note chronology, and stay deterministic, runtime-free, delivery-free, and board-packet-only.
-There is not yet a checked-in active later-F5 implementation contract after FP-0049. Any next F6 work should begin with planning/docs and a new Finance Plan before code changes; do not auto-start F6 implementation from this summary alone.
+`plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` is now the active implementation-ready first-F6 contract: the next implementation slice is one deterministic, source-backed `cash_posture` monitor result plus one operator-visible alert-card posture, with source lineage, freshness or missing-source posture, deterministic severity rationale, limitations, proof-bundle posture, and a human-review next step. F6 implementation has not shipped yet; continue FP-0050 before writing code and do not create FP-0051 from this summary alone.
 
 ## Product boundary for v1
 
@@ -180,6 +180,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md
 │   ├── FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md
 │   ├── FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md
+│   ├── FP-0050-monitoring-foundation-and-first-cash-posture-alert.md
 │   └── templates
 └── .agents
     └── skills

@@ -71,6 +71,7 @@ Suggested thread naming:
 - `F5C4H-board-packet-circulation-actor-correction-and-chronology-hardening`
 - `F5C4I-board-packet-circulation-note-reset-and-effective-record-hardening`
 - `F6-monitoring-and-controls`
+- `F6A-monitoring-foundation-and-first-cash-posture-alert`
 
 Broad F2 Finance Twin work now runs through F2O.
 `F2P-final-f2-exit-audit-and-polish` and `F2Q-final-f2-handoff-and-plan-chain-polish` are the historical closeout and handoff threads for that completed breadth.
@@ -98,7 +99,7 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` is now the shipped F5C4G implementation record.
 `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is now the shipped F5C4H record and already includes the first shipped board-packet actor-correction slice.
 `plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the shipped F5C4I record and closes the previously remaining explicit `circulationNote` clear-to-absent gap on the existing seam.
-There is not yet a checked-in active later-F5 implementation contract after FP-0049. Do not reopen F5C4E through F5C4I or auto-start F6 implementation from this thread starter alone; begin any next F6 follow-on with planning/docs and a new Finance Plan before code changes.
+`plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` is now the active first-F6 implementation contract. Continue that plan for the next slice: one deterministic `cash_posture` monitor result plus one operator-visible alert-card posture from stored source-backed state only, with no F6B investigation mission, runtime-codex, delivery, or reporting/approval reopening.
 
 ## Review ritual
 
