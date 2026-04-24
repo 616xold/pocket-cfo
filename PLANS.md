@@ -69,6 +69,7 @@ For Pocket CFO plans:
 - mention replay and evidence-bundle implications
 - mention provenance, freshness, and limitation posture when the slice affects answers or reports
 - for reporting or report-artifact phases, define the source-evidence contract, draft-versus-release posture, and runtime-codex boundary explicitly
+- for monitoring phases, define the deterministic stored-state input contract, alert semantics, source lineage, freshness or missing-source posture, proof-bundle posture, human-review boundary, runtime-codex boundary, and delivery-free posture explicitly
 - mention any impact on `WORKFLOW.md`, stack packs, or skills
 - mention any new environment variables and where they are documented
 - say whether the change is docs-only, schema-only, route-driven, artifact-driven, or cross-cutting

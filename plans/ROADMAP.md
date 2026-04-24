@@ -275,7 +275,7 @@ Turn shipped discovery outputs into reviewable finance reporting artifacts witho
 
 The latest shipped implementation records for this phase are `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E, `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` for F5C4F, `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` for F5C4G, `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` for F5C4H, and `plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` for F5C4I.
 F5C4I is now shipped: the repo already supports explicit clear-to-absent `circulationNote` correction on the existing board `report_circulation` seam while keeping the original record immutable and the correction history append-only.
-There is not yet a checked-in active later-F5 implementation contract after FP-0049. Any next execution should begin with F6 planning/docs, decide whether any further later-F5 work is still justified, and create the next Finance Plan before code changes rather than auto-starting F6 implementation.
+There is no active later-F5 implementation contract after FP-0049. The active next execution contract is `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md`; continue that first-F6 plan rather than auto-reopening F5.
 The authority model stays fixed:
 
 - raw sources remain authoritative for document claims
@@ -401,7 +401,7 @@ Slice map:
       - reuse the existing correction route and `approval.circulation_log_corrected` replay seam by default
       - keep the slice deterministic, runtime-free, and delivery-free in the system sense
       - do not add actual send, distribute, publish, PDF export, slide export, or runtime-codex behavior
-    - after the shipped F5C4I closeout, the repo should reevaluate whether any broader later-F5 work is still justified before F6; if F6 starts next, begin with planning/docs and a new Finance Plan before code changes, and reconsider bounded runtime-codex phrasing or formatting assistance only if it still solves a proven operator problem
+    - after the shipped F5C4I closeout, the repo should not reopen broader later-F5 work unless a new plan names a concrete truthfulness gap. The active next contract is now `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md`.
 
 Exit criteria:
 
@@ -413,16 +413,39 @@ Exit criteria:
 ## F6 — Monitoring, controls, and adoption loop
 
 Goal:
-Turn Pocket CFO into a recurring finance operating system.
+Turn Pocket CFO into a recurring finance operating system without weakening the source-truth boundary.
+
+The active first-F6 contract is `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md`.
+F6A is not a broad monitoring platform and is not shipped yet.
+The first implementation slice must be exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 
 Focus:
 
-- recurring checks
-- alerts and follow-up missions
-- control ownership
-- benchmark datasets and demo stacks
+- deterministic monitors over stored source, Finance Twin, CFO Wiki, and proof state
+- one first `cash_posture` monitor result
+- one operator-visible alert-card posture when source-backed conditions warrant it
+- explicit source lineage, freshness or missing-source posture, limitations, proof-bundle posture, deterministic severity rationale, and human-review next step
+- later alert-to-investigation, additional monitor families, threshold/control ownership, demo replay, and benchmark support
 
 Exit criteria:
 
-- one recurring finance monitor can trigger a human-reviewable mission
+- one deterministic `cash_posture` monitor can produce a reviewable monitor result and alert card without runtime-codex, delivery, autonomous remediation, or new discovery families
 - a new user can bootstrap a demo company from docs and sources
+
+Slice map:
+
+- `F6A — monitoring foundation and first cash posture alert`
+  - start only from one company `companyKey`
+  - read existing stored cash-posture or finance-discovery state, including source freshness or missing-source posture
+  - define one `monitor_result` concept and one `cash_posture` monitor kind
+  - produce one alert-card read model only when deterministic source-backed conditions warrant it
+  - include severity, source freshness, source lineage, limitations, proof-bundle posture, and a recommended human-review action
+  - keep investigation missions, runtime-codex, external notification, delivery, accounting writes, bank writes, tax filings, legal advice, and F5 reporting/approval changes out of scope
+- `F6B — alert-to-investigation mission foundation`
+  - later only; convert a reviewed alert into a human-reviewable investigation mission if still justified
+- `F6C — collections or payables pressure monitor foundation`
+  - later only; reuse an existing shipped discovery family and Finance Twin read without adding new source facts
+- `F6D — policy or covenant threshold monitor foundation`
+  - later only; require source-backed or operator-owned thresholds and avoid legal conclusions
+- `F6E — monitor demo replay and stack-pack foundation`
+  - later only; prove monitor reproducibility and demo bootstrap after F6A behavior exists
