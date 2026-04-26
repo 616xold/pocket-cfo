@@ -414,6 +414,42 @@ describe("MissionService", () => {
     });
   });
 
+  it("rejects wrong-company monitor investigation opens even after the alert mission exists", async () => {
+    const alertResult = buildAlertMonitorResult();
+    const { service } = createService({
+      monitorResultReader: {
+        async getMonitorResultById() {
+          return alertResult;
+        },
+      },
+    });
+
+    await service.createOrOpenMonitorInvestigation({
+      monitorResultId: alertResult.id,
+      companyKey: "acme",
+      requestedBy: "finance-operator",
+    });
+
+    await expect(
+      service.createOrOpenMonitorInvestigation({
+        monitorResultId: alertResult.id,
+        companyKey: "other-company",
+        requestedBy: "finance-operator",
+      }),
+    ).rejects.toMatchObject({
+      body: {
+        error: {
+          details: [
+            {
+              path: "companyKey",
+            },
+          ],
+        },
+      },
+      statusCode: 400,
+    });
+  });
+
   it("rejects policy lookup missions when the source is unknown or not policy_document", async () => {
     const nonPolicySourceId = "cccccccc-cccc-4ccc-8ccc-cccccccccccc";
     const { service } = createService({

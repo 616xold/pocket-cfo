@@ -275,7 +275,7 @@ Turn shipped discovery outputs into reviewable finance reporting artifacts witho
 
 The latest shipped implementation records for this phase are `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E, `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` for F5C4F, `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` for F5C4G, `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` for F5C4H, and `plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` for F5C4I.
 F5C4I is now shipped: the repo already supports explicit clear-to-absent `circulationNote` correction on the existing board `report_circulation` seam while keeping the original record immutable and the correction history append-only.
-There is no active later-F5 implementation contract after FP-0049. `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` remains the shipped first-F6A record, and the active next execution contract is now `plans/FP-0051-alert-to-investigation-mission-foundation.md`; continue that F6B plan rather than auto-reopening F5.
+There is no active later-F5 implementation contract after FP-0049. `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` remains the shipped first-F6A record, and `plans/FP-0051-alert-to-investigation-mission-foundation.md` remains the shipped first-F6B record; do not reopen F5 or start F6C without a new named Finance Plan.
 The authority model stays fixed:
 
 - raw sources remain authoritative for document claims
@@ -401,7 +401,7 @@ Slice map:
       - reuse the existing correction route and `approval.circulation_log_corrected` replay seam by default
       - keep the slice deterministic, runtime-free, and delivery-free in the system sense
       - do not add actual send, distribute, publish, PDF export, slide export, or runtime-codex behavior
-    - after the shipped F5C4I closeout, the repo should not reopen broader later-F5 work unless a new plan names a concrete truthfulness gap. The active next contract is now `plans/FP-0051-alert-to-investigation-mission-foundation.md`.
+    - after the shipped F5C4I closeout, the repo should not reopen broader later-F5 work unless a new plan names a concrete truthfulness gap. FP-0051 is now the shipped first-F6B record; starting F6C or later requires a new named Finance Plan.
 
 Exit criteria:
 

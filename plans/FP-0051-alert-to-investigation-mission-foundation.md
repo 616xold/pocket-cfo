@@ -23,6 +23,7 @@ It must not create missions automatically when monitors alert, run monitors on a
 - [x] 2026-04-26T22:58:42Z Implement `F6B-alert-to-investigation-mission-foundation` as a manual create/open handoff from one persisted alerting `cash_posture` monitor result.
 - [x] 2026-04-26T22:58:42Z Add the additive alert-source uniqueness index, monitor-result-by-id lookup seam, taskless ready mission lifecycle, thin `POST /missions/monitoring-investigations` route, operator UI action, mission list/detail seed posture, and packaged `pnpm smoke:cash-posture-alert-investigation:local` proof.
 - [x] 2026-04-26T23:07:01Z Run and record the full implementation validation ladder for this F6B branch.
+- [x] 2026-04-26T23:09:31Z Run strict F6B QA pass and correct stale roadmap wording that still described FP-0051 as the active next execution contract after F6B shipped.
 
 ## Surprises & Discoveries
 

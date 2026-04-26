@@ -41,7 +41,6 @@ import {
   buildMonitorInvestigationMissionSpec,
   buildMonitorInvestigationProofBundle,
   buildMonitorInvestigationSeed,
-  buildMonitorResultSourceRef,
 } from "./monitor-investigation";
 import { buildReportingMissionCreationInput } from "./reporting";
 import { buildReportingCirculationReadinessViewFromProofBundle } from "../reporting/circulation-readiness";
@@ -160,7 +159,15 @@ export class MissionService {
     rawInput: CreateMonitorInvestigationMissionInput,
   ) {
     const input = CreateMonitorInvestigationMissionInputSchema.parse(rawInput);
-    const sourceRef = buildMonitorResultSourceRef(input.monitorResultId);
+    const storedMonitorResult =
+      await this.readModelDeps.monitorResultReader?.getMonitorResultById(
+        input.monitorResultId,
+      );
+    const seed = buildMonitorInvestigationSeed({
+      request: input,
+      result: storedMonitorResult,
+    });
+    const sourceRef = seed.sourceRef;
     const existing = await this.repository.getMissionBySource({
       sourceKind: "alert",
       sourceRef,
@@ -183,14 +190,6 @@ export class MissionService {
         return this.readMissionCreationResult(existingInTransaction, false, session);
       }
 
-      const storedMonitorResult =
-        await this.readModelDeps.monitorResultReader?.getMonitorResultById(
-          input.monitorResultId,
-        );
-      const seed = buildMonitorInvestigationSeed({
-        request: input,
-        result: storedMonitorResult,
-      });
       const spec = buildMonitorInvestigationMissionSpec(seed);
       const mission = await this.repository.createMission(
         {
