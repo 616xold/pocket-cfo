@@ -38,6 +38,7 @@ It must not create investigations, generalize F6B, use runtime-Codex, send notif
 - [x] 2026-04-27T17:37:58Z Rerun the required QA validation ladder, including packaged F6 monitor smokes, twin guardrails, lint, typecheck, test, and `pnpm ci:repro:current`, on the corrected tree.
 - [x] 2026-04-27T21:14:56Z Run a post-merge truthfulness polish for stale secondary-doc F6E status and mixed valid-plus-unsupported threshold grammar fail-closed behavior.
 - [x] 2026-04-27T21:21:17Z Rerun the requested post-merge polish validation ladder through `pnpm ci:repro:current`; all gates passed on the corrected tree.
+- [x] 2026-04-27T21:26:30Z Run strict QA on the post-merge polish and apply narrow corrections for stale FP-0053 F6E handoff wording plus mixed valid-and-malformed threshold grammar regression coverage.
 
 ## Surprises & Discoveries
 

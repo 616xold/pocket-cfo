@@ -162,6 +162,10 @@ describe("evaluatePolicyCovenantThresholdMonitor", () => {
       "unsupported unit",
       "Pocket CFO threshold: collections_past_due_share <= 50 dollars",
     ],
+    [
+      "malformed exact grammar",
+      "Pocket CFO threshold: collections_past_due_share around 50 percent",
+    ],
   ])("fails closed for a valid threshold plus %s", (_name, thresholdLine) => {
     const source = buildPolicySource({
       extractedText: [
