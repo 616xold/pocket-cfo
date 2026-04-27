@@ -153,6 +153,45 @@ describe("evaluatePolicyCovenantThresholdMonitor", () => {
     expect(conditionKinds(result)).not.toContain("threshold_approaching");
   });
 
+  it.each([
+    [
+      "unsupported metric",
+      "Pocket CFO threshold: covenant_leverage_ratio <= 3 percent",
+    ],
+    [
+      "unsupported unit",
+      "Pocket CFO threshold: collections_past_due_share <= 50 dollars",
+    ],
+  ])("fails closed for a valid threshold plus %s", (_name, thresholdLine) => {
+    const source = buildPolicySource({
+      extractedText: [
+        "Pocket CFO threshold: collections_past_due_share <= 50 percent",
+        thresholdLine,
+      ].join("\n"),
+    });
+    const policyPages = [buildPolicyPageState(source)];
+    const extraction = extractPolicyCovenantThresholdFacts({ policyPages });
+    const result = evaluate(
+      buildInput({
+        collectionsPosture: buildCollectionsPosture(60),
+        extraction,
+        policyPages,
+        policySources: [source],
+      }),
+    );
+
+    expect(extraction.facts).toHaveLength(1);
+    expect(extraction.issues.length).toBeGreaterThan(0);
+    expect(conditionKinds(result)).toContain("data_quality_gap");
+    expect(conditionKinds(result)).not.toContain("threshold_breach");
+    expect(conditionKinds(result)).not.toContain("threshold_approaching");
+    expect(result.proofBundlePosture.state).toBe(
+      "limited_by_data_quality_gap",
+    );
+    expect(result.sourceLineageRefs.some(isThresholdFactRef)).toBe(true);
+    expect(result.sourceLineageRefs.some(isComparableActualRef)).toBe(false);
+  });
+
   it("reports coverage_gap when a threshold fact lacks comparable actual posture", () => {
     const result = evaluate(buildInput({ collectionsPosture: null }));
 
