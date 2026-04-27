@@ -248,6 +248,10 @@ function canComputePastDueShare(
   const coverage = collectionsPosture.coverageSummary;
   const totalReceivables = parseAmountCents(bucket.totalReceivables);
 
+  if (hasUnsafePastDueShareDiagnostics(collectionsPosture.diagnostics)) {
+    return false;
+  }
+
   if (totalReceivables <= 0n) {
     return false;
   }
@@ -260,6 +264,26 @@ function canComputePastDueShare(
   }
 
   return hasComputableTotalBasis(bucket);
+}
+
+const UNSAFE_PAST_DUE_SHARE_DIAGNOSTIC_PATTERNS = [
+  "report both explicit past_due totals and detailed overdue buckets that disagree",
+  "mixes explicit past_due totals and detailed overdue bucket rows",
+  "only expose partial past-due rollups",
+  "do not expose a full total receivables basis",
+  "do not include an explicit as-of date",
+  "span multiple explicit as-of dates",
+  "include both dated and undated customer aging rows",
+] as const;
+
+function hasUnsafePastDueShareDiagnostics(diagnostics: string[]) {
+  return diagnostics.some((diagnostic) => {
+    const lower = diagnostic.toLowerCase();
+
+    return UNSAFE_PAST_DUE_SHARE_DIAGNOSTIC_PATTERNS.some((pattern) =>
+      lower.includes(pattern),
+    );
+  });
 }
 
 function hasComputableTotalBasis(bucket: FinanceCollectionsPostureCurrencyBucket) {
@@ -293,6 +317,7 @@ function classifyDiagnosticSeverity(diagnostic: string) {
     lower.includes("unknown-currency") ||
     lower.includes("as-of date") ||
     lower.includes("multiple explicit") ||
+    lower.includes("mixes explicit past_due totals") ||
     lower.includes("dated and undated") ||
     lower.includes("partial past-due") ||
     lower.includes("disagree") ||

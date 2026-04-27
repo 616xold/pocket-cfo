@@ -31,6 +31,7 @@ It must not create investigations, run F6B handoffs, use runtime-Codex, send not
 - [x] 2026-04-27T12:03:32Z Implement `F6C-collections-pressure-monitor-foundation`: widen monitoring contracts and DB enum, add one deterministic `collections_pressure` evaluator, run/latest routes, operator alert-card posture, and packaged local smoke while keeping collections investigation-free, runtime-free, delivery-free, report-free, approval-free, and non-autonomous.
 - [x] 2026-04-27T12:11:28Z Run and record the full F6C implementation validation ladder after code changes exist, including narrow collections monitor specs, migration, baseline smokes, new collections smoke, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-04-27T12:40:48Z Run a docs-only post-merge closeout that marks FP-0052 and F6C as shipped across secondary docs and leaves F6D as planning-only with no FP-0053.
+- [x] 2026-04-27T13:27:49Z Apply a narrow post-merge F6C truthfulness polish so `collections_pressure` skips `overdue_concentration` when stored collections-posture diagnostics show a conflicting or unsafe ratio basis.
 
 ## Surprises & Discoveries
 
@@ -82,6 +83,9 @@ Rationale: no reporting approval, release, circulation, correction, report conve
 
 Decision: later F6 slices are named but not created here.
 Rationale: likely later slices are `F6D-payables_pressure-monitor-foundation`, `F6E-policy-or-covenant-threshold-monitor-foundation`, and `F6F-monitor-demo-replay-and-stack-pack-foundation`. They must not be created as FP-0053 or implemented in this slice.
+
+Decision: post-merge F6C overdue-concentration gating treats known conflicting or unsafe collections-posture diagnostics as ratio blockers.
+Rationale: source-backed totals may still look numerically computable after diagnostics such as mixed explicit/detail past-due basis, mixed source dates, partial past-due rollups, or missing full total basis; F6C should surface data-quality or coverage posture rather than computing a stale or unsafe ratio.
 
 ## Context and Orientation
 
