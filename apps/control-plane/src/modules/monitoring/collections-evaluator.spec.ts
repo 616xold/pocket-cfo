@@ -129,6 +129,42 @@ describe("collections pressure evaluator", () => {
     );
   });
 
+  it("blocks overdue concentration when diagnostics report conflicting past-due basis", () => {
+    const conflictingDiagnostic =
+      "One or more persisted receivables-aging rows report both explicit past_due totals and detailed overdue buckets that disagree, so those rows are excluded from the convenience pastDueBucketTotal.";
+    const evaluated = evaluateCollectionsPressureMonitor(
+      buildCollectionsPosture({
+        currencyBuckets: [
+          buildBucket({
+            current: "20.00",
+            pastDue: "80.00",
+            total: "100.00",
+          }),
+        ],
+        diagnostics: [conflictingDiagnostic],
+        freshnessState: "fresh",
+      }),
+    );
+
+    expect(evaluated.status).toBe("alert");
+    expect(evaluated.severity).toBe("warning");
+    expect(evaluated.conditions).toEqual([
+      expect.objectContaining({
+        kind: "data_quality_gap",
+        severity: "warning",
+        summary: conflictingDiagnostic,
+      }),
+    ]);
+    expect(
+      evaluated.conditions.some(
+        (condition) => condition.kind === "overdue_concentration",
+      ),
+    ).toBe(false);
+    expect(evaluated.proofBundlePosture.state).toBe(
+      "limited_by_data_quality_gap",
+    );
+  });
+
   it("computes overdue concentration only from source-backed totals", () => {
     const warning = evaluateCollectionsPressureMonitor(
       buildCollectionsPosture({
