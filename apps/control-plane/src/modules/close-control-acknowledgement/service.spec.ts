@@ -168,12 +168,108 @@ describe("CloseControlAcknowledgementService", () => {
     );
 
     expect(aggregate.status).toBe("needs_review_before_acknowledgement");
+    expect(aggregate.sourcePosture).toMatchObject({
+      state: "limited_source",
+      missingSource: false,
+    });
+    expect(aggregate.freshnessSummary.state).toBe("mixed");
+    expect(aggregate.proofPosture.state).toBe("limited_by_coverage_gap");
     expect(result.operatorReadinessContext).toMatchObject({
       operatorReadinessAggregateStatus: "needs_review",
       nonReadyReadinessItemKeys: ["monitor:cash_posture:alert"],
     });
     expect(aggregate.limitations.join(" ")).toContain(
+      "Operator-readiness aggregate posture is needs_review",
+    );
+    expect(aggregate.limitations.join(" ")).toContain(
       "Latest persisted monitor result needs review",
+    );
+  });
+
+  it("maps ready checklist plus blocked operator-readiness aggregate to blocked posture with missing evidence visible", async () => {
+    const service = buildService({
+      readiness: buildReadiness({
+        attentionItems: [
+          buildAttentionItem({
+            itemKey: "close-control:policy_source_freshness_review",
+            relatedChecklistItemFamily: "policy_source_freshness_review",
+            status: "blocked_by_evidence",
+          }),
+        ],
+        aggregateStatus: "blocked_by_evidence",
+      }),
+    });
+
+    const result = await service.getAcknowledgementReadiness("acme");
+    const aggregate = requireTarget(
+      result,
+      "close-control:checklist-aggregate",
+    );
+    const policy = requireTarget(
+      result,
+      "close-control:item-family:policy_source_freshness_review",
+    );
+
+    expect(result.aggregateStatus).toBe("blocked_by_evidence");
+    expect(aggregate).toMatchObject({
+      status: "blocked_by_evidence",
+      sourcePosture: {
+        state: "missing_source",
+        missingSource: true,
+      },
+      freshnessSummary: { state: "missing" },
+      proofPosture: { state: "limited_by_missing_source" },
+    });
+    expect(aggregate.limitations.join(" ")).toContain(
+      "Operator-readiness aggregate posture is blocked_by_evidence",
+    );
+    expect(policy).toMatchObject({
+      status: "blocked_by_evidence",
+      relatedReadinessItemKey: "close-control:policy_source_freshness_review",
+      sourcePosture: {
+        state: "missing_source",
+        missingSource: true,
+      },
+      freshnessSummary: { state: "missing" },
+      proofPosture: { state: "limited_by_missing_source" },
+    });
+    expect(policy.limitations.join(" ")).toContain(
+      "Related operator-readiness item close-control:policy_source_freshness_review is blocked_by_evidence",
+    );
+  });
+
+  it("maps ready checklist item plus related needs-review operator-readiness item to item-family review posture", async () => {
+    const service = buildService({
+      readiness: buildReadiness({
+        attentionItems: [
+          buildAttentionItem({
+            itemKey: "close-control:cash_source_freshness_review",
+            relatedChecklistItemFamily: "cash_source_freshness_review",
+            status: "needs_review",
+          }),
+        ],
+        aggregateStatus: "needs_review",
+      }),
+    });
+
+    const result = await service.getAcknowledgementReadiness("acme");
+    const cash = requireTarget(
+      result,
+      "close-control:item-family:cash_source_freshness_review",
+    );
+
+    expect(cash).toMatchObject({
+      status: "needs_review_before_acknowledgement",
+      relatedReadinessItemKey: "close-control:cash_source_freshness_review",
+      sourcePosture: {
+        state: "limited_source",
+        missingSource: false,
+      },
+      freshnessSummary: { state: "mixed" },
+      proofPosture: { state: "limited_by_coverage_gap" },
+    });
+    expect(cash.limitations.join(" ")).toContain(
+      "Related operator-readiness item close-control:cash_source_freshness_review is needs_review",
     );
   });
 
@@ -224,32 +320,43 @@ describe("CloseControlAcknowledgementService", () => {
   });
 });
 
-function buildService(input: {
-  checklist?: CloseControlChecklistResult;
-  extraCloseControlMethods?: Record<string, unknown>;
-  extraReadinessMethods?: Record<string, unknown>;
-  readiness?: OperatorReadinessResult;
-} = {}) {
+function buildService(
+  input: {
+    checklist?: CloseControlChecklistResult;
+    extraCloseControlMethods?: Record<string, unknown>;
+    extraReadinessMethods?: Record<string, unknown>;
+    readiness?: OperatorReadinessResult;
+  } = {},
+) {
   return new CloseControlAcknowledgementService({
     closeControlService: {
-      getChecklist: vi.fn().mockResolvedValue(input.checklist ?? buildChecklist()),
+      getChecklist: vi
+        .fn()
+        .mockResolvedValue(input.checklist ?? buildChecklist()),
       ...input.extraCloseControlMethods,
     },
     operatorReadinessService: {
-      getReadiness: vi.fn().mockResolvedValue(input.readiness ?? buildReadiness()),
+      getReadiness: vi
+        .fn()
+        .mockResolvedValue(input.readiness ?? buildReadiness()),
       ...input.extraReadinessMethods,
     },
     now: () => new Date(generatedAt),
   });
 }
 
-function buildChecklist(input: {
-  itemStatuses?: Partial<
-    Record<CloseControlChecklistItemFamily, CloseControlChecklistStatus>
-  >;
-} = {}): CloseControlChecklistResult {
+function buildChecklist(
+  input: {
+    itemStatuses?: Partial<
+      Record<CloseControlChecklistItemFamily, CloseControlChecklistStatus>
+    >;
+  } = {},
+): CloseControlChecklistResult {
   const items = checklistFamilies.map((family) =>
-    buildChecklistItem(family, input.itemStatuses?.[family] ?? "ready_for_review"),
+    buildChecklistItem(
+      family,
+      input.itemStatuses?.[family] ?? "ready_for_review",
+    ),
   );
   const aggregateStatus = items.some(
     (item) => item.status === "blocked_by_evidence",
@@ -366,22 +473,22 @@ function buildChecklistItem(
   };
 }
 
-function buildReadiness(input: {
-  aggregateStatus?: OperatorReadinessResult["aggregateStatus"];
-  attentionItems?: OperatorAttentionItem[];
-} = {}): OperatorReadinessResult {
+function buildReadiness(
+  input: {
+    aggregateStatus?: OperatorReadinessResult["aggregateStatus"];
+    attentionItems?: OperatorAttentionItem[];
+  } = {},
+): OperatorReadinessResult {
   return {
     companyKey: "acme",
     generatedAt,
     aggregateStatus: input.aggregateStatus ?? "ready_for_review",
-    attentionItems:
-      input.attentionItems ??
-      [
-        buildAttentionItem({
-          itemKey: "close-control:aggregate",
-          status: "ready_for_review",
-        }),
-      ],
+    attentionItems: input.attentionItems ?? [
+      buildAttentionItem({
+        itemKey: "close-control:aggregate",
+        status: "ready_for_review",
+      }),
+    ],
     evidenceSummary:
       "F6J readiness is derived from latest persisted monitor results and close/control checklist posture.",
     limitations: ["Readiness is internal review posture only."],
@@ -484,7 +591,9 @@ function buildAttentionItem(input: {
 
 function requireTarget(
   result: Awaited<
-    ReturnType<CloseControlAcknowledgementService["getAcknowledgementReadiness"]>
+    ReturnType<
+      CloseControlAcknowledgementService["getAcknowledgementReadiness"]
+    >
   >,
   targetKey: string,
 ) {
