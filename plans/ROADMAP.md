@@ -424,6 +424,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is the shipped F6G implementation record.
 `plans/FP-0057-close-control-checklist-foundation.md` is the shipped F6H implementation record.
 `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is the shipped F6I implementation record.
+`plans/FP-0059-operator-notification-readiness-foundation.md` is the active implementation-ready F6J contract.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -434,6 +435,7 @@ The shipped F6F slice is exactly `F6F-monitor-demo-replay-and-stack-pack-foundat
 The shipped F6G slice is exactly `F6G-non-cash-alert-to-investigation-generalization-foundation`.
 The shipped F6H slice is exactly `F6H-close-control-checklist-foundation`.
 The shipped F6I slice is exactly `F6I-stack-pack-expansion-and-close-control-demo-foundation`.
+The active F6J contract is exactly `F6J-operator-notification-readiness-foundation`.
 
 Focus:
 
@@ -447,6 +449,7 @@ Focus:
 - manual alert-to-investigation handoff first, the shipped policy/covenant threshold monitor, one deterministic demo replay, one stack-pack foundation, benchmark support, and the shipped collections-first non-cash alert handoff only where a concrete source-backed need exists
 - one deterministic close/control checklist foundation that reviews source coverage, source freshness, policy-source posture, and monitor replay readiness without adding alert semantics
 - one shipped stack-pack expansion that adds normalized close/control checklist expected output to the existing `pocket-cfo-monitor-demo` replay proof without adding product runtime behavior
+- one active internal operator attention/readiness contract that can show which shipped source-backed posture needs review without external delivery
 
 Exit criteria:
 
@@ -459,6 +462,7 @@ Exit criteria:
 - the shipped F6G slice lets an operator manually create or open one taskless deterministic investigation mission from one persisted alerting `collections_pressure` monitor result, while preserving shipped cash behavior and rejecting payables and policy/covenant investigations
 - the shipped F6H slice produces one company-scoped deterministic checklist result/read model from stored Finance Twin posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only, with each item carrying source posture, evidence basis, freshness or limitations, status, proof posture, and human-review next step; it makes no close-complete assertion
 - the shipped F6I record extends the existing demo stack-pack proof so one replay verifies shipped monitor outputs, cash plus collections handoffs, payables and policy/covenant investigation absence, normalized close/control checklist items, aggregate status, absence boundaries, fixture immutability, and no new monitor or discovery families
+- the active F6J contract stays internal and delivery-free by default: it plans one deterministic operator readiness/read model over shipped stored state with evidence basis, freshness, limitations, proof posture, status, and human-review next steps, and no notification provider, outbox send, report delivery, approval, runtime-Codex, autonomous action, or new monitor/discovery family
 
 Slice map:
 
@@ -540,9 +544,17 @@ Slice map:
   - output contract is one deterministic replay proof that verifies the four shipped monitor families, cash and collections handoffs where alerting, payables and policy/covenant investigations absent, close/control checklist items, aggregate status, close/control absence boundary, fixture source immutability, and no new monitor or discovery families
   - use the existing `pnpm smoke:monitor-demo-replay:local` proof; do not add a new package script
   - did not add routes, schema, migrations, monitor evaluators, mission behavior, runtime-Codex, delivery, reports, approvals, new checklist item families, new monitor condition kinds, or investigation behavior
-- `F6J — notification/delivery planning`
-  - later planning only, and only if a future Finance Plan proves a safe human-review, delivery-free-by-default path; do not create FP-0059 from roadmap text alone
-- `F6K — close/control approval or acknowledgement`
-  - later only if operator need is proven after the first checklist foundation is green; do not create FP-0059 from roadmap text alone
+- `F6J — operator notification readiness foundation`
+  - active implementation-ready contract in `plans/FP-0059-operator-notification-readiness-foundation.md`
+  - not a monitor family and not a discovery-family expansion
+  - internal operator-visible readiness only, not external delivery
+  - start only from shipped stored state: latest persisted monitor results, close/control checklist read posture, source and CFO Wiki freshness posture, and monitor demo replay proof posture only as stored/expected proof context
+  - output contract is one deterministic internal operator attention/readiness result or read model with bounded attention items
+  - each item must include evidence basis, source lineage or proof reference, freshness or missing-source posture, limitations, proof posture, status, and a human-review next step
+  - no email, Slack, SMS, webhook, notification provider call, outbox send behavior, report delivery, external publish behavior, operator delivery workflow, approval, report conversion, mission creation, runtime-Codex drafting, payment behavior, legal or policy advice, collection/customer-contact instruction, autonomous action, monitor-family expansion, or discovery-family expansion
+- `F6K — close/control acknowledgement`
+  - later only if operator need is proven after the internal readiness contract is implemented safely; do not create FP-0060 from roadmap text alone
 - `F6L — source-pack expansion`
-  - later only if the single F6I demo pack is green and source-backed; do not create FP-0059 from roadmap text alone
+  - later only if the single F6I demo pack remains green and source-backed; do not create FP-0060 from roadmap text alone
+- `F6M — external notification/delivery planning`
+  - later only if a future plan proves safety, review gates, delivery controls, and a human-approved release path; do not create FP-0060 from roadmap text alone
