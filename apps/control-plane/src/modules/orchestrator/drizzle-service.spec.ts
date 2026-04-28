@@ -2543,6 +2543,13 @@ async function createHarness(options?: {
 
   return {
     appContainer: {
+      closeControlAcknowledgementService: {
+        async getAcknowledgementReadiness() {
+          throw new Error(
+            "getAcknowledgementReadiness should not be called in orchestrator harness",
+          );
+        },
+      } as AppContainer["closeControlAcknowledgementService"],
       closeControlService: {
         async getChecklist() {
           throw new Error(
