@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-This file is the active Finance Plan for the Pocket CFO F6H implementation contract.
+This file is the shipped Finance Plan for the Pocket CFO F6H implementation record.
 The target phase is `F6`, and the first implementation slice is exactly `F6H-close-control-checklist-foundation`.
 
 The user-visible goal is narrow: after shipped F6A through F6G, Pocket CFO should introduce one deterministic close/control checklist foundation that helps a finance operator review whether the recurring finance evidence spine is ready for human close/control work.
@@ -26,7 +26,9 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T00:17:13Z Refresh the active-doc spine so the next implementation thread starts from this F6H checklist contract and does not reopen shipped monitor, investigation, report, approval, runtime, delivery, or stack-pack work.
 - [x] 2026-04-28T00:23:03Z Run the docs-and-plan validation ladder requested for this slice through `pnpm ci:repro:current`; all required commands passed.
 - [x] 2026-04-28T11:48:02Z Polish the F6H monitor replay readiness boundary so the first checklist implementation reads latest persisted monitor results only as context and cannot add automatic or manual monitor reruns or monitor-run controls inside the checklist path.
-- [ ] Implement `F6H-close-control-checklist-foundation` in a later thread only after this docs-and-plan slice is merged or explicitly handed off.
+- [x] 2026-04-28T12:12:47Z Implement `F6H-close-control-checklist-foundation` as one deterministic, read-only close/control checklist read model with no persistence table, monitor rerun, mission creation, report creation, approval creation, delivery/outbox send, runtime-Codex invocation, or external finance action.
+- [x] 2026-04-28T12:12:47Z Add the packaged `pnpm smoke:close-control-checklist:local` proof showing source-backed checklist items, missing-source blocked/review posture, limited posture review posture, latest persisted monitor results as context only, no checklist-triggered side effects, and no new monitor or discovery family.
+- [x] 2026-04-28T12:12:47Z Close FP-0057 as the shipped F6H record. F6I planning must start only as a new Finance Plan; no F6I implementation started here.
 
 ## Surprises & Discoveries
 
@@ -84,6 +86,15 @@ Decision: likely later slices are named but not created here.
 Rationale: `F6I-stack-pack-expansion` should start only after one close/control checklist is green; `F6J-notification-delivery-planning` should start only if a future plan proves safe; `F6K-close-control-approval-or-acknowledgement` should start only if operator need is proven.
 Do not create FP-0058, FP-0059, or FP-0060 in this slice.
 
+Decision: ship the first F6H checklist as a read-only derived result, not a new table.
+Rationale: the first useful close/control proof is current evidence posture over stored Finance Twin, CFO Wiki, and latest monitor-result context. Persisting a separate checklist table would add replay and migration surface before there is an operator need for retained checklist snapshots.
+
+Decision: use `ready_for_review`, `needs_review`, and `blocked_by_evidence` only.
+Rationale: the first F6H slice deliberately avoids a `close_complete` state. Completeness, stale posture, unsupported policy lines, existing CFO Wiki limitations, alerting monitor context, and missing evidence remain human-review posture, not close signoff.
+
+Decision: keep monitor replay readiness context-only.
+Rationale: the checklist cites latest persisted `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold` results; it does not rerun monitors, create monitor results, create investigations, or treat alerts as approvals.
+
 ## Context and Orientation
 
 Pocket CFO has shipped:
@@ -112,7 +123,7 @@ The current shipped finance-discovery families remain exactly:
 - `obligation_calendar_review`
 - `policy_lookup`
 
-The relevant implementation seams for the later F6H implementation are:
+The relevant implementation seams for the shipped F6H implementation are:
 
 - `packages/domain/src/finance-twin.ts` for source-backed cash, receivables-aging, payables-aging, company summary, freshness, lineage, coverage, diagnostics, and limitations schemas
 - `packages/domain/src/cfo-wiki.ts` for CFO Wiki page/source binding, document extract, policy page, freshness, and limitations schemas
@@ -123,7 +134,7 @@ The relevant implementation seams for the later F6H implementation are:
 - `apps/control-plane/src/modules/monitoring/**` for latest persisted monitor results used only as optional context
 - `apps/control-plane/src/modules/missions/**` for the existing alert investigation boundary that F6H must not widen
 - `apps/control-plane/src/modules/evidence/**` for proof-summary conventions if needed, not report conversion
-- `apps/web` only if the later implementation chooses a minimal operator read model
+- `apps/web` for the minimal operator read model
 
 No GitHub connector work is in scope.
 No new environment variables are expected.
@@ -135,11 +146,13 @@ No runtime-Codex behavior is expected.
 First, add a small pure close/control checklist contract in the domain package.
 The contract should represent one company-scoped checklist result or read model, a bounded set of deterministic checklist items, finite item family/status vocabulary, evidence basis, source posture, freshness/limitations, and a human-review next step.
 It should not add monitor kinds, discovery families, report kinds, approval kinds, payment instruction kinds, or delivery semantics.
+Status: shipped in `packages/domain/src/close-control.ts`.
 
 Second, add one control-plane close/control bounded context after the contract is clear.
 The preferred shape is a folder such as `apps/control-plane/src/modules/close-control/**` with `schema.ts`, `service.ts`, `routes.ts`, `repository.ts` only if persistence is used, `formatter.ts`, and adjacent specs.
 Routes must stay thin: parse input, call the service, and serialize output.
 Checklist evaluation belongs in service or small helpers, not in routes.
+Status: shipped as a read-only bounded context with no repository or persistence table.
 
 Third, assemble checklist items only from stored state.
 The service should read one `companyKey`, stored Finance Twin source posture for cash, receivables-aging, and payables-aging, stored CFO Wiki policy-source posture when relevant, and optionally the latest persisted monitor results for replay-readiness context only.
@@ -149,21 +162,23 @@ Fourth, decide whether the first implementation needs persistence.
 A read-only generated checklist read model may be enough for the first slice if it is deterministic and observable through a route and smoke.
 If persistence is needed, it must be additive and scoped to derived checklist results only; raw sources remain immutable.
 If the implementation stays read-only, record the replay reason explicitly in this plan and in the output posture.
+Status: shipped read-only; the result boundary records that no checklist table or mission replay event is appended.
 
 Fifth, expose the smallest operator read model.
 The UI or API should show each checklist item, status, source posture, evidence basis, freshness/limitations, and human-review next step.
 It should not show send, Slack, email, webhook, approval, report conversion, payment, booking, filing, legal, policy-advice, collection-action, or remediation controls.
 
-Sixth, add one narrow implementation proof in the later implementation thread.
+Sixth, add one narrow implementation proof.
 The proof should cover complete source posture, missing or stale source posture, policy-source gaps, optional monitor replay readiness, absence of forbidden side effects, and no new monitor/discovery family.
+Status: shipped as `pnpm smoke:close-control-checklist:local`.
 
 ## Concrete Steps
 
 1. Add the pure F6H checklist contract.
-   Expected files in the later implementation thread:
+   Shipped files:
    - `packages/domain/src/close-control.ts`
    - `packages/domain/src/close-control.spec.ts`
-   - `packages/domain/src/index.ts` only if exports need adjustment
+   - `packages/domain/src/index.ts`
 
    The contract should define:
    - one company-scoped checklist result or read model
@@ -181,13 +196,14 @@ The proof should cover complete source posture, missing or stale source posture,
    - runtime and action boundary fields proving no runtime-Codex, delivery, approvals, reports, accounting writes, bank writes, tax filings, legal advice, payment instructions, collection instructions, or autonomous remediation were used
 
 2. Add the control-plane close/control bounded context.
-   Expected files in the later implementation thread:
+   Shipped files:
    - `apps/control-plane/src/modules/close-control/schema.ts`
    - `apps/control-plane/src/modules/close-control/service.ts`
    - `apps/control-plane/src/modules/close-control/formatter.ts`
-   - `apps/control-plane/src/modules/close-control/routes.ts` if an HTTP surface is needed
-   - `apps/control-plane/src/modules/close-control/repository.ts` and `drizzle-repository.ts` only if persistence is proven necessary
+   - `apps/control-plane/src/modules/close-control/routes.ts`
    - adjacent specs
+
+   No `repository.ts`, `drizzle-repository.ts`, DB schema, or migration was added.
 
    The service must:
    - accept exactly one `companyKey`
@@ -202,7 +218,6 @@ The proof should cover complete source posture, missing or stale source posture,
    Preferred first route:
    - `GET /close-control/companies/:companyKey/checklist`
 
-   If the implementation needs an explicit build/run action instead, document why before adding it.
    The route must not contain SQL, prompt assembly, source ingest logic, finance math, report conversion, approvals, delivery logic, or action execution.
 
 4. Define deterministic item behavior.
@@ -232,10 +247,10 @@ The proof should cover complete source posture, missing or stale source posture,
    - no approval kind or approval record
    - no accounting, bank, tax, legal, journal, payment, collection, customer-contact, or remediation action
 
-6. Add one narrow implementation smoke only in the later implementation thread.
-   Expected future files:
+6. Add one narrow implementation smoke.
+   Shipped files:
    - `tools/close-control-checklist-smoke.mjs`
-   - a package script such as `pnpm smoke:close-control-checklist:local`
+   - `pnpm smoke:close-control-checklist:local`
 
    The smoke should prove:
    - one company with complete fresh source posture yields review-ready checklist items without asserting close complete unless every required source is present and fresh
@@ -258,22 +273,24 @@ The proof should cover complete source posture, missing or stale source posture,
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the requested docs-only validation ladder:
+This implementation thread must run the requested F6H validation ladder:
 
 - `pnpm smoke:monitor-demo-replay:local`
 - `pnpm smoke:cash-posture-monitor:local`
 - `pnpm smoke:collections-pressure-monitor:local`
 - `pnpm smoke:payables-pressure-monitor:local`
 - `pnpm smoke:policy-covenant-threshold-monitor:local`
+- `pnpm smoke:cash-posture-alert-investigation:local`
 - `pnpm smoke:collections-pressure-alert-investigation:local`
 - `pnpm smoke:finance-discovery-supported-families:local`
+- `pnpm smoke:close-control-checklist:local`
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-F6H implementation acceptance in the later implementation thread is observable only if all of the following are true:
+F6H implementation acceptance is observable only if all of the following are true:
 
 - one `companyKey` can produce one deterministic close/control checklist result or read model
 - the checklist reads stored Finance Twin source posture and stored CFO Wiki policy/source posture only
@@ -300,18 +317,21 @@ If checklist results are persisted, repeated runs with the same source posture a
 Raw sources, source snapshots, source files, deterministic extracts, CFO Wiki pages, Finance Twin facts, monitor results, missions, report artifacts, approvals, and delivery records must not be mutated to make the checklist pass.
 If source state is missing, stale, failed, unsupported, partial, conflicting, or insufficient, the checklist should report that posture instead of inventing readiness or close-complete status.
 
-Rollback for the later implementation should revert only the additive F6H domain, control-plane, web, smoke, and doc changes while leaving FP-0050 through FP-0056, shipped monitor behavior, shipped alert handoff behavior, shipped demo replay behavior, F5 reporting/approval behavior, raw sources, CFO Wiki state, and Finance Twin state intact.
+Rollback for this implementation should revert only the additive F6H domain, control-plane, web, smoke, and doc changes while leaving FP-0050 through FP-0056, shipped monitor behavior, shipped alert handoff behavior, shipped demo replay behavior, F5 reporting/approval behavior, raw sources, CFO Wiki state, and Finance Twin state intact.
 No destructive database migration belongs in F6H.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice produces:
+This F6H implementation slice produces:
 
 - `plans/FP-0057-close-control-checklist-foundation.md`
-- active-doc updates that identify FP-0057 as the active implementation-ready F6H contract
-- no code, route, schema, migration, package script, smoke, eval dataset, runtime behavior, delivery behavior, report behavior, approval behavior, accounting behavior, bank behavior, tax behavior, legal behavior, payment behavior, monitor-family behavior, discovery-family behavior, or implementation scaffold
+- one pure domain close/control checklist contract
+- one read-only control-plane close/control bounded context and route
+- one minimal operator checklist read surface
+- one packaged checklist smoke alias
+- active-doc updates that identify FP-0057 as the shipped F6H record
+- no DB schema or migration, runtime behavior, delivery behavior, report behavior, approval behavior, accounting behavior, bank behavior, tax behavior, legal behavior, payment behavior, monitor-family behavior, discovery-family behavior, payables investigation, policy/covenant investigation, or F6I implementation
 
-The later F6H implementation may produce one narrow checklist domain, service, optional read route, optional UI read model, smoke, and docs refresh, but only within this contract.
 Do not create FP-0058 in this slice.
 Do not start F6I, F6J, or F6K implementation here.
 
@@ -324,7 +344,7 @@ Package boundaries must remain unchanged:
 - `apps/control-plane/src/modules/finance-twin` owns stored Finance Twin source, freshness, coverage, lineage, diagnostics, and limitations reads
 - `apps/control-plane/src/modules/wiki` owns stored CFO Wiki policy/source posture, deterministic extracts, policy pages, compile runs, freshness, and limitations
 - `apps/control-plane/src/modules/monitoring` owns monitor result reads and must not be changed into a checklist engine
-- `apps/control-plane/src/modules/missions` remains untouched unless the later implementation proves a read-model reference is needed; it must not create close/control missions in F6H
+- `apps/control-plane/src/modules/missions` remains untouched by F6H; it must not create close/control missions
 - `apps/control-plane/src/modules/evidence` may be referenced for proof posture language but must not turn checklists into reports
 - `apps/web` owns operator read models only
 
@@ -357,9 +377,11 @@ GitHub connector work is out of scope.
 
 ## Outcomes & Retrospective
 
-This section should be completed as the docs-and-plan and later implementation work progresses.
+This section is completed by the F6H implementation closeout.
 
-Current docs-and-plan outcome:
-FP-0057 is the active implementation-ready F6H contract.
-F6H has not been implemented yet.
-The exact next recommendation is to start the F6H implementation next from this plan, and only as the narrow deterministic close/control checklist foundation defined here.
+Current implementation outcome:
+FP-0057 is the shipped F6H record.
+F6H shipped one deterministic close/control checklist foundation from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor-result context only.
+The checklist is read-only and does not persist a checklist table; its replay posture is explicit in the runtime/action boundary.
+No F6I implementation started, and no monitor family, discovery family, monitor rerun, investigation, runtime-Codex behavior, delivery/send behavior, report behavior, approval behavior, accounting write, bank write, tax filing, legal advice, policy advice, payment behavior, collection instruction, customer-contact instruction, or autonomous action was added.
+The exact next recommendation is to start F6I planning only as a new Finance Plan if the product wants stack-pack expansion; otherwise use a narrow F6H continuation only for polish discovered by validation.

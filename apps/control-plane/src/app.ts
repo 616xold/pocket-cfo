@@ -1,6 +1,7 @@
 import Fastify from "fastify";
 import { registerHttpErrorHandler } from "./lib/http-errors";
 import { createLogger } from "./lib/logger";
+import { registerCloseControlRoutes } from "./modules/close-control/routes";
 import { registerHealthRoutes } from "./modules/health/routes";
 import { registerFinanceTwinRoutes } from "./modules/finance-twin/routes";
 import { registerGitHubAppRoutes } from "./modules/github-app/routes";
@@ -25,6 +26,9 @@ export async function buildApp(options?: { container?: AppContainer }) {
   registerHttpErrorHandler(app);
 
   await registerHealthRoutes(app);
+  await registerCloseControlRoutes(app, {
+    closeControlService: container.closeControlService,
+  });
   await registerFinanceTwinRoutes(app, {
     financeTwinService: container.financeTwinService,
   });
