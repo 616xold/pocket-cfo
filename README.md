@@ -53,7 +53,7 @@ Today the merged backbone is:
 `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F record for one deterministic monitor demo replay and one stack-pack foundation.
 `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G record for the first collections-pressure alert-to-investigation handoff.
 F6G shipped only a manual, source-backed `collections_pressure` alert-to-investigation handoff from persisted alert monitor results; it preserves existing cash behavior and keeps payables, policy/covenant, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, and autonomous action out of scope.
-No F6H or later implementation has started; F6H planning should begin only under a new Finance Plan.
+`plans/FP-0057-close-control-checklist-foundation.md` is now the active implementation-ready F6H contract. No F6H implementation has started; implementation should start only from FP-0057, as one deterministic source-backed close/control checklist foundation over stored Finance Twin and CFO Wiki posture, with optional latest monitor results as context only and no new monitor family, discovery family, runtime-Codex, delivery, report, approval, accounting, bank, tax, legal, payment, or autonomous-action behavior.
 
 Broad F2 Finance Twin breadth is now shipped through F2O.
 The final F2 closeout and handoff are recorded in `plans/FP-0024-final-f2-exit-audit-and-polish.md` and `plans/FP-0025-final-f2-handoff-and-plan-chain-polish.md`.
@@ -205,6 +205,7 @@ Pocket CFO v1 is intentionally narrow:
 │   ├── FP-0054-policy-covenant-threshold-monitor-foundation.md
 │   ├── FP-0055-monitor-demo-replay-and-stack-pack-foundation.md
 │   ├── FP-0056-non-cash-alert-investigation-generalization-foundation.md
+│   ├── FP-0057-close-control-checklist-foundation.md
 │   └── templates
 ├── plugins
 │   └── pocket-cfo-codex-operator
@@ -313,7 +314,7 @@ The current backend-first monitoring surface is:
 - `GET /monitoring/companies/:companyKey/policy-covenant-threshold/latest`
 - `POST /missions/monitoring-investigations` for persisted alerting `cash_posture` and `collections_pressure` results only; F6G preserves the shipped cash handoff and keeps `payables_pressure` and `policy_covenant_threshold` investigations rejected
 
-FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. F6H planning should start next only as a new Finance Plan.
+FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. FP-0057 is now the active implementation-ready F6H contract; the next implementation should start there and stay limited to one deterministic source-backed close/control checklist foundation.
 
 The current backend-first CFO Wiki read surface is:
 
