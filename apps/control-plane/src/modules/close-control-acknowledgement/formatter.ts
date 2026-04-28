@@ -42,8 +42,8 @@ export function buildCloseControlAcknowledgementReadinessResult(
       "F6K acknowledgement readiness is derived from the deterministic close/control checklist result and internal operator-readiness result only.",
     limitations: dedupe([
       "Acknowledgement readiness is an internal review read model and does not create an acknowledgement record.",
-      "Acknowledgement readiness is not a finance authorization, no close-complete status is emitted, and no report-release or external-delivery posture is created.",
-      "F6K does not rerun monitors, create monitor results, create missions, create reports, create approvals, invoke runtime-Codex, or create finance actions.",
+      "Acknowledgement readiness emits only internal acknowledgement-readiness statuses.",
+      "F6K reads existing checklist and operator-readiness posture only and creates no new records or actions.",
       ...input.checklist.limitations,
       ...input.readiness.limitations,
     ]),
@@ -301,7 +301,7 @@ function buildRuntimeActionBoundary() {
     customerContactInstructionCreated: false,
     autonomousActionCreated: false,
     summary:
-      "F6K acknowledgement readiness generation is deterministic, read-only, runtime-free, delivery-free, outbox-free, report-free, approval-free, mission-free, monitor-run-free, monitor-result-free, and action-free.",
+      "F6K acknowledgement readiness generation is deterministic, read-only, and records all runtime/action absence flags as false.",
     replayImplication:
       "The first F6K acknowledgement-readiness result is derived from current stored posture and is not persisted as a mission replay event.",
   };

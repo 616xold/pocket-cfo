@@ -275,7 +275,7 @@ function buildBoundary() {
     customerContactInstructionCreated: false,
     autonomousActionCreated: false,
     summary:
-      "F6K acknowledgement readiness is deterministic, read-only, runtime-free, delivery-free, report-free, approval-free, mission-free, monitor-run-free, monitor-result-free, and action-free.",
+      "F6K acknowledgement readiness is deterministic, read-only, and records all runtime/action absence flags as false.",
     replayImplication:
       "The first F6K acknowledgement-readiness result is generated from current stored posture and is not persisted as a mission replay event.",
   };

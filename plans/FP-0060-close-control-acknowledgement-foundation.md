@@ -33,6 +33,7 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T17:56:28Z Add a read-only/no-schema control-plane bounded context and thin `GET /close-control/companies/:companyKey/acknowledgement-readiness` route that reads only shipped close/control checklist and operator-readiness posture.
 - [x] 2026-04-28T17:56:28Z Add the smallest operator UI read surface, the packaged `pnpm smoke:close-control-acknowledgement:local` proof, and active-doc updates identifying FP-0060 as the shipped F6K record.
 - [x] 2026-04-28T18:14:09Z Run the full requested validation ladder for the implementation slice, including shipped F6A through F6J smokes, the new F6K smoke, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-04-28T18:23:26Z Run the strict F6K QA pass and narrow the service/smoke summary wording so operator-visible output stays focused on internal acknowledgement-readiness and avoids extra report/delivery wording while preserving required absence-boundary fields.
 
 ## Surprises & Discoveries
 
@@ -95,6 +96,9 @@ Rationale: always including item-family targets makes ready and non-ready postur
 
 Decision: F6K includes a small UI read surface and a packaged smoke.
 Rationale: a human can observe the read model without any action buttons, and `pnpm smoke:close-control-acknowledgement:local` proves the internal posture plus absence boundaries alongside the shipped F6A through F6J smokes.
+
+Decision: F6K QA keeps proof fields but narrows prose output.
+Rationale: the acknowledgement-readiness result still carries the required runtime/action absence boundary booleans, but the service summary and packaged smoke output should not add extra delivery/report-style wording beyond the bounded proof posture.
 
 Decision: F6K preserves shipped F5 and F6 behavior.
 Rationale: F6K must not change F5 report/release/circulation/correction behavior, monitor evaluators, F6B/F6G mission handoffs, F6H checklist behavior, F6J readiness behavior, approval kinds, report conversion, or release/circulation logging unless a later implementation thread proves a direct truthfulness gap and updates this plan first.

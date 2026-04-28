@@ -173,7 +173,6 @@ async function main() {
             ...approvalKindAbsence,
             closeCompleteStatusEmitted: false,
           },
-          approvalKinds: ApprovalKindSchema.options,
           discoveryFamilies: FINANCE_DISCOVERY_QUESTION_KINDS,
           monitorFamilies: MonitorKindSchema.options,
         },
@@ -660,7 +659,7 @@ function buildSyntheticReadiness(input) {
     evidenceSummary:
       "Synthetic readiness posture for F6K ready mapping proof.",
     generatedAt: input.generatedAt,
-    limitations: ["Synthetic readiness creates no delivery or action."],
+    limitations: ["Synthetic readiness creates no record or action."],
     runtimeActionBoundary: {
       runtimeCodexUsed: false,
       deliveryCreated: false,
@@ -939,7 +938,9 @@ function summarizeAcknowledgement(acknowledgement) {
     ),
     operatorReadinessAggregateStatus:
       acknowledgement.operatorReadinessContext.operatorReadinessAggregateStatus,
-    runtimeActionBoundary: acknowledgement.runtimeActionBoundary,
+    runtimeActionBoundaryAllFalse: ACKNOWLEDGEMENT_BOUNDARY_FIELDS.every(
+      (field) => acknowledgement.runtimeActionBoundary[field] === false,
+    ),
   };
 }
 
