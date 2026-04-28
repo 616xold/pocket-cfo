@@ -145,25 +145,46 @@ function analyzePolicyPosture(
 function readThresholdPosture(
   policyPages: CloseControlPolicyPosture["policyPages"],
 ) {
-  const facts = new Map<string, string>();
+  const factsByMetric = new Map<string, Set<string>>();
   const issues: string[] = [];
 
   for (const entry of policyPages) {
     for (const line of readPolicyThresholdCandidateLines(entry)) {
       const parsed = parseThresholdLine(line);
       if (parsed.status === "ok") {
-        facts.set(
-          parsed.metricKey,
-          `${parsed.comparator}:${parsed.value}:percent`,
+        const signatures =
+          factsByMetric.get(parsed.metricKey) ?? new Set<string>();
+        signatures.add(
+          buildThresholdSignature({
+            comparator: parsed.comparator,
+            unit: "percent",
+            value: parsed.value,
+          }),
         );
+        factsByMetric.set(parsed.metricKey, signatures);
       } else {
         issues.push(parsed.summary);
       }
     }
   }
 
+  for (const [metricKey, signatures] of factsByMetric.entries()) {
+    if (signatures.size <= 1) {
+      continue;
+    }
+
+    issues.push(
+      `Stored policy threshold posture has conflicting exact threshold facts for ${metricKey}: ${[
+        ...signatures,
+      ]
+        .sort()
+        .map(formatThresholdSignature)
+        .join("; ")}. F6H will not infer which threshold controls.`,
+    );
+  }
+
   return {
-    factCount: facts.size,
+    factCount: factsByMetric.size,
     issues: dedupe(issues),
   };
 }
@@ -190,7 +211,7 @@ function parseThresholdLine(line: string):
       comparator: string;
       metricKey: string;
       status: "ok";
-      value: string;
+      value: number;
     }
   | { status: "issue"; summary: string } {
   const match =
@@ -226,6 +247,20 @@ function parseThresholdLine(line: string):
     comparator: match[2],
     metricKey: match[1],
     status: "ok",
-    value: match[3],
+    value: Number(match[3]),
   };
+}
+
+function buildThresholdSignature(input: {
+  comparator: string;
+  unit: "percent";
+  value: number;
+}) {
+  return `${input.comparator}:${input.value}:${input.unit}`;
+}
+
+function formatThresholdSignature(signature: string) {
+  const [comparator, value, unit] = signature.split(":");
+
+  return `${comparator} ${value} ${unit}`;
 }
