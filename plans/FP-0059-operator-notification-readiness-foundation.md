@@ -2,8 +2,8 @@
 
 ## Purpose / Big Picture
 
-This file is the active Finance Plan for the Pocket CFO F6J implementation contract.
-The target phase is `F6`, and the next implementation slice is exactly `F6J-operator-notification-readiness-foundation`.
+This file is the shipped Finance Plan record for the Pocket CFO F6J implementation contract.
+The target phase is `F6`, and the implemented slice is exactly `F6J-operator-notification-readiness-foundation`.
 
 The user-visible goal is deliberately narrow: after shipped F6A through F6I, Pocket CFO should be able to show an internal operator what source-backed monitor, handoff, close/control, and demo-proof posture needs attention, without sending anything outside the product.
 The first F6J slice is therefore an operator attention/readiness foundation, not external delivery.
@@ -14,8 +14,8 @@ The shipped alert handoff path already proves cash and collections alert review 
 The shipped close/control checklist already provides one read-only checklist result from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only.
 The shipped demo replay already proves those surfaces together without adding delivery, reports, approvals, runtime-Codex, or new families.
 
-F6J must use that existing proof spine to plan one deterministic internal readiness read model only.
-It must not add email, Slack, SMS, webhooks, notification provider calls, outbox send behavior, report delivery, external publish behavior, approval workflow, report conversion, runtime-Codex drafting, mission generation, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, or autonomous actions.
+F6J uses that existing proof spine for one deterministic internal readiness read model only.
+It does not add email, Slack, SMS, webhooks, notification provider calls, outbox send behavior, report delivery, external publish behavior, approval workflow, report conversion, runtime-Codex drafting, mission generation, monitor reruns, monitor result creation, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, or autonomous actions.
 GitHub connector work is explicitly out of scope.
 
 ## Progress
@@ -26,6 +26,12 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T15:02:43Z Create FP-0059 as the single active implementation-ready F6J contract while preserving FP-0050 through FP-0058 as shipped F6A through F6I records.
 - [x] 2026-04-28T15:02:43Z Refresh the active-doc spine so the next thread starts from this F6J contract and does not reopen shipped monitor, investigation, report, approval, runtime, delivery, or checklist behavior.
 - [x] 2026-04-28T15:11:54Z Run the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all required smokes, targeted twin specs, lint, typecheck, tests, and repro validation passed.
+- [x] 2026-04-28T16:10:00Z Implement the pure `OperatorReadinessResult` and `OperatorAttentionItem` domain contract with deterministic item families, status vocabulary, evidence/freshness/proof posture, limitations, human-review next steps, and explicit runtime/action absence boundaries.
+- [x] 2026-04-28T16:10:00Z Add one read-only control-plane `operator-readiness` bounded context and thin `GET /operator-readiness/companies/:companyKey` route that reads only latest persisted monitor results plus the close/control checklist result.
+- [x] 2026-04-28T16:10:00Z Add one internal operator readiness web read surface and API client method with no action buttons or delivery/report/approval/mission/runtime controls.
+- [x] 2026-04-28T16:10:00Z Add `pnpm smoke:operator-readiness:local` to prove persisted monitor alert posture, non-ready close/control posture, source/freshness/proof propagation, absence boundaries, no monitor or discovery family changes, and no runtime/delivery/action creation.
+- [x] 2026-04-28T16:10:00Z Refresh active docs to record FP-0059 as the shipped F6J record and to state that F6K planning should start only through a new Finance Plan.
+- [x] 2026-04-28T16:31:31Z Run the full F6J validation ladder through `pnpm ci:repro:current`; focused tests, shipped F6A through F6I smokes, the new F6J smoke, twin guardrails, lint, typecheck, full tests, and post-split reproducibility validation passed.
 
 ## Surprises & Discoveries
 
@@ -36,12 +42,12 @@ The outbox bounded context exists only as a placeholder README.
 There is no current notification provider, email, Slack, SMS, webhook, or send pipeline that F6J must reuse or invoke.
 That absence is a safety feature for this slice.
 
-The strongest existing F6J inputs are persisted monitor results and the read-only close/control checklist route.
+The strongest F6J inputs are persisted monitor results and the read-only close/control checklist route.
 Monitor results are stored durable records; the checklist is deterministic but read-only and explicitly records that no checklist table or mission replay event is appended.
-The first implementation must decide whether the readiness read model is also read-only or whether a derived result should be persisted additively; either choice must keep replay implications explicit.
+The shipped readiness read model is also read-only and generated on demand; it does not add schema, migrations, derived result persistence, replay events, monitor results, or mission records.
 
 The word "notification" is delivery-adjacent.
-F6J should use operator-facing wording such as "operator attention readiness" or "notification readiness posture" and state in every output that it is not a send, not an approval, not a report, and not an external communication.
+F6J uses operator-facing wording such as "operator readiness", "operator attention readiness", and "internal attention posture" and states in outputs that the result is internal review only, not an approval, not a report, not an external communication, and not a delivery path.
 
 ## Decision Log
 
@@ -70,11 +76,26 @@ Rationale: allowed inputs are latest persisted monitor results, close/control ch
 F6J must not use generic chat, report artifacts as primary inputs, runtime-Codex, mission-generated prose, or monitor reruns.
 
 Decision: F6J preserves shipped F5 and F6 behavior.
-Rationale: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6I replay proof changes, no new approval kind, and no report conversion belong in F6J unless a future implementation thread proves a direct truthfulness gap and updates this plan first.
+Rationale: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6I replay proof changes, no new approval kind, and no report conversion belong in F6J unless a later named Finance Plan proves a direct truthfulness gap.
 
 Decision: later slices are named but not created here.
 Rationale: likely later slices are `F6K-close-control-acknowledgement` only if operator need is proven, `F6L-source-pack-expansion` only if one demo pack remains green and source-backed, and `F6M-external-notification-delivery-planning` only if a future plan proves safety and review gates.
 Do not create FP-0060 in this slice.
+
+Decision: ship F6J as a read-only generated readiness result, not persisted state.
+Rationale: latest monitor results and the close/control checklist already carry durable source-backed posture. Persisting a second derived readiness table would add replay and schema surface without improving truthfulness for the first slice.
+
+Decision: expose exactly one thin HTTP read route, `GET /operator-readiness/companies/:companyKey`.
+Rationale: the operator surface needs an observable read model, while the route can stay transport-only by parsing `companyKey`, calling the readiness service, and serializing the domain result.
+
+Decision: the first F6J service depends only on latest monitor reads and the close/control checklist service.
+Rationale: that preserves monitor evaluator semantics, prevents monitor reruns, avoids mission/report/approval/outbox/runtime dependencies, and keeps F6J grounded in shipped stored state.
+
+Decision: add a small internal web read surface.
+Rationale: an operator should be able to inspect evidence basis, freshness, proof posture, limitations, human-review next steps, and no-delivery posture without action controls.
+
+Decision: the F6J packaged proof is `pnpm smoke:operator-readiness:local`.
+Rationale: F6J introduces a new read route and UI/API surface, so acceptance needs one local proof that the result is source-backed, deterministic, and absence-boundary clean while shipped F6A through F6I smokes remain green.
 
 ## Context and Orientation
 
@@ -105,52 +126,49 @@ The relevant existing implementation seams for F6J planning are:
 No GitHub connector work is in scope.
 No new environment variables are expected.
 No runtime-Codex behavior is expected.
-No package script, smoke alias, fixture, route, schema, migration, or eval dataset is created by this docs-and-plan slice.
+No fixture, database schema, migration, or eval dataset was created by this implementation slice.
 
-## Plan of Work
+## Implemented Work
 
-First, keep the F6J product contract delivery-free.
-The implementation thread should introduce at most one deterministic internal operator attention/readiness result or read model.
-The result should answer a narrow question: which stored source-backed posture should a finance operator review now, and why?
+First, F6J kept the product contract delivery-free.
+The shipped implementation introduces one deterministic internal operator attention/readiness result.
+The result answers a narrow question: which stored source-backed posture should a finance operator review now, and why?
 
-Second, decide the implementation boundary before coding.
-The preferred bounded context is a small `operator-readiness` or `operator-attention` module under the control plane, paired with a pure domain contract only if a reusable schema is needed.
-If implementation can safely live inside an existing read-model bounded context without creating a second alert system, record that decision first.
-Do not put SQL, prompt assembly, delivery logic, notification provider code, or finance math inside routes.
+Second, F6J uses a small `operator-readiness` bounded context under the control plane plus a pure domain contract in `packages/domain`.
+The HTTP route is thin and contains no SQL, prompt assembly, delivery logic, notification provider code, source ingest logic, monitor math, or finance advice.
 
-Third, use only shipped stored/read posture as inputs.
-The service may read:
+Third, the service uses only shipped stored/read posture as inputs.
+The service reads:
 
 - latest persisted monitor results for `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`
 - the close/control checklist result/read posture from the shipped checklist service
-- source and CFO Wiki freshness posture needed to explain limitations
-- monitor demo replay proof posture only as checked-in/stored expected proof context, not as a runtime requirement
+- source and CFO Wiki freshness posture only as already surfaced through monitor results or checklist items
+- monitor demo replay proof posture only as existing checked-in/smoke proof context, not as a runtime requirement
 
-The service must not read generic chat, report artifacts as primary input, mission-generated prose, runtime-Codex output, or rerun monitors.
+The service does not read generic chat, report artifacts as primary input, mission-generated prose, runtime-Codex output, or rerun monitors.
 
-Fourth, define one output contract.
-The result should include one bounded list of operator attention items.
-Each item should include:
+Fourth, F6J defines one output contract.
+The result includes one bounded list of operator attention items.
+Each item includes:
 
 - stable item id or key
-- source family or posture family
-- status such as `ready_for_review`, `needs_review`, or `blocked_by_evidence`
+- posture family
+- status of `ready_for_review`, `needs_review`, or `blocked_by_evidence`
 - evidence basis and source lineage/proof reference
 - freshness or missing-source posture
 - limitations
 - proof posture
 - human-review next step
-- explicit absence boundary showing no send, no delivery, no report, no approval, no mission creation, no runtime-Codex, and no autonomous action
+- explicit runtime/action absence boundary showing no delivery, no outbox send, no report, no approval, no mission creation, no monitor rerun, no monitor result creation, no runtime-Codex, no payment/accounting/bank/tax write, no legal/policy advice, no collection/customer-contact instruction, and no autonomous action
 
-Fifth, add implementation proof only in the implementation thread.
-The proof should reuse the shipped monitor, handoff, checklist, demo replay, and discovery-family smokes and add one narrow F6J proof only after code exists.
-This docs-and-plan slice must not add that proof command.
+Fifth, F6J adds one packaged proof command.
+`pnpm smoke:operator-readiness:local` reuses shipped monitor, checklist, and absence-boundary patterns and proves no monitor or discovery family changes.
 
 ## Concrete Steps
 
-1. In the future implementation thread, add a pure contract only if needed.
-   Expected future files if a domain contract is needed:
-   - `packages/domain/src/operator-readiness.ts` or an equivalently named narrow domain file
+1. Add a pure domain contract.
+   Shipped files:
+   - `packages/domain/src/operator-readiness.ts`
    - `packages/domain/src/operator-readiness.spec.ts`
    - `packages/domain/src/index.ts`
 
@@ -160,59 +178,63 @@ This docs-and-plan slice must not add that proof command.
    - one internal readiness result or read model
    - bounded operator attention items
    - source lineage, freshness, limitations, proof posture, status, and human-review next step on every item
-   - runtime/action boundary fields proving no runtime-Codex, delivery, report, approval, mission creation, payment, legal/policy advice, collection/customer-contact instruction, or autonomous action
+   - runtime/action boundary fields proving no runtime-Codex, delivery, outbox send, report, approval, mission creation, monitor rerun, monitor result creation, payment, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, or autonomous action
 
-2. In the future implementation thread, add a control-plane bounded context only after the contract is clear.
-   Expected future files if a new module is needed:
+2. Add a control-plane bounded context.
+   Shipped files:
    - `apps/control-plane/src/modules/operator-readiness/schema.ts`
    - `apps/control-plane/src/modules/operator-readiness/service.ts`
    - `apps/control-plane/src/modules/operator-readiness/formatter.ts`
-   - `apps/control-plane/src/modules/operator-readiness/routes.ts` only if an HTTP read surface is required
+   - `apps/control-plane/src/modules/operator-readiness/routes.ts`
    - adjacent specs
 
-   The route, if added later, must be read-only and thin.
-   It must not contain SQL, prompt assembly, monitor math, source ingest logic, report conversion, approval behavior, delivery logic, notification provider logic, or external actions.
+   The route is read-only and thin.
+   It contains no SQL, prompt assembly, monitor math, source ingest logic, report conversion, approval behavior, delivery logic, notification provider logic, or external actions.
 
-3. In the future implementation thread, decide persistence explicitly.
-   A read-only generated readiness result may be enough for F6J if it is deterministic and observable.
-   If persistence is needed, it must be additive and scoped to derived readiness results only.
+3. Decide persistence explicitly.
+   F6J ships as a read-only generated readiness result.
+   No persistence was added.
    Raw sources, monitor results, missions, reports, approvals, release/circulation records, and close/control checklist posture must not be rewritten to make readiness pass.
-   Replay implications must be either represented in persisted derived state or explicitly recorded as read-only posture.
+   Replay implications are recorded as read-only posture with explicit absence boundaries and packaged smoke proof.
 
-4. In the future implementation thread, wire only internal operator UI/read-model posture if needed.
-   Expected future files if UI is needed:
+4. Wire only internal operator UI/read-model posture.
+   Shipped files:
    - `apps/web/lib/api.ts`
-   - a narrow internal operator readiness component or page
+   - `apps/web/app/operator-readiness/page.tsx`
+   - `apps/web/components/operator-readiness-card.tsx`
    - adjacent specs
 
-   The UI must not show email, Slack, SMS, webhook, send, publish, delivery, report release, approval, payment, legal, policy-advice, collection-action, customer-contact, or remediation controls.
+   The UI shows no email, Slack, SMS, webhook, send, publish, delivery, report release, approval, payment, legal, policy-advice, collection-action, customer-contact, rerun, mission, ask-Codex, or remediation controls.
 
-5. In the future implementation thread, add one narrow F6J proof only after implementation exists.
-   Expected future proof:
-   - a new local smoke only if the implementation adds behavior that needs a packaged proof
+5. Add one narrow F6J proof after implementation exists.
+   Shipped proof:
+   - `tools/operator-readiness-smoke.mjs`
+   - `pnpm smoke:operator-readiness:local`
 
-   Required proof:
+   Proof coverage:
    - latest persisted monitor results can produce bounded internal attention items
    - close/control checklist posture can contribute review/blocking posture without rerunning monitors
    - every attention item exposes evidence basis, freshness or missing-source posture, limitations, proof posture, status, and human-review next step
    - no report artifacts, approvals, outbox events, notification provider calls, runtime-Codex threads, missions, payment instructions, accounting writes, bank writes, tax filings, legal/policy advice, collection instructions, customer-contact instructions, or autonomous actions are created
    - existing monitor and discovery family lists stay unchanged
 
-6. Refresh docs after implementation only where behavior actually changes.
-   Expected docs:
+6. Refresh docs after behavior landed.
+   Updated docs:
    - `README.md`
    - `START_HERE.md`
    - `docs/ACTIVE_DOCS.md`
    - `plans/ROADMAP.md`
    - `docs/ops/local-dev.md`
-   - `docs/ops/source-ingest-and-cfo-wiki.md` only if source/freshness wording becomes stale
-   - `docs/ops/codex-app-server.md` only if runtime or delivery boundary wording becomes stale
-   - `evals/README.md` and `docs/benchmarks/seeded-missions.md` only if a proof/eval statement changes
+
+   `docs/ops/source-ingest-and-cfo-wiki.md`, `docs/ops/codex-app-server.md`, `evals/README.md`, and `docs/benchmarks/seeded-missions.md` did not need updates because no source-ingest, runtime-Codex, eval, or seeded-mission behavior changed.
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the requested validation ladder, with DB-backed smokes serially:
+This implementation thread must run the requested validation ladder, with DB-backed smokes serially:
 
+- `pnpm --filter @pocket-cto/domain exec vitest run src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
+- `cd apps/control-plane && pnpm exec vitest run src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts`
+- `cd apps/web && pnpm exec vitest run app/operator-readiness/**/*.spec.ts* components/operator-readiness-card.spec.tsx lib/api.spec.ts`
 - `pnpm smoke:monitor-demo-replay:local`
 - `pnpm smoke:close-control-checklist:local`
 - `pnpm smoke:cash-posture-monitor:local`
@@ -222,69 +244,73 @@ This docs-and-plan thread must run the requested validation ladder, with DB-back
 - `pnpm smoke:cash-posture-alert-investigation:local`
 - `pnpm smoke:collections-pressure-alert-investigation:local`
 - `pnpm smoke:finance-discovery-supported-families:local`
+- `pnpm smoke:operator-readiness:local`
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-F6J implementation acceptance will be observable only if all of the following are true:
+F6J implementation acceptance is observable only if all of the following are true:
 
-- one deterministic internal operator notification/readiness result or read model exists
+- one deterministic internal operator readiness result or read model exists
 - the result is derived only from shipped stored state or shipped deterministic read posture
 - each attention item includes evidence basis, source lineage or proof reference, freshness or missing-source posture, limitations, proof posture, status, and a human-review next step
 - no external delivery path exists
-- no email, Slack, SMS, webhook, notification provider call, outbox send behavior, report delivery, external publish behavior, or operator delivery workflow is added
-- no approval, report conversion, mission creation, runtime-Codex drafting, payment behavior, accounting write, bank write, tax filing, legal advice, policy advice, collection instruction, customer-contact instruction, or autonomous action is added
+- no email, Slack, SMS, webhook, notification provider call, outbox send behavior, report delivery, external publish behavior, or operator delivery workflow was added
+- no approval, report conversion, mission creation, monitor rerun, monitor result creation, runtime-Codex drafting, payment behavior, accounting write, bank write, tax filing, legal advice, policy advice, collection instruction, customer-contact instruction, or autonomous action was added
 - no new monitor family or discovery family is added
 - shipped F5 and F6 behavior remains unchanged
-- shipped monitor, handoff, close/control checklist, demo replay, and discovery-family smokes remain green
+- shipped monitor, handoff, close/control checklist, demo replay, discovery-family, and F6J readiness smokes remain green
 
 ## Idempotence and Recovery
 
-The F6J implementation must be retry-safe.
-If the first readiness result is read-only, repeated reads over the same stored posture should produce the same item statuses except for explicit read timestamps.
-If the first readiness result is persisted, repeated runs with the same input posture and idempotency key should avoid duplicate operator attention items.
+The F6J implementation is retry-safe.
+The readiness result is read-only; repeated reads over the same stored posture produce the same item statuses except for explicit read timestamps.
+No persisted readiness records or idempotency keys were added.
 
 Raw sources, source snapshots, source files, Finance Twin facts, CFO Wiki pages, monitor results, monitor investigation missions, close/control checklist behavior, report artifacts, approvals, release/circulation records, and demo fixtures must not be mutated to make F6J pass.
 
-Rollback for implementation should remove only the additive F6J readiness contract, read-model service, optional UI, optional persistence, optional route, and optional proof files.
+Rollback for implementation should remove only the additive F6J readiness contract, read-model service, UI read surface, route, and proof files.
 Rollback must leave FP-0050 through FP-0058, shipped monitor behavior, shipped alert handoff behavior, shipped checklist behavior, shipped replay proof, raw sources, CFO Wiki state, Finance Twin state, F5 reporting/approval behavior, and GitHub/engineering-twin modules intact.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice produces:
+This implementation slice produces:
 
 - `plans/FP-0059-operator-notification-readiness-foundation.md`
-- active-doc updates that identify FP-0059 as the active F6J implementation-ready contract
-- no code
-- no routes
-- no schema or migrations
-- no package scripts
-- no smoke commands
+- `packages/domain/src/operator-readiness.ts`
+- `packages/domain/src/operator-readiness.spec.ts`
+- `apps/control-plane/src/modules/operator-readiness/**`
+- `apps/web/app/operator-readiness/**`
+- `apps/web/components/operator-readiness-card.tsx`
+- `apps/web/components/operator-readiness-card.spec.tsx`
+- `tools/operator-readiness-smoke.mjs`
+- `pnpm smoke:operator-readiness:local`
+- active-doc updates that identify FP-0059 as the shipped F6J record
+- one read-only route: `GET /operator-readiness/companies/:companyKey`
+- no database schema or migrations
 - no eval datasets
 - no fixtures
-- no implementation scaffolding
 - no monitor families
 - no discovery families
 - no runtime-Codex
-- no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, payment, legal/policy advice, collection/customer-contact instruction, or autonomous action behavior
+- no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, payment, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, or autonomous action behavior
 
 Do not create FP-0060 in this slice.
-Do not start F6J implementation in this docs-and-plan thread.
 Do not start F6K, F6L, F6M, or later.
 
 ## Interfaces and Dependencies
 
 Package boundaries must remain unchanged:
 
-- `packages/domain` owns pure contracts only if the future implementation needs a shared readiness schema
-- `packages/db` may be touched only in a future implementation plan if derived readiness persistence is explicitly chosen; no destructive schema change is allowed
+- `packages/domain` owns the pure operator-readiness contract
+- `packages/db` was not touched; derived readiness persistence was not chosen, and no destructive schema change is allowed
 - `apps/control-plane/src/modules/monitoring` owns monitor run/latest behavior and must not be changed by F6J unless a direct truthfulness gap is proven first
 - `apps/control-plane/src/modules/missions` owns the shipped cash plus collections alert investigation handoff boundary and must not be widened by F6J
 - `apps/control-plane/src/modules/close-control` owns the shipped read-only checklist route and must not gain acknowledgements, approvals, or monitor reruns in F6J
 - `apps/control-plane/src/modules/outbox` remains a reserved placeholder and must not gain send/delivery behavior in F6J
-- `apps/web` may show internal read posture only if the future implementation needs an operator surface
+- `apps/web` shows internal read posture only, with no action controls
 
 Runtime-Codex stays out of scope:
 
@@ -307,7 +333,7 @@ Delivery and autonomous action stay out of scope:
 
 Later slices are named but not created here:
 
-- `F6K-close-control-acknowledgement`, only if operator need is proven
+- `F6K-close-control-acknowledgement`, only if operator need is proven and a new Finance Plan is created
 - `F6L-source-pack-expansion`, only if one demo pack remains green and source-backed
 - `F6M-external-notification-delivery-planning`, only if a future plan proves safety, review gates, and delivery controls
 
@@ -317,11 +343,10 @@ Do not delete GitHub or engineering-twin modules as part of F6J.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan thread created the FP-0059 F6J contract after confirming that the shipped F6A through F6I baseline supports only an internal operator attention/readiness foundation, not delivery.
-No F6J implementation started.
+This implementation thread shipped the FP-0059 F6J contract after confirming that the shipped F6A through F6I baseline supports only an internal operator attention/readiness foundation, not delivery.
+F6J now has one deterministic read-only readiness result, one thin read route, one internal web read surface, and one packaged local smoke.
 No F6K, F6L, F6M, or later plan was created.
 
 What remains:
 
-- start F6J implementation next only from this plan, and only as a deterministic internal readiness/read-model slice
-- keep F6K acknowledgement, F6L source-pack expansion, and F6M external notification/delivery planning uncreated until a later named plan proves the need
+- start F6K acknowledgement, F6L source-pack expansion, or F6M external notification/delivery planning only through a later named Finance Plan that proves the need

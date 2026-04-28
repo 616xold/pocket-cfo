@@ -2550,6 +2550,13 @@ async function createHarness(options?: {
           );
         },
       } as AppContainer["closeControlService"],
+      operatorReadinessService: {
+        async getReadiness() {
+          throw new Error(
+            "getReadiness should not be called in orchestrator harness",
+          );
+        },
+      } as AppContainer["operatorReadinessService"],
       githubAppService: {
         async getRepository() {
           return {

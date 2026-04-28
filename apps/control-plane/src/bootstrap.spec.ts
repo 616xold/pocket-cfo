@@ -79,6 +79,11 @@ function createAppContainer(
         throw new Error("getChecklist should not be called in this test");
       },
     } as AppContainer["closeControlService"],
+    operatorReadinessService: {
+      async getReadiness() {
+        throw new Error("getReadiness should not be called in this test");
+      },
+    } as AppContainer["operatorReadinessService"],
     githubAppService: {
       async getRepository() {
         return {

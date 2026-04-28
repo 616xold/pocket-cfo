@@ -22,6 +22,7 @@ import {
   MonitorRunResultSchema,
   MissionTaskRecordSchema,
   OperatorControlAvailabilitySchema,
+  OperatorReadinessResultSchema,
   ProofBundleManifestSchema,
   RecordReportingCirculationLogCorrectionInputSchema,
   RecordReportingCirculationLogCorrectionResultSchema,
@@ -49,6 +50,7 @@ import type {
   MissionStatus,
   MonitorLatestResult,
   MonitorRunResult,
+  OperatorReadinessResult,
 } from "@pocket-cto/domain";
 import type {
   CfoWikiCompanySourceListView,
@@ -105,6 +107,7 @@ type GitHubIssueMissionCreateResult = z.output<
 
 const monitorLatestSchema = MonitorLatestResultSchema;
 const monitorRunSchema = MonitorRunResultSchema;
+const operatorReadinessSchema = OperatorReadinessResultSchema;
 
 const liveControlSchema = OperatorControlAvailabilitySchema;
 
@@ -306,6 +309,21 @@ export async function getCloseControlChecklist(
   return fetchJson(
     `/close-control/companies/${encodeURIComponent(normalizedCompanyKey)}/checklist`,
     closeControlChecklistSchema,
+  );
+}
+
+export async function getOperatorReadiness(
+  companyKey: string,
+): Promise<OperatorReadinessResult | null> {
+  const normalizedCompanyKey = companyKey.trim();
+
+  if (!normalizedCompanyKey) {
+    return null;
+  }
+
+  return fetchJson(
+    `/operator-readiness/companies/${encodeURIComponent(normalizedCompanyKey)}`,
+    operatorReadinessSchema,
   );
 }
 

@@ -61,6 +61,7 @@ import { MissionService } from "./modules/missions/service";
 import { DrizzleMonitoringRepository } from "./modules/monitoring/drizzle-repository";
 import { InMemoryMonitoringRepository } from "./modules/monitoring/repository";
 import { MonitoringService } from "./modules/monitoring/service";
+import { OperatorReadinessService } from "./modules/operator-readiness/service";
 import { OrchestratorService } from "./modules/orchestrator/service";
 import { OrchestratorWorker } from "./modules/orchestrator/worker";
 import { ReportingService } from "./modules/reporting/service";
@@ -127,6 +128,7 @@ type SharedKernel = {
   missionReportingActionsService: MissionReportingActionsService;
   missionRepository: ConstructorParameters<typeof MissionService>[1];
   monitoringService: MonitoringService;
+  operatorReadinessService: OperatorReadinessService;
   proofBundleAssembly: ProofBundleAssemblyService;
   reportingService: ReportingService;
   replayService: ReplayService;
@@ -416,6 +418,10 @@ function buildSharedKernel(input: {
     financeTwinService,
     monitoringService,
   });
+  const operatorReadinessService = new OperatorReadinessService({
+    closeControlService,
+    monitoringService,
+  });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -446,6 +452,7 @@ function buildSharedKernel(input: {
     missionReportingActionsService,
     missionRepository: input.missionRepository,
     monitoringService,
+    operatorReadinessService,
     proofBundleAssembly,
     reportingService,
     replayService,
@@ -528,6 +535,7 @@ function toAppContainer(
     missionService: kernel.missionService,
     missionReportingActionsService: kernel.missionReportingActionsService,
     monitoringService: kernel.monitoringService,
+    operatorReadinessService: kernel.operatorReadinessService,
     operatorControl: {
       approvalService: kernel.approvalService,
       liveControl,

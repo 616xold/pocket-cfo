@@ -9,6 +9,7 @@ import type { GitHubWebhookService } from "../modules/github-app/webhook-service
 import type { MissionService } from "../modules/missions/service";
 import type { MonitoringService } from "../modules/monitoring/service";
 import type { MissionReportingActionsService } from "../modules/missions/reporting-actions";
+import type { OperatorReadinessService } from "../modules/operator-readiness/service";
 import type { OrchestratorWorker } from "../modules/orchestrator/worker";
 import type { ReplayService } from "../modules/replay/service";
 import type { RuntimeControlService } from "../modules/runtime-codex/control-service";
@@ -79,6 +80,11 @@ export type MonitoringServicePort = Pick<
 export type CloseControlServicePort = Pick<
   CloseControlService,
   "getChecklist"
+>;
+
+export type OperatorReadinessServicePort = Pick<
+  OperatorReadinessService,
+  "getReadiness"
 >;
 
 export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
@@ -183,6 +189,7 @@ export type AppContainer = {
   missionService: MissionServicePort;
   missionReportingActionsService: MissionReportingActionServicePort;
   monitoringService?: MonitoringServicePort;
+  operatorReadinessService: OperatorReadinessServicePort;
   operatorControl: {
     approvalService: Pick<
       ApprovalService,
