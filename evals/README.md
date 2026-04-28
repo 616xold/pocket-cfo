@@ -55,8 +55,9 @@ When using those commands during the pivot:
 21. shipped F6I stack-pack expansion and close/control demo foundation, recorded in `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md`, which extends the existing deterministic demo replay proof with normalized close/control checklist expected output and no model-scored benchmark dataset
 22. shipped F6J internal operator attention/readiness foundation, recorded in `plans/FP-0059-operator-notification-readiness-foundation.md`, with `pnpm smoke:operator-readiness:local` as the narrow deterministic proof and no delivery or notification-provider eval dataset
 23. shipped F6K internal close/control acknowledgement-readiness foundation, recorded in `plans/FP-0060-close-control-acknowledgement-foundation.md`, with `pnpm smoke:close-control-acknowledgement:local` as the narrow deterministic proof and no approval, close-complete, delivery, runtime-Codex, or model-scored benchmark dataset
-24. wiki compilation quality
-25. provenance, freshness disclosure, and contradiction handling
+24. active F6L bank/card source-pack expansion planning, recorded in `plans/FP-0061-source-pack-expansion-foundation.md`, with no implementation and no eval dataset yet
+25. wiki compilation quality
+26. provenance, freshness disclosure, and contradiction handling
 
 ## F4 staging
 

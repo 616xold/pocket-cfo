@@ -569,8 +569,13 @@ Slice map:
   - packaged proof: `pnpm smoke:close-control-acknowledgement:local`
   - no email, Slack, SMS, webhook, notification provider call, outbox send behavior, report delivery, external publish behavior, approval kind, report conversion, mission creation, monitor rerun, runtime-Codex drafting, payment behavior, legal or policy advice, collection/customer-contact instruction, autonomous action, monitor-family expansion, or discovery-family expansion
 - `F6L — source-pack expansion`
-  - later only if the single F6I/F6K proof path remains green and source-backed; start only through a new Finance Plan
+  - active implementation-ready contract in `plans/FP-0061-source-pack-expansion-foundation.md`
+  - first source-pack family is exactly `bank-card-source-pack-foundation`
+  - not a monitor family and not a discovery-family expansion
+  - starts only from checked-in static bank-account-summary and card-expense source-pack posture, expected normalized source/twin posture, existing source registration/upload routes, and existing Finance Twin sync/read routes
+  - output contract is one source-pack manifest or fixture contract plus one deterministic proof path; no implementation has started from this roadmap text alone
+  - does not add routes, schema, migrations, monitor evaluators, mission behavior, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection/customer-contact instructions, autonomous action, new monitor families, or new discovery families
 - `F6M — external notification/delivery planning`
-  - later only if a future plan proves safety, review gates, delivery controls, and a human-approved release path; do not create FP-0061 from roadmap text alone
+  - later only if a future plan proves safety, review gates, delivery controls, and a human-approved release path; do not create FP-0062 from roadmap text alone
 - `F6N — close/control reporting or certification`
-  - later only if operator need and evidence boundaries are proven; do not create FP-0061 from roadmap text alone
+  - later only if operator need and evidence boundaries are proven; do not create FP-0062 from roadmap text alone
