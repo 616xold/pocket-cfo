@@ -2543,6 +2543,13 @@ async function createHarness(options?: {
 
   return {
     appContainer: {
+      closeControlService: {
+        async getChecklist() {
+          throw new Error(
+            "getChecklist should not be called in orchestrator harness",
+          );
+        },
+      } as AppContainer["closeControlService"],
       githubAppService: {
         async getRepository() {
           return {

@@ -179,6 +179,44 @@ describe("web api module", () => {
     );
   });
 
+  it("reads the close/control checklist route as a view-only contract", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      async json() {
+        return buildCloseControlChecklistPayload();
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const checklist = await mod.getCloseControlChecklist(" acme ");
+
+    expect(checklist?.companyKey).toBe("acme");
+    expect(checklist?.aggregateStatus).toBe("ready_for_review");
+    expect(checklist?.items.map((item) => item.family)).toEqual([
+      "source_coverage_review",
+      "cash_source_freshness_review",
+      "receivables_aging_source_freshness_review",
+      "payables_aging_source_freshness_review",
+      "policy_source_freshness_review",
+      "monitor_replay_readiness",
+    ]);
+    expect(checklist?.runtimeActionBoundary).toMatchObject({
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      reportCreated: false,
+      approvalCreated: false,
+      monitorRunTriggered: false,
+      missionCreated: false,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/close-control/companies/acme/checklist`,
+      {
+        cache: "no-store",
+      },
+    );
+  });
+
   it("reads the latest cash-posture monitor result", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -281,9 +319,8 @@ describe("web api module", () => {
     vi.stubGlobal("fetch", fetchMock);
 
     const mod = await loadApiModuleWithEnv({});
-    const latest = await mod.getLatestPolicyCovenantThresholdMonitorResult(
-      "acme",
-    );
+    const latest =
+      await mod.getLatestPolicyCovenantThresholdMonitorResult("acme");
 
     expect(latest?.monitorKind).toBe("policy_covenant_threshold");
     expect(latest?.monitorResult?.status).toBe("alert");
@@ -3039,6 +3076,128 @@ function buildGitHubIssueIntakePayload() {
   };
 }
 
+function buildCloseControlChecklistPayload() {
+  const itemFamilies = [
+    "source_coverage_review",
+    "cash_source_freshness_review",
+    "receivables_aging_source_freshness_review",
+    "payables_aging_source_freshness_review",
+    "policy_source_freshness_review",
+    "monitor_replay_readiness",
+  ] as const;
+
+  return {
+    companyKey: "acme",
+    generatedAt: "2026-04-27T12:00:00.000Z",
+    aggregateStatus: "ready_for_review",
+    items: itemFamilies.map((family) => ({
+      family,
+      status: "ready_for_review",
+      sourcePosture: {
+        state:
+          family === "monitor_replay_readiness"
+            ? "monitor_context_present"
+            : "source_backed",
+        summary: `${family} has stored source-backed posture for review.`,
+        refs: [
+          {
+            kind:
+              family === "policy_source_freshness_review"
+                ? "cfo_wiki_source"
+                : family === "monitor_replay_readiness"
+                  ? "monitor_result"
+                  : "finance_twin_source",
+            evidencePath: `${family}.posture`,
+            summary: `${family} evidence reference.`,
+            sourceId:
+              family === "monitor_replay_readiness"
+                ? null
+                : "11111111-1111-4111-8111-111111111111",
+            sourceSnapshotId:
+              family === "monitor_replay_readiness"
+                ? null
+                : "22222222-2222-4222-8222-222222222222",
+            sourceFileId:
+              family === "monitor_replay_readiness"
+                ? null
+                : "33333333-3333-4333-8333-333333333333",
+            syncRunId:
+              family === "monitor_replay_readiness"
+                ? null
+                : "44444444-4444-4444-8444-444444444444",
+            pageKey:
+              family === "policy_source_freshness_review"
+                ? "policies/11111111-1111-4111-8111-111111111111"
+                : null,
+            monitorKind:
+              family === "monitor_replay_readiness" ? "cash_posture" : null,
+            monitorResultId:
+              family === "monitor_replay_readiness"
+                ? "55555555-5555-4555-8555-555555555555"
+                : null,
+          },
+        ],
+      },
+      evidenceBasis: {
+        basisKind:
+          family === "source_coverage_review"
+            ? "derived_source_coverage"
+            : family === "policy_source_freshness_review"
+              ? "stored_cfo_wiki_policy_posture"
+              : family === "monitor_replay_readiness"
+                ? "latest_persisted_monitor_result_context"
+                : "stored_finance_twin_posture",
+        summary: `${family} is derived from persisted evidence posture only.`,
+        refs: [],
+      },
+      freshnessSummary: {
+        state:
+          family === "monitor_replay_readiness" ? "not_applicable" : "fresh",
+        summary: `${family} freshness is review-ready.`,
+        latestObservedAt: "2026-04-27T12:00:00.000Z",
+      },
+      limitations: [
+        "The checklist is a deterministic review foundation, not a close-complete assertion.",
+      ],
+      humanReviewNextStep:
+        "Review the stored evidence posture before close sign-off.",
+      proofPosture: {
+        state:
+          family === "monitor_replay_readiness"
+            ? "review_only_context"
+            : "source_backed",
+        summary: `${family} proof is source-backed for review.`,
+      },
+    })),
+    evidenceSummary:
+      "Stored Finance Twin source posture, CFO Wiki policy posture, and latest persisted monitor results are available for review.",
+    limitations: [
+      "The checklist does not assert close completion or perform external actions.",
+    ],
+    runtimeActionBoundary: {
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      reportCreated: false,
+      approvalCreated: false,
+      accountingWriteCreated: false,
+      bankWriteCreated: false,
+      taxFilingCreated: false,
+      legalAdviceGenerated: false,
+      policyAdviceGenerated: false,
+      paymentInstructionCreated: false,
+      collectionInstructionCreated: false,
+      customerContactInstructionCreated: false,
+      autonomousActionCreated: false,
+      monitorRunTriggered: false,
+      missionCreated: false,
+      summary:
+        "Checklist generation is a read-only deterministic derivation with no runtime or action side effects.",
+      replayImplication:
+        "The checklist is not stored as a separate mission replay event in F6H.",
+    },
+  };
+}
+
 function buildMonitorLatestPayload() {
   const monitorResult = buildMonitorResultPayload();
 
@@ -3110,7 +3269,7 @@ function buildMonitorResultPayload(monitorKind = "cash_posture") {
           ? "F6D payables-pressure monitoring evaluates stored source posture only."
           : isPolicy
             ? "F6E policy/covenant threshold monitoring evaluates stored policy posture only."
-          : "F6A cash-posture monitoring evaluates stored source posture only.",
+            : "F6A cash-posture monitoring evaluates stored source posture only.",
     ],
     proofBundlePosture,
     replayPosture: {
@@ -3132,7 +3291,7 @@ function buildMonitorResultPayload(monitorKind = "cash_posture") {
         ? "Review payables-aging source coverage and payables posture before any external vendor or payment action."
         : isPolicy
           ? "Review policy threshold source coverage and comparable actual posture before deciding any external action."
-        : "Review cash-posture source coverage and refresh bank-account-summary ingest if needed.",
+          : "Review cash-posture source coverage and refresh bank-account-summary ingest if needed.",
     alertCard: {
       companyKey: "acme",
       monitorKind,
@@ -3150,7 +3309,7 @@ function buildMonitorResultPayload(monitorKind = "cash_posture") {
             ? "F6D payables-pressure monitoring evaluates stored source posture only."
             : isPolicy
               ? "F6E policy/covenant threshold monitoring evaluates stored policy posture only."
-            : "F6A cash-posture monitoring evaluates stored source posture only.",
+              : "F6A cash-posture monitoring evaluates stored source posture only.",
       ],
       proofBundlePosture,
       humanReviewNextStep: isCollections
@@ -3159,7 +3318,7 @@ function buildMonitorResultPayload(monitorKind = "cash_posture") {
           ? "Review payables-aging source coverage and payables posture before any external vendor or payment action."
           : isPolicy
             ? "Review policy threshold source coverage and comparable actual posture before deciding any external action."
-          : "Review cash-posture source coverage and refresh bank-account-summary ingest if needed.",
+            : "Review cash-posture source coverage and refresh bank-account-summary ingest if needed.",
       createdAt,
     },
     createdAt,

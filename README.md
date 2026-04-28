@@ -49,11 +49,12 @@ Today the merged backbone is:
 - F6E additive deterministic monitoring for one fourth monitor family, `policy_covenant_threshold`, over stored CFO Wiki policy-document posture and explicit comparable Finance Twin collections/payables posture only, with exact grammar threshold facts, fail-closed coverage/data-quality posture, source lineage, proof posture, and no investigations, delivery, runtime-Codex, legal/policy advice, payments, reports, approvals, or autonomous finance actions
 - F6F additive checked-in Pocket CFO monitor demo stack-pack fixture set plus deterministic replay smoke, bootstrapping one demo company from immutable bank/cash, receivables-aging, payables-aging, and policy threshold sources, verifying the four shipped monitor families, and proving the shipped monitor handoff boundary while staying runtime-free, delivery-free, report-free, approval-free, payment-free, legal/policy-advice-free, and non-autonomous
 - F6G additive manual alert-to-investigation handoff from one persisted alerting `collections_pressure` monitor result into one deterministic taskless mission, preserving shipped `cash_posture` handoff behavior while keeping `payables_pressure` and `policy_covenant_threshold` investigations rejected and avoiding runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, and autonomous finance actions
+- F6H additive deterministic close/control checklist foundation from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only, with review/blocked statuses, explicit absence boundaries, and no monitor reruns, missions, reports, approvals, delivery, runtime-Codex, accounting/bank/tax writes, legal/policy advice, payment behavior, collection/customer-contact instructions, or autonomous actions
 
 `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F record for one deterministic monitor demo replay and one stack-pack foundation.
 `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G record for the first collections-pressure alert-to-investigation handoff.
 F6G shipped only a manual, source-backed `collections_pressure` alert-to-investigation handoff from persisted alert monitor results; it preserves existing cash behavior and keeps payables, policy/covenant, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, and autonomous action out of scope.
-`plans/FP-0057-close-control-checklist-foundation.md` is now the active implementation-ready F6H contract. No F6H implementation has started; implementation should start only from FP-0057, as one deterministic source-backed close/control checklist foundation over stored Finance Twin and CFO Wiki posture, with optional latest monitor results as context only and no new monitor family, discovery family, runtime-Codex, delivery, report, approval, accounting, bank, tax, legal, payment, or autonomous-action behavior.
+`plans/FP-0057-close-control-checklist-foundation.md` is now the shipped F6H record for one deterministic close/control checklist foundation. F6I planning should start next only as a new Finance Plan; this slice did not add F6I, monitor families, discovery families, monitor reruns, investigations, runtime-Codex, delivery, reports, approvals, accounting/bank/tax writes, payment behavior, legal/policy advice, collection/customer-contact instructions, or autonomous actions.
 
 Broad F2 Finance Twin breadth is now shipped through F2O.
 The final F2 closeout and handoff are recorded in `plans/FP-0024-final-f2-exit-audit-and-polish.md` and `plans/FP-0025-final-f2-handoff-and-plan-chain-polish.md`.
@@ -274,6 +275,7 @@ pnpm smoke:collections-pressure-monitor:local
 pnpm smoke:payables-pressure-monitor:local
 pnpm smoke:policy-covenant-threshold-monitor:local
 pnpm smoke:monitor-demo-replay:local
+pnpm smoke:close-control-checklist:local
 pnpm smoke:finance-memo:local
 pnpm smoke:finance-report-filed-artifact:local
 ```
@@ -312,9 +314,10 @@ The current backend-first monitoring surface is:
 - `GET /monitoring/companies/:companyKey/payables-pressure/latest`
 - `POST /monitoring/companies/:companyKey/policy-covenant-threshold/run`
 - `GET /monitoring/companies/:companyKey/policy-covenant-threshold/latest`
+- `GET /close-control/companies/:companyKey/checklist`
 - `POST /missions/monitoring-investigations` for persisted alerting `cash_posture` and `collections_pressure` results only; F6G preserves the shipped cash handoff and keeps `payables_pressure` and `policy_covenant_threshold` investigations rejected
 
-FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. FP-0057 is now the active implementation-ready F6H contract; the next implementation should start there and stay limited to one deterministic source-backed close/control checklist foundation.
+FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. FP-0057 is now the shipped F6H record for one deterministic source-backed close/control checklist foundation.
 
 The current backend-first CFO Wiki read surface is:
 

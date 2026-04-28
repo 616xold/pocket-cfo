@@ -74,6 +74,11 @@ function createAppContainer(
   mode: AppContainer["operatorControl"]["liveControl"]["mode"],
 ): AppContainer {
   return {
+    closeControlService: {
+      async getChecklist() {
+        throw new Error("getChecklist should not be called in this test");
+      },
+    } as AppContainer["closeControlService"],
     githubAppService: {
       async getRepository() {
         return {
@@ -415,7 +420,9 @@ function createAppContainer(
         throw new Error("fileDraftArtifacts should not be called in this test");
       },
       async recordCirculationLog() {
-        throw new Error("recordCirculationLog should not be called in this test");
+        throw new Error(
+          "recordCirculationLog should not be called in this test",
+        );
       },
       async recordCirculationLogCorrection() {
         throw new Error(

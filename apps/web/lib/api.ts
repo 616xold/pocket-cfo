@@ -1,6 +1,7 @@
 import {
   ApprovalRecordSchema,
   CfoWikiCompanySourceListViewSchema,
+  CloseControlChecklistResultSchema,
   CreateBoardPacketMissionInputSchema,
   CreateDiligencePacketMissionInputSchema,
   CreateDiscoveryMissionInputSchema,
@@ -43,6 +44,7 @@ import {
 } from "@pocket-cto/domain";
 import type {
   ApprovalDecision,
+  CloseControlChecklistResult,
   MissionSourceKind,
   MissionStatus,
   MonitorLatestResult,
@@ -80,6 +82,7 @@ type MissionList = z.output<typeof missionListSchema>;
 
 const sourceListSchema = SourceListViewSchema;
 const cfoWikiCompanySourceListSchema = CfoWikiCompanySourceListViewSchema;
+const closeControlChecklistSchema = CloseControlChecklistResultSchema;
 
 const sourceDetailSchema = SourceDetailViewSchema;
 
@@ -288,6 +291,21 @@ export async function getCfoWikiCompanySourceList(
   return fetchJson(
     `/cfo-wiki/companies/${encodeURIComponent(normalizedCompanyKey)}/sources`,
     cfoWikiCompanySourceListSchema,
+  );
+}
+
+export async function getCloseControlChecklist(
+  companyKey: string,
+): Promise<CloseControlChecklistResult | null> {
+  const normalizedCompanyKey = companyKey.trim();
+
+  if (!normalizedCompanyKey) {
+    return null;
+  }
+
+  return fetchJson(
+    `/close-control/companies/${encodeURIComponent(normalizedCompanyKey)}/checklist`,
+    closeControlChecklistSchema,
   );
 }
 

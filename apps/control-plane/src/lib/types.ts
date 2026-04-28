@@ -1,5 +1,6 @@
 import type { OperatorControlAvailability as DomainOperatorControlAvailability } from "@pocket-cto/domain";
 import type { ApprovalService } from "../modules/approvals/service";
+import type { CloseControlService } from "../modules/close-control/service";
 import type { CfoWikiService } from "../modules/wiki/service";
 import type { FinanceTwinService } from "../modules/finance-twin/service";
 import type { GitHubAppService } from "../modules/github-app/service";
@@ -73,6 +74,11 @@ export type MonitoringServicePort = Pick<
   | "runCollectionsPressureMonitor"
   | "runPayablesPressureMonitor"
   | "runPolicyCovenantThresholdMonitor"
+>;
+
+export type CloseControlServicePort = Pick<
+  CloseControlService,
+  "getChecklist"
 >;
 
 export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
@@ -168,6 +174,7 @@ export type TwinServicePort = Pick<
 >;
 
 export type AppContainer = {
+  closeControlService: CloseControlServicePort;
   githubAppService: GitHubAppServicePort;
   githubIssueIntakeService: GitHubIssueIntakeServicePort;
   githubWebhookService: GitHubWebhookServicePort;
