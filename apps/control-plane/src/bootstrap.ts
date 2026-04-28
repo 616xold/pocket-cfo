@@ -10,6 +10,7 @@ import type {
 import { DrizzleApprovalRepository } from "./modules/approvals/drizzle-repository";
 import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
+import { CloseControlAcknowledgementService } from "./modules/close-control-acknowledgement/service";
 import { CloseControlService } from "./modules/close-control/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
@@ -117,6 +118,7 @@ type ServerContainerFactories = {
 
 type SharedKernel = {
   approvalService: ApprovalService;
+  closeControlAcknowledgementService: CloseControlAcknowledgementService;
   closeControlService: CloseControlService;
   cfoWikiService: CfoWikiService;
   financeTwinService: FinanceTwinService;
@@ -422,6 +424,11 @@ function buildSharedKernel(input: {
     closeControlService,
     monitoringService,
   });
+  const closeControlAcknowledgementService =
+    new CloseControlAcknowledgementService({
+      closeControlService,
+      operatorReadinessService,
+    });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -440,6 +447,7 @@ function buildSharedKernel(input: {
 
   return {
     approvalService,
+    closeControlAcknowledgementService,
     closeControlService,
     cfoWikiService,
     financeDiscoveryService,
@@ -526,6 +534,8 @@ function toAppContainer(
   liveControl: OperatorControlAvailability,
 ): AppContainer {
   return {
+    closeControlAcknowledgementService:
+      kernel.closeControlAcknowledgementService,
     closeControlService: kernel.closeControlService,
     cfoWikiService: kernel.cfoWikiService,
     financeTwinService: kernel.financeTwinService,

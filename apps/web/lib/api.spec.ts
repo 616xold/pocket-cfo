@@ -217,6 +217,44 @@ describe("web api module", () => {
     );
   });
 
+  it("reads the close/control acknowledgement-readiness route as an internal review-only contract", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      async json() {
+        return buildCloseControlAcknowledgementPayload();
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const readiness =
+      await mod.getCloseControlAcknowledgementReadiness(" acme ");
+
+    expect(readiness?.companyKey).toBe("acme");
+    expect(readiness?.aggregateStatus).toBe(
+      "needs_review_before_acknowledgement",
+    );
+    expect(
+      readiness?.acknowledgementTargets.map((target) => target.targetKind),
+    ).toEqual(["checklist_aggregate", "checklist_item_family"]);
+    expect(readiness?.runtimeActionBoundary).toMatchObject({
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      outboxSendCreated: false,
+      reportCreated: false,
+      approvalCreated: false,
+      missionCreated: false,
+      monitorRunTriggered: false,
+      monitorResultCreated: false,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/close-control/companies/acme/acknowledgement-readiness`,
+      {
+        cache: "no-store",
+      },
+    );
+  });
+
   it("reads the operator readiness route as an internal review-only contract", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -3230,6 +3268,143 @@ function buildCloseControlChecklistPayload() {
         "Checklist generation is a read-only deterministic derivation with no runtime or action side effects.",
       replayImplication:
         "The checklist is not stored as a separate mission replay event in F6H.",
+    },
+  };
+}
+
+function buildCloseControlAcknowledgementPayload() {
+  return {
+    companyKey: "acme",
+    generatedAt: "2026-04-28T12:00:00.000Z",
+    aggregateStatus: "needs_review_before_acknowledgement",
+    acknowledgementTargets: [
+      {
+        targetKey: "close-control:checklist-aggregate",
+        targetKind: "checklist_aggregate",
+        status: "needs_review_before_acknowledgement",
+        evidenceBasis: {
+          summary:
+            "Checklist aggregate acknowledgement readiness uses F6H and F6J posture.",
+          checklistEvidenceRefs: [
+            {
+              kind: "derived_checklist_read",
+              evidencePath: "closeControlChecklist.aggregateStatus",
+              summary: "Derived close/control checklist aggregate posture.",
+              sourceId: null,
+              sourceSnapshotId: null,
+              sourceFileId: null,
+              syncRunId: null,
+              pageKey: null,
+              monitorKind: null,
+              monitorResultId: null,
+            },
+          ],
+          readinessEvidenceRefs: [],
+        },
+        sourcePosture: {
+          state: "limited_source",
+          summary: "Checklist aggregate needs review before acknowledgement.",
+          missingSource: false,
+        },
+        freshnessSummary: {
+          state: "mixed",
+          summary: "Checklist or readiness context needs review.",
+          latestObservedAt: "2026-04-28T12:00:00.000Z",
+        },
+        limitations: [
+          "Aggregate acknowledgement readiness remains internal review posture only.",
+        ],
+        proofPosture: {
+          state: "limited_by_coverage_gap",
+          summary: "Aggregate proof posture needs review.",
+        },
+        humanReviewNextStep:
+          "Review non-ready checklist posture before internal acknowledgement readiness.",
+        relatedChecklistItemFamily: null,
+        relatedReadinessItemKey: null,
+      },
+      {
+        targetKey: "close-control:item-family:cash_source_freshness_review",
+        targetKind: "checklist_item_family",
+        status: "needs_review_before_acknowledgement",
+        evidenceBasis: {
+          summary:
+            "Cash source acknowledgement readiness uses checklist item posture.",
+          checklistEvidenceRefs: [],
+          readinessEvidenceRefs: [
+            {
+              kind: "close_control_checklist_item",
+              evidencePath:
+                "closeControlChecklist.items.cash_source_freshness_review",
+              summary: "Derived close/control checklist item posture.",
+              sourceId: null,
+              sourceSnapshotId: null,
+              sourceFileId: null,
+              syncRunId: null,
+              pageKey: null,
+              monitorKind: null,
+              monitorResultId: null,
+              checklistItemFamily: "cash_source_freshness_review",
+              proofRef: null,
+            },
+          ],
+        },
+        sourcePosture: {
+          state: "limited_source",
+          summary: "Cash source posture needs review.",
+          missingSource: false,
+        },
+        freshnessSummary: {
+          state: "mixed",
+          summary: "Cash source freshness needs review.",
+          latestObservedAt: "2026-04-28T12:00:00.000Z",
+        },
+        limitations: [
+          "Cash source posture must be reviewed before acknowledgement readiness.",
+        ],
+        proofPosture: {
+          state: "limited_by_coverage_gap",
+          summary: "Cash source proof is limited by coverage gaps.",
+        },
+        humanReviewNextStep:
+          "Review cash source posture before internal acknowledgement readiness.",
+        relatedChecklistItemFamily: "cash_source_freshness_review",
+        relatedReadinessItemKey: "close-control:cash_source_freshness_review",
+      },
+    ],
+    evidenceSummary:
+      "F6K acknowledgement readiness is derived from checklist and operator readiness only.",
+    limitations: [
+      "Acknowledgement readiness creates no acknowledgement record or external action.",
+    ],
+    operatorReadinessContext: {
+      operatorReadinessAggregateStatus: "needs_review",
+      nonReadyReadinessItemKeys: ["close-control:cash_source_freshness_review"],
+      summary: "Operator readiness context has one item that needs review.",
+      limitations: ["Operator readiness context remains read-only."],
+    },
+    runtimeActionBoundary: {
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      outboxSendCreated: false,
+      reportCreated: false,
+      approvalCreated: false,
+      missionCreated: false,
+      monitorRunTriggered: false,
+      monitorResultCreated: false,
+      accountingWriteCreated: false,
+      bankWriteCreated: false,
+      taxFilingCreated: false,
+      legalAdviceGenerated: false,
+      policyAdviceGenerated: false,
+      paymentInstructionCreated: false,
+      collectionInstructionCreated: false,
+      customerContactInstructionCreated: false,
+      autonomousActionCreated: false,
+      summary:
+        "Acknowledgement readiness generation is deterministic and action-free.",
+      replayImplication:
+        "The readiness result is not persisted as a mission replay event.",
     },
   };
 }

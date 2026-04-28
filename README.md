@@ -52,6 +52,7 @@ Today the merged backbone is:
 - F6H additive deterministic close/control checklist foundation from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only, with review/blocked statuses, explicit absence boundaries, and no monitor reruns, missions, reports, approvals, delivery, runtime-Codex, accounting/bank/tax writes, legal/policy advice, payment behavior, collection/customer-contact instructions, or autonomous actions
 - F6I additive close/control expected-output expansion for the existing `pocket-cfo-monitor-demo` stack-pack, extending `pnpm smoke:monitor-demo-replay:local` so the existing replay proof also verifies normalized F6H checklist posture, raw fixture immutability, absence boundaries, and no new monitor or discovery families
 - F6J additive deterministic internal operator attention/readiness read model from latest persisted monitor results, close/control checklist posture, source/freshness posture, and proof posture only, with explicit runtime/action absence boundaries and no monitor reruns, missions, reports, approvals, delivery, runtime-Codex, payment behavior, legal/policy advice, collection/customer-contact instructions, or new monitor/discovery families
+- F6K additive deterministic internal close/control acknowledgement-readiness read model from shipped close/control checklist posture and operator-readiness posture only, with source/freshness posture, proof posture, limitations, human-review next step, and explicit absence boundaries proving no approval, close-complete status, delivery, outbox send, report, mission creation, monitor rerun, runtime-Codex, finance write, legal/policy advice, collection/customer-contact instruction, autonomous action, new monitor family, or new discovery family
 
 `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F record for one deterministic monitor demo replay and one stack-pack foundation.
 `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G record for the first collections-pressure alert-to-investigation handoff.
@@ -59,7 +60,7 @@ F6G shipped only a manual, source-backed `collections_pressure` alert-to-investi
 `plans/FP-0057-close-control-checklist-foundation.md` is now the shipped F6H record for one deterministic close/control checklist foundation. That slice did not add F6I, monitor families, discovery families, monitor reruns, investigations, runtime-Codex, delivery, reports, approvals, accounting/bank/tax writes, payment behavior, legal/policy advice, collection/customer-contact instructions, or autonomous actions.
 `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is now the shipped F6I record. F6I extended the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output and updated the existing deterministic replay proof only. It did not add monitor families, discovery families, routes, schema, migrations, package scripts, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection/customer-contact instructions, or autonomous actions.
 `plans/FP-0059-operator-notification-readiness-foundation.md` is now the shipped F6J record. F6J adds one read-only internal operator attention/readiness foundation over shipped stored state only; it did not add external delivery, notification providers, outbox send behavior, report delivery, runtime-Codex drafting, approvals, mission creation, monitor reruns, payment behavior, legal/policy advice, collection/customer-contact instructions, new monitor families, or new discovery families.
-`plans/FP-0060-close-control-acknowledgement-foundation.md` is the active F6K implementation-ready contract. F6K is planned only as internal close/control acknowledgement readiness over shipped checklist/readiness posture; no F6K implementation has started, and the plan forbids approvals, close-complete status, delivery, notifications, reports, runtime-Codex, mission creation, monitor reruns, source mutation, finance actions, new monitor families, and new discovery families.
+`plans/FP-0060-close-control-acknowledgement-foundation.md` is now the shipped F6K record. F6K adds one read-only internal close/control acknowledgement-readiness result over shipped checklist/readiness posture only; it does not add approvals, close-complete status, delivery, notifications, reports, runtime-Codex, mission creation, monitor reruns, source mutation, finance actions, new monitor families, or new discovery families. F6L planning should start next only as a new Finance Plan.
 
 Broad F2 Finance Twin breadth is now shipped through F2O.
 The final F2 closeout and handoff are recorded in `plans/FP-0024-final-f2-exit-audit-and-polish.md` and `plans/FP-0025-final-f2-handoff-and-plan-chain-polish.md`.
@@ -283,6 +284,7 @@ pnpm smoke:payables-pressure-monitor:local
 pnpm smoke:policy-covenant-threshold-monitor:local
 pnpm smoke:monitor-demo-replay:local
 pnpm smoke:close-control-checklist:local
+pnpm smoke:close-control-acknowledgement:local
 pnpm smoke:operator-readiness:local
 pnpm smoke:finance-memo:local
 pnpm smoke:finance-report-filed-artifact:local
@@ -323,10 +325,11 @@ The current backend-first monitoring surface is:
 - `POST /monitoring/companies/:companyKey/policy-covenant-threshold/run`
 - `GET /monitoring/companies/:companyKey/policy-covenant-threshold/latest`
 - `GET /close-control/companies/:companyKey/checklist`
+- `GET /close-control/companies/:companyKey/acknowledgement-readiness`
 - `GET /operator-readiness/companies/:companyKey`
 - `POST /missions/monitoring-investigations` for persisted alerting `cash_posture` and `collections_pressure` results only; F6G preserves the shipped cash handoff and keeps `payables_pressure` and `policy_covenant_threshold` investigations rejected
 
-FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. FP-0057 is now the shipped F6H record for one deterministic source-backed close/control checklist foundation. FP-0058 is now the shipped F6I record for extending the existing demo stack-pack replay proof with normalized close/control checklist expected output. FP-0059 is now the shipped F6J record for one deterministic internal operator attention/readiness read model. FP-0060 is the active F6K implementation-ready contract for internal close/control acknowledgement readiness only; no F6K implementation has started.
+FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. FP-0057 is now the shipped F6H record for one deterministic source-backed close/control checklist foundation. FP-0058 is now the shipped F6I record for extending the existing demo stack-pack replay proof with normalized close/control checklist expected output. FP-0059 is now the shipped F6J record for one deterministic internal operator attention/readiness read model. FP-0060 is now the shipped F6K record for one deterministic internal close/control acknowledgement-readiness read model; no F6L implementation has started.
 
 The current backend-first CFO Wiki read surface is:
 

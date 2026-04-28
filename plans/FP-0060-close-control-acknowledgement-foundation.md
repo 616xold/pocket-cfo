@@ -1,9 +1,9 @@
-# Define F6K close/control acknowledgement foundation
+# Ship F6K close/control acknowledgement foundation
 
 ## Purpose / Big Picture
 
-This file is the active Finance Plan for the Pocket CFO F6K implementation contract.
-The target phase is `F6`, and the next implementation slice is exactly `F6K-close-control-acknowledgement-foundation`.
+This file is the shipped Finance Plan record for the Pocket CFO F6K implementation contract.
+The target phase is `F6`, and the shipped implementation slice is exactly `F6K-close-control-acknowledgement-foundation`.
 
 The user-visible goal is narrow: after shipped F6A through F6J, Pocket CFO should be able to show an internal operator whether a close/control posture is ready to be acknowledged as reviewed.
 The first F6K slice is an internal close/control acknowledgement-readiness foundation only.
@@ -14,12 +14,11 @@ The shipped F6H checklist already produces one deterministic close/control read 
 The shipped F6J readiness result already derives internal operator attention/readiness from latest persisted monitor results and close/control checklist posture.
 Those surfaces carry source lineage or proof references, freshness or missing-source posture, limitations, proof posture, status, human-review next steps, and explicit runtime/action absence boundaries.
 
-F6K should therefore start from existing stored/read posture and define one deterministic acknowledgement-readiness contract for internal operator review.
-It must not persist an acknowledgement record in the first implementation unless the implementation thread proves that read-only acknowledgement readiness cannot satisfy the operator need.
+F6K starts from existing stored/read posture and defines one deterministic acknowledgement-readiness contract for internal operator review.
+It does not persist an acknowledgement record in the first implementation.
 If a future persisted acknowledgement record is justified, it must be additive, idempotent, company-scoped, evidence-linked, and explicitly not an approval, not sign-off, not certification, not report release, and not close complete.
 
-This master-plan-and-doc-refresh thread is docs-and-plan only.
-It creates this active implementation-ready contract and refreshes active guidance, but it does not start F6K implementation.
+This implementation thread ships the first read-only/no-schema F6K slice and refreshes active guidance after behavior lands.
 GitHub connector work is explicitly out of scope.
 
 ## Progress
@@ -27,12 +26,13 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T17:13:34Z Invoke the requested Pocket CFO operator plugin guards, run preflight, confirm the branch, GitHub access, Docker services, clean worktree, and fetched `origin/main`.
 - [x] 2026-04-28T17:13:34Z Read active docs, shipped FP-0050 through FP-0059 records, package scripts, close/control, operator-readiness, approvals, missions, evidence, and shipped smoke/proof posture.
 - [x] 2026-04-28T17:13:34Z Decide that F6K is safe as a close/control acknowledgement foundation, rather than switching next to F6L source-pack expansion, because acknowledgement can remain internal, review-only, and grounded in shipped checklist/readiness posture.
-- [x] 2026-04-28T17:13:34Z Create FP-0060 as the single active F6K implementation-ready contract while preserving FP-0050 through FP-0059 as shipped F6A through F6J records.
-- [x] 2026-04-28T17:13:34Z Keep this thread docs-and-plan only: no code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, or implementation scaffolding were added.
-- [x] 2026-04-28T17:22:37Z Run the full requested validation ladder, including the serial DB-backed smokes, targeted twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed for the docs-and-plan-only F6K contract.
-- [ ] Future implementation thread: add only the first deterministic internal acknowledgement-readiness contract if validation confirms the shipped F6H/F6J baseline remains green.
-- [ ] Future implementation thread: prefer read-only/no-schema acknowledgement readiness unless persistence is justified in this plan before code changes.
-- [ ] Future implementation thread: refresh active docs only after behavior lands and record final validation in this plan.
+- [x] 2026-04-28T17:13:34Z Create FP-0060 initially as the single F6K implementation-ready contract while preserving FP-0050 through FP-0059 as shipped F6A through F6J records.
+- [x] 2026-04-28T17:13:34Z Keep the initial planning pass docs-only: no code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, or implementation scaffolding were added.
+- [x] 2026-04-28T17:22:37Z Run the full requested validation ladder, including the serial DB-backed smokes, targeted twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed for the initial planning-only F6K contract.
+- [x] 2026-04-28T17:56:28Z Add the first deterministic internal acknowledgement-readiness contract in `packages/domain` with checklist aggregate and item-family targets, narrow acknowledgement status vocabulary, evidence/freshness/proof/limitation posture, human-review next steps, and runtime/action absence boundary fields.
+- [x] 2026-04-28T17:56:28Z Add a read-only/no-schema control-plane bounded context and thin `GET /close-control/companies/:companyKey/acknowledgement-readiness` route that reads only shipped close/control checklist and operator-readiness posture.
+- [x] 2026-04-28T17:56:28Z Add the smallest operator UI read surface, the packaged `pnpm smoke:close-control-acknowledgement:local` proof, and active-doc updates identifying FP-0060 as the shipped F6K record.
+- [x] 2026-04-28T18:14:09Z Run the full requested validation ladder for the implementation slice, including shipped F6A through F6J smokes, the new F6K smoke, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -50,6 +50,9 @@ That absence is useful: the first contract can avoid inheriting report approval,
 The safest first persistence decision is no persistence.
 The shipped monitor results are durable, while F6H and F6J are deterministic read models over stored state.
 An acknowledgement-readiness view can preserve truthfulness without adding a table, replay event, or idempotency contract until a real operator need for retained acknowledgements is proven.
+
+The implementation confirmed that read-only F6K is enough for the first slice.
+No schema, migration, replay event, persisted acknowledgement record, monitor rerun, mission, report, approval, delivery/outbox send, runtime-Codex thread, finance write, advice output, collection/customer-contact instruction, autonomous action, monitor family, or discovery family was needed.
 
 ## Decision Log
 
@@ -83,6 +86,15 @@ Acknowledgement readiness must never hide stale, partial, inferred, conflicting,
 Decision: F6K should ship read-only and no-schema first.
 Rationale: persistence is not needed to show acknowledgement readiness. If a future implementation proves an internal acknowledgement record is required, that record must be additive, idempotent, company-scoped, evidence-linked, actor-attributed, and explicitly not an approval, not sign-off, not certification, not close complete, not report release, and not external delivery.
 Do not add schema casually.
+
+Decision: F6K shipped as a separate `close-control-acknowledgement` bounded context.
+Rationale: the new module reads the shipped F6H checklist service and the shipped F6J operator-readiness service without changing either behavior. It keeps acknowledgement-readiness orchestration, formatting, route parsing, and tests modular and avoids bloating the existing close/control checklist module.
+
+Decision: F6K includes one aggregate target plus deterministic checklist item-family targets.
+Rationale: always including item-family targets makes ready and non-ready posture observable and testable. Aggregate posture maps `ready_for_review` to `ready_for_acknowledgement`, `needs_review` to `needs_review_before_acknowledgement`, and `blocked_by_evidence` to `blocked_by_evidence`, with operator-readiness blocked/needs-review context surfaced rather than hidden.
+
+Decision: F6K includes a small UI read surface and a packaged smoke.
+Rationale: a human can observe the read model without any action buttons, and `pnpm smoke:close-control-acknowledgement:local` proves the internal posture plus absence boundaries alongside the shipped F6A through F6J smokes.
 
 Decision: F6K preserves shipped F5 and F6 behavior.
 Rationale: F6K must not change F5 report/release/circulation/correction behavior, monitor evaluators, F6B/F6G mission handoffs, F6H checklist behavior, F6J readiness behavior, approval kinds, report conversion, or release/circulation logging unless a later implementation thread proves a direct truthfulness gap and updates this plan first.
@@ -122,57 +134,55 @@ The current shipped finance-discovery families remain exactly:
 - `obligation_calendar_review`
 - `policy_lookup`
 
-The relevant existing implementation seams for a future F6K implementation are:
+The relevant implementation seams for shipped F6K are:
 
 - `packages/domain/src/close-control.ts` for the checklist item families, review statuses, source posture, evidence refs, proof posture, and runtime/action absence boundary
 - `packages/domain/src/operator-readiness.ts` for internal operator readiness posture, evidence basis, freshness, limitations, proof posture, and runtime/action absence boundary
+- `packages/domain/src/close-control-acknowledgement.ts` for the F6K acknowledgement-readiness contract
 - `packages/domain/src/approval.ts` as a boundary to avoid, not as the first F6K implementation seam
 - `packages/domain/src/proof-bundle.ts` and `packages/domain/src/mission-detail.ts` for proof and mission vocabulary that F6K should not widen
 - `apps/control-plane/src/modules/close-control/**` for the shipped deterministic checklist read
 - `apps/control-plane/src/modules/operator-readiness/**` for the shipped deterministic readiness read
+- `apps/control-plane/src/modules/close-control-acknowledgement/**` for the shipped read-only acknowledgement-readiness formatter, service, schema, route, and specs
 - `apps/control-plane/src/modules/approvals/**` for report/runtime approvals that F6K must not reuse
 - `apps/control-plane/src/modules/missions/**` for shipped alert handoffs that F6K must not widen
 - `apps/control-plane/src/modules/evidence/**` for proof-language conventions only, not report conversion
+- `apps/web/app/close-control/acknowledgement-readiness/**` and `apps/web/components/close-control-acknowledgement-card.tsx` for the smallest shipped operator read surface
 - `tools/close-control-checklist-smoke.mjs`, `tools/operator-readiness-smoke.mjs`, and `tools/monitor-demo-replay-smoke.mjs` for shipped proof and absence-boundary patterns
+- `tools/close-control-acknowledgement-smoke.mjs` for the shipped F6K proof
 
 No GitHub connector work is in scope.
 No new environment variables are expected.
 No runtime-Codex behavior is expected.
 No source mutation is expected.
-No route, schema, migration, package script, smoke command, eval dataset, fixture, or implementation scaffold was added by this planning slice.
+No database schema migration, eval dataset, demo fixture, persisted acknowledgement record, monitor family, or discovery family was added by this implementation slice.
 
 ## Plan of Work
 
-First, the future implementation should add a pure domain acknowledgement-readiness contract only if it can remain read-only.
-The preferred shape is a deterministic result over one company and one bounded acknowledgement target.
-The target vocabulary should be narrow, such as `close_control_checklist_aggregate` and explicit F6H checklist item families when they block aggregate acknowledgement readiness.
-The status vocabulary should stay review-oriented, such as `ready_for_review`, `needs_review`, and `blocked_by_evidence`, rather than `approved`, `signed_off`, `certified`, or `close_complete`.
+The shipped implementation adds a pure domain acknowledgement-readiness contract that remains read-only.
+The result is company-scoped, includes one checklist aggregate target plus deterministic checklist item-family targets, and uses only the acknowledgement statuses `ready_for_acknowledgement`, `needs_review_before_acknowledgement`, and `blocked_by_evidence`.
 
-Second, the future implementation should read only existing posture.
-It should depend on the close/control checklist read and operator-readiness read, plus latest persisted monitor results only if needed for evidence context already present in those reads.
-It must not rerun monitors, create monitor results, create or open missions, read generic chat, invoke runtime-Codex, or use report artifacts as primary input.
+The shipped control-plane service reads only existing posture.
+It depends on the close/control checklist read and operator-readiness read, and it does not rerun monitors, create monitor results, create or open missions, read generic chat, invoke runtime-Codex, or use report artifacts as primary input.
 
-Third, the future implementation should decide persistence before code.
-The first implementation should remain read-only/no-schema unless a concrete operator need proves that an internal acknowledgement record must be retained.
-If persistence becomes necessary, amend this plan before code to name the record shape, idempotency key, replay implications, actor metadata, evidence links, and recovery behavior.
+The first shipped implementation remains read-only/no-schema.
+If persistence becomes necessary later, a new plan must name the record shape, idempotency key, replay implications, actor metadata, evidence links, recovery behavior, and explicit non-approval/non-close-complete boundary before code changes.
 
-Fourth, the future implementation should expose only internal operator-visible posture.
-If a route or UI is needed, it should be read-only and thin.
-It must not present approval buttons, close-complete actions, send controls, report-release controls, notification controls, monitor-run controls, mission-creation controls, payment controls, legal/policy advice controls, collection/customer-contact controls, or autonomous remediation controls.
+The shipped route and UI expose only internal operator-visible posture.
+They do not present action controls for approvals, close-complete posture, sending, report release, notifications, monitor runs, mission creation, payments, legal/policy advice, collection/customer-contact instructions, runtime-Codex, or autonomous remediation.
 
-Fifth, the future implementation should prove absence boundaries using existing shipped smokes and focused tests.
-No new package script is created by this plan.
-If implementation later adds a new proof command, this plan must be updated first with the exact reason and boundary.
+The shipped proof uses focused tests plus `pnpm smoke:close-control-acknowledgement:local` and the existing F6A through F6J smokes to prove absence boundaries.
 
 ## Concrete Steps
 
-1. Add a pure acknowledgement-readiness contract in the domain package only in the implementation thread.
-   Expected future file if implementation proceeds:
+1. Add a pure acknowledgement-readiness contract in the domain package.
+   Shipped files:
    - `packages/domain/src/close-control-acknowledgement.ts`
+   - `packages/domain/src/close-control-acknowledgement.spec.ts`
 
-   Required behavior:
+   Shipped behavior:
    - one company-scoped acknowledgement-readiness result
-   - one bounded acknowledgement target: current close/control checklist aggregate, with item-family blockers when relevant
+   - one checklist aggregate target plus deterministic checklist item-family targets
    - source/evidence basis
    - freshness or missing-source posture
    - limitations
@@ -183,27 +193,29 @@ If implementation later adds a new proof command, this plan must be updated firs
    - no close-complete status
    - no report or delivery semantics
 
-2. Add a control-plane read model only if the domain contract exists.
-   Preferred future shape:
-   - `apps/control-plane/src/modules/close-control/acknowledgement-readiness.ts`
-   - adjacent focused specs
+2. Add a control-plane read model.
+   Shipped files:
+   - `apps/control-plane/src/modules/close-control-acknowledgement/schema.ts`
+   - `apps/control-plane/src/modules/close-control-acknowledgement/service.ts`
+   - `apps/control-plane/src/modules/close-control-acknowledgement/formatter.ts`
+   - `apps/control-plane/src/modules/close-control-acknowledgement/routes.ts`
+   - focused service and route specs
 
-   The service must:
+   The service:
    - accept exactly one `companyKey`
    - read the shipped close/control checklist posture
-   - read the shipped operator-readiness posture only if needed to preserve review context
-   - avoid direct SQL unless a future persisted acknowledgement record is explicitly justified
-   - never create missions, reports, approvals, outbox events, monitor results, monitor runs, runtime-Codex work, payments, bank/accounting/tax/legal actions, policy advice, collection instructions, customer-contact instructions, or autonomous actions
+   - read the shipped operator-readiness posture as context only
+   - avoids direct SQL and persistence
+   - never creates missions, reports, approvals, outbox events, monitor results, monitor runs, runtime-Codex work, payments, bank/accounting/tax/legal actions, policy advice, collection instructions, customer-contact instructions, or autonomous actions
 
-3. If a route is needed, keep it read-only and thin.
-   Possible future route:
+3. Keep the shipped route read-only and thin.
+   Shipped route:
    - `GET /close-control/companies/:companyKey/acknowledgement-readiness`
 
-   The route must parse input, call the service, and serialize output.
-   It must not contain SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, delivery logic, notification provider logic, monitor rerun logic, or action execution.
+   The route parses input, calls the service, and serializes output.
+   It contains no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, delivery logic, notification provider logic, monitor rerun logic, or action execution.
 
 4. Do not persist a record in the first implementation.
-   If the implementation thread proves persistence is required, amend this plan before adding schema.
    Any future persisted acknowledgement must include:
    - `companyKey`
    - bounded acknowledgement target
@@ -215,32 +227,36 @@ If implementation later adds a new proof command, this plan must be updated firs
    - explicit fields or wording that it is not an approval and not close complete
 
 5. Preserve shipped F5 and F6 behavior.
-   Required absence checks:
+   Shipped absence checks:
    - no F5 report/release/circulation/correction changes
    - no monitor evaluator changes
    - no F6B/F6G mission changes
-   - no F6H checklist behavior changes unless a direct truthfulness gap is proven first
-   - no F6J readiness behavior changes unless a direct truthfulness gap is proven first
+   - no F6H checklist behavior changes
+   - no F6J readiness behavior changes
    - no approval kind
    - no report conversion
    - no delivery, notification provider, outbox send, or external publish behavior
    - no monitor-family or discovery-family expansion
 
 6. Refresh docs after behavior lands.
-   Expected docs if future implementation changes behavior:
+   Updated docs:
    - `README.md`
    - `START_HERE.md`
    - `docs/ACTIVE_DOCS.md`
    - `plans/ROADMAP.md`
    - `docs/ops/local-dev.md`
-   - `docs/ops/source-ingest-and-cfo-wiki.md` only if source/freshness wording becomes stale
-   - `docs/ops/codex-app-server.md` only if runtime-boundary wording becomes stale
-   - `evals/README.md` and `docs/benchmarks/seeded-missions.md` only if validation or proof wording becomes stale
+   - `docs/ops/source-ingest-and-cfo-wiki.md`
+   - `docs/ops/codex-app-server.md`
+   - `evals/README.md`
+   - `docs/benchmarks/seeded-missions.md`
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the requested validation ladder, with DB-backed smokes serially and the cash/collections alert handoff smokes not run in parallel:
+This implementation thread must run the requested validation ladder, with DB-backed smokes serially and the cash/collections alert handoff smokes not run in parallel:
 
+- `pnpm --filter @pocket-cto/domain exec vitest run src/close-control-acknowledgement.spec.ts src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
+- `cd apps/control-plane && pnpm exec vitest run src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/approvals/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts`
+- `cd apps/web && pnpm exec vitest run app/close-control/acknowledgement-readiness/**/*.spec.ts* components/close-control-acknowledgement-card.spec.tsx lib/api.spec.ts`
 - `pnpm smoke:operator-readiness:local`
 - `pnpm smoke:close-control-checklist:local`
 - `pnpm smoke:monitor-demo-replay:local`
@@ -251,11 +267,15 @@ This docs-and-plan thread must run the requested validation ladder, with DB-back
 - `pnpm smoke:cash-posture-alert-investigation:local`
 - `pnpm smoke:collections-pressure-alert-investigation:local`
 - `pnpm smoke:finance-discovery-supported-families:local`
+- `pnpm smoke:close-control-acknowledgement:local`
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm ci:repro:current`
+
+Final F6K implementation validation passed on 2026-04-28T18:14:09Z.
+The validation included the focused domain/control-plane/web tests, all shipped F6 proof smokes, the new close/control acknowledgement-readiness smoke, twin guardrail specs, lint, typecheck, full test, and reproducibility check.
 
 F6K implementation acceptance is observable only if all of the following are true:
 
@@ -278,24 +298,26 @@ Raw sources, source snapshots, source files, deterministic extracts, CFO Wiki pa
 
 If source state is missing, stale, failed, unsupported, partial, conflicting, or insufficient, F6K should report that posture instead of inventing acknowledgement readiness, approval, sign-off, or close completion.
 
-Rollback for a future implementation should revert only the additive F6K contract/read-model/UI/proof/doc changes.
+Rollback for this implementation should revert only the additive F6K contract/read-model/UI/proof/doc changes.
 Rollback must leave FP-0050 through FP-0059, shipped monitor behavior, shipped alert handoff behavior, shipped checklist behavior, shipped demo replay behavior, shipped operator-readiness behavior, F5 reporting/approval behavior, raw sources, CFO Wiki state, Finance Twin state, and GitHub/engineering-twin modules intact.
 No destructive database migration belongs in F6K.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice produces:
+This implementation slice produces:
 
 - `plans/FP-0060-close-control-acknowledgement-foundation.md`
-- active-doc updates that identify FP-0060 as the active F6K implementation-ready contract
-- no code
-- no routes
+- `packages/domain/src/close-control-acknowledgement.ts`
+- `packages/domain/src/close-control-acknowledgement.spec.ts`
+- `apps/control-plane/src/modules/close-control-acknowledgement/**`
+- `apps/web/app/close-control/acknowledgement-readiness/**`
+- `apps/web/components/close-control-acknowledgement-card.tsx`
+- `tools/close-control-acknowledgement-smoke.mjs`
+- package script `pnpm smoke:close-control-acknowledgement:local`
+- active-doc updates that identify FP-0060 as the shipped F6K record
+- no persisted acknowledgement records
 - no schema or migrations
-- no package scripts
-- no smoke commands
 - no eval datasets
-- no fixtures
-- no implementation scaffolding
 - no monitor families
 - no discovery families
 - no runtime-Codex
@@ -308,14 +330,15 @@ Do not start F6L, F6M, F6N, or later implementation here.
 
 Package boundaries must remain unchanged:
 
-- `packages/domain` owns the pure future acknowledgement-readiness contract if implementation proceeds
-- `packages/db` remains untouched for the first implementation unless this plan is amended to justify a persisted acknowledgement record
-- `apps/control-plane/src/modules/close-control` owns the shipped checklist read and is the preferred bounded context for acknowledgement readiness
+- `packages/domain` owns the shipped pure acknowledgement-readiness contract
+- `packages/db` remains untouched for the first implementation unless a later plan justifies a persisted acknowledgement record
+- `apps/control-plane/src/modules/close-control` owns the shipped checklist read
+- `apps/control-plane/src/modules/close-control-acknowledgement` owns the shipped read-only acknowledgement-readiness service, formatter, schema, route, and specs
 - `apps/control-plane/src/modules/operator-readiness` owns the shipped internal readiness read and may be read as posture, not mutated
 - `apps/control-plane/src/modules/approvals` owns runtime and report approvals and must not become the F6K acknowledgement system
 - `apps/control-plane/src/modules/missions` owns shipped cash plus collections alert investigation handoffs and must not be widened by F6K
 - `apps/control-plane/src/modules/evidence` may be referenced for proof language but must not turn acknowledgements into reports
-- `apps/web` may expose internal read posture only if implementation needs an operator surface
+- `apps/web` exposes internal acknowledgement-readiness posture only, without action buttons
 
 Runtime-Codex stays out of scope:
 
@@ -336,7 +359,7 @@ Delivery and autonomous action stay out of scope:
 
 Later slices are named but not created here:
 
-- `F6L-source-pack-expansion`, only if one demo pack remains green and source-backed
+- `F6L-source-pack-expansion`, only if the shipped F6A through F6K proofs remain green and a new Finance Plan names scope
 - `F6M-external-notification-delivery-planning`, only if a future plan proves safety, review gates, delivery controls, and a human-approved release path
 - `F6N-close-control-reporting-or-certification`, only if operator need and evidence boundaries are proven
 
@@ -346,12 +369,12 @@ Do not delete GitHub or engineering-twin modules as part of F6K.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan thread created FP-0060 after confirming that the shipped F6A through F6J baseline supports a safe internal close/control acknowledgement foundation.
-No F6K implementation started.
+This implementation thread shipped FP-0060 after confirming that the shipped F6A through F6J baseline supports a safe internal close/control acknowledgement foundation.
+F6K now has a deterministic read-only acknowledgement-readiness contract, route, UI surface, and packaged proof command.
 No F6L, F6M, F6N, or later plan was created.
-The full requested validation ladder passed for this docs-and-plan-only slice, including `pnpm ci:repro:current`.
+Final implementation validation passed in this thread, including `pnpm ci:repro:current`.
 
 What remains:
 
-- start F6K implementation next from this active FP-0060 contract, keeping the first slice internal, read-only/no-schema unless persistence is newly justified, approval-free, close-complete-free, delivery-free, runtime-Codex-free, report-free, and action-free
-- keep F6L source-pack expansion, F6M external notification/delivery planning, and F6N close/control reporting or certification uncreated until later named plans prove the need
+- start F6L source-pack expansion planning next only through a new Finance Plan if the operator-review path still needs broader source coverage
+- keep F6M external notification/delivery planning and F6N close/control reporting or certification uncreated until later named plans prove the need

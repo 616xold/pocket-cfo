@@ -74,6 +74,13 @@ function createAppContainer(
   mode: AppContainer["operatorControl"]["liveControl"]["mode"],
 ): AppContainer {
   return {
+    closeControlAcknowledgementService: {
+      async getAcknowledgementReadiness() {
+        throw new Error(
+          "getAcknowledgementReadiness should not be called in this test",
+        );
+      },
+    } as AppContainer["closeControlAcknowledgementService"],
     closeControlService: {
       async getChecklist() {
         throw new Error("getChecklist should not be called in this test");

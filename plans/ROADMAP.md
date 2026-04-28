@@ -425,7 +425,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0057-close-control-checklist-foundation.md` is the shipped F6H implementation record.
 `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is the shipped F6I implementation record.
 `plans/FP-0059-operator-notification-readiness-foundation.md` is the shipped F6J implementation record.
-`plans/FP-0060-close-control-acknowledgement-foundation.md` is the active F6K implementation-ready contract.
+`plans/FP-0060-close-control-acknowledgement-foundation.md` is the shipped F6K implementation record.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -437,7 +437,7 @@ The shipped F6G slice is exactly `F6G-non-cash-alert-to-investigation-generaliza
 The shipped F6H slice is exactly `F6H-close-control-checklist-foundation`.
 The shipped F6I slice is exactly `F6I-stack-pack-expansion-and-close-control-demo-foundation`.
 The shipped F6J slice is exactly `F6J-operator-notification-readiness-foundation`.
-The active F6K contract is exactly `F6K-close-control-acknowledgement-foundation`.
+The shipped F6K slice is exactly `F6K-close-control-acknowledgement-foundation`.
 
 Focus:
 
@@ -452,7 +452,7 @@ Focus:
 - one deterministic close/control checklist foundation that reviews source coverage, source freshness, policy-source posture, and monitor replay readiness without adding alert semantics
 - one shipped stack-pack expansion that adds normalized close/control checklist expected output to the existing `pocket-cfo-monitor-demo` replay proof without adding product runtime behavior
 - one shipped internal operator attention/readiness read model that can show which shipped source-backed posture needs review without external delivery
-- one planned internal close/control acknowledgement-readiness foundation that can show whether shipped checklist/readiness posture is ready for operator review acknowledgement without approvals, close-complete status, delivery, runtime-Codex, missions, monitor reruns, or finance actions
+- one shipped internal close/control acknowledgement-readiness foundation that can show whether shipped checklist/readiness posture is ready for operator review acknowledgement without approvals, close-complete status, delivery, runtime-Codex, missions, monitor reruns, or finance actions
 
 Exit criteria:
 
@@ -466,7 +466,7 @@ Exit criteria:
 - the shipped F6H slice produces one company-scoped deterministic checklist result/read model from stored Finance Twin posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only, with each item carrying source posture, evidence basis, freshness or limitations, status, proof posture, and human-review next step; it makes no close-complete assertion
 - the shipped F6I record extends the existing demo stack-pack proof so one replay verifies shipped monitor outputs, cash plus collections handoffs, payables and policy/covenant investigation absence, normalized close/control checklist items, aggregate status, absence boundaries, fixture immutability, and no new monitor or discovery families
 - the shipped F6J slice stays internal and delivery-free: it adds one deterministic operator readiness/read model over shipped stored state with evidence basis, freshness, limitations, proof posture, status, human-review next steps, and runtime/action absence boundaries, and no notification provider, outbox send, report delivery, approval, mission creation, monitor rerun, runtime-Codex, autonomous action, or new monitor/discovery family
-- the active F6K plan is ready for implementation only as internal acknowledgement readiness over shipped checklist/readiness posture, with no approval kind, close-complete assertion, report release, external delivery, notification provider, outbox send, runtime-Codex, mission creation, monitor rerun, source mutation, autonomous action, or new monitor/discovery family
+- the shipped F6K slice stays internal and read-only: it adds one deterministic acknowledgement-readiness result over shipped checklist/readiness posture, with no approval kind, close-complete assertion, report release, external delivery, notification provider, outbox send, runtime-Codex, mission creation, monitor rerun, source mutation, autonomous action, or new monitor/discovery family
 
 Slice map:
 
@@ -558,17 +558,18 @@ Slice map:
   - packaged proof: `pnpm smoke:operator-readiness:local`
   - no email, Slack, SMS, webhook, notification provider call, outbox send behavior, report delivery, external publish behavior, operator delivery workflow, approval, report conversion, mission creation, monitor rerun, runtime-Codex drafting, payment behavior, legal or policy advice, collection/customer-contact instruction, autonomous action, monitor-family expansion, or discovery-family expansion
 - `F6K — close/control acknowledgement`
-  - active implementation-ready contract in `plans/FP-0060-close-control-acknowledgement-foundation.md`
+  - shipped implementation record in `plans/FP-0060-close-control-acknowledgement-foundation.md`
   - first F6K scope is exactly `F6K-close-control-acknowledgement-foundation`
   - internal operator-visible acknowledgement readiness only, not approval, sign-off, certification, close completion, report release, or external delivery
   - start only from shipped stored/read state: close/control checklist result or read posture, operator-readiness result or read posture, latest persisted monitor results only as context if needed, and source/CFO Wiki freshness posture already surfaced through those reads
   - input must not be generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns, or demo replay runtime execution
   - output contract is one deterministic acknowledgement-readiness result for a bounded target such as the current close/control checklist aggregate plus item-family blockers when relevant
   - each target must include source/evidence basis, freshness or missing-source posture, limitations, proof posture, and a human-review next step
-  - first implementation should prefer read-only/no-schema; any later persisted acknowledgement record must be additive, idempotent, company-scoped, evidence-linked, actor-attributed, and explicitly not an approval or close-complete record
+  - shipped read-only/no-schema; any later persisted acknowledgement record must be additive, idempotent, company-scoped, evidence-linked, actor-attributed, and explicitly not an approval or close-complete record
+  - packaged proof: `pnpm smoke:close-control-acknowledgement:local`
   - no email, Slack, SMS, webhook, notification provider call, outbox send behavior, report delivery, external publish behavior, approval kind, report conversion, mission creation, monitor rerun, runtime-Codex drafting, payment behavior, legal or policy advice, collection/customer-contact instruction, autonomous action, monitor-family expansion, or discovery-family expansion
 - `F6L — source-pack expansion`
-  - later only if the single F6I demo pack remains green and source-backed; do not create FP-0061 from roadmap text alone
+  - later only if the single F6I/F6K proof path remains green and source-backed; start only through a new Finance Plan
 - `F6M — external notification/delivery planning`
   - later only if a future plan proves safety, review gates, delivery controls, and a human-approved release path; do not create FP-0061 from roadmap text alone
 - `F6N — close/control reporting or certification`
