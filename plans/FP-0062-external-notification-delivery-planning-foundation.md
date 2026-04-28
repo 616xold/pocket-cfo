@@ -26,6 +26,7 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T23:04:46Z Decided repo truth supports F6M only as deterministic internal delivery-readiness planning, rather than actual external delivery, F6N reporting/certification planning, or F6O source-pack expansion.
 - [x] 2026-04-28T23:04:46Z Created FP-0062 as the single active implementation-ready F6M contract while preserving FP-0050 through FP-0061 as shipped F6A through F6L records.
 - [x] 2026-04-28T23:15:09Z Ran the requested docs-and-plan validation ladder, including the serial DB-backed smokes, twin guardrail specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-04-28T23:33:34Z Polished F6M handoff wording so implementation may start only from FP-0062 as deterministic internal delivery-readiness, and removed duplicate future-acceptance wording.
 
 ## Surprises & Discoveries
 
@@ -237,7 +238,7 @@ This docs-and-plan thread must run the requested validation ladder after edits:
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-Future F6M implementation acceptance is observable only if all of the following are true:
+Future implementation acceptance requires all of the following:
 
 - one deterministic internal delivery-readiness result or read model exists
 - the result is derived only from shipped stored/read state
@@ -282,7 +283,8 @@ This docs-and-plan slice produces:
 - no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, source mutation, payment behavior, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, generated notification prose, or autonomous action behavior
 
 Do not create FP-0063 in this slice.
-Do not start F6M implementation, F6N, F6O, F6P, or later work here.
+Do not treat this docs-and-plan artifact itself as implementation; a later F6M implementation may start only from FP-0062 and only as deterministic internal delivery-readiness.
+Do not start F6N, F6O, F6P, or later work here.
 
 ## Interfaces and Dependencies
 
