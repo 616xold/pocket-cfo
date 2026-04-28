@@ -88,10 +88,102 @@ describe("CloseControlService", () => {
     expect(cash?.proofPosture.state).toBe("limited_by_stale_source");
   });
 
-  it("surfaces policy-source limitations and malformed threshold posture without advice", async () => {
+  it("keeps one clean exact policy threshold fact ready for review", async () => {
     const service = buildService({
       policyExtractText:
-        "Pocket CFO threshold: covenant_leverage_ratio <= 50 percent",
+        "Pocket CFO threshold: collections_past_due_share <= 50 percent",
+    });
+
+    const checklist = await service.getChecklist("acme");
+    const policy = checklist.items.find(
+      (item) => item.family === "policy_source_freshness_review",
+    );
+
+    expect(policy?.status).toBe("ready_for_review");
+    expect(policy?.proofPosture.state).toBe("source_backed");
+    expect(policy?.limitations.join(" ")).not.toContain("conflicting exact");
+  });
+
+  it("keeps duplicate identical exact policy threshold facts non-conflicting", async () => {
+    const service = buildService({
+      policyExtractText: [
+        "Pocket CFO threshold: collections_past_due_share <= 50 percent",
+        "Pocket CFO threshold: collections_past_due_share <= 50 percent",
+      ].join("\n"),
+    });
+
+    const checklist = await service.getChecklist("acme");
+    const policy = checklist.items.find(
+      (item) => item.family === "policy_source_freshness_review",
+    );
+
+    expect(policy?.status).toBe("ready_for_review");
+    expect(policy?.proofPosture.state).toBe("source_backed");
+    expect(policy?.limitations.join(" ")).not.toContain("conflicting exact");
+  });
+
+  it("limits policy-source readiness when exact threshold facts conflict for one metric", async () => {
+    const service = buildService({
+      policyExtractText: [
+        "Pocket CFO threshold: collections_past_due_share <= 50 percent",
+        "Pocket CFO threshold: collections_past_due_share <= 75 percent",
+      ].join("\n"),
+    });
+
+    const checklist = await service.getChecklist("acme");
+    const policy = checklist.items.find(
+      (item) => item.family === "policy_source_freshness_review",
+    );
+    const limitations = policy?.limitations.join(" ") ?? "";
+
+    expect(checklist.aggregateStatus).toBe("needs_review");
+    expect(policy?.status).toBe("needs_review");
+    expect(policy?.status).not.toBe("ready_for_review");
+    expect(policy?.proofPosture.state).toBe("limited_by_data_quality_gap");
+    expect(limitations).toContain(
+      "conflicting exact threshold facts for collections_past_due_share",
+    );
+    expect(limitations).toContain("<= 50 percent");
+    expect(limitations).toContain("<= 75 percent");
+  });
+
+  it.each([
+    [
+      "unsupported metric",
+      "Pocket CFO threshold: covenant_leverage_ratio <= 50 percent",
+      "unsupported F6E metric",
+    ],
+    [
+      "malformed grammar",
+      "Pocket CFO threshold: collections_past_due_share around 50 percent",
+      "outside the exact F6E grammar",
+    ],
+  ])(
+    "surfaces policy-source limitations and %s threshold posture without advice",
+    async (_name, thresholdLine, expectedLimitation) => {
+      const service = buildService({
+        policyExtractText: thresholdLine,
+      });
+
+      const checklist = await service.getChecklist("acme");
+      const policy = checklist.items.find(
+        (item) => item.family === "policy_source_freshness_review",
+      );
+
+      expect(policy?.status).toBe("needs_review");
+      expect(policy?.proofPosture.state).toBe("limited_by_data_quality_gap");
+      expect(policy?.limitations.join(" ")).toContain(expectedLimitation);
+      expect(checklist.runtimeActionBoundary.legalAdviceGenerated).toBe(false);
+      expect(checklist.runtimeActionBoundary.policyAdviceGenerated).toBe(false);
+    },
+  );
+
+  it("limits policy-source readiness when exact threshold facts conflict by comparator", async () => {
+    const service = buildService({
+      policyExtractText: [
+        "Pocket CFO threshold: collections_past_due_share <= 50 percent",
+        "Pocket CFO threshold: collections_past_due_share < 50 percent",
+      ].join("\n"),
     });
 
     const checklist = await service.getChecklist("acme");
@@ -101,9 +193,9 @@ describe("CloseControlService", () => {
 
     expect(policy?.status).toBe("needs_review");
     expect(policy?.proofPosture.state).toBe("limited_by_data_quality_gap");
-    expect(policy?.limitations.join(" ")).toContain("unsupported F6E metric");
-    expect(checklist.runtimeActionBoundary.legalAdviceGenerated).toBe(false);
-    expect(checklist.runtimeActionBoundary.policyAdviceGenerated).toBe(false);
+    expect(policy?.limitations.join(" ")).toContain(
+      "conflicting exact threshold facts for collections_past_due_share",
+    );
   });
 
   it("reads latest monitor results only as context and never exposes monitor rerun posture", async () => {

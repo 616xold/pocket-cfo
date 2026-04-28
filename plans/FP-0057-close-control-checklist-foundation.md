@@ -29,6 +29,8 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T12:12:47Z Implement `F6H-close-control-checklist-foundation` as one deterministic, read-only close/control checklist read model with no persistence table, monitor rerun, mission creation, report creation, approval creation, delivery/outbox send, runtime-Codex invocation, or external finance action.
 - [x] 2026-04-28T12:12:47Z Add the packaged `pnpm smoke:close-control-checklist:local` proof showing source-backed checklist items, missing-source blocked/review posture, limited posture review posture, latest persisted monitor results as context only, no checklist-triggered side effects, and no new monitor or discovery family.
 - [x] 2026-04-28T12:12:47Z Close FP-0057 as the shipped F6H record. F6I planning must start only as a new Finance Plan; no F6I implementation started here.
+- [x] 2026-04-28T12:43:09Z Apply a narrow post-merge F6H truthfulness polish so policy-source checklist posture treats conflicting exact threshold facts for the same metric as a data-quality gap while keeping duplicate identical threshold facts non-conflicting.
+- [x] 2026-04-28T12:48:41Z Validate the F6H threshold-conflict polish through the requested narrow specs, package specs, shipped Docker-backed smokes, twin guardrails, lint, typecheck, full tests, and `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
@@ -94,6 +96,9 @@ Rationale: the first F6H slice deliberately avoids a `close_complete` state. Com
 
 Decision: keep monitor replay readiness context-only.
 Rationale: the checklist cites latest persisted `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold` results; it does not rerun monitors, create monitor results, create investigations, or treat alerts as approvals.
+
+Decision: conflicting exact policy threshold facts for the same metric are a data-quality gap in F6H policy-source checklist posture.
+Rationale: each line can satisfy the exact grammar while the combined stored CFO Wiki posture is still conflicting, so F6H must not infer which threshold controls or mark policy-source posture as ready for review.
 
 ## Context and Orientation
 
