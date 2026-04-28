@@ -25,6 +25,7 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T00:13:45Z Create FP-0057 as the single active implementation-ready F6H contract while preserving FP-0050 through FP-0056 as shipped F6A through F6G records.
 - [x] 2026-04-28T00:17:13Z Refresh the active-doc spine so the next implementation thread starts from this F6H checklist contract and does not reopen shipped monitor, investigation, report, approval, runtime, delivery, or stack-pack work.
 - [x] 2026-04-28T00:23:03Z Run the docs-and-plan validation ladder requested for this slice through `pnpm ci:repro:current`; all required commands passed.
+- [x] 2026-04-28T11:48:02Z Polish the F6H monitor replay readiness boundary so the first checklist implementation reads latest persisted monitor results only as context and cannot add automatic or manual monitor reruns or monitor-run controls inside the checklist path.
 - [ ] Implement `F6H-close-control-checklist-foundation` in a later thread only after this docs-and-plan slice is merged or explicitly handed off.
 
 ## Surprises & Discoveries
@@ -211,7 +212,10 @@ The proof should cover complete source posture, missing or stale source posture,
    - receivables-aging source freshness review reads stored receivables-aging or collections-posture freshness and limitations
    - payables-aging source freshness review reads stored payables-aging or payables-posture freshness and limitations
    - policy-source freshness review reads stored CFO Wiki policy-document binding, extract, policy page, and policy-corpus posture
-   - monitor replay readiness reads latest persisted monitor results only as context and never reruns monitors automatically unless the implementation chooses an explicit operator action under this plan
+   - monitor replay readiness reads latest persisted monitor results only as context
+   - the first F6H implementation must not rerun monitors automatically or manually
+   - the first F6H implementation must not add monitor-run controls
+   - rerunning monitors remains available only through already shipped monitor routes and smokes, outside the checklist path
    - a close-complete or close-ready aggregate may appear only when all required items are present and fresh; otherwise the aggregate must state review-needed or blocked posture with limitations
 
 5. Preserve shipped F5 and F6 behavior.
