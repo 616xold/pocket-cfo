@@ -1,0 +1,4 @@
+transaction_id,merchant,vendor,employee,card_name,card_last4,category,memo,amount,posted_amount,transaction_amount,currency,transaction_date,posted_date,expense_date,status,state,reimbursable,pending
+TX-001,CloudHost,,Jordan Lee,Ops Card,1111,software,April hosting,,75.50,75.50,USD,2026-04-14,2026-04-15,,submitted,posted,false,false
+TX-002,Office Mart,,Jordan Lee,Ops Card,1111,office,Supplies,120.00,,,USD,2026-04-16,,,submitted,in_review,false,false
+TX-003,Coffee Bar,,Jordan Lee,Team Card,2222,meals,Team coffee,18.25,,,USD,2026-04-17,,,pending,,false,true

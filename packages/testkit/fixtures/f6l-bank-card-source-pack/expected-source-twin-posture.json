@@ -1,0 +1,187 @@
+{
+  "sourcePackId": "pocket-cfo-bank-card-source-pack",
+  "companyKey": "demo-bank-card-source-pack",
+  "sourceRolesPresent": ["bank_account_summary", "card_expense"],
+  "extractorKeysUsed": ["bank_account_summary_csv", "card_expense_csv"],
+  "sourceFiles": [
+    {
+      "role": "bank_account_summary",
+      "path": "sources/bank-account-summary.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "bank_account_summary_csv"
+    },
+    {
+      "role": "card_expense",
+      "path": "sources/card-expense.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "card_expense_csv"
+    }
+  ],
+  "sourcePostureByRole": {
+    "bank_account_summary": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "bank_account_summary_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    },
+    "card_expense": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "card_expense_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    }
+  },
+  "bankAccountInventoryPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "accountCount": 3,
+    "coverage": {
+      "bankAccountCount": 3,
+      "summaryRowCount": 4,
+      "lineageCount": 7,
+      "lineageTargetKinds": ["bank_account", "bank_account_summary"]
+    },
+    "summary": {
+      "bankAccountCount": 3,
+      "summaryRowCount": 4,
+      "statementOrLedgerBalanceCount": 2,
+      "availableBalanceCount": 1,
+      "unspecifiedBalanceCount": 1,
+      "datedBalanceCount": 3,
+      "undatedBalanceCount": 1,
+      "currencyCount": 1
+    },
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "cashPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "coverageSummary": {
+      "bankAccountCount": 3,
+      "reportedBalanceCount": 4,
+      "statementOrLedgerBalanceCount": 2,
+      "availableBalanceCount": 1,
+      "unspecifiedBalanceCount": 1,
+      "datedBalanceCount": 3,
+      "undatedBalanceCount": 1,
+      "currencyBucketCount": 1,
+      "mixedAsOfDateCurrencyBucketCount": 0
+    },
+    "currencyBuckets": [
+      {
+        "currency": "USD",
+        "statementOrLedgerBalanceTotal": "5300.00",
+        "availableBalanceTotal": "4500.00",
+        "unspecifiedBalanceTotal": "800.00",
+        "accountCount": 3,
+        "datedAccountCount": 2,
+        "undatedAccountCount": 1,
+        "mixedAsOfDates": false,
+        "earliestAsOfDate": "2026-04-15",
+        "latestAsOfDate": "2026-04-15"
+      }
+    ],
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "cardSpendItemPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "rowCount": 3,
+    "coverage": {
+      "rowCount": 3,
+      "lineageCount": 3,
+      "lineageTargetKinds": ["spend_row"]
+    },
+    "summary": {
+      "rowCount": 3,
+      "datedRowCount": 3,
+      "undatedRowCount": 0,
+      "currencyCount": 1,
+      "rowsWithExplicitRowIdentityCount": 3,
+      "rowsWithReportedAmountCount": 2,
+      "rowsWithPostedAmountCount": 1,
+      "rowsWithTransactionAmountCount": 1,
+      "rowsWithTransactionDateCount": 3,
+      "rowsWithPostedDateCount": 1
+    },
+    "limitationsPresent": true,
+    "diagnosticsPresent": false
+  },
+  "spendPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "coverageSummary": {
+      "rowCount": 3,
+      "currencyBucketCount": 1,
+      "datedRowCount": 3,
+      "undatedRowCount": 0,
+      "rowsWithExplicitRowIdentityCount": 3,
+      "rowsWithReportedAmountCount": 2,
+      "rowsWithPostedAmountCount": 1,
+      "rowsWithTransactionAmountCount": 1,
+      "rowsWithMerchantOrVendorCount": 3,
+      "rowsWithEmployeeOrCardholderCount": 3
+    },
+    "currencyBuckets": [
+      {
+        "currency": "USD",
+        "reportedAmountTotal": "138.25",
+        "postedAmountTotal": "75.50",
+        "transactionAmountTotal": "75.50",
+        "rowCount": 3,
+        "datedRowCount": 3,
+        "undatedRowCount": 0,
+        "mixedPostedDates": false,
+        "mixedTransactionDates": true,
+        "earliestPostedDate": "2026-04-15",
+        "latestPostedDate": "2026-04-15",
+        "earliestTransactionDate": "2026-04-14",
+        "latestTransactionDate": "2026-04-17"
+      }
+    ],
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "familyBoundary": {
+    "newMonitorFamilyAdded": false,
+    "newDiscoveryFamilyAdded": false
+  },
+  "runtimeActionBoundary": {
+    "monitorRunTriggered": false,
+    "checklistReadTriggered": false,
+    "operatorReadinessReadTriggered": false,
+    "acknowledgementReadTriggered": false,
+    "missionCreated": false,
+    "reportCreated": false,
+    "approvalCreated": false,
+    "deliveryCreated": false,
+    "runtimeCodexUsed": false,
+    "paymentInstructionCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "autonomousActionCreated": false
+  }
+}
