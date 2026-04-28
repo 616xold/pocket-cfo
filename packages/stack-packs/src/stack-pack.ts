@@ -32,6 +32,7 @@ export type PocketCfoDemoStackPack = {
   sourceFiles: PocketCfoDemoStackPackSourceFile[];
   monitorFamiliesCovered: MonitorKind[];
   expectedOutputManifestPath: string;
+  expectedCloseControlChecklistPath: string;
   cashAlertInvestigationHandoffExpected: boolean;
   limitations: string[];
   runtimeAndDeliveryBoundary: string;
