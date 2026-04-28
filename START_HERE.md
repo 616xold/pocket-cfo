@@ -80,6 +80,7 @@ Suggested thread naming:
 - `F6G-non-cash-alert-to-investigation-generalization-foundation`
 - `F6H-close-control-checklist-foundation`
 - `F6I-stack-pack-expansion-and-close-control-demo-foundation`
+- `F6J-operator-notification-readiness-foundation`
 
 Broad F2 Finance Twin work now runs through F2O.
 `F2P-final-f2-exit-audit-and-polish` and `F2Q-final-f2-handoff-and-plan-chain-polish` are the historical closeout and handoff threads for that completed breadth.
@@ -115,7 +116,8 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F implementation record. It adds one deterministic monitor demo replay and one stack-pack foundation only; it did not start F6G, F6H, F6I, new monitor families, delivery, runtime-codex, approval, report-conversion, payment, legal, or policy-advice behavior.
 `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G implementation record. It widens the manual alert-to-investigation handoff to persisted alerting `collections_pressure` monitor results only, preserves shipped cash handoff behavior, and keeps payables, policy/covenant, runtime-codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, and autonomous finance action out of scope.
 `plans/FP-0057-close-control-checklist-foundation.md` is now the shipped F6H record. It adds one deterministic, source-backed close/control checklist foundation from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only; it did not add F6I, monitor families, discovery families, monitor reruns, investigations, runtime-Codex, delivery, approvals, reports, accounting, bank, tax, legal, payment, collection-instruction, customer-contact, or autonomous-action behavior.
-`plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is now the shipped F6I record. It extends the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output and updates the existing monitor demo replay proof only. It did not add monitor families, discovery families, routes, schema, migrations, package scripts, eval datasets, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection/customer-contact instructions, or autonomous actions. F6J planning should start next only through a new Finance Plan.
+`plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is now the shipped F6I record. It extends the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output and updates the existing monitor demo replay proof only. It did not add monitor families, discovery families, routes, schema, migrations, package scripts, eval datasets, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection/customer-contact instructions, or autonomous actions.
+`plans/FP-0059-operator-notification-readiness-foundation.md` is now the active implementation-ready F6J contract. It narrows F6J to deterministic internal operator attention/readiness posture over shipped stored state only, with no external delivery, no notification provider, no outbox send behavior, no reports, no approvals, no runtime-Codex, no monitor-family or discovery-family expansion, and no autonomous finance action.
 
 ## Review ritual
 
