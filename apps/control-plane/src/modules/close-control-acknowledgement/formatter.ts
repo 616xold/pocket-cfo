@@ -25,6 +25,9 @@ export function buildCloseControlAcknowledgementReadinessResult(
   input: BuildCloseControlAcknowledgementInput,
 ): CloseControlAcknowledgementReadinessResult {
   const readinessContext = buildReadinessContext(input.readiness);
+  const readinessStatusLimitations = buildReadinessStatusLimitations(
+    input.readiness,
+  );
   const acknowledgementTargets = [
     buildAggregateTarget(input.checklist, input.readiness),
     ...input.checklist.items.map((item) =>
@@ -35,8 +38,9 @@ export function buildCloseControlAcknowledgementReadinessResult(
   return CloseControlAcknowledgementReadinessResultSchema.parse({
     companyKey: input.companyKey,
     generatedAt: input.generatedAt,
-    aggregateStatus:
-      deriveCloseControlAcknowledgementAggregateStatus(acknowledgementTargets),
+    aggregateStatus: deriveCloseControlAcknowledgementAggregateStatus(
+      acknowledgementTargets,
+    ),
     acknowledgementTargets,
     evidenceSummary:
       "F6K acknowledgement readiness is derived from the deterministic close/control checklist result and internal operator-readiness result only.",
@@ -44,6 +48,7 @@ export function buildCloseControlAcknowledgementReadinessResult(
       "Acknowledgement readiness is an internal review read model and does not create an acknowledgement record.",
       "Acknowledgement readiness emits only internal acknowledgement-readiness statuses.",
       "F6K reads existing checklist and operator-readiness posture only and creates no new records or actions.",
+      ...readinessStatusLimitations,
       ...input.checklist.limitations,
       ...input.readiness.limitations,
     ]),
@@ -59,6 +64,12 @@ function buildAggregateTarget(
   const status = mapAggregateStatus(checklist, readiness);
   const nonReadyReadinessItems = readiness.attentionItems.filter(
     (item) => item.status !== "ready_for_review",
+  );
+  const sourcePostureState = mapAggregateSourcePostureState(
+    checklist,
+    readiness,
+    nonReadyReadinessItems,
+    status,
   );
   const readinessLimitations = nonReadyReadinessItems.flatMap(
     (item) => item.limitations,
@@ -90,29 +101,40 @@ function buildAggregateTarget(
       ),
     },
     sourcePosture: {
-      state: mapAggregateSourcePostureState(checklist, status),
-      summary: buildAggregateSourceSummary(checklist, readiness),
-      missingSource: status === "blocked_by_evidence",
+      state: sourcePostureState,
+      summary: buildAggregateSourceSummary(
+        checklist,
+        readiness,
+        nonReadyReadinessItems,
+      ),
+      missingSource:
+        status === "blocked_by_evidence" &&
+        (checklist.aggregateStatus === "blocked_by_evidence" ||
+          readiness.aggregateStatus === "blocked_by_evidence" ||
+          isMissingAcknowledgementSource(sourcePostureState)),
     },
     freshnessSummary: {
-      state: mapAcknowledgementFreshness(status),
-      summary:
-        status === "ready_for_acknowledgement"
-          ? "Checklist aggregate and operator-readiness context are ready for internal review acknowledgement."
-          : "Checklist aggregate or operator-readiness context needs review before internal acknowledgement readiness.",
+      state: mapAggregateFreshness(readiness, nonReadyReadinessItems, status),
+      summary: buildAggregateFreshnessSummary(
+        readiness,
+        nonReadyReadinessItems,
+        status,
+      ),
       latestObservedAt: checklist.generatedAt,
     },
     limitations: dedupe([
       ...checklist.limitations,
+      ...buildReadinessStatusLimitations(readiness),
       ...readinessLimitations,
       "Aggregate acknowledgement readiness remains internal review posture only.",
     ]),
     proofPosture: {
-      state: mapAcknowledgementProofState(status),
-      summary:
-        status === "ready_for_acknowledgement"
-          ? "Aggregate acknowledgement readiness is backed by stored checklist and readiness posture."
-          : "Aggregate acknowledgement readiness is limited by checklist or operator-readiness posture that needs review.",
+      state: mapAggregateProofState(readiness, nonReadyReadinessItems, status),
+      summary: buildAggregateProofSummary(
+        readiness,
+        nonReadyReadinessItems,
+        status,
+      ),
     },
     humanReviewNextStep:
       status === "ready_for_acknowledgement"
@@ -127,7 +149,10 @@ function buildItemTarget(
   item: CloseControlChecklistItem,
   readinessItem: OperatorAttentionItem | null,
 ): CloseControlAcknowledgementTarget {
-  const status = mapChecklistStatus(item.status);
+  const status = mapItemStatus(item, readinessItem);
+  const sourcePosture = mapItemSourcePosture(item, readinessItem, status);
+  const freshnessSummary = mapItemFreshnessSummary(item, readinessItem, status);
+  const proofPosture = mapItemProofPosture(item, readinessItem, status);
 
   return {
     targetKey: `close-control:item-family:${item.family}`,
@@ -141,21 +166,20 @@ function buildItemTarget(
       readinessEvidenceRefs: readinessItem?.evidenceBasis.refs ?? [],
     },
     sourcePosture: {
-      state: item.sourcePosture.state,
+      state: sourcePosture.state,
       summary: readinessItem
-        ? `${item.sourcePosture.summary} Operator-readiness context: ${readinessItem.sourcePosture.summary}`
+        ? `${sourcePosture.summary} Operator-readiness context is ${readinessItem.status}.`
         : item.sourcePosture.summary,
-      missingSource:
-        item.sourcePosture.state === "missing_source" ||
-        item.sourcePosture.state === "monitor_context_missing",
+      missingSource: isMissingAcknowledgementSource(sourcePosture.state),
     },
-    freshnessSummary: item.freshnessSummary,
+    freshnessSummary,
     limitations: dedupe([
       ...item.limitations,
+      ...buildRelatedReadinessLimitations(readinessItem),
       ...(readinessItem?.limitations ?? []),
       "Checklist item-family acknowledgement readiness is internal review posture only and creates no record or action.",
     ]),
-    proofPosture: item.proofPosture,
+    proofPosture,
     humanReviewNextStep:
       status === "ready_for_acknowledgement"
         ? "Review the cited checklist item-family evidence before any future acknowledgement record path."
@@ -198,8 +222,29 @@ function mapChecklistStatus(
   return "ready_for_acknowledgement";
 }
 
+function mapItemStatus(
+  item: CloseControlChecklistItem,
+  readinessItem: OperatorAttentionItem | null,
+): CloseControlAcknowledgementStatus {
+  if (item.status !== "ready_for_review") {
+    return mapChecklistStatus(item.status);
+  }
+
+  if (readinessItem?.status === "blocked_by_evidence") {
+    return "blocked_by_evidence";
+  }
+
+  if (readinessItem?.status === "needs_review") {
+    return "needs_review_before_acknowledgement";
+  }
+
+  return "ready_for_acknowledgement";
+}
+
 function mapAggregateSourcePostureState(
   checklist: CloseControlChecklistResult,
+  readiness: OperatorReadinessResult,
+  nonReadyReadinessItems: OperatorAttentionItem[],
   status: CloseControlAcknowledgementStatus,
 ): CloseControlAcknowledgementSourcePostureState {
   if (status === "ready_for_acknowledgement") {
@@ -210,45 +255,284 @@ function mapAggregateSourcePostureState(
     return "missing_source";
   }
 
+  if (readiness.aggregateStatus === "blocked_by_evidence") {
+    return mapReadinessSourcePostureState(
+      nonReadyReadinessItems,
+      "missing_source",
+    );
+  }
+
+  if (readiness.aggregateStatus === "needs_review") {
+    return mapReadinessSourcePostureState(
+      nonReadyReadinessItems,
+      "limited_source",
+    );
+  }
+
   return "limited_source";
 }
 
-function mapAcknowledgementFreshness(
+function mapAggregateFreshness(
+  readiness: OperatorReadinessResult,
+  nonReadyReadinessItems: OperatorAttentionItem[],
   status: CloseControlAcknowledgementStatus,
 ): CloseControlFreshnessState {
   if (status === "ready_for_acknowledgement") {
     return "fresh";
   }
 
-  if (status === "blocked_by_evidence") {
-    return "missing";
+  if (readiness.aggregateStatus !== "ready_for_review") {
+    return mapReadinessFreshnessState(
+      nonReadyReadinessItems,
+      status === "blocked_by_evidence" ? "missing" : "mixed",
+    );
   }
 
-  return "mixed";
+  return status === "blocked_by_evidence" ? "missing" : "mixed";
 }
 
-function mapAcknowledgementProofState(
+function mapAggregateProofState(
+  readiness: OperatorReadinessResult,
+  nonReadyReadinessItems: OperatorAttentionItem[],
   status: CloseControlAcknowledgementStatus,
 ): CloseControlProofPostureState {
   if (status === "ready_for_acknowledgement") {
     return "source_backed";
   }
 
-  if (status === "blocked_by_evidence") {
-    return "limited_by_missing_source";
+  if (readiness.aggregateStatus !== "ready_for_review") {
+    return mapReadinessProofState(
+      nonReadyReadinessItems,
+      status === "blocked_by_evidence"
+        ? "limited_by_missing_source"
+        : "limited_by_coverage_gap",
+    );
   }
 
-  return "limited_by_coverage_gap";
+  return status === "blocked_by_evidence"
+    ? "limited_by_missing_source"
+    : "limited_by_coverage_gap";
 }
 
 function buildAggregateSourceSummary(
   checklist: CloseControlChecklistResult,
   readiness: OperatorReadinessResult,
+  nonReadyReadinessItems: OperatorAttentionItem[],
 ) {
+  const readinessSummary =
+    nonReadyReadinessItems.length === 0
+      ? `Operator-readiness aggregate context is ${readiness.aggregateStatus}.`
+      : `Operator-readiness aggregate context is ${readiness.aggregateStatus}; non-ready readiness posture: ${nonReadyReadinessItems
+          .map((item) => `${item.itemKey}=${item.status}`)
+          .join(", ")}.`;
+
+  return [checklist.evidenceSummary, readinessSummary].join(" ");
+}
+
+function buildAggregateFreshnessSummary(
+  readiness: OperatorReadinessResult,
+  nonReadyReadinessItems: OperatorAttentionItem[],
+  status: CloseControlAcknowledgementStatus,
+) {
+  if (status === "ready_for_acknowledgement") {
+    return "Checklist aggregate and operator-readiness context are ready for internal review acknowledgement.";
+  }
+
+  if (readiness.aggregateStatus !== "ready_for_review") {
+    const readinessFreshness = nonReadyReadinessItems
+      .map((item) => `${item.itemKey}: ${item.freshnessSummary.summary}`)
+      .join(" ");
+    return `Operator-readiness aggregate context is ${readiness.aggregateStatus}, so acknowledgement freshness is review-limited. ${readinessFreshness}`.trim();
+  }
+
+  return "Checklist aggregate posture needs review before internal acknowledgement readiness.";
+}
+
+function buildAggregateProofSummary(
+  readiness: OperatorReadinessResult,
+  nonReadyReadinessItems: OperatorAttentionItem[],
+  status: CloseControlAcknowledgementStatus,
+) {
+  if (status === "ready_for_acknowledgement") {
+    return "Aggregate acknowledgement readiness is backed by stored checklist and readiness posture.";
+  }
+
+  if (readiness.aggregateStatus !== "ready_for_review") {
+    const readinessProof = nonReadyReadinessItems
+      .map((item) => `${item.itemKey}: ${item.proofPosture.summary}`)
+      .join(" ");
+    return `Aggregate acknowledgement readiness is limited by operator-readiness ${readiness.aggregateStatus} posture. ${readinessProof}`.trim();
+  }
+
+  return "Aggregate acknowledgement readiness is limited by checklist posture that needs review.";
+}
+
+function mapItemSourcePosture(
+  item: CloseControlChecklistItem,
+  readinessItem: OperatorAttentionItem | null,
+  status: CloseControlAcknowledgementStatus,
+) {
+  if (item.status !== "ready_for_review" || !readinessItem) {
+    return {
+      state: item.sourcePosture.state,
+      summary: item.sourcePosture.summary,
+    };
+  }
+
+  if (status === "ready_for_acknowledgement") {
+    return {
+      state: item.sourcePosture.state,
+      summary: item.sourcePosture.summary,
+    };
+  }
+
+  return {
+    state: mapReadinessSourcePostureState(
+      [readinessItem],
+      status === "blocked_by_evidence" ? "missing_source" : "limited_source",
+    ),
+    summary: readinessItem.sourcePosture.summary,
+  };
+}
+
+function mapItemFreshnessSummary(
+  item: CloseControlChecklistItem,
+  readinessItem: OperatorAttentionItem | null,
+  status: CloseControlAcknowledgementStatus,
+) {
+  if (
+    item.status !== "ready_for_review" ||
+    !readinessItem ||
+    status === "ready_for_acknowledgement"
+  ) {
+    return item.freshnessSummary;
+  }
+
+  return {
+    ...readinessItem.freshnessSummary,
+    state: mapReadinessFreshnessState(
+      [readinessItem],
+      status === "blocked_by_evidence" ? "missing" : "mixed",
+    ),
+    summary: `${readinessItem.freshnessSummary.summary} Related operator-readiness context is ${readinessItem.status}.`,
+  };
+}
+
+function mapItemProofPosture(
+  item: CloseControlChecklistItem,
+  readinessItem: OperatorAttentionItem | null,
+  status: CloseControlAcknowledgementStatus,
+) {
+  if (
+    item.status !== "ready_for_review" ||
+    !readinessItem ||
+    status === "ready_for_acknowledgement"
+  ) {
+    return item.proofPosture;
+  }
+
+  return {
+    state: mapReadinessProofState(
+      [readinessItem],
+      status === "blocked_by_evidence"
+        ? "limited_by_missing_source"
+        : "limited_by_coverage_gap",
+    ),
+    summary: `Related operator-readiness proof posture is ${readinessItem.proofPosture.state}: ${readinessItem.proofPosture.summary}`,
+  };
+}
+
+function mapReadinessSourcePostureState(
+  items: OperatorAttentionItem[],
+  fallback: CloseControlAcknowledgementSourcePostureState,
+): CloseControlAcknowledgementSourcePostureState {
+  const states = new Set(items.map((item) => item.sourcePosture.state));
+  return (
+    (
+      [
+        "missing_source",
+        "monitor_context_missing",
+        "failed_source",
+        "stale_source",
+        "limited_source",
+      ] as const
+    ).find((state) => states.has(state)) ?? fallback
+  );
+}
+
+function mapReadinessFreshnessState(
+  items: OperatorAttentionItem[],
+  fallback: CloseControlFreshnessState,
+): CloseControlFreshnessState {
+  const states = new Set(items.map((item) => item.freshnessSummary.state));
+  return (
+    (
+      [
+        "missing",
+        "failed",
+        "stale",
+        "mixed",
+        "not_applicable",
+        ...(fallback === "fresh" ? (["fresh"] as const) : []),
+      ] as const
+    ).find((state) => states.has(state)) ?? fallback
+  );
+}
+
+function mapReadinessProofState(
+  items: OperatorAttentionItem[],
+  fallback: CloseControlProofPostureState,
+): CloseControlProofPostureState {
+  const states = new Set(items.map((item) => item.proofPosture.state));
+  return (
+    (
+      [
+        "limited_by_missing_source",
+        "limited_by_failed_source",
+        "limited_by_stale_source",
+        "limited_by_data_quality_gap",
+        "limited_by_coverage_gap",
+        "limited_by_missing_monitor_context",
+        "limited_by_alerting_monitor",
+        "review_only_context",
+        "source_backed",
+      ] as const
+    ).find((state) => states.has(state)) ?? fallback
+  );
+}
+
+function isMissingAcknowledgementSource(
+  state: CloseControlAcknowledgementSourcePostureState,
+) {
+  return state === "missing_source" || state === "monitor_context_missing";
+}
+
+function buildReadinessStatusLimitations(readiness: OperatorReadinessResult) {
+  if (readiness.aggregateStatus === "blocked_by_evidence") {
+    return [
+      "Operator-readiness aggregate posture is blocked_by_evidence and blocks acknowledgement readiness.",
+    ];
+  }
+
+  if (readiness.aggregateStatus === "needs_review") {
+    return [
+      "Operator-readiness aggregate posture is needs_review and limits acknowledgement readiness until reviewed.",
+    ];
+  }
+
+  return [];
+}
+
+function buildRelatedReadinessLimitations(
+  readinessItem: OperatorAttentionItem | null,
+) {
+  if (!readinessItem || readinessItem.status === "ready_for_review") {
+    return [];
+  }
+
   return [
-    checklist.evidenceSummary,
-    `Operator-readiness aggregate context is ${readiness.aggregateStatus}.`,
-  ].join(" ");
+    `Related operator-readiness item ${readinessItem.itemKey} is ${readinessItem.status} and limits this item-family acknowledgement target.`,
+  ];
 }
 
 function buildReadinessContext(readiness: OperatorReadinessResult) {
