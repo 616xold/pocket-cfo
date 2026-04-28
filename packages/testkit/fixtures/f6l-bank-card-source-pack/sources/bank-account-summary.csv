@@ -1,0 +1,4 @@
+account_name,bank,last4,statement_balance,available_balance,current_balance,currency,as_of
+Operating Checking,First National,1234,5000.00,4500.00,,USD,2026-04-15
+Payroll Reserve,First National,5678,,,800.00,USD,
+Corporate Card Cash,First National,4444,300.00,,,USD,2026-04-15

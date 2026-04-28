@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { nextjsVercelPack } from "./packs/nextjs-vercel";
+import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
 
 describe("stack packs", () => {
@@ -38,6 +39,45 @@ describe("stack packs", () => {
     );
     expect(pocketCfoMonitorDemoPack.runtimeAndDeliveryBoundary).toContain(
       "runtime-free",
+    );
+  });
+
+  it("exports the Pocket CFO F6L bank/card source pack without monitor or discovery semantics", () => {
+    expect(pocketCfoBankCardSourcePack.id).toBe(
+      "pocket-cfo-bank-card-source-pack",
+    );
+    expect(pocketCfoBankCardSourcePack.fixtureDirectory).toBe(
+      "packages/testkit/fixtures/f6l-bank-card-source-pack",
+    );
+    expect(pocketCfoBankCardSourcePack.sourceRoles).toEqual([
+      "bank_account_summary",
+      "card_expense",
+    ]);
+    expect(
+      pocketCfoBankCardSourcePack.sourceFiles.map((file) => file.role),
+    ).toEqual(pocketCfoBankCardSourcePack.sourceRoles);
+    expect(pocketCfoBankCardSourcePack.sourceKinds).toEqual(["dataset"]);
+    expect(pocketCfoBankCardSourcePack.mediaTypes).toEqual(["text/csv"]);
+    expect(pocketCfoBankCardSourcePack.expectedExtractorKeys).toEqual([
+      "bank_account_summary_csv",
+      "card_expense_csv",
+    ]);
+    expect(
+      pocketCfoBankCardSourcePack.sourceFiles.map(
+        (file) => file.expectedExtractorKey,
+      ),
+    ).toEqual(pocketCfoBankCardSourcePack.expectedExtractorKeys);
+    expect(pocketCfoBankCardSourcePack.expectedNormalizedPosturePath).toBe(
+      "packages/testkit/fixtures/f6l-bank-card-source-pack/expected-source-twin-posture.json",
+    );
+    expect(pocketCfoBankCardSourcePack.runtimeDeliveryActionBoundary).toContain(
+      "runtime-free",
+    );
+    expect(pocketCfoBankCardSourcePack).not.toHaveProperty(
+      "monitorFamiliesCovered",
+    );
+    expect(pocketCfoBankCardSourcePack).not.toHaveProperty(
+      "discoveryFamiliesCovered",
     );
   });
 });

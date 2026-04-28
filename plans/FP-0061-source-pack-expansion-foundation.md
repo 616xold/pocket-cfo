@@ -1,15 +1,15 @@
-# Define F6L source-pack expansion foundation
+# Ship F6L source-pack expansion foundation
 
 ## Purpose / Big Picture
 
-This file is the active Finance Plan for the Pocket CFO F6L implementation contract.
-The target phase is `F6`, and the intended implementation slice is exactly `F6L-bank-card-source-pack-foundation`.
+This file is the shipped Finance Plan record for the Pocket CFO F6L implementation slice.
+The target phase is `F6`, and the shipped slice is exactly `F6L-bank-card-source-pack-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6K, Pocket CFO should prove that one additional checked-in source-pack family can be registered and synced through the existing source registry and Finance Twin without widening product runtime behavior.
+The user-visible goal is narrow: after shipped F6A through F6K, Pocket CFO proves that one additional checked-in source-pack family can be registered and synced through the existing source registry and Finance Twin without widening product runtime behavior.
 The first F6L source-pack family is `bank-card-source-pack-foundation`.
 It covers bank/cash source posture and card-expense source posture only.
 
-Repo truth supports this F6L planning contract now.
+Repo truth supports this F6L record now.
 The shipped `pocket-cfo-monitor-demo` stack-pack remains green and source-backed.
 The source registry already preserves uploaded raw bytes with checksums, snapshots, provenance records, and immutable fixture checks.
 The Finance Twin already supports deterministic `bank_account_summary_csv` and `card_expense_csv` syncs, plus cash-posture, bank-account inventory, spend-item inventory, and spend-posture reads.
@@ -37,8 +37,13 @@ The shipped discovery families remain exactly:
 F6L is not external delivery.
 It must not add email, Slack, SMS, webhooks, notification provider calls, outbox send behavior, report delivery, external publish behavior, runtime-Codex, reports, approvals, payment behavior, accounting writes, bank writes, tax filings, legal advice, policy advice, collection instructions, customer-contact instructions, or autonomous finance action.
 
-This docs-and-plan thread creates the implementation-ready contract only.
-It does not start F6L implementation and does not add code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, or implementation scaffolding.
+This implementation shipped one source-pack manifest, one checked-in bank/card fixture set, one normalized expected source/twin posture file, and one direct proof command:
+
+```bash
+pnpm exec tsx tools/bank-card-source-pack-proof.mjs
+```
+
+F6L did not add routes, schema, migrations, package scripts, smoke aliases, eval datasets, monitor families, discovery families, product runtime behavior, runtime-Codex, delivery, reports, approvals, mission behavior, checklist/readiness/acknowledgement behavior, payment behavior, finance writes, legal advice, policy advice, collection instructions, customer-contact instructions, or autonomous finance action.
 GitHub connector work is explicitly out of scope.
 
 ## Progress
@@ -49,8 +54,9 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T21:28:45Z Decided F6L is safe now as a source-pack expansion contract, and narrowed the first source-pack family to `bank-card-source-pack-foundation`.
 - [x] 2026-04-28T21:28:45Z Created FP-0061 as the single active implementation-ready F6L contract while preserving FP-0050 through FP-0060 as shipped F6A through F6K records.
 - [x] 2026-04-28T21:36:28Z Ran the requested docs-and-plan validation ladder, including the DB-backed F6 guardrail smokes, targeted twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
-- [ ] Implement the first bank/card source-pack fixture or manifest family in a later implementation thread, after this plan is reviewed.
-- [ ] Run the full F6L implementation validation ladder in the implementation thread and update this plan with shipped outcomes.
+- [x] 2026-04-28T22:01:30Z Implemented the first bank/card source-pack manifest, immutable fixture set, normalized expected source/twin posture, focused stack-pack/testkit specs, and direct DB-backed proof tool.
+- [x] 2026-04-28T22:01:30Z Ran the narrow manifest/fixture specs and `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`; all passed before docs refresh.
+- [x] 2026-04-28T22:13:01Z Ran the full F6L implementation validation ladder on the final tree, including shipped DB-backed smokes, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -60,14 +66,15 @@ That lets F6L expand source-pack proof without adding monitor semantics, checkli
 
 The existing `pocket-cfo-monitor-demo` pack should remain stable.
 It already owns the F6F/F6I demo proof for bank/cash, receivables, payables, and policy threshold sources.
-The F6L implementation should not mutate that fixture's semantics to prove a new bank/card pack.
-If the later implementation needs to compare against the existing demo pack, it should do so as a guardrail only.
+The F6L implementation did not mutate that fixture's semantics to prove a new bank/card pack.
+The existing demo pack remains a guardrail only.
 
 The source registry and Finance Twin are strong enough for a fixture/manifest/proof slice.
 No new table, route, schema, extractor, monitor evaluator, mission behavior, runtime-Codex behavior, notification path, approval path, report path, or external action is needed for the first F6L pack.
 
 The current `packages/stack-packs` contract is still narrow and partly demo-shaped.
-A later F6L implementation may add a small source-pack manifest contract beside the existing demo stack-pack contract, but it must not broaden old engineering stack-pack vocabulary or create a second product runtime system.
+F6L added a small source-pack manifest contract beside the existing demo stack-pack contract without broadening old engineering stack-pack vocabulary or creating a second product runtime system.
+The manifest deliberately has no monitor-family or discovery-family fields.
 
 ## Decision Log
 
@@ -90,21 +97,24 @@ F6L must not add `receivables_aging_review`, `payables_aging_review`, `runway`, 
 Decision: F6L is not external delivery.
 Rationale: email, Slack, SMS, webhooks, notification provider calls, outbox sends, report delivery, external publish behavior, and operator delivery workflow belong only in a future F6M plan if safety and review gates are proven.
 
-Decision: F6L should expand source packs, not product runtime behavior.
-Rationale: the first implementation should define one checked-in source-pack fixture or manifest family with source file list, source roles, parser/sync expectations, normalized expected source/twin posture, limitations, and raw-fixture immutability proof.
-It should not add DB tables, routes, schema, migrations, package scripts, monitor evaluators, mission behavior, checklist behavior, readiness behavior, acknowledgement behavior, reports, approvals, runtime-Codex, or delivery.
+Decision: F6L expands source packs, not product runtime behavior.
+Rationale: the first implementation defines one checked-in source-pack fixture and manifest family with source file list, source roles, parser/sync expectations, normalized expected source/twin posture, limitations, and raw-fixture immutability proof.
+It did not add DB tables, routes, schema, migrations, package scripts, monitor evaluators, mission behavior, checklist behavior, readiness behavior, acknowledgement behavior, reports, approvals, runtime-Codex, or delivery.
 
-Decision: the later implementation should not mutate raw fixture files to make proof pass.
+Decision: the implementation must not mutate raw fixture files to make proof pass.
 Rationale: raw source fixture immutability is part of the product contract.
 If a fixture is stale, partial, ambiguous, unsupported, or conflicting, the normalized expected posture must expose that posture instead of hiding it.
 
-Decision: the later proof path should use existing source registration/upload and Finance Twin sync routes only.
-Rationale: the source-pack proof is allowed to register static checked-in source files, upload them through the existing source registry, sync them through the existing Finance Twin source-file route, and read existing Finance Twin views.
+Decision: the proof path uses existing source registration/upload and Finance Twin sync routes only.
+Rationale: the source-pack proof registers static checked-in source files, uploads them through the existing source registry, syncs them through the existing Finance Twin source-file route, and reads existing Finance Twin views.
 It must not use generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns from checklist/readiness/acknowledgement paths, or new product routes.
 
 Decision: no new package script is required by the first F6L implementation contract.
-Rationale: a later implementation can use targeted package specs and, if DB-backed route proof is necessary, a direct `pnpm exec tsx tools/<f6l-proof>.mjs` invocation without adding a new root script.
+Rationale: the shipped implementation uses targeted package specs plus the direct `pnpm exec tsx tools/bank-card-source-pack-proof.mjs` invocation without adding a new root script.
 Adding a packaged smoke alias should require amending this plan first.
+
+Decision: keep F6L source-pack proof delivery-free and monitor-free.
+Rationale: the shipped proof registers and uploads only checked-in bank/card source files, syncs only existing Finance Twin routes, reads only existing bank/cash and card/spend views, compares normalized posture, and proves raw fixture immutability plus absence boundaries without running monitors, reading checklist/readiness/acknowledgement routes, creating missions, creating reports, creating approvals, or touching runtime-Codex.
 
 Decision: define likely later slices without creating them.
 Rationale: `F6M-external-notification-delivery-planning` should happen only if a future plan proves safety and review gates, `F6N-close-control-reporting-or-certification` should happen only if operator need and evidence boundaries are proven, and `F6O-additional-source-pack-expansion` should happen only after this first bank/card source pack is green.
@@ -112,7 +122,7 @@ Do not create FP-0062 in this slice.
 
 ## Context and Orientation
 
-Pocket CFO has shipped F6A through F6K:
+Pocket CFO has shipped F6A through F6L:
 
 - F6A deterministic `cash_posture` monitor result and alert card
 - F6B manual taskless investigation handoff from one persisted alerting `cash_posture` monitor result
@@ -125,14 +135,15 @@ Pocket CFO has shipped F6A through F6K:
 - F6I one normalized close/control expected-output expansion on the existing monitor demo stack-pack replay proof
 - F6J one deterministic internal operator attention/readiness read model over shipped stored state only
 - F6K one deterministic internal close/control acknowledgement-readiness read model over shipped checklist and operator-readiness posture only
+- F6L one checked-in bank/card source-pack foundation with normalized source/twin posture and direct proof through existing source registry and Finance Twin routes only
 
 The relevant implementation seams for F6L are:
 
 - `packages/domain/src/source-registry.ts` for source, snapshot, source-file, checksum, storage, and provenance contracts
 - `packages/domain/src/finance-twin.ts` for Finance Twin source, freshness, lineage, cash posture, spend posture, and limitation contracts
-- `packages/stack-packs/src/stack-pack.ts` for any future narrow source-pack manifest contract
-- `packages/stack-packs/src/packs/**` for any future bank/card source-pack manifest
-- `packages/testkit/fixtures/**` for any future checked-in source-pack fixture files and expected posture files
+- `packages/stack-packs/src/stack-pack.ts` for the narrow source-pack manifest contract
+- `packages/stack-packs/src/packs/**` for the bank/card source-pack manifest
+- `packages/testkit/fixtures/**` for checked-in source-pack fixture files and expected posture files
 - `apps/control-plane/src/modules/sources/**` for existing source registration and immutable file upload behavior
 - `apps/control-plane/src/modules/finance-twin/**` for existing bank-account-summary and card-expense syncs and reads
 - `tools/finance-twin-bank-account-summary-smoke.mjs` and `tools/finance-twin-card-expense-smoke.mjs` for existing bank/card proof patterns
@@ -146,30 +157,30 @@ No database schema migration, package script, route, eval dataset, monitor famil
 
 ## Plan of Work
 
-First, the later implementation should add exactly one bank/card source-pack fixture or manifest family.
-The pack should describe source file roles, checked-in source file paths, source kinds, media types, expected parser or extractor keys, required sync routes, normalized expected source posture, normalized expected Finance Twin posture, and limitations.
+First, the implementation added exactly one bank/card source-pack manifest family.
+The pack describes source file roles, checked-in source file paths, source kinds, media types, expected extractor keys, normalized expected source posture, normalized expected Finance Twin posture, limitations, and the runtime/delivery/action boundary.
 
-Second, the later implementation should keep the pack fixture-oriented and proof-oriented.
-It should use existing source registration/upload routes and existing Finance Twin sync/read routes.
-It should not add product runtime behavior, a new source registry API, a new Finance Twin extractor, a new monitor evaluator, a new checklist item family, a new readiness or acknowledgement behavior, or a new mission type.
+Second, the implementation kept the pack fixture-oriented and proof-oriented.
+It uses existing source registration/upload routes and existing Finance Twin sync/read routes.
+It did not add product runtime behavior, a new source registry API, a new Finance Twin extractor, a new monitor evaluator, a new checklist item family, a new readiness or acknowledgement behavior, or a new mission type.
 
-Third, the later implementation should prove raw fixture immutability.
-The proof must compute checked-in source checksums before and after registration/sync, compare normalized posture against expected output, and expose limitations for partial, missing, ambiguous, or unsupported evidence.
+Third, the implementation proves raw fixture immutability.
+The proof computes checked-in source checksums before and after registration/sync, compares normalized posture against expected output, and exposes limitation presence for the bank/cash and card/spend posture.
 
-Fourth, the later implementation should preserve shipped F5 and F6 behavior.
-The proof ladder must run the shipped monitor, handoff, demo replay, checklist, readiness, acknowledgement, source/twin, and discovery-family guardrails so a source-pack expansion cannot silently widen monitor/discovery families, delivery posture, approval posture, report posture, or runtime-Codex posture.
+Fourth, the implementation preserves shipped F5 and F6 behavior.
+The proof ladder runs the shipped monitor, handoff, demo replay, checklist, readiness, acknowledgement, source/twin, and discovery-family guardrails so a source-pack expansion cannot silently widen monitor/discovery families, delivery posture, approval posture, report posture, or runtime-Codex posture.
 
-Fifth, docs should be refreshed only where behavior changes after implementation.
-The implementation thread must not claim the new pack is shipped until code, fixture, manifest, proof, active docs, and validation have landed.
+Fifth, docs are refreshed only where behavior changed after implementation.
+FP-0061 is the shipped F6L record after code, fixture, manifest, proof, active docs, and validation land.
 
 ## Concrete Steps
 
-1. Add a narrow bank/card source-pack manifest in the implementation thread.
-   Expected future files may include:
+1. Add a narrow bank/card source-pack manifest.
+   Shipped files include:
    - `packages/stack-packs/src/stack-pack.ts`
    - `packages/stack-packs/src/packs/pocket-cfo-bank-card-source-pack.ts`
    - `packages/stack-packs/src/index.ts`
-   - focused stack-pack specs
+   - `packages/stack-packs/src/stack-pack.spec.ts`
 
    Required behavior:
    - one source-pack id such as `pocket-cfo-bank-card-source-pack`
@@ -183,13 +194,13 @@ The implementation thread must not claim the new pack is shipped until code, fix
    - no runtime-Codex semantics
    - no delivery semantics
 
-2. Add one checked-in source-pack fixture set in the implementation thread.
-   Expected future files may include:
+2. Add one checked-in source-pack fixture set.
+   Shipped files include:
    - `packages/testkit/fixtures/f6l-bank-card-source-pack/README.md`
    - `packages/testkit/fixtures/f6l-bank-card-source-pack/sources/bank-account-summary.csv`
    - `packages/testkit/fixtures/f6l-bank-card-source-pack/sources/card-expense.csv`
    - `packages/testkit/fixtures/f6l-bank-card-source-pack/expected-source-twin-posture.json`
-   - focused testkit fixture specs
+   - `packages/testkit/src/f6l-bank-card-source-pack.spec.ts`
 
    Required fixture contract:
    - raw source files are immutable
@@ -200,12 +211,12 @@ The implementation thread must not claim the new pack is shipped until code, fix
    - normalized expected source/twin posture excludes generated ids and timestamps
    - limitations expose ambiguous, missing, partial, or unsupported evidence
 
-3. Add one deterministic proof path in the implementation thread only if needed.
-   Preferred shape:
+3. Add one deterministic proof path.
+   Shipped shape:
    - targeted stack-pack/testkit specs for manifest and expected-posture shape
    - existing `pnpm smoke:finance-twin-bank-account-summary:local`
    - existing `pnpm smoke:finance-twin-card-expense:local`
-   - optionally one direct DB-backed proof tool invoked with `pnpm exec tsx tools/<f6l-proof>.mjs`
+   - one direct DB-backed proof tool invoked with `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`
 
    Required proof behavior:
    - register the checked-in bank/card fixture files through existing source routes
@@ -214,7 +225,7 @@ The implementation thread must not claim the new pack is shipped until code, fix
    - read existing bank-account inventory, cash posture, spend-item inventory, and spend posture views
    - compare normalized source/twin posture to expected output
    - prove fixture source checksums remain unchanged
-   - assert no monitors are run by the source-pack proof unless a future amendment explicitly scopes that guardrail
+   - assert no monitors are run by the source-pack proof
    - assert no checklist, readiness, acknowledgement, mission, report, approval, delivery, runtime-Codex, finance-action, monitor-family, or discovery-family behavior is added
    - do not add a root package script unless this plan is amended first
 
@@ -272,7 +283,7 @@ This docs-and-plan thread must run the requested validation ladder after edits:
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-The later F6L implementation thread should run at least:
+The F6L implementation validation ladder includes:
 
 - targeted stack-pack and testkit specs added for the bank/card source-pack fixture and manifest
 - `pnpm smoke:finance-twin-bank-account-summary:local`
@@ -311,38 +322,42 @@ F6L implementation acceptance is observable only if all of the following are tru
 
 ## Idempotence and Recovery
 
-The later F6L implementation should be retry-safe.
-It should use deterministic source-pack fixture names, stable checked-in file paths, normalized expected output, and generated company keys or run tags where DB-backed proof needs isolation.
+The F6L implementation is retry-safe.
+It uses deterministic source-pack fixture names, stable checked-in file paths, normalized expected output, and generated ids/timestamps only in route-backed runtime state that the expected posture normalizes away.
 Generated ids, generated timestamps, source ids, snapshot ids, source-file ids, and sync-run ids must not be treated as fixture truth.
 
 Raw source fixtures must not be rewritten to make a proof pass.
 If source evidence is stale, partial, conflicting, unsupported, or insufficient, expected output should expose that posture rather than hiding it.
 
-Rollback for the later implementation should remove only the additive bank/card source-pack manifest, fixture, expected-posture file, focused specs, optional proof tool, and docs.
+Rollback for this implementation should remove only the additive bank/card source-pack manifest, fixture, expected-posture file, focused specs, proof tool, and docs.
 Rollback must leave shipped F6A through F6K monitor, handoff, demo replay, checklist, readiness, acknowledgement, F5 reporting behavior, raw source registry semantics, Finance Twin sync semantics, CFO Wiki posture, GitHub modules, and engineering-twin modules intact.
 No destructive database migration belongs in F6L.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice produces:
+This implementation slice produces:
 
 - `plans/FP-0061-source-pack-expansion-foundation.md`
-- active-doc updates that identify FP-0061 as the active F6L implementation-ready contract
-- no code
+- `packages/stack-packs/src/stack-pack.ts`
+- `packages/stack-packs/src/packs/pocket-cfo-bank-card-source-pack.ts`
+- `packages/stack-packs/src/index.ts`
+- `packages/stack-packs/src/stack-pack.spec.ts`
+- `packages/testkit/fixtures/f6l-bank-card-source-pack/**`
+- `packages/testkit/src/f6l-bank-card-source-pack.spec.ts`
+- `tools/bank-card-source-pack-proof.mjs`
+- active-doc updates that identify FP-0061 as the shipped F6L record
 - no routes
 - no schema or migrations
 - no package scripts
-- no smoke commands
+- no smoke aliases
 - no eval datasets
-- no fixtures
-- no implementation scaffolding
 - no runtime-Codex
 - no delivery
 - no reports
 - no approvals
 - no monitor-family or discovery-family expansion
 
-The later implementation slice should produce:
+The shipped implementation slice produced:
 
 - one bank/card source-pack fixture or manifest family
 - one normalized expected source/twin posture contract
@@ -359,8 +374,8 @@ Package boundaries must remain unchanged:
 
 - `packages/domain` owns pure contracts for source registry, Finance Twin, monitors, close/control, readiness, acknowledgement, proof, mission, and reporting vocabulary
 - `packages/db` remains untouched unless a later plan explicitly justifies additive persistence, which F6L does not currently need
-- `packages/stack-packs` may own the future source-pack manifest contract
-- `packages/testkit` may own future checked-in source-pack fixtures and expected posture files
+- `packages/stack-packs` owns the F6L source-pack manifest contract
+- `packages/testkit` owns the F6L checked-in source-pack fixtures and expected posture files
 - `apps/control-plane/src/modules/sources` owns source registration and raw file upload behavior
 - `apps/control-plane/src/modules/finance-twin` owns bank-account-summary and card-expense sync/read behavior
 - `apps/control-plane/src/modules/monitoring` owns shipped monitor behavior and must not be changed for F6L
@@ -390,7 +405,7 @@ Later slices are named but not created here:
 
 - `F6M-external-notification-delivery-planning`, only if a future plan proves safety, review gates, delivery controls, and a human-approved release path
 - `F6N-close-control-reporting-or-certification`, only if operator need and evidence boundaries are proven
-- `F6O-additional-source-pack-expansion`, only after the bank/card source pack is green and source-backed
+- `F6O-additional-source-pack-expansion`, only after the bank/card source pack remains green and source-backed and a new Finance Plan proves the next narrow source-pack need
 
 Current module vocabulary stays stable.
 Do not rename `modules/twin/**`, `modules/reporting/**`, or `@pocket-cto/*`.
@@ -398,15 +413,14 @@ Do not delete GitHub or engineering-twin modules as part of F6L.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan thread created FP-0061 after confirming that shipped F6A through F6K guardrails support a safe source-pack expansion contract.
-The first F6L implementation target is narrowed to `bank-card-source-pack-foundation`.
-No F6L implementation has started yet.
+This implementation thread shipped FP-0061 after confirming that shipped F6A through F6K guardrails support a safe source-pack expansion contract.
+The first F6L implementation target stayed narrowed to `bank-card-source-pack-foundation`.
+F6L shipped one manifest, one immutable fixture family, one normalized expected posture file, and one direct deterministic proof command.
 No F6M, F6N, F6O, FP-0062, or later plan was created.
-The docs-and-plan validation ladder passed on 2026-04-28, including `pnpm ci:repro:current`.
+The implementation validation ladder passed on 2026-04-28, including `pnpm ci:repro:current`.
 
 What remains:
 
-- implement the bank/card source-pack fixture or manifest family through this plan
-- keep F6M external notification or delivery planning uncreated until a future named plan proves safety and review gates
+- keep F6M external notification or delivery planning uncreated until a future named Finance Plan proves safety and review gates
 - keep F6N close/control reporting or certification uncreated until operator need and evidence boundaries are proven
 - consider F6O additional source-pack expansion only after this first bank/card pack is green and source-backed

@@ -1,4 +1,9 @@
-import type { MissionType, MonitorKind, SourceKind } from "@pocket-cto/domain";
+import type {
+  FinanceTwinExtractorKey,
+  MissionType,
+  MonitorKind,
+  SourceKind,
+} from "@pocket-cto/domain";
 
 export type StackPack = {
   id: string;
@@ -36,4 +41,39 @@ export type PocketCfoDemoStackPack = {
   cashAlertInvestigationHandoffExpected: boolean;
   limitations: string[];
   runtimeAndDeliveryBoundary: string;
+};
+
+export type PocketCfoBankCardSourcePackSourceRole =
+  | "bank_account_summary"
+  | "card_expense";
+
+export type PocketCfoBankCardSourcePackSourceFile = {
+  role: PocketCfoBankCardSourcePackSourceRole;
+  fixturePath: string;
+  sourceKind: SourceKind;
+  mediaType: string;
+  expectedExtractorKey: Extract<
+    FinanceTwinExtractorKey,
+    "bank_account_summary_csv" | "card_expense_csv"
+  >;
+};
+
+export type PocketCfoBankCardSourcePack = {
+  id: string;
+  displayName: string;
+  purpose: string;
+  fixtureDirectory: string;
+  sourceFiles: PocketCfoBankCardSourcePackSourceFile[];
+  sourceRoles: PocketCfoBankCardSourcePackSourceRole[];
+  sourceKinds: SourceKind[];
+  mediaTypes: string[];
+  expectedExtractorKeys: Array<
+    Extract<
+      FinanceTwinExtractorKey,
+      "bank_account_summary_csv" | "card_expense_csv"
+    >
+  >;
+  expectedNormalizedPosturePath: string;
+  limitations: string[];
+  runtimeDeliveryActionBoundary: string;
 };
