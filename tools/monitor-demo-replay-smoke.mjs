@@ -16,6 +16,10 @@ import { loadNearestEnvFile } from "./m2-exit-utils.mjs";
 const DEFAULT_CREATED_BY = "monitor-demo-replay-smoke";
 const MODULE_PATH = fileURLToPath(import.meta.url);
 const SOURCE_REF_PREFIX = "pocket-cfo://monitor-results/";
+const EXPECTED_MONITOR_RESULTS_PATH =
+  "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-monitor-results.json";
+const EXPECTED_CLOSE_CONTROL_CHECKLIST_PATH =
+  "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-close-control-checklist.json";
 const EXPECTED_DISCOVERY_FAMILIES = [
   "cash_posture",
   "collections_pressure",
@@ -37,6 +41,23 @@ const REPORT_ARTIFACT_KINDS = [
   "lender_update",
   "diligence_packet",
 ];
+const CLOSE_CONTROL_RUNTIME_ACTION_BOUNDARY_FIELDS = [
+  "runtimeCodexUsed",
+  "deliveryCreated",
+  "reportCreated",
+  "approvalCreated",
+  "accountingWriteCreated",
+  "bankWriteCreated",
+  "taxFilingCreated",
+  "legalAdviceGenerated",
+  "policyAdviceGenerated",
+  "paymentInstructionCreated",
+  "collectionInstructionCreated",
+  "customerContactInstructionCreated",
+  "autonomousActionCreated",
+  "monitorRunTriggered",
+  "missionCreated",
+];
 
 async function main() {
   loadNearestEnvFile();
@@ -49,7 +70,10 @@ async function main() {
 
   try {
     assertFamiliesUnchanged();
-    assertPackMatchesExpectedManifest(fixture.expected);
+    assertPackMatchesExpectedManifest(
+      fixture.expected,
+      fixture.expectedCloseControlChecklist,
+    );
 
     const before = await readBoundaryCounts(pool);
     const container = await createContainer();
@@ -113,6 +137,25 @@ async function main() {
       before,
       expected: fixture.expected.absenceAssertions,
     });
+
+    const beforeCloseControlChecklist = after;
+    const closeControlChecklist = await readCloseControlChecklist(app, {
+      companyKey: fixture.expected.demoCompany.companyKey,
+    });
+    const normalizedCloseControlChecklist = normalizeCloseControlChecklist(
+      closeControlChecklist,
+    );
+    assertExpectedCloseControlChecklist(
+      fixture.expectedCloseControlChecklist,
+      normalizedCloseControlChecklist,
+    );
+    assertChecklistRuntimeActionBoundaryFalse(closeControlChecklist);
+    const afterCloseControlChecklist = await readBoundaryCounts(pool);
+    const closeControlBoundary = assertNoCloseControlChecklistSideEffects(
+      beforeCloseControlChecklist,
+      afterCloseControlChecklist,
+    );
+
     const familyAbsence = assertFamiliesUnchanged();
     const fixtureSourcesUnchanged = await assertFixtureSourcesUnchanged(
       fixture.files,
@@ -127,11 +170,21 @@ async function main() {
           fixtureDirectory: pocketCfoMonitorDemoPack.fixtureDirectory,
         },
         companyKey: fixture.expected.demoCompany.companyKey,
+        monitorResultsVerified: true,
+        closeControlChecklistVerified: true,
+        cashInvestigationHandoffVerified:
+          cashHandoff.taskless === true && cashHandoff.idempotentOpen === true,
+        collectionsInvestigationHandoffVerified:
+          collectionsHandoff.taskless === true &&
+          collectionsHandoff.idempotentOpen === true,
+        payablesOrPolicyInvestigationsCreated,
         sourceFiles: summarizeRegisteredSources(registered, syncs),
         fixtureSourcesUnchanged,
         monitorResults: normalizedMonitorResults,
+        closeControlChecklist: normalizedCloseControlChecklist,
         cashInvestigationHandoff: cashHandoff,
         collectionsInvestigationHandoff: collectionsHandoff,
+        closeControlBoundary,
         absenceAssertions: {
           approvalsCreated: after.approvals !== before.approvals,
           deliveryOutboxEventsCreated:
@@ -164,6 +217,12 @@ async function loadFixture() {
   const expected = JSON.parse(
     await readFile(join(fixtureRoot, "expected-monitor-results.json"), "utf8"),
   );
+  const expectedCloseControlChecklist = JSON.parse(
+    await readFile(
+      join(fixtureRoot, "expected-close-control-checklist.json"),
+      "utf8",
+    ),
+  );
   const files = new Map();
 
   for (const sourceFile of expected.sourceFiles) {
@@ -178,15 +237,29 @@ async function loadFixture() {
     });
   }
 
-  return { expected, files, fixtureRoot };
+  return { expected, expectedCloseControlChecklist, files, fixtureRoot };
 }
 
-function assertPackMatchesExpectedManifest(expected) {
+function assertPackMatchesExpectedManifest(expected, expectedChecklist) {
   if (
     pocketCfoMonitorDemoPack.expectedOutputManifestPath !==
-    "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-monitor-results.json"
+    EXPECTED_MONITOR_RESULTS_PATH
   ) {
     throw new Error("Stack-pack expected output manifest path drifted");
+  }
+  if (
+    pocketCfoMonitorDemoPack.expectedCloseControlChecklistPath !==
+    EXPECTED_CLOSE_CONTROL_CHECKLIST_PATH
+  ) {
+    throw new Error("Stack-pack expected close/control checklist path drifted");
+  }
+  if (
+    expectedChecklist.demoCompany?.companyKey !==
+    expected.demoCompany.companyKey
+  ) {
+    throw new Error(
+      "Expected close/control checklist company key does not match monitor fixture",
+    );
   }
 
   const packRoles = pocketCfoMonitorDemoPack.sourceFiles
@@ -467,6 +540,78 @@ async function assertLatestMonitorReads(app, input) {
   }
 }
 
+async function readCloseControlChecklist(app, input) {
+  return injectJson(app, {
+    expectedStatus: 200,
+    method: "GET",
+    url: `/close-control/companies/${input.companyKey}/checklist`,
+  });
+}
+
+function normalizeCloseControlChecklist(checklist) {
+  return {
+    demoCompany: {
+      companyKey: checklist.companyKey,
+    },
+    aggregateStatus: checklist.aggregateStatus,
+    itemFamilies: checklist.items.map((item) => item.family),
+    items: Object.fromEntries(
+      checklist.items.map((item) => [
+        item.family,
+        normalizeCloseControlChecklistItem(item),
+      ]),
+    ),
+    runtimeActionBoundary: Object.fromEntries(
+      CLOSE_CONTROL_RUNTIME_ACTION_BOUNDARY_FIELDS.map((field) => [
+        field,
+        checklist.runtimeActionBoundary[field],
+      ]),
+    ),
+  };
+}
+
+function normalizeCloseControlChecklistItem(item) {
+  const refs = [...item.sourcePosture.refs, ...item.evidenceBasis.refs];
+
+  return {
+    status: item.status,
+    sourcePostureState: item.sourcePosture.state,
+    freshnessState: item.freshnessSummary.state,
+    proofPostureState: item.proofPosture.state,
+    evidenceBasisKind: item.evidenceBasis.basisKind,
+    limitationsPresent: item.limitations.length > 0,
+    humanReviewNextStepPresent:
+      typeof item.humanReviewNextStep === "string" &&
+      item.humanReviewNextStep.length > 0,
+    evidenceRefKindCoverage: uniqueSorted(
+      refs.map((ref) => ref.kind).filter((kind) => typeof kind === "string"),
+    ),
+    monitorKindCoverage: uniqueSorted(
+      refs
+        .map((ref) => ref.monitorKind)
+        .filter((kind) => typeof kind === "string"),
+    ),
+  };
+}
+
+function assertExpectedCloseControlChecklist(expected, actual) {
+  if (JSON.stringify(actual) !== JSON.stringify(expected)) {
+    throw new Error(
+      `Normalized close/control checklist did not match expected fixture:\nexpected=${JSON.stringify(expected)}\nactual=${JSON.stringify(actual)}`,
+    );
+  }
+}
+
+function assertChecklistRuntimeActionBoundaryFalse(checklist) {
+  for (const field of CLOSE_CONTROL_RUNTIME_ACTION_BOUNDARY_FIELDS) {
+    if (checklist.runtimeActionBoundary[field] !== false) {
+      throw new Error(
+        `Close/control checklist boundary ${field} was not false`,
+      );
+    }
+  }
+}
+
 async function createAndVerifyMonitorInvestigation(app, pool, input) {
   if (!input.expected.expected) {
     return { expected: false };
@@ -665,18 +810,36 @@ function assertAbsenceBoundaries(input) {
 
 async function readBoundaryCounts(pool) {
   const [
+    accountingWrites,
     approvals,
+    autonomousActions,
+    bankWrites,
+    collectionInstructions,
+    customerContactInstructions,
+    legalAdvice,
     missions,
+    monitorResults,
     outboxEvents,
     paymentInstructions,
+    policyAdvice,
     reportArtifacts,
+    taxFilings,
     taskRuntimeThreads,
   ] = await Promise.all([
+    readOptionalCount(pool, "accounting_writes"),
     readScalar(pool, "select count(*)::int as count from approvals", []),
+    readOptionalCount(pool, "autonomous_actions"),
+    readOptionalCount(pool, "bank_writes"),
+    readOptionalCount(pool, "collection_instructions"),
+    readOptionalCount(pool, "customer_contact_instructions"),
+    readOptionalCount(pool, "legal_advice"),
     readScalar(pool, "select count(*)::int as count from missions", []),
+    readScalar(pool, "select count(*)::int as count from monitor_results", []),
     readScalar(pool, "select count(*)::int as count from outbox_events", []),
     readOptionalCount(pool, "payment_instructions"),
+    readOptionalCount(pool, "policy_advice"),
     readReportArtifactCount(pool),
+    readOptionalCount(pool, "tax_filings"),
     readScalar(
       pool,
       "select count(*)::int as count from mission_tasks where codex_thread_id is not null",
@@ -685,13 +848,57 @@ async function readBoundaryCounts(pool) {
   ]);
 
   return {
+    accountingWrites,
     approvals,
+    autonomousActions,
+    bankWrites,
+    collectionInstructions,
+    customerContactInstructions,
+    legalAdvice,
     missions,
+    monitorResults,
     outboxEvents,
     paymentInstructions,
+    policyAdvice,
     reportArtifacts,
+    taxFilings,
     taskRuntimeThreads,
   };
+}
+
+function assertNoCloseControlChecklistSideEffects(before, after) {
+  const checks = [
+    ["monitorResults", "monitorResultCreated"],
+    ["missions", "missionCreated"],
+    ["reportArtifacts", "reportCreated"],
+    ["approvals", "approvalCreated"],
+    ["outboxEvents", "deliveryCreated"],
+    ["taskRuntimeThreads", "runtimeCodexUsed"],
+    ["paymentInstructions", "paymentInstructionCreated"],
+    ["accountingWrites", "accountingWriteCreated"],
+    ["bankWrites", "bankWriteCreated"],
+    ["taxFilings", "taxFilingCreated"],
+    ["legalAdvice", "legalAdviceGenerated"],
+    ["policyAdvice", "policyAdviceGenerated"],
+    ["collectionInstructions", "collectionInstructionCreated"],
+    ["customerContactInstructions", "customerContactInstructionCreated"],
+    ["autonomousActions", "autonomousActionCreated"],
+  ];
+  const boundary = {
+    monitorRunTriggered: false,
+  };
+
+  for (const [countKey, boundaryKey] of checks) {
+    if (after[countKey] !== before[countKey]) {
+      throw new Error(
+        `Close/control checklist read changed ${countKey}: before=${before[countKey]}, after=${after[countKey]}`,
+      );
+    }
+
+    boundary[boundaryKey] = false;
+  }
+
+  return boundary;
 }
 
 async function readReportArtifactCount(pool) {
@@ -748,6 +955,10 @@ function assertFamiliesUnchanged() {
     newDiscoveryFamilyAdded: false,
     newMonitorFamilyAdded: false,
   };
+}
+
+function uniqueSorted(values) {
+  return Array.from(new Set(values)).sort();
 }
 
 function summarizeRegisteredSources(registered, syncs) {

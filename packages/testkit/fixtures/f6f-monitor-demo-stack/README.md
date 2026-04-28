@@ -1,6 +1,7 @@
 # F6F Monitor Demo Stack Fixture
 
-This fixture is the first checked-in Pocket CFO demo stack for F6F.
+This fixture is the first checked-in Pocket CFO demo stack for F6F and the
+additive F6I close/control expected-output expansion.
 It bootstraps one deterministic company key, `demo-monitor-stack`, from static raw source files and then runs only the shipped monitor families:
 
 - `cash_posture`
@@ -22,6 +23,13 @@ It may register sources, upload source files, sync Finance Twin state, bind the 
 
 `expected-monitor-results.json` records the normalized expected monitor posture.
 Generated ids, raw source ids, snapshot ids, sync run ids, mission ids, and timestamps are intentionally excluded from the expected comparison.
+
+`expected-close-control-checklist.json` records the normalized expected F6H close/control checklist posture for this same demo company.
+It compares only stable proof posture: aggregate status, item families, item statuses, source-posture states, freshness states, proof-posture states, evidence-basis kinds, evidence-ref kind coverage, limitation presence, human-review next-step presence, and runtime/action absence booleans.
+Generated ids, generated timestamps, raw source ids, snapshot ids, source-file ids, sync-run ids, monitor-result ids, and freeform prose are intentionally excluded.
+
+The close/control checklist expectation is read-only review posture.
+It does not assert close completion and it must not create a second demo platform or change shipped F6H checklist behavior.
 
 The expected handoff boundary is cash plus collections after shipped F6G:
 

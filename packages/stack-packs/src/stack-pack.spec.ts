@@ -19,17 +19,23 @@ describe("stack packs", () => {
       "payables_pressure",
       "policy_covenant_threshold",
     ]);
-    expect(pocketCfoMonitorDemoPack.sourceFiles.map((file) => file.role)).toEqual(
-      [
-        "bank_cash",
-        "receivables_aging",
-        "payables_aging",
-        "policy_thresholds",
-      ],
-    );
     expect(
-      pocketCfoMonitorDemoPack.cashAlertInvestigationHandoffExpected,
-    ).toBe(true);
+      pocketCfoMonitorDemoPack.sourceFiles.map((file) => file.role),
+    ).toEqual([
+      "bank_cash",
+      "receivables_aging",
+      "payables_aging",
+      "policy_thresholds",
+    ]);
+    expect(pocketCfoMonitorDemoPack.cashAlertInvestigationHandoffExpected).toBe(
+      true,
+    );
+    expect(pocketCfoMonitorDemoPack.expectedOutputManifestPath).toBe(
+      "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-monitor-results.json",
+    );
+    expect(pocketCfoMonitorDemoPack.expectedCloseControlChecklistPath).toBe(
+      "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-close-control-checklist.json",
+    );
     expect(pocketCfoMonitorDemoPack.runtimeAndDeliveryBoundary).toContain(
       "runtime-free",
     );

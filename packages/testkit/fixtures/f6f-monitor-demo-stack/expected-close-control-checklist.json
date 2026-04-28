@@ -1,0 +1,108 @@
+{
+  "demoCompany": {
+    "companyKey": "demo-monitor-stack"
+  },
+  "aggregateStatus": "needs_review",
+  "itemFamilies": [
+    "source_coverage_review",
+    "cash_source_freshness_review",
+    "receivables_aging_source_freshness_review",
+    "payables_aging_source_freshness_review",
+    "policy_source_freshness_review",
+    "monitor_replay_readiness"
+  ],
+  "items": {
+    "source_coverage_review": {
+      "status": "needs_review",
+      "sourcePostureState": "limited_source",
+      "freshnessState": "mixed",
+      "proofPostureState": "limited_by_coverage_gap",
+      "evidenceBasisKind": "derived_source_coverage",
+      "limitationsPresent": true,
+      "humanReviewNextStepPresent": true,
+      "evidenceRefKindCoverage": [
+        "cfo_wiki_page",
+        "cfo_wiki_source",
+        "finance_twin_source"
+      ],
+      "monitorKindCoverage": []
+    },
+    "cash_source_freshness_review": {
+      "status": "needs_review",
+      "sourcePostureState": "limited_source",
+      "freshnessState": "fresh",
+      "proofPostureState": "limited_by_data_quality_gap",
+      "evidenceBasisKind": "stored_finance_twin_posture",
+      "limitationsPresent": true,
+      "humanReviewNextStepPresent": true,
+      "evidenceRefKindCoverage": ["finance_twin_source"],
+      "monitorKindCoverage": []
+    },
+    "receivables_aging_source_freshness_review": {
+      "status": "ready_for_review",
+      "sourcePostureState": "source_backed",
+      "freshnessState": "fresh",
+      "proofPostureState": "source_backed",
+      "evidenceBasisKind": "stored_finance_twin_posture",
+      "limitationsPresent": true,
+      "humanReviewNextStepPresent": true,
+      "evidenceRefKindCoverage": ["finance_twin_source"],
+      "monitorKindCoverage": []
+    },
+    "payables_aging_source_freshness_review": {
+      "status": "ready_for_review",
+      "sourcePostureState": "source_backed",
+      "freshnessState": "fresh",
+      "proofPostureState": "source_backed",
+      "evidenceBasisKind": "stored_finance_twin_posture",
+      "limitationsPresent": true,
+      "humanReviewNextStepPresent": true,
+      "evidenceRefKindCoverage": ["finance_twin_source"],
+      "monitorKindCoverage": []
+    },
+    "policy_source_freshness_review": {
+      "status": "needs_review",
+      "sourcePostureState": "limited_source",
+      "freshnessState": "mixed",
+      "proofPostureState": "limited_by_coverage_gap",
+      "evidenceBasisKind": "stored_cfo_wiki_policy_posture",
+      "limitationsPresent": true,
+      "humanReviewNextStepPresent": true,
+      "evidenceRefKindCoverage": ["cfo_wiki_page", "cfo_wiki_source"],
+      "monitorKindCoverage": []
+    },
+    "monitor_replay_readiness": {
+      "status": "needs_review",
+      "sourcePostureState": "monitor_context_present",
+      "freshnessState": "mixed",
+      "proofPostureState": "limited_by_alerting_monitor",
+      "evidenceBasisKind": "latest_persisted_monitor_result_context",
+      "limitationsPresent": true,
+      "humanReviewNextStepPresent": true,
+      "evidenceRefKindCoverage": ["monitor_result"],
+      "monitorKindCoverage": [
+        "cash_posture",
+        "collections_pressure",
+        "payables_pressure",
+        "policy_covenant_threshold"
+      ]
+    }
+  },
+  "runtimeActionBoundary": {
+    "runtimeCodexUsed": false,
+    "deliveryCreated": false,
+    "reportCreated": false,
+    "approvalCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "paymentInstructionCreated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "autonomousActionCreated": false,
+    "monitorRunTriggered": false,
+    "missionCreated": false
+  }
+}

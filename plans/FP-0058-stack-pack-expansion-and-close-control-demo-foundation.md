@@ -2,12 +2,12 @@
 
 ## Purpose / Big Picture
 
-This file is the active Finance Plan for the Pocket CFO F6I implementation slice.
+This file is the shipped Finance Plan for the Pocket CFO F6I implementation slice.
 The target phase is `F6`, and the implementation slice is exactly `F6I-stack-pack-expansion-and-close-control-demo-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6H, a new operator should be able to replay the existing Pocket CFO demo stack and see one deterministic proof that the source-backed monitor stack and the source-backed close/control checklist agree on the same checked-in evidence posture.
-F6I should expand the existing `pocket-cfo-monitor-demo` stack-pack foundation, not create a second broad demo platform.
-The next implementation thread should add normalized close/control checklist expectations to the existing demo pack and extend the existing replay proof to verify them after the shipped monitor and handoff replay.
+The user-visible goal is narrow: after shipped F6A through F6H, a new operator can replay the existing Pocket CFO demo stack and see one deterministic proof that the source-backed monitor stack and the source-backed close/control checklist agree on the same checked-in evidence posture.
+F6I expands the existing `pocket-cfo-monitor-demo` stack-pack foundation, not a second broad demo platform.
+The shipped implementation adds normalized close/control checklist expectations to the existing demo pack and extends the existing replay proof to verify them after the shipped monitor and handoff replay.
 
 F6I is not a monitor family.
 It must not add `spend_posture`, `obligation_calendar_review`, `covenant_risk`, or any other monitor family.
@@ -28,18 +28,21 @@ The shipped discovery families remain exactly:
 - `obligation_calendar_review`
 - `policy_lookup`
 
-This plan is implementation-ready, but no F6I implementation has started in this docs-and-plan thread.
-F6I must remain deterministic, runtime-free, delivery-free, report-free, approval-free, payment-free, legal-advice-free, policy-advice-free, collection-instruction-free, customer-contact-instruction-free, and non-autonomous.
+This plan is now the shipped F6I implementation record.
+F6I remains deterministic, runtime-free, delivery-free, report-free, approval-free, payment-free, legal-advice-free, policy-advice-free, collection-instruction-free, customer-contact-instruction-free, and non-autonomous.
 GitHub connector work is explicitly out of scope.
 
 ## Progress
 
 - [x] 2026-04-28T13:01:26Z Invoke the requested Pocket CFO operator plugin guards, run preflight, confirm the branch, GitHub access, Docker services, and clean worktree, then read the required active docs, shipped F6A through F6H records, stack-pack fixture, expected monitor manifest, replay smoke, checklist smoke, and package scripts.
 - [x] 2026-04-28T13:01:26Z Decide that F6I is ready and should expand the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output rather than start a different stack-pack expansion.
-- [x] 2026-04-28T13:01:26Z Create FP-0058 as the single active implementation-ready F6I contract while preserving FP-0050 through FP-0057 as shipped F6A through F6H records.
-- [x] 2026-04-28T13:01:26Z Refresh the active-doc spine so the next implementation thread starts from this F6I contract and does not reopen shipped monitor, investigation, report, approval, runtime, delivery, or checklist behavior.
+- [x] 2026-04-28T13:01:26Z Create FP-0058 as the single initial implementation-ready F6I contract while preserving FP-0050 through FP-0057 as shipped F6A through F6H records.
+- [x] 2026-04-28T13:01:26Z Refresh the active-doc spine so the implementation thread starts from this F6I contract and does not reopen shipped monitor, investigation, report, approval, runtime, delivery, or checklist behavior.
 - [x] 2026-04-28T13:13:10Z Run the requested docs-and-plan validation ladder and confirm the docs-and-plan-only contract stays green.
-- [ ] Implement the first F6I slice in a later thread by extending the existing demo stack-pack expected outputs and replay proof only.
+- [x] 2026-04-28T13:39:33Z Implement the first F6I slice by adding normalized close/control checklist expected output, extending the existing demo stack-pack manifest, updating fixture/spec proof, and extending only `pnpm smoke:monitor-demo-replay:local`.
+- [x] 2026-04-28T13:39:33Z Confirm the new combined replay proof verifies monitor outputs, cash plus collections handoffs, payables and policy/covenant investigation absence, close/control checklist posture, side-effect absence, fixture source immutability, and unchanged monitor/discovery family sets.
+- [x] 2026-04-28T13:39:33Z Refresh active docs so FP-0058 is the shipped F6I record and F6J planning starts next only through a new Finance Plan.
+- [x] 2026-04-28T13:47:00Z Run and record the full requested F6I validation ladder on the final tree, including narrow stack-pack/testkit specs, domain/control-plane close-control and monitoring suites, shipped monitor/checklist/investigation smokes, twin guardrails, lint, typecheck, test, and `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
@@ -54,8 +57,10 @@ The read model contains generated `generatedAt` plus generated source, snapshot,
 Those fields can be normalized away while preserving item families, item statuses, aggregate status, source posture states, evidence-basis kinds, freshness states, proof posture states, limitation presence, human-review next-step presence, runtime/action boundary fields, and monitor-family coverage.
 
 The current `pocket-cfo-monitor-demo` stack-pack contract points at a monitor-only expected manifest.
-F6I should not rename the shipped monitor fixture or mutate raw source files.
+F6I did not rename the shipped monitor fixture or mutate raw source files.
 The safer implementation shape is an adjacent expected close/control checklist file plus a small stack-pack manifest extension, so monitor expectations remain stable while the demo pack grows one proof surface.
+
+The implementation confirmed the normalized checklist posture is stable for the demo fixture: aggregate status is `needs_review`, source coverage and cash/policy/monitor replay items need review, receivables-aging and payables-aging items are ready for review, runtime/action boundary fields are false, and evidence-ref kind coverage is stable without comparing generated ids.
 
 No blocking F6I readiness gap was found.
 The readiness checks passed locally before this plan was written:
@@ -75,7 +80,7 @@ Decision: add expected close/control checklist output as an adjacent expected fi
 Rationale: `expected-monitor-results.json` is already the shipped monitor-output contract. An adjacent file such as `expected-close-control-checklist.json` can carry normalized checklist expectations without renaming or broadening the monitor manifest.
 
 Decision: update the existing replay proof rather than adding a new package script.
-Rationale: F6I should make `pnpm smoke:monitor-demo-replay:local` prove the combined demo contract after existing monitor and handoff replay. `pnpm smoke:close-control-checklist:local` remains the shipped F6H standalone proof and should stay green.
+Rationale: F6I makes `pnpm smoke:monitor-demo-replay:local` prove the combined demo contract after existing monitor and handoff replay. `pnpm smoke:close-control-checklist:local` remains the shipped F6H standalone proof and stays independent.
 
 Decision: the F6I input contract is one checked-in demo stack-pack fixture set.
 Rationale: inputs are the existing immutable source files for bank/cash, receivables aging, payables aging, and policy thresholds; the existing expected monitor results; one new normalized expected close/control checklist result; the existing source registration and replay route flow; no generic chat; no report artifact input; no runtime-Codex; and no monitor reruns from the checklist path.
@@ -92,6 +97,9 @@ Rationale: the shipped F6H item families already cover source coverage, cash fre
 Decision: preserve shipped F5 and F6 behavior.
 Rationale: no F5 reporting approval/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes beyond direct replay expectation proof, no new approval kind, and no report conversion belong in F6I.
 
+Decision: normalize close/control checklist expectations by posture fields rather than generated identity or prose.
+Rationale: comparing family, status, source-posture state, freshness state, proof-posture state, evidence-basis kind, limitation presence, human-review presence, evidence-ref kind coverage, monitor-kind coverage, and runtime/action boundary fields keeps the proof stable while preserving the evidence spine.
+
 Decision: define later slices without creating them.
 Rationale: likely later work is `F6J-notification/delivery planning` only if a future operator need is proven safe, `F6K-close/control acknowledgement` only if operator need is proven, and `F6L-source-pack expansion` only after this one demo pack is green and source-backed. Do not create those plans in F6I.
 
@@ -107,6 +115,7 @@ Pocket CFO has shipped:
 - F6F one deterministic monitor demo replay and one Pocket CFO demo stack-pack foundation
 - F6G manual taskless investigation handoff from one persisted alerting `collections_pressure` monitor result while preserving cash and rejecting payables and policy/covenant investigations
 - F6H one deterministic close/control checklist foundation from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only
+- F6I one normalized close/control expected-output expansion on the existing monitor demo stack-pack replay proof
 
 The relevant implementation seams for F6I are:
 
@@ -272,6 +281,29 @@ The F6I implementation thread should run at least:
 - `pnpm test`
 - `pnpm ci:repro:current`
 
+Final implementation validation completed on 2026-04-28 with all requested gates green:
+
+- `pnpm --filter @pocket-cto/stack-packs exec vitest run src/stack-pack.spec.ts`
+- `pnpm --filter @pocket-cto/testkit exec vitest run src/f6f-monitor-demo-fixture.spec.ts`
+- `pnpm --filter @pocket-cto/stack-packs exec vitest run`
+- `pnpm --filter @pocket-cto/testkit exec vitest run`
+- `pnpm --filter @pocket-cto/domain exec vitest run src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
+- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
+- `pnpm smoke:monitor-demo-replay:local`
+- `pnpm smoke:close-control-checklist:local`
+- `pnpm smoke:cash-posture-monitor:local`
+- `pnpm smoke:collections-pressure-monitor:local`
+- `pnpm smoke:payables-pressure-monitor:local`
+- `pnpm smoke:policy-covenant-threshold-monitor:local`
+- `pnpm smoke:cash-posture-alert-investigation:local`
+- `pnpm smoke:collections-pressure-alert-investigation:local`
+- `pnpm smoke:finance-discovery-supported-families:local`
+- `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm ci:repro:current`
+
 F6I implementation acceptance is observable only if all of the following are true:
 
 - one existing demo stack-pack fixture set remains the source of truth for the demo
@@ -304,7 +336,7 @@ Rollback must leave FP-0050 through FP-0057, shipped monitor behavior, shipped a
 Expected F6I implementation artifacts:
 
 - `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md`
-- active-doc updates that identify FP-0058 as the active F6I contract and later shipped record only after implementation lands
+- active-doc updates that identify FP-0058 as the shipped F6I record
 - one adjacent normalized close/control expected-output file
 - one additive `pocket-cfo-monitor-demo` stack-pack manifest pointer for that expected output
 - one extended deterministic replay proof through the existing `pnpm smoke:monitor-demo-replay:local`
@@ -355,11 +387,12 @@ Do not delete GitHub or engineering-twin modules as part of F6I.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan thread created the active FP-0058 F6I contract after confirming that the shipped F6F monitor demo replay and shipped F6H close/control checklist smoke are both green and source-backed.
-No F6I implementation has started yet.
-The next implementation thread should extend the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output and update the existing replay proof only.
+The docs-and-plan thread created the FP-0058 F6I contract after confirming that the shipped F6F monitor demo replay and shipped F6H close/control checklist smoke were both green and source-backed.
+This implementation thread shipped the first F6I slice by extending the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output and updating the existing replay proof only.
+No F6J implementation started.
+No new monitor family, discovery family, route, schema, migration, package script, smoke alias, eval dataset, runtime-Codex behavior, delivery, report, approval, payment behavior, legal or policy advice, collection/customer-contact instruction, or autonomous action was added.
 
 What remains:
 
-- start F6I implementation next only from this plan
-- keep F6J notification/delivery planning, F6K acknowledgement, and F6L source-pack expansion uncreated until a later named plan proves the need
+- start F6J planning next only through a new Finance Plan if the operator need is proven
+- keep F6K acknowledgement and F6L source-pack expansion uncreated until a later named plan proves the need

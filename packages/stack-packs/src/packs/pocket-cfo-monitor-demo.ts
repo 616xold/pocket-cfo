@@ -44,10 +44,12 @@ export const pocketCfoMonitorDemoPack: PocketCfoDemoStackPack = {
   ],
   expectedOutputManifestPath:
     "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-monitor-results.json",
+  expectedCloseControlChecklistPath:
+    "packages/testkit/fixtures/f6f-monitor-demo-stack/expected-close-control-checklist.json",
   cashAlertInvestigationHandoffExpected: true,
   limitations: [
     "The pack is a deterministic local demo fixture set, not a broad demo platform.",
-    "The pack covers only shipped F6A through F6E monitor families.",
+    "The pack covers only shipped F6A through F6E monitor families plus the shipped F6H close/control checklist read posture.",
     "The pack does not add monitor families, discovery families, report artifacts, approvals, delivery, runtime-Codex, payment behavior, legal advice, policy advice, or autonomous remediation.",
     "The pack preserves GitHub as optional connector context and does not require GitHub as a Pocket CFO source of truth.",
   ],
