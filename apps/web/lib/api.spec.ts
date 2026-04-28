@@ -217,6 +217,42 @@ describe("web api module", () => {
     );
   });
 
+  it("reads the operator readiness route as an internal review-only contract", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      async json() {
+        return buildOperatorReadinessPayload();
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const readiness = await mod.getOperatorReadiness(" acme ");
+
+    expect(readiness?.companyKey).toBe("acme");
+    expect(readiness?.aggregateStatus).toBe("needs_review");
+    expect(readiness?.attentionItems.map((item) => item.family)).toEqual([
+      "monitor_alert_attention",
+      "source_freshness_attention",
+    ]);
+    expect(readiness?.runtimeActionBoundary).toMatchObject({
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      outboxSendCreated: false,
+      reportCreated: false,
+      approvalCreated: false,
+      missionCreated: false,
+      monitorRunTriggered: false,
+      monitorResultCreated: false,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/operator-readiness/companies/acme`,
+      {
+        cache: "no-store",
+      },
+    );
+  });
+
   it("reads the latest cash-posture monitor result", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -3194,6 +3230,144 @@ function buildCloseControlChecklistPayload() {
         "Checklist generation is a read-only deterministic derivation with no runtime or action side effects.",
       replayImplication:
         "The checklist is not stored as a separate mission replay event in F6H.",
+    },
+  };
+}
+
+function buildOperatorReadinessPayload() {
+  return {
+    companyKey: "acme",
+    generatedAt: "2026-04-28T12:00:00.000Z",
+    aggregateStatus: "needs_review",
+    attentionItems: [
+      {
+        itemKey: "monitor:cash_posture:11111111-1111-4111-8111-111111111111",
+        family: "monitor_alert_attention",
+        status: "needs_review",
+        evidenceBasis: {
+          basisKind: "latest_persisted_monitor_result",
+          summary:
+            "Latest persisted cash_posture monitor result is alerting and needs review.",
+          refs: [
+            {
+              kind: "monitor_result",
+              evidencePath: "monitorResults.cash_posture",
+              summary: "Latest persisted cash_posture monitor result.",
+              sourceId: null,
+              sourceSnapshotId: null,
+              sourceFileId: null,
+              syncRunId: null,
+              pageKey: null,
+              monitorKind: "cash_posture",
+              monitorResultId: "11111111-1111-4111-8111-111111111111",
+              checklistItemFamily: null,
+              proofRef:
+                "monitor-results/11111111-1111-4111-8111-111111111111/proofBundlePosture",
+            },
+          ],
+        },
+        sourceLineageRefs: [],
+        sourcePosture: {
+          state: "source_backed",
+          summary: "Cash monitor source freshness is fresh.",
+          refs: [],
+        },
+        freshnessSummary: {
+          state: "fresh",
+          summary: "Cash monitor source freshness is fresh.",
+          latestObservedAt: "2026-04-28T12:00:00.000Z",
+        },
+        limitations: [
+          "F6J readiness reads the latest persisted monitor result only.",
+        ],
+        proofPosture: {
+          state: "source_backed",
+          summary: "Cash monitor proof is source-backed.",
+        },
+        humanReviewNextStep:
+          "Review cash monitor posture before deciding any follow-up.",
+        relatedMonitorKind: "cash_posture",
+        relatedChecklistItemFamily: null,
+        relatedAlertStatus: "alert",
+      },
+      {
+        itemKey: "close-control:cash_source_freshness_review",
+        family: "source_freshness_attention",
+        status: "needs_review",
+        evidenceBasis: {
+          basisKind: "source_freshness_posture",
+          summary:
+            "Cash source freshness is derived from close/control checklist posture.",
+          refs: [
+            {
+              kind: "close_control_checklist_item",
+              evidencePath:
+                "closeControlChecklist.items.cash_source_freshness_review",
+              summary: "Derived close/control checklist item.",
+              sourceId: null,
+              sourceSnapshotId: null,
+              sourceFileId: null,
+              syncRunId: null,
+              pageKey: null,
+              monitorKind: null,
+              monitorResultId: null,
+              checklistItemFamily: "cash_source_freshness_review",
+              proofRef: null,
+            },
+          ],
+        },
+        sourceLineageRefs: [],
+        sourcePosture: {
+          state: "limited_source",
+          summary: "Cash source posture needs review.",
+          refs: [],
+        },
+        freshnessSummary: {
+          state: "mixed",
+          summary: "Cash source freshness needs human review.",
+          latestObservedAt: "2026-04-28T12:00:00.000Z",
+        },
+        limitations: [
+          "F6J readiness does not acknowledge checklist items or mark close complete.",
+        ],
+        proofPosture: {
+          state: "limited_by_coverage_gap",
+          summary: "Cash source proof is limited by coverage gaps.",
+        },
+        humanReviewNextStep:
+          "Review cash source posture before any close/control reliance.",
+        relatedMonitorKind: null,
+        relatedChecklistItemFamily: "cash_source_freshness_review",
+        relatedAlertStatus: null,
+      },
+    ],
+    evidenceSummary:
+      "F6J readiness is derived from latest persisted monitor results and the close/control checklist only.",
+    limitations: [
+      "Operator readiness is internal review posture and creates no external delivery.",
+    ],
+    runtimeActionBoundary: {
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      outboxSendCreated: false,
+      reportCreated: false,
+      approvalCreated: false,
+      missionCreated: false,
+      monitorRunTriggered: false,
+      monitorResultCreated: false,
+      accountingWriteCreated: false,
+      bankWriteCreated: false,
+      taxFilingCreated: false,
+      legalAdviceGenerated: false,
+      policyAdviceGenerated: false,
+      paymentInstructionCreated: false,
+      collectionInstructionCreated: false,
+      customerContactInstructionCreated: false,
+      autonomousActionCreated: false,
+      summary:
+        "Operator readiness generation is deterministic, read-only, and action-free.",
+      replayImplication:
+        "The readiness result is not persisted as a mission replay event.",
     },
   };
 }

@@ -9,6 +9,7 @@ export * from "./mission-list";
 export * from "./mission";
 export * from "./mission-task";
 export * from "./monitoring";
+export * from "./operator-readiness";
 export * from "./proof-bundle";
 export * from "./replay-event";
 export * from "./reporting-mission";
