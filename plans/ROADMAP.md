@@ -275,7 +275,7 @@ Turn shipped discovery outputs into reviewable finance reporting artifacts witho
 
 The latest shipped implementation records for this phase are `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` for F5C4E, `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` for F5C4F, `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` for F5C4G, `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` for F5C4H, and `plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` for F5C4I.
 F5C4I is now shipped: the repo already supports explicit clear-to-absent `circulationNote` correction on the existing board `report_circulation` seam while keeping the original record immutable and the correction history append-only.
-There is no active later-F5 implementation contract after FP-0049. `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` remains the shipped first-F6A record, `plans/FP-0051-alert-to-investigation-mission-foundation.md` remains the shipped first-F6B record, `plans/FP-0052-collections-pressure-monitor-foundation.md` is now the shipped F6C implementation record, `plans/FP-0053-payables-pressure-monitor-foundation.md` is now the shipped F6D implementation record, `plans/FP-0054-policy-covenant-threshold-monitor-foundation.md` is now the shipped F6E implementation record, `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F implementation record, `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G implementation record, and `plans/FP-0057-close-control-checklist-foundation.md` is now the shipped F6H implementation record. F6H did not reopen F5 and stayed limited to one deterministic source-backed close/control checklist foundation.
+There is no active later-F5 implementation contract after FP-0049. `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` remains the shipped first-F6A record, `plans/FP-0051-alert-to-investigation-mission-foundation.md` remains the shipped first-F6B record, `plans/FP-0052-collections-pressure-monitor-foundation.md` is now the shipped F6C implementation record, `plans/FP-0053-payables-pressure-monitor-foundation.md` is now the shipped F6D implementation record, `plans/FP-0054-policy-covenant-threshold-monitor-foundation.md` is now the shipped F6E implementation record, `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F implementation record, `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G implementation record, and `plans/FP-0057-close-control-checklist-foundation.md` is now the shipped F6H implementation record. `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is the active F6I contract and does not reopen F5; it is limited to extending the existing deterministic demo replay proof with close/control checklist expected output.
 The authority model stays fixed:
 
 - raw sources remain authoritative for document claims
@@ -423,6 +423,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` records the shipped F6F implementation slice.
 `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is the shipped F6G implementation record.
 `plans/FP-0057-close-control-checklist-foundation.md` is the shipped F6H implementation record.
+`plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is the active implementation-ready F6I contract.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -432,6 +433,7 @@ The shipped F6E slice is exactly `F6E-policy-covenant-threshold-monitor-foundati
 The shipped F6F slice is exactly `F6F-monitor-demo-replay-and-stack-pack-foundation`.
 The shipped F6G slice is exactly `F6G-non-cash-alert-to-investigation-generalization-foundation`.
 The shipped F6H slice is exactly `F6H-close-control-checklist-foundation`.
+The active F6I slice is exactly `F6I-stack-pack-expansion-and-close-control-demo-foundation`.
 
 Focus:
 
@@ -444,6 +446,7 @@ Focus:
 - explicit source lineage, freshness or missing-source posture, limitations, proof-bundle posture, deterministic severity rationale, and human-review next step
 - manual alert-to-investigation handoff first, the shipped policy/covenant threshold monitor, one deterministic demo replay, one stack-pack foundation, benchmark support, and the shipped collections-first non-cash alert handoff only where a concrete source-backed need exists
 - one deterministic close/control checklist foundation that reviews source coverage, source freshness, policy-source posture, and monitor replay readiness without adding alert semantics
+- one implementation-ready stack-pack expansion that should add normalized close/control checklist expected output to the existing `pocket-cfo-monitor-demo` replay proof without adding product runtime behavior
 
 Exit criteria:
 
@@ -455,6 +458,7 @@ Exit criteria:
 - the shipped F6F slice proves a new user can bootstrap one demo company from checked-in source files and docs, then replay the shipped monitor stack deterministically
 - the shipped F6G slice lets an operator manually create or open one taskless deterministic investigation mission from one persisted alerting `collections_pressure` monitor result, while preserving shipped cash behavior and rejecting payables and policy/covenant investigations
 - the shipped F6H slice produces one company-scoped deterministic checklist result/read model from stored Finance Twin posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only, with each item carrying source posture, evidence basis, freshness or limitations, status, proof posture, and human-review next step; it makes no close-complete assertion
+- the active F6I contract should extend the existing demo stack-pack proof so one replay verifies shipped monitor outputs, cash plus collections handoffs, payables and policy/covenant investigation absence, normalized close/control checklist items, aggregate status, absence boundaries, fixture immutability, and no new monitor or discovery families
 
 Slice map:
 
@@ -527,9 +531,18 @@ Slice map:
   - packaged proof: `pnpm smoke:close-control-checklist:local`
   - no runtime-Codex, email, Slack, webhooks, notification delivery, approval kind, report conversion, accounting write, bank write, journal booking, tax filing, legal advice, policy advice, payment instruction, collection instruction, customer-contact instruction, or autonomous remediation
   - preserve shipped F5 and F6 behavior: no monitor evaluator changes, no F6B/F6G mission changes, no payables or policy/covenant investigations, and no new monitor or discovery families
-- `F6I — stack-pack expansion`
-  - planning should start only as a new Finance Plan after F6H; do not create FP-0058 from roadmap text alone
+- `F6I — stack-pack expansion and close/control demo foundation`
+  - active implementation-ready contract in `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md`
+  - first F6I scope is exactly `F6I-stack-pack-expansion-and-close-control-demo-foundation`
+  - not a monitor family and not a discovery-family expansion
+  - expand the existing `pocket-cfo-monitor-demo` stack-pack, not a second demo platform
+  - input contract is one checked-in demo stack-pack fixture set, existing source files for bank/cash, receivables aging, payables aging, and policy thresholds, existing expected monitor results, one new normalized expected close/control checklist result, and the existing source registration/replay route flow
+  - output contract is one deterministic replay proof that verifies the four shipped monitor families, cash and collections handoffs where alerting, payables and policy/covenant investigations absent, close/control checklist items, aggregate status, close/control absence boundary, fixture source immutability, and no new monitor or discovery families
+  - use the existing `pnpm smoke:monitor-demo-replay:local` proof; do not add a new package script
+  - do not add routes, schema, migrations, monitor evaluators, mission behavior, runtime-Codex, delivery, reports, approvals, new checklist item families, new monitor condition kinds, or investigation behavior unless a direct shipped-truthfulness gap is proven and recorded in FP-0058 first
 - `F6J — notification/delivery planning`
-  - later planning only, and only if a future plan proves a safe human-review, delivery-free-by-default path; do not create FP-0058 from roadmap text alone
+  - later planning only, and only if a future plan proves a safe human-review, delivery-free-by-default path; do not create FP-0059 from roadmap text alone
 - `F6K — close/control approval or acknowledgement`
-  - later only if operator need is proven after the first checklist foundation is green; do not create FP-0058 from roadmap text alone
+  - later only if operator need is proven after the first checklist foundation is green; do not create FP-0059 from roadmap text alone
+- `F6L — source-pack expansion`
+  - later only if the single F6I demo pack is green and source-backed; do not create FP-0059 from roadmap text alone
