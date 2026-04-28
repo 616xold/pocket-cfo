@@ -449,7 +449,7 @@ Focus:
 - manual alert-to-investigation handoff first, the shipped policy/covenant threshold monitor, one deterministic demo replay, one stack-pack foundation, benchmark support, and the shipped collections-first non-cash alert handoff only where a concrete source-backed need exists
 - one deterministic close/control checklist foundation that reviews source coverage, source freshness, policy-source posture, and monitor replay readiness without adding alert semantics
 - one shipped stack-pack expansion that adds normalized close/control checklist expected output to the existing `pocket-cfo-monitor-demo` replay proof without adding product runtime behavior
-- one active internal operator attention/readiness contract that can show which shipped source-backed posture needs review without external delivery
+- one shipped internal operator attention/readiness read model that can show which shipped source-backed posture needs review without external delivery
 
 Exit criteria:
 
