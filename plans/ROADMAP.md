@@ -429,6 +429,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0061-source-pack-expansion-foundation.md` is the shipped F6L implementation record.
 `plans/FP-0062-external-notification-delivery-planning-foundation.md` is the shipped F6M implementation record for a first internal delivery-readiness boundary.
 `plans/FP-0063-close-control-review-summary-foundation.md` is the shipped F6N implementation record for a first internal close/control review summary.
+`plans/FP-0064-receivables-payables-source-pack-foundation.md` is the active implementation-ready F6O contract for one receivables/payables source-pack foundation only.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -444,6 +445,7 @@ The shipped F6K slice is exactly `F6K-close-control-acknowledgement-foundation`.
 The shipped F6L slice is exactly `F6L-bank-card-source-pack-foundation`.
 The shipped F6M slice is exactly `F6M-external-notification-delivery-planning-foundation`.
 The shipped F6N slice is exactly `F6N-close-control-review-summary-foundation`.
+The active F6O contract is exactly `F6O-receivables-payables-source-pack-foundation`.
 
 Focus:
 
@@ -461,6 +463,7 @@ Focus:
 - one shipped internal close/control acknowledgement-readiness foundation that can show whether shipped checklist/readiness posture is ready for operator review acknowledgement without approvals, close-complete status, delivery, runtime-Codex, missions, monitor reruns, or finance actions
 - one shipped bank/card source-pack proof over checked-in bank-account-summary and card-expense posture without delivery, runtime-Codex, reports, approvals, monitor-family expansion, or discovery-family expansion
 - one shipped deterministic internal delivery-readiness result, not actual external delivery
+- one active receivables/payables source-pack foundation contract that stays fixture/manifest/proof-oriented and does not add product runtime behavior
 
 Exit criteria:
 
@@ -478,6 +481,7 @@ Exit criteria:
 - the shipped F6L slice stays source-pack-only: it proves checked-in bank-account-summary and card-expense source-pack posture through existing source registry and Finance Twin routes only
 - the shipped F6M slice stays internal and read-only: it adds one deterministic delivery-readiness result over shipped F6J/F6K posture with no provider integration, outbox sends, external delivery, approvals, reports, runtime-Codex drafting, generated notification prose, monitor reruns, mission creation, source mutation, finance writes, advice, or autonomous action
 - the shipped F6N slice stays internal and read-only: it adds one deterministic close/control review-summary result over shipped F6H/F6J/F6K/F6M posture with bounded sections, company-scope guardrails, explicit absence boundaries, no certification, no close-complete status, no sign-off, no attestation, no approvals, no report release/circulation, no external delivery/provider/outbox behavior, no generated prose, no runtime-Codex, no monitor reruns, no mission creation, no source mutation, no finance writes, no advice/instructions, no autonomous action, no F6O implementation, and no new monitor or discovery family
+- the active F6O contract stays source-pack-only: it plans one receivables/payables source-pack foundation with source roles limited to `receivables_aging` and `payables_aging`, extractor keys limited to `receivables_aging_csv` and `payables_aging_csv`, no package script or root smoke alias unless FP-0064 is amended, no product runtime behavior, no new monitor or discovery families, no delivery, no reports, no approvals, no runtime-Codex, and no source mutation
 
 Slice map:
 
@@ -608,6 +612,20 @@ Slice map:
   - no certification status, close-complete status, sign-off, attestation, legal opinion, audit opinion, approval workflow, report release, report circulation, external delivery, generated prose, runtime-Codex drafting, finance writes, legal/policy/payment/collection/customer-contact instruction, autonomous action, monitor-family expansion, discovery-family expansion, or F6O implementation
   - preserves shipped F5 and F6 behavior: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L source-pack behavior changes, no F6M delivery-readiness behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
 - `F6O — additional source-pack expansion`
-  - later only after the first bank/card source pack remains green and source-backed and a new Finance Plan is created
+  - active implementation-ready contract in `plans/FP-0064-receivables-payables-source-pack-foundation.md`
+  - first F6O scope is exactly `F6O-receivables-payables-source-pack-foundation`
+  - not a monitor family and not a discovery-family expansion
+  - one source-pack family only
+  - source roles are exactly `receivables_aging` and `payables_aging`
+  - extractor keys are exactly `receivables_aging_csv` and `payables_aging_csv`
+  - starts only from checked-in static receivables-aging and payables-aging source-pack posture, expected normalized source/twin posture, existing source registration/upload routes, and existing Finance Twin sync/read routes
+  - output contract for the future implementation is one receivables/payables source-pack manifest or fixture contract, one deterministic direct proof path, normalized expected receivables/payables source/twin posture, and explicit limitations
+  - no new monitor result semantics, checklist item families, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, investigation behavior, mission behavior, report behavior, approval behavior, delivery behavior, runtime-Codex behavior, source mutation, finance write, legal/policy/payment/collection/customer-contact instruction, autonomous action, new monitor family, or new discovery family
+  - no package script or root smoke alias unless FP-0064 is explicitly amended first
+  - preserve shipped F5 and F6 behavior, including F6L bank/card source-pack proof and F6N review-summary posture
 - `F6P — external provider integration`
   - later only if a future plan proves human-review gates, provider boundaries, compliance posture, observability, retry behavior, safe failure modes, and no autonomous send
+- `F6Q — close/control certification`
+  - later only if operator need, evidence boundaries, legal boundaries, review gates, and non-autonomous safety posture are proven
+- `F6R — additional source-pack expansion`
+  - later only after the receivables/payables source pack remains green and source-backed
