@@ -328,8 +328,8 @@ This implementation slice creates or updates:
 - `evals/README.md`
 - `docs/benchmarks/seeded-missions.md`
 
-Do not create FP-0068.
-Do not start F6S, F6T, F6U, or later work in this slice.
+This F6R slice did not create FP-0068.
+A later docs-and-plan slice may create FP-0068 only as a separate active plan; F6R itself still did not start F6S, F6T, F6U, or later work.
 
 ## Interfaces and Dependencies
 
@@ -351,4 +351,5 @@ F6R shipped one checked-in contract/obligation source-pack fixture and manifest 
 Validation passed through the full requested ladder, including the new F6R proof, the F6L and F6O source-pack proofs, contract-metadata and supported-family smokes, monitor/discovery boundary smokes, targeted domain and control-plane tests, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 No schema, route, package-script, smoke alias, eval dataset, runtime, delivery, approval, report, certification, monitor-family, discovery-family, mission, close/control behavior, provider-boundary behavior, certification-boundary behavior, F6S implementation, or autonomous behavior was added.
 
-Recommendation: start F6S planning next only if a new Finance Plan is created; no F6S implementation should start from FP-0067.
+Subsequent handoff note: `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` now exists as the active F6S planning contract for a non-sending internal human-confirmation boundary only.
+No F6S implementation should start from FP-0067.
