@@ -2,10 +2,10 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6R implementation contract.
+This is the shipped Finance Plan record for the Pocket CFO F6R implementation contract.
 The target phase is `F6`, and the implementation slice is exactly `F6R-contract-obligation-source-pack-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6Q, Pocket CFO should be able to prove one checked-in contract/obligation source-pack family through the existing source registry and Finance Twin contract/obligation routes only.
+The user-visible goal is narrow: after shipped F6A through F6Q, Pocket CFO can prove one checked-in contract/obligation source-pack family through the existing source registry and Finance Twin contract/obligation routes only.
 The source-pack family is limited to `contract_metadata`, the extractor key is limited to `contract_metadata_csv`, and the proof surface is limited to existing source registration/upload plus Finance Twin contract inventory and obligation-calendar sync/read routes.
 
 Repo truth supports F6R in this reduced shape.
@@ -16,8 +16,8 @@ The obligation-calendar read posture is deterministic and green.
 The shipped `obligation_calendar_review` discovery family remains supported without adding a new discovery family.
 The source-pack expansion can stay fixture/manifest/proof-oriented and does not require product runtime behavior.
 
-This plan is docs-and-plan only.
-It does not implement the source pack.
+This plan now records the F6R implementation.
+It adds one source-pack manifest, one immutable checked-in contract-metadata CSV fixture, one normalized expected source/twin posture file, one fixture spec, and one direct deterministic proof path.
 It does not create FP-0068.
 It does not start F6S external delivery, F6T actual certification, or later work.
 
@@ -33,6 +33,11 @@ Do not invoke GitHub Connector Guard for F6R.
 - [x] 2026-04-29T20:49:27Z Decided repo truth supports F6R only as a contract/obligation source-pack foundation over existing source registry and Finance Twin routes.
 - [x] 2026-04-29T20:59:20Z Refreshed active docs and the tiny stale FP-0066 target-family wording without adding code, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, implementation scaffolding, runtime behavior, delivery, approvals, reports, certification, monitor families, discovery families, mission behavior, or source-pack implementation.
 - [x] 2026-04-29T20:59:20Z Ran the full requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all commands passed.
+- [x] 2026-04-29T21:28:52Z In the implementation thread, invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor; did not invoke GitHub Connector Guard.
+- [x] 2026-04-29T21:28:52Z Ran clean preflight on branch `codex/f6r-contract-obligation-source-pack-foundation-local-v1` against fetched `origin/main` at `42e6bec898ec19bfd504a14ce0d8b5a3cc9fb262`, confirmed GitHub auth/repo access, confirmed Docker Postgres and object storage were up, and confirmed the repo was clean before implementation.
+- [x] 2026-04-29T21:28:52Z Added `pocket-cfo-contract-obligation-source-pack`, one immutable contract-metadata CSV fixture, normalized expected source/twin posture, manifest/fixture specs, and direct proof `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`.
+- [x] 2026-04-29T21:28:52Z Ran narrow manifest spec, F6R fixture spec, and the new direct proof; all passed before docs closeout.
+- [x] 2026-04-29T21:38:49Z Ran the full requested F6R validation ladder, shipped proof suite, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -44,6 +49,12 @@ It registers source evidence, uploads a CSV, syncs through `contract_metadata_cs
 
 The existing `obligation_calendar_review` discovery family is already supported by stored contract/obligation state plus CFO Wiki pages.
 F6R does not need a new discovery family, monitor family, mission behavior, or runtime-Codex drafting to prove a contract/obligation source pack.
+
+The F6O post-merge proof-alignment lesson applied cleanly.
+The F6R proof reads source-file descriptors from the stack-pack manifest, treats expected posture `sourceFiles` as assertion data only, and rejects volatile generated fields in the expected posture.
+
+The checked-in contract-metadata fixture produces four contract inventory rows and seven explicit obligation-calendar rows through existing `contract_metadata_csv` sync.
+The normalized proof compares source-backed freshness, lineage presence, limitation and diagnostic presence, contract inventory posture, obligation-calendar coverage, and stable currency buckets without comparing generated ids, timestamps, storage refs, source ids, source-file ids, snapshot ids, or sync-run ids.
 
 ## Decision Log
 
@@ -69,7 +80,10 @@ Decision: F6R is not certification, legal advice, or an audit opinion.
 Rationale: do not add actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, approval workflow, report release, report circulation, or any legal/audit assertion.
 
 Decision: F6R should expand source packs, not product runtime behavior.
-Rationale: the later implementation slice should add one checked-in fixture/manifest family and one deterministic direct proof path. It should not add new DB tables, routes, monitor evaluators, mission behavior, runtime-Codex, package scripts, root smoke aliases, eval datasets, or product UI behavior.
+Rationale: the implementation slice adds one checked-in fixture/manifest family and one deterministic direct proof path. It does not add new DB tables, routes, monitor evaluators, mission behavior, runtime-Codex, package scripts, root smoke aliases, eval datasets, or product UI behavior.
+
+Decision: the F6R source-pack manifest is the operational source of truth for source-file descriptors.
+Rationale: proof tooling and specs use manifest `sourceFiles` for role, fixture path, source kind, media type, and expected extractor key. The expected posture file keeps `sourceFiles` only as assertion data, matching the F6O proof-alignment lesson.
 
 Decision: likely later slices are named but not created here.
 Rationale: F6S actual external delivery should happen only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send. F6T actual certification should happen only if operator need, legal boundaries, evidence boundaries, review gates, and non-advice constraints are proven. F6U additional source-pack expansion should happen only after existing source packs remain green.
@@ -112,7 +126,7 @@ The shipped finance-discovery families remain exactly:
 - `obligation_calendar_review`
 - `policy_lookup`
 
-The relevant implementation seams for the later F6R implementation are:
+The relevant shipped implementation seams for F6R are:
 
 - `packages/stack-packs/src/stack-pack.ts` for the source-pack manifest contract
 - `packages/stack-packs/src/packs/**` and `packages/stack-packs/src/index.ts` for a new source-pack export
@@ -131,33 +145,33 @@ No database schema migration, route, package script, smoke alias, eval dataset, 
 
 ## Plan of Work
 
-First, the later implementation slice should define one contract/obligation source-pack manifest family.
-The likely pack id is `pocket-cfo-contract-obligation-source-pack`.
-The likely fixture directory is `packages/testkit/fixtures/f6r-contract-obligation-source-pack`.
+The shipped implementation defines one contract/obligation source-pack manifest family.
+The pack id is `pocket-cfo-contract-obligation-source-pack`.
+The fixture directory is `packages/testkit/fixtures/f6r-contract-obligation-source-pack`.
 The single source role is `contract_metadata`.
 The single source kind is `dataset`.
 The single media type is `text/csv`.
 The single expected extractor key is `contract_metadata_csv`.
 
-Second, the later implementation slice should add one immutable checked-in source fixture and one normalized expected source/twin posture file.
-The fixture should be a static CSV such as `sources/contract-metadata.csv`.
-The normalized expected posture should cover source registration, file upload, snapshot/checksum posture, sync status, extractor key, contract inventory posture, obligation-calendar posture, lineage refs, freshness state, diagnostics, limitations, fixed family boundaries, and runtime/action absence boundaries.
-Expected posture must avoid volatile generated ids, timestamps, storage refs, and other values that would force mutation.
+The shipped implementation adds one immutable checked-in source fixture and one normalized expected source/twin posture file.
+The fixture is `sources/contract-metadata.csv`.
+The normalized expected posture covers source registration, file upload, snapshot/checksum posture, sync status, extractor key, contract inventory posture, obligation-calendar posture, lineage refs, freshness state, diagnostics, limitations, fixed family boundaries, and runtime/action absence boundaries.
+Expected posture avoids volatile generated ids, timestamps, storage refs, and other values that would force mutation.
 
-Third, the later implementation slice should add one direct deterministic proof path.
-The likely command is `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`.
-The proof should use existing `/sources`, `/sources/:sourceId/files`, `/finance-twin/companies/:companyKey/source-files/:sourceFileId/sync`, `/finance-twin/companies/:companyKey/contracts`, and `/finance-twin/companies/:companyKey/obligation-calendar` routes only.
-It should verify raw fixture source immutability by hashing fixture bytes before and after proof execution.
-It should assert that no monitor family, discovery family, route, schema, package script, root smoke alias, eval dataset, mission behavior, report, approval, delivery, runtime-Codex behavior, provider call, provider credential, source mutation outside proof upload/sync setup, finance action, generated prose, or autonomous action was added or triggered.
+The shipped implementation adds one direct deterministic proof path.
+The command is `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`.
+The proof uses existing `/sources`, `/sources/:sourceId/files`, `/finance-twin/companies/:companyKey/source-files/:sourceFileId/sync`, `/finance-twin/companies/:companyKey/contracts`, and `/finance-twin/companies/:companyKey/obligation-calendar` routes only.
+It verifies raw fixture source immutability by hashing fixture bytes before and after proof execution.
+It asserts that no monitor family, discovery family, route, schema, package script, root smoke alias, eval dataset, mission behavior, report, approval, delivery, runtime-Codex behavior, provider call, provider credential, source mutation outside proof upload/sync setup, finance action, generated prose, certification, close-complete, sign-off, attestation, legal/audit opinion, assurance, or autonomous action was added or triggered.
 
-Fourth, the later implementation slice should update only source-pack documentation if needed.
-Do not mutate existing F6L or F6O fixture semantics.
-Do not add product runtime behavior.
+The shipped implementation refreshed active docs after behavior landed.
+It did not mutate existing F6F, F6L, or F6O fixture semantics.
+It did not add product runtime behavior.
 
 ## Concrete Steps
 
-1. Add the source-pack manifest contract for one family only.
-   Likely files:
+1. Added the source-pack manifest contract for one family only.
+   Files:
    - `packages/stack-packs/src/stack-pack.ts`
    - `packages/stack-packs/src/packs/pocket-cfo-contract-obligation-source-pack.ts`
    - `packages/stack-packs/src/index.ts`
@@ -169,23 +183,26 @@ Do not add product runtime behavior.
    - limitations say this is one deterministic local fixture family, not a broad source-pack platform
    - runtime/delivery/action boundary says the proof is route-driven only and remains runtime-free, delivery-free, report-free, approval-free, certification-free, provider-free, finance-write-free, advice-free, and non-autonomous
 
-2. Add one immutable fixture family and normalized expected posture.
-   Likely files:
+2. Added one immutable fixture family and normalized expected posture.
+   Files:
+   - `packages/testkit/fixtures/f6r-contract-obligation-source-pack/README.md`
    - `packages/testkit/fixtures/f6r-contract-obligation-source-pack/sources/contract-metadata.csv`
    - `packages/testkit/fixtures/f6r-contract-obligation-source-pack/expected-source-twin-posture.json`
+   - `packages/testkit/src/f6r-contract-obligation-source-pack.spec.ts`
 
    Acceptance:
    - fixture rows include deterministic contract metadata only
    - expected posture includes source registration, uploaded source file, snapshot/checksum posture, `contract_metadata_csv` sync, contract inventory, obligation calendar, source/twin lineage, freshness, diagnostics, limitations, and absence boundaries
-   - raw fixture source is immutable during proof execution
+   - manifest source-file descriptors drive fixture spec assertions and proof tooling
+   - raw fixture source is immutable during tests and proof execution
    - expected posture contains no volatile generated fields
-   - no existing F6L or F6O fixture semantics change
+   - no existing F6F, F6L, or F6O fixture semantics changed
 
-3. Add one direct deterministic proof path.
-   Likely file:
+3. Added one direct deterministic proof path.
+   File:
    - `tools/contract-obligation-source-pack-proof.mjs`
 
-   Expected command:
+   Command:
    - `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`
 
    Acceptance:
@@ -196,21 +213,34 @@ Do not add product runtime behavior.
    - verifies source-backed freshness, contract count, obligation count, lineage target kinds, limitations, and diagnostics
    - verifies discovery family list remains exactly `cash_posture`, `collections_pressure`, `payables_pressure`, `spend_posture`, `obligation_calendar_review`, and `policy_lookup`
    - verifies monitor family list remains exactly `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`
-   - verifies no monitor run, mission, report, approval, delivery, provider call, provider credential, generated prose, runtime-Codex use, source mutation outside proof upload/sync setup, finance write, certification, close complete, sign-off, attestation, legal/audit opinion, assurance, or autonomous action occurred
+   - verifies no monitor run, mission, report, approval, delivery, provider call, provider credential, provider job, generated prose, runtime-Codex use, source mutation outside proof upload/sync setup, finance write, certification, close complete, sign-off, attestation, legal/audit opinion, assurance, or autonomous action occurred
 
-4. Do not add a package script, root smoke alias, eval dataset, DB table, migration, route, monitor evaluator, mission behavior, or UI unless this plan is explicitly amended.
+4. Did not add a package script, root smoke alias, eval dataset, DB table, migration, route, monitor evaluator, mission behavior, or UI.
 
-5. Refresh active docs after implementation, and only after implementation behavior exists.
-   Expected docs:
+5. Refreshed active docs after implementation behavior existed.
+   Docs:
    - `README.md`
    - `START_HERE.md`
    - `docs/ACTIVE_DOCS.md`
    - `plans/ROADMAP.md`
+   - `docs/ops/local-dev.md`
+   - `docs/ops/source-ingest-and-cfo-wiki.md`
+   - `docs/ops/codex-app-server.md`
+   - `evals/README.md`
+   - `docs/benchmarks/seeded-missions.md`
    - this FP-0067 record
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the user-requested validation ladder after docs edits:
+This implementation thread ran the user-requested validation ladder after source-pack and docs edits:
+
+- `pnpm --filter @pocket-cto/stack-packs exec vitest run src/stack-pack.spec.ts`
+- `pnpm --filter @pocket-cto/testkit exec vitest run src/f6r-contract-obligation-source-pack.spec.ts`
+- `pnpm --filter @pocket-cto/stack-packs exec vitest run`
+- `pnpm --filter @pocket-cto/testkit exec vitest run`
+- `pnpm --filter @pocket-cto/domain exec vitest run src/finance-twin.spec.ts src/monitoring.spec.ts src/close-control.spec.ts src/operator-readiness.spec.ts src/close-control-acknowledgement.spec.ts src/delivery-readiness.spec.ts src/close-control-review-summary.spec.ts src/external-provider-boundary.spec.ts src/close-control-certification-boundary.spec.ts src/proof-bundle.spec.ts`
+- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/finance-twin/**/*.spec.ts src/modules/sources/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/delivery-readiness/**/*.spec.ts src/modules/close-control-review-summary/**/*.spec.ts src/modules/external-provider-boundary/**/*.spec.ts src/modules/close-control-certification-boundary/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
+- `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`
 
 - `pnpm smoke:delivery-readiness:local`
 - `pnpm smoke:operator-readiness:local`
@@ -231,17 +261,15 @@ This docs-and-plan thread must run the user-requested validation ladder after do
 - `pnpm smoke:cash-posture-alert-investigation:local`
 - `pnpm smoke:collections-pressure-alert-investigation:local`
 - `pnpm smoke:finance-discovery-supported-families:local`
-- `pnpm --filter @pocket-cto/domain exec vitest run src/close-control-certification-boundary.spec.ts src/external-provider-boundary.spec.ts src/close-control-review-summary.spec.ts src/delivery-readiness.spec.ts src/close-control-acknowledgement.spec.ts src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
-- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/close-control-certification-boundary/**/*.spec.ts src/modules/external-provider-boundary/**/*.spec.ts src/modules/close-control-review-summary/**/*.spec.ts src/modules/delivery-readiness/**/*.spec.ts src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/approvals/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-Future F6R implementation acceptance requires all of the following:
+F6R implementation acceptance requires all of the following:
 
-- one `pocket-cfo-contract-obligation-source-pack` manifest or equivalent source-pack contract exists
+- one `pocket-cfo-contract-obligation-source-pack` manifest exists
 - one immutable checked-in contract metadata fixture exists
 - one normalized expected source/twin posture exists
 - one direct deterministic proof path exists
@@ -253,57 +281,59 @@ Future F6R implementation acceptance requires all of the following:
 - no new monitor family or discovery family is added
 - no product runtime behavior is added
 - no package script or root smoke alias is added unless this plan is explicitly amended
-- no route, schema, migration, eval dataset, monitor evaluator, mission behavior, report, approval, delivery, runtime-Codex, provider call, provider credential, generated prose, source mutation outside proof upload/sync setup, finance action, certification, close-complete status, sign-off, attestation, legal/audit opinion, assurance, or autonomous action is added
+- no route, schema, migration, eval dataset, monitor evaluator, mission behavior, report, approval, delivery, runtime-Codex, provider call, provider credential, provider job, generated prose, source mutation outside proof upload/sync setup, finance action, certification, close-complete status, sign-off, attestation, legal/audit opinion, assurance, or autonomous action is added
 - shipped F5 and F6 behavior remains unchanged
 
-Human-observable acceptance for this docs slice:
+Human-observable acceptance for this implementation slice:
 
-- `plans/FP-0067-contract-obligation-source-pack-foundation.md` exists as the one active F6R implementation-ready contract
-- FP-0066 remains the shipped F6Q record with tiny stale wording corrected
-- active docs point future Codex threads at FP-0067 for F6R and keep F6S/F6T/F6U as future planning only
+- `pocket-cfo-contract-obligation-source-pack` exists as one source-pack manifest family
+- `packages/testkit/fixtures/f6r-contract-obligation-source-pack/sources/contract-metadata.csv` exists as an immutable raw source fixture
+- `tools/contract-obligation-source-pack-proof.mjs` proves normalized source/twin posture through existing source registry and Finance Twin contract/obligation routes only
+- active docs point future Codex threads at shipped FP-0067 for F6R and keep F6S/F6T/F6U as future planning only
 - validation passes on the final tree
 
 ## Idempotence and Recovery
 
-This docs-and-plan slice is retry-safe.
-It changes only plan and active-doc text.
-Rollback should remove this FP-0067 document and restore the touched active-doc lines, leaving FP-0050 through FP-0066, shipped F6 behavior, raw sources, source-pack fixtures, Finance Twin state, CFO Wiki state, GitHub modules, and engineering-twin modules intact.
-
-The future F6R implementation should also be retry-safe.
+This implementation slice is retry-safe.
 Repeated proof runs may create local source and sync rows for proof companies, but they must not mutate checked-in raw fixture files or expected posture semantics.
 If source state is missing, stale, failed, unsupported, partial, conflicting, or insufficient, the proof should fail or report limitations instead of inventing contract/obligation posture.
 
-Replay implication for the future implementation is explicit absence.
+Rollback should remove the F6R source-pack manifest, fixture, proof, spec, and active-doc closeout edits, leaving FP-0050 through FP-0066, shipped F6 behavior, F6F/F6L/F6O raw fixture sources, Finance Twin state, CFO Wiki state, GitHub modules, and engineering-twin modules intact.
+
+Replay implication for F6R is explicit absence.
 The direct proof is a source registry and Finance Twin route proof, not a mission-state change and not a durable product replay event.
 If a future plan wants persisted source-pack proof history, it must name that replay behavior explicitly and must not create monitor, mission, report, approval, delivery, provider, certification, close-complete, sign-off, attestation, legal/audit opinion, assurance, finance-write, or autonomous-action semantics.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates or updates:
+This implementation slice creates or updates:
 
 - `plans/FP-0067-contract-obligation-source-pack-foundation.md`
-- `plans/FP-0066-close-control-certification-boundary-foundation.md`
+- `packages/stack-packs/src/stack-pack.ts`
+- `packages/stack-packs/src/packs/pocket-cfo-contract-obligation-source-pack.ts`
+- `packages/stack-packs/src/index.ts`
+- `packages/stack-packs/src/stack-pack.spec.ts`
+- `packages/testkit/fixtures/f6r-contract-obligation-source-pack/README.md`
+- `packages/testkit/fixtures/f6r-contract-obligation-source-pack/sources/contract-metadata.csv`
+- `packages/testkit/fixtures/f6r-contract-obligation-source-pack/expected-source-twin-posture.json`
+- `packages/testkit/src/f6r-contract-obligation-source-pack.spec.ts`
+- `tools/contract-obligation-source-pack-proof.mjs`
 - `README.md`
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
 - `plans/ROADMAP.md`
-
-The future implementation slice should create or update:
-
-- `packages/stack-packs/src/stack-pack.ts`
-- `packages/stack-packs/src/packs/pocket-cfo-contract-obligation-source-pack.ts`
-- `packages/stack-packs/src/index.ts`
-- `packages/testkit/fixtures/f6r-contract-obligation-source-pack/sources/contract-metadata.csv`
-- `packages/testkit/fixtures/f6r-contract-obligation-source-pack/expected-source-twin-posture.json`
-- `tools/contract-obligation-source-pack-proof.mjs`
-- focused source-pack docs only if needed
+- `docs/ops/local-dev.md`
+- `docs/ops/source-ingest-and-cfo-wiki.md`
+- `docs/ops/codex-app-server.md`
+- `evals/README.md`
+- `docs/benchmarks/seeded-missions.md`
 
 Do not create FP-0068.
 Do not start F6S, F6T, F6U, or later work in this slice.
 
 ## Interfaces and Dependencies
 
-The future implementation belongs in stack-pack, testkit fixture, and proof-tool surfaces only.
+The implementation belongs in stack-pack, testkit fixture, and proof-tool surfaces only.
 The source registry and Finance Twin route surfaces are dependencies for proof tooling, not new product behavior.
 The web UI is out of scope.
 The database schema is out of scope.
@@ -315,10 +345,10 @@ No GitHub connector work is expected.
 
 ## Outcomes & Retrospective
 
-FP-0067 is now the active implementation-ready F6R contract for one contract/obligation source-pack foundation, while FP-0050 through FP-0066 remain shipped F6A through F6Q records.
-The tiny FP-0066 polish preserves FP-0066 as the shipped F6Q record and aligns its target-family wording with the shipped F6Q domain contract.
+FP-0067 is now the shipped F6R record for one contract/obligation source-pack foundation, while FP-0050 through FP-0066 remain shipped F6A through F6Q records.
+F6R shipped one checked-in contract/obligation source-pack fixture and manifest family only.
 
-Validation passed through the full requested ladder, including the F6L and F6O source-pack proofs, contract-metadata and supported-family smokes, monitor/discovery boundary smokes, targeted domain and control-plane tests, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-No code, schema, route, package-script, smoke, eval, fixture, runtime, delivery, approval, report, certification, monitor-family, discovery-family, mission, close/control, provider-boundary, certification-boundary, or source-pack implementation changes were made.
+Validation passed through the full requested ladder, including the new F6R proof, the F6L and F6O source-pack proofs, contract-metadata and supported-family smokes, monitor/discovery boundary smokes, targeted domain and control-plane tests, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+No schema, route, package-script, smoke alias, eval dataset, runtime, delivery, approval, report, certification, monitor-family, discovery-family, mission, close/control behavior, provider-boundary behavior, certification-boundary behavior, F6S implementation, or autonomous behavior was added.
 
-Recommendation: start F6R implementation next, not F6S planning, because current repo truth supports the narrow contract/obligation source-pack foundation and external delivery remains a future provider/compliance/human-confirmation planning problem.
+Recommendation: start F6S planning next only if a new Finance Plan is created; no F6S implementation should start from FP-0067.
