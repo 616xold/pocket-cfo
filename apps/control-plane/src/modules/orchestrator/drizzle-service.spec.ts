@@ -2550,6 +2550,13 @@ async function createHarness(options?: {
           );
         },
       } as AppContainer["closeControlAcknowledgementService"],
+      closeControlReviewSummaryService: {
+        async getReviewSummary() {
+          throw new Error(
+            "getReviewSummary should not be called in orchestrator harness",
+          );
+        },
+      } as AppContainer["closeControlReviewSummaryService"],
       closeControlService: {
         async getChecklist() {
           throw new Error(

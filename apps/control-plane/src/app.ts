@@ -2,6 +2,7 @@ import Fastify from "fastify";
 import { registerHttpErrorHandler } from "./lib/http-errors";
 import { createLogger } from "./lib/logger";
 import { registerCloseControlAcknowledgementRoutes } from "./modules/close-control-acknowledgement/routes";
+import { registerCloseControlReviewSummaryRoutes } from "./modules/close-control-review-summary/routes";
 import { registerCloseControlRoutes } from "./modules/close-control/routes";
 import { registerDeliveryReadinessRoutes } from "./modules/delivery-readiness/routes";
 import { registerHealthRoutes } from "./modules/health/routes";
@@ -35,6 +36,10 @@ export async function buildApp(options?: { container?: AppContainer }) {
   await registerCloseControlAcknowledgementRoutes(app, {
     closeControlAcknowledgementService:
       container.closeControlAcknowledgementService,
+  });
+  await registerCloseControlReviewSummaryRoutes(app, {
+    closeControlReviewSummaryService:
+      container.closeControlReviewSummaryService,
   });
   if (container.deliveryReadinessService) {
     await registerDeliveryReadinessRoutes(app, {

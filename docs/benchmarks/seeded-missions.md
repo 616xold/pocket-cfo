@@ -210,6 +210,46 @@ The existing `pocket-cfo-monitor-demo` stack-pack fixture set for one company, w
 Success:
 The shipped F6I implementation extends the existing `pnpm smoke:monitor-demo-replay:local` proof so one deterministic replay verifies the four shipped monitor families, cash and collections alert-to-investigation handoffs where alerting, payables and policy/covenant investigations absent, close/control checklist item statuses, close/control aggregate status, close/control absence boundaries, fixture source immutability, and no new monitor or discovery families. F6I did not add a new benchmark dataset, monitor family, discovery family, route, schema, migration, package script, runtime-codex behavior, delivery, report conversion, approval, payment behavior, legal or policy advice, collection/customer-contact instruction, or autonomous action.
 
+### 25. Shipped F6J internal operator attention/readiness foundation
+
+Input:
+One company `companyKey` with shipped latest monitor results, close/control checklist posture, source/freshness posture, and proof posture already available through stored/read state.
+
+Success:
+The shipped F6J implementation produces one deterministic internal operator attention/readiness read model with bounded attention items, evidence basis, source lineage or proof refs, freshness or missing-source posture, limitations, proof posture, status, and human-review next steps. `pnpm smoke:operator-readiness:local` is the narrow proof. It does not add notification providers, outbox sends, external delivery, reports, approvals, runtime-codex, monitor reruns, mission creation, payment behavior, legal or policy advice, collection/customer-contact instructions, autonomous action, monitor families, or discovery families.
+
+### 26. Shipped F6K internal close/control acknowledgement-readiness foundation
+
+Input:
+One company `companyKey` with shipped close/control checklist posture and operator-readiness posture.
+
+Success:
+The shipped F6K implementation produces one deterministic internal acknowledgement-readiness result over shipped checklist/readiness posture only, with source/freshness posture, limitations, proof posture, and human-review next steps. `pnpm smoke:close-control-acknowledgement:local` is the narrow proof. It does not add approvals, close-complete status, certification, sign-off, attestation, delivery, outbox sends, reports, missions, monitor reruns, runtime-codex, source mutation, finance actions, monitor families, or discovery families.
+
+### 27. Shipped F6L bank/card source-pack foundation
+
+Input:
+One checked-in bank/card source-pack manifest plus immutable bank-account-summary and card-expense CSV fixtures.
+
+Success:
+The shipped F6L implementation proves the source pack through existing source registry and Finance Twin routes only via `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`. It does not add routes, schema, package scripts, smoke aliases, eval datasets, runtime-codex, delivery, reports, approvals, monitor families, discovery families, mission behavior, checklist/readiness/acknowledgement behavior, finance writes, legal/policy advice, collection/customer-contact instructions, or autonomous action.
+
+### 28. Shipped F6M internal delivery-readiness boundary foundation
+
+Input:
+One company `companyKey` with shipped F6J operator-readiness and F6K acknowledgement-readiness posture.
+
+Success:
+The shipped F6M implementation produces one deterministic internal delivery-readiness boundary result with bounded targets, evidence/source/freshness/proof posture, limitations, human-review next steps, and explicit no-send/no-provider/no-outbox boundaries. `pnpm smoke:delivery-readiness:local` is the narrow proof. It does not add external delivery, notification providers, outbox sends, reports, approvals, missions, monitor reruns, source mutation, runtime-codex, generated notification prose, finance writes, advice, instructions, autonomous action, monitor families, or discovery families.
+
+### 29. Shipped F6N internal close/control review-summary foundation
+
+Input:
+One company `companyKey` with shipped F6H checklist posture, F6J operator-readiness posture, F6K acknowledgement-readiness posture, and F6M delivery-readiness posture.
+
+Success:
+The shipped F6N implementation produces one deterministic internal close/control review-summary result with bounded sections for checklist posture, operator-readiness posture, acknowledgement-readiness posture, delivery-boundary posture, monitor-context posture, and source/CFO Wiki freshness posture. The route is `GET /close-control/companies/:companyKey/review-summary`, and narrow domain/control-plane specs are the first deterministic proof. It does not add certification, close-complete status, sign-off, attestation, approvals, report release, report circulation, external delivery, provider calls, outbox sends, generated prose, runtime-codex, missions, monitor reruns, monitor-result creation, source mutation, finance writes, advice/instructions, autonomous action, F6O implementation, monitor families, or discovery families.
+
 ## Blocked for now
 
 These discovery families should stay out of the shipped F4A through F4C2 baseline and out of early seeded-finance grading until new deterministic Finance Twin support exists:
@@ -255,4 +295,4 @@ The shipped F5C4F reporting benchmark contract now lives in `plans/FP-0046-circu
 `plans/FP-0051-alert-to-investigation-mission-foundation.md` is the shipped F6B benchmark record.
 `plans/FP-0052-collections-pressure-monitor-foundation.md` is the shipped F6C benchmark record for exactly one `collections_pressure` monitor, with `pnpm smoke:collections-pressure-monitor:local` as the deterministic proof.
 `plans/FP-0053-payables-pressure-monitor-foundation.md` is the shipped F6D benchmark record for exactly one `payables_pressure` monitor, with `pnpm smoke:payables-pressure-monitor:local` as the deterministic proof.
-`plans/FP-0054-policy-covenant-threshold-monitor-foundation.md` is the shipped F6E implementation record for exactly one `policy_covenant_threshold` monitor. `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is the shipped F6F implementation record for one deterministic monitor demo replay and stack-pack foundation. `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is the shipped F6G record for a manual collections-pressure alert investigation handoff only. `plans/FP-0057-close-control-checklist-foundation.md` is the shipped F6H implementation record. `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is the shipped F6I implementation record. `plans/FP-0059-operator-notification-readiness-foundation.md` is the shipped F6J implementation record for internal operator attention/readiness only, with no broader F6 benchmark dataset, delivery behavior, notification provider, outbox send, runtime-codex, report, approval, monitor-family, or discovery-family behavior added. `plans/FP-0060-close-control-acknowledgement-foundation.md` is the shipped F6K implementation record for internal close/control acknowledgement readiness only, with `pnpm smoke:close-control-acknowledgement:local` as the narrow deterministic proof and no approval, close-complete, delivery, notification provider, outbox send, report, mission, monitor rerun, runtime-codex, finance action, monitor-family, or discovery-family behavior added. `plans/FP-0061-source-pack-expansion-foundation.md` is the shipped F6L implementation record for one bank/card source-pack foundation only, with `pnpm exec tsx tools/bank-card-source-pack-proof.mjs` as the direct deterministic proof and no broader F6 benchmark dataset, package script, smoke alias, runtime-codex behavior, delivery behavior, monitor family, or discovery family added.
+`plans/FP-0054-policy-covenant-threshold-monitor-foundation.md` is the shipped F6E implementation record for exactly one `policy_covenant_threshold` monitor. `plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is the shipped F6F implementation record for one deterministic monitor demo replay and stack-pack foundation. `plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is the shipped F6G record for a manual collections-pressure alert investigation handoff only. `plans/FP-0057-close-control-checklist-foundation.md` is the shipped F6H implementation record. `plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is the shipped F6I implementation record. `plans/FP-0059-operator-notification-readiness-foundation.md` is the shipped F6J implementation record for internal operator attention/readiness only, with no broader F6 benchmark dataset, delivery behavior, notification provider, outbox send, runtime-codex, report, approval, monitor-family, or discovery-family behavior added. `plans/FP-0060-close-control-acknowledgement-foundation.md` is the shipped F6K implementation record for internal close/control acknowledgement readiness only, with `pnpm smoke:close-control-acknowledgement:local` as the narrow deterministic proof and no approval, close-complete, delivery, notification provider, outbox send, report, mission, monitor rerun, runtime-codex, finance action, monitor-family, or discovery-family behavior added. `plans/FP-0061-source-pack-expansion-foundation.md` is the shipped F6L implementation record for one bank/card source-pack foundation only, with `pnpm exec tsx tools/bank-card-source-pack-proof.mjs` as the direct deterministic proof and no broader F6 benchmark dataset, package script, smoke alias, runtime-codex behavior, delivery behavior, monitor family, or discovery family added. `plans/FP-0062-external-notification-delivery-planning-foundation.md` is the shipped F6M implementation record for internal delivery-readiness only, with `pnpm smoke:delivery-readiness:local` as the narrow deterministic proof and no provider, outbox, external delivery, approval, report, runtime-codex, generated prose, monitor-family, or discovery-family behavior added. `plans/FP-0063-close-control-review-summary-foundation.md` is the shipped F6N implementation record for internal close/control review-summary only, with narrow domain/control-plane specs as the deterministic proof and no certification, close-complete status, sign-off, attestation, approval, report release/circulation, external delivery, runtime-codex, generated prose, source mutation, F6O implementation, monitor-family, or discovery-family behavior added.

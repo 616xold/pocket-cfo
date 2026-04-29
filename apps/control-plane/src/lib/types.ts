@@ -1,6 +1,7 @@
 import type { OperatorControlAvailability as DomainOperatorControlAvailability } from "@pocket-cto/domain";
 import type { ApprovalService } from "../modules/approvals/service";
 import type { CloseControlAcknowledgementService } from "../modules/close-control-acknowledgement/service";
+import type { CloseControlReviewSummaryService } from "../modules/close-control-review-summary/service";
 import type { CloseControlService } from "../modules/close-control/service";
 import type { DeliveryReadinessService } from "../modules/delivery-readiness/service";
 import type { CfoWikiService } from "../modules/wiki/service";
@@ -87,6 +88,11 @@ export type CloseControlServicePort = Pick<
 export type CloseControlAcknowledgementServicePort = Pick<
   CloseControlAcknowledgementService,
   "getAcknowledgementReadiness"
+>;
+
+export type CloseControlReviewSummaryServicePort = Pick<
+  CloseControlReviewSummaryService,
+  "getReviewSummary"
 >;
 
 export type OperatorReadinessServicePort = Pick<
@@ -193,6 +199,7 @@ export type TwinServicePort = Pick<
 
 export type AppContainer = {
   closeControlAcknowledgementService: CloseControlAcknowledgementServicePort;
+  closeControlReviewSummaryService: CloseControlReviewSummaryServicePort;
   closeControlService: CloseControlServicePort;
   deliveryReadinessService?: DeliveryReadinessServicePort;
   githubAppService: GitHubAppServicePort;

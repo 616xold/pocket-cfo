@@ -2,8 +2,8 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6N implementation slice.
-The target phase is `F6`, and the planned implementation slice is exactly `F6N-close-control-review-summary-foundation`.
+This is the shipped Finance Plan record for the Pocket CFO F6N implementation slice.
+The target phase is `F6`, and the implemented slice is exactly `F6N-close-control-review-summary-foundation`.
 
 The user-visible goal is narrow: after shipped F6A through F6M, Pocket CFO should be able to show one deterministic internal close/control review summary that a human operator can review before deciding what, if anything, should happen next.
 This is not certification.
@@ -17,7 +17,7 @@ F6K already ships deterministic internal acknowledgement-readiness over F6H and 
 F6M already ships deterministic internal delivery-readiness over F6J and F6K only, with explicit no-send/no-provider/no-outbox boundaries.
 Those shipped read models justify a first internal review-summary contract because F6N can summarize their stored/read posture without mutating them.
 
-The first F6N implementation must remain read-only and no-schema unless a concrete blocker appears.
+The first F6N implementation remained read-only and no-schema.
 If persistence is needed later, a future plan must justify why and keep it additive, idempotent, company-scoped, evidence-linked, and explicitly not a certification, approval, close-complete, release, circulation, or delivery record.
 GitHub connector work is explicitly out of scope.
 
@@ -30,6 +30,12 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-29T01:13:45Z Created this FP-0063 implementation-ready planning contract and updated active docs to point at it without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, runtime behavior, or implementation scaffolding.
 - [x] 2026-04-29T01:23:32Z Ran the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all commands passed before commit.
 - [x] 2026-04-29T12:12:35Z Ran local closeout-polish preflight on `codex/f6n-plan-progress-closeout-polish-local-v1`, read the active FP/docs, and scoped the correction to stale FP-0063 implementation-handoff wording only; no code, routes, schema, package scripts, smoke commands, eval datasets, fixtures, FP-0064, F6N implementation, or F6O planning started.
+- [x] 2026-04-29T12:44:26Z Ran implementation-thread preflight on `codex/f6n-close-control-review-summary-foundation-local-v1`, confirmed fetched `origin/main`, clean worktree, GitHub auth/repo access, and Docker Postgres/object storage availability.
+- [x] 2026-04-29T12:44:26Z Implemented the F6N domain contract, read-only control-plane bounded context, thin `GET /close-control/companies/:companyKey/review-summary` route, company-scope guard, and focused domain/service/route specs without schema, migrations, package scripts, smoke aliases, fixtures, runtime-Codex, delivery, reports, approvals, monitor reruns, source mutation, generated prose, or F6O work.
+- [x] 2026-04-29T12:44:26Z Ran the new narrow F6N specs and direct domain/control-plane typechecks; all passed before docs closeout.
+- [x] 2026-04-29T12:59:52Z Ran the full requested F6N validation ladder, including narrow domain/control-plane regression specs, shipped F6 smokes, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed before commit.
+- [x] 2026-04-29T13:04:38Z Split the new review-summary section builders to keep implementation files under the modular soft cap, then reran the affected review-summary specs, control-plane typecheck, and `pnpm lint`; all passed before final reproducibility validation.
+- [x] 2026-04-29T13:07:06Z Reran `pnpm ci:repro:current` after the modular split; final reproducibility validation passed before commit.
 
 ## Surprises & Discoveries
 
@@ -44,6 +50,8 @@ F6N may summarize the F6M boundary only as an internal "no-send / review-before-
 
 No persistence is justified for the first F6N slice.
 The useful first behavior can be derived on read from shipped F6H/F6J/F6K/F6M posture and latest persisted monitor context, so a schema or replay event would create a stronger record than the repo truth currently needs.
+
+The control-plane typecheck reads the domain package through package references, so the new domain contract had to be buildable before the control-plane package could see the new export during local verification.
 
 ## Decision Log
 
@@ -75,7 +83,13 @@ Decision: later slices are named but not created here.
 Rationale: `F6O-additional-source-pack-expansion` should happen only after the bank/card source pack remains green and a future plan proves the next narrow source-pack need. `F6P-external-provider-integration` should happen only if a future plan proves human-review gates, provider boundaries, compliance posture, observability, retry behavior, safe failure modes, and no autonomous send. `F6Q-close-control-certification` should happen only if operator need, evidence boundaries, legal boundaries, and review gates are proven. Do not create FP-0064, F6O, F6P, or F6Q in this slice.
 
 Decision: polish only the stale FP-0063 retrospective handoff wording.
-Rationale: the prior planning-thread validation, commit, push, and PR work is already complete, so FP-0063 should hand the next thread to F6N implementation only if that implementation follows this active plan, remains read-only/no-schema unless a concrete blocker is proven, and stays limited to deterministic internal close/control review-summary posture. F6O and later work require a future Finance Plan.
+Rationale: the prior planning-thread validation, commit, push, and PR work was already complete before this implementation thread, so FP-0063 handed implementation to this F6N slice only if it followed this plan, remained read-only/no-schema unless a concrete blocker was proven, and stayed limited to deterministic internal close/control review-summary posture. F6O and later work require a future Finance Plan.
+
+Decision: implement company-scope guards for all four upstream read models before formatting the review summary.
+Rationale: F6N summarizes posture across F6H/F6J/F6K/F6M, so any upstream `companyKey` mismatch must fail closed with the existing `invalid_request` error shape instead of summarizing cross-company posture.
+
+Decision: keep F6N proof at domain/control-plane specs plus the shipped F6 smoke ladder, not a new package smoke alias.
+Rationale: FP-0063 did not authorize a new smoke alias. The first read-only route is small enough for focused unit/route specs, while the shipped smokes continue to prove the upstream F6H/F6J/F6K/F6M source, freshness, proof, and action-absence posture.
 
 ## Context and Orientation
 
@@ -94,6 +108,7 @@ Pocket CFO has shipped F6A through F6M:
 - F6K one deterministic internal close/control acknowledgement-readiness read model over shipped checklist and operator-readiness posture only
 - F6L one checked-in bank/card source-pack foundation with normalized source/twin posture and direct proof through existing source registry and Finance Twin routes only
 - F6M one deterministic internal delivery-readiness boundary read model over shipped operator-readiness and acknowledgement-readiness posture only
+- F6N one deterministic internal close/control review-summary read model over shipped checklist, operator-readiness, acknowledgement-readiness, and delivery-readiness posture only
 
 The shipped monitor families remain exactly:
 
@@ -137,14 +152,14 @@ No database schema migration, eval dataset, fixture family, package script, smok
 ## Plan of Work
 
 First, implement one pure domain contract for the review summary.
-The likely contract name is `CloseControlReviewSummaryResult` with bounded `CloseControlReviewSection` entries.
+The implemented contract name is `CloseControlReviewSummaryResult` with bounded `CloseControlReviewSection` entries.
 The contract should include company scope, generated time, aggregate internal-review status, evidence summary, limitations, runtime/action absence boundary, and review sections.
 Status naming must stay internal, such as `ready_for_review_summary`, `needs_human_review`, and `blocked_by_evidence`.
 Do not add `certified`, `signed_off`, `approved`, `close_complete`, `release_ready`, `delivered`, or provider-ready statuses.
 
-Second, implement one read-only control-plane bounded context only if the first implementation proceeds.
-The likely folder is `apps/control-plane/src/modules/close-control-review-summary/**`.
-The route, if added by the implementation slice, should be a thin read route such as `GET /close-control/companies/:companyKey/review-summary`.
+Second, implement one read-only control-plane bounded context.
+The folder is `apps/control-plane/src/modules/close-control-review-summary/**`.
+The route is a thin read route at `GET /close-control/companies/:companyKey/review-summary`.
 The route must parse `companyKey`, call the service, and serialize the result.
 It must not contain SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, outbox logic, monitor rerun logic, mission creation, source mutation, or external action execution.
 
@@ -217,7 +232,7 @@ No database schema, migration, review-summary table, certification record, ackno
 
 5. Refresh only the active docs needed by the implementation slice.
    Keep FP-0050 through FP-0062 as shipped records.
-   Keep FP-0063 as the active F6N contract until the implementation ships.
+   Mark FP-0063 as the shipped F6N record once validation is green.
 
 ## Validation and Acceptance
 
@@ -244,7 +259,17 @@ This docs-and-plan thread must run the user-requested validation ladder after do
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-The future implementation slice should add narrow domain and control-plane specs for the new review summary contract and then rerun the same shipped F6 guardrail ladder.
+The implementation slice adds narrow domain and control-plane specs for the new review summary contract and then reruns the same shipped F6 guardrail ladder.
+
+Implementation validation completed on `2026-04-29T12:59:52Z` and passed the full requested ladder, including:
+
+- narrow F6N domain, service, and route specs
+- shipped F6H/F6J/F6K/F6M and monitor/source/freshness smokes
+- twin guardrail specs
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm ci:repro:current`
 
 Implementation acceptance requires all of the following:
 
@@ -273,25 +298,25 @@ No destructive database migration belongs in F6N.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates:
+This F6N implementation slice creates:
 
-- `plans/FP-0063-close-control-review-summary-foundation.md`
-- active-doc updates that identify FP-0063 as the active F6N implementation-ready planning contract
-- no code
-- no routes
-- no schema or migrations
+- `packages/domain/src/close-control-review-summary.ts`
+- `packages/domain/src/close-control-review-summary.spec.ts`
+- `apps/control-plane/src/modules/close-control-review-summary/**`
+- `GET /close-control/companies/:companyKey/review-summary`
+- active-doc updates that identify FP-0063 as the shipped F6N record
+- no database schema or migrations
 - no package scripts
 - no smoke commands
 - no eval datasets
 - no fixtures
-- no implementation scaffolding
 - no monitor-family or discovery-family expansion
 - no runtime-Codex
 - no external provider integration
-- no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, source mutation, payment behavior, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, certification, sign-off, close-complete status, generated prose, or autonomous action behavior
+- no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, monitor-result creation, source mutation, payment behavior, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, certification, sign-off, close-complete status, attestation, report release, report circulation, generated prose, or autonomous action behavior
 
-Do not create FP-0064 in this slice.
-Do not start F6O, F6P, F6Q, or later work here.
+No FP-0064 was created in this slice.
+No F6O, F6P, F6Q, or later implementation work started here.
 
 Likely later slices, not created here:
 
@@ -349,14 +374,11 @@ Do not delete GitHub or engineering-twin modules as part of F6N.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice created FP-0063 as the active implementation-ready F6N contract after repo truth supported only a reduced internal close/control review-summary foundation.
-The contract explicitly rejects certification, close-complete status, sign-off, attestation, report release, report circulation, external delivery, approval semantics, runtime-Codex drafting, generated prose, mission creation, monitor reruns, source mutation, finance writes, advice, and autonomous action.
-The requested validation ladder passed through `pnpm ci:repro:current`.
+This implementation slice ships FP-0063 as the F6N record after adding one deterministic internal close/control review-summary foundation.
+The implementation stays read-only and no-schema, adds one thin backend route, derives only from shipped F6H/F6J/F6K/F6M posture, and explicitly rejects certification, close-complete status, sign-off, attestation, report release, report circulation, external delivery, approval semantics, runtime-Codex drafting, generated prose, mission creation, monitor reruns, monitor-result creation, source mutation, finance writes, advice/instructions, and autonomous action.
 
-What remains for the next implementation thread:
+What remains next:
 
-- F6N implementation may start next only from FP-0063.
-- The first F6N implementation must remain read-only and no-schema unless a concrete blocker is proven.
-- It must implement only deterministic internal close/control review summary posture.
-- It must not implement certification, close complete, sign-off, attestation, report release, report circulation, external delivery, approvals, runtime-Codex, generated prose, monitor reruns, missions, source mutation, finance writes, legal/policy/payment/collection/customer-contact advice or instructions, or autonomous action.
-- F6O and later planning must wait for a new Finance Plan.
+- F6O planning may start next only through a new Finance Plan.
+- If operators need more F6N proof before F6O, the next continuation should stay narrow, likely adding a packaged proof only if a future plan explicitly justifies one.
+- Do not start certification, close complete, report release, report circulation, external delivery, approval workflows, runtime-Codex drafting, generated prose, monitor reruns, missions, source mutation, finance writes, legal/policy/payment/collection/customer-contact advice or instructions, autonomous action, new monitor families, or new discovery families from this record alone.

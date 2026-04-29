@@ -11,6 +11,7 @@ import { DrizzleApprovalRepository } from "./modules/approvals/drizzle-repositor
 import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
 import { CloseControlAcknowledgementService } from "./modules/close-control-acknowledgement/service";
+import { CloseControlReviewSummaryService } from "./modules/close-control-review-summary/service";
 import { CloseControlService } from "./modules/close-control/service";
 import { DeliveryReadinessService } from "./modules/delivery-readiness/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
@@ -120,6 +121,7 @@ type ServerContainerFactories = {
 type SharedKernel = {
   approvalService: ApprovalService;
   closeControlAcknowledgementService: CloseControlAcknowledgementService;
+  closeControlReviewSummaryService: CloseControlReviewSummaryService;
   closeControlService: CloseControlService;
   deliveryReadinessService: DeliveryReadinessService;
   cfoWikiService: CfoWikiService;
@@ -435,6 +437,13 @@ function buildSharedKernel(input: {
     closeControlAcknowledgementService,
     operatorReadinessService,
   });
+  const closeControlReviewSummaryService =
+    new CloseControlReviewSummaryService({
+      closeControlAcknowledgementService,
+      closeControlService,
+      deliveryReadinessService,
+      operatorReadinessService,
+    });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -454,6 +463,7 @@ function buildSharedKernel(input: {
   return {
     approvalService,
     closeControlAcknowledgementService,
+    closeControlReviewSummaryService,
     closeControlService,
     deliveryReadinessService,
     cfoWikiService,
@@ -543,6 +553,7 @@ function toAppContainer(
   return {
     closeControlAcknowledgementService:
       kernel.closeControlAcknowledgementService,
+    closeControlReviewSummaryService: kernel.closeControlReviewSummaryService,
     closeControlService: kernel.closeControlService,
     deliveryReadinessService: kernel.deliveryReadinessService,
     cfoWikiService: kernel.cfoWikiService,
