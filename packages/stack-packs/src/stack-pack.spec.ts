@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { nextjsVercelPack } from "./packs/nextjs-vercel";
 import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
+import { pocketCfoReceivablesPayablesSourcePack } from "./packs/pocket-cfo-receivables-payables-source-pack";
 
 describe("stack packs", () => {
   it("exports the example Next.js pack", () => {
@@ -77,6 +78,52 @@ describe("stack packs", () => {
       "monitorFamiliesCovered",
     );
     expect(pocketCfoBankCardSourcePack).not.toHaveProperty(
+      "discoveryFamiliesCovered",
+    );
+  });
+
+  it("exports the Pocket CFO F6O receivables/payables source pack without monitor or discovery semantics", () => {
+    expect(pocketCfoReceivablesPayablesSourcePack.id).toBe(
+      "pocket-cfo-receivables-payables-source-pack",
+    );
+    expect(pocketCfoReceivablesPayablesSourcePack.fixtureDirectory).toBe(
+      "packages/testkit/fixtures/f6o-receivables-payables-source-pack",
+    );
+    expect(pocketCfoReceivablesPayablesSourcePack.sourceRoles).toEqual([
+      "receivables_aging",
+      "payables_aging",
+    ]);
+    expect(
+      pocketCfoReceivablesPayablesSourcePack.sourceFiles.map(
+        (file) => file.role,
+      ),
+    ).toEqual(pocketCfoReceivablesPayablesSourcePack.sourceRoles);
+    expect(pocketCfoReceivablesPayablesSourcePack.sourceKinds).toEqual([
+      "dataset",
+    ]);
+    expect(pocketCfoReceivablesPayablesSourcePack.mediaTypes).toEqual([
+      "text/csv",
+    ]);
+    expect(
+      pocketCfoReceivablesPayablesSourcePack.expectedExtractorKeys,
+    ).toEqual(["receivables_aging_csv", "payables_aging_csv"]);
+    expect(
+      pocketCfoReceivablesPayablesSourcePack.sourceFiles.map(
+        (file) => file.expectedExtractorKey,
+      ),
+    ).toEqual(pocketCfoReceivablesPayablesSourcePack.expectedExtractorKeys);
+    expect(
+      pocketCfoReceivablesPayablesSourcePack.expectedNormalizedPosturePath,
+    ).toBe(
+      "packages/testkit/fixtures/f6o-receivables-payables-source-pack/expected-source-twin-posture.json",
+    );
+    expect(
+      pocketCfoReceivablesPayablesSourcePack.runtimeDeliveryActionBoundary,
+    ).toContain("runtime-free");
+    expect(pocketCfoReceivablesPayablesSourcePack).not.toHaveProperty(
+      "monitorFamiliesCovered",
+    );
+    expect(pocketCfoReceivablesPayablesSourcePack).not.toHaveProperty(
       "discoveryFamiliesCovered",
     );
   });

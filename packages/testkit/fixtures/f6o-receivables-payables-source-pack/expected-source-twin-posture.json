@@ -1,0 +1,210 @@
+{
+  "sourcePackId": "pocket-cfo-receivables-payables-source-pack",
+  "companyKey": "demo-receivables-payables-source-pack",
+  "sourceRolesPresent": ["receivables_aging", "payables_aging"],
+  "extractorKeysUsed": ["receivables_aging_csv", "payables_aging_csv"],
+  "sourceFiles": [
+    {
+      "role": "receivables_aging",
+      "path": "sources/receivables-aging.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "receivables_aging_csv"
+    },
+    {
+      "role": "payables_aging",
+      "path": "sources/payables-aging.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "payables_aging_csv"
+    }
+  ],
+  "sourcePostureByRole": {
+    "receivables_aging": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "receivables_aging_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    },
+    "payables_aging": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "payables_aging_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    }
+  },
+  "receivablesAgingPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "customerCount": 3,
+    "customerLabels": ["Alpha Co", "Beta Co", "Gamma Co"],
+    "coverage": {
+      "customerCount": 3,
+      "rowCount": 3,
+      "lineageCount": 6,
+      "lineageTargetKinds": ["customer", "receivables_aging_row"]
+    },
+    "summary": {
+      "customerCount": 3,
+      "rowCount": 3,
+      "datedRowCount": 2,
+      "undatedRowCount": 1,
+      "currencyCount": 2,
+      "reportedBucketKeys": ["current", "31_60", "past_due", "total"]
+    },
+    "lineageRefsPresent": true,
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "collectionsPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "coverageSummary": {
+      "customerCount": 3,
+      "rowCount": 3,
+      "currencyBucketCount": 2,
+      "datedRowCount": 2,
+      "undatedRowCount": 1,
+      "rowsWithExplicitTotalCount": 3,
+      "rowsWithCurrentBucketCount": 2,
+      "rowsWithComputablePastDueCount": 2,
+      "rowsWithPartialPastDueOnlyCount": 0
+    },
+    "currencyBuckets": [
+      {
+        "currency": "EUR",
+        "totalReceivables": "50.00",
+        "currentBucketTotal": "50.00",
+        "pastDueBucketTotal": "0.00",
+        "customerCount": 1,
+        "datedCustomerCount": 1,
+        "undatedCustomerCount": 0,
+        "mixedAsOfDates": false,
+        "earliestAsOfDate": "2026-04-29",
+        "latestAsOfDate": "2026-04-29"
+      },
+      {
+        "currency": "USD",
+        "totalReceivables": "200.00",
+        "currentBucketTotal": "100.00",
+        "pastDueBucketTotal": "100.00",
+        "customerCount": 2,
+        "datedCustomerCount": 1,
+        "undatedCustomerCount": 1,
+        "mixedAsOfDates": false,
+        "earliestAsOfDate": "2026-04-30",
+        "latestAsOfDate": "2026-04-30"
+      }
+    ],
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "payablesAgingPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "vendorCount": 3,
+    "vendorLabels": ["Cloud Hosting", "Office Lease", "Paper Supply Co"],
+    "coverage": {
+      "vendorCount": 3,
+      "rowCount": 3,
+      "lineageCount": 6,
+      "lineageTargetKinds": ["payables_aging_row", "vendor"]
+    },
+    "summary": {
+      "vendorCount": 3,
+      "rowCount": 3,
+      "datedRowCount": 2,
+      "undatedRowCount": 1,
+      "currencyCount": 2,
+      "reportedBucketKeys": ["current", "31_60", "past_due", "total"]
+    },
+    "lineageRefsPresent": true,
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "payablesPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "coverageSummary": {
+      "vendorCount": 3,
+      "rowCount": 3,
+      "currencyBucketCount": 2,
+      "datedRowCount": 2,
+      "undatedRowCount": 1,
+      "rowsWithExplicitTotalCount": 3,
+      "rowsWithCurrentBucketCount": 2,
+      "rowsWithComputablePastDueCount": 2,
+      "rowsWithPartialPastDueOnlyCount": 0
+    },
+    "currencyBuckets": [
+      {
+        "currency": "EUR",
+        "totalPayables": "50.00",
+        "currentBucketTotal": "50.00",
+        "pastDueBucketTotal": "0.00",
+        "vendorCount": 1,
+        "datedVendorCount": 1,
+        "undatedVendorCount": 0,
+        "mixedAsOfDates": false,
+        "earliestAsOfDate": "2026-04-29",
+        "latestAsOfDate": "2026-04-29"
+      },
+      {
+        "currency": "USD",
+        "totalPayables": "200.00",
+        "currentBucketTotal": "100.00",
+        "pastDueBucketTotal": "100.00",
+        "vendorCount": 2,
+        "datedVendorCount": 1,
+        "undatedVendorCount": 1,
+        "mixedAsOfDates": false,
+        "earliestAsOfDate": "2026-04-30",
+        "latestAsOfDate": "2026-04-30"
+      }
+    ],
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "familyBoundary": {
+    "newMonitorFamilyAdded": false,
+    "newDiscoveryFamilyAdded": false
+  },
+  "runtimeActionBoundary": {
+    "monitorRunTriggered": false,
+    "checklistReadTriggered": false,
+    "operatorReadinessReadTriggered": false,
+    "acknowledgementReadTriggered": false,
+    "deliveryReadinessReadTriggered": false,
+    "reviewSummaryReadTriggered": false,
+    "missionCreated": false,
+    "reportCreated": false,
+    "approvalCreated": false,
+    "deliveryCreated": false,
+    "runtimeCodexUsed": false,
+    "generatedProseCreated": false,
+    "paymentInstructionCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "sourceMutationOutsideUploadSync": false,
+    "autonomousActionCreated": false
+  }
+}
