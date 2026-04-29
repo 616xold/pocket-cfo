@@ -12,6 +12,7 @@ import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
 import { CloseControlAcknowledgementService } from "./modules/close-control-acknowledgement/service";
 import { CloseControlService } from "./modules/close-control/service";
+import { DeliveryReadinessService } from "./modules/delivery-readiness/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
 import { FinanceDiscoveryService } from "./modules/finance-discovery/service";
@@ -120,6 +121,7 @@ type SharedKernel = {
   approvalService: ApprovalService;
   closeControlAcknowledgementService: CloseControlAcknowledgementService;
   closeControlService: CloseControlService;
+  deliveryReadinessService: DeliveryReadinessService;
   cfoWikiService: CfoWikiService;
   financeTwinService: FinanceTwinService;
   financeDiscoveryService: FinanceDiscoveryService;
@@ -429,6 +431,10 @@ function buildSharedKernel(input: {
       closeControlService,
       operatorReadinessService,
     });
+  const deliveryReadinessService = new DeliveryReadinessService({
+    closeControlAcknowledgementService,
+    operatorReadinessService,
+  });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -449,6 +455,7 @@ function buildSharedKernel(input: {
     approvalService,
     closeControlAcknowledgementService,
     closeControlService,
+    deliveryReadinessService,
     cfoWikiService,
     financeDiscoveryService,
     financeTwinService,
@@ -537,6 +544,7 @@ function toAppContainer(
     closeControlAcknowledgementService:
       kernel.closeControlAcknowledgementService,
     closeControlService: kernel.closeControlService,
+    deliveryReadinessService: kernel.deliveryReadinessService,
     cfoWikiService: kernel.cfoWikiService,
     financeTwinService: kernel.financeTwinService,
     githubAppService: kernel.githubAppService,

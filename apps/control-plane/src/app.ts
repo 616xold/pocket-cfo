@@ -3,6 +3,7 @@ import { registerHttpErrorHandler } from "./lib/http-errors";
 import { createLogger } from "./lib/logger";
 import { registerCloseControlAcknowledgementRoutes } from "./modules/close-control-acknowledgement/routes";
 import { registerCloseControlRoutes } from "./modules/close-control/routes";
+import { registerDeliveryReadinessRoutes } from "./modules/delivery-readiness/routes";
 import { registerHealthRoutes } from "./modules/health/routes";
 import { registerFinanceTwinRoutes } from "./modules/finance-twin/routes";
 import { registerGitHubAppRoutes } from "./modules/github-app/routes";
@@ -35,6 +36,11 @@ export async function buildApp(options?: { container?: AppContainer }) {
     closeControlAcknowledgementService:
       container.closeControlAcknowledgementService,
   });
+  if (container.deliveryReadinessService) {
+    await registerDeliveryReadinessRoutes(app, {
+      deliveryReadinessService: container.deliveryReadinessService,
+    });
+  }
   await registerFinanceTwinRoutes(app, {
     financeTwinService: container.financeTwinService,
   });

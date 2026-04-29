@@ -62,6 +62,7 @@
     "smoke:close-control-checklist:local": "tsx tools/close-control-checklist-smoke.mjs",
     "smoke:close-control-acknowledgement:local": "tsx tools/close-control-acknowledgement-smoke.mjs",
     "smoke:operator-readiness:local": "tsx tools/operator-readiness-smoke.mjs",
+    "smoke:delivery-readiness:local": "tsx tools/delivery-readiness-smoke.mjs",
     "smoke:finance-twin-card-expense:local": "tsx tools/finance-twin-card-expense-smoke.mjs",
     "smoke:finance-twin-contract-metadata:local": "tsx tools/finance-twin-contract-metadata-smoke.mjs",
     "smoke:finance-twin-payables-aging:local": "tsx tools/finance-twin-payables-aging-smoke.mjs",

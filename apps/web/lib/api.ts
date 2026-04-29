@@ -4,6 +4,7 @@ import {
   CloseControlAcknowledgementReadinessResultSchema,
   CloseControlChecklistResultSchema,
   CreateBoardPacketMissionInputSchema,
+  DeliveryReadinessResultSchema,
   CreateDiligencePacketMissionInputSchema,
   CreateDiscoveryMissionInputSchema,
   CreateLenderUpdateMissionInputSchema,
@@ -48,6 +49,7 @@ import type {
   ApprovalDecision,
   CloseControlAcknowledgementReadinessResult,
   CloseControlChecklistResult,
+  DeliveryReadinessResult,
   MissionSourceKind,
   MissionStatus,
   MonitorLatestResult,
@@ -89,6 +91,7 @@ const cfoWikiCompanySourceListSchema = CfoWikiCompanySourceListViewSchema;
 const closeControlAcknowledgementReadinessSchema =
   CloseControlAcknowledgementReadinessResultSchema;
 const closeControlChecklistSchema = CloseControlChecklistResultSchema;
+const deliveryReadinessSchema = DeliveryReadinessResultSchema;
 
 const sourceDetailSchema = SourceDetailViewSchema;
 
@@ -343,6 +346,21 @@ export async function getOperatorReadiness(
   return fetchJson(
     `/operator-readiness/companies/${encodeURIComponent(normalizedCompanyKey)}`,
     operatorReadinessSchema,
+  );
+}
+
+export async function getDeliveryReadiness(
+  companyKey: string,
+): Promise<DeliveryReadinessResult | null> {
+  const normalizedCompanyKey = companyKey.trim();
+
+  if (!normalizedCompanyKey) {
+    return null;
+  }
+
+  return fetchJson(
+    `/delivery-readiness/companies/${encodeURIComponent(normalizedCompanyKey)}`,
+    deliveryReadinessSchema,
   );
 }
 
