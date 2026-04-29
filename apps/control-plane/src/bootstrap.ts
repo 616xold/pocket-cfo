@@ -11,6 +11,7 @@ import { DrizzleApprovalRepository } from "./modules/approvals/drizzle-repositor
 import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
 import { CloseControlAcknowledgementService } from "./modules/close-control-acknowledgement/service";
+import { CloseControlCertificationBoundaryService } from "./modules/close-control-certification-boundary/service";
 import { CloseControlReviewSummaryService } from "./modules/close-control-review-summary/service";
 import { CloseControlService } from "./modules/close-control/service";
 import { DeliveryReadinessService } from "./modules/delivery-readiness/service";
@@ -122,6 +123,7 @@ type ServerContainerFactories = {
 type SharedKernel = {
   approvalService: ApprovalService;
   closeControlAcknowledgementService: CloseControlAcknowledgementService;
+  closeControlCertificationBoundaryService: CloseControlCertificationBoundaryService;
   closeControlReviewSummaryService: CloseControlReviewSummaryService;
   closeControlService: CloseControlService;
   deliveryReadinessService: DeliveryReadinessService;
@@ -453,6 +455,11 @@ function buildSharedKernel(input: {
     closeControlReviewSummaryService,
     deliveryReadinessService,
   });
+  const closeControlCertificationBoundaryService =
+    new CloseControlCertificationBoundaryService({
+      closeControlReviewSummaryService,
+      externalProviderBoundaryService,
+    });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -472,6 +479,7 @@ function buildSharedKernel(input: {
   return {
     approvalService,
     closeControlAcknowledgementService,
+    closeControlCertificationBoundaryService,
     closeControlReviewSummaryService,
     closeControlService,
     deliveryReadinessService,
@@ -563,6 +571,8 @@ function toAppContainer(
   return {
     closeControlAcknowledgementService:
       kernel.closeControlAcknowledgementService,
+    closeControlCertificationBoundaryService:
+      kernel.closeControlCertificationBoundaryService,
     closeControlReviewSummaryService: kernel.closeControlReviewSummaryService,
     closeControlService: kernel.closeControlService,
     deliveryReadinessService: kernel.deliveryReadinessService,
