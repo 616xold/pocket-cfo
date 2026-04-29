@@ -291,6 +291,48 @@ describe("web api module", () => {
     );
   });
 
+  it("reads the delivery readiness route as an internal review-before-delivery contract", async () => {
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      async json() {
+        return buildDeliveryReadinessPayload();
+      },
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const mod = await loadApiModuleWithEnv({});
+    const readiness = await mod.getDeliveryReadiness(" acme ");
+
+    expect(readiness?.companyKey).toBe("acme");
+    expect(readiness?.aggregateStatus).toBe("needs_review_before_delivery");
+    expect(
+      readiness?.deliveryReadinessTargets.map((target) => target.targetKind),
+    ).toEqual(["monitor_posture_target", "acknowledgement_readiness_target"]);
+    expect(readiness?.runtimeActionBoundary).toMatchObject({
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      outboxSendCreated: false,
+      notificationProviderCalled: false,
+      emailSent: false,
+      slackSent: false,
+      smsSent: false,
+      webhookCalled: false,
+      reportCreated: false,
+      approvalCreated: false,
+      missionCreated: false,
+      monitorRunTriggered: false,
+      monitorResultCreated: false,
+      sourceMutationCreated: false,
+      generatedNotificationProseCreated: false,
+    });
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${mod.resolveControlPlaneUrl()}/delivery-readiness/companies/acme`,
+      {
+        cache: "no-store",
+      },
+    );
+  });
+
   it("reads the latest cash-posture monitor result", async () => {
     const fetchMock = vi.fn().mockResolvedValue({
       ok: true,
@@ -3543,6 +3585,144 @@ function buildOperatorReadinessPayload() {
         "Operator readiness generation is deterministic, read-only, and action-free.",
       replayImplication:
         "The readiness result is not persisted as a mission replay event.",
+    },
+  };
+}
+
+function buildDeliveryReadinessPayload() {
+  return {
+    companyKey: "acme",
+    generatedAt: "2026-04-28T12:00:00.000Z",
+    aggregateStatus: "needs_review_before_delivery",
+    deliveryReadinessTargets: [
+      {
+        targetKey:
+          "operator-readiness:item:monitor:cash_posture:11111111-1111-4111-8111-111111111111",
+        targetKind: "monitor_posture_target",
+        status: "needs_review_before_delivery",
+        evidenceBasis: {
+          basisKind: "monitor_posture",
+          summary:
+            "Delivery readiness target uses F6J operator-readiness posture.",
+          refs: [
+            {
+              kind: "operator_readiness_item",
+              evidencePath:
+                "operatorReadiness.attentionItems.monitor:cash_posture:11111111-1111-4111-8111-111111111111",
+              summary: "Operator-readiness monitor item.",
+              sourceId: null,
+              sourceSnapshotId: null,
+              sourceFileId: null,
+              syncRunId: null,
+              pageKey: null,
+              monitorKind: "cash_posture",
+              monitorResultId: "11111111-1111-4111-8111-111111111111",
+              checklistItemFamily: null,
+              operatorReadinessItemKey:
+                "monitor:cash_posture:11111111-1111-4111-8111-111111111111",
+              acknowledgementTargetKey: null,
+              proofRef: "operatorReadiness.attentionItems.proofPosture",
+            },
+          ],
+        },
+        sourceLineageRefs: [],
+        sourcePosture: {
+          state: "source_backed",
+          summary: "Cash monitor source posture is source-backed.",
+          missingSource: false,
+          refs: [],
+        },
+        freshnessSummary: {
+          state: "fresh",
+          summary: "Cash monitor source freshness is fresh.",
+          latestObservedAt: "2026-04-28T12:00:00.000Z",
+        },
+        limitations: [
+          "Delivery readiness target is internal review posture only.",
+        ],
+        proofPosture: {
+          state: "source_backed",
+          summary: "Cash monitor proof is source-backed.",
+        },
+        humanReviewNextStep:
+          "Review cash monitor posture before future delivery review.",
+        relatedOperatorReadinessItemKey:
+          "monitor:cash_posture:11111111-1111-4111-8111-111111111111",
+        relatedAcknowledgementTargetKey: null,
+        relatedMonitorKind: "cash_posture",
+        relatedChecklistItemFamily: null,
+      },
+      {
+        targetKey: "acknowledgement-readiness:aggregate",
+        targetKind: "acknowledgement_readiness_target",
+        status: "ready_for_delivery_review",
+        evidenceBasis: {
+          basisKind: "acknowledgement_readiness_posture",
+          summary:
+            "Delivery readiness target uses F6K acknowledgement-readiness posture.",
+          refs: [],
+        },
+        sourceLineageRefs: [],
+        sourcePosture: {
+          state: "source_backed",
+          summary: "Acknowledgement source posture is source-backed.",
+          missingSource: false,
+          refs: [],
+        },
+        freshnessSummary: {
+          state: "fresh",
+          summary: "Acknowledgement freshness is current.",
+          latestObservedAt: "2026-04-28T12:00:00.000Z",
+        },
+        limitations: [
+          "Acknowledgement target remains internal review posture only.",
+        ],
+        proofPosture: {
+          state: "source_backed",
+          summary: "Acknowledgement proof is source-backed.",
+        },
+        humanReviewNextStep:
+          "Review acknowledgement posture before future delivery review.",
+        relatedOperatorReadinessItemKey: null,
+        relatedAcknowledgementTargetKey: "close-control:checklist-aggregate",
+        relatedMonitorKind: null,
+        relatedChecklistItemFamily: null,
+      },
+    ],
+    evidenceSummary:
+      "F6M delivery readiness is derived from F6J and F6K posture only.",
+    limitations: [
+      "Delivery readiness is internal review posture and no send occurred.",
+    ],
+    runtimeActionBoundary: {
+      runtimeCodexUsed: false,
+      deliveryCreated: false,
+      outboxSendCreated: false,
+      notificationProviderCalled: false,
+      emailSent: false,
+      slackSent: false,
+      smsSent: false,
+      webhookCalled: false,
+      reportCreated: false,
+      approvalCreated: false,
+      missionCreated: false,
+      monitorRunTriggered: false,
+      monitorResultCreated: false,
+      sourceMutationCreated: false,
+      generatedNotificationProseCreated: false,
+      accountingWriteCreated: false,
+      bankWriteCreated: false,
+      taxFilingCreated: false,
+      legalAdviceGenerated: false,
+      policyAdviceGenerated: false,
+      paymentInstructionCreated: false,
+      collectionInstructionCreated: false,
+      customerContactInstructionCreated: false,
+      autonomousActionCreated: false,
+      summary:
+        "Delivery readiness generation is deterministic and no send occurred.",
+      replayImplication:
+        "The delivery-readiness result is not persisted as a mission replay event.",
     },
   };
 }

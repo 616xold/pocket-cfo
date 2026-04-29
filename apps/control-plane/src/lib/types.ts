@@ -2,6 +2,7 @@ import type { OperatorControlAvailability as DomainOperatorControlAvailability }
 import type { ApprovalService } from "../modules/approvals/service";
 import type { CloseControlAcknowledgementService } from "../modules/close-control-acknowledgement/service";
 import type { CloseControlService } from "../modules/close-control/service";
+import type { DeliveryReadinessService } from "../modules/delivery-readiness/service";
 import type { CfoWikiService } from "../modules/wiki/service";
 import type { FinanceTwinService } from "../modules/finance-twin/service";
 import type { GitHubAppService } from "../modules/github-app/service";
@@ -91,6 +92,11 @@ export type CloseControlAcknowledgementServicePort = Pick<
 export type OperatorReadinessServicePort = Pick<
   OperatorReadinessService,
   "getReadiness"
+>;
+
+export type DeliveryReadinessServicePort = Pick<
+  DeliveryReadinessService,
+  "getDeliveryReadiness"
 >;
 
 export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
@@ -188,6 +194,7 @@ export type TwinServicePort = Pick<
 export type AppContainer = {
   closeControlAcknowledgementService: CloseControlAcknowledgementServicePort;
   closeControlService: CloseControlServicePort;
+  deliveryReadinessService?: DeliveryReadinessServicePort;
   githubAppService: GitHubAppServicePort;
   githubIssueIntakeService: GitHubIssueIntakeServicePort;
   githubWebhookService: GitHubWebhookServicePort;

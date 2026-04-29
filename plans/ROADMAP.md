@@ -427,7 +427,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0059-operator-notification-readiness-foundation.md` is the shipped F6J implementation record.
 `plans/FP-0060-close-control-acknowledgement-foundation.md` is the shipped F6K implementation record.
 `plans/FP-0061-source-pack-expansion-foundation.md` is the shipped F6L implementation record.
-`plans/FP-0062-external-notification-delivery-planning-foundation.md` is the active F6M docs-and-plan contract for a first internal delivery-readiness implementation boundary.
+`plans/FP-0062-external-notification-delivery-planning-foundation.md` is the shipped F6M implementation record for a first internal delivery-readiness boundary.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -441,7 +441,7 @@ The shipped F6I slice is exactly `F6I-stack-pack-expansion-and-close-control-dem
 The shipped F6J slice is exactly `F6J-operator-notification-readiness-foundation`.
 The shipped F6K slice is exactly `F6K-close-control-acknowledgement-foundation`.
 The shipped F6L slice is exactly `F6L-bank-card-source-pack-foundation`.
-The active F6M contract is exactly `F6M-external-notification-delivery-planning-foundation`.
+The shipped F6M slice is exactly `F6M-external-notification-delivery-planning-foundation`.
 
 Focus:
 
@@ -458,7 +458,7 @@ Focus:
 - one shipped internal operator attention/readiness read model that can show which shipped source-backed posture needs review without external delivery
 - one shipped internal close/control acknowledgement-readiness foundation that can show whether shipped checklist/readiness posture is ready for operator review acknowledgement without approvals, close-complete status, delivery, runtime-Codex, missions, monitor reruns, or finance actions
 - one shipped bank/card source-pack proof over checked-in bank-account-summary and card-expense posture without delivery, runtime-Codex, reports, approvals, monitor-family expansion, or discovery-family expansion
-- one active F6M plan for a future deterministic internal delivery-readiness result, not actual external delivery
+- one shipped deterministic internal delivery-readiness result, not actual external delivery
 
 Exit criteria:
 
@@ -474,7 +474,7 @@ Exit criteria:
 - the shipped F6J slice stays internal and delivery-free: it adds one deterministic operator readiness/read model over shipped stored state with evidence basis, freshness, limitations, proof posture, status, human-review next steps, and runtime/action absence boundaries, and no notification provider, outbox send, report delivery, approval, mission creation, monitor rerun, runtime-Codex, autonomous action, or new monitor/discovery family
 - the shipped F6K slice stays internal and read-only: it adds one deterministic acknowledgement-readiness result over shipped checklist/readiness posture, with no approval kind, close-complete assertion, report release, external delivery, notification provider, outbox send, runtime-Codex, mission creation, monitor rerun, source mutation, autonomous action, or new monitor/discovery family
 - the shipped F6L slice stays source-pack-only: it proves checked-in bank-account-summary and card-expense source-pack posture through existing source registry and Finance Twin routes only
-- the active F6M plan is implementation-ready only for internal delivery-readiness; it does not authorize provider integration, outbox sends, external delivery, approvals, reports, runtime-Codex drafting, generated notification prose, monitor reruns, mission creation, source mutation, finance writes, or autonomous action
+- the shipped F6M slice stays internal and read-only: it adds one deterministic delivery-readiness result over shipped F6J/F6K posture with no provider integration, outbox sends, external delivery, approvals, reports, runtime-Codex drafting, generated notification prose, monitor reruns, mission creation, source mutation, finance writes, advice, or autonomous action
 
 Slice map:
 
@@ -584,14 +584,15 @@ Slice map:
   - output contract is one `pocket-cfo-bank-card-source-pack` manifest, one immutable checked-in fixture set, one normalized expected source/twin posture file, and one direct deterministic proof path: `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`
   - did not add routes, schema, migrations, package scripts, smoke aliases, eval datasets, monitor evaluators, mission behavior, checklist/readiness/acknowledgement behavior, runtime-Codex, delivery, reports, approvals, payment behavior, finance writes, legal or policy advice, collection/customer-contact instructions, autonomous action, new monitor families, or new discovery families
 - `F6M — external notification/delivery planning`
-  - active docs-and-plan contract in `plans/FP-0062-external-notification-delivery-planning-foundation.md`
-  - first implementation must be internal delivery-readiness only, not actual delivery
+  - shipped implementation record in `plans/FP-0062-external-notification-delivery-planning-foundation.md`
+  - first implementation is internal delivery-readiness only, not actual delivery
   - start only from shipped stored/read state: F6J operator-readiness result or read posture, F6K close/control acknowledgement-readiness result or read posture, F6H close/control checklist result, latest persisted monitor results only as context, and source/CFO Wiki freshness posture already surfaced through those reads
   - input must not be generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns, demo replay runtime execution, or generated notification prose
   - output contract is one deterministic internal delivery-readiness result or read model with a bounded list of delivery-readiness targets
   - each target must include evidence basis, source lineage or proof reference, freshness or missing-source posture, limitations, proof posture, status, and a human-review next step
   - output must include explicit absence boundaries showing no email, Slack, SMS, webhook, notification provider call, outbox send, scheduled notification, auto-send, report delivery, external publish behavior, approval, report, mission creation, monitor rerun, runtime-Codex drafting, generated notification prose, source mutation, finance write, legal/policy/payment/collection/customer-contact instruction, or autonomous action occurred
-  - first implementation should be read-only and no-schema unless a concrete blocker is found and the Finance Plan is updated first
+  - shipped read-only and no-schema
+  - packaged proof: `pnpm smoke:delivery-readiness:local`
   - no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L source-pack behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
 - `F6N — close/control reporting or certification`
   - later only if operator need and evidence boundaries are proven; do not create FP-0063 from roadmap text alone
