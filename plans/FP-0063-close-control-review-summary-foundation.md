@@ -379,6 +379,6 @@ The implementation stays read-only and no-schema, adds one thin backend route, d
 
 What remains next:
 
-- F6O planning may start next only through a new Finance Plan.
+- F6O planning now lives in `plans/FP-0064-receivables-payables-source-pack-foundation.md`; implementation should follow that active source-pack-only contract.
 - If operators need more F6N proof before F6O, the next continuation should stay narrow, likely adding a packaged proof only if a future plan explicitly justifies one.
 - Do not start certification, close complete, report release, report circulation, external delivery, approval workflows, runtime-Codex drafting, generated prose, monitor reruns, missions, source mutation, finance writes, legal/policy/payment/collection/customer-contact advice or instructions, autonomous action, new monitor families, or new discovery families from this record alone.
