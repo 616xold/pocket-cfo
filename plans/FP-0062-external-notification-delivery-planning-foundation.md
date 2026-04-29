@@ -6,7 +6,7 @@ This file is the shipped Finance Plan record for the Pocket CFO F6M implementati
 The target phase is `F6`, and the shipped implementation slice is exactly `F6M-external-notification-delivery-planning-foundation`.
 
 The user-visible goal is deliberately narrow: after shipped F6A through F6L, Pocket CFO should be able to show an internal operator whether an existing source-backed monitoring, close/control, readiness, and acknowledgement posture is ready for a future human review of possible external notification or delivery.
-The first F6M implementation must therefore be delivery-readiness only.
+The shipped F6M implementation is therefore delivery-readiness only.
 It must not send, schedule, publish, release, circulate, call a provider, create an outbox send event, create an approval, create a report, create a mission, rerun a monitor, invoke runtime-Codex, generate notification prose, mutate sources, or take finance action.
 
 Repo truth supports F6M only in this bounded shape.
@@ -24,16 +24,17 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T23:04:46Z Invoked the requested Pocket CFO operator plugin guards, fetched `origin/main`, confirmed the branch, GitHub access, Docker services, and clean worktree.
 - [x] 2026-04-28T23:04:46Z Read the active docs, shipped FP-0059 through FP-0061 records, package scripts, domain monitoring/close-control/readiness/acknowledgement/proof contracts, control-plane F6 modules, outbox placeholder, evidence seams, and shipped smoke/proof tools.
 - [x] 2026-04-28T23:04:46Z Decided repo truth supports F6M only as deterministic internal delivery-readiness planning, rather than actual external delivery, F6N reporting/certification planning, or F6O source-pack expansion.
-- [x] 2026-04-28T23:04:46Z Created FP-0062 as the single active implementation-ready F6M contract while preserving FP-0050 through FP-0061 as shipped F6A through F6L records.
+- [x] 2026-04-28T23:04:46Z Created FP-0062 during pre-implementation planning to guide the F6M delivery-readiness slice while preserving FP-0050 through FP-0061 as shipped F6A through F6L records; after the shipped implementation, FP-0062 is retained as the shipped F6M historical record.
 - [x] 2026-04-28T23:15:09Z Ran the requested docs-and-plan validation ladder, including the serial DB-backed smokes, twin guardrail specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-- [x] 2026-04-28T23:33:34Z Polished F6M handoff wording so implementation may start only from FP-0062 as deterministic internal delivery-readiness, and removed duplicate future-acceptance wording.
+- [x] 2026-04-28T23:33:34Z Polished F6M handoff wording before implementation to keep FP-0062 narrowed to deterministic internal delivery-readiness, and removed duplicate future-acceptance wording.
 - [x] 2026-04-28T23:59:35Z Implemented the first real F6M slice: pure domain delivery-readiness contract, read-only control-plane service and route, smallest web read surface, packaged `pnpm smoke:delivery-readiness:local`, and active-doc refresh.
 - [x] 2026-04-28T23:59:35Z Confirmed narrow domain, control-plane, web, and delivery-readiness smoke checks pass before the full validation ladder.
 - [x] 2026-04-29T00:10:50Z Ran the full F6M validation ladder, fixed the local formatter type/lint polish issues inside the F6M slice, reran the affected delivery-readiness checks, and confirmed `pnpm ci:repro:current` succeeds.
+- [x] 2026-04-29T00:44:23Z Performed a tiny post-merge docs-only closeout to mark FP-0062/F6M as shipped in stale secondary docs and keep F6N as future planning only, with no FP-0063 or implementation start.
 
 ## Surprises & Discoveries
 
-F6M is safe to plan now only because the first implementation can be delivery-readiness rather than delivery.
+F6M was safe to plan only because the shipped implementation was delivery-readiness rather than delivery.
 F6J and F6K together provide enough internal review posture to derive a readiness boundary, while still proving that no approval, report, delivery, outbox send, mission creation, monitor rerun, runtime-Codex work, or finance action occurred.
 
 Implementation confirmed no persistence was needed.
@@ -41,7 +42,7 @@ The F6M result is derived on read from F6J operator-readiness and F6K acknowledg
 
 The outbox bounded context is intentionally not a delivery system today.
 It is only `apps/control-plane/src/modules/outbox/README.md`, which reserves the bounded context for later async event and projection jobs.
-F6M must treat that absence as a hard safety boundary, not as a gap to fill in the first implementation.
+The shipped F6M boundary treats that absence as a hard safety boundary, not as a gap to fill in the shipped slice.
 
 F5 release and circulation records exist, but they are not safe primary inputs for F6M.
 They carry report release or circulation semantics on existing approval seams.
@@ -55,7 +56,7 @@ F6M should use operator-facing wording such as "delivery readiness", "review-bef
 Decision: proceed with `F6M-external-notification-delivery-planning-foundation` rather than switching next to F6N close/control reporting/certification planning or F6O additional source-pack expansion.
 Rationale: F6J internal operator readiness and F6K acknowledgement-readiness provide enough review posture to plan one deterministic delivery-readiness boundary now. F6L source-pack proof remains a guardrail, but another source-pack expansion is less urgent than explicitly locking the delivery boundary before anyone implements notification-adjacent work.
 
-Decision: the first F6M implementation is delivery-readiness only.
+Decision: the shipped F6M implementation is delivery-readiness only.
 Rationale: F6M must not add email sends, Slack sends, SMS sends, webhook calls, notification provider calls, outbox send behavior, report delivery, external publish behavior, scheduled delivery, or auto-send.
 
 Decision: F6M is not an approval workflow.
@@ -70,7 +71,7 @@ Rationale: allowed inputs are the operator-readiness result or read posture, clo
 Decision: the output contract is one internal delivery-readiness result with bounded targets.
 Rationale: each target must include evidence basis, source lineage or proof reference, freshness or missing-source posture, limitations, proof posture, status, human-review next step, and explicit absence boundaries showing no send occurred.
 
-Decision: F6M must be read-only and no-schema first unless a concrete blocker appears during implementation.
+Decision: F6M remains read-only and no-schema for the shipped boundary.
 Rationale: F6J, F6K, F6H, and monitor results already expose enough stored/read posture for a derived read model. If persistence is needed later, a future plan must justify why and keep it additive, idempotent, company-scoped, evidence-linked, actor-attributed where needed, and explicitly not a send record, not a delivery log, not an approval, not a report release, and not close complete.
 
 Decision: implement the F6M service with only F6J and F6K read dependencies.
@@ -133,7 +134,7 @@ The relevant implementation seams for shipped F6M and future guarded work are:
 - `apps/control-plane/src/modules/close-control/**` for the shipped F6H checklist service and route
 - `apps/control-plane/src/modules/monitoring/**` for latest persisted monitor result reads and monitor-result persistence, not new F6M monitor runs
 - `apps/control-plane/src/modules/evidence/**` for proof-language conventions only, not report conversion
-- `apps/control-plane/src/modules/outbox/README.md` as a boundary proving no send pipeline exists in the first F6M slice
+- `apps/control-plane/src/modules/outbox/README.md` as a boundary proving no send pipeline exists in the shipped F6M slice
 - `apps/web/app/delivery-readiness/page.tsx` and `apps/web/components/delivery-readiness-card.tsx` for the smallest read-only operator surface
 - `tools/operator-readiness-smoke.mjs`, `tools/close-control-acknowledgement-smoke.mjs`, `tools/close-control-checklist-smoke.mjs`, `tools/monitor-demo-replay-smoke.mjs`, `tools/bank-card-source-pack-proof.mjs`, and `tools/delivery-readiness-smoke.mjs` for shipped proof and absence-boundary patterns
 
@@ -311,12 +312,12 @@ Do not start F6N, F6O, F6P, or later work here.
 Package boundaries must remain unchanged:
 
 - `packages/domain` owns pure contracts for monitors, close/control, readiness, acknowledgement, proof, mission, reporting, and delivery-readiness vocabulary
-- `packages/db` remains untouched unless a later plan explicitly justifies additive persistence, which first F6M should not need
+- `packages/db` remains untouched unless a later plan explicitly justifies additive persistence, which shipped F6M did not need
 - `apps/control-plane/src/modules/operator-readiness` owns shipped F6J readiness and must not be changed unless implementation discovers a direct truthfulness bug
 - `apps/control-plane/src/modules/close-control-acknowledgement` owns shipped F6K acknowledgement-readiness and must not be changed unless implementation discovers a direct truthfulness bug
 - `apps/control-plane/src/modules/close-control` owns shipped F6H checklist posture and must not be changed for delivery readiness
 - `apps/control-plane/src/modules/monitoring` owns shipped monitor behavior and must not be changed for delivery readiness
-- `apps/control-plane/src/modules/outbox` remains a placeholder and must not become a send path in first F6M
+- `apps/control-plane/src/modules/outbox` remains a placeholder and must not become a send path in shipped F6M
 - `apps/control-plane/src/modules/missions`, `apps/control-plane/src/modules/reporting`, and `apps/control-plane/src/modules/approvals` must not be widened by F6M
 - `apps/web` exposes a read-only operator delivery-readiness surface only after the domain/control-plane contract is implemented
 
