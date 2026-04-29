@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6Q implementation contract.
+This is the shipped Finance Plan for the Pocket CFO F6Q implementation contract.
 The target phase is `F6`, and the first implementation slice is exactly `F6Q-close-control-certification-boundary-foundation`.
 
 The user-visible goal is narrow: after shipped F6A through F6P, Pocket CFO should be able to show one deterministic internal close/control certification-boundary/readiness posture that a human operator can review before any later plan considers actual certification.
@@ -33,7 +33,10 @@ Do not invoke GitHub Connector Guard for F6Q.
 - [x] 2026-04-29T19:38:05Z Decided repo truth supports F6Q only as an internal close/control certification-boundary/readiness foundation, not actual certification and not F6R source-pack expansion as the safer immediate next slice.
 - [x] 2026-04-29T19:38:05Z Created this FP-0066 implementation-ready planning contract and refreshed active docs without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, runtime behavior, reports, approvals, provider calls, delivery, certification, close-complete status, sign-off, attestation, legal/audit opinion, source mutation, monitor/discovery families, or finance actions.
 - [x] 2026-04-29T19:45:49Z Ran the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all repo validation commands passed.
-- [ ] First F6Q implementation has not started.
+- [x] 2026-04-29T20:10:03Z Implemented the first F6Q slice as a read-only/no-schema close/control certification-boundary route over shipped F6N review-summary and F6P provider-boundary posture only.
+- [x] 2026-04-29T20:10:03Z Added focused domain and control-plane specs for target/status vocabulary, absence boundaries, ready/needs-review/blocked mappings, company-scope guardrails, and forbidden side-effect methods.
+- [x] 2026-04-29T20:10:03Z Refreshed active docs and stale secondary-doc lines so FP-0066 is the shipped F6Q record and F6R planning waits for a new Finance Plan.
+- [x] 2026-04-29T20:24:17Z Ran the full requested implementation validation ladder, including narrow F6Q specs, domain/control-plane guardrail specs, shipped F6 proof smokes, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -46,6 +49,9 @@ Those seams carry report-specific approval/release/circulation semantics and mus
 
 F6P provider-boundary posture is useful for F6Q only as an absence-boundary input.
 It does not authorize provider calls, provider credentials, provider jobs, delivery, outbox sends, report release, approvals, generated prose, or external communication.
+
+The first implementation did not require persistence.
+The route can derive certification-boundary readiness deterministically from F6N/F6P read posture, so adding a table or replay event would have risked implying a certification record, approval record, close-complete record, legal/audit opinion, or release artifact before the product boundary exists.
 
 F6R source-pack expansion remains useful later, but it is not safer than F6Q when F6Q is kept read-only, no-schema, internal, and certification-free.
 The existing bank/card and receivables/payables source-pack proofs provide enough source-pack guardrails for the first certification-boundary planning slice.
@@ -76,6 +82,9 @@ Rationale: the output should contain bounded certification-boundary targets. Eac
 
 Decision: first F6Q should be read-only and no-schema.
 Rationale: F6N/F6P already expose enough stored/read posture. Persistence would risk creating a certification record, approval record, close-complete record, attestation, report-release record, assurance record, or legal/audit opinion before the product boundary is proven.
+
+Decision: first F6Q reads exactly the shipped F6N review-summary service and shipped F6P provider-boundary service.
+Rationale: those read models already carry the upstream checklist, readiness, acknowledgement, delivery, source/freshness, proof, and provider absence posture that F6Q needs. Direct F6M/F6K/F6H/F6J reads were unnecessary for the first slice and would widen the dependency surface.
 
 Decision: F6Q must preserve shipped F5 and F6 behavior.
 Rationale: no F5 report/release/circulation/correction changes, monitor evaluator changes, F6B/F6G mission changes, F6H checklist behavior changes, F6J readiness behavior changes, F6K acknowledgement behavior changes, F6L bank/card source-pack behavior changes, F6M delivery-readiness behavior changes, F6N review-summary behavior changes, F6O receivables/payables source-pack behavior changes, F6P provider-boundary behavior changes, new approval kind, report conversion, monitor-family expansion, or discovery-family expansion belongs in F6Q.
@@ -206,7 +215,7 @@ No database schema, migration, certification-boundary table, certification recor
    - `apps/control-plane/src/modules/close-control-certification-boundary/formatter.ts`
    - `apps/control-plane/src/modules/close-control-certification-boundary/review-summary-targets.ts`
    - `apps/control-plane/src/modules/close-control-certification-boundary/provider-boundary-targets.ts`
-   - `apps/control-plane/src/modules/close-control-certification-boundary/source-freshness-target.ts`
+   - `apps/control-plane/src/modules/close-control-certification-boundary/evidence-source-target.ts`
    - `apps/control-plane/src/modules/close-control-certification-boundary/proof-target.ts`
    - `apps/control-plane/src/modules/close-control-certification-boundary/static-boundary-targets.ts`
    - `apps/control-plane/src/modules/close-control-certification-boundary/evidence.ts`
@@ -301,15 +310,26 @@ No destructive database migration belongs in F6Q.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates or updates:
+This implementation slice creates or updates:
 
 - `plans/FP-0066-close-control-certification-boundary-foundation.md`
+- `packages/domain/src/close-control-certification-boundary.ts`
+- `packages/domain/src/close-control-certification-boundary.spec.ts`
+- `packages/domain/src/index.ts`
+- `apps/control-plane/src/modules/close-control-certification-boundary/**`
+- `apps/control-plane/src/app.ts`
+- `apps/control-plane/src/bootstrap.ts`
+- `apps/control-plane/src/lib/types.ts`
 - `README.md`
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
 - `plans/ROADMAP.md`
-- no code
-- no routes
+- `docs/ops/local-dev.md`
+- `docs/ops/source-ingest-and-cfo-wiki.md`
+- `docs/ops/codex-app-server.md`
+- `docs/benchmarks/seeded-missions.md`
+- `evals/README.md`
+- one read-only route: `GET /close-control/companies/:companyKey/certification-boundary`
 - no schema or migrations
 - no package scripts
 - no smoke commands
@@ -340,9 +360,10 @@ If a future plan proves persistence is needed, that plan must name replay behavi
 
 ## Outcomes & Retrospective
 
-This plan is active and implementation-ready, but F6Q implementation has not started.
-The next Codex thread may start F6Q implementation only by following this plan and keeping the slice deterministic, internal, read-only, no-schema unless a concrete blocker is proven, certification-free, approval-free, report-free, delivery-free, provider-call-free, generated-prose-free, runtime-Codex-free, source-mutation-free, monitor-rerun-free, and action-free.
+This plan is now the shipped F6Q implementation record.
+The shipped slice adds one deterministic internal close/control certification-boundary/readiness foundation only, derived from shipped F6N/F6P read posture and exposed through `GET /close-control/companies/:companyKey/certification-boundary`.
+It stayed read-only, no-schema, certification-free, close-complete-free, sign-off-free, attestation-free, legal-opinion-free, audit-opinion-free, assurance-free, approval-free, report-release-free, report-circulation-free, delivery-free, provider-call-free, provider-credential-free, provider-job-free, outbox-send-free, generated-prose-free, runtime-Codex-free, source-mutation-free, monitor-rerun-free, mission-free, finance-write-free, advice/instruction-free, non-autonomous, and monitor/discovery-family-free.
 
-F6R additional source-pack expansion remains a later planning candidate after the existing source packs stay green.
+F6R additional source-pack expansion remains a later planning candidate after the existing source packs stay green and only after a new Finance Plan.
 F6S actual external delivery remains later and requires a future plan proving provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send.
 F6T actual certification remains later and requires a future plan proving operator need, legal boundaries, evidence boundaries, review gates, and non-advice constraints.
