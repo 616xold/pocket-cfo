@@ -31,6 +31,7 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-28T23:59:35Z Confirmed narrow domain, control-plane, web, and delivery-readiness smoke checks pass before the full validation ladder.
 - [x] 2026-04-29T00:10:50Z Ran the full F6M validation ladder, fixed the local formatter type/lint polish issues inside the F6M slice, reran the affected delivery-readiness checks, and confirmed `pnpm ci:repro:current` succeeds.
 - [x] 2026-04-29T00:44:23Z Performed a tiny post-merge docs-only closeout to mark FP-0062/F6M as shipped in stale secondary docs and keep F6N as future planning only, with no FP-0063 or implementation start.
+- [x] 2026-04-29T01:02:15Z Completed the narrow post-merge F6M company-key posture polish: delivery-readiness now rejects mismatched F6J/F6K `companyKey` payloads before building the read model, preserving the shipped read-only boundary.
 
 ## Surprises & Discoveries
 
