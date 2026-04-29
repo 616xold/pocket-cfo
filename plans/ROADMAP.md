@@ -433,6 +433,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0065-external-provider-boundary-foundation.md` is the shipped F6P record for one internal external-provider-boundary/readiness foundation only.
 `plans/FP-0066-close-control-certification-boundary-foundation.md` is the shipped F6Q implementation record for one internal close/control certification-boundary/readiness foundation only.
 `plans/FP-0067-contract-obligation-source-pack-foundation.md` is the shipped F6R record for one contract/obligation source-pack foundation only.
+`plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` is the active F6S implementation-ready contract for one internal external-delivery human-confirmation boundary only.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -451,7 +452,8 @@ The shipped F6N slice is exactly `F6N-close-control-review-summary-foundation`.
 The shipped F6O slice is exactly `F6O-receivables-payables-source-pack-foundation`.
 The shipped F6P slice is exactly `F6P-external-provider-boundary-foundation`.
 The shipped F6Q slice is exactly `F6Q-close-control-certification-boundary-foundation`.
-The shipped F6R slice is exactly `F6R-contract-obligation-source-pack-foundation`, and no F6S implementation has started.
+The shipped F6R slice is exactly `F6R-contract-obligation-source-pack-foundation`.
+The active F6S plan is exactly `F6S-external-delivery-human-confirmation-boundary-foundation`, and no F6S implementation has started.
 
 Focus:
 
@@ -473,6 +475,7 @@ Focus:
 - one shipped internal provider-boundary/readiness result that can review future provider boundaries without adding provider calls, provider credentials, provider jobs, outbox sends, delivery, reports, approvals, generated prose, runtime-Codex, finance actions, or new monitor/discovery families
 - one shipped F6Q internal certification-boundary/readiness result that can review the boundary around any future certification without adding actual certification, close-complete status, sign-off, attestation, legal/audit opinion, assurance, approval, report release, report circulation, provider calls, provider credentials, provider jobs, delivery, outbox sends, generated prose, runtime-Codex, finance actions, or new monitor/discovery families
 - one shipped F6R contract/obligation source-pack foundation that stays fixture/manifest/proof-oriented, source role `contract_metadata` only, extractor key `contract_metadata_csv` only, proof surface limited to existing source registry and Finance Twin contract/obligation routes, direct proof `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`, and no product runtime behavior
+- one active F6S plan for a deterministic internal external-delivery human-confirmation / delivery-preflight boundary, not actual external delivery, with no send behavior, provider calls, provider credentials, provider jobs, outbox sends, scheduled delivery, auto-send, report release/circulation, approvals, certification, generated prose, runtime-Codex, source mutation, finance actions, or autonomous action
 
 Exit criteria:
 
@@ -494,6 +497,7 @@ Exit criteria:
 - the shipped F6P slice stays internal and read-only: it adds one deterministic provider-boundary/readiness result over shipped F6M/F6N posture with bounded internal boundary gates, evidence basis, freshness/limitations, proof posture, status, human-review next step, explicit no-provider-call/no-send/no-outbox/no-report/no-approval/no-generated-prose boundaries, no provider credentials, no provider jobs, no delivery, no runtime-Codex, no finance actions, no monitor-family expansion, and no discovery-family expansion
 - the shipped F6Q slice adds one deterministic internal certification-boundary/readiness result over shipped F6N/F6P posture, with bounded internal targets, evidence basis, freshness/limitations, proof posture, status, human-review next step, explicit no-certification/no-close-complete/no-sign-off/no-attestation/no-legal-opinion/no-audit-opinion/no-assurance/no-approval/no-report-release/no-report-circulation/no-delivery/no-provider-call/no-provider-credential/no-provider-job/no-outbox/no-generated-prose boundaries, read-only/no-schema posture, and no F6R implementation in that slice
 - the shipped F6R slice adds one contract/obligation source-pack manifest, one immutable checked-in contract-metadata CSV fixture, one normalized expected source/twin posture file, and one deterministic direct proof path, while preserving shipped F5 and F6 behavior and adding no monitor family, discovery family, product runtime behavior, package script, root smoke alias, route, schema, migration, eval dataset, mission behavior, report, approval, delivery, provider call, runtime-Codex, generated prose, source mutation outside proof upload/sync setup, finance write, certification, close-complete status, sign-off, attestation, legal/audit opinion, assurance, or autonomous action
+- the first F6S implementation must add at most one deterministic internal human-confirmation/readiness result or read model over shipped F6M/F6P/F6Q/F6N posture, with bounded delivery-gate targets, evidence basis, source/freshness posture, limitations, proof posture, status, human-review next step, explicit absence boundaries, read-only/no-schema posture unless a concrete blocker is recorded, and no actual delivery, provider call, provider credential, provider job, outbox send, scheduled delivery, auto-send, approval, report release/circulation, certification, mission creation, monitor rerun, runtime-Codex, generated prose, source mutation, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
 
 Slice map:
 
@@ -671,9 +675,21 @@ Slice map:
   - no new monitor result semantics, checklist item families, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, provider-boundary behavior, certification-boundary behavior, investigation behavior, mission behavior, report behavior, approval behavior, delivery behavior, runtime-Codex behavior, provider call, provider credential, provider job, outbox send, source mutation outside proof upload/sync setup, generated prose, finance write, legal/policy/payment/collection/customer-contact instruction, autonomous action, new monitor family, or new discovery family
   - no package script or root smoke alias unless FP-0067 is explicitly amended
   - preserve shipped F5 and F6 behavior, including F6L bank/card source-pack proof, F6O receivables/payables source-pack proof, F6P provider-boundary posture, and F6Q certification-boundary posture
-- `F6S — actual external delivery`
-  - later only if a future plan proves provider security, compliance posture, explicit human confirmation, observability, retry behavior, safe failure modes, and no autonomous send
+- `F6S — external delivery human-confirmation boundary foundation`
+  - active implementation-ready contract in `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md`
+  - first implementation is internal human-confirmation / delivery-preflight readiness only, not actual external delivery
+  - starts only from shipped stored/read state: F6M delivery-readiness posture, F6P external-provider-boundary posture, F6Q close/control certification-boundary posture, and F6N close/control review-summary posture; F6J/F6K/F6H posture, latest persisted monitor results, and source/CFO Wiki freshness posture may be used only as context through shipped read services if needed
+  - input is not generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns, demo replay runtime execution, provider state, provider credentials, outbox jobs, external communications, generated notification prose, generated prose, or source mutation
+  - output contract is one deterministic internal external-delivery human-confirmation readiness result with bounded delivery-gate targets, not provider jobs, channel sends, recipient targets, credential records, send records, delivery logs, approvals, report releases, certifications, close-complete records, sign-offs, attestations, legal/audit opinions, or autonomous actions
+  - likely target families are `delivery_readiness_confirmation_boundary`, `provider_boundary_confirmation_boundary`, `certification_boundary_confirmation_boundary`, `review_summary_confirmation_boundary`, `source_freshness_and_proof_boundary`, and `human_confirmation_absence_boundary`
+  - each target includes evidence basis, source/freshness posture, limitations, proof posture, internal review status, and human-review next step
+  - statuses are review-oriented, such as `ready_for_human_confirmation_review`, `needs_human_review_before_confirmation`, and `blocked_by_evidence`
+  - output includes explicit absence boundaries showing no email, Slack, SMS, webhook, notification provider call, provider credential flow, provider job, outbox send, scheduled delivery, auto-send, report delivery, external publish behavior, approval, report release, report circulation, certification, close-complete status, sign-off, attestation, legal/audit opinion, mission creation, monitor rerun, runtime-Codex drafting, generated prose, source mutation, finance write, legal/policy/payment/collection/customer-contact instruction, or autonomous action occurred
+  - first implementation should be read-only and no-schema; any later persistence requires a future named plan and must not be a send record, provider call record, provider job, outbox send, delivery log, approval, report release, certification, close-complete record, sign-off, attestation, legal opinion, audit opinion, assurance record, or autonomous-action record
+  - no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L bank/card source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6O receivables/payables source-pack behavior changes, no F6P provider-boundary behavior changes, no F6Q certification-boundary behavior changes, no F6R source-pack behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
 - `F6T — actual certification`
   - later only if a future plan proves operator need, legal boundaries, evidence boundaries, review gates, and non-advice constraints
 - `F6U — additional source-pack expansion`
   - later only after the existing source packs remain green and source-backed
+- `F6V — actual provider integration`
+  - later only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send
