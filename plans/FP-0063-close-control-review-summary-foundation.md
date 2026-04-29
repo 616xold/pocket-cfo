@@ -29,6 +29,7 @@ GitHub connector work is explicitly out of scope.
 - [x] 2026-04-29T01:13:45Z Decided repo truth supports F6N only as a deterministic internal close/control review summary, not certification or external reporting; F6O source-pack expansion is not the safer immediate next plan when F6N is kept in this reduced shape.
 - [x] 2026-04-29T01:13:45Z Created this FP-0063 implementation-ready planning contract and updated active docs to point at it without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, runtime behavior, or implementation scaffolding.
 - [x] 2026-04-29T01:23:32Z Ran the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all commands passed before commit.
+- [x] 2026-04-29T12:12:35Z Ran local closeout-polish preflight on `codex/f6n-plan-progress-closeout-polish-local-v1`, read the active FP/docs, and scoped the correction to stale FP-0063 implementation-handoff wording only; no code, routes, schema, package scripts, smoke commands, eval datasets, fixtures, FP-0064, F6N implementation, or F6O planning started.
 
 ## Surprises & Discoveries
 
@@ -72,6 +73,9 @@ Rationale: no F5 report/release/circulation/correction changes, monitor evaluato
 
 Decision: later slices are named but not created here.
 Rationale: `F6O-additional-source-pack-expansion` should happen only after the bank/card source pack remains green and a future plan proves the next narrow source-pack need. `F6P-external-provider-integration` should happen only if a future plan proves human-review gates, provider boundaries, compliance posture, observability, retry behavior, safe failure modes, and no autonomous send. `F6Q-close-control-certification` should happen only if operator need, evidence boundaries, legal boundaries, and review gates are proven. Do not create FP-0064, F6O, F6P, or F6Q in this slice.
+
+Decision: polish only the stale FP-0063 retrospective handoff wording.
+Rationale: the prior planning-thread validation, commit, push, and PR work is already complete, so FP-0063 should hand the next thread to F6N implementation only if that implementation follows this active plan, remains read-only/no-schema unless a concrete blocker is proven, and stays limited to deterministic internal close/control review-summary posture. F6O and later work require a future Finance Plan.
 
 ## Context and Orientation
 
@@ -349,10 +353,10 @@ This docs-and-plan slice created FP-0063 as the active implementation-ready F6N 
 The contract explicitly rejects certification, close-complete status, sign-off, attestation, report release, report circulation, external delivery, approval semantics, runtime-Codex drafting, generated prose, mission creation, monitor reruns, source mutation, finance writes, advice, and autonomous action.
 The requested validation ladder passed through `pnpm ci:repro:current`.
 
-What remains:
+What remains for the next implementation thread:
 
-- run the required validation ladder
-- commit and push exactly one docs-and-plan commit if validation is green
-- open one PR if validation is green
-- start F6N implementation next only by following this plan
-- start F6O planning instead only if a later review invalidates the safety assumptions in this plan
+- F6N implementation may start next only from FP-0063.
+- The first F6N implementation must remain read-only and no-schema unless a concrete blocker is proven.
+- It must implement only deterministic internal close/control review summary posture.
+- It must not implement certification, close complete, sign-off, attestation, report release, report circulation, external delivery, approvals, runtime-Codex, generated prose, monitor reruns, missions, source mutation, finance writes, legal/policy/payment/collection/customer-contact advice or instructions, or autonomous action.
+- F6O and later planning must wait for a new Finance Plan.
