@@ -70,6 +70,7 @@ Do not invoke GitHub Connector Guard for F6O.
 - [x] 2026-04-29T14:17:16Z Ran focused manifest and fixture specs plus `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`; all passed after tightening proof comparison to stable normalized JSON rather than incidental object key order.
 - [x] 2026-04-29T14:17:16Z Refreshed active docs to mark FP-0064 as the shipped F6O record and to state that F6P planning should start next only as a new Finance Plan.
 - [x] 2026-04-29T14:30:44Z Ran the full implementation validation ladder, including the new direct F6O proof, shipped F6 guardrail smokes, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-04-29T17:25:33Z Applied a post-merge F6O proof-truthfulness polish so the direct proof uses the receivables/payables source-pack manifest as the source-file descriptor source of truth, asserts exact manifest-to-expected descriptor alignment, and keeps raw fixture immutability plus volatile-key exclusion explicit.
 
 ## Surprises & Discoveries
 
@@ -151,6 +152,9 @@ Rationale: a separate `pocket-cfo-receivables-payables-source-pack` manifest and
 
 Decision: F6P planning should start next only through a new Finance Plan.
 Rationale: FP-0064 is now the shipped F6O implementation record and did not start F6P implementation or create FP-0065.
+
+Decision: post-merge F6O proof polishing must keep the manifest authoritative over source-file descriptors.
+Rationale: the expected normalized posture file is an assertion target, not the operational source-pack contract; the proof and specs now fail if expected `sourceFiles` drift from manifest `sourceFiles` after normalizing `fixturePath` to `path`.
 
 ## Context and Orientation
 

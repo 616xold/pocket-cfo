@@ -10,6 +10,22 @@ const fixtureRoot = join(
 );
 const expectedSourceRoles = ["receivables_aging", "payables_aging"];
 const expectedExtractorKeys = ["receivables_aging_csv", "payables_aging_csv"];
+const manifestSourceFiles = [
+  {
+    role: "receivables_aging",
+    path: "sources/receivables-aging.csv",
+    sourceKind: "dataset",
+    mediaType: "text/csv",
+    expectedExtractorKey: "receivables_aging_csv",
+  },
+  {
+    role: "payables_aging",
+    path: "sources/payables-aging.csv",
+    sourceKind: "dataset",
+    mediaType: "text/csv",
+    expectedExtractorKey: "payables_aging_csv",
+  },
+] as const;
 const runtimeActionBoundaryFields = [
   "monitorRunTriggered",
   "checklistReadTriggered",
@@ -36,23 +52,33 @@ const runtimeActionBoundaryFields = [
 ];
 const volatileKeys = new Set([
   "id",
+  "generatedId",
   "sourceId",
+  "sourceIds",
+  "snapshotId",
+  "snapshotIds",
   "sourceSnapshotId",
+  "sourceSnapshotIds",
   "sourceFileId",
+  "sourceFileIds",
   "syncRunId",
+  "syncRunIds",
   "storageRef",
+  "storageRefs",
   "createdAt",
   "updatedAt",
   "capturedAt",
   "recordedAt",
   "startedAt",
   "completedAt",
+  "timestamp",
+  "timestamps",
 ]);
 
 describe("F6O receivables/payables source-pack fixture", () => {
   it("keeps static source files and normalized expected source/twin posture", () => {
     const expected = loadExpectedPosture();
-    const sourceHashesBefore = hashSourceFiles(expected.sourceFiles);
+    const sourceHashesBefore = hashSourceFiles(manifestSourceFiles);
 
     expect(expected.sourcePackId).toBe(
       "pocket-cfo-receivables-payables-source-pack",
@@ -62,20 +88,11 @@ describe("F6O receivables/payables source-pack fixture", () => {
     );
     expect(expected.sourceRolesPresent).toEqual(expectedSourceRoles);
     expect(expected.extractorKeysUsed).toEqual(expectedExtractorKeys);
-    expect(expected.sourceFiles.map((sourceFile) => sourceFile.role)).toEqual(
-      expectedSourceRoles,
+    expect(normalizeExpectedSourceFiles(expected.sourceFiles)).toEqual(
+      manifestSourceFiles,
     );
-    expect(
-      expected.sourceFiles.map((sourceFile) => sourceFile.expectedExtractorKey),
-    ).toEqual(expectedExtractorKeys);
-    expect(
-      expected.sourceFiles.map((sourceFile) => sourceFile.sourceKind),
-    ).toEqual(["dataset", "dataset"]);
-    expect(
-      expected.sourceFiles.map((sourceFile) => sourceFile.mediaType),
-    ).toEqual(["text/csv", "text/csv"]);
 
-    for (const sourceFile of expected.sourceFiles) {
+    for (const sourceFile of manifestSourceFiles) {
       const body = readFileSync(join(fixtureRoot, sourceFile.path), "utf8");
       expect(body.trim().length).toBeGreaterThan(0);
     }
@@ -115,7 +132,7 @@ describe("F6O receivables/payables source-pack fixture", () => {
     }
 
     expect(findVolatileKeys(expected)).toEqual([]);
-    expect(hashSourceFiles(expected.sourceFiles)).toEqual(sourceHashesBefore);
+    expect(hashSourceFiles(manifestSourceFiles)).toEqual(sourceHashesBefore);
   });
 });
 
@@ -157,13 +174,31 @@ function loadExpectedPosture() {
   };
 }
 
-function hashSourceFiles(sourceFiles: Array<{ path: string }>) {
+function hashSourceFiles(sourceFiles: ReadonlyArray<{ path: string }>) {
   return Object.fromEntries(
     sourceFiles.map((sourceFile) => {
       const body = readFileSync(join(fixtureRoot, sourceFile.path));
       return [sourceFile.path, createHash("sha256").update(body).digest("hex")];
     }),
   );
+}
+
+function normalizeExpectedSourceFiles(
+  sourceFiles: Array<{
+    expectedExtractorKey: string;
+    mediaType: string;
+    path: string;
+    role: string;
+    sourceKind: string;
+  }>,
+) {
+  return sourceFiles.map((sourceFile) => ({
+    role: sourceFile.role,
+    path: sourceFile.path,
+    sourceKind: sourceFile.sourceKind,
+    mediaType: sourceFile.mediaType,
+    expectedExtractorKey: sourceFile.expectedExtractorKey,
+  }));
 }
 
 function findVolatileKeys(value: unknown, path = "$"): string[] {

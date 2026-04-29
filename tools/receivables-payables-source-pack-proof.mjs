@@ -43,6 +43,30 @@ const LINEAGE_TARGET_KIND_BY_COUNT_KEY = {
   receivablesAgingRowCount: "receivables_aging_row",
   vendorCount: "vendor",
 };
+const VOLATILE_EXPECTED_POSTURE_KEYS = new Set([
+  "id",
+  "generatedId",
+  "sourceId",
+  "sourceIds",
+  "snapshotId",
+  "snapshotIds",
+  "sourceSnapshotId",
+  "sourceSnapshotIds",
+  "sourceFileId",
+  "sourceFileIds",
+  "syncRunId",
+  "syncRunIds",
+  "storageRef",
+  "storageRefs",
+  "createdAt",
+  "updatedAt",
+  "capturedAt",
+  "recordedAt",
+  "startedAt",
+  "completedAt",
+  "timestamp",
+  "timestamps",
+]);
 
 async function main() {
   loadNearestEnvFile();
@@ -52,7 +76,7 @@ async function main() {
   let app = null;
 
   try {
-    assertManifestBoundary(fixture.expected);
+    assertManifestBoundary(fixture.expected, fixture.sourceFiles);
     const familyBoundary = assertFamiliesUnchanged();
     const sourceHashesBefore = hashLoadedFiles(fixture.files);
     const before = await readBoundaryCounts(pool);
@@ -72,6 +96,7 @@ async function main() {
       familyBoundary,
       registered,
       runtimeActionBoundary,
+      sourceFiles: fixture.sourceFiles,
       syncs,
       views,
     });
@@ -115,6 +140,7 @@ async function loadFixture() {
   const fixtureRoot = resolve(
     pocketCfoReceivablesPayablesSourcePack.fixtureDirectory,
   );
+  const sourceFiles = normalizeManifestSourceFiles();
   const expected = JSON.parse(
     await readFile(
       resolve(
@@ -125,9 +151,14 @@ async function loadFixture() {
   );
   const files = new Map();
 
-  for (const sourceFile of expected.sourceFiles) {
+  for (const sourceFile of sourceFiles) {
     const absolutePath = join(fixtureRoot, sourceFile.path);
     const body = await readFile(absolutePath);
+
+    if (body.toString("utf8").trim().length === 0) {
+      throw new Error(`Manifest source file is empty: ${sourceFile.path}`);
+    }
+
     files.set(sourceFile.role, {
       absolutePath,
       body,
@@ -136,10 +167,10 @@ async function loadFixture() {
     });
   }
 
-  return { expected, files, fixtureRoot };
+  return { expected, files, fixtureRoot, sourceFiles };
 }
 
-function assertManifestBoundary(expected) {
+function assertManifestBoundary(expected, sourceFiles) {
   assertJsonEqual(
     "source-pack roles",
     pocketCfoReceivablesPayablesSourcePack.sourceRoles,
@@ -150,6 +181,21 @@ function assertManifestBoundary(expected) {
     pocketCfoReceivablesPayablesSourcePack.expectedExtractorKeys,
     expected.extractorKeysUsed,
   );
+  assertJsonEqual(
+    "source-pack source files",
+    sourceFiles,
+    normalizeExpectedSourceFiles(expected.sourceFiles),
+  );
+
+  const volatileKeys = findVolatileKeys(expected);
+
+  if (volatileKeys.length > 0) {
+    throw new Error(
+      `Expected posture contains volatile generated fields: ${volatileKeys.join(
+        ", ",
+      )}`,
+    );
+  }
 
   for (const forbidden of [
     "monitorFamiliesCovered",
@@ -164,7 +210,7 @@ function assertManifestBoundary(expected) {
 async function registerSources(app, fixture, capturedAt) {
   const registered = {};
 
-  for (const sourceFile of fixture.expected.sourceFiles) {
+  for (const sourceFile of fixture.sourceFiles) {
     const file = fixture.files.get(sourceFile.role);
 
     if (!file) {
@@ -215,7 +261,7 @@ async function registerSources(app, fixture, capturedAt) {
 async function syncSources(app, fixture, registered) {
   const syncs = {};
 
-  for (const sourceFile of fixture.expected.sourceFiles) {
+  for (const sourceFile of fixture.sourceFiles) {
     const sourceFileId = requireString(
       registered[sourceFile.role]?.uploaded?.sourceFile?.id,
       `${sourceFile.role} source file id`,
@@ -286,10 +332,10 @@ function normalizePosture(input) {
     sourcePackId: pocketCfoReceivablesPayablesSourcePack.id,
     companyKey: input.expected.companyKey,
     sourceRolesPresent: pocketCfoReceivablesPayablesSourcePack.sourceRoles,
-    extractorKeysUsed: input.expected.sourceFiles.map(
+    extractorKeysUsed: input.sourceFiles.map(
       (sourceFile) => input.syncs[sourceFile.role].extractorKey,
     ),
-    sourceFiles: input.expected.sourceFiles,
+    sourceFiles: input.sourceFiles,
     sourcePostureByRole: {
       receivables_aging: normalizeRolePosture(
         input.registered.receivables_aging,
@@ -568,6 +614,28 @@ function assertFamiliesUnchanged() {
   };
 }
 
+function normalizeManifestSourceFiles() {
+  return pocketCfoReceivablesPayablesSourcePack.sourceFiles.map(
+    (sourceFile) => ({
+      role: sourceFile.role,
+      path: sourceFile.fixturePath,
+      sourceKind: sourceFile.sourceKind,
+      mediaType: sourceFile.mediaType,
+      expectedExtractorKey: sourceFile.expectedExtractorKey,
+    }),
+  );
+}
+
+function normalizeExpectedSourceFiles(sourceFiles) {
+  return sourceFiles.map((sourceFile) => ({
+    role: sourceFile.role,
+    path: sourceFile.path,
+    sourceKind: sourceFile.sourceKind,
+    mediaType: sourceFile.mediaType,
+    expectedExtractorKey: sourceFile.expectedExtractorKey,
+  }));
+}
+
 function hashLoadedFiles(files) {
   return Object.fromEntries(
     Array.from(files.entries()).map(([role, file]) => [
@@ -614,6 +682,26 @@ function requireString(value, label) {
   }
 
   return value;
+}
+
+function findVolatileKeys(value, path = "$") {
+  if (Array.isArray(value)) {
+    return value.flatMap((entry, index) =>
+      findVolatileKeys(entry, `${path}[${index}]`),
+    );
+  }
+
+  if (!value || typeof value !== "object") {
+    return [];
+  }
+
+  return Object.entries(value).flatMap(([key, entry]) => {
+    const entryPath = `${path}.${key}`;
+    return [
+      ...(VOLATILE_EXPECTED_POSTURE_KEYS.has(key) ? [entryPath] : []),
+      ...findVolatileKeys(entry, entryPath),
+    ];
+  });
 }
 
 function assertJsonEqual(label, actual, expected) {

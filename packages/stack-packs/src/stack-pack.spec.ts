@@ -1,8 +1,29 @@
+import { existsSync, readFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { nextjsVercelPack } from "./packs/nextjs-vercel";
 import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
 import { pocketCfoReceivablesPayablesSourcePack } from "./packs/pocket-cfo-receivables-payables-source-pack";
+
+const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
+
+type ManifestSourceFileDescriptor = {
+  role: string;
+  fixturePath: string;
+  sourceKind: string;
+  mediaType: string;
+  expectedExtractorKey: string;
+};
+
+type ExpectedSourceFileDescriptor = {
+  role: string;
+  path: string;
+  sourceKind: string;
+  mediaType: string;
+  expectedExtractorKey: string;
+};
 
 describe("stack packs", () => {
   it("exports the example Next.js pack", () => {
@@ -118,6 +139,31 @@ describe("stack packs", () => {
       "packages/testkit/fixtures/f6o-receivables-payables-source-pack/expected-source-twin-posture.json",
     );
     expect(
+      normalizeManifestSourceFiles(
+        pocketCfoReceivablesPayablesSourcePack.sourceFiles,
+      ),
+    ).toEqual(
+      normalizeExpectedSourceFiles(
+        loadExpectedPosture(
+          pocketCfoReceivablesPayablesSourcePack.expectedNormalizedPosturePath,
+        ).sourceFiles,
+      ),
+    );
+    for (const sourceFile of normalizeManifestSourceFiles(
+      pocketCfoReceivablesPayablesSourcePack.sourceFiles,
+    )) {
+      const absolutePath = join(
+        repoRoot,
+        pocketCfoReceivablesPayablesSourcePack.fixtureDirectory,
+        sourceFile.path,
+      );
+
+      expect(existsSync(absolutePath)).toBe(true);
+      expect(readFileSync(absolutePath, "utf8").trim().length).toBeGreaterThan(
+        0,
+      );
+    }
+    expect(
       pocketCfoReceivablesPayablesSourcePack.runtimeDeliveryActionBoundary,
     ).toContain("runtime-free");
     expect(pocketCfoReceivablesPayablesSourcePack).not.toHaveProperty(
@@ -128,3 +174,33 @@ describe("stack packs", () => {
     );
   });
 });
+
+function loadExpectedPosture(expectedPath: string) {
+  return JSON.parse(readFileSync(join(repoRoot, expectedPath), "utf8")) as {
+    sourceFiles: ExpectedSourceFileDescriptor[];
+  };
+}
+
+function normalizeManifestSourceFiles(
+  sourceFiles: ManifestSourceFileDescriptor[],
+): ExpectedSourceFileDescriptor[] {
+  return sourceFiles.map((sourceFile) => ({
+    role: sourceFile.role,
+    path: sourceFile.fixturePath,
+    sourceKind: sourceFile.sourceKind,
+    mediaType: sourceFile.mediaType,
+    expectedExtractorKey: sourceFile.expectedExtractorKey,
+  }));
+}
+
+function normalizeExpectedSourceFiles(
+  sourceFiles: ExpectedSourceFileDescriptor[],
+): ExpectedSourceFileDescriptor[] {
+  return sourceFiles.map((sourceFile) => ({
+    role: sourceFile.role,
+    path: sourceFile.path,
+    sourceKind: sourceFile.sourceKind,
+    mediaType: sourceFile.mediaType,
+    expectedExtractorKey: sourceFile.expectedExtractorKey,
+  }));
+}
