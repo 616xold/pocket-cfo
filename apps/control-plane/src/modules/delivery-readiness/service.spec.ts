@@ -8,7 +8,10 @@ import type {
   OperatorAttentionItem,
   OperatorReadinessResult,
 } from "@pocket-cto/domain";
-import { DeliveryReadinessService } from "./service";
+import {
+  DeliveryReadinessCompanyKeyMismatchError,
+  DeliveryReadinessService,
+} from "./service";
 
 const generatedAt = "2026-04-28T12:00:00.000Z";
 
@@ -18,16 +21,84 @@ describe("DeliveryReadinessService", () => {
 
     const result = await service.getDeliveryReadiness("acme");
 
+    expect(result.companyKey).toBe("acme");
     expect(result.aggregateStatus).toBe("ready_for_delivery_review");
-    expect(result.deliveryReadinessTargets.map((target) => target.status)).toEqual([
-      "ready_for_delivery_review",
-      "ready_for_delivery_review",
-    ]);
-    expect(result.deliveryReadinessTargets.map((target) => target.targetKind)).toEqual([
+    expect(
+      result.deliveryReadinessTargets.map((target) => target.status),
+    ).toEqual(["ready_for_delivery_review", "ready_for_delivery_review"]);
+    expect(
+      result.deliveryReadinessTargets.map((target) => target.targetKind),
+    ).toEqual([
       "operator_readiness_target",
       "acknowledgement_readiness_target",
     ]);
     assertNoForbiddenStatuses(result);
+  });
+
+  it("fails closed when operator-readiness companyKey does not match the requested companyKey", async () => {
+    const now = vi.fn(() => new Date(generatedAt));
+    const service = buildService({
+      now,
+      operatorReadiness: buildOperatorReadiness({
+        companyKey: "globex",
+      }),
+    });
+
+    const resultPromise = service.getDeliveryReadiness("acme");
+
+    await expect(resultPromise).rejects.toBeInstanceOf(
+      DeliveryReadinessCompanyKeyMismatchError,
+    );
+    await expect(resultPromise).rejects.toMatchObject({
+      body: {
+        error: {
+          code: "invalid_request",
+          details: [
+            {
+              path: "operatorReadiness.companyKey",
+              message:
+                'Expected operatorReadiness.companyKey to match requested companyKey "acme", received "globex"',
+            },
+          ],
+          message: "Invalid request",
+        },
+      },
+      statusCode: 400,
+    });
+    expect(now).not.toHaveBeenCalled();
+  });
+
+  it("fails closed when acknowledgement-readiness companyKey does not match the requested companyKey", async () => {
+    const now = vi.fn(() => new Date(generatedAt));
+    const service = buildService({
+      acknowledgementReadiness: buildAcknowledgementReadiness({
+        companyKey: "globex",
+      }),
+      now,
+    });
+
+    const resultPromise = service.getDeliveryReadiness("acme");
+
+    await expect(resultPromise).rejects.toBeInstanceOf(
+      DeliveryReadinessCompanyKeyMismatchError,
+    );
+    await expect(resultPromise).rejects.toMatchObject({
+      body: {
+        error: {
+          code: "invalid_request",
+          details: [
+            {
+              path: "acknowledgementReadiness.companyKey",
+              message:
+                'Expected acknowledgementReadiness.companyKey to match requested companyKey "acme", received "globex"',
+            },
+          ],
+          message: "Invalid request",
+        },
+      },
+      statusCode: 400,
+    });
+    expect(now).not.toHaveBeenCalled();
   });
 
   it("turns non-ready operator-readiness items into delivery-readiness targets without sending anything", async () => {
@@ -36,7 +107,8 @@ describe("DeliveryReadinessService", () => {
         aggregateStatus: "blocked_by_evidence",
         attentionItems: [
           buildOperatorItem({
-            itemKey: "monitor:cash_posture:11111111-1111-4111-8111-111111111111",
+            itemKey:
+              "monitor:cash_posture:11111111-1111-4111-8111-111111111111",
             relatedMonitorKind: "cash_posture",
             status: "needs_review",
           }),
@@ -95,8 +167,7 @@ describe("DeliveryReadinessService", () => {
             status: "needs_review_before_acknowledgement",
           }),
           buildAcknowledgementTarget({
-            targetKey:
-              "close-control:item-family:cash_source_freshness_review",
+            targetKey: "close-control:item-family:cash_source_freshness_review",
             relatedReadinessItemKey:
               "close-control:cash_source_freshness_review",
             status: "needs_review_before_acknowledgement",
@@ -184,6 +255,7 @@ function buildService(
     acknowledgementReadiness?: CloseControlAcknowledgementReadinessResult;
     extraAcknowledgementMethods?: Record<string, unknown>;
     extraReadinessMethods?: Record<string, unknown>;
+    now?: () => Date;
     operatorReadiness?: OperatorReadinessResult;
   } = {},
 ) {
@@ -202,7 +274,7 @@ function buildService(
         .mockResolvedValue(input.operatorReadiness ?? buildOperatorReadiness()),
       ...input.extraReadinessMethods,
     },
-    now: () => new Date(generatedAt),
+    now: input.now ?? (() => new Date(generatedAt)),
   });
 }
 
@@ -210,10 +282,11 @@ function buildOperatorReadiness(
   input: {
     aggregateStatus?: OperatorReadinessResult["aggregateStatus"];
     attentionItems?: OperatorAttentionItem[];
+    companyKey?: string;
   } = {},
 ): OperatorReadinessResult {
   return {
-    companyKey: "acme",
+    companyKey: input.companyKey ?? "acme",
     generatedAt,
     aggregateStatus: input.aggregateStatus ?? "ready_for_review",
     attentionItems: input.attentionItems ?? [
@@ -309,7 +382,9 @@ function buildOperatorItem(input: {
       summary: "Operator-readiness freshness posture is carried forward.",
       latestObservedAt: generatedAt,
     },
-    limitations: ["Operator-readiness context is internal review posture only."],
+    limitations: [
+      "Operator-readiness context is internal review posture only.",
+    ],
     proofPosture: {
       state:
         input.status === "blocked_by_evidence"
@@ -334,11 +409,12 @@ function buildOperatorItem(input: {
 function buildAcknowledgementReadiness(
   input: {
     aggregateStatus?: CloseControlAcknowledgementReadinessResult["aggregateStatus"];
+    companyKey?: string;
     targets?: CloseControlAcknowledgementTarget[];
   } = {},
 ): CloseControlAcknowledgementReadinessResult {
   return {
-    companyKey: "acme",
+    companyKey: input.companyKey ?? "acme",
     generatedAt,
     aggregateStatus: input.aggregateStatus ?? "ready_for_acknowledgement",
     acknowledgementTargets: input.targets ?? [
@@ -350,9 +426,7 @@ function buildAcknowledgementReadiness(
     ],
     evidenceSummary:
       "F6K acknowledgement readiness is derived from checklist and operator-readiness posture.",
-    limitations: [
-      "Acknowledgement readiness is internal review posture only.",
-    ],
+    limitations: ["Acknowledgement readiness is internal review posture only."],
     operatorReadinessContext: {
       operatorReadinessAggregateStatus: "ready_for_review",
       nonReadyReadinessItemKeys: [],
