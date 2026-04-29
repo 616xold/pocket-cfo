@@ -5,6 +5,7 @@ export * from "./close-control-review-summary";
 export * from "./close-control";
 export * from "./delivery-readiness";
 export * from "./discovery-mission";
+export * from "./external-provider-boundary";
 export * from "./finance-twin";
 export * from "./github-issue-intake";
 export * from "./mission-detail";

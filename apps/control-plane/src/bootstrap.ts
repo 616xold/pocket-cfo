@@ -14,6 +14,7 @@ import { CloseControlAcknowledgementService } from "./modules/close-control-ackn
 import { CloseControlReviewSummaryService } from "./modules/close-control-review-summary/service";
 import { CloseControlService } from "./modules/close-control/service";
 import { DeliveryReadinessService } from "./modules/delivery-readiness/service";
+import { ExternalProviderBoundaryService } from "./modules/external-provider-boundary/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
 import { FinanceDiscoveryService } from "./modules/finance-discovery/service";
@@ -124,6 +125,7 @@ type SharedKernel = {
   closeControlReviewSummaryService: CloseControlReviewSummaryService;
   closeControlService: CloseControlService;
   deliveryReadinessService: DeliveryReadinessService;
+  externalProviderBoundaryService: ExternalProviderBoundaryService;
   cfoWikiService: CfoWikiService;
   financeTwinService: FinanceTwinService;
   financeDiscoveryService: FinanceDiscoveryService;
@@ -319,7 +321,9 @@ function buildSharedKernel(input: {
   githubIssueIntakeRepository: GitHubIssueIntakeRepository;
   githubWebhookRepository: GitHubWebhookRepository;
   missionRepository: ConstructorParameters<typeof MissionService>[1];
-  monitoringRepository: ConstructorParameters<typeof MonitoringService>[0]["monitoringRepository"];
+  monitoringRepository: ConstructorParameters<
+    typeof MonitoringService
+  >[0]["monitoringRepository"];
   replayRepository: ConstructorParameters<typeof ReplayService>[0];
   sourceRepository: SourceRepository;
   sourceFileStorage: SourceFileStorage;
@@ -437,13 +441,18 @@ function buildSharedKernel(input: {
     closeControlAcknowledgementService,
     operatorReadinessService,
   });
-  const closeControlReviewSummaryService =
-    new CloseControlReviewSummaryService({
+  const closeControlReviewSummaryService = new CloseControlReviewSummaryService(
+    {
       closeControlAcknowledgementService,
       closeControlService,
       deliveryReadinessService,
       operatorReadinessService,
-    });
+    },
+  );
+  const externalProviderBoundaryService = new ExternalProviderBoundaryService({
+    closeControlReviewSummaryService,
+    deliveryReadinessService,
+  });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -466,6 +475,7 @@ function buildSharedKernel(input: {
     closeControlReviewSummaryService,
     closeControlService,
     deliveryReadinessService,
+    externalProviderBoundaryService,
     cfoWikiService,
     financeDiscoveryService,
     financeTwinService,
@@ -556,6 +566,7 @@ function toAppContainer(
     closeControlReviewSummaryService: kernel.closeControlReviewSummaryService,
     closeControlService: kernel.closeControlService,
     deliveryReadinessService: kernel.deliveryReadinessService,
+    externalProviderBoundaryService: kernel.externalProviderBoundaryService,
     cfoWikiService: kernel.cfoWikiService,
     financeTwinService: kernel.financeTwinService,
     githubAppService: kernel.githubAppService,

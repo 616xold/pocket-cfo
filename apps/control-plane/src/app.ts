@@ -5,6 +5,7 @@ import { registerCloseControlAcknowledgementRoutes } from "./modules/close-contr
 import { registerCloseControlReviewSummaryRoutes } from "./modules/close-control-review-summary/routes";
 import { registerCloseControlRoutes } from "./modules/close-control/routes";
 import { registerDeliveryReadinessRoutes } from "./modules/delivery-readiness/routes";
+import { registerExternalProviderBoundaryRoutes } from "./modules/external-provider-boundary/routes";
 import { registerHealthRoutes } from "./modules/health/routes";
 import { registerFinanceTwinRoutes } from "./modules/finance-twin/routes";
 import { registerGitHubAppRoutes } from "./modules/github-app/routes";
@@ -44,6 +45,12 @@ export async function buildApp(options?: { container?: AppContainer }) {
   if (container.deliveryReadinessService) {
     await registerDeliveryReadinessRoutes(app, {
       deliveryReadinessService: container.deliveryReadinessService,
+    });
+  }
+  if (container.externalProviderBoundaryService) {
+    await registerExternalProviderBoundaryRoutes(app, {
+      externalProviderBoundaryService:
+        container.externalProviderBoundaryService,
     });
   }
   await registerFinanceTwinRoutes(app, {

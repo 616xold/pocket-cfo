@@ -430,7 +430,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0062-external-notification-delivery-planning-foundation.md` is the shipped F6M implementation record for a first internal delivery-readiness boundary.
 `plans/FP-0063-close-control-review-summary-foundation.md` is the shipped F6N implementation record for a first internal close/control review summary.
 `plans/FP-0064-receivables-payables-source-pack-foundation.md` is the shipped F6O record for one receivables/payables source-pack foundation only.
-`plans/FP-0065-external-provider-boundary-foundation.md` is the active F6P implementation-ready contract for one internal external-provider-boundary/readiness foundation only.
+`plans/FP-0065-external-provider-boundary-foundation.md` is the shipped F6P record for one internal external-provider-boundary/readiness foundation only.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -447,7 +447,7 @@ The shipped F6L slice is exactly `F6L-bank-card-source-pack-foundation`.
 The shipped F6M slice is exactly `F6M-external-notification-delivery-planning-foundation`.
 The shipped F6N slice is exactly `F6N-close-control-review-summary-foundation`.
 The shipped F6O slice is exactly `F6O-receivables-payables-source-pack-foundation`.
-The active planned F6P slice is exactly `F6P-external-provider-boundary-foundation`.
+The shipped F6P slice is exactly `F6P-external-provider-boundary-foundation`.
 
 Focus:
 
@@ -466,7 +466,7 @@ Focus:
 - one shipped bank/card source-pack proof over checked-in bank-account-summary and card-expense posture without delivery, runtime-Codex, reports, approvals, monitor-family expansion, or discovery-family expansion
 - one shipped deterministic internal delivery-readiness result, not actual external delivery
 - one shipped receivables/payables source-pack foundation that stays fixture/manifest/proof-oriented and does not add product runtime behavior
-- one planned internal provider-boundary/readiness result that can review future provider boundaries without adding provider calls, provider credentials, outbox sends, delivery, reports, approvals, generated prose, runtime-Codex, finance actions, or new monitor/discovery families
+- one shipped internal provider-boundary/readiness result that can review future provider boundaries without adding provider calls, provider credentials, provider jobs, outbox sends, delivery, reports, approvals, generated prose, runtime-Codex, finance actions, or new monitor/discovery families
 
 Exit criteria:
 
@@ -485,7 +485,7 @@ Exit criteria:
 - the shipped F6M slice stays internal and read-only: it adds one deterministic delivery-readiness result over shipped F6J/F6K posture with no provider integration, outbox sends, external delivery, approvals, reports, runtime-Codex drafting, generated notification prose, monitor reruns, mission creation, source mutation, finance writes, advice, or autonomous action
 - the shipped F6N slice stays internal and read-only: it adds one deterministic close/control review-summary result over shipped F6H/F6J/F6K/F6M posture with bounded sections, company-scope guardrails, explicit absence boundaries, no certification, no close-complete status, no sign-off, no attestation, no approvals, no report release/circulation, no external delivery/provider/outbox behavior, no generated prose, no runtime-Codex, no monitor reruns, no mission creation, no source mutation, no finance writes, no advice/instructions, no autonomous action, no F6O implementation, and no new monitor or discovery family
 - the shipped F6O slice stays source-pack-only: it adds one receivables/payables source-pack foundation with source roles limited to `receivables_aging` and `payables_aging`, extractor keys limited to `receivables_aging_csv` and `payables_aging_csv`, direct proof `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`, no package script or root smoke alias, no product runtime behavior, no new monitor or discovery families, no delivery, no reports, no approvals, no runtime-Codex, no generated prose, and no source mutation outside proof upload/sync setup
-- the planned F6P slice stays internal and read-only unless a concrete blocker is proven: it should add at most one deterministic provider-boundary/readiness result over shipped F6M/F6N posture with bounded internal boundary gates, evidence basis, freshness/limitations, proof posture, status, human-review next step, explicit no-provider-call/no-send/no-outbox/no-report/no-approval/no-generated-prose boundaries, no provider credentials, no delivery, no runtime-Codex, no finance actions, no monitor-family expansion, and no discovery-family expansion
+- the shipped F6P slice stays internal and read-only: it adds one deterministic provider-boundary/readiness result over shipped F6M/F6N posture with bounded internal boundary gates, evidence basis, freshness/limitations, proof posture, status, human-review next step, explicit no-provider-call/no-send/no-outbox/no-report/no-approval/no-generated-prose boundaries, no provider credentials, no provider jobs, no delivery, no runtime-Codex, no finance actions, no monitor-family expansion, and no discovery-family expansion
 
 Slice map:
 
@@ -628,18 +628,18 @@ Slice map:
   - no package script or root smoke alias was added
   - preserve shipped F5 and F6 behavior, including F6L bank/card source-pack proof and F6N review-summary posture
 - `F6P — external provider boundary foundation`
-  - active implementation-ready contract in `plans/FP-0065-external-provider-boundary-foundation.md`
-  - first implementation is internal provider-boundary/readiness only, not provider integration and not actual delivery
-  - starts only from shipped stored/read state: F6M delivery-readiness posture and F6N close/control review-summary posture, with F6H/F6J/F6K/latest persisted monitor/source/CFO Wiki posture only through existing read services if needed
-  - input must not be generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns, demo replay runtime execution, provider state, provider credentials, outbox jobs, external communications, or generated notification prose
-  - output contract is one deterministic internal provider-boundary/readiness result or read model with bounded internal boundary targets, not provider jobs, channel sends, recipient targets, credential records, send records, or delivery logs
-  - each target must include evidence basis, freshness or missing-source posture, limitations, proof posture, status, and human-review next step
-  - acceptable statuses are review-oriented, such as `ready_for_provider_boundary_review`, `needs_human_review_before_provider_boundary`, and `blocked_by_evidence`
-  - output must include explicit absence boundaries showing no email, Slack, SMS, webhook, notification provider call, provider credential flow, outbox send, scheduled notification, auto-send, report delivery, external publish behavior, approval, report, mission creation, monitor rerun, runtime-Codex drafting, generated prose, source mutation, finance write, legal/policy/payment/collection/customer-contact instruction, or autonomous action occurred
-  - first implementation should be read-only and no-schema unless a concrete blocker is proven; any later persistence requires a future named plan and must not be a send record, provider job, outbox send, delivery log, approval, report release, certification, or close-complete record
+  - shipped implementation record in `plans/FP-0065-external-provider-boundary-foundation.md`
+  - implementation is internal provider-boundary/readiness only, not provider integration and not actual delivery
+  - starts only from shipped stored/read state: F6M delivery-readiness posture and F6N close/control review-summary posture
+  - input is not generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns, demo replay runtime execution, provider state, provider credentials, outbox jobs, external communications, or generated notification prose
+  - output contract is one deterministic internal provider-boundary/readiness result with bounded internal boundary targets, not provider jobs, channel sends, recipient targets, credential records, send records, or delivery logs
+  - each target includes evidence basis, freshness or missing-source posture, limitations, proof posture, status, and human-review next step
+  - statuses are review-oriented: `ready_for_provider_boundary_review`, `needs_human_review_before_provider_boundary`, and `blocked_by_evidence`
+  - output includes explicit absence boundaries showing no email, Slack, SMS, webhook, notification provider call, provider credential flow, provider job, outbox send, scheduled notification, auto-send, report delivery, external publish behavior, approval, report, mission creation, monitor rerun, runtime-Codex drafting, generated prose, source mutation, finance write, legal/policy/payment/collection/customer-contact instruction, or autonomous action occurred
+  - implementation is read-only and no-schema; any later persistence requires a future named plan and must not be a send record, provider job, outbox send, delivery log, approval, report release, certification, or close-complete record
   - no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L bank/card source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6O receivables/payables source-pack behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
 - `F6Q — close/control certification`
-  - later only if operator need, evidence boundaries, legal boundaries, review gates, and non-autonomous safety posture are proven
+  - planning should start next only as a new Finance Plan, and only if operator need, evidence boundaries, legal boundaries, review gates, and non-autonomous safety posture are proven
 - `F6R — additional source-pack expansion`
   - later only after the receivables/payables source pack remains green and source-backed
 - `F6S — actual external delivery`
