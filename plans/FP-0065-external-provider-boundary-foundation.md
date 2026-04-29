@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6P planning and implementation contract.
+This is the shipped Finance Plan record for the Pocket CFO F6P implementation contract.
 The target phase is `F6`, and the first implementation slice is exactly `F6P-external-provider-boundary-foundation`.
 
 The user-visible goal is deliberately narrow: after shipped F6A through F6O, Pocket CFO should be able to show one deterministic internal provider-boundary/readiness posture that a human operator can review before any future plan considers external provider integration.
@@ -16,11 +16,12 @@ It is not report release, approval, certification, close completion, legal attes
 Repo truth supports F6P only in this reduced shape.
 F6M already ships one deterministic internal delivery-readiness read model over shipped F6J operator-readiness and F6K acknowledgement-readiness posture, with explicit absence boundaries for no provider calls, no outbox sends, no email, no Slack, no SMS, no webhooks, no scheduled delivery, no auto-send, no generated notification prose, no reports, no approvals, no mission creation, no monitor reruns, no source mutation, no runtime-Codex, no finance writes, no advice, no customer-contact instruction, and no autonomous action.
 F6N already ships one deterministic internal close/control review-summary read model over shipped F6H/F6J/F6K/F6M posture, with explicit no-certification, no-close-complete, no-sign-off, no-attestation, no-approval, no-report-release, no-report-circulation, no-provider-call, no-outbox-send, and no-external-delivery posture.
-F6O already ships one receivables/payables source-pack proof and leaves F6P unstarted.
+F6O already ships one receivables/payables source-pack proof.
+F6P now ships one deterministic internal external-provider-boundary/readiness read model over shipped F6M/F6N posture only.
 The outbox bounded context remains only a placeholder README, which is a safety boundary for F6P rather than an implementation surface to fill.
 
 This plan therefore narrows F6P to an internal external-provider-boundary/readiness contract.
-The first implementation may define one read-only result or read model with bounded provider-boundary targets.
+The implementation defines one read-only result and route with bounded provider-boundary targets.
 Those targets are internal gates for future provider review, not channel targets, not recipient targets, not provider jobs, and not send records.
 Each target must include evidence basis, freshness or missing-source posture, limitations, proof posture, status, and a human-review next step.
 Each result must explicitly state that no provider call, external delivery, outbox send, approval, report, mission, monitor rerun, runtime-Codex drafting, generated prose, source mutation, finance write, advice/instruction, customer contact, or autonomous action occurred.
@@ -36,6 +37,12 @@ Do not invoke GitHub Connector Guard for F6P.
 - [x] 2026-04-29T17:37:23Z Decided repo truth supports F6P only as `F6P-external-provider-boundary-foundation`, not actual external provider integration, not actual delivery, not F6Q certification planning, and not F6R source-pack expansion.
 - [x] 2026-04-29T17:37:23Z Created this FP-0065 implementation-ready planning contract and refreshed active docs without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, runtime behavior, provider calls, delivery, reports, approvals, or finance actions.
 - [x] 2026-04-29T17:43:55Z Ran the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all commands passed before commit.
+- [x] 2026-04-29T18:37:03Z Started the first F6P implementation from this FP-0065 contract on branch `codex/f6p-external-provider-boundary-foundation-local-v1` after clean preflight against fetched `origin/main`; invoked the required Pocket CFO skills again and did not invoke GitHub Connector Guard.
+- [x] 2026-04-29T18:37:03Z Added the pure domain external-provider-boundary contract, target/status vocabulary tests, runtime/action absence boundary, and export from `packages/domain/src/index.ts`.
+- [x] 2026-04-29T18:37:03Z Added one read-only control-plane `external-provider-boundary` bounded context and `GET /external-provider-boundary/companies/:companyKey`, derived only from `getDeliveryReadiness(companyKey)` and `getReviewSummary(companyKey)`.
+- [x] 2026-04-29T18:37:03Z Added company-scope fail-closed guardrails for mismatched F6M/F6N payloads and focused route/service specs proving no provider, credential, outbox send, monitor rerun, mission, report, approval, delivery, runtime, source mutation, generated prose, finance-write, advice/instruction, or autonomous action behavior.
+- [x] 2026-04-29T18:37:03Z Refreshed active docs and the smallest stale secondary docs so FP-0065 is the shipped F6P record and F6Q planning waits for a new Finance Plan.
+- [x] 2026-04-29T18:48:24Z Completed the F6P implementation validation ladder: focused domain/control-plane specs, shipped F6 domain/control-plane regressions, serial Docker-backed smoke/proof ladder, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed.
 
 ## Surprises & Discoveries
 
@@ -53,6 +60,8 @@ They carry report-specific semantics and must not be reused as a generic externa
 
 F6O source-pack proof strengthens source posture, but it does not create a need for another source-pack slice before F6P.
 F6R can wait if the receivables/payables proof remains green and F6P stays read-only and delivery-free.
+
+The F6P implementation needed no database schema, migration, package script, smoke alias, provider credential record, provider job, outbox event, approval, report, mission, monitor result, source mutation, runtime-Codex artifact, or UI.
 
 ## Decision Log
 
@@ -86,6 +95,9 @@ Rationale: F6M/F6N already expose enough stored/read posture for a derived provi
 Decision: F6P must preserve shipped F5 and F6 behavior.
 Rationale: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L bank/card source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6O receivables/payables source-pack behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion belongs in F6P.
 
+Decision: implement F6P as a derived read model with no persistence.
+Rationale: F6M/F6N already carry the shipped internal no-send and review-summary posture needed for a provider-boundary review target. Persistence would risk creating a provider job, send record, delivery log, approval, report release, certification, or close-complete implication and is not needed for first acceptance.
+
 Decision: likely later slices are named but not created here.
 Rationale: `F6Q-close/control-certification` should happen only if operator need, evidence boundaries, legal boundaries, and review gates are proven. `F6R-additional-source-pack-expansion` should happen only after the receivables/payables source pack remains green. `F6S-actual-external-delivery` should happen only if a future plan proves provider security, compliance posture, explicit human confirmation, observability, retry behavior, safe failure modes, and no autonomous send. Do not create FP-0066, F6Q, F6R, F6S, or later plans in this slice.
 
@@ -108,6 +120,7 @@ Pocket CFO has shipped F6A through F6O:
 - F6M deterministic internal delivery-readiness boundary read model over shipped operator-readiness and acknowledgement-readiness posture only
 - F6N deterministic internal close/control review-summary read model over shipped checklist, operator-readiness, acknowledgement-readiness, and delivery-readiness posture only
 - F6O checked-in receivables/payables source-pack foundation with normalized source/twin posture and direct proof through existing source registry and Finance Twin routes only
+- F6P deterministic internal external-provider-boundary/readiness read model over shipped delivery-readiness and review-summary posture only
 
 The shipped monitor families remain exactly:
 
@@ -148,20 +161,19 @@ No database schema migration, eval dataset, fixture family, package script, smok
 
 ## Plan of Work
 
-First, the future implementation should add one pure domain contract for provider-boundary/readiness posture.
-The likely contract name is `ExternalProviderBoundaryResult` with bounded `ExternalProviderBoundaryTarget` entries.
-The contract should include company scope, generated time, aggregate internal boundary-review status, target list, evidence summary, limitations, and runtime/action absence boundary.
-The contract must avoid provider-ready, send-ready, approved, release-ready, certified, close-complete, delivered, or scheduled statuses.
+First, the implementation adds one pure domain contract for provider-boundary/readiness posture.
+The contract name is `ExternalProviderBoundaryResult` with bounded `ExternalProviderBoundaryTarget` entries.
+The contract includes company scope, generated time, aggregate internal boundary-review status, target list, evidence summary, limitations, and runtime/action absence boundary.
+The contract avoids provider-ready, send-ready, approved, release-ready, certified, close-complete, delivered, or scheduled statuses.
 
-Second, the future implementation should add one read-only control-plane bounded context only if implementation begins.
-The likely folder is `apps/control-plane/src/modules/external-provider-boundary/**`.
-The route may be a thin read route such as `GET /external-provider-boundary/companies/:companyKey`.
-The route must parse `companyKey`, call the service, and serialize the result.
-It must not contain SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, outbox send logic, provider credential logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, or external action execution.
+Second, the implementation adds one read-only control-plane bounded context in `apps/control-plane/src/modules/external-provider-boundary/**`.
+The route is `GET /external-provider-boundary/companies/:companyKey`.
+The route parses `companyKey`, calls the service, and serializes the result.
+It contains no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, outbox send logic, provider credential logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, or external action execution.
 
-Third, the service should depend only on shipped read services.
-Allowed direct reads are F6M delivery-readiness and F6N close/control review-summary.
-F6H/F6J/F6K and latest persisted monitor posture may be used only through existing read services if a target needs context that F6M/F6N do not already carry.
+Third, the service depends only on shipped read services.
+Direct reads are F6M delivery-readiness and F6N close/control review-summary.
+F6H/F6J/F6K and latest persisted monitor posture are carried only through those existing read models.
 The service must not read report artifacts as primary input, generic chat, mission-generated prose, runtime-Codex output, release/circulation records, provider state, provider credentials, outbox jobs, external communications, or demo replay runtime output.
 
 Fourth, output targets should be bounded internal gates.
@@ -184,13 +196,13 @@ Each target must include:
 - human-review next step
 - explicit absence facts proving no provider call, external delivery, send action, outbox send, approval, report, mission, monitor rerun, runtime-Codex work, generated prose, source mutation, finance write, advice/instruction, customer-contact instruction, or autonomous action occurred
 
-Fifth, persistence remains absent in the first implementation.
+Fifth, persistence remains absent.
 No database schema, migration, provider-boundary table, provider credential table, send record, delivery log, approval record, report artifact, outbox event, source mutation record, replay event, provider job, or runtime-Codex artifact should be added.
 
 ## Concrete Steps
 
-1. Add the pure domain contract if implementation begins.
-   Likely files:
+1. Add the pure domain contract.
+   Files:
    - `packages/domain/src/external-provider-boundary.ts`
    - `packages/domain/src/external-provider-boundary.spec.ts`
    - `packages/domain/src/index.ts`
@@ -202,16 +214,23 @@ No database schema, migration, provider-boundary table, provider credential tabl
    - evidence basis, freshness or missing-source posture, limitations, proof posture, status, and human-review next step on every target
    - explicit absence boundary for provider calls, external delivery, send action, outbox send, approval, report, mission creation, monitor rerun, runtime-Codex, generated prose, source mutation, finance writes, legal/policy/payment/collection/customer-contact instruction, and autonomous action
 
-2. Add a read-only control-plane bounded context only if implementation begins.
-   Likely files:
+2. Add a read-only control-plane bounded context.
+   Files:
    - `apps/control-plane/src/modules/external-provider-boundary/schema.ts`
    - `apps/control-plane/src/modules/external-provider-boundary/service.ts`
    - `apps/control-plane/src/modules/external-provider-boundary/formatter.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/delivery-targets.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/review-summary-targets.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/source-freshness-target.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/proof-target.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/static-boundary-targets.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/evidence.ts`
+   - `apps/control-plane/src/modules/external-provider-boundary/helpers.ts`
    - `apps/control-plane/src/modules/external-provider-boundary/routes.ts`
    - `apps/control-plane/src/modules/external-provider-boundary/service.spec.ts`
    - `apps/control-plane/src/modules/external-provider-boundary/routes.spec.ts`
 
-   Likely route:
+   Route:
    - `GET /external-provider-boundary/companies/:companyKey`
 
    Acceptance:
@@ -227,7 +246,7 @@ No database schema, migration, provider-boundary table, provider credential tabl
    A read-only route plus specs is sufficient for first acceptance.
    Do not add send buttons, scheduling controls, provider setup screens, credential forms, approval controls, report-release controls, generated message previews, customer-contact surfaces, payment controls, or autonomous action controls.
 
-4. Do not add a new package script or root smoke alias in the first implementation unless this plan is explicitly amended.
+4. Do not add a new package script or root smoke alias in this implementation unless this plan is explicitly amended.
    Prefer focused domain/control-plane specs plus the existing shipped F6 smoke/proof ladder.
 
 5. Refresh active docs after implementation, and only after implementation behavior exists.
@@ -264,7 +283,7 @@ This docs-and-plan thread must run the user-requested validation ladder after do
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-The future implementation slice should add focused domain and control-plane specs for the new provider-boundary contract, then rerun the same shipped F6 guardrail ladder.
+This implementation slice adds focused domain and control-plane specs for the new provider-boundary contract, then reruns the same shipped F6 guardrail ladder.
 Do not add a new smoke alias or package script unless this plan is amended.
 
 Implementation acceptance requires all of the following:
@@ -282,25 +301,31 @@ Implementation acceptance requires all of the following:
 
 ## Idempotence and Recovery
 
-The preferred first F6P implementation is retry-safe because it is read-only.
+The F6P implementation is retry-safe because it is read-only.
 Repeated reads over the same shipped stored/read posture should produce the same provider-boundary status except for explicitly labeled read timestamps.
 
 Raw sources, source snapshots, source files, deterministic extracts, CFO Wiki pages, Finance Twin facts, monitor results, close/control checklist posture, operator-readiness posture, acknowledgement-readiness posture, delivery-readiness posture, review-summary posture, missions, reports, approvals, release/circulation records, source-pack fixtures, demo fixtures, outbox state, and provider state must not be mutated to make provider-boundary readiness pass.
 
 If source state is missing, stale, failed, unsupported, partial, conflicting, or insufficient, F6P should report that posture instead of inventing provider readiness, send readiness, approval, release, certification, legal attestation, close completion, external delivery permission, recipient instructions, or provider authorization.
 
-Rollback for the future implementation should remove only additive F6P provider-boundary domain/read-model/docs changes.
+Rollback should remove only additive F6P provider-boundary domain/read-model/docs changes.
 Rollback must leave FP-0050 through FP-0064, shipped monitor behavior, shipped alert handoff behavior, shipped checklist behavior, shipped demo replay behavior, shipped operator-readiness behavior, shipped acknowledgement-readiness behavior, shipped bank/card source-pack behavior, shipped delivery-readiness behavior, shipped review-summary behavior, shipped receivables/payables source-pack behavior, F5 reporting/approval/release/circulation behavior, raw sources, CFO Wiki state, Finance Twin state, and GitHub/engineering-twin modules intact.
 No destructive database migration belongs in F6P.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates:
+This implementation slice creates or updates:
 
 - `plans/FP-0065-external-provider-boundary-foundation.md`
-- active-doc updates that identify FP-0065 as the active F6P implementation-ready contract
-- no code
-- no routes
+- `packages/domain/src/external-provider-boundary.ts`
+- `packages/domain/src/external-provider-boundary.spec.ts`
+- `packages/domain/src/index.ts`
+- `apps/control-plane/src/modules/external-provider-boundary/**`
+- `apps/control-plane/src/app.ts`
+- `apps/control-plane/src/bootstrap.ts`
+- `apps/control-plane/src/lib/types.ts`
+- active-doc updates that identify FP-0065 as the shipped F6P record
+- one thin route: `GET /external-provider-boundary/companies/:companyKey`
 - no schema or migrations
 - no package scripts
 - no smoke commands
@@ -313,7 +338,6 @@ This docs-and-plan slice creates:
 - no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, monitor-result creation, source mutation, payment behavior, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, certification, sign-off, close-complete status, attestation, report release, report circulation, generated prose, or autonomous action behavior
 
 Do not create FP-0066 in this slice.
-Do not start F6P implementation in this slice.
 Do not start F6Q, F6R, F6S, or later work here.
 
 Likely later slices, not created here:
@@ -345,10 +369,10 @@ No Codex App Server boundary changes are expected.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice creates FP-0065 as the only active F6P implementation-ready contract after repo-truth inspection supported F6P only as an internal provider-boundary/readiness foundation.
-The slice did not start F6P implementation.
+This implementation slice completes FP-0065 as the shipped F6P record after repo-truth inspection supported F6P only as an internal provider-boundary/readiness foundation.
+The slice shipped one deterministic read-only external-provider-boundary result over F6M/F6N and did not start F6Q.
 It did not create FP-0066.
 It kept FP-0050 through FP-0064 as shipped records.
 
-The final validation ladder passed on 2026-04-29T17:43:55Z, including the requested DB-backed smokes, direct bank/card and receivables/payables source-pack proofs, targeted twin vitest guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-The exact next recommendation is to start F6P implementation next only if it remains exactly the internal provider-boundary/readiness foundation described here; otherwise start F6Q planning only after a separate prompt proves certification need, legal boundaries, and review gates.
+The final implementation validation ladder passed and is recorded in Progress.
+The exact next recommendation is to start F6Q planning only as a new Finance Plan if certification need, legal boundaries, review gates, and non-autonomous posture are proven; otherwise one more narrow F6P continuation should only polish the internal provider-boundary read model without adding provider integration or delivery.

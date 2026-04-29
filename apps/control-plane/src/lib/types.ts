@@ -4,6 +4,7 @@ import type { CloseControlAcknowledgementService } from "../modules/close-contro
 import type { CloseControlReviewSummaryService } from "../modules/close-control-review-summary/service";
 import type { CloseControlService } from "../modules/close-control/service";
 import type { DeliveryReadinessService } from "../modules/delivery-readiness/service";
+import type { ExternalProviderBoundaryService } from "../modules/external-provider-boundary/service";
 import type { CfoWikiService } from "../modules/wiki/service";
 import type { FinanceTwinService } from "../modules/finance-twin/service";
 import type { GitHubAppService } from "../modules/github-app/service";
@@ -80,10 +81,7 @@ export type MonitoringServicePort = Pick<
   | "runPolicyCovenantThresholdMonitor"
 >;
 
-export type CloseControlServicePort = Pick<
-  CloseControlService,
-  "getChecklist"
->;
+export type CloseControlServicePort = Pick<CloseControlService, "getChecklist">;
 
 export type CloseControlAcknowledgementServicePort = Pick<
   CloseControlAcknowledgementService,
@@ -103,6 +101,11 @@ export type OperatorReadinessServicePort = Pick<
 export type DeliveryReadinessServicePort = Pick<
   DeliveryReadinessService,
   "getDeliveryReadiness"
+>;
+
+export type ExternalProviderBoundaryServicePort = Pick<
+  ExternalProviderBoundaryService,
+  "getExternalProviderBoundary"
 >;
 
 export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
@@ -202,6 +205,7 @@ export type AppContainer = {
   closeControlReviewSummaryService: CloseControlReviewSummaryServicePort;
   closeControlService: CloseControlServicePort;
   deliveryReadinessService?: DeliveryReadinessServicePort;
+  externalProviderBoundaryService?: ExternalProviderBoundaryServicePort;
   githubAppService: GitHubAppServicePort;
   githubIssueIntakeService: GitHubIssueIntakeServicePort;
   githubWebhookService: GitHubWebhookServicePort;
