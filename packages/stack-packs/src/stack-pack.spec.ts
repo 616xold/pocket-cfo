@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { nextjsVercelPack } from "./packs/nextjs-vercel";
 import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source-pack";
+import { pocketCfoContractObligationSourcePack } from "./packs/pocket-cfo-contract-obligation-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
 import { pocketCfoReceivablesPayablesSourcePack } from "./packs/pocket-cfo-receivables-payables-source-pack";
 
@@ -170,6 +171,76 @@ describe("stack packs", () => {
       "monitorFamiliesCovered",
     );
     expect(pocketCfoReceivablesPayablesSourcePack).not.toHaveProperty(
+      "discoveryFamiliesCovered",
+    );
+  });
+
+  it("exports the Pocket CFO F6R contract/obligation source pack without monitor or discovery semantics", () => {
+    expect(pocketCfoContractObligationSourcePack.id).toBe(
+      "pocket-cfo-contract-obligation-source-pack",
+    );
+    expect(pocketCfoContractObligationSourcePack.fixtureDirectory).toBe(
+      "packages/testkit/fixtures/f6r-contract-obligation-source-pack",
+    );
+    expect(pocketCfoContractObligationSourcePack.sourceRoles).toEqual([
+      "contract_metadata",
+    ]);
+    expect(
+      pocketCfoContractObligationSourcePack.sourceFiles.map(
+        (file) => file.role,
+      ),
+    ).toEqual(pocketCfoContractObligationSourcePack.sourceRoles);
+    expect(pocketCfoContractObligationSourcePack.sourceKinds).toEqual([
+      "dataset",
+    ]);
+    expect(pocketCfoContractObligationSourcePack.mediaTypes).toEqual([
+      "text/csv",
+    ]);
+    expect(pocketCfoContractObligationSourcePack.expectedExtractorKeys).toEqual(
+      ["contract_metadata_csv"],
+    );
+    expect(
+      pocketCfoContractObligationSourcePack.sourceFiles.map(
+        (file) => file.expectedExtractorKey,
+      ),
+    ).toEqual(pocketCfoContractObligationSourcePack.expectedExtractorKeys);
+    expect(
+      pocketCfoContractObligationSourcePack.expectedNormalizedPosturePath,
+    ).toBe(
+      "packages/testkit/fixtures/f6r-contract-obligation-source-pack/expected-source-twin-posture.json",
+    );
+    expect(
+      normalizeManifestSourceFiles(
+        pocketCfoContractObligationSourcePack.sourceFiles,
+      ),
+    ).toEqual(
+      normalizeExpectedSourceFiles(
+        loadExpectedPosture(
+          pocketCfoContractObligationSourcePack.expectedNormalizedPosturePath,
+        ).sourceFiles,
+      ),
+    );
+    for (const sourceFile of normalizeManifestSourceFiles(
+      pocketCfoContractObligationSourcePack.sourceFiles,
+    )) {
+      const absolutePath = join(
+        repoRoot,
+        pocketCfoContractObligationSourcePack.fixtureDirectory,
+        sourceFile.path,
+      );
+
+      expect(existsSync(absolutePath)).toBe(true);
+      expect(readFileSync(absolutePath, "utf8").trim().length).toBeGreaterThan(
+        0,
+      );
+    }
+    expect(
+      pocketCfoContractObligationSourcePack.runtimeDeliveryActionBoundary,
+    ).toContain("runtime-free");
+    expect(pocketCfoContractObligationSourcePack).not.toHaveProperty(
+      "monitorFamiliesCovered",
+    );
+    expect(pocketCfoContractObligationSourcePack).not.toHaveProperty(
       "discoveryFamiliesCovered",
     );
   });

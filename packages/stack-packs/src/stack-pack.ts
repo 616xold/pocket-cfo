@@ -112,3 +112,31 @@ export type PocketCfoReceivablesPayablesSourcePack = {
   limitations: string[];
   runtimeDeliveryActionBoundary: string;
 };
+
+export type PocketCfoContractObligationSourcePackSourceRole =
+  "contract_metadata";
+
+export type PocketCfoContractObligationSourcePackSourceFile = {
+  role: PocketCfoContractObligationSourcePackSourceRole;
+  fixturePath: string;
+  sourceKind: SourceKind;
+  mediaType: string;
+  expectedExtractorKey: Extract<FinanceTwinExtractorKey, "contract_metadata_csv">;
+};
+
+export type PocketCfoContractObligationSourcePack = {
+  id: string;
+  displayName: string;
+  purpose: string;
+  fixtureDirectory: string;
+  sourceFiles: PocketCfoContractObligationSourcePackSourceFile[];
+  sourceRoles: PocketCfoContractObligationSourcePackSourceRole[];
+  sourceKinds: SourceKind[];
+  mediaTypes: string[];
+  expectedExtractorKeys: Array<
+    Extract<FinanceTwinExtractorKey, "contract_metadata_csv">
+  >;
+  expectedNormalizedPosturePath: string;
+  limitations: string[];
+  runtimeDeliveryActionBoundary: string;
+};

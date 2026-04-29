@@ -1,0 +1,164 @@
+{
+  "sourcePackId": "pocket-cfo-contract-obligation-source-pack",
+  "companyKey": "demo-contract-obligation-source-pack",
+  "sourceRolesPresent": ["contract_metadata"],
+  "extractorKeysUsed": ["contract_metadata_csv"],
+  "sourceFiles": [
+    {
+      "role": "contract_metadata",
+      "path": "sources/contract-metadata.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "contract_metadata_csv"
+    }
+  ],
+  "sourcePostureByRole": {
+    "contract_metadata": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "contract_metadata_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    }
+  },
+  "contractInventoryPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "contractCount": 4,
+    "contractLabels": [
+      "Master Services Agreement",
+      "NDA",
+      "Office Lease",
+      "Support Agreement"
+    ],
+    "coverage": {
+      "contractCount": 4,
+      "obligationCount": 7,
+      "lineageCount": 11,
+      "lineageTargetKinds": ["contract", "contract_obligation"]
+    },
+    "summary": {
+      "contractCount": 4,
+      "obligationCount": 7,
+      "datedContractCount": 3,
+      "undatedContractCount": 1,
+      "currencyCount": 3,
+      "contractsWithExplicitAmountCount": 3,
+      "contractsWithExplicitPaymentAmountCount": 2,
+      "contractsWithEndDateCount": 2,
+      "contractsWithExpirationDateCount": 0,
+      "contractsWithNoticeDeadlineCount": 1,
+      "contractsWithRenewalDateCount": 1,
+      "contractsWithScheduledPaymentDateCount": 3
+    },
+    "lineageRefsPresent": true,
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "obligationCalendarPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "obligationCount": 7,
+    "obligationTypes": [
+      "scheduled_payment",
+      "scheduled_payment",
+      "scheduled_payment",
+      "notice_deadline",
+      "renewal",
+      "end_date",
+      "end_date"
+    ],
+    "coverageSummary": {
+      "contractCount": 4,
+      "obligationCount": 7,
+      "currencyBucketCount": 3,
+      "datedContractCount": 3,
+      "undatedContractCount": 1,
+      "obligationsWithExplicitAmountCount": 2,
+      "obligationsWithoutExplicitAmountCount": 5,
+      "contractsWithRenewalDateCount": 1,
+      "contractsWithExpirationDateCount": 0,
+      "contractsWithEndDateCount": 2,
+      "contractsWithNoticeDeadlineCount": 1,
+      "contractsWithScheduledPaymentDateCount": 3
+    },
+    "currencyBuckets": [
+      {
+        "currency": null,
+        "obligationCount": 5,
+        "obligationsWithExplicitAmountCount": 0,
+        "obligationsWithoutExplicitAmountCount": 5,
+        "explicitAmountTotal": "0.00",
+        "earliestDueDate": "2026-06-01",
+        "latestDueDate": "2027-01-31"
+      },
+      {
+        "currency": "GBP",
+        "obligationCount": 1,
+        "obligationsWithExplicitAmountCount": 1,
+        "obligationsWithoutExplicitAmountCount": 0,
+        "explicitAmountTotal": "250.00",
+        "earliestDueDate": "2026-05-20",
+        "latestDueDate": "2026-05-20"
+      },
+      {
+        "currency": "USD",
+        "obligationCount": 1,
+        "obligationsWithExplicitAmountCount": 1,
+        "obligationsWithoutExplicitAmountCount": 0,
+        "explicitAmountTotal": "500.00",
+        "earliestDueDate": "2026-05-15",
+        "latestDueDate": "2026-05-15"
+      }
+    ],
+    "lineageRefsPresent": true,
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "familyBoundary": {
+    "newMonitorFamilyAdded": false,
+    "newDiscoveryFamilyAdded": false
+  },
+  "runtimeActionBoundary": {
+    "monitorRunTriggered": false,
+    "checklistReadTriggered": false,
+    "operatorReadinessReadTriggered": false,
+    "acknowledgementReadTriggered": false,
+    "deliveryReadinessReadTriggered": false,
+    "reviewSummaryReadTriggered": false,
+    "providerBoundaryReadTriggered": false,
+    "certificationBoundaryReadTriggered": false,
+    "missionCreated": false,
+    "reportCreated": false,
+    "approvalCreated": false,
+    "deliveryCreated": false,
+    "providerCallCreated": false,
+    "providerCredentialCreated": false,
+    "providerJobCreated": false,
+    "runtimeCodexUsed": false,
+    "generatedProseCreated": false,
+    "paymentInstructionCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "certificationCreated": false,
+    "closeCompleteCreated": false,
+    "signOffCreated": false,
+    "attestationCreated": false,
+    "legalOpinionCreated": false,
+    "auditOpinionCreated": false,
+    "assuranceCreated": false,
+    "sourceMutationOutsideUploadSync": false,
+    "autonomousActionCreated": false
+  }
+}
