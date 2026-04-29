@@ -2,18 +2,18 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6O planning and future implementation slice.
-The target phase is `F6`, and the planned slice is exactly `F6O-receivables-payables-source-pack-foundation`.
+This is the shipped Finance Plan record for the Pocket CFO F6O implementation slice.
+The target phase is `F6`, and the shipped slice is exactly `F6O-receivables-payables-source-pack-foundation`.
 
 The user-visible goal is narrow: after shipped F6A through F6N, Pocket CFO should prove one additional checked-in source-pack family for receivables-aging and payables-aging source posture through existing source registry and Finance Twin routes only.
 This is a source-pack expansion contract.
 It is not a monitor, not a discovery family, not delivery, not a report, not an approval, not runtime-Codex behavior, and not product runtime behavior.
 
-Repo truth supports planning F6O now in this reduced shape.
+Repo truth supported F6O in this reduced shape.
 The shipped F6L bank/card source pack remains green and source-backed through `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`.
 Existing receivables-aging and payables-aging Finance Twin syncs remain source-backed and green through their packaged local smokes.
 Existing `collections_pressure` and `payables_pressure` monitors remain green, source-backed where source exists, and fixed to the shipped monitor-family list.
-The source-pack expansion can remain fixture/manifest/proof-oriented without requiring route, schema, migration, monitor evaluator, mission behavior, runtime-Codex, delivery, report, approval, or external-action changes.
+The source-pack expansion remains fixture/manifest/proof-oriented without requiring route, schema, migration, monitor evaluator, mission behavior, runtime-Codex, delivery, report, approval, or external-action changes.
 
 F6O must create only one source-pack family.
 The planned source roles are exactly:
@@ -49,9 +49,9 @@ The shipped discovery families remain exactly:
 F6O is not external delivery.
 It must not add email, Slack, SMS, webhooks, notification provider calls, outbox send behavior, report delivery, external publish behavior, generated notification prose, provider integration, scheduled sends, or auto-send behavior.
 
-F6O should expand source packs, not product runtime behavior.
-The future implementation should define one checked-in receivables/payables source-pack fixture or manifest family with source file list, source roles, parser/sync expectations, normalized expected source/twin posture, source/freshness posture, proof posture, and limitations.
-It should prove raw fixture source immutability and compare normalized expected output while excluding generated ids, timestamps, storage refs, source ids, snapshot ids, source-file ids, sync-run ids, and other volatile values.
+F6O expands source packs, not product runtime behavior.
+The shipped implementation defines one checked-in receivables/payables source-pack fixture and manifest family with source file list, source roles, parser/sync expectations, normalized expected source/twin posture, source/freshness posture, proof posture, and limitations.
+It proves raw fixture source immutability and compares normalized expected output while excluding generated ids, timestamps, storage refs, source ids, snapshot ids, source-file ids, sync-run ids, and other volatile values.
 
 No GitHub connector work is in scope.
 Do not invoke GitHub Connector Guard for F6O.
@@ -65,6 +65,11 @@ Do not invoke GitHub Connector Guard for F6O.
 - [x] 2026-04-29T13:48:05Z Decided repo truth supports F6O as one receivables/payables source-pack planning contract rather than jumping to F6P external provider integration planning.
 - [x] 2026-04-29T13:48:05Z Created this FP-0064 implementation-ready planning contract without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, runtime behavior, or implementation scaffolding.
 - [x] 2026-04-29T13:58:42Z Ran the full docs-and-plan validation ladder, including the DB-backed F6 readiness/checklist/source-pack/monitor/discovery smokes, targeted twin vitest checks, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-04-29T14:17:16Z Re-entered FP-0064 for implementation on branch `codex/f6o-receivables-payables-source-pack-foundation-local-v1`, fetched `origin/main`, confirmed the worktree was clean before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-04-29T14:17:16Z Added one F6O manifest family, one immutable receivables/payables fixture set, one normalized expected source/twin posture file, one focused testkit fixture spec, and one direct deterministic proof tool.
+- [x] 2026-04-29T14:17:16Z Ran focused manifest and fixture specs plus `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`; all passed after tightening proof comparison to stable normalized JSON rather than incidental object key order.
+- [x] 2026-04-29T14:17:16Z Refreshed active docs to mark FP-0064 as the shipped F6O record and to state that F6P planning should start next only as a new Finance Plan.
+- [x] 2026-04-29T14:30:44Z Ran the full implementation validation ladder, including the new direct F6O proof, shipped F6 guardrail smokes, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -80,8 +85,11 @@ F6O should not mutate those fixture semantics.
 The safer first implementation is a separate receivables/payables source-pack fixture family.
 Integration with the existing demo replay should remain absent unless this plan is explicitly amended and the integration does not change existing fixture semantics.
 
-The current source registry and Finance Twin routes are sufficient for the future proof path.
+The current source registry and Finance Twin routes are sufficient for the proof path.
 No new database table, route, schema, migration, extractor, monitor evaluator, mission behavior, checklist behavior, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, report behavior, approval behavior, runtime-Codex behavior, notification provider, or external action is needed.
+
+The implementation matched that route-only proof path.
+The only proof polish needed was making the JSON comparison stable by object key rather than depending on runtime insertion order; the normalized posture itself already matched the existing source registry and Finance Twin route output.
 
 ## Decision Log
 
@@ -90,7 +98,7 @@ Rationale: F6L bank/card source-pack proof, receivables-aging sync, payables-agi
 F6P would require human-review gates, provider boundaries, compliance posture, observability, retry behavior, safe failure modes, and no autonomous send semantics that are not ready to implement from the current repo truth.
 
 Decision: F6O is one source-pack family only.
-Rationale: the future pack should prove exactly receivables-aging and payables-aging source/twin posture.
+Rationale: the pack proves exactly receivables-aging and payables-aging source/twin posture.
 Adding bank/card, contract, card-expense, policy, report, or monitor-demo concerns would dilute the slice and risk mutating shipped proof semantics.
 
 Decision: source roles are limited to `receivables_aging` and `payables_aging`.
@@ -120,11 +128,11 @@ Decision: no package script or root smoke alias is authorized by this plan.
 Rationale: the first implementation should use focused package specs plus one direct proof tool invocation, mirroring F6L's direct proof posture.
 If a packaged smoke alias becomes necessary, FP-0064 must be explicitly amended first.
 
-Decision: no eval dataset or fixture is created in this docs-and-plan slice.
-Rationale: this slice is docs-and-plan only.
-The future implementation may add one checked-in source-pack fixture family only after following this plan.
+Decision: create exactly one checked-in source-pack fixture family and no eval dataset.
+Rationale: F6O needs immutable raw receivables/payables source files to prove normalized source/twin posture, but FP-0064 forbids broad eval datasets.
+The shipped fixture family is `packages/testkit/fixtures/f6o-receivables-payables-source-pack/**`.
 
-Decision: the future proof path may use existing source registration/upload routes and existing Finance Twin sync/read routes only.
+Decision: the proof path uses existing source registration/upload routes and existing Finance Twin sync/read routes only.
 Rationale: allowed proof inputs are checked-in static source-pack files, expected normalized source/twin posture, existing source registration/upload routes, and existing Finance Twin receivables-aging/payables-aging sync and read routes.
 Generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, monitor reruns, checklist/readiness/acknowledgement/delivery-readiness/review-summary paths, and external communications are out of scope.
 
@@ -133,6 +141,16 @@ Rationale: `F6P-external-provider-integration` should happen only if a future pl
 `F6Q-close/control-certification` should happen only if operator need, evidence boundaries, legal boundaries, and review gates are proven.
 `F6R-additional-source-pack-expansion` should happen only after the receivables/payables source pack remains green.
 Do not create FP-0065, F6P, F6Q, or F6R in this slice.
+
+Decision: ship F6O with a direct proof command rather than a root package script or smoke alias.
+Rationale: FP-0064 explicitly prohibited package-script and smoke-alias additions unless amended.
+The direct proof command is `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`.
+
+Decision: keep F6O separate from the F6F monitor demo pack and F6L bank/card source pack.
+Rationale: a separate `pocket-cfo-receivables-payables-source-pack` manifest and fixture family proves receivables/payables source posture without mutating shipped demo or bank/card raw fixtures.
+
+Decision: F6P planning should start next only through a new Finance Plan.
+Rationale: FP-0064 is now the shipped F6O implementation record and did not start F6P implementation or create FP-0065.
 
 ## Context and Orientation
 
@@ -152,8 +170,9 @@ Pocket CFO has shipped F6A through F6N:
 - F6L checked-in bank/card source-pack foundation with normalized source/twin posture and direct proof through existing source registry and Finance Twin routes only
 - F6M deterministic internal delivery-readiness boundary read model over shipped operator-readiness and acknowledgement-readiness posture only
 - F6N deterministic internal close/control review-summary read model over shipped checklist, operator-readiness, acknowledgement-readiness, and delivery-readiness posture only
+- F6O checked-in receivables/payables source-pack foundation with normalized source/twin posture and direct proof through existing source registry and Finance Twin routes only
 
-The F6O implementation should start from these shipped facts:
+The F6O implementation started from these shipped facts:
 
 - F6L direct proof command: `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`
 - receivables-aging sync proof: `pnpm smoke:finance-twin-receivables-aging:local`
@@ -167,7 +186,7 @@ The F6O implementation should start from these shipped facts:
 - existing stack-pack source-pack contract in `packages/stack-packs/src/stack-pack.ts`
 - existing F6L fixture/proof pattern in `packages/testkit/fixtures/f6l-bank-card-source-pack/**` and `tools/bank-card-source-pack-proof.mjs`
 
-Relevant future implementation seams are likely:
+Implemented F6O seams:
 
 - `packages/stack-packs/src/stack-pack.ts`
 - `packages/stack-packs/src/packs/pocket-cfo-receivables-payables-source-pack.ts`
@@ -180,47 +199,45 @@ Relevant future implementation seams are likely:
 - `packages/testkit/src/f6o-receivables-payables-source-pack.spec.ts`
 - `tools/receivables-payables-source-pack-proof.mjs`
 
-Those are future implementation targets only.
-This docs-and-plan slice does not create them.
+These implementation targets now exist for F6O except `packages/stack-packs/src/stack-pack.ts`, which was extended narrowly only because the existing bank/card-specific source-pack type did not support receivables/payables roles.
 
 No GitHub connector work is in scope.
 No new environment variables are expected.
 No runtime-Codex behavior is expected.
-No source mutation is expected.
+No source mutation outside the existing proof upload/sync setup occurred.
 No database schema migration, package script, smoke alias, route, eval dataset, monitor family, discovery family, report, approval, delivery behavior, provider integration, outbox send, payment behavior, finance write, legal/policy advice, collection/customer-contact instruction, certification, close-complete status, sign-off, attestation, or autonomous action belongs in F6O.
 
 ## Plan of Work
 
-First, the future implementation should add one narrow receivables/payables source-pack manifest.
+First, the implementation adds one narrow receivables/payables source-pack manifest.
 The manifest should describe source file roles, checked-in source file paths, source kinds, media types, expected extractor keys, normalized expected source posture, normalized expected Finance Twin posture, limitations, and the runtime/delivery/action boundary.
 The manifest must not include monitor-family or discovery-family fields.
 
-Second, the future implementation should add one checked-in static fixture family.
+Second, the implementation adds one checked-in static fixture family.
 The fixture family should include exactly one receivables-aging CSV and one payables-aging CSV, plus one normalized expected source/twin posture file.
 The raw source files must remain immutable.
 The normalized expected posture must exclude generated ids, timestamps, source ids, snapshot ids, source-file ids, sync-run ids, storage refs, and other volatile values.
 
-Third, the future implementation should add one deterministic direct proof path.
+Third, the implementation adds one deterministic direct proof path.
 The proof should register the checked-in source files through existing source routes, upload them without rewriting the files, sync each source file through existing Finance Twin routes, read existing receivables-aging, collections-posture, payables-aging, and payables-posture views, compare normalized source/twin posture against the expected file, prove raw fixture checksums remain unchanged, and assert family/runtime/action absence boundaries.
 
-Fourth, the future implementation should preserve shipped F5 and F6 behavior.
+Fourth, the implementation preserves shipped F5 and F6 behavior.
 It must not change monitor evaluators, F6B/F6G mission handoffs, F6H checklist behavior, F6J readiness behavior, F6K acknowledgement behavior, F6L bank/card source-pack behavior, F6M delivery-readiness behavior, F6N review-summary behavior, F5 reporting/release/circulation/correction behavior, approval kinds, report conversion, monitor families, or discovery families.
 
-Fifth, active docs should be refreshed only after implementation behavior exists.
-This planning slice already updates active docs to identify FP-0064 as the active implementation-ready contract.
-The implementation slice should mark FP-0064 as shipped only after the fixture, manifest, proof, docs, and validation land.
+Fifth, active docs are refreshed after implementation behavior exists.
+This implementation marks FP-0064 as shipped after the fixture, manifest, proof, docs, and validation land.
 
 ## Concrete Steps
 
-1. Add the source-pack manifest in the future implementation slice.
-   Likely files:
+1. Add the source-pack manifest.
+   Files:
    - `packages/stack-packs/src/stack-pack.ts`
    - `packages/stack-packs/src/packs/pocket-cfo-receivables-payables-source-pack.ts`
    - `packages/stack-packs/src/index.ts`
    - `packages/stack-packs/src/stack-pack.spec.ts`
 
    Required behavior:
-   - source-pack id should be explicit, likely `pocket-cfo-receivables-payables-source-pack`
+   - source-pack id is `pocket-cfo-receivables-payables-source-pack`
    - source roles must be exactly `receivables_aging` and `payables_aging`
    - expected extractor keys must be exactly `receivables_aging_csv` and `payables_aging_csv`
    - source kinds should remain checked-in static dataset posture
@@ -233,8 +250,8 @@ The implementation slice should mark FP-0064 as shipped only after the fixture, 
    - no runtime-Codex semantics
    - no delivery semantics
 
-2. Add one checked-in receivables/payables source-pack fixture family in the future implementation slice.
-   Likely files:
+2. Add one checked-in receivables/payables source-pack fixture family.
+   Files:
    - `packages/testkit/fixtures/f6o-receivables-payables-source-pack/README.md`
    - `packages/testkit/fixtures/f6o-receivables-payables-source-pack/sources/receivables-aging.csv`
    - `packages/testkit/fixtures/f6o-receivables-payables-source-pack/sources/payables-aging.csv`
@@ -251,8 +268,8 @@ The implementation slice should mark FP-0064 as shipped only after the fixture, 
    - limitations expose ambiguous, missing, partial, unsupported, stale, or conflicting evidence instead of hiding it
    - generated ids, timestamps, source ids, snapshot ids, source-file ids, sync-run ids, and storage refs are excluded from expected comparison
 
-3. Add one deterministic direct proof path in the future implementation slice.
-   Likely file:
+3. Add one deterministic direct proof path.
+   File:
    - `tools/receivables-payables-source-pack-proof.mjs`
 
    Required proof behavior:
@@ -292,7 +309,7 @@ The implementation slice should mark FP-0064 as shipped only after the fixture, 
    - report conversion
    - runtime-Codex, delivery, notification, payment, legal/policy-advice, collection/customer-contact, or autonomous-action posture
 
-6. Refresh active docs after future implementation.
+6. Refresh active docs after implementation.
    Expected docs:
    - `README.md`
    - `START_HERE.md`
@@ -305,7 +322,7 @@ The implementation slice should mark FP-0064 as shipped only after the fixture, 
 
 ## Validation and Acceptance
 
-This docs-and-plan slice must run the requested DB-backed smokes and repo checks after docs edits:
+This implementation slice must run the requested DB-backed smokes and repo checks after docs edits:
 
 - `pnpm smoke:delivery-readiness:local`
 - `pnpm smoke:operator-readiness:local`
@@ -330,7 +347,7 @@ This docs-and-plan slice must run the requested DB-backed smokes and repo checks
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-Future F6O implementation acceptance requires all of the following:
+F6O implementation acceptance requires all of the following:
 
 - one receivables/payables source-pack manifest or fixture contract exists
 - source roles are exactly `receivables_aging` and `payables_aging`
@@ -347,53 +364,45 @@ Future F6O implementation acceptance requires all of the following:
 - proof asserts no new monitor result semantics, checklist item family, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, investigation behavior, report behavior, approval behavior, delivery behavior, runtime-Codex behavior, finance write, legal/policy advice, payment behavior, collection/customer-contact instruction, or autonomous action is added
 - shipped F5 and F6 behavior remains unchanged
 
-The implementation validation ladder should include the future focused stack-pack/testkit specs and direct proof command in addition to the shipped F6 guardrail ladder.
+The implementation validation ladder includes the focused stack-pack/testkit specs and direct proof command in addition to the shipped F6 guardrail ladder.
 Do not add a packaged root smoke alias unless this plan is amended first.
 
 ## Idempotence and Recovery
 
-This docs-and-plan slice is retry-safe because it changes only plan and active-doc text.
-No database state, source file, fixture, generated artifact, route, schema, migration, package script, eval dataset, or runtime behavior is changed.
+This implementation slice is retry-safe because all runtime behavior uses existing source registration/upload and Finance Twin sync routes, while normalized proof output excludes generated ids and timestamps.
+No route, schema, migration, package script, smoke alias, eval dataset, monitor family, discovery family, runtime-Codex behavior, delivery behavior, report behavior, approval behavior, finance write, advice/instruction, generated prose, or autonomous action is changed.
 
-The future implementation should be retry-safe by using deterministic source registration/upload and Finance Twin sync behavior, normalized expected output, and idempotent proof assertions over generated ids and timestamps.
+The implementation is retry-safe by using deterministic source registration/upload and Finance Twin sync behavior, normalized expected output, and idempotent proof assertions over generated ids and timestamps.
 If repeated proof runs create new source ids or sync-run ids, those values must remain excluded from normalized expected posture.
 
 Raw source fixtures must never be rewritten to make proof pass.
-If a future fixture is stale, partial, ambiguous, unsupported, conflicting, or insufficient, the expected posture and proof output should expose that limitation rather than normalizing it away.
+If a future continuation finds the fixture stale, partial, ambiguous, unsupported, conflicting, or insufficient, the expected posture and proof output should expose that limitation rather than normalizing it away.
 
-Rollback for this docs-and-plan slice should remove only FP-0064 and the active-doc references to it.
-Rollback for future implementation should remove only additive F6O manifest, fixture, proof, and docs changes.
+Rollback for this implementation should remove only additive F6O manifest, fixture, proof, and docs changes.
 Rollback must leave FP-0050 through FP-0063, shipped monitor behavior, shipped alert handoff behavior, shipped checklist behavior, shipped demo replay behavior, shipped operator-readiness behavior, shipped acknowledgement-readiness behavior, shipped bank/card source-pack behavior, shipped delivery-readiness behavior, shipped review-summary behavior, F5 reporting/approval/release/circulation behavior, raw sources, CFO Wiki state, Finance Twin state, and GitHub/engineering-twin modules intact.
 No destructive database migration belongs in F6O.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates:
+This implementation slice creates:
 
-- `plans/FP-0064-receivables-payables-source-pack-foundation.md`
-- active-doc updates that identify FP-0064 as the active implementation-ready F6O contract
-- no code
+- `packages/stack-packs/src/packs/pocket-cfo-receivables-payables-source-pack.ts`
+- `packages/testkit/fixtures/f6o-receivables-payables-source-pack/**`
+- `packages/testkit/src/f6o-receivables-payables-source-pack.spec.ts`
+- `tools/receivables-payables-source-pack-proof.mjs`
+- active-doc updates that identify FP-0064 as the shipped F6O record
+- one narrow source-pack type extension for receivables/payables roles in `packages/stack-packs/src/stack-pack.ts`
+- one direct deterministic proof command: `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`
 - no routes
 - no schema
 - no migrations
 - no package scripts
-- no smoke commands
+- no root smoke aliases
 - no eval datasets
-- no fixtures
-- no implementation scaffolding
 - no monitor-family or discovery-family expansion
 - no runtime-Codex
 - no external provider integration
-- no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, monitor-result creation, source mutation, payment behavior, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, certification, sign-off, close-complete status, attestation, report release, report circulation, generated prose, or autonomous action behavior
-
-Future implementation artifacts, if this plan is followed, are expected to be:
-
-- one `pocket-cfo-receivables-payables-source-pack` manifest
-- one immutable checked-in receivables/payables source-pack fixture set
-- one normalized expected source/twin posture file
-- one direct deterministic proof tool invocation
-- focused stack-pack/testkit specs
-- active docs updated only after the implementation is green
+- no delivery, notification provider, outbox send, email, Slack, SMS, webhook, report, approval, mission creation, monitor rerun, monitor-result creation, source mutation outside proof upload/sync setup, payment behavior, accounting write, bank write, tax filing, legal/policy advice, collection/customer-contact instruction, certification, sign-off, close-complete status, attestation, report release, report circulation, generated prose, or autonomous action behavior
 
 No FP-0065 is created in this slice.
 No F6P, F6Q, F6R, or later implementation work starts here.
@@ -464,12 +473,12 @@ Do not delete GitHub or engineering-twin modules as part of F6O.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice creates FP-0064 as the active implementation-ready F6O contract after repo-truth inspection proved the safe next slice is a receivables/payables source-pack foundation, not external provider integration planning.
-No implementation has started.
-The validation ladder passed after the docs-and-plan refresh, including `pnpm ci:repro:current`.
+This implementation slice ships FP-0064 as the F6O receivables/payables source-pack foundation after repo-truth inspection proved the safe next slice was source-pack proof, not external provider integration implementation.
+It adds exactly one receivables/payables source-pack manifest family, one immutable checked-in fixture set, one normalized expected source/twin posture file, and one direct proof command.
+It does not start F6P implementation.
+Final validation status is recorded in the Progress section.
 
 What remains next:
 
-- F6O implementation may start next only by following this FP-0064 contract.
-- F6P planning should not start next unless F6O becomes blocked or a future prompt explicitly asks to plan external provider integration with human-review gates, provider boundaries, compliance posture, observability, retry behavior, safe failure modes, and no autonomous send.
-- Do not create FP-0065, start F6P or later, add code, fixtures, package scripts, smoke aliases, eval datasets, routes, schema, migrations, runtime-Codex, delivery, notifications, outbox sends, reports, approvals, finance writes, advice/instructions, autonomous action, new monitor families, or new discovery families from this docs-and-plan slice alone.
+- F6P planning should start next only as a new Finance Plan.
+- Do not create FP-0065, start F6P implementation, add package scripts, smoke aliases, eval datasets, routes, schema, migrations, runtime-Codex, delivery, notifications, outbox sends, reports, approvals, finance writes, advice/instructions, autonomous action, new monitor families, or new discovery families from this shipped F6O record alone.

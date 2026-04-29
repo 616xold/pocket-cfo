@@ -1,0 +1,5 @@
+vendor_name,vendor_id,currency,as_of,current,31_60,past_due,total
+Paper Supply Co,V-100,USD,2026-04-30,100.00,20.00,,120.00
+Paper Supply Co,V-100,USD,2026-04-30,100.00,20.00,,120.00
+Cloud Hosting,V-200,USD,,,,80.00,80.00
+Office Lease,V-300,EUR,2026-04-29,50.00,,,50.00

@@ -1,0 +1,5 @@
+customer_name,customer_id,currency,as_of,current,31_60,past_due,total
+Alpha Co,C-100,USD,2026-04-30,100.00,20.00,20.00,120.00
+Alpha Co,C-100,USD,2026-04-30,100.00,20.00,20.00,120.00
+Beta Co,C-200,USD,,,,80.00,80.00
+Gamma Co,C-300,EUR,2026-04-29,50.00,,,50.00

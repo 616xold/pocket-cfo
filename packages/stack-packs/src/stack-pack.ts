@@ -77,3 +77,38 @@ export type PocketCfoBankCardSourcePack = {
   limitations: string[];
   runtimeDeliveryActionBoundary: string;
 };
+
+export type PocketCfoReceivablesPayablesSourcePackSourceRole =
+  | "receivables_aging"
+  | "payables_aging";
+
+export type PocketCfoReceivablesPayablesSourcePackSourceFile = {
+  role: PocketCfoReceivablesPayablesSourcePackSourceRole;
+  fixturePath: string;
+  sourceKind: SourceKind;
+  mediaType: string;
+  expectedExtractorKey: Extract<
+    FinanceTwinExtractorKey,
+    "receivables_aging_csv" | "payables_aging_csv"
+  >;
+};
+
+export type PocketCfoReceivablesPayablesSourcePack = {
+  id: string;
+  displayName: string;
+  purpose: string;
+  fixtureDirectory: string;
+  sourceFiles: PocketCfoReceivablesPayablesSourcePackSourceFile[];
+  sourceRoles: PocketCfoReceivablesPayablesSourcePackSourceRole[];
+  sourceKinds: SourceKind[];
+  mediaTypes: string[];
+  expectedExtractorKeys: Array<
+    Extract<
+      FinanceTwinExtractorKey,
+      "receivables_aging_csv" | "payables_aging_csv"
+    >
+  >;
+  expectedNormalizedPosturePath: string;
+  limitations: string[];
+  runtimeDeliveryActionBoundary: string;
+};
