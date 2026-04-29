@@ -428,7 +428,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0060-close-control-acknowledgement-foundation.md` is the shipped F6K implementation record.
 `plans/FP-0061-source-pack-expansion-foundation.md` is the shipped F6L implementation record.
 `plans/FP-0062-external-notification-delivery-planning-foundation.md` is the shipped F6M implementation record for a first internal delivery-readiness boundary.
-`plans/FP-0063-close-control-review-summary-foundation.md` is the active F6N implementation-ready planning contract for a first internal close/control review summary.
+`plans/FP-0063-close-control-review-summary-foundation.md` is the shipped F6N implementation record for a first internal close/control review summary.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -443,7 +443,7 @@ The shipped F6J slice is exactly `F6J-operator-notification-readiness-foundation
 The shipped F6K slice is exactly `F6K-close-control-acknowledgement-foundation`.
 The shipped F6L slice is exactly `F6L-bank-card-source-pack-foundation`.
 The shipped F6M slice is exactly `F6M-external-notification-delivery-planning-foundation`.
-The active planned F6N slice is exactly `F6N-close-control-review-summary-foundation`.
+The shipped F6N slice is exactly `F6N-close-control-review-summary-foundation`.
 
 Focus:
 
@@ -477,6 +477,7 @@ Exit criteria:
 - the shipped F6K slice stays internal and read-only: it adds one deterministic acknowledgement-readiness result over shipped checklist/readiness posture, with no approval kind, close-complete assertion, report release, external delivery, notification provider, outbox send, runtime-Codex, mission creation, monitor rerun, source mutation, autonomous action, or new monitor/discovery family
 - the shipped F6L slice stays source-pack-only: it proves checked-in bank-account-summary and card-expense source-pack posture through existing source registry and Finance Twin routes only
 - the shipped F6M slice stays internal and read-only: it adds one deterministic delivery-readiness result over shipped F6J/F6K posture with no provider integration, outbox sends, external delivery, approvals, reports, runtime-Codex drafting, generated notification prose, monitor reruns, mission creation, source mutation, finance writes, advice, or autonomous action
+- the shipped F6N slice stays internal and read-only: it adds one deterministic close/control review-summary result over shipped F6H/F6J/F6K/F6M posture with bounded sections, company-scope guardrails, explicit absence boundaries, no certification, no close-complete status, no sign-off, no attestation, no approvals, no report release/circulation, no external delivery/provider/outbox behavior, no generated prose, no runtime-Codex, no monitor reruns, no mission creation, no source mutation, no finance writes, no advice/instructions, no autonomous action, no F6O implementation, and no new monitor or discovery family
 
 Slice map:
 
@@ -597,15 +598,16 @@ Slice map:
   - packaged proof: `pnpm smoke:delivery-readiness:local`
   - no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L source-pack behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
 - `F6N — close/control review summary foundation`
-  - active implementation-ready planning contract in `plans/FP-0063-close-control-review-summary-foundation.md`
-  - first implementation must be an internal close/control review summary only, not certification
-  - do not add certification status, close-complete status, sign-off, attestation, legal opinion, audit opinion, approval workflow, report release, report circulation, external delivery, generated prose, runtime-Codex drafting, finance writes, legal/policy/payment/collection/customer-contact instruction, autonomous action, monitor-family expansion, or discovery-family expansion
-  - start only from shipped stored/read state: F6H close/control checklist posture, F6J operator-readiness posture, F6K acknowledgement-readiness posture, F6M delivery-readiness posture, latest persisted monitor results only as context if needed, and source/CFO Wiki freshness posture already surfaced through those reads
-  - output contract is one deterministic internal close/control review summary result or read model with bounded sections for checklist posture, operator-readiness posture, acknowledgement-readiness posture, delivery-boundary posture, monitor-context posture, and source/CFO Wiki freshness posture
-  - each section must include evidence basis, freshness or missing-source posture, limitations, proof posture, internal review status, and a human-review next step
-  - first implementation should be read-only and no-schema unless a future plan proves a concrete persistence need
-  - preserve shipped F5 and F6 behavior: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L source-pack behavior changes, no F6M delivery-readiness behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
+  - shipped implementation record in `plans/FP-0063-close-control-review-summary-foundation.md`
+  - first implementation is an internal close/control review summary only, not certification
+  - starts only from shipped stored/read state: F6H close/control checklist posture, F6J operator-readiness posture, F6K acknowledgement-readiness posture, F6M delivery-readiness posture, and source/CFO Wiki freshness posture already surfaced through those reads
+  - output contract is one deterministic internal close/control review-summary result with bounded sections for checklist posture, operator-readiness posture, acknowledgement-readiness posture, delivery-boundary posture, monitor-context posture, and source/CFO Wiki freshness posture
+  - each section includes evidence basis, source lineage or proof refs where available, freshness or missing-source posture, limitations, proof posture, internal review status, and a human-review next step
+  - shipped read-only and no-schema
+  - route: `GET /close-control/companies/:companyKey/review-summary`
+  - no certification status, close-complete status, sign-off, attestation, legal opinion, audit opinion, approval workflow, report release, report circulation, external delivery, generated prose, runtime-Codex drafting, finance writes, legal/policy/payment/collection/customer-contact instruction, autonomous action, monitor-family expansion, discovery-family expansion, or F6O implementation
+  - preserves shipped F5 and F6 behavior: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L source-pack behavior changes, no F6M delivery-readiness behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
 - `F6O — additional source-pack expansion`
-  - later only after the first bank/card source pack remains green and source-backed
+  - later only after the first bank/card source pack remains green and source-backed and a new Finance Plan is created
 - `F6P — external provider integration`
   - later only if a future plan proves human-review gates, provider boundaries, compliance posture, observability, retry behavior, safe failure modes, and no autonomous send

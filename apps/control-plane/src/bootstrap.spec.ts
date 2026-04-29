@@ -81,6 +81,11 @@ function createAppContainer(
         );
       },
     } as AppContainer["closeControlAcknowledgementService"],
+    closeControlReviewSummaryService: {
+      async getReviewSummary() {
+        throw new Error("getReviewSummary should not be called in this test");
+      },
+    } as AppContainer["closeControlReviewSummaryService"],
     closeControlService: {
       async getChecklist() {
         throw new Error("getChecklist should not be called in this test");
