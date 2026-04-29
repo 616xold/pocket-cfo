@@ -158,11 +158,10 @@ The likely contract name is `CloseControlCertificationBoundaryResult` with bound
 The contract should include company scope, generated time, aggregate internal boundary-review status, target list, evidence summary, limitations, and runtime/action absence boundary.
 The contract must avoid `certified`, `certification_complete`, `close_complete`, `signed_off`, `attested`, `approved`, `release_ready`, `delivered`, `assured`, `audit_opinion`, or `legal_opinion` statuses.
 
-Second, the implementation should add one read-only control-plane bounded context only when an implementation prompt starts F6Q.
-The likely folder is `apps/control-plane/src/modules/close-control-certification-boundary/**`.
-The likely route is `GET /close-control/companies/:companyKey/certification-boundary`.
-The route should parse `companyKey`, call the service, and serialize the result.
-It must contain no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, outbox send logic, provider credential logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, certification creation, sign-off creation, attestation creation, legal/audit opinion generation, or external action execution.
+Second, the implementation has shipped one read-only control-plane bounded context at `apps/control-plane/src/modules/close-control-certification-boundary/**`.
+The shipped route is `GET /close-control/companies/:companyKey/certification-boundary`.
+The route parses `companyKey`, calls the service, and serializes the result.
+It contains no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, outbox send logic, provider credential logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, certification creation, sign-off creation, attestation creation, legal/audit opinion generation, or external action execution.
 
 Third, the service should depend only on shipped read services.
 Primary reads should be F6N close/control review-summary and F6P external-provider-boundary.
@@ -173,11 +172,10 @@ Fourth, output targets should be bounded internal gates.
 The expected first target families are:
 
 - `review_summary_boundary`
-- `provider_absence_boundary`
-- `delivery_absence_boundary`
-- `source_freshness_boundary`
+- `provider_boundary`
+- `evidence_and_source_boundary`
 - `proof_and_limitation_boundary`
-- `human_review_next_step_boundary`
+- `human_review_gate_boundary`
 - `certification_absence_boundary`
 
 Each target must include:
@@ -364,6 +362,7 @@ This plan is now the shipped F6Q implementation record.
 The shipped slice adds one deterministic internal close/control certification-boundary/readiness foundation only, derived from shipped F6N/F6P read posture and exposed through `GET /close-control/companies/:companyKey/certification-boundary`.
 It stayed read-only, no-schema, certification-free, close-complete-free, sign-off-free, attestation-free, legal-opinion-free, audit-opinion-free, assurance-free, approval-free, report-release-free, report-circulation-free, delivery-free, provider-call-free, provider-credential-free, provider-job-free, outbox-send-free, generated-prose-free, runtime-Codex-free, source-mutation-free, monitor-rerun-free, mission-free, finance-write-free, advice/instruction-free, non-autonomous, and monitor/discovery-family-free.
 
-F6R additional source-pack expansion remains a later planning candidate after the existing source packs stay green and only after a new Finance Plan.
+F6R additional source-pack expansion remained a later planning candidate at F6Q closeout.
+The later docs-and-plan slice created `plans/FP-0067-contract-obligation-source-pack-foundation.md` as the active F6R contract; FP-0066 remains the shipped F6Q record.
 F6S actual external delivery remains later and requires a future plan proving provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send.
 F6T actual certification remains later and requires a future plan proving operator need, legal boundaries, evidence boundaries, review gates, and non-advice constraints.
