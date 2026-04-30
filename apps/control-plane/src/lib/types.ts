@@ -5,6 +5,7 @@ import type { CloseControlCertificationBoundaryService } from "../modules/close-
 import type { CloseControlReviewSummaryService } from "../modules/close-control-review-summary/service";
 import type { CloseControlService } from "../modules/close-control/service";
 import type { DeliveryReadinessService } from "../modules/delivery-readiness/service";
+import type { ExternalDeliveryHumanConfirmationBoundaryService } from "../modules/external-delivery-human-confirmation-boundary/service";
 import type { ExternalProviderBoundaryService } from "../modules/external-provider-boundary/service";
 import type { CfoWikiService } from "../modules/wiki/service";
 import type { FinanceTwinService } from "../modules/finance-twin/service";
@@ -114,6 +115,11 @@ export type ExternalProviderBoundaryServicePort = Pick<
   "getExternalProviderBoundary"
 >;
 
+export type ExternalDeliveryHumanConfirmationBoundaryServicePort = Pick<
+  ExternalDeliveryHumanConfirmationBoundaryService,
+  "getHumanConfirmationBoundary"
+>;
+
 export type ReplayServicePort = Pick<ReplayService, "getMissionEvents">;
 
 export type SourceServicePort = Pick<
@@ -212,6 +218,7 @@ export type AppContainer = {
   closeControlReviewSummaryService: CloseControlReviewSummaryServicePort;
   closeControlService: CloseControlServicePort;
   deliveryReadinessService?: DeliveryReadinessServicePort;
+  externalDeliveryHumanConfirmationBoundaryService?: ExternalDeliveryHumanConfirmationBoundaryServicePort;
   externalProviderBoundaryService?: ExternalProviderBoundaryServicePort;
   githubAppService: GitHubAppServicePort;
   githubIssueIntakeService: GitHubIssueIntakeServicePort;

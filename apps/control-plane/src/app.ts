@@ -6,6 +6,7 @@ import { registerCloseControlCertificationBoundaryRoutes } from "./modules/close
 import { registerCloseControlReviewSummaryRoutes } from "./modules/close-control-review-summary/routes";
 import { registerCloseControlRoutes } from "./modules/close-control/routes";
 import { registerDeliveryReadinessRoutes } from "./modules/delivery-readiness/routes";
+import { registerExternalDeliveryHumanConfirmationBoundaryRoutes } from "./modules/external-delivery-human-confirmation-boundary/routes";
 import { registerExternalProviderBoundaryRoutes } from "./modules/external-provider-boundary/routes";
 import { registerHealthRoutes } from "./modules/health/routes";
 import { registerFinanceTwinRoutes } from "./modules/finance-twin/routes";
@@ -58,6 +59,12 @@ export async function buildApp(options?: { container?: AppContainer }) {
     await registerExternalProviderBoundaryRoutes(app, {
       externalProviderBoundaryService:
         container.externalProviderBoundaryService,
+    });
+  }
+  if (container.externalDeliveryHumanConfirmationBoundaryService) {
+    await registerExternalDeliveryHumanConfirmationBoundaryRoutes(app, {
+      externalDeliveryHumanConfirmationBoundaryService:
+        container.externalDeliveryHumanConfirmationBoundaryService,
     });
   }
   await registerFinanceTwinRoutes(app, {

@@ -2,7 +2,7 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6S implementation contract.
+This is the shipped Finance Plan record for the Pocket CFO F6S implementation contract.
 The target phase is `F6`, and the first implementation slice is exactly `F6S-external-delivery-human-confirmation-boundary-foundation`.
 
 The user-visible goal is narrow: after shipped F6A through F6R, Pocket CFO should be able to show one deterministic internal external-delivery safety gate / human-confirmation readiness posture that a human operator can review before any future plan considers actual external delivery.
@@ -31,6 +31,13 @@ Do not invoke GitHub Connector Guard for F6S.
 - [x] 2026-04-29T22:43:44Z Decided repo truth does not support actual external delivery as F6S; repo truth supports only a deterministic internal external-delivery human-confirmation / delivery-preflight boundary with no send behavior.
 - [x] 2026-04-29T22:43:44Z Created this FP-0068 implementation-ready planning contract and refreshed active docs without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, runtime behavior, provider calls, delivery, reports, approvals, certification, close-complete status, sign-off, attestation, legal/audit opinion, source mutation, monitor/discovery families, or finance actions.
 - [x] 2026-04-29T22:43:44Z Ran the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all commands passed before commit.
+- [x] 2026-04-30T09:46:31Z Re-invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor for the implementation slice; did not invoke GitHub Connector Guard.
+- [x] 2026-04-30T09:46:31Z Ran implementation preflight against fetched `origin/main`, confirmed the branch is `codex/f6s-external-delivery-human-confirmation-boundary-local-v1`, confirmed the worktree was clean before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-04-30T09:46:31Z Added the pure F6S domain contract `ExternalDeliveryHumanConfirmationBoundaryResult` with the bounded target families, review-oriented statuses, proof/freshness/source posture, and explicit runtime/action absence boundary.
+- [x] 2026-04-30T09:46:31Z Added one read-only control-plane bounded context and thin route at `GET /external-delivery/companies/:companyKey/human-confirmation-boundary`, derived only from shipped F6M/F6P/F6Q/F6N read services.
+- [x] 2026-04-30T09:46:31Z Added deterministic target builders, company-scope mismatch guardrails, and focused domain/control-plane specs for vocabulary, ready/needs/blocked mappings, absence fields, no provider/outbox/delivery/runtime behavior, and F6M/F6P/F6Q/F6N company mismatch failures.
+- [x] 2026-04-30T09:46:31Z Refreshed the small stale secondary-doc wording so F6S points to FP-0068, stays read-only/no-schema and delivery-free, and keeps F6T/F6U/F6V and later planning behind future Finance Plans.
+- [x] 2026-04-30T09:57:43Z Ran the full F6S validation ladder through `pnpm ci:repro:current`; all commands passed before commit.
 
 ## Surprises & Discoveries
 
@@ -88,6 +95,9 @@ Rationale: no F5 report/release/circulation/correction changes, no monitor evalu
 
 Decision: later slices are named but not created here.
 Rationale: F6T actual certification should happen only if operator need, legal boundaries, evidence boundaries, review gates, and non-advice constraints are proven. F6U additional source-pack expansion should happen only after existing source packs remain green. F6V actual provider integration should happen only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send. Do not create FP-0069, F6T, F6U, F6V, or later plans in this slice.
+
+Decision: ship F6S as exactly one read-only/no-schema external-delivery human-confirmation boundary.
+Rationale: the implementation now exposes `GET /external-delivery/companies/:companyKey/human-confirmation-boundary` over shipped F6M delivery-readiness, F6P provider-boundary, F6Q certification-boundary, and F6N review-summary posture only. It creates no delivery, provider call, provider credential, provider job, outbox send, scheduled delivery, auto-send, report, report release, approval, certification, close-complete status, sign-off, attestation, legal/audit opinion, mission, monitor rerun/result, runtime-Codex work, source mutation, generated prose, finance write, advice, instruction, or autonomous action.
 
 ## Context and Orientation
 
@@ -254,7 +264,10 @@ No database schema, migration, human-confirmation table, send record, delivery l
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the user-requested validation ladder after docs edits:
+This implementation thread must run the user-requested validation ladder after code and docs edits:
+
+- `pnpm --filter @pocket-cto/domain exec vitest run src/external-delivery-human-confirmation-boundary.spec.ts`
+- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/external-delivery-human-confirmation-boundary/**/*.spec.ts"`
 
 - `pnpm smoke:delivery-readiness:local`
 - `pnpm smoke:operator-readiness:local`
@@ -276,15 +289,15 @@ This docs-and-plan thread must run the user-requested validation ladder after do
 - `pnpm smoke:cash-posture-alert-investigation:local`
 - `pnpm smoke:collections-pressure-alert-investigation:local`
 - `pnpm smoke:finance-discovery-supported-families:local`
-- `pnpm --filter @pocket-cto/domain exec vitest run src/close-control-certification-boundary.spec.ts src/external-provider-boundary.spec.ts src/close-control-review-summary.spec.ts src/delivery-readiness.spec.ts src/close-control-acknowledgement.spec.ts src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
-- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/close-control-certification-boundary/**/*.spec.ts src/modules/external-provider-boundary/**/*.spec.ts src/modules/close-control-review-summary/**/*.spec.ts src/modules/delivery-readiness/**/*.spec.ts src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/approvals/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
+- `pnpm --filter @pocket-cto/domain exec vitest run src/external-delivery-human-confirmation-boundary.spec.ts src/close-control-certification-boundary.spec.ts src/external-provider-boundary.spec.ts src/close-control-review-summary.spec.ts src/delivery-readiness.spec.ts src/close-control-acknowledgement.spec.ts src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
+- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/external-delivery-human-confirmation-boundary/**/*.spec.ts src/modules/close-control-certification-boundary/**/*.spec.ts src/modules/external-provider-boundary/**/*.spec.ts src/modules/close-control-review-summary/**/*.spec.ts src/modules/delivery-readiness/**/*.spec.ts src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/approvals/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-Docs-and-plan validation outcome: passed on 2026-04-29 before commit, including the shipped F6M/F6P/F6Q/F6N boundary suites, F6L/F6O/F6R source-pack proofs, existing monitor and discovery-family smokes, lint, typecheck, full tests, and `pnpm ci:repro:current`.
+Implementation validation outcome: passed on 2026-04-30 before commit, including the new F6S domain/control-plane specs, shipped F6M/F6P/F6Q/F6N boundary suites, F6L/F6O/F6R source-pack proofs, existing monitor and discovery-family smokes, twin guardrails, lint, typecheck, full tests, and `pnpm ci:repro:current`.
 
 First F6S implementation acceptance requires all of the following:
 
@@ -296,13 +309,14 @@ First F6S implementation acceptance requires all of the following:
 - source-pack proofs F6L/F6O/F6R remain green and source-backed
 - monitor families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`
 - discovery families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, `spend_posture`, `obligation_calendar_review`, and `policy_lookup`
-- no code in the docs-and-plan slice
-- no schema, route, package script, smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox send behavior, report, approval, delivery, certification, source mutation, monitor family, discovery family, or autonomous behavior is added by this docs-and-plan slice
+- the new backend route is read-only and no-schema
+- no package script, smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox send behavior, report, approval, delivery, certification, source mutation, monitor family, discovery family, or autonomous behavior is added by this implementation slice
 
-Human-observable acceptance for this docs-and-plan slice:
+Human-observable acceptance for this implementation slice:
 
-- `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` exists as the active F6S implementation-ready contract
-- active docs point future Codex threads at FP-0068 as a non-sending F6S contract
+- `GET /external-delivery/companies/:companyKey/human-confirmation-boundary` returns the deterministic internal F6S human-confirmation / delivery-preflight boundary
+- `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` exists as the shipped F6S implementation record
+- active docs point future Codex threads at FP-0068 as the non-sending F6S record
 - FP-0050 through FP-0067 remain shipped F6A through F6R records
 - validation passes on the final tree
 
@@ -321,20 +335,29 @@ If a future plan wants persisted human-confirmation history, it must name that r
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates or updates:
+This implementation slice creates or updates:
 
 - `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md`
+- `packages/domain/src/external-delivery-human-confirmation-boundary.ts`
+- `packages/domain/src/external-delivery-human-confirmation-boundary.spec.ts`
+- `packages/domain/src/index.ts`
+- `apps/control-plane/src/modules/external-delivery-human-confirmation-boundary/**`
+- `apps/control-plane/src/app.ts`
+- `apps/control-plane/src/bootstrap.ts`
+- `apps/control-plane/src/lib/types.ts`
 - `README.md`
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
 - `plans/ROADMAP.md`
-- `plans/FP-0067-contract-obligation-source-pack-foundation.md` with a tiny shipped-record handoff note only if needed
+- `docs/ops/local-dev.md`
+- `docs/ops/source-ingest-and-cfo-wiki.md`
+- `docs/ops/codex-app-server.md`
+- `docs/benchmarks/seeded-missions.md`
 
 Do not create FP-0069.
-Do not start F6S implementation in this docs-and-plan slice.
 Do not start F6T, F6U, F6V, or later work in this slice.
 
-Expected future implementation artifacts are listed in `Concrete Steps`, but they must not be created by this docs-and-plan slice.
+The first F6S implementation artifacts are now created. Future delivery, provider, approval, report-release, certification, persistence, UI, or runtime-Codex artifacts require a future named Finance Plan.
 
 ## Interfaces and Dependencies
 
@@ -350,9 +373,8 @@ No GitHub connector work is expected.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice creates the active F6S implementation-ready contract only.
-It intentionally narrows F6S away from actual external delivery and toward one deterministic internal delivery safety gate / human-confirmation boundary.
-It adds no implementation code, route, schema, migration, package script, smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox behavior, report, approval, delivery, certification, close-complete, sign-off, attestation, legal/audit opinion, monitor family, discovery family, source mutation, generated prose, runtime-Codex behavior, finance write, or autonomous action.
+This implementation slice ships the first real F6S deterministic internal external-delivery human-confirmation / delivery-preflight boundary foundation.
+It intentionally keeps F6S away from actual external delivery and exposes one read-only safety gate / human-confirmation boundary over shipped F6M/F6P/F6Q/F6N posture.
+It adds no schema, migration, package script, smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox behavior, report, approval, delivery, certification, close-complete, sign-off, attestation, legal/audit opinion, monitor family, discovery family, source mutation, generated prose, runtime-Codex behavior, finance write, or autonomous action.
 
-Recommendation: start F6S implementation next only from this FP-0068 contract and keep it read-only/no-schema unless a concrete blocker is recorded in this plan.
-Do not start F6T/F6U planning next unless F6S implementation is deferred by a specific human decision or a validation blocker proves the F6S safety gate is not implementable.
+Recommendation: after validation and review, either start F6T or F6U planning only as a new Finance Plan, or keep F6S open for one more narrow continuation only if reviewers need more backend read-model proof before any later plan. Do not start F6V or actual provider/delivery work from FP-0068.
