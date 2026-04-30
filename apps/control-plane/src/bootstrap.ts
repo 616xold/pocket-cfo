@@ -15,6 +15,7 @@ import { CloseControlCertificationBoundaryService } from "./modules/close-contro
 import { CloseControlReviewSummaryService } from "./modules/close-control-review-summary/service";
 import { CloseControlService } from "./modules/close-control/service";
 import { DeliveryReadinessService } from "./modules/delivery-readiness/service";
+import { ExternalDeliveryHumanConfirmationBoundaryService } from "./modules/external-delivery-human-confirmation-boundary/service";
 import { ExternalProviderBoundaryService } from "./modules/external-provider-boundary/service";
 import { ProofBundleAssemblyService } from "./modules/evidence/proof-bundle-assembly";
 import { EvidenceService } from "./modules/evidence/service";
@@ -127,6 +128,7 @@ type SharedKernel = {
   closeControlReviewSummaryService: CloseControlReviewSummaryService;
   closeControlService: CloseControlService;
   deliveryReadinessService: DeliveryReadinessService;
+  externalDeliveryHumanConfirmationBoundaryService: ExternalDeliveryHumanConfirmationBoundaryService;
   externalProviderBoundaryService: ExternalProviderBoundaryService;
   cfoWikiService: CfoWikiService;
   financeTwinService: FinanceTwinService;
@@ -460,6 +462,13 @@ function buildSharedKernel(input: {
       closeControlReviewSummaryService,
       externalProviderBoundaryService,
     });
+  const externalDeliveryHumanConfirmationBoundaryService =
+    new ExternalDeliveryHumanConfirmationBoundaryService({
+      closeControlCertificationBoundaryService,
+      closeControlReviewSummaryService,
+      deliveryReadinessService,
+      externalProviderBoundaryService,
+    });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -483,6 +492,7 @@ function buildSharedKernel(input: {
     closeControlReviewSummaryService,
     closeControlService,
     deliveryReadinessService,
+    externalDeliveryHumanConfirmationBoundaryService,
     externalProviderBoundaryService,
     cfoWikiService,
     financeDiscoveryService,
@@ -576,6 +586,8 @@ function toAppContainer(
     closeControlReviewSummaryService: kernel.closeControlReviewSummaryService,
     closeControlService: kernel.closeControlService,
     deliveryReadinessService: kernel.deliveryReadinessService,
+    externalDeliveryHumanConfirmationBoundaryService:
+      kernel.externalDeliveryHumanConfirmationBoundaryService,
     externalProviderBoundaryService: kernel.externalProviderBoundaryService,
     cfoWikiService: kernel.cfoWikiService,
     financeTwinService: kernel.financeTwinService,
