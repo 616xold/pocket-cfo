@@ -301,4 +301,4 @@ If a later continuation finds it cannot extend F6U using only existing source re
 This implementation slice ships the first F6U ledger/reconciliation source-pack foundation.
 F6U remains one deterministic fixture/manifest/normalized-posture/proof slice and keeps certification, provider integration, external delivery, approvals, reports, runtime-Codex, monitor families, discovery families, and autonomous actions out of scope.
 
-Recommendation: after review, start either F6T actual certification planning or F6V actual provider-integration planning only through a new Finance Plan if the operator chooses that riskier path. If reviewers want more evidence before F6T/F6V, the safer continuation is one more narrow F6U hardening slice that stays source-pack-only and adds no runtime behavior.
+Recommendation: after review, treat FP-0069 as the shipped F6U record only. FP-0070 later selected non-certifying F6T certification-safety/readiness planning; F6V, F6W, F6X, any F6U hardening, and any actual-certification path require their own future Finance Plan.
