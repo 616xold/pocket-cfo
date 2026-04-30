@@ -1,0 +1,445 @@
+{
+  "sourcePackId": "pocket-cfo-ledger-reconciliation-source-pack",
+  "companyKey": "demo-ledger-reconciliation-source-pack",
+  "sourceRolesPresent": [
+    "chart_of_accounts",
+    "trial_balance",
+    "general_ledger"
+  ],
+  "extractorKeysUsed": [
+    "chart_of_accounts_csv",
+    "trial_balance_csv",
+    "general_ledger_csv"
+  ],
+  "sourceFiles": [
+    {
+      "role": "chart_of_accounts",
+      "path": "sources/chart-of-accounts.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "chart_of_accounts_csv"
+    },
+    {
+      "role": "trial_balance",
+      "path": "sources/trial-balance.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "trial_balance_csv"
+    },
+    {
+      "role": "general_ledger",
+      "path": "sources/general-ledger.csv",
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "expectedExtractorKey": "general_ledger_csv"
+    }
+  ],
+  "sourcePostureByRole": {
+    "chart_of_accounts": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "chart_of_accounts_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    },
+    "trial_balance": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "trial_balance_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    },
+    "general_ledger": {
+      "sourceKind": "dataset",
+      "mediaType": "text/csv",
+      "extractorKey": "general_ledger_csv",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "sourceSnapshotPresent": true,
+      "sourceFileChecksumPresent": true,
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "lineagePresent": true,
+      "limitationsPresent": true
+    }
+  },
+  "accountCatalogPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "accountCount": 5,
+    "accountCodes": ["1000", "2000", "3000", "4000", "5000"],
+    "coverage": {
+      "accountCatalogEntryCount": 5,
+      "lineageCount": 10,
+      "lineageTargetKinds": ["account_catalog_entry", "ledger_account"]
+    },
+    "summary": {
+      "accountCount": 5,
+      "activeAccountCount": 4,
+      "inactiveAccountCount": 1,
+      "parentLinkedCount": 1
+    },
+    "lineagePresent": true,
+    "limitationsPresent": true
+  },
+  "chartOfAccountsAccountCountPosture": {
+    "accountCount": 5,
+    "activeAccountCount": 4,
+    "inactiveAccountCount": 1,
+    "parentLinkedCount": 1
+  },
+  "trialBalancePosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "reportingPeriod": {
+      "periodKey": "2026-03-31",
+      "periodStart": "2026-03-01",
+      "periodEnd": "2026-03-31"
+    },
+    "coverage": {
+      "lineCount": 3,
+      "lineageCount": 7,
+      "lineageTargetKinds": [
+        "ledger_account",
+        "reporting_period",
+        "trial_balance_line"
+      ]
+    },
+    "summary": {
+      "accountCount": 3,
+      "lineCount": 3,
+      "totalDebitAmount": "150.00",
+      "totalCreditAmount": "150.00",
+      "totalNetAmount": "0.00",
+      "currencyCode": "USD"
+    },
+    "limitationsPresent": true
+  },
+  "trialBalanceAccountCountPosture": {
+    "accountCount": 3,
+    "lineCount": 3
+  },
+  "generalLedgerPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "journalEntryExternalIds": ["J-100"],
+    "accountCodes": ["1000", "2000", "3000"],
+    "coverage": {
+      "journalEntryCount": 1,
+      "journalLineCount": 3,
+      "lineageCount": 8,
+      "lineageTargetKinds": [
+        "general_ledger_balance_proof",
+        "journal_entry",
+        "journal_line",
+        "ledger_account"
+      ]
+    },
+    "periodContext": {
+      "basis": "source_declared_period",
+      "sourceDeclaredPeriod": {
+        "contextKind": "period_window",
+        "periodKey": "2026-03",
+        "periodStart": "2026-03-01",
+        "periodEnd": "2026-03-31",
+        "asOf": null
+      },
+      "activityWindowEarliestEntryDate": "2026-03-15",
+      "activityWindowLatestEntryDate": "2026-03-15",
+      "reasonCode": "source_declared_period_window"
+    },
+    "summary": {
+      "journalEntryCount": 1,
+      "journalLineCount": 3,
+      "ledgerAccountCount": 3,
+      "totalDebitAmount": "150.00",
+      "totalCreditAmount": "150.00",
+      "earliestEntryDate": "2026-03-15",
+      "latestEntryDate": "2026-03-15",
+      "currencyCode": "USD"
+    },
+    "limitationsPresent": true
+  },
+  "generalLedgerJournalEntryLineCountPosture": {
+    "journalEntryCount": 1,
+    "journalLineCount": 3
+  },
+  "reconciliationPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "sliceAlignment": {
+      "state": "shared_source",
+      "implementedSliceCount": 2,
+      "availableSliceCount": 2,
+      "distinctSourceCount": 1,
+      "distinctSyncRunCount": 2,
+      "distinctSourceSnapshotCount": 2,
+      "sameSource": true,
+      "sameSyncRun": false,
+      "sameSourceSnapshot": false,
+      "reasonCode": "shared_source"
+    },
+    "comparability": {
+      "state": "window_comparable",
+      "basis": "source_declared_period",
+      "windowRelation": "exact_match",
+      "trialBalanceWindow": {
+        "periodKey": "2026-03-31",
+        "periodStart": "2026-03-01",
+        "periodEnd": "2026-03-31"
+      },
+      "sourceDeclaredGeneralLedgerPeriod": {
+        "contextKind": "period_window",
+        "periodKey": "2026-03",
+        "periodStart": "2026-03-01",
+        "periodEnd": "2026-03-31",
+        "asOf": null
+      },
+      "generalLedgerWindow": {
+        "earliestEntryDate": "2026-03-15",
+        "latestEntryDate": "2026-03-15"
+      },
+      "sameSource": true,
+      "sameSourceSnapshot": false,
+      "sameSyncRun": false,
+      "reasonCode": "source_declared_period_exact_match"
+    },
+    "coverageSummary": {
+      "accountRowCount": 4,
+      "presentInTrialBalanceCount": 3,
+      "presentInGeneralLedgerCount": 3,
+      "overlapCount": 2,
+      "trialBalanceOnlyCount": 1,
+      "generalLedgerOnlyCount": 1
+    },
+    "accountPosture": {
+      "accountCodes": ["1000", "2000", "3000", "4000"],
+      "overlapAccountCodes": ["1000", "2000"],
+      "trialBalanceOnlyAccountCodes": ["4000"],
+      "generalLedgerOnlyAccountCodes": ["3000"],
+      "activityLineageAccountCodes": ["1000", "2000", "3000"]
+    },
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "accountBridgePosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "sliceAlignment": {
+      "state": "shared_source",
+      "implementedSliceCount": 2,
+      "availableSliceCount": 2,
+      "distinctSourceCount": 1,
+      "distinctSyncRunCount": 2,
+      "distinctSourceSnapshotCount": 2,
+      "sameSource": true,
+      "sameSyncRun": false,
+      "sameSourceSnapshot": false,
+      "reasonCode": "shared_source"
+    },
+    "bridgeReadiness": {
+      "state": "matched_period_ready",
+      "reasonCode": "account_bridge_matched_period_ready",
+      "basis": "source_declared_period",
+      "windowRelation": "exact_match",
+      "sameSource": true,
+      "sameSourceSnapshot": false,
+      "sameSyncRun": false
+    },
+    "coverageSummary": {
+      "accountRowCount": 5,
+      "presentInChartOfAccountsCount": 5,
+      "presentInTrialBalanceCount": 3,
+      "presentInGeneralLedgerCount": 3,
+      "overlapCount": 2,
+      "trialBalanceOnlyCount": 1,
+      "generalLedgerOnlyCount": 1,
+      "missingFromChartOfAccountsCount": 0,
+      "inactiveWithGeneralLedgerActivityCount": 1
+    },
+    "accountPosture": {
+      "accountCodes": ["1000", "2000", "3000", "4000", "5000"],
+      "presentInChartOfAccountsCodes": ["1000", "2000", "3000", "4000", "5000"],
+      "overlapAccountCodes": ["1000", "2000"],
+      "trialBalanceOnlyAccountCodes": ["4000"],
+      "generalLedgerOnlyAccountCodes": ["3000"],
+      "inactiveWithGeneralLedgerActivityAccountCodes": ["3000"],
+      "missingFromChartOfAccountsCodes": [],
+      "activityLineageAccountCodes": ["1000", "2000", "3000"]
+    },
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "balanceBridgePrerequisitesPosture": {
+    "sourceBackedState": "source_backed",
+    "freshnessState": "fresh",
+    "accountBridgeReadiness": {
+      "state": "matched_period_ready",
+      "reasonCode": "account_bridge_matched_period_ready",
+      "basis": "source_declared_period",
+      "windowRelation": "exact_match",
+      "sameSource": true,
+      "sameSourceSnapshot": false,
+      "sameSyncRun": false
+    },
+    "balanceBridgePrerequisites": {
+      "state": "source_backed_balance_prereq_ready",
+      "reasonCode": "balance_bridge_source_backed_prereq_ready",
+      "basis": "source_declared_period",
+      "windowRelation": "exact_match",
+      "sameSource": true,
+      "sameSourceSnapshot": false,
+      "sameSyncRun": false,
+      "prerequisites": {
+        "hasSuccessfulTrialBalanceSlice": true,
+        "hasSuccessfulGeneralLedgerSlice": true,
+        "matchedPeriodAccountBridgeReady": true,
+        "anySourceBackedGeneralLedgerBalanceProof": true
+      }
+    },
+    "coverageSummary": {
+      "accountRowCount": 5,
+      "presentInChartOfAccountsCount": 5,
+      "presentInTrialBalanceCount": 3,
+      "presentInGeneralLedgerCount": 3,
+      "overlapCount": 2,
+      "trialBalanceOnlyCount": 1,
+      "generalLedgerOnlyCount": 1,
+      "missingFromChartOfAccountsCount": 0,
+      "inactiveWithGeneralLedgerActivityCount": 1,
+      "matchedPeriodAccountBridgeReadyCount": 2,
+      "accountsWithOpeningBalanceProofCount": 1,
+      "accountsWithEndingBalanceProofCount": 1,
+      "accountsBlockedByMissingOverlapCount": 3,
+      "accountsBlockedByMissingBalanceProofCount": 1,
+      "prereqReadyAccountCount": 1
+    },
+    "accountPosture": {
+      "accountCodes": ["1000", "2000", "3000", "4000", "5000"],
+      "matchedPeriodReadyAccountCodes": ["1000", "2000"],
+      "prereqReadyAccountCodes": ["1000"],
+      "missingBalanceProofAccountCodes": ["2000"],
+      "missingOverlapAccountCodes": ["3000", "4000", "5000"],
+      "proofAccount": {
+        "accountCode": "1000",
+        "generalLedgerBalanceProof": {
+          "openingBalanceAmount": "30.00",
+          "endingBalanceAmount": "180.00",
+          "openingBalanceEvidencePresent": true,
+          "endingBalanceEvidencePresent": true,
+          "openingBalanceSourceColumn": "opening_balance",
+          "openingBalanceLineNumber": 2,
+          "endingBalanceSourceColumn": "closing_balance",
+          "endingBalanceLineNumber": 2,
+          "proofBasis": "source_backed_balance_field",
+          "reasonCode": "source_backed_opening_and_ending_balance_proof"
+        },
+        "activityLineageRefPresent": true,
+        "balanceProofLineageRefPresent": true
+      }
+    },
+    "limitationsPresent": true,
+    "diagnosticsPresent": true
+  },
+  "sourceBackedBalanceProofPosture": {
+    "targetAccountCode": "1000",
+    "proofPresent": true,
+    "proofBasis": "source_backed_balance_field",
+    "openingBalanceAmount": "30.00",
+    "endingBalanceAmount": "180.00",
+    "openingBalanceEvidencePresent": true,
+    "endingBalanceEvidencePresent": true,
+    "openingBalanceSourceColumn": "opening_balance",
+    "openingBalanceLineNumber": 2,
+    "endingBalanceSourceColumn": "closing_balance",
+    "endingBalanceLineNumber": 2,
+    "reasonCode": "source_backed_opening_and_ending_balance_proof",
+    "lineagePresent": true,
+    "lineageRecordCount": 1,
+    "limitationsPresent": true,
+    "diagnosticsPresent": false
+  },
+  "balanceProofLineagePosture": {
+    "targetKind": "general_ledger_balance_proof",
+    "recordCount": 1,
+    "lineageTargetKinds": ["general_ledger_balance_proof"],
+    "extractorKeys": ["general_ledger_csv"],
+    "sourceKinds": ["dataset"],
+    "sourceFileNames": ["general-ledger.csv"],
+    "limitationsPresent": true
+  },
+  "periodContextPosture": {
+    "basis": "source_declared_period",
+    "sourceDeclaredPeriod": {
+      "contextKind": "period_window",
+      "periodKey": "2026-03",
+      "periodStart": "2026-03-01",
+      "periodEnd": "2026-03-31",
+      "asOf": null
+    },
+    "activityWindowEarliestEntryDate": "2026-03-15",
+    "activityWindowLatestEntryDate": "2026-03-15",
+    "reasonCode": "source_declared_period_window",
+    "comparabilityState": "window_comparable",
+    "windowRelation": "exact_match"
+  },
+  "familyBoundary": {
+    "newMonitorFamilyAdded": false,
+    "newDiscoveryFamilyAdded": false
+  },
+  "runtimeActionBoundary": {
+    "monitorRunTriggered": false,
+    "checklistReadTriggered": false,
+    "operatorReadinessReadTriggered": false,
+    "acknowledgementReadTriggered": false,
+    "deliveryReadinessReadTriggered": false,
+    "reviewSummaryReadTriggered": false,
+    "providerBoundaryReadTriggered": false,
+    "certificationBoundaryReadTriggered": false,
+    "humanConfirmationBoundaryReadTriggered": false,
+    "missionCreated": false,
+    "reportCreated": false,
+    "approvalCreated": false,
+    "deliveryCreated": false,
+    "providerCallCreated": false,
+    "providerCredentialCreated": false,
+    "providerJobCreated": false,
+    "runtimeCodexUsed": false,
+    "generatedProseCreated": false,
+    "paymentInstructionCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "certificationCreated": false,
+    "closeCompleteCreated": false,
+    "signOffCreated": false,
+    "attestationCreated": false,
+    "legalOpinionCreated": false,
+    "auditOpinionCreated": false,
+    "assuranceCreated": false,
+    "sourceMutationOutsideUploadSync": false,
+    "autonomousActionCreated": false
+  },
+  "limitations": [
+    "The pack is one deterministic local fixture family, not a broad source-pack platform.",
+    "The pack covers only chart-of-accounts CSV, trial-balance CSV, and general-ledger CSV source posture.",
+    "The pack proves existing source registry and Finance Twin account-catalog, ledger, reconciliation, account-bridge, balance-bridge-prerequisites, balance-proof, balance-proof lineage, and period-context route behavior only; it does not add routes, schema, migrations, package scripts, monitor families, discovery families, or extractors.",
+    "The pack does not create missions, reports, approvals, delivery, runtime-Codex drafts, provider calls, provider credentials, provider jobs, certification, close-complete status, sign-off, attestation, legal opinions, audit opinions, assurance artifacts, payment behavior, accounting writes, bank writes, tax filings, legal advice, policy advice, collection instructions, customer-contact instructions, generated prose, source mutation outside proof upload/sync setup, or autonomous finance action."
+  ]
+}

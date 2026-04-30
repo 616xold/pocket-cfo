@@ -1,0 +1,4 @@
+account_code,account_name,period_start,period_end,debit,credit,currency_code,account_type
+1000,Cash,2026-03-01,2026-03-31,150.00,0.00,USD,asset
+2000,Accounts Payable,2026-03-01,2026-03-31,0.00,120.00,USD,liability
+4000,Deferred Revenue,2026-03-01,2026-03-31,0.00,30.00,USD,liability
