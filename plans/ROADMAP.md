@@ -435,6 +435,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0067-contract-obligation-source-pack-foundation.md` is the shipped F6R record for one contract/obligation source-pack foundation only.
 `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` is the shipped F6S implementation record for one internal external-delivery human-confirmation / delivery-preflight boundary only.
 `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` is the shipped F6U record for one ledger/reconciliation source-pack foundation only.
+`plans/FP-0070-close-control-certification-safety-foundation.md` is the active F6T implementation-ready planning contract for one internal close/control certification-safety/readiness foundation only.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -456,6 +457,7 @@ The shipped F6Q slice is exactly `F6Q-close-control-certification-boundary-found
 The shipped F6R slice is exactly `F6R-contract-obligation-source-pack-foundation`.
 The shipped F6S slice is exactly `F6S-external-delivery-human-confirmation-boundary-foundation`.
 The shipped F6U slice is exactly `F6U-ledger-reconciliation-source-pack-foundation`.
+The active F6T contract is exactly `F6T-close-control-certification-safety-foundation` and is not actual certification.
 
 Focus:
 
@@ -692,8 +694,16 @@ Slice map:
   - output includes explicit absence boundaries showing no email, Slack, SMS, webhook, notification provider call, provider credential flow, provider job, outbox send, scheduled delivery, auto-send, report delivery, external publish behavior, approval, report release, report circulation, certification, close-complete status, sign-off, attestation, legal/audit opinion, mission creation, monitor rerun, runtime-Codex drafting, generated prose, source mutation, finance write, legal/policy/payment/collection/customer-contact instruction, or autonomous action occurred
   - implementation is read-only and no-schema; any later persistence requires a future named plan and must not be a send record, provider call record, provider job, outbox send, delivery log, approval, report release, certification, close-complete record, sign-off, attestation, legal opinion, audit opinion, assurance record, or autonomous-action record
   - no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L bank/card source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6O receivables/payables source-pack behavior changes, no F6P provider-boundary behavior changes, no F6Q certification-boundary behavior changes, no F6R source-pack behavior changes, no new approval kind, no report conversion, and no monitor-family or discovery-family expansion
-- `F6T — actual certification`
-  - later only if a future plan proves operator need, legal boundaries, evidence boundaries, review gates, and non-advice constraints
+- `F6T — close/control certification-safety foundation`
+  - active implementation-ready planning record in `plans/FP-0070-close-control-certification-safety-foundation.md`
+  - first F6T implementation must be internal certification-safety/readiness only, not actual certification
+  - starts only from shipped stored/read state: F6Q certification-boundary posture, F6S human-confirmation posture, and F6N review-summary posture; F6M delivery-readiness, F6P provider-boundary, F6H/F6J/F6K posture, latest persisted monitor results, and source/CFO Wiki freshness posture may be used only as context through shipped read services if needed
+  - output contract is one deterministic internal certification-safety/readiness result or read model with bounded certification-safety targets
+  - each target includes evidence basis, source/freshness posture, limitations, proof posture, status, and human-review next step
+  - statuses must remain review-oriented, such as `ready_for_certification_safety_review`, `needs_human_review_before_certification_safety`, and `blocked_by_evidence`
+  - no certification records, certified status, certification complete, close-complete status, sign-off, attestation, assurance, legal opinion, audit opinion, approval, report release, report circulation, external delivery, provider call, provider credential, provider job, outbox send, mission creation, monitor rerun, source mutation, runtime-Codex, generated prose, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
+  - first implementation should be read-only and no-schema unless a concrete blocker is proven; any later persistence must be additive, idempotent, company-scoped, evidence-linked, and explicitly not a certification record, approval record, close-complete record, sign-off, attestation, assurance, legal/audit opinion, report-release record, delivery record, provider job, outbox send, or external representation
+  - preserve shipped F5 and F6 behavior, including F6Q certification-boundary posture, F6S human-confirmation posture, and F6U ledger/reconciliation source-pack proof
 - `F6U — ledger/reconciliation source-pack foundation`
   - shipped implementation record in `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md`
   - first F6U scope is exactly `F6U-ledger-reconciliation-source-pack-foundation`
@@ -712,3 +722,5 @@ Slice map:
   - later only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send
 - `F6W — additional source-pack expansion`
   - later only after existing source packs remain green and source-backed
+- `F6X — actual certification`
+  - later only if operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints are proven

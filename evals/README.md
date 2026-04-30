@@ -63,8 +63,9 @@ When using those commands during the pivot:
 29. shipped F6Q internal close/control certification-boundary/readiness foundation, recorded in `plans/FP-0066-close-control-certification-boundary-foundation.md`, with narrow domain/control-plane specs as the deterministic proof and no eval dataset, actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, approval, report release, report circulation, external delivery, provider call, provider credential, provider job, outbox send, mission creation, monitor rerun, source mutation, runtime-Codex, generated prose, finance action, F6R implementation in that slice, monitor family, or discovery family added
 30. shipped F6R contract/obligation source-pack foundation, recorded in `plans/FP-0067-contract-obligation-source-pack-foundation.md`, with direct deterministic proof `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs` and no eval dataset, route, schema, package script, smoke alias, runtime-Codex, delivery, provider call, report, approval, certification, finance action, monitor family, or discovery family added
 31. shipped F6U ledger/reconciliation source-pack foundation, recorded in `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md`, with direct deterministic proof `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs` and no eval dataset, route, schema, package script, smoke alias, runtime-Codex, delivery, provider call, report, approval, certification, finance action, monitor family, or discovery family added
-32. wiki compilation quality
-33. provenance, freshness disclosure, and contradiction handling
+32. active F6T close/control certification-safety planning, recorded in `plans/FP-0070-close-control-certification-safety-foundation.md`, with no eval dataset, code, route, schema, package script, smoke alias, runtime-Codex, delivery, provider call, report, approval, certification, finance action, monitor family, or discovery family added in the docs-and-plan slice
+33. wiki compilation quality
+34. provenance, freshness disclosure, and contradiction handling
 
 ## F4 staging
 

@@ -40,7 +40,7 @@ F6V would require provider security, compliance posture, human confirmation, obs
 Those boundaries are not proven enough for implementation planning.
 
 The existing Finance Twin smokes already prove the exact ledger/reconciliation surfaces F6U needs, but they are smoke fixtures, not a checked-in source-pack family.
-The later F6U implementation must therefore add one checked-in static fixture/manifest family and normalized expected posture rather than changing the shipped runtime surfaces.
+The F6U implementation therefore added one checked-in static fixture/manifest family and normalized expected posture rather than changing the shipped runtime surfaces.
 
 The balance-bridge and reconciliation routes are intentionally truth-limited.
 They expose readiness, account overlap, period context, and source-backed balance proof when explicit persisted fields exist.
