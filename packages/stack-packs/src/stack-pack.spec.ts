@@ -5,6 +5,7 @@ import { describe, expect, it } from "vitest";
 import { nextjsVercelPack } from "./packs/nextjs-vercel";
 import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source-pack";
 import { pocketCfoContractObligationSourcePack } from "./packs/pocket-cfo-contract-obligation-source-pack";
+import { pocketCfoLedgerReconciliationSourcePack } from "./packs/pocket-cfo-ledger-reconciliation-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
 import { pocketCfoReceivablesPayablesSourcePack } from "./packs/pocket-cfo-receivables-payables-source-pack";
 
@@ -241,6 +242,82 @@ describe("stack packs", () => {
       "monitorFamiliesCovered",
     );
     expect(pocketCfoContractObligationSourcePack).not.toHaveProperty(
+      "discoveryFamiliesCovered",
+    );
+  });
+
+  it("exports the Pocket CFO F6U ledger/reconciliation source pack without monitor or discovery semantics", () => {
+    expect(pocketCfoLedgerReconciliationSourcePack.id).toBe(
+      "pocket-cfo-ledger-reconciliation-source-pack",
+    );
+    expect(pocketCfoLedgerReconciliationSourcePack.fixtureDirectory).toBe(
+      "packages/testkit/fixtures/f6u-ledger-reconciliation-source-pack",
+    );
+    expect(pocketCfoLedgerReconciliationSourcePack.sourceRoles).toEqual([
+      "chart_of_accounts",
+      "trial_balance",
+      "general_ledger",
+    ]);
+    expect(
+      pocketCfoLedgerReconciliationSourcePack.sourceFiles.map(
+        (file) => file.role,
+      ),
+    ).toEqual(pocketCfoLedgerReconciliationSourcePack.sourceRoles);
+    expect(pocketCfoLedgerReconciliationSourcePack.sourceKinds).toEqual([
+      "dataset",
+    ]);
+    expect(pocketCfoLedgerReconciliationSourcePack.mediaTypes).toEqual([
+      "text/csv",
+    ]);
+    expect(
+      pocketCfoLedgerReconciliationSourcePack.expectedExtractorKeys,
+    ).toEqual([
+      "chart_of_accounts_csv",
+      "trial_balance_csv",
+      "general_ledger_csv",
+    ]);
+    expect(
+      pocketCfoLedgerReconciliationSourcePack.sourceFiles.map(
+        (file) => file.expectedExtractorKey,
+      ),
+    ).toEqual(pocketCfoLedgerReconciliationSourcePack.expectedExtractorKeys);
+    expect(
+      pocketCfoLedgerReconciliationSourcePack.expectedNormalizedPosturePath,
+    ).toBe(
+      "packages/testkit/fixtures/f6u-ledger-reconciliation-source-pack/expected-source-twin-posture.json",
+    );
+    expect(
+      normalizeManifestSourceFiles(
+        pocketCfoLedgerReconciliationSourcePack.sourceFiles,
+      ),
+    ).toEqual(
+      normalizeExpectedSourceFiles(
+        loadExpectedPosture(
+          pocketCfoLedgerReconciliationSourcePack.expectedNormalizedPosturePath,
+        ).sourceFiles,
+      ),
+    );
+    for (const sourceFile of normalizeManifestSourceFiles(
+      pocketCfoLedgerReconciliationSourcePack.sourceFiles,
+    )) {
+      const absolutePath = join(
+        repoRoot,
+        pocketCfoLedgerReconciliationSourcePack.fixtureDirectory,
+        sourceFile.path,
+      );
+
+      expect(existsSync(absolutePath)).toBe(true);
+      expect(readFileSync(absolutePath, "utf8").trim().length).toBeGreaterThan(
+        0,
+      );
+    }
+    expect(
+      pocketCfoLedgerReconciliationSourcePack.runtimeDeliveryActionBoundary,
+    ).toContain("runtime-free");
+    expect(pocketCfoLedgerReconciliationSourcePack).not.toHaveProperty(
+      "monitorFamiliesCovered",
+    );
+    expect(pocketCfoLedgerReconciliationSourcePack).not.toHaveProperty(
       "discoveryFamiliesCovered",
     );
   });

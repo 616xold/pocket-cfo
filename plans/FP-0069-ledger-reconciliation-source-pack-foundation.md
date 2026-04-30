@@ -2,16 +2,16 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6U implementation contract.
+This is the shipped Finance Plan for the Pocket CFO F6U implementation contract.
 The target phase is `F6`, and the implementation slice is exactly `F6U-ledger-reconciliation-source-pack-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6S, Pocket CFO should be able to prove one additional checked-in source-pack family for ledger/reconciliation posture using the existing source registry and Finance Twin routes only.
+The user-visible goal is narrow: after shipped F6A through F6S, Pocket CFO can prove one additional checked-in source-pack family for ledger/reconciliation posture using the existing source registry and Finance Twin routes only.
 The source-pack family is limited to chart-of-accounts, trial-balance, and general-ledger CSV inputs.
 It is a fixture, manifest, normalized expected-output, and deterministic direct-proof slice.
 It is not product runtime behavior.
 
 Repo truth supports F6U in this reduced shape because shipped F6L bank/card, F6O receivables/payables, and F6R contract/obligation source-pack proofs are green and source-backed, while the existing Finance Twin already ships source-backed `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv` sync/read posture plus reconciliation, account bridge, balance bridge prerequisites, balance-proof lineage, period-context, and source-backed balance-proof smokes.
-F6U should not become actual certification, actual provider integration, actual external delivery, report release, approval, runtime-Codex behavior, monitor expansion, discovery expansion, or a broad source-pack platform.
+F6U did not become actual certification, actual provider integration, actual external delivery, report release, approval, runtime-Codex behavior, monitor expansion, discovery expansion, or a broad source-pack platform.
 
 GitHub connector work is explicitly out of scope.
 Do not invoke GitHub Connector Guard for F6U.
@@ -23,8 +23,14 @@ Do not invoke GitHub Connector Guard for F6U.
 - [x] 2026-04-30T12:22:48Z Read the active doc spine, shipped FP-0068 F6S record, package scripts, shipped F6L/F6O/F6R source-pack manifests and proofs, existing Finance Twin ledger/reconciliation proof smokes, source registry routes/services, Finance Twin routes/services, F6S/F6Q/F6P/F6N/F6M boundaries, and monitoring-family/discovery-family contracts.
 - [x] 2026-04-30T12:22:48Z Ran the F6U readiness gate before writing this plan: `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`, `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`, `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`, `pnpm smoke:finance-twin-account-catalog:local`, `pnpm smoke:finance-twin-general-ledger:local`, `pnpm smoke:finance-twin:local`, `pnpm smoke:finance-twin-reconciliation:local`, `pnpm smoke:finance-twin-account-bridge:local`, `pnpm smoke:finance-twin-balance-bridge-prerequisites:local`, `pnpm smoke:finance-twin-balance-proof-lineage:local`, `pnpm smoke:finance-twin-period-context:local`, and `pnpm smoke:finance-twin-source-backed-balance-proof:local`; all passed.
 - [x] 2026-04-30T12:22:48Z Decided F6U is the safest next planning slice, ahead of F6T actual certification or F6V actual provider integration, because it can stay source-pack-only and proof-oriented on already shipped ledger/reconciliation surfaces.
-- [x] 2026-04-30T12:22:48Z Created this FP-0069 implementation-ready planning contract and refreshed active docs without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, or product runtime behavior.
+- [x] 2026-04-30T12:22:48Z Created this FP-0069 planning contract and refreshed active docs without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, or product runtime behavior.
 - [x] 2026-04-30T12:37:18Z Ran the requested docs-and-plan validation ladder, including all listed DB-backed smokes, source-pack proofs, targeted domain/control-plane/twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-04-30T22:06:20Z Started the implementation slice on `codex/f6u-ledger-reconciliation-source-pack-foundation-local-v1`, reloaded the required Pocket CFO operator skills, reran preflight against fetched `origin/main`, confirmed a clean worktree before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-04-30T22:06:20Z Added one `pocket-cfo-ledger-reconciliation-source-pack` manifest family with source roles limited to `chart_of_accounts`, `trial_balance`, and `general_ledger`, extractor keys limited to `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv`, and explicit runtime/delivery/action absence boundaries.
+- [x] 2026-04-30T22:06:20Z Added one immutable checked-in F6U fixture family under `packages/testkit/fixtures/f6u-ledger-reconciliation-source-pack/` with chart-of-accounts, trial-balance, and general-ledger CSV sources plus normalized expected source/twin/reconciliation posture.
+- [x] 2026-04-30T22:06:20Z Added focused stack-pack and testkit specs that assert source roles/extractor keys are limited, manifest source files are the operational source of truth, expected posture descriptors match the manifest, expected posture excludes volatile generated fields, source files are non-empty, and raw fixture hashes remain unchanged.
+- [x] 2026-04-30T22:06:20Z Added direct proof `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs`, using existing source registry upload routes and existing Finance Twin sync/read/reconciliation routes only; the proof verified normalized source/twin/reconciliation posture and raw fixture immutability without adding routes, schema, package scripts, smoke aliases, monitor/discovery families, runtime-Codex, delivery, provider, report, approval, certification, generated prose, finance write, or autonomous-action behavior.
+- [x] 2026-04-30T22:17:25Z Completed the full requested validation ladder on the final F6U tree, including narrow manifest/fixture specs, targeted domain/control-plane/twin specs, the new F6U proof, all shipped source-pack and Finance Twin smokes, delivery/readiness/acknowledgement/checklist/provider/certification/human-confirmation guardrails, monitor/discovery smokes, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -59,15 +65,15 @@ Decision: F6U is not certification, legal advice, audit opinion, approval, or re
 Rationale: do not add actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, approval workflow, report release, or report circulation.
 
 Decision: F6U expands source packs, not product runtime behavior.
-Rationale: the later implementation should define one checked-in ledger/reconciliation source-pack fixture or manifest family, expected normalized posture, and one deterministic proof path. It should not add DB tables, routes, monitor evaluators, mission behavior, UI, package scripts, root smoke aliases, eval datasets, provider integrations, outbox behavior, or runtime-Codex.
+Rationale: the implementation defines one checked-in ledger/reconciliation source-pack fixture and manifest family, expected normalized posture, and one deterministic proof path. It does not add DB tables, routes, monitor evaluators, mission behavior, UI, package scripts, root smoke aliases, eval datasets, provider integrations, outbox behavior, or runtime-Codex.
 
 Decision: F6U source roles are limited to `chart_of_accounts`, `trial_balance`, and `general_ledger`.
 Rationale: these map to existing shipped extractor keys `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv`, and they are sufficient to prove the ledger/reconciliation source-pack family without adding new extractors.
 
 Decision: F6U inputs are fixture and proof inputs only.
-Rationale: allowed inputs for the later implementation are checked-in static source-pack fixture files, expected normalized source/twin/reconciliation posture, existing source registration/upload routes in proof tooling only, and existing Finance Twin sync/read/reconciliation routes in proof tooling only. Generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, generated prose, monitor reruns, provider state, provider credentials, outbox jobs, external communications, and source mutation outside proof upload/sync setup are out of scope.
+Rationale: allowed inputs for the implementation are checked-in static source-pack fixture files, expected normalized source/twin/reconciliation posture, existing source registration/upload routes in proof tooling only, and existing Finance Twin sync/read/reconciliation routes in proof tooling only. Generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, generated prose, monitor reruns, provider state, provider credentials, outbox jobs, external communications, and source mutation outside proof upload/sync setup are out of scope.
 
-Decision: F6U output contract is one source-pack manifest/fixture contract plus one deterministic direct proof path in the later implementation.
+Decision: F6U output contract is one source-pack manifest/fixture contract plus one deterministic direct proof path.
 Rationale: expected posture should include source file list, source roles, parser/sync expectations, normalized source/twin posture, reconciliation posture, account bridge posture, balance bridge posture, balance-proof lineage posture, period-context posture, raw fixture immutability, fixed monitor/discovery family boundaries, and limitations. It should add no new monitor result semantics, checklist item families, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, provider-boundary behavior, certification-boundary behavior, human-confirmation behavior, or investigation behavior.
 
 Decision: F6U preserves shipped F5 and F6 behavior.
@@ -107,25 +113,25 @@ No database schema migration, eval dataset, package script, smoke alias, provide
 
 ## Plan of Work
 
-First, the later implementation should add one ledger/reconciliation source-pack manifest contract beside the shipped F6L/F6O/F6R manifests.
+First, the implementation adds one ledger/reconciliation source-pack manifest contract beside the shipped F6L/F6O/F6R manifests.
 The source-pack family should be named `pocket-cfo-ledger-reconciliation-source-pack`.
-It should include exactly three source roles: `chart_of_accounts`, `trial_balance`, and `general_ledger`.
-It should include exactly three extractor keys: `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv`.
+It includes exactly three source roles: `chart_of_accounts`, `trial_balance`, and `general_ledger`.
+It includes exactly three extractor keys: `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv`.
 
-Second, the later implementation should add one checked-in immutable fixture directory for F6U.
+Second, the implementation adds one checked-in immutable fixture directory for F6U.
 The fixture should contain three CSV source files and one normalized expected posture file.
 The CSV files should be static source-pack fixtures, not generated at runtime and not mutated by proof tooling.
 The expected posture should avoid generated IDs, timestamps, storage refs, or any other volatile fields.
 
-Third, the later implementation should add one direct deterministic proof tool.
+Third, the implementation adds one direct deterministic proof tool.
 The proof should use only existing `/sources`, `/sources/:sourceId/files`, and `/finance-twin/companies/:companyKey/source-files/:sourceFileId/sync` routes to register/upload/sync the three fixture files.
 It should then read existing Finance Twin account-catalog, general-ledger, reconciliation, account-bridge, balance-bridge-prerequisites, balance-proof, period-context, and lineage routes to normalize actual source/twin/reconciliation posture and compare it to the expected posture.
 
-Fourth, the proof must assert absence boundaries.
+Fourth, the proof asserts absence boundaries.
 It should verify raw fixture source immutability, no monitor or discovery family expansion, no monitor reruns, no mission creation, no report artifacts, no approvals, no delivery/outbox/provider behavior, no certification/sign-off/attestation/legal/audit opinion/assurance artifacts, no generated prose, no runtime-Codex threads, no finance writes, and no autonomous action.
 
-Fifth, active docs should be refreshed only after the later implementation exists and passes validation.
-The implementation should not add a package script, root smoke alias, eval dataset, route, schema, migration, UI, provider integration, credential scaffold, or product runtime behavior unless this plan is explicitly amended.
+Fifth, active docs are refreshed after the implementation exists and passes validation.
+The implementation does not add a package script, root smoke alias, eval dataset, route, schema, migration, UI, provider integration, credential scaffold, or product runtime behavior.
 
 ## Concrete Steps
 
@@ -182,12 +188,11 @@ The implementation should not add a package script, root smoke alias, eval datas
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the user-requested validation ladder on the final tree.
-Because this thread does not implement F6U, it must not run a non-existent F6U proof command.
+This implementation thread must run the user-requested validation ladder on the final tree.
 
-The later F6U implementation thread must run at least:
+The F6U implementation validation must run at least:
 
-- `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs` after that proof tool exists
+- `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs`
 - `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`
 - `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`
 - `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`
@@ -238,54 +243,50 @@ Implementation acceptance requires all of the following:
 - proof verifies no new monitor or discovery families
 - proof verifies no route, schema, migration, package script, root smoke alias, eval dataset, mission behavior, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation behavior, report, approval, delivery, provider call, provider credential, provider job, outbox send, runtime-Codex, generated prose, source mutation outside proof upload/sync setup, finance write, advice/instruction, payment behavior, tax filing, legal/audit opinion, certification, close-complete status, sign-off, attestation, assurance, autonomous action, or UI is added
 
-Human-observable acceptance for this planning slice:
+Human-observable acceptance for this implementation slice:
 
-- `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` exists as the active implementation-ready F6U contract
-- active docs point future Codex threads at FP-0069 without claiming F6U is implemented
+- `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` exists as the shipped F6U record
+- active docs point future Codex threads at FP-0069 as the shipped one-source-pack F6U record
 - FP-0050 through FP-0068 remain shipped F6A through F6S records
 - F6T, F6V, F6W, and later plans are named only as likely later slices and are not created
 
 ## Idempotence and Recovery
 
-This docs-and-plan slice is retry-safe.
-If validation fails before implementation begins, fix only the docs/plan truthfulness gap or report the blocker.
-Do not start implementation to make this plan pass.
-
-The later F6U implementation should be retry-safe because it uses static fixture files, object-store source uploads, additive source snapshots, and existing idempotent read routes.
+This implementation slice is retry-safe because it uses static fixture files, object-store source uploads, additive source snapshots, and existing idempotent read routes.
 If a proof run creates additional source uploads or sync runs, rerunning should still normalize away volatile IDs and timestamps and compare only stable posture.
 Raw checked-in fixture files must never be rewritten by proof tooling.
 
-Rollback for the later implementation should be simple: remove only the F6U manifest, fixture family, proof tool, focused tests, and docs changes from that implementation branch.
+Rollback for this implementation should be simple: remove only the F6U manifest, fixture family, proof tool, focused tests, and docs changes from this implementation branch.
 Do not remove shipped F6L/F6O/F6R source packs, shipped Finance Twin ledger/reconciliation routes, or historical F5/F6 modules.
 
 Replay implication for F6U is explicit absence.
-The later implementation proof may create source upload/sync records as proof setup, but it must not create mission replay events, monitor results, report artifacts, approvals, delivery/outbox/provider records, certification records, generated prose, finance writes, or autonomous-action records.
+The implementation proof may create source upload/sync records as proof setup, but it must not create mission replay events, monitor results, report artifacts, approvals, delivery/outbox/provider records, certification records, generated prose, finance writes, or autonomous-action records.
 If a future plan wants persisted source-pack proof history, it must name that behavior explicitly and keep it separate from runtime product behavior.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates or updates:
+This F6U implementation slice creates or updates:
 
 - `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md`
 - `README.md`
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
 - `plans/ROADMAP.md`
-- `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` only for a tiny shipped-F6S-to-active-F6U handoff note if needed
-
-The later F6U implementation is expected to create or update:
-
+- `docs/ops/local-dev.md`
+- `docs/ops/source-ingest-and-cfo-wiki.md`
+- `docs/ops/codex-app-server.md`
+- `evals/README.md`
+- `docs/benchmarks/seeded-missions.md`
 - `packages/stack-packs/src/stack-pack.ts`
 - `packages/stack-packs/src/packs/pocket-cfo-ledger-reconciliation-source-pack.ts`
 - `packages/stack-packs/src/index.ts`
+- `packages/stack-packs/src/stack-pack.spec.ts`
 - `packages/testkit/fixtures/f6u-ledger-reconciliation-source-pack/**`
+- `packages/testkit/src/f6u-ledger-reconciliation-source-pack.spec.ts`
 - `tools/ledger-reconciliation-source-pack-proof.mjs`
-- focused specs only if required
-- active docs after implementation
 
 Do not create FP-0070.
 Do not start F6T, F6V, F6W, or later work in this slice.
-Do not start F6U implementation from this docs-and-plan thread.
 
 ## Interfaces and Dependencies
 
@@ -293,12 +294,11 @@ F6U depends on the existing source registry, source-file object storage, Finance
 It does not depend on GitHub, runtime-Codex, reports, approvals, outbox, providers, delivery, certification, legal/audit opinion, payment behavior, tax filing, UI, new database schema, new routes, new package scripts, new root smoke aliases, or new environment variables.
 
 The control-plane route files must remain unchanged unless a later plan explicitly amends this contract.
-If a later implementation finds it cannot prove F6U using only existing source registry and Finance Twin routes, stop and report the blocker instead of adding runtime behavior.
+If a later continuation finds it cannot extend F6U using only existing source registry and Finance Twin routes, stop and report the blocker instead of adding runtime behavior.
 
 ## Outcomes & Retrospective
 
-This planning slice creates the implementation-ready F6U contract only.
-F6U implementation has not started.
-The plan narrows F6U to one deterministic ledger/reconciliation source-pack foundation and keeps certification, provider integration, external delivery, approvals, reports, runtime-Codex, monitor families, discovery families, and autonomous actions out of scope.
+This implementation slice ships the first F6U ledger/reconciliation source-pack foundation.
+F6U remains one deterministic fixture/manifest/normalized-posture/proof slice and keeps certification, provider integration, external delivery, approvals, reports, runtime-Codex, monitor families, discovery families, and autonomous actions out of scope.
 
-Recommendation: start F6U implementation next only if this docs-and-plan branch validates, merges, and the repo remains clean and green. Do not start F6T actual certification or F6V actual provider integration next unless the operator explicitly chooses those and a new plan proves the missing safety boundaries first.
+Recommendation: after review, start either F6T actual certification planning or F6V actual provider-integration planning only through a new Finance Plan if the operator chooses that riskier path. If reviewers want more evidence before F6T/F6V, the safer continuation is one more narrow F6U hardening slice that stays source-pack-only and adds no runtime behavior.

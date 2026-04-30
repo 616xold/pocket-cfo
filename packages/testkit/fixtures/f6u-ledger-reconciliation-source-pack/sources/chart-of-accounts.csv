@@ -1,0 +1,6 @@
+account_code,account_name,account_type,detail_type,parent_account_code,is_active,description
+1000,Cash,asset,current_asset,,true,Operating cash account
+2000,Accounts Payable,liability,current_liability,,true,Supplier balances
+3000,Archived Clearing,liability,current_liability,,false,Legacy clearing account
+4000,Deferred Revenue,liability,current_liability,2000,true,Deferred customer receipts
+5000,Product Revenue,income,revenue,,true,Product revenue

@@ -121,7 +121,10 @@ export type PocketCfoContractObligationSourcePackSourceFile = {
   fixturePath: string;
   sourceKind: SourceKind;
   mediaType: string;
-  expectedExtractorKey: Extract<FinanceTwinExtractorKey, "contract_metadata_csv">;
+  expectedExtractorKey: Extract<
+    FinanceTwinExtractorKey,
+    "contract_metadata_csv"
+  >;
 };
 
 export type PocketCfoContractObligationSourcePack = {
@@ -135,6 +138,42 @@ export type PocketCfoContractObligationSourcePack = {
   mediaTypes: string[];
   expectedExtractorKeys: Array<
     Extract<FinanceTwinExtractorKey, "contract_metadata_csv">
+  >;
+  expectedNormalizedPosturePath: string;
+  limitations: string[];
+  runtimeDeliveryActionBoundary: string;
+};
+
+export type PocketCfoLedgerReconciliationSourcePackSourceRole =
+  | "chart_of_accounts"
+  | "trial_balance"
+  | "general_ledger";
+
+export type PocketCfoLedgerReconciliationSourcePackSourceFile = {
+  role: PocketCfoLedgerReconciliationSourcePackSourceRole;
+  fixturePath: string;
+  sourceKind: SourceKind;
+  mediaType: string;
+  expectedExtractorKey: Extract<
+    FinanceTwinExtractorKey,
+    "chart_of_accounts_csv" | "trial_balance_csv" | "general_ledger_csv"
+  >;
+};
+
+export type PocketCfoLedgerReconciliationSourcePack = {
+  id: string;
+  displayName: string;
+  purpose: string;
+  fixtureDirectory: string;
+  sourceFiles: PocketCfoLedgerReconciliationSourcePackSourceFile[];
+  sourceRoles: PocketCfoLedgerReconciliationSourcePackSourceRole[];
+  sourceKinds: SourceKind[];
+  mediaTypes: string[];
+  expectedExtractorKeys: Array<
+    Extract<
+      FinanceTwinExtractorKey,
+      "chart_of_accounts_csv" | "trial_balance_csv" | "general_ledger_csv"
+    >
   >;
   expectedNormalizedPosturePath: string;
   limitations: string[];
