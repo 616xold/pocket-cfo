@@ -381,3 +381,5 @@ It intentionally keeps F6S away from actual external delivery and exposes one re
 It adds no schema, migration, package script, smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox behavior, report, approval, delivery, certification, close-complete, sign-off, attestation, legal/audit opinion, monitor family, discovery family, source mutation, generated prose, runtime-Codex behavior, finance write, or autonomous action.
 
 Recommendation: after this post-merge polish is validated, reviewed, merged, and the repo is clean, start F6U planning next only as a new Finance Plan if the operator wants the safest next step. Do not start F6T, F6V, actual certification, actual provider integration, or actual provider/delivery work from FP-0068.
+
+Handoff note: a later docs-and-plan slice created `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` as the active implementation-ready F6U contract. FP-0068 remains only the shipped F6S record and still must not be treated as F6U implementation authority.
