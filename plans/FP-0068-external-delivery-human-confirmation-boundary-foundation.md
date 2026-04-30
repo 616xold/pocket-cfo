@@ -5,7 +5,7 @@
 This is the shipped Finance Plan record for the Pocket CFO F6S implementation contract.
 The target phase is `F6`, and the first implementation slice is exactly `F6S-external-delivery-human-confirmation-boundary-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6R, Pocket CFO should be able to show one deterministic internal external-delivery safety gate / human-confirmation readiness posture that a human operator can review before any future plan considers actual external delivery.
+The user-visible goal is narrow: after shipped F6A through F6R, Pocket CFO can show one deterministic internal external-delivery safety gate / human-confirmation readiness posture that a human operator can review before any future plan considers actual external delivery.
 This is not actual external delivery.
 It is not email, Slack, SMS, webhook, notification-provider work, provider integration, provider credential storage, provider job creation, outbox send behavior, scheduled delivery, auto-send, report delivery, report release, report circulation, approval, certification, close completion, sign-off, attestation, legal opinion, audit opinion, payment behavior, customer contact, or autonomous action.
 
@@ -14,7 +14,7 @@ F6M already ships deterministic internal delivery-readiness over shipped F6J ope
 F6P already ships deterministic internal external-provider-boundary/readiness over shipped F6M and F6N posture only, with explicit no-provider-call, no-provider-credential, no-provider-job, no-delivery, no-outbox-send, no-report, no-approval, no-generated-prose, no-runtime-Codex, and no-finance-action posture.
 F6Q already ships deterministic internal close/control certification-boundary/readiness over shipped F6N and F6P posture only, with explicit no-certification, no-close-complete, no-sign-off, no-attestation, no-legal-opinion, no-audit-opinion, no-assurance, no-approval, no-report-release, no-report-circulation, no-delivery, no-provider, no-outbox, no-runtime-Codex, and no-finance-action posture.
 F6N already ships deterministic internal close/control review-summary posture over shipped F6H/F6J/F6K/F6M state, with source/freshness/proof posture and human-review next steps.
-F6L, F6O, and F6R source-pack proofs are the required source-backed proof guardrails for the first F6S implementation.
+F6L, F6O, and F6R source-pack proofs are the required source-backed proof guardrails for the shipped F6S implementation.
 
 Actual external delivery is not safe yet.
 The safe next slice is a deterministic internal human-confirmation / delivery-preflight boundary that can say whether a future external delivery might be considered, why, what evidence supports or blocks that consideration, what is stale or limited, and what human-review step remains.
@@ -38,6 +38,7 @@ Do not invoke GitHub Connector Guard for F6S.
 - [x] 2026-04-30T09:46:31Z Added deterministic target builders, company-scope mismatch guardrails, and focused domain/control-plane specs for vocabulary, ready/needs/blocked mappings, absence fields, no provider/outbox/delivery/runtime behavior, and F6M/F6P/F6Q/F6N company mismatch failures.
 - [x] 2026-04-30T09:46:31Z Refreshed the small stale secondary-doc wording so F6S points to FP-0068, stays read-only/no-schema and delivery-free, and keeps F6T/F6U/F6V and later planning behind future Finance Plans.
 - [x] 2026-04-30T09:57:43Z Ran the full F6S validation ladder through `pnpm ci:repro:current`; all commands passed before commit.
+- [x] 2026-04-30T11:56:45Z Started post-merge F6S truthfulness and hygiene polish on `codex/f6s-post-merge-human-confirmation-boundary-polish-local-v1`; rechecked that F6S is shipped, read-only, no-schema, delivery-free, provider-free, approval-free, certification-free, runtime-Codex-free, generated-prose-free, source-mutation-free, monitor-rerun-free, mission-free, and finance-action-free.
 
 ## Surprises & Discoveries
 
@@ -53,7 +54,7 @@ F5 release, circulation, correction, and approval records exist, but they are un
 Those seams carry report-specific approval, release, and circulation semantics and must not become a general delivery approval, human confirmation, provider authorization, certification, sign-off, or external communication workflow.
 
 F6R strengthens contract/obligation source-pack proof, but it does not authorize external delivery.
-The first F6S implementation should depend on existing source/freshness/proof posture and should rerun source-pack proofs in validation, not treat source-pack existence as send permission.
+The shipped F6S implementation depends on existing source/freshness/proof posture and reruns source-pack proofs in validation; it does not treat source-pack existence as send permission.
 
 No persistence is justified for the first F6S slice.
 A derived read model is enough for the first safety gate, while persistence would risk implying a send record, approval, provider job, report release, certification, close-complete status, sign-off, attestation, legal/audit opinion, or delivery log.
@@ -63,7 +64,7 @@ A derived read model is enough for the first safety gate, while persistence woul
 Decision: proceed with `F6S-external-delivery-human-confirmation-boundary-foundation`, not actual external delivery.
 Rationale: shipped F6M/F6P/F6Q/F6N posture can support one internal safety gate, but it does not prove provider security, compliance posture, credentials, retry behavior, observability, safe failure modes, or permission to send.
 
-Decision: F6S is not actual send in the first implementation.
+Decision: F6S is not actual send in the shipped implementation.
 Rationale: do not add email sends, Slack sends, SMS sends, webhook calls, provider API calls, provider credential storage, provider jobs, outbox send behavior, scheduled delivery, auto-send, report delivery, external publish behavior, or any delivery execution surface.
 
 Decision: F6S is not an approval workflow.
@@ -72,19 +73,19 @@ Rationale: no new approval kind belongs in F6S. Do not reuse F5 `report_release`
 Decision: F6S is not a report-release slice.
 Rationale: do not create report artifacts, release reports, circulate reports, convert F6N/F6Q review posture into external communications, or rely on report artifacts as primary input.
 
-Decision: first F6S is internal and operator-visible only.
+Decision: F6S is internal and operator-visible only.
 Rationale: the useful first surface is one deterministic human-confirmation / delivery-preflight readiness result or read model that explains evidence basis, source/freshness posture, limitations, proof posture, status, and human-review next step for a bounded list of delivery-gate targets.
 
-Decision: first F6S inputs are shipped stored/read state only.
+Decision: F6S inputs are shipped stored/read state only.
 Rationale: primary inputs are F6M delivery-readiness posture, F6P provider-boundary posture, F6Q certification-boundary posture, and F6N review-summary posture. F6J/F6K/F6H posture, latest persisted monitor results, and source/CFO Wiki freshness posture may be used only as context through shipped read services if needed. Generic chat, report artifacts as primary input, runtime-Codex output, mission-generated prose, monitor reruns, demo replay runtime execution, provider state, provider credentials, outbox jobs, external communications, generated notification prose, and source mutation are out of scope.
 
 Decision: first output contract is one deterministic internal external-delivery human-confirmation readiness result or read model.
 Rationale: each delivery-gate target must include evidence basis, source/freshness posture, limitations, proof posture, status, and human-review next step. The result must include explicit absence boundaries showing no external delivery, no provider call, no provider credential, no provider job, no send action, no outbox send, no scheduled delivery, no auto-send, no approval, no report release/circulation, no mission creation, no legal/policy/payment/collection/customer-contact instruction, and no generated prose.
 
-Decision: first F6S should be read-only and no-schema.
+Decision: F6S is read-only and no-schema.
 Rationale: F6M/F6P/F6Q/F6N already expose enough stored/read posture. If persistence is needed later, a future plan must justify why and keep it additive, idempotent, company-scoped, evidence-linked, and explicitly not a send record, provider call record, outbox-send record, delivery log, approval, report-release record, certification, close-complete record, sign-off, attestation, legal opinion, or audit opinion.
 
-Decision: likely first target families are internal delivery-gate targets, not channels, recipients, providers, or jobs.
+Decision: F6S target families are internal delivery-gate targets, not channels, recipients, providers, or jobs.
 Rationale: safe target families are `delivery_readiness_confirmation_boundary`, `provider_boundary_confirmation_boundary`, `certification_boundary_confirmation_boundary`, `review_summary_confirmation_boundary`, `source_freshness_and_proof_boundary`, and `human_confirmation_absence_boundary`.
 
 Decision: first statuses must remain review-oriented.
@@ -98,6 +99,9 @@ Rationale: F6T actual certification should happen only if operator need, legal b
 
 Decision: ship F6S as exactly one read-only/no-schema external-delivery human-confirmation boundary.
 Rationale: the implementation now exposes `GET /external-delivery/companies/:companyKey/human-confirmation-boundary` over shipped F6M delivery-readiness, F6P provider-boundary, F6Q certification-boundary, and F6N review-summary posture only. It creates no delivery, provider call, provider credential, provider job, outbox send, scheduled delivery, auto-send, report, report release, approval, certification, close-complete status, sign-off, attestation, legal/audit opinion, mission, monitor rerun/result, runtime-Codex work, source mutation, generated prose, finance write, advice, instruction, or autonomous action.
+
+Decision: post-merge F6S polish preserves FP-0068 as a shipped implementation record.
+Rationale: stale wording that described implementation as pending should be rewritten as shipped-record wording only. This polish must not create FP-0069, start F6T/F6U/F6V, or widen behavior beyond the existing read-only F6S boundary.
 
 ## Context and Orientation
 
@@ -164,24 +168,24 @@ No database schema migration, eval dataset, fixture family, package script, smok
 
 ## Plan of Work
 
-First, the implementation should add one pure domain contract for external-delivery human-confirmation readiness posture.
-The likely contract name is `ExternalDeliveryHumanConfirmationBoundaryResult` with bounded `ExternalDeliveryHumanConfirmationTarget` entries.
-The contract should include company scope, generated time, aggregate internal human-confirmation review status, target list, evidence summary, limitations, and runtime/action absence boundary.
+First, the implementation adds one pure domain contract for external-delivery human-confirmation readiness posture.
+The contract name is `ExternalDeliveryHumanConfirmationBoundaryResult` with bounded `ExternalDeliveryHumanConfirmationTarget` entries.
+The contract includes company scope, generated time, aggregate internal human-confirmation review status, target list, evidence summary, limitations, and runtime/action absence boundary.
 The contract must avoid send-ready, provider-ready, approved, confirmed, release-ready, certified, close-complete, delivered, sent, scheduled, signed-off, attested, legal-opinion, or audit-opinion statuses.
 
-Second, the implementation should add one read-only control-plane bounded context.
-The likely folder is `apps/control-plane/src/modules/external-delivery-human-confirmation-boundary/**`.
-The likely route is `GET /external-delivery/companies/:companyKey/human-confirmation-boundary`.
-The route should parse `companyKey`, call the service, and serialize the result.
+Second, the implementation adds one read-only control-plane bounded context.
+The folder is `apps/control-plane/src/modules/external-delivery-human-confirmation-boundary/**`.
+The route is `GET /external-delivery/companies/:companyKey/human-confirmation-boundary`.
+The route parses `companyKey`, calls the service, and serializes the result.
 It must contain no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, provider credential logic, provider job logic, outbox send logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, generated prose, or external action execution.
 
-Third, the service should depend only on shipped read services.
-Primary reads should be F6M delivery-readiness, F6P external-provider-boundary, F6Q close/control certification-boundary, and F6N close/control review-summary.
+Third, the service depends only on shipped read services.
+Primary reads are F6M delivery-readiness, F6P external-provider-boundary, F6Q close/control certification-boundary, and F6N close/control review-summary.
 F6J/F6K/F6H and latest persisted monitor posture may be carried only through existing read services if needed for context.
 The service must not read report artifacts as primary input, generic chat, mission-generated prose, runtime-Codex output, release/circulation records, approval records, provider state, provider credentials, outbox jobs, external communications, demo replay runtime output, or generated prose.
 
-Fourth, output targets should be bounded internal gates.
-The expected first target families are:
+Fourth, output targets are bounded internal gates.
+The shipped target families are:
 
 - `delivery_readiness_confirmation_boundary`
 - `provider_boundary_confirmation_boundary`
@@ -205,7 +209,7 @@ No database schema, migration, human-confirmation table, send record, delivery l
 
 ## Concrete Steps
 
-1. Add the pure domain contract only when F6S implementation begins.
+1. The shipped implementation added the pure domain contract.
    Likely files:
    - `packages/domain/src/external-delivery-human-confirmation-boundary.ts`
    - `packages/domain/src/external-delivery-human-confirmation-boundary.spec.ts`
@@ -218,7 +222,7 @@ No database schema, migration, human-confirmation table, send record, delivery l
    - evidence basis, freshness or missing-source posture, limitations, proof posture, status, and human-review next step on every target
    - explicit absence boundary for external delivery, provider calls, provider credentials, provider jobs, send action, outbox send, scheduled delivery, auto-send, approval, report release/circulation, certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, mission creation, monitor rerun, runtime-Codex, generated prose, source mutation, finance writes, legal/policy/payment/collection/customer-contact instruction, and autonomous action
 
-2. Add a read-only control-plane bounded context only when F6S implementation begins.
+2. The shipped implementation added a read-only control-plane bounded context.
    Likely files:
    - `apps/control-plane/src/modules/external-delivery-human-confirmation-boundary/schema.ts`
    - `apps/control-plane/src/modules/external-delivery-human-confirmation-boundary/service.ts`
@@ -251,7 +255,7 @@ No database schema, migration, human-confirmation table, send record, delivery l
    A read-only route plus focused specs is sufficient for first acceptance.
    Do not add send buttons, scheduling controls, provider setup screens, credential forms, approval controls, report-release controls, certification controls, close-complete controls, sign-off controls, generated message previews, customer-contact surfaces, payment controls, or autonomous action controls.
 
-4. Do not add a new package script, root smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox worker, or smoke command in the first implementation unless this plan is explicitly amended.
+4. Do not add a new package script, root smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox worker, or smoke command to the shipped F6S implementation unless this plan is explicitly amended.
    Prefer focused domain/control-plane specs plus the existing shipped F6 smoke/proof ladder.
 
 5. Refresh active docs after implementation, and only after implementation behavior exists.
@@ -322,15 +326,14 @@ Human-observable acceptance for this implementation slice:
 
 ## Idempotence and Recovery
 
-This docs-and-plan slice is retry-safe.
-It changes active docs and creates one plan only.
-Rollback should remove FP-0068 and revert the active-doc references, leaving FP-0050 through FP-0067, shipped F6 behavior, source-pack fixtures/proofs, Finance Twin state, CFO Wiki state, GitHub modules, and engineering-twin modules intact.
+The shipped FP-0068 record is retry-safe as a historical implementation record.
+This post-merge polish is correction-only: it preserves FP-0068, updates stale wording/spec coverage when needed, and does not create a new plan, route, schema, migration, package script, smoke alias, eval dataset, fixture, provider/outbox/delivery behavior, report, approval, certification, runtime-Codex behavior, generated prose, source mutation, monitor rerun, mission behavior, or finance action.
 
-The first F6S implementation should also be retry-safe because it should be derived read-only posture with no schema.
-If source state is missing, stale, failed, unsupported, partial, conflicting, or insufficient, F6S should report blocked or needs-review posture and limitations instead of inventing readiness or creating delivery artifacts.
+The shipped F6S implementation is retry-safe because it is derived read-only posture with no schema.
+If source state is missing, stale, failed, unsupported, partial, conflicting, or insufficient, F6S reports blocked or needs-review posture and limitations instead of inventing readiness or creating delivery artifacts.
 
-Replay implication for the first F6S implementation is explicit absence.
-The first result should be derived from current stored/read posture and not persisted as a mission replay event.
+Replay implication for the shipped F6S implementation is explicit absence.
+The shipped result is derived from current stored/read posture and not persisted as a mission replay event.
 If a future plan wants persisted human-confirmation history, it must name that replay behavior explicitly and must not create send, provider, outbox, report-release, approval, certification, close-complete, sign-off, attestation, legal/audit opinion, assurance, finance-write, customer-contact, or autonomous-action semantics.
 
 ## Artifacts and Notes
@@ -357,13 +360,13 @@ This implementation slice creates or updates:
 Do not create FP-0069.
 Do not start F6T, F6U, F6V, or later work in this slice.
 
-The first F6S implementation artifacts are now created. Future delivery, provider, approval, report-release, certification, persistence, UI, or runtime-Codex artifacts require a future named Finance Plan.
+The shipped F6S implementation artifacts are now created. Future delivery, provider, approval, report-release, certification, persistence, UI, or runtime-Codex artifacts require a future named Finance Plan.
 
 ## Interfaces and Dependencies
 
-The first F6S implementation belongs in a new read-only human-confirmation boundary context and a pure domain contract only if implementation begins.
-It should depend on shipped F6M/F6P/F6Q/F6N read services, not reports, approvals, outbox, provider state, runtime-Codex, or generic chat.
-The web UI is out of scope for the first implementation unless a future prompt explicitly changes the plan.
+The shipped F6S implementation belongs in a read-only human-confirmation boundary context and a pure domain contract.
+It depends on shipped F6M/F6P/F6Q/F6N read services, not reports, approvals, outbox, provider state, runtime-Codex, or generic chat.
+The web UI is out of scope for the F6S implementation unless a future prompt explicitly changes the plan.
 The database schema is out of scope.
 Approvals, reporting, evidence, delivery, provider, outbox, runtime-Codex, mission, monitoring, close/control checklist, operator-readiness, acknowledgement-readiness, delivery-readiness, review-summary, provider-boundary, certification-boundary, and source-pack proof surfaces are dependencies only as safety boundaries unless a future named plan explicitly changes scope.
 
@@ -377,4 +380,4 @@ This implementation slice ships the first real F6S deterministic internal extern
 It intentionally keeps F6S away from actual external delivery and exposes one read-only safety gate / human-confirmation boundary over shipped F6M/F6P/F6Q/F6N posture.
 It adds no schema, migration, package script, smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox behavior, report, approval, delivery, certification, close-complete, sign-off, attestation, legal/audit opinion, monitor family, discovery family, source mutation, generated prose, runtime-Codex behavior, finance write, or autonomous action.
 
-Recommendation: after validation and review, either start F6T or F6U planning only as a new Finance Plan, or keep F6S open for one more narrow continuation only if reviewers need more backend read-model proof before any later plan. Do not start F6V or actual provider/delivery work from FP-0068.
+Recommendation: after this post-merge polish is validated, reviewed, merged, and the repo is clean, start F6U planning next only as a new Finance Plan if the operator wants the safest next step. Do not start F6T, F6V, actual certification, actual provider integration, or actual provider/delivery work from FP-0068.

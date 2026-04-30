@@ -3,6 +3,8 @@ import type {
   CloseControlCertificationBoundaryResult,
   CloseControlCertificationBoundaryStatus,
   CloseControlCertificationBoundaryTarget,
+  CloseControlFreshnessState,
+  CloseControlProofPostureState,
   CloseControlReviewSection,
   CloseControlReviewStatus,
   CloseControlReviewSummaryResult,
@@ -10,6 +12,7 @@ import type {
   DeliveryReadinessStatus,
   DeliveryReadinessTarget,
   ExternalDeliveryHumanConfirmationBoundaryResult,
+  ExternalDeliveryHumanConfirmationSourcePostureState,
   ExternalProviderBoundaryResult,
   ExternalProviderBoundaryStatus,
   ExternalProviderBoundaryTarget,
@@ -138,6 +141,140 @@ describe("ExternalDeliveryHumanConfirmationBoundaryService", () => {
 
     expect(target.status).toBe("blocked_by_evidence");
     expect(result.aggregateStatus).toBe("blocked_by_evidence");
+  });
+
+  it.each([
+    {
+      name: "missing source posture",
+      override: { sourceState: "missing_source" as const },
+    },
+    {
+      name: "failed source posture",
+      override: { sourceState: "failed_source" as const },
+    },
+    {
+      name: "missing freshness posture",
+      override: { freshnessState: "missing" as const },
+    },
+    {
+      name: "failed freshness posture",
+      override: { freshnessState: "failed" as const },
+    },
+    {
+      name: "missing-source proof posture",
+      override: { proofState: "limited_by_missing_source" as const },
+    },
+    {
+      name: "failed-source proof posture",
+      override: { proofState: "limited_by_failed_source" as const },
+    },
+  ])(
+    "downgrades source/proof boundary to blocked_by_evidence for $name",
+    async (scenario) => {
+      const service = buildService({
+        deliveryReadiness: buildDeliveryReadinessWithSourceProofOverride(
+          scenario.override,
+        ),
+      });
+
+      const result = await service.getHumanConfirmationBoundary("acme");
+      const target = requireTarget(
+        result,
+        "source_freshness_and_proof_boundary",
+      );
+
+      expect(target.status).toBe("blocked_by_evidence");
+      expect(result.aggregateStatus).toBe("blocked_by_evidence");
+    },
+  );
+
+  it.each([
+    {
+      name: "stale source posture",
+      override: { sourceState: "stale_source" as const },
+    },
+    {
+      name: "limited source posture",
+      override: { sourceState: "limited_source" as const },
+    },
+    {
+      name: "stale freshness posture",
+      override: { freshnessState: "stale" as const },
+    },
+    {
+      name: "stale-source proof posture",
+      override: { proofState: "limited_by_stale_source" as const },
+    },
+    {
+      name: "review-only proof posture",
+      override: { proofState: "review_only_context" as const },
+    },
+  ])(
+    "downgrades source/proof boundary to human review for $name",
+    async (scenario) => {
+      const service = buildService({
+        deliveryReadiness: buildDeliveryReadinessWithSourceProofOverride(
+          scenario.override,
+        ),
+      });
+
+      const result = await service.getHumanConfirmationBoundary("acme");
+      const target = requireTarget(
+        result,
+        "source_freshness_and_proof_boundary",
+      );
+
+      expect(target.status).toBe("needs_human_review_before_confirmation");
+      expect(result.aggregateStatus).toBe(
+        "needs_human_review_before_confirmation",
+      );
+    },
+  );
+
+  it("keeps source/proof target evidence basis, posture, limitations, status, and next step explicit", async () => {
+    const service = buildService();
+
+    const result = await service.getHumanConfirmationBoundary("acme");
+    const target = requireTarget(
+      result,
+      "source_freshness_and_proof_boundary",
+    );
+
+    expect(target.evidenceBasis).toMatchObject({
+      basisKind: "source_freshness_and_proof_posture",
+      summary: expect.stringContaining("F6M/F6P/F6Q/F6N"),
+    });
+    expect(target.sourcePosture).toMatchObject({
+      state: "source_backed",
+      missingSource: false,
+      summary: expect.stringContaining("source and proof posture"),
+    });
+    expect(target.freshnessSummary).toMatchObject({
+      state: "fresh",
+      latestObservedAt: generatedAt,
+      summary: expect.stringContaining("source freshness"),
+    });
+    expect(target.limitations).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("does not mutate raw sources"),
+      ]),
+    );
+    expect(target.proofPosture).toMatchObject({
+      state: "source_backed",
+      summary: expect.stringContaining("proof posture"),
+    });
+    expect(target.proofRefs).toEqual(
+      expect.arrayContaining([
+        "delivery-readiness.targets.delivery-readiness:aggregate.proofPosture",
+        "external-provider-boundary.targets.provider-boundary:aggregate.proofPosture",
+        "close-control.certificationBoundary.targets.certification-boundary:aggregate.proofPosture",
+        "close-control.reviewSummary.sections.review:aggregate.proofPosture",
+      ]),
+    );
+    expect(target.status).toBe("ready_for_human_confirmation_review");
+    expect(target.humanReviewNextStep).toContain(
+      "Review the source freshness",
+    );
   });
 
   it.each([
@@ -378,6 +515,44 @@ function buildDeliveryReadiness(
       replayImplication:
         "Delivery-readiness read is not appended to mission replay.",
     },
+  };
+}
+
+function buildDeliveryReadinessWithSourceProofOverride(input: {
+  freshnessState?: CloseControlFreshnessState;
+  proofState?: CloseControlProofPostureState;
+  sourceState?: ExternalDeliveryHumanConfirmationSourcePostureState;
+}): DeliveryReadinessResult {
+  const deliveryReadiness = buildDeliveryReadiness();
+  const target = deliveryReadiness.deliveryReadinessTargets[0];
+
+  if (!target) {
+    throw new Error("Expected delivery-readiness fixture target.");
+  }
+
+  return {
+    ...deliveryReadiness,
+    deliveryReadinessTargets: [
+      {
+        ...target,
+        sourcePosture: {
+          ...target.sourcePosture,
+          state: input.sourceState ?? target.sourcePosture.state,
+          missingSource:
+            input.sourceState === "missing_source" ||
+            input.sourceState === "monitor_context_missing" ||
+            target.sourcePosture.missingSource,
+        },
+        freshnessSummary: {
+          ...target.freshnessSummary,
+          state: input.freshnessState ?? target.freshnessSummary.state,
+        },
+        proofPosture: {
+          ...target.proofPosture,
+          state: input.proofState ?? target.proofPosture.state,
+        },
+      },
+    ],
   };
 }
 
