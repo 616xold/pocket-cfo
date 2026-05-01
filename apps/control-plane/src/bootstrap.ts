@@ -12,6 +12,7 @@ import { InMemoryApprovalRepository } from "./modules/approvals/repository";
 import { ApprovalService } from "./modules/approvals/service";
 import { CloseControlAcknowledgementService } from "./modules/close-control-acknowledgement/service";
 import { CloseControlCertificationBoundaryService } from "./modules/close-control-certification-boundary/service";
+import { CloseControlCertificationSafetyService } from "./modules/close-control-certification-safety/service";
 import { CloseControlReviewSummaryService } from "./modules/close-control-review-summary/service";
 import { CloseControlService } from "./modules/close-control/service";
 import { DeliveryReadinessService } from "./modules/delivery-readiness/service";
@@ -125,6 +126,7 @@ type SharedKernel = {
   approvalService: ApprovalService;
   closeControlAcknowledgementService: CloseControlAcknowledgementService;
   closeControlCertificationBoundaryService: CloseControlCertificationBoundaryService;
+  closeControlCertificationSafetyService: CloseControlCertificationSafetyService;
   closeControlReviewSummaryService: CloseControlReviewSummaryService;
   closeControlService: CloseControlService;
   deliveryReadinessService: DeliveryReadinessService;
@@ -469,6 +471,12 @@ function buildSharedKernel(input: {
       deliveryReadinessService,
       externalProviderBoundaryService,
     });
+  const closeControlCertificationSafetyService =
+    new CloseControlCertificationSafetyService({
+      closeControlCertificationBoundaryService,
+      closeControlReviewSummaryService,
+      externalDeliveryHumanConfirmationBoundaryService,
+    });
   const githubIssueIntakeService = new GitHubIssueIntakeService({
     bindingRepository: input.githubIssueIntakeRepository,
     missionRepository: input.missionRepository,
@@ -489,6 +497,7 @@ function buildSharedKernel(input: {
     approvalService,
     closeControlAcknowledgementService,
     closeControlCertificationBoundaryService,
+    closeControlCertificationSafetyService,
     closeControlReviewSummaryService,
     closeControlService,
     deliveryReadinessService,
@@ -583,6 +592,8 @@ function toAppContainer(
       kernel.closeControlAcknowledgementService,
     closeControlCertificationBoundaryService:
       kernel.closeControlCertificationBoundaryService,
+    closeControlCertificationSafetyService:
+      kernel.closeControlCertificationSafetyService,
     closeControlReviewSummaryService: kernel.closeControlReviewSummaryService,
     closeControlService: kernel.closeControlService,
     deliveryReadinessService: kernel.deliveryReadinessService,

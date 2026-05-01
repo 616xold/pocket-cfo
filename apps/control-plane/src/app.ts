@@ -3,6 +3,7 @@ import { registerHttpErrorHandler } from "./lib/http-errors";
 import { createLogger } from "./lib/logger";
 import { registerCloseControlAcknowledgementRoutes } from "./modules/close-control-acknowledgement/routes";
 import { registerCloseControlCertificationBoundaryRoutes } from "./modules/close-control-certification-boundary/routes";
+import { registerCloseControlCertificationSafetyRoutes } from "./modules/close-control-certification-safety/routes";
 import { registerCloseControlReviewSummaryRoutes } from "./modules/close-control-review-summary/routes";
 import { registerCloseControlRoutes } from "./modules/close-control/routes";
 import { registerDeliveryReadinessRoutes } from "./modules/delivery-readiness/routes";
@@ -48,6 +49,12 @@ export async function buildApp(options?: { container?: AppContainer }) {
     await registerCloseControlCertificationBoundaryRoutes(app, {
       closeControlCertificationBoundaryService:
         container.closeControlCertificationBoundaryService,
+    });
+  }
+  if (container.closeControlCertificationSafetyService) {
+    await registerCloseControlCertificationSafetyRoutes(app, {
+      closeControlCertificationSafetyService:
+        container.closeControlCertificationSafetyService,
     });
   }
   if (container.deliveryReadinessService) {
