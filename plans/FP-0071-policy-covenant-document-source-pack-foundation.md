@@ -26,6 +26,7 @@ Do not invoke GitHub Connector Guard for F6W.
 - [x] 2026-05-01T17:42:38Z Created this FP-0071 planning contract without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
 - [x] 2026-05-01T17:42:38Z Updated the active docs spine to point F6W at this FP-0071 contract while preserving FP-0050 through FP-0070 as shipped records.
 - [x] 2026-05-01T17:42:38Z Ran the full docs-and-plan validation ladder through `pnpm ci:repro:current`; all requested smokes, source-pack proofs, focused specs, lint, typecheck, test, and CI reproduction passed.
+- [x] 2026-05-01T17:59:29Z QA corrected stale local-dev guidance that still said not to create FP-0071; `docs/ops/local-dev.md` now keeps FP-0070 shipped and points F6W planning at this active contract without starting implementation.
 
 ## Surprises & Discoveries
 
@@ -285,8 +286,10 @@ This docs-and-plan slice creates or updates:
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
 - `plans/ROADMAP.md`
+- `docs/ops/local-dev.md`
 
-This docs-and-plan slice does not need to update `docs/ops/local-dev.md` because the known FP-0070 freshness correction is already present.
+The known FP-0070 local-dev freshness correction was already present.
+The QA pass also refreshed the adjacent local-dev guidance so it no longer says not to create FP-0071 after this active contract exists.
 
 The later F6W implementation slice is expected to create or update:
 
