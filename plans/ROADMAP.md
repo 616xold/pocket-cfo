@@ -436,6 +436,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` is the shipped F6S implementation record for one internal external-delivery human-confirmation / delivery-preflight boundary only.
 `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` is the shipped F6U record for one ledger/reconciliation source-pack foundation only.
 `plans/FP-0070-close-control-certification-safety-foundation.md` is the shipped F6T implementation record for one internal close/control certification-safety/readiness foundation only.
+`plans/FP-0071-policy-covenant-document-source-pack-foundation.md` is the active F6W implementation-ready planning contract for one policy/covenant document source-pack foundation only.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -458,6 +459,7 @@ The shipped F6R slice is exactly `F6R-contract-obligation-source-pack-foundation
 The shipped F6S slice is exactly `F6S-external-delivery-human-confirmation-boundary-foundation`.
 The shipped F6U slice is exactly `F6U-ledger-reconciliation-source-pack-foundation`.
 The shipped F6T contract is exactly `F6T-close-control-certification-safety-foundation` and is not actual certification.
+The active F6W contract is exactly `F6W-policy-covenant-document-source-pack-foundation` and is source-pack-only planning, not implementation.
 
 Focus:
 
@@ -721,6 +723,14 @@ Slice map:
 - `F6V — actual provider integration`
   - later only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send
 - `F6W — additional source-pack expansion`
-  - later only after existing source packs remain green and source-backed
+  - active implementation-ready planning contract in `plans/FP-0071-policy-covenant-document-source-pack-foundation.md`
+  - first F6W scope is exactly `F6W-policy-covenant-document-source-pack-foundation`
+  - one source-pack family only: `pocket-cfo-policy-covenant-document-source-pack`
+  - document role is exactly `policy_document`
+  - source kind is exactly `document`
+  - media types are limited to `text/markdown` and `text/plain`
+  - proof surface is limited to existing source registry and CFO Wiki bind, compile, and read routes, with shipped policy/covenant and close/control reads as validation context only
+  - not a monitor family, not a discovery-family expansion, not a monitor evaluator change, not product runtime behavior, not runtime-Codex, not provider integration, not external delivery, not approval, not report release, not certification, not legal/policy advice, not audit opinion, and not autonomous finance action
+  - later implementation must prove raw fixture immutability, normalized source/wiki/policy posture, fixed monitor/discovery families, freshness/limitations posture, and absence boundaries without adding routes, schema, migrations, package scripts, root smoke aliases, eval datasets, missions, monitor reruns/results, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation/certification-safety behavior, delivery, provider calls, reports, approvals, generated prose, finance writes, or source mutation beyond proof upload/bind/compile setup
 - `F6X — actual certification`
   - later only if operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints are proven
