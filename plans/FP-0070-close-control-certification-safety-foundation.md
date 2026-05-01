@@ -2,10 +2,10 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6T implementation contract.
-The target phase is `F6`, and the next implementation slice is exactly `F6T-close-control-certification-safety-foundation`.
+This is the shipped Finance Plan record for the Pocket CFO F6T implementation contract.
+The target phase is `F6`, and the shipped implementation slice is exactly `F6T-close-control-certification-safety-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6U, Pocket CFO should be able to show one deterministic internal close/control certification-safety/readiness posture that a human operator can review before any later plan considers actual certification.
+The user-visible goal is narrow: after shipped F6A through F6U, Pocket CFO can show one deterministic internal close/control certification-safety/readiness posture that a human operator can review before any later plan considers actual certification.
 This is not actual certification.
 It is not close complete, sign-off, attestation, legal opinion, audit opinion, assurance, approval, report release, report circulation, external delivery, provider authorization, or a legal/audit validation workflow.
 
@@ -16,7 +16,7 @@ F6N already ships one deterministic internal close/control review-summary result
 F6L, F6O, F6R, and F6U direct source-pack proofs remain the proof guardrails for bank/card, receivables/payables, contract/obligation, and ledger/reconciliation source posture.
 
 Actual certification remains unsafe.
-The first F6T implementation must therefore be a certification-safety/readiness result that can say whether a future certification might be considered, why it remains blocked or review-only, what evidence supports the posture, what is stale or limited, and what human-review step remains.
+The first F6T implementation is therefore a certification-safety/readiness result that can say whether a future certification-safety review might be considered, why it remains blocked or review-only, what evidence supports the posture, what is stale or limited, and what human-review step remains.
 It must also prove that no certification, close complete, sign-off, attestation, legal opinion, audit opinion, assurance, approval, report release, report circulation, external delivery, provider call, provider credential, provider job, outbox send, mission creation, monitor rerun, source mutation, generated prose, runtime-Codex work, finance write, advice, instruction, or autonomous action occurred.
 
 GitHub connector work is explicitly out of scope.
@@ -30,6 +30,14 @@ Do not invoke GitHub Connector Guard for F6T.
 - [x] 2026-04-30T22:51:09Z Decided actual close/control certification is still unsafe; repo truth supports only one deterministic internal certification-safety/readiness planning contract for F6T.
 - [x] 2026-04-30T22:51:09Z Created this FP-0070 implementation-ready planning contract and refreshed active docs without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
 - [x] 2026-04-30T23:07:39Z Ran the requested docs-and-plan validation ladder through `pnpm ci:repro:current`; all commands passed.
+- [x] 2026-05-01T00:09:24Z Re-invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor for the implementation slice; did not invoke GitHub Connector Guard.
+- [x] 2026-05-01T00:09:24Z Ran implementation preflight against fetched `origin/main`, confirmed the branch is `codex/f6t-close-control-certification-safety-foundation-local-v1`, confirmed local `HEAD` matched fetched `origin/main` before edits, confirmed the worktree was clean before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-05-01T00:09:24Z Added the pure domain close/control certification-safety contract and focused domain specs for target families, status vocabulary, absence boundary fields, and forbidden status language.
+- [x] 2026-05-01T00:09:24Z Added one read-only/no-schema control-plane close/control certification-safety bounded context and route at `GET /close-control/companies/:companyKey/certification-safety`, derived only from shipped F6Q/F6S/F6N read posture.
+- [x] 2026-05-01T00:09:24Z Added company-scope fail-closed guards for mismatched F6Q, F6S, and F6N upstream payloads, plus route/service specs for happy path, needs-review/blocked mappings, and runtime/action absence boundaries.
+- [x] 2026-05-01T00:09:24Z Refreshed active docs so FP-0070 is the shipped F6T record, F6T implementation points to FP-0070, and F6V, F6W, F6X, and later planning wait for new Finance Plans.
+- [x] 2026-05-01T00:22:00Z Ran the full F6T validation ladder through `pnpm ci:repro:current`; all focused F6T specs, domain/control-plane preservation specs, shipped F6 proofs, twin guardrails, lint, typecheck, test, and CI reproduction passed.
+- [x] 2026-05-01T00:27:11Z Split runtime/action absence boundary helpers into a dedicated F6T module to keep helper ownership below the repo soft cap, then reran focused F6T specs and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -43,11 +51,17 @@ Those seams carry report-specific approval/release/circulation semantics and mus
 The outbox bounded context remains a placeholder.
 That absence remains a safety fact for F6T and must not be filled by this slice.
 
-The first F6T implementation does not need persistence unless a concrete blocker appears.
+The first F6T implementation did not need persistence.
 A derived read model is safer than a table because a persisted record could be mistaken for a certification record, approval record, close-complete record, sign-off record, attestation, assurance, legal opinion, audit opinion, report-release record, or external representation.
 
-The tiny stale FP-0069 wording gap was only a shipped-record freshness issue.
-It should be polished in this docs slice without reopening F6U or creating a separate F6U docs-only PR.
+The implementation stayed inside F6Q/F6S/F6N read posture.
+F6M and F6P were already carried through those shipped read models, so F6T did not need direct dependencies on delivery-readiness, provider-boundary, approvals, reports, outbox, missions, runtime-Codex, source mutation, providers, credentials, or monitor run methods.
+
+Control-plane typechecking required rebuilding the domain package declarations after adding the new domain export.
+That is a project-reference housekeeping step, not a product behavior change.
+
+The tiny stale F6T wording gaps in secondary docs were shipped-record freshness issues.
+They were polished in this implementation slice without reopening F6U or creating a separate docs-only PR.
 
 ## Decision Log
 
@@ -71,6 +85,18 @@ Rationale: each bounded target must include evidence basis, source/freshness pos
 
 Decision: first F6T should be read-only and no-schema.
 Rationale: shipped F6Q/F6S/F6N posture already exposes the necessary stored/read safety boundaries. If persistence is needed later, a future plan must justify why and keep it additive, idempotent, company-scoped, evidence-linked, and explicitly not a certification record, approval record, close-complete record, sign-off, attestation, assurance, legal opinion, audit opinion, report-release record, delivery record, provider job, outbox send, or external representation.
+
+Decision: the shipped route is `GET /close-control/companies/:companyKey/certification-safety`.
+Rationale: this keeps F6T under the close/control namespace, makes the implementation human-observable, and avoids UI, persistence, report, approval, delivery, provider, runtime-Codex, outbox, mission, source mutation, monitor rerun, generated-prose, or finance-action behavior.
+
+Decision: the service depends directly only on shipped F6Q, F6S, and F6N read services.
+Rationale: F6Q already carries certification-boundary posture, F6S already carries human-confirmation/delivery-preflight posture, and F6N already carries close/control review-summary posture. Reading more seams directly would widen the safety surface without improving first-slice truthfulness.
+
+Decision: upstream company keys must match the requested company.
+Rationale: F6T summarizes other read models; if F6Q, F6S, or F6N returns another company key, the service fails closed with `invalid_request` instead of presenting cross-company posture as certification-safety evidence.
+
+Decision: no operator UI, package smoke alias, script, fixture, eval dataset, database schema, or migration was added.
+Rationale: first F6T acceptance is a backend deterministic read model plus focused specs and the existing shipped F6 proof ladder.
 
 Decision: F6T must preserve shipped F5 and F6 behavior.
 Rationale: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L bank/card source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6O receivables/payables source-pack behavior changes, no F6P provider-boundary behavior changes, no F6Q certification-boundary behavior changes, no F6R contract/obligation source-pack behavior changes, no F6S human-confirmation behavior changes, no F6U ledger/reconciliation source-pack behavior changes, no new approval kind, and no report conversion belong in F6T.
@@ -124,26 +150,25 @@ No runtime-Codex behavior is expected.
 No source mutation is expected.
 No database schema migration, eval dataset, fixture family, package script, smoke alias, monitor family, discovery family, report, approval, delivery behavior, provider integration, provider credential storage, provider job, outbox send, payment behavior, finance write, legal/policy advice, collection/customer-contact instruction, actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, generated prose, or autonomous action belongs in F6T.
 
-## Plan of Work
+## Implemented Work
 
-First, the future implementation should add one pure domain contract for close/control certification-safety readiness posture.
-The likely contract name is `CloseControlCertificationSafetyResult` with bounded `CloseControlCertificationSafetyTarget` entries.
-The contract should include company scope, generated time, aggregate internal certification-safety review status, target list, evidence summary, limitations, and runtime/action absence boundary.
-The contract must avoid `certified`, `certification_complete`, `close_complete`, `signed_off`, `attested`, `approved`, `release_ready`, `delivered`, `sent`, `assured`, `audit_opinion`, or `legal_opinion` statuses.
+First, F6T added one pure domain contract for close/control certification-safety readiness posture.
+The contract name is `CloseControlCertificationSafetyResult` with bounded `CloseControlCertificationSafetyTarget` entries.
+The contract includes company scope, generated time, aggregate internal certification-safety review status, target list, evidence summary, limitations, and runtime/action absence boundary.
+The contract avoids `certified`, `certification_complete`, `close_complete`, `signed_off`, `attested`, `approved`, `release_ready`, `delivered`, `sent`, `assured`, `audit_opinion`, or `legal_opinion` statuses.
 
-Second, the future implementation should add one read-only control-plane bounded context only when implementation begins.
-The likely folder is `apps/control-plane/src/modules/close-control-certification-safety/**`.
-The likely route is `GET /close-control/companies/:companyKey/certification-safety`.
-The route should parse `companyKey`, call the service, and serialize the result.
-It must contain no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, provider credential logic, provider job logic, outbox send logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, generated prose, certification creation, sign-off creation, attestation creation, legal/audit opinion generation, assurance creation, or external action execution.
+Second, F6T added one read-only control-plane bounded context.
+The folder is `apps/control-plane/src/modules/close-control-certification-safety/**`.
+The route is `GET /close-control/companies/:companyKey/certification-safety`.
+The route parses `companyKey`, calls the service, and serializes the result.
+It contains no SQL, prompt assembly, source ingest logic, finance math, report conversion, approval behavior, notification-provider logic, provider credential logic, provider job logic, outbox send logic, delivery scheduling, monitor rerun logic, mission creation, source mutation, generated prose, certification creation, sign-off creation, attestation creation, legal/audit opinion generation, assurance creation, or external action execution.
 
-Third, the service should depend only on shipped read services.
-Primary reads should be F6Q certification-boundary, F6S human-confirmation boundary, and F6N review-summary.
-F6M delivery-readiness, F6P provider-boundary, F6H checklist, F6J operator-readiness, F6K acknowledgement-readiness, and latest persisted monitor posture may be carried only through existing read services if needed for context.
-The service must not read report artifacts as primary input, generic chat, mission-generated prose, runtime-Codex output, release/circulation records, approval records, provider state, provider credentials, outbox jobs, external communications, demo replay runtime output, generated prose, or source mutation output.
+Third, the service depends only on shipped F6Q/F6S/F6N read services.
+Primary reads are F6Q certification-boundary, F6S human-confirmation boundary, and F6N review-summary.
+It does not directly read F6M delivery-readiness, F6P provider-boundary, F6H checklist, F6J operator-readiness, F6K acknowledgement-readiness, latest persisted monitor posture, report artifacts as primary input, generic chat, mission-generated prose, runtime-Codex output, release/circulation records, approval records, provider state, provider credentials, outbox jobs, external communications, demo replay runtime output, generated prose, or source mutation output.
 
-Fourth, output targets should be bounded internal safety targets.
-The expected first target families are:
+Fourth, output targets are bounded internal safety targets.
+The target families are:
 
 - `certification_boundary_safety`
 - `human_confirmation_boundary_safety`
@@ -153,7 +178,7 @@ The expected first target families are:
 - `human_review_next_step_safety`
 - `certification_absence_safety`
 
-Each target must include:
+Each target includes:
 
 - evidence basis with refs back to shipped F6Q/F6S/F6N read posture
 - source lineage and freshness or missing-source posture when available
@@ -164,12 +189,12 @@ Each target must include:
 - explicit absence facts proving no certification, close complete, sign-off, attestation, assurance, legal/audit opinion, approval, report release/circulation, provider call, external delivery, send action, outbox send, mission, monitor rerun, runtime-Codex work, generated prose, source mutation, finance write, advice/instruction, customer-contact instruction, or autonomous action occurred
 
 Fifth, persistence remains absent.
-No database schema, migration, certification-safety table, certification record, close-complete record, sign-off record, attestation record, assurance record, legal/audit opinion record, approval record, report artifact, report release record, outbox event, source mutation record, replay event, provider job, delivery record, or runtime-Codex artifact should be added.
+No database schema, migration, certification-safety table, certification record, close-complete record, sign-off record, attestation record, assurance record, legal/audit opinion record, approval record, report artifact, report release record, outbox event, source mutation record, replay event, provider job, delivery record, or runtime-Codex artifact was added.
 
-## Concrete Steps
+## Completed Steps
 
-1. Add the pure domain contract in the future implementation slice.
-   Likely files:
+1. Added the pure domain contract.
+   Files:
    - `packages/domain/src/close-control-certification-safety.ts`
    - `packages/domain/src/close-control-certification-safety.spec.ts`
    - `packages/domain/src/index.ts`
@@ -181,8 +206,8 @@ No database schema, migration, certification-safety table, certification record,
    - evidence basis, source/freshness posture, limitations, proof posture, status, and human-review next step on every target
    - explicit absence boundary for certification, close-complete status, sign-off, attestation, assurance, legal opinion, audit opinion, approval, report release, report circulation, provider calls, external delivery, send action, outbox send, mission creation, monitor rerun, runtime-Codex, generated prose, source mutation, finance writes, legal/policy/payment/collection/customer-contact instruction, and autonomous action
 
-2. Add a read-only control-plane bounded context only when implementation begins.
-   Likely files:
+2. Added a read-only control-plane bounded context.
+   Files:
    - `apps/control-plane/src/modules/close-control-certification-safety/schema.ts`
    - `apps/control-plane/src/modules/close-control-certification-safety/service.ts`
    - `apps/control-plane/src/modules/close-control-certification-safety/formatter.ts`
@@ -198,11 +223,11 @@ No database schema, migration, certification-safety table, certification record,
    - `apps/control-plane/src/modules/close-control-certification-safety/service.spec.ts`
    - `apps/control-plane/src/modules/close-control-certification-safety/routes.spec.ts`
 
-   Likely route:
+   Route:
    - `GET /close-control/companies/:companyKey/certification-safety`
 
    Acceptance:
-   - service reads shipped F6Q/F6S/F6N posture only, with F6M/F6P/F6H/F6J/F6K/latest monitor context only through existing reads if needed
+   - service reads shipped F6Q/F6S/F6N posture only
    - route stays thin
    - company-scope mismatches fail closed
    - no direct DB writes or schema changes
@@ -210,25 +235,29 @@ No database schema, migration, certification-safety table, certification record,
    - no report, approval, delivery, provider, credential, provider job, outbox, runtime, source mutation, generated prose, certification, close-complete, sign-off, attestation, legal/audit opinion, assurance, or finance-action behavior
    - no changes to shipped F5, F6H, F6J, F6K, F6L, F6M, F6N, F6O, F6P, F6Q, F6R, F6S, or F6U behavior
 
-3. Keep the operator surface backend-first unless a future implementation prompt explicitly asks for a UI.
+3. Kept the operator surface backend-first.
    A read-only route plus focused specs is sufficient for first acceptance.
-   Do not add certification controls, sign-off controls, approval controls, close-complete controls, report-release controls, delivery controls, send buttons, scheduling controls, provider setup screens, credential forms, generated message previews, customer-contact surfaces, payment controls, or autonomous action controls.
+   No certification controls, sign-off controls, approval controls, close-complete controls, report-release controls, delivery controls, send buttons, scheduling controls, provider setup screens, credential forms, generated message previews, customer-contact surfaces, payment controls, or autonomous action controls were added.
 
-4. Do not add a new package script, root smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox worker, approval workflow, report-release behavior, or certification behavior in the first implementation unless this plan is explicitly amended.
-   Prefer focused domain/control-plane specs plus the existing shipped F6 smoke/proof ladder.
+4. Did not add a new package script, root smoke alias, eval dataset, fixture, provider integration, credential scaffold, outbox worker, approval workflow, report-release behavior, or certification behavior.
+   Focused domain/control-plane specs plus the existing shipped F6 smoke/proof ladder remain the proof path.
 
-5. Refresh active docs after implementation, and only after implementation behavior exists.
-   Expected docs:
+5. Refreshed active docs after implementation behavior landed.
+   Updated docs:
    - `README.md`
    - `START_HERE.md`
    - `docs/ACTIVE_DOCS.md`
    - `plans/ROADMAP.md`
+   - `docs/ops/local-dev.md`
+   - `docs/ops/source-ingest-and-cfo-wiki.md`
    - `docs/ops/codex-app-server.md`
+   - `docs/benchmarks/seeded-missions.md`
+   - `evals/README.md`
    - this FP-0070 record
 
 ## Validation and Acceptance
 
-This docs-and-plan thread must run the user-requested validation ladder after docs edits:
+This implementation thread must run the user-requested validation ladder after docs edits:
 
 - `pnpm smoke:delivery-readiness:local`
 - `pnpm smoke:operator-readiness:local`
@@ -249,15 +278,15 @@ This docs-and-plan thread must run the user-requested validation ladder after do
 - `pnpm smoke:finance-twin-period-context:local`
 - `pnpm smoke:finance-twin-source-backed-balance-proof:local`
 - `pnpm smoke:finance-discovery-supported-families:local`
-- `pnpm --filter @pocket-cto/domain exec vitest run src/external-delivery-human-confirmation-boundary.spec.ts src/close-control-certification-boundary.spec.ts src/external-provider-boundary.spec.ts src/close-control-review-summary.spec.ts src/delivery-readiness.spec.ts src/close-control-acknowledgement.spec.ts src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
-- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/external-delivery-human-confirmation-boundary/**/*.spec.ts src/modules/close-control-certification-boundary/**/*.spec.ts src/modules/external-provider-boundary/**/*.spec.ts src/modules/close-control-review-summary/**/*.spec.ts src/modules/delivery-readiness/**/*.spec.ts src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/approvals/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
+- `pnpm --filter @pocket-cto/domain exec vitest run src/close-control-certification-safety.spec.ts src/external-delivery-human-confirmation-boundary.spec.ts src/close-control-certification-boundary.spec.ts src/external-provider-boundary.spec.ts src/close-control-review-summary.spec.ts src/delivery-readiness.spec.ts src/close-control-acknowledgement.spec.ts src/operator-readiness.spec.ts src/close-control.spec.ts src/monitoring.spec.ts src/finance-twin.spec.ts src/proof-bundle.spec.ts`
+- `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/close-control-certification-safety/**/*.spec.ts src/modules/external-delivery-human-confirmation-boundary/**/*.spec.ts src/modules/close-control-certification-boundary/**/*.spec.ts src/modules/external-provider-boundary/**/*.spec.ts src/modules/close-control-review-summary/**/*.spec.ts src/modules/delivery-readiness/**/*.spec.ts src/modules/close-control-acknowledgement/**/*.spec.ts src/modules/operator-readiness/**/*.spec.ts src/modules/close-control/**/*.spec.ts src/modules/monitoring/**/*.spec.ts src/modules/missions/**/*.spec.ts src/modules/approvals/**/*.spec.ts src/modules/finance-twin/**/*.spec.ts src/modules/wiki/**/*.spec.ts src/modules/evidence/**/*.spec.ts src/app.spec.ts"`
 - `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/twin/workflow-sync.spec.ts src/modules/twin/test-suite-sync.spec.ts src/modules/twin/codeowners-discovery.spec.ts`
 - `pnpm lint`
 - `pnpm typecheck`
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-Future implementation acceptance requires all of the following:
+Implementation acceptance requires all of the following:
 
 - one deterministic internal certification-safety/readiness result or read model exists
 - the result is derived only from shipped stored/read posture
@@ -266,34 +295,41 @@ Future implementation acceptance requires all of the following:
 - runtime/action absence boundary proves no actual certification, close complete, sign-off, attestation, assurance, legal/audit opinion, approval, report release, report circulation, external delivery, provider call, provider credential, provider job, outbox send, generated prose, mission creation, monitor rerun/result creation, source mutation, runtime-Codex, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
 - no schema, migration, package script, smoke alias, eval dataset, fixture family, UI, provider integration, credential scaffold, outbox worker, approval workflow, report-release behavior, or certification behavior is added
 
-Human-observable acceptance for this docs-and-plan slice:
+Human-observable acceptance for this implementation slice:
 
-- `plans/FP-0070-close-control-certification-safety-foundation.md` exists as the active implementation-ready F6T contract
+- `plans/FP-0070-close-control-certification-safety-foundation.md` exists as the shipped F6T record
+- `GET /close-control/companies/:companyKey/certification-safety` exists as the first F6T route
 - `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` remains the shipped F6U record and no longer implies F6U implementation is pending
-- active docs point future Codex threads at FP-0070 for F6T implementation only
+- active docs point future Codex threads at FP-0070 as the shipped F6T implementation record
 - FP-0050 through FP-0069 remain shipped F6A through F6U records
 - FP-0071 is not created
 - F6V, F6W, F6X, and later plans are named only as likely later slices and are not created
 
 ## Idempotence and Recovery
 
-This docs-and-plan slice is retry-safe because it edits only checked-in markdown.
+This implementation slice is retry-safe because it adds a deterministic read-only result and checked-in docs only.
 If validation fails because of local service state, rerun the failing DB-backed smoke serially before calling it a product regression.
 If a validation wrapper fails before repo commands execute, record it as a wrapper failure rather than a Pocket CFO failure.
 
-Rollback for this docs slice should remove only FP-0070 and the active-doc references to it, plus revert the tiny FP-0069 shipped-record wording polish.
+Rollback for this implementation slice should remove only the F6T domain/control-plane certification-safety files, route wiring, and active-doc references to the shipped F6T route.
 Do not remove shipped F6Q, F6S, F6U, source-pack proofs, GitHub modules, engineering-twin modules, or historical F5/F6 records.
 
 Replay implication for F6T is explicit absence.
-The future first implementation should derive a read model from current stored/read posture and should not create mission replay events, monitor results, report artifacts, approvals, delivery/outbox/provider records, certification records, generated prose, finance writes, or autonomous-action records.
+The first implementation derives a read model from current stored/read posture and does not create mission replay events, monitor results, report artifacts, approvals, delivery/outbox/provider records, certification records, generated prose, finance writes, or autonomous-action records.
 If a future plan wants persisted certification-safety history, it must name that behavior explicitly and keep it separate from certification, approval, close-complete, sign-off, attestation, assurance, legal/audit opinion, report release, external delivery, and provider/outbox behavior.
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates or updates:
+This implementation slice creates or updates:
 
 - `plans/FP-0070-close-control-certification-safety-foundation.md`
-- `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md`
+- `packages/domain/src/close-control-certification-safety.ts`
+- `packages/domain/src/close-control-certification-safety.spec.ts`
+- `packages/domain/src/index.ts`
+- `apps/control-plane/src/modules/close-control-certification-safety/**`
+- `apps/control-plane/src/app.ts`
+- `apps/control-plane/src/bootstrap.ts`
+- `apps/control-plane/src/lib/types.ts`
 - `README.md`
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
@@ -305,19 +341,19 @@ This docs-and-plan slice creates or updates:
 - `docs/benchmarks/seeded-missions.md`
 
 Do not create FP-0071.
-Do not start F6T implementation in this docs-and-plan slice.
+Do not continue F6T beyond this read-only/no-schema implementation in this slice.
 Do not start F6V, F6W, F6X, or later work in this slice.
 
 ## Interfaces and Dependencies
 
 F6T depends on the shipped internal close/control and external-delivery safety read models, source/freshness/proof posture, and source-pack proof guardrails.
-It does not depend on GitHub, runtime-Codex, reports, approvals, outbox, providers, delivery, actual certification, legal/audit opinion, assurance, payment behavior, tax filing, UI, new database schema, new routes during this docs slice, new package scripts, new root smoke aliases, or new environment variables.
+It does not depend on GitHub, runtime-Codex, reports, approvals, outbox, providers, delivery, actual certification, legal/audit opinion, assurance, payment behavior, tax filing, UI, new database schema, new package scripts, new root smoke aliases, or new environment variables.
 
-The control-plane route files must remain unchanged until a future implementation prompt starts F6T implementation.
-If a future continuation finds it cannot derive certification-safety posture from shipped read services without persistence or side effects, stop and report the blocker instead of adding certification, approval, report-release, provider, delivery, outbox, runtime-Codex, or finance-action behavior.
+The control-plane route remains thin and read-only.
+If a future continuation finds it cannot extend certification-safety posture from shipped read services without persistence or side effects, stop and report the blocker instead of adding certification, approval, report-release, provider, delivery, outbox, runtime-Codex, or finance-action behavior.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice passed the requested validation ladder and is ready for one commit, push, and PR from `codex/f6t-master-plan-and-doc-refresh-local-v1`.
-The outcome is an implementation-ready but explicitly non-certifying F6T contract.
+This implementation slice passed the requested full validation ladder from `codex/f6t-close-control-certification-safety-foundation-local-v1`, including a final post-modularity-polish `pnpm ci:repro:current` rerun.
+The outcome is a shipped but explicitly non-certifying F6T read model.
 Actual certification remains deferred to a future F6X plan only if operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints are proven.

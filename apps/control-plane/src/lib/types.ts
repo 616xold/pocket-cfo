@@ -2,6 +2,7 @@ import type { OperatorControlAvailability as DomainOperatorControlAvailability }
 import type { ApprovalService } from "../modules/approvals/service";
 import type { CloseControlAcknowledgementService } from "../modules/close-control-acknowledgement/service";
 import type { CloseControlCertificationBoundaryService } from "../modules/close-control-certification-boundary/service";
+import type { CloseControlCertificationSafetyService } from "../modules/close-control-certification-safety/service";
 import type { CloseControlReviewSummaryService } from "../modules/close-control-review-summary/service";
 import type { CloseControlService } from "../modules/close-control/service";
 import type { DeliveryReadinessService } from "../modules/delivery-readiness/service";
@@ -98,6 +99,11 @@ export type CloseControlReviewSummaryServicePort = Pick<
 export type CloseControlCertificationBoundaryServicePort = Pick<
   CloseControlCertificationBoundaryService,
   "getCertificationBoundary"
+>;
+
+export type CloseControlCertificationSafetyServicePort = Pick<
+  CloseControlCertificationSafetyService,
+  "getCertificationSafety"
 >;
 
 export type OperatorReadinessServicePort = Pick<
@@ -215,6 +221,7 @@ export type TwinServicePort = Pick<
 export type AppContainer = {
   closeControlAcknowledgementService: CloseControlAcknowledgementServicePort;
   closeControlCertificationBoundaryService?: CloseControlCertificationBoundaryServicePort;
+  closeControlCertificationSafetyService?: CloseControlCertificationSafetyServicePort;
   closeControlReviewSummaryService: CloseControlReviewSummaryServicePort;
   closeControlService: CloseControlServicePort;
   deliveryReadinessService?: DeliveryReadinessServicePort;
