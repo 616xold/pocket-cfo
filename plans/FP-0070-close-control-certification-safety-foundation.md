@@ -38,6 +38,7 @@ Do not invoke GitHub Connector Guard for F6T.
 - [x] 2026-05-01T00:09:24Z Refreshed active docs so FP-0070 is the shipped F6T record, F6T implementation points to FP-0070, and F6V, F6W, F6X, and later planning wait for new Finance Plans.
 - [x] 2026-05-01T00:22:00Z Ran the full F6T validation ladder through `pnpm ci:repro:current`; all focused F6T specs, domain/control-plane preservation specs, shipped F6 proofs, twin guardrails, lint, typecheck, test, and CI reproduction passed.
 - [x] 2026-05-01T00:27:11Z Split runtime/action absence boundary helpers into a dedicated F6T module to keep helper ownership below the repo soft cap, then reran focused F6T specs and `pnpm ci:repro:current`; all passed.
+- [x] 2026-05-01T17:09:53Z Started narrow post-merge F6T certification-safety truthfulness and test-hygiene polish on `codex/f6t-certification-safety-post-merge-polish-local-v1`, fast-forwarded the clean branch to fetched `origin/main`, and kept scope to F6T tests/docs only.
 
 ## Surprises & Discoveries
 

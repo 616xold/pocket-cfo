@@ -11,6 +11,7 @@ describe("close-control certification-safety routes", () => {
   });
 
   it("parses companyKey and returns the internal certification-safety read model", async () => {
+    const runtimeActionBoundary = buildRuntimeActionBoundaryFixture();
     const getCertificationSafety = vi.fn().mockResolvedValue({
       companyKey: "acme",
       generatedAt: "2026-05-01T10:00:00.000Z",
@@ -22,38 +23,7 @@ describe("close-control certification-safety routes", () => {
           status: "needs_human_review_before_certification_safety",
         },
       ],
-      runtimeActionBoundary: {
-        runtimeCodexUsed: false,
-        deliveryCreated: false,
-        externalProviderCalled: false,
-        notificationProviderCalled: false,
-        providerCredentialCreated: false,
-        providerJobCreated: false,
-        outboxSendCreated: false,
-        emailSent: false,
-        slackSent: false,
-        smsSent: false,
-        webhookCalled: false,
-        scheduledDeliveryCreated: false,
-        autoSendConfigured: false,
-        reportCreated: false,
-        reportReleased: false,
-        reportCirculated: false,
-        approvalCreated: false,
-        certificationCreated: false,
-        closeCompleteCreated: false,
-        signOffCreated: false,
-        attestationCreated: false,
-        assuranceCreated: false,
-        legalOpinionCreated: false,
-        auditOpinionCreated: false,
-        missionCreated: false,
-        monitorRunTriggered: false,
-        monitorResultCreated: false,
-        sourceMutationCreated: false,
-        generatedProseCreated: false,
-        generatedNotificationProseCreated: false,
-      },
+      runtimeActionBoundary,
     });
     const app = Fastify();
     apps.push(app);
@@ -72,32 +42,7 @@ describe("close-control certification-safety routes", () => {
     expect(response.json()).toMatchObject({
       companyKey: "acme",
       aggregateStatus: "needs_human_review_before_certification_safety",
-      runtimeActionBoundary: {
-        runtimeCodexUsed: false,
-        deliveryCreated: false,
-        externalProviderCalled: false,
-        notificationProviderCalled: false,
-        providerCredentialCreated: false,
-        providerJobCreated: false,
-        outboxSendCreated: false,
-        reportCreated: false,
-        reportReleased: false,
-        reportCirculated: false,
-        approvalCreated: false,
-        certificationCreated: false,
-        closeCompleteCreated: false,
-        signOffCreated: false,
-        attestationCreated: false,
-        assuranceCreated: false,
-        legalOpinionCreated: false,
-        auditOpinionCreated: false,
-        missionCreated: false,
-        monitorRunTriggered: false,
-        monitorResultCreated: false,
-        sourceMutationCreated: false,
-        generatedProseCreated: false,
-        generatedNotificationProseCreated: false,
-      },
+      runtimeActionBoundary,
     });
   });
 
@@ -119,3 +64,51 @@ describe("close-control certification-safety routes", () => {
     expect(getCertificationSafety).not.toHaveBeenCalled();
   });
 });
+
+function buildRuntimeActionBoundaryFixture() {
+  return {
+    runtimeCodexUsed: false,
+    deliveryCreated: false,
+    externalProviderCalled: false,
+    notificationProviderCalled: false,
+    providerCredentialCreated: false,
+    providerJobCreated: false,
+    outboxSendCreated: false,
+    emailSent: false,
+    slackSent: false,
+    smsSent: false,
+    webhookCalled: false,
+    scheduledDeliveryCreated: false,
+    autoSendConfigured: false,
+    reportCreated: false,
+    reportReleased: false,
+    reportCirculated: false,
+    approvalCreated: false,
+    certificationCreated: false,
+    closeCompleteCreated: false,
+    signOffCreated: false,
+    attestationCreated: false,
+    assuranceCreated: false,
+    legalOpinionCreated: false,
+    auditOpinionCreated: false,
+    missionCreated: false,
+    monitorRunTriggered: false,
+    monitorResultCreated: false,
+    sourceMutationCreated: false,
+    generatedProseCreated: false,
+    generatedNotificationProseCreated: false,
+    accountingWriteCreated: false,
+    bankWriteCreated: false,
+    taxFilingCreated: false,
+    legalAdviceGenerated: false,
+    policyAdviceGenerated: false,
+    paymentInstructionCreated: false,
+    collectionInstructionCreated: false,
+    customerContactInstructionCreated: false,
+    autonomousActionCreated: false,
+    summary:
+      "F6T certification-safety generation is deterministic, read-only, internal, and no certification occurred.",
+    replayImplication:
+      "The first F6T certification-safety result is derived from current stored/read posture and is not persisted as a mission replay event.",
+  };
+}
