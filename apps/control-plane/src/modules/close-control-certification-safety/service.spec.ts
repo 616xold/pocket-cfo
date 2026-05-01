@@ -3,8 +3,12 @@ import type {
   CloseControlCertificationBoundaryResult,
   CloseControlCertificationBoundaryStatus,
   CloseControlCertificationBoundaryTarget,
+  CloseControlCertificationSafetySourcePostureState,
   CloseControlCertificationSafetyResult,
+  CloseControlCertificationSafetyTarget,
   CloseControlCertificationSafetyTargetFamily,
+  CloseControlFreshnessState,
+  CloseControlProofPostureState,
   CloseControlReviewSection,
   CloseControlReviewStatus,
   CloseControlReviewSummaryResult,
@@ -132,6 +136,228 @@ describe("CloseControlCertificationSafetyService", () => {
 
     expect(target.status).toBe("blocked_by_evidence");
     expect(result.aggregateStatus).toBe("blocked_by_evidence");
+  });
+
+  it.each([
+    {
+      name: "missing upstream source posture",
+      targetOverrides: {
+        sourcePostureState: "missing_source",
+        freshnessState: "fresh",
+      },
+    },
+    {
+      name: "failed upstream source posture",
+      targetOverrides: {
+        sourcePostureState: "failed_source",
+        freshnessState: "fresh",
+      },
+    },
+  ] as const)(
+    "maps $name to blocked source_freshness_and_lineage_safety",
+    async (scenario) => {
+      const service = buildService({
+        certificationBoundary: buildCertificationBoundary({
+          targetOverrides: scenario.targetOverrides,
+        }),
+      });
+
+      const result = await service.getCertificationSafety("acme");
+      const target = requireTarget(
+        result,
+        "source_freshness_and_lineage_safety",
+      );
+
+      expect(target.status).toBe("blocked_by_evidence");
+      expect(result.aggregateStatus).toBe("blocked_by_evidence");
+      expectTargetCarriesReviewFields(target);
+    },
+  );
+
+  it.each([
+    {
+      name: "stale upstream source posture",
+      targetOverrides: {
+        sourcePostureState: "stale_source",
+        freshnessState: "fresh",
+      },
+    },
+    {
+      name: "limited upstream source posture",
+      targetOverrides: {
+        sourcePostureState: "limited_source",
+        freshnessState: "fresh",
+      },
+    },
+    {
+      name: "mixed upstream freshness posture",
+      targetOverrides: {
+        sourcePostureState: "source_backed",
+        freshnessState: "mixed",
+      },
+    },
+  ] as const)(
+    "maps $name to needs-review source_freshness_and_lineage_safety",
+    async (scenario) => {
+      const service = buildService({
+        certificationBoundary: buildCertificationBoundary({
+          targetOverrides: scenario.targetOverrides,
+        }),
+      });
+
+      const result = await service.getCertificationSafety("acme");
+      const target = requireTarget(
+        result,
+        "source_freshness_and_lineage_safety",
+      );
+
+      expect(target.status).toBe(
+        "needs_human_review_before_certification_safety",
+      );
+      expect(result.aggregateStatus).toBe(
+        "needs_human_review_before_certification_safety",
+      );
+      expectTargetCarriesReviewFields(target);
+    },
+  );
+
+  it.each([
+    {
+      name: "missing upstream proof posture",
+      targetOverrides: {
+        proofPostureState: "limited_by_missing_source",
+      },
+    },
+    {
+      name: "failed upstream proof posture",
+      targetOverrides: {
+        proofPostureState: "limited_by_failed_source",
+      },
+    },
+  ] as const)(
+    "maps $name to blocked proof_and_limitation_safety",
+    async (scenario) => {
+      const service = buildService({
+        certificationBoundary: buildCertificationBoundary({
+          targetOverrides: scenario.targetOverrides,
+        }),
+      });
+
+      const result = await service.getCertificationSafety("acme");
+      const target = requireTarget(result, "proof_and_limitation_safety");
+
+      expect(target.status).toBe("blocked_by_evidence");
+      expect(result.aggregateStatus).toBe("blocked_by_evidence");
+      expectTargetCarriesReviewFields(target);
+    },
+  );
+
+  it.each([
+    {
+      name: "stale upstream proof posture",
+      targetOverrides: {
+        proofPostureState: "limited_by_stale_source",
+      },
+    },
+    {
+      name: "data-quality upstream proof posture",
+      targetOverrides: {
+        proofPostureState: "limited_by_data_quality_gap",
+      },
+    },
+    {
+      name: "coverage upstream proof posture",
+      targetOverrides: {
+        proofPostureState: "limited_by_coverage_gap",
+      },
+    },
+    {
+      name: "review-only upstream proof posture",
+      targetOverrides: {
+        proofPostureState: "review_only_context",
+      },
+    },
+  ] as const)(
+    "maps $name to needs-review proof_and_limitation_safety",
+    async (scenario) => {
+      const service = buildService({
+        certificationBoundary: buildCertificationBoundary({
+          targetOverrides: scenario.targetOverrides,
+        }),
+      });
+
+      const result = await service.getCertificationSafety("acme");
+      const target = requireTarget(result, "proof_and_limitation_safety");
+
+      expect(target.status).toBe(
+        "needs_human_review_before_certification_safety",
+      );
+      expect(result.aggregateStatus).toBe(
+        "needs_human_review_before_certification_safety",
+      );
+      expectTargetCarriesReviewFields(target);
+    },
+  );
+
+  it.each([
+    {
+      name: "F6Q certification-boundary",
+      serviceInput: {
+        certificationBoundary: buildCertificationBoundary({
+          runtimeActionBoundary: boundaryWithTrueAction(
+            buildCertificationBoundaryAbsence(),
+            "certificationCreated",
+          ),
+        }),
+      },
+    },
+    {
+      name: "F6S human-confirmation",
+      serviceInput: {
+        humanConfirmation: buildHumanConfirmation({
+          runtimeActionBoundary: boundaryWithTrueAction(
+            buildHumanConfirmationAbsence(),
+            "emailSent",
+          ),
+        }),
+      },
+    },
+    {
+      name: "F6N review-summary",
+      serviceInput: {
+        reviewSummary: buildReviewSummary({
+          runtimeActionBoundary: boundaryWithTrueAction(
+            buildReviewSummaryAbsence(),
+            "monitorRunTriggered",
+          ),
+        }),
+      },
+    },
+  ])(
+    "blocks certification_absence_safety when $name reports a true action boundary",
+    async (scenario) => {
+      const service = buildService(scenario.serviceInput);
+
+      const result = await service.getCertificationSafety("acme");
+      const target = requireTarget(result, "certification_absence_safety");
+
+      expect(target.status).toBe("blocked_by_evidence");
+      expect(result.aggregateStatus).toBe("blocked_by_evidence");
+      expectTargetCarriesReviewFields(target);
+    },
+  );
+
+  it("keeps certification_absence_safety ready when all upstream action absence boundaries are false", async () => {
+    const service = buildService();
+
+    const result = await service.getCertificationSafety("acme");
+    const target = requireTarget(result, "certification_absence_safety");
+
+    expect(target.status).toBe("ready_for_certification_safety_review");
+    expect(result.aggregateStatus).toBe(
+      "ready_for_certification_safety_review",
+    );
+    expectTargetCarriesReviewFields(target);
   });
 
   it.each([
@@ -312,7 +538,9 @@ function buildService(
 function buildCertificationBoundary(
   input: {
     companyKey?: string;
+    runtimeActionBoundary?: CloseControlCertificationBoundaryResult["runtimeActionBoundary"];
     status?: CloseControlCertificationBoundaryStatus;
+    targetOverrides?: PostureOverrides;
   } = {},
 ): CloseControlCertificationBoundaryResult {
   const status = input.status ?? "ready_for_certification_boundary_review";
@@ -322,19 +550,22 @@ function buildCertificationBoundary(
     generatedAt,
     aggregateStatus: status,
     closeControlCertificationBoundaryTargets: [
-      buildCertificationTarget(status),
+      buildCertificationTarget(status, input.targetOverrides),
     ],
     evidenceSummary:
       "F6Q certification boundary is derived from shipped review and provider posture only.",
     limitations: ["Certification boundary is internal posture only."],
-    runtimeActionBoundary: buildCertificationBoundaryAbsence(),
+    runtimeActionBoundary:
+      input.runtimeActionBoundary ?? buildCertificationBoundaryAbsence(),
   };
 }
 
 function buildHumanConfirmation(
   input: {
     companyKey?: string;
+    runtimeActionBoundary?: ExternalDeliveryHumanConfirmationBoundaryResult["runtimeActionBoundary"];
     status?: ExternalDeliveryHumanConfirmationStatus;
+    targetOverrides?: PostureOverrides;
   } = {},
 ): ExternalDeliveryHumanConfirmationBoundaryResult {
   const status = input.status ?? "ready_for_human_confirmation_review";
@@ -343,18 +574,23 @@ function buildHumanConfirmation(
     companyKey: input.companyKey ?? "acme",
     generatedAt,
     aggregateStatus: status,
-    deliveryGateTargets: [buildHumanConfirmationTarget(status)],
+    deliveryGateTargets: [
+      buildHumanConfirmationTarget(status, input.targetOverrides),
+    ],
     evidenceSummary:
       "F6S human confirmation is derived from shipped boundary posture only.",
     limitations: ["Human confirmation is internal delivery-preflight only."],
-    runtimeActionBoundary: buildHumanConfirmationAbsence(),
+    runtimeActionBoundary:
+      input.runtimeActionBoundary ?? buildHumanConfirmationAbsence(),
   };
 }
 
 function buildReviewSummary(
   input: {
     companyKey?: string;
+    runtimeActionBoundary?: CloseControlReviewSummaryResult["runtimeActionBoundary"];
     status?: CloseControlReviewStatus;
+    targetOverrides?: PostureOverrides;
   } = {},
 ): CloseControlReviewSummaryResult {
   const status = input.status ?? "ready_for_review_summary";
@@ -363,16 +599,24 @@ function buildReviewSummary(
     companyKey: input.companyKey ?? "acme",
     generatedAt,
     aggregateStatus: status,
-    reviewSections: [buildReviewSection(status)],
+    reviewSections: [buildReviewSection(status, input.targetOverrides)],
     evidenceSummary:
       "F6N review summary is derived from shipped close/control posture only.",
     limitations: ["Review summary is internal posture only."],
-    runtimeActionBoundary: buildReviewSummaryAbsence(),
+    runtimeActionBoundary:
+      input.runtimeActionBoundary ?? buildReviewSummaryAbsence(),
   };
 }
 
+type PostureOverrides = {
+  freshnessState?: CloseControlFreshnessState;
+  proofPostureState?: CloseControlProofPostureState;
+  sourcePostureState?: CloseControlCertificationSafetySourcePostureState;
+};
+
 function buildCertificationTarget(
   status: CloseControlCertificationBoundaryStatus,
+  overrides: PostureOverrides = {},
 ): CloseControlCertificationBoundaryTarget {
   return {
     targetKey: "certification-boundary:aggregate",
@@ -384,10 +628,10 @@ function buildCertificationTarget(
       refs: [],
     },
     sourceLineageRefs: [],
-    sourcePosture: sourcePosture(status),
-    freshnessSummary: freshness(status),
+    sourcePosture: sourcePosture(status, overrides.sourcePostureState),
+    freshnessSummary: freshness(status, overrides.freshnessState),
     limitations: ["Certification-boundary target remains internal posture."],
-    proofPosture: proofPosture(status),
+    proofPosture: proofPosture(status, overrides.proofPostureState),
     proofRefs: [
       "close-control.certificationBoundary.targets.certification-boundary:aggregate.proofPosture",
     ],
@@ -402,6 +646,7 @@ function buildCertificationTarget(
 
 function buildHumanConfirmationTarget(
   status: ExternalDeliveryHumanConfirmationStatus,
+  overrides: PostureOverrides = {},
 ): ExternalDeliveryHumanConfirmationTarget {
   return {
     targetKey: "human-confirmation:aggregate",
@@ -413,10 +658,10 @@ function buildHumanConfirmationTarget(
       refs: [],
     },
     sourceLineageRefs: [],
-    sourcePosture: sourcePosture(status),
-    freshnessSummary: freshness(status),
+    sourcePosture: sourcePosture(status, overrides.sourcePostureState),
+    freshnessSummary: freshness(status, overrides.freshnessState),
     limitations: ["Human-confirmation target remains internal posture."],
-    proofPosture: proofPosture(status),
+    proofPosture: proofPosture(status, overrides.proofPostureState),
     proofRefs: [
       "external-delivery.humanConfirmationBoundary.targets.human-confirmation:aggregate.proofPosture",
     ],
@@ -433,6 +678,7 @@ function buildHumanConfirmationTarget(
 
 function buildReviewSection(
   status: CloseControlReviewStatus,
+  overrides: PostureOverrides = {},
 ): CloseControlReviewSection {
   return {
     sectionKey: "review-summary:aggregate",
@@ -443,10 +689,10 @@ function buildReviewSection(
       refs: [],
     },
     sourceLineageRefs: [],
-    sourcePosture: sourcePosture(status),
-    freshnessSummary: freshness(status),
+    sourcePosture: sourcePosture(status, overrides.sourcePostureState),
+    freshnessSummary: freshness(status, overrides.freshnessState),
     limitations: ["Review-summary section remains internal posture."],
-    proofPosture: proofPosture(status),
+    proofPosture: proofPosture(status, overrides.proofPostureState),
     proofRefs: [
       "close-control.reviewSummary.sections.review-summary:aggregate.proofPosture",
     ],
@@ -465,9 +711,11 @@ function sourcePosture(
     | CloseControlCertificationBoundaryStatus
     | CloseControlReviewStatus
     | ExternalDeliveryHumanConfirmationStatus,
+  overrideState?: CloseControlCertificationSafetySourcePostureState,
 ) {
-  const state: "missing_source" | "source_backed" | "limited_source" =
-    status === "blocked_by_evidence"
+  const state: CloseControlCertificationSafetySourcePostureState = overrideState
+    ? overrideState
+    : status === "blocked_by_evidence"
       ? "missing_source"
       : status === "ready_for_certification_boundary_review" ||
           status === "ready_for_human_confirmation_review" ||
@@ -478,7 +726,8 @@ function sourcePosture(
   return {
     state,
     summary: "Source posture is carried from upstream read models.",
-    missingSource: status === "blocked_by_evidence",
+    missingSource:
+      state === "missing_source" || state === "monitor_context_missing",
     refs: [],
   };
 }
@@ -488,9 +737,11 @@ function freshness(
     | CloseControlCertificationBoundaryStatus
     | CloseControlReviewStatus
     | ExternalDeliveryHumanConfirmationStatus,
+  overrideState?: CloseControlFreshnessState,
 ) {
-  const state: "missing" | "fresh" | "mixed" =
-    status === "blocked_by_evidence"
+  const state: CloseControlFreshnessState = overrideState
+    ? overrideState
+    : status === "blocked_by_evidence"
       ? "missing"
       : status === "ready_for_certification_boundary_review" ||
           status === "ready_for_human_confirmation_review" ||
@@ -510,12 +761,11 @@ function proofPosture(
     | CloseControlCertificationBoundaryStatus
     | CloseControlReviewStatus
     | ExternalDeliveryHumanConfirmationStatus,
+  overrideState?: CloseControlProofPostureState,
 ) {
-  const state:
-    | "limited_by_missing_source"
-    | "source_backed"
-    | "limited_by_coverage_gap" =
-    status === "blocked_by_evidence"
+  const state: CloseControlProofPostureState = overrideState
+    ? overrideState
+    : status === "blocked_by_evidence"
       ? "limited_by_missing_source"
       : status === "ready_for_certification_boundary_review" ||
           status === "ready_for_human_confirmation_review" ||
@@ -527,6 +777,16 @@ function proofPosture(
     state,
     summary: "Proof posture is carried from upstream read models.",
   };
+}
+
+function boundaryWithTrueAction<T extends Record<string, unknown>>(
+  boundary: T,
+  key: keyof T,
+): T {
+  return {
+    ...boundary,
+    [key]: true,
+  } as unknown as T;
 }
 
 function buildCertificationBoundaryAbsence() {
@@ -614,6 +874,18 @@ function requireTarget(
   }
 
   return target;
+}
+
+function expectTargetCarriesReviewFields(
+  target: CloseControlCertificationSafetyTarget,
+) {
+  expect(target.evidenceBasis.summary.trim()).not.toHaveLength(0);
+  expect(target.sourcePosture.summary.trim()).not.toHaveLength(0);
+  expect(target.freshnessSummary.summary.trim()).not.toHaveLength(0);
+  expect(target.limitations.length).toBeGreaterThan(0);
+  expect(target.proofPosture.summary.trim()).not.toHaveLength(0);
+  expect(target.status.trim()).not.toHaveLength(0);
+  expect(target.humanReviewNextStep.trim()).not.toHaveLength(0);
 }
 
 function assertNoForbiddenStatuses(
