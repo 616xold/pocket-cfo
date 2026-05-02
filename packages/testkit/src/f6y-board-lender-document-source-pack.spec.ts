@@ -205,9 +205,14 @@ describe("F6Y board/lender document source-pack fixture", () => {
     expect(expected.indexLogPosture).toMatchObject({
       indexPagePresent: true,
       indexPageKey: "index",
+      indexLinksToSourceCoverage: true,
+      sourceCoverageLinksToCurrentSourceDigests: true,
       logPagePresent: true,
       logPageKey: "log",
     });
+    expect(expected.indexLogPosture).not.toHaveProperty(
+      "indexLinksToCurrentSourceDigests",
+    );
     expect(expected.companySummaryPosture).toMatchObject({
       latestSuccessfulCompilePresent: true,
       policyPageCount: 0,

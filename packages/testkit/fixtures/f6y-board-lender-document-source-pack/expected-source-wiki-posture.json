@@ -133,7 +133,7 @@
     "indexPagePresent": true,
     "indexPageKey": "index",
     "indexLinksToSourceCoverage": true,
-    "indexLinksToCurrentSourceDigests": true,
+    "sourceCoverageLinksToCurrentSourceDigests": true,
     "logPagePresent": true,
     "logPageKey": "log",
     "logCompileRunVisible": true,
