@@ -1,0 +1,269 @@
+{
+  "sourcePackId": "pocket-cfo-board-lender-document-source-pack",
+  "companyKey": "demo-board-lender-document-source-pack",
+  "sourceFiles": [
+    {
+      "role": "board_material",
+      "path": "sources/board-material.md",
+      "sourceKind": "document",
+      "mediaType": "text/markdown",
+      "documentRole": "board_material",
+      "expectedDocumentKind": "markdown_text"
+    },
+    {
+      "role": "lender_document",
+      "path": "sources/lender-document.txt",
+      "sourceKind": "document",
+      "mediaType": "text/plain",
+      "documentRole": "lender_document",
+      "expectedDocumentKind": "plain_text"
+    }
+  ],
+  "sourceRolesPresent": ["board_material", "lender_document"],
+  "documentRolesPresent": ["board_material", "lender_document"],
+  "sourceKindsPresent": ["document"],
+  "mediaTypesPresent": ["text/markdown", "text/plain"],
+  "expectedDocumentKinds": ["markdown_text", "plain_text"],
+  "sourceRegistrationPosture": {
+    "registeredSourceCount": 2,
+    "uploadedSourceFileCount": 2,
+    "sourceSnapshotCountPerSource": 2,
+    "sourceFileChecksumPresent": true,
+    "rawObjectStoreWriteExpected": true,
+    "rawFixtureFilesRewritten": false
+  },
+  "sourceFilePosture": [
+    {
+      "path": "sources/board-material.md",
+      "sourceKind": "document",
+      "mediaType": "text/markdown",
+      "documentRole": "board_material",
+      "expectedDocumentKind": "markdown_text",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "latestSnapshotPresent": true,
+      "latestSourceFilePresent": true,
+      "latestExtractPresent": true,
+      "lineagePresent": true,
+      "sourceLimitationsPresent": false
+    },
+    {
+      "path": "sources/lender-document.txt",
+      "sourceKind": "document",
+      "mediaType": "text/plain",
+      "documentRole": "lender_document",
+      "expectedDocumentKind": "plain_text",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "latestSnapshotPresent": true,
+      "latestSourceFilePresent": true,
+      "latestExtractPresent": true,
+      "lineagePresent": true,
+      "sourceLimitationsPresent": false
+    }
+  ],
+  "cfoWikiBindingPosture": {
+    "boundSourceCount": 2,
+    "includedInCompileCount": 2,
+    "boardMaterialBindingCount": 1,
+    "lenderDocumentBindingCount": 1,
+    "bindingLimitationsPresent": true
+  },
+  "deterministicExtractPosture": [
+    {
+      "path": "sources/board-material.md",
+      "extractStatus": "extracted",
+      "documentKind": "markdown_text",
+      "title": "Board Material Evidence Fixture",
+      "headingCount": 3,
+      "excerptBlockCount": 3,
+      "renderedMarkdownPresent": true,
+      "warningsPresent": false
+    },
+    {
+      "path": "sources/lender-document.txt",
+      "extractStatus": "extracted",
+      "documentKind": "plain_text",
+      "title": "Lender document evidence fixture",
+      "headingCount": 0,
+      "excerptBlockCount": 3,
+      "renderedMarkdownPresent": true,
+      "warningsPresent": false
+    }
+  ],
+  "sourceListPosture": {
+    "sourceCount": 2,
+    "allSourcesIncludedInCompile": true,
+    "allSourcesBoundAsBoardOrLenderDocument": true,
+    "listLimitationsPresent": true
+  },
+  "sourceDigestPosture": [
+    {
+      "path": "sources/board-material.md",
+      "latestDigestPresent": true,
+      "pageKind": "source_digest",
+      "freshnessState": "fresh",
+      "extractStatusVisible": true,
+      "documentKindVisible": true,
+      "documentRoleVisible": true,
+      "limitationsPresent": true
+    },
+    {
+      "path": "sources/lender-document.txt",
+      "latestDigestPresent": true,
+      "pageKind": "source_digest",
+      "freshnessState": "fresh",
+      "extractStatusVisible": true,
+      "documentKindVisible": true,
+      "documentRoleVisible": true,
+      "limitationsPresent": true
+    }
+  ],
+  "sourceCoveragePosture": {
+    "pagePresent": true,
+    "pageKey": "sources/coverage",
+    "pageKind": "source_coverage",
+    "freshnessState": "missing",
+    "boundDocumentSourcesVisible": true,
+    "boardMaterialVisible": true,
+    "lenderDocumentVisible": true,
+    "limitationsPresent": true
+  },
+  "indexLogPosture": {
+    "indexPagePresent": true,
+    "indexPageKey": "index",
+    "indexLinksToSourceCoverage": true,
+    "indexLinksToCurrentSourceDigests": true,
+    "logPagePresent": true,
+    "logPageKey": "log",
+    "logCompileRunVisible": true,
+    "limitationsPresent": true
+  },
+  "companySummaryPosture": {
+    "latestSuccessfulCompilePresent": true,
+    "pageCountMinimum": 21,
+    "policyPageCount": 0,
+    "sourceDigestPageCountMinimum": 4,
+    "limitationsPresent": true
+  },
+  "freshnessSourceBackedStateByRole": {
+    "board_material": {
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "sourceCount": 1
+    },
+    "lender_document": {
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "sourceCount": 1
+    }
+  },
+  "lineagePresenceBySource": [
+    {
+      "path": "sources/board-material.md",
+      "sourceRegistrationLineagePresent": true,
+      "sourceFileLineagePresent": true,
+      "cfoWikiBindingLineagePresent": true,
+      "sourceDigestLineagePresent": true,
+      "sourceCoverageLineagePresent": true,
+      "indexLogLineagePresent": true
+    },
+    {
+      "path": "sources/lender-document.txt",
+      "sourceRegistrationLineagePresent": true,
+      "sourceFileLineagePresent": true,
+      "cfoWikiBindingLineagePresent": true,
+      "sourceDigestLineagePresent": true,
+      "sourceCoverageLineagePresent": true,
+      "indexLogLineagePresent": true
+    }
+  ],
+  "limitationPresenceBySource": [
+    {
+      "path": "sources/board-material.md",
+      "sourceLimitationsPresent": false,
+      "sourceDigestLimitationsPresent": true,
+      "sourceCoverageLimitationsPresent": true,
+      "indexLogLimitationsPresent": true
+    },
+    {
+      "path": "sources/lender-document.txt",
+      "sourceLimitationsPresent": false,
+      "sourceDigestLimitationsPresent": true,
+      "sourceCoverageLimitationsPresent": true,
+      "indexLogLimitationsPresent": true
+    }
+  ],
+  "familyBoundary": {
+    "newMonitorFamilyAdded": false,
+    "newDiscoveryFamilyAdded": false,
+    "monitorFamilies": [
+      "cash_posture",
+      "collections_pressure",
+      "payables_pressure",
+      "policy_covenant_threshold"
+    ],
+    "discoveryFamilies": [
+      "cash_posture",
+      "collections_pressure",
+      "payables_pressure",
+      "spend_posture",
+      "obligation_calendar_review",
+      "policy_lookup"
+    ]
+  },
+  "runtimeActionBoundary": {
+    "monitorRunTriggered": false,
+    "monitorResultCreated": false,
+    "checklistReadTriggered": false,
+    "operatorReadinessReadTriggered": false,
+    "acknowledgementReadTriggered": false,
+    "deliveryReadinessReadTriggered": false,
+    "reviewSummaryReadTriggered": false,
+    "providerBoundaryReadTriggered": false,
+    "certificationBoundaryReadTriggered": false,
+    "humanConfirmationBoundaryReadTriggered": false,
+    "certificationSafetyReadTriggered": false,
+    "missionCreated": false,
+    "reportCreated": false,
+    "boardPacketCreated": false,
+    "lenderUpdateCreated": false,
+    "reportReleaseCreated": false,
+    "reportCirculationCreated": false,
+    "approvalCreated": false,
+    "deliveryCreated": false,
+    "providerCallCreated": false,
+    "providerCredentialCreated": false,
+    "providerJobCreated": false,
+    "outboxSendCreated": false,
+    "runtimeCodexUsed": false,
+    "generatedProseCreated": false,
+    "generatedNotificationProseCreated": false,
+    "paymentInstructionCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "boardAdviceGenerated": false,
+    "lenderAdviceGenerated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "certificationCreated": false,
+    "certifiedStatusCreated": false,
+    "closeCompleteCreated": false,
+    "signOffCreated": false,
+    "attestationCreated": false,
+    "legalOpinionCreated": false,
+    "auditOpinionCreated": false,
+    "assuranceCreated": false,
+    "sourceMutationOutsideProofSetupCreated": false,
+    "autonomousActionCreated": false
+  },
+  "limitations": [
+    "The pack is one deterministic local fixture family, not a broad source-pack platform.",
+    "The pack covers only text/markdown and text/plain document source posture for the explicit board_material and lender_document roles.",
+    "The pack proves existing source registry and CFO Wiki bind, compile, and read route behavior only; it does not add routes, schema, migrations, package scripts, monitor families, discovery families, extractors, policy pages, reports, board packets, lender updates, approvals, release records, circulation records, delivery, providers, runtime-Codex, certification, generated prose, finance writes, advice, instructions, or autonomous action.",
+    "The pack does not create missions, reports, board packets, lender updates, approvals, delivery, runtime-Codex drafts, provider calls, provider credentials, provider jobs, certification, certified status, close-complete status, sign-off, attestation, legal opinions, audit opinions, assurance artifacts, payment behavior, accounting writes, bank writes, tax filings, legal advice, policy advice, board advice, lender advice, collection instructions, customer-contact instructions, generated prose, source mutation outside proof upload/bind/compile setup, or autonomous finance action."
+  ]
+}
