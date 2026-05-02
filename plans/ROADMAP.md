@@ -438,6 +438,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0070-close-control-certification-safety-foundation.md` is the shipped F6T implementation record for one internal close/control certification-safety/readiness foundation only.
 `plans/FP-0071-policy-covenant-document-source-pack-foundation.md` is the shipped F6W record for one policy/covenant document source-pack foundation only.
 `plans/FP-0072-board-lender-document-source-pack-foundation.md` is the shipped F6Y record for one board/lender document source-pack foundation only.
+`plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` is the active implementation-ready F6Z final F6/v1 exit audit and handoff contract; it is docs-and-validation-only and does not start product runtime behavior.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -462,6 +463,7 @@ The shipped F6U slice is exactly `F6U-ledger-reconciliation-source-pack-foundati
 The shipped F6T contract is exactly `F6T-close-control-certification-safety-foundation` and is not actual certification.
 The shipped F6W slice is exactly `F6W-policy-covenant-document-source-pack-foundation` and is source-pack-only implementation.
 The shipped F6Y slice is exactly `F6Y-board-lender-document-source-pack-foundation` and is source-pack-only implementation.
+The active F6Z contract is exactly `F6Z-final-f6-v1-exit-audit-and-handoff` and is docs-and-validation-only.
 
 Focus:
 
@@ -752,3 +754,9 @@ Slice map:
   - shipped implementation preserves raw fixture immutability, normalized source/wiki posture, fixed monitor/discovery families, freshness/limitations posture, and absence boundaries without adding routes, schema, migrations, package scripts, root smoke aliases, eval datasets, UI, missions, monitor reruns/results, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation/certification-safety behavior, delivery, provider calls, provider credentials, provider jobs, outbox sends, reports, board packets, lender updates, approvals, certification, certified status, close-complete status, sign-off, attestation, assurance, legal/audit opinion, payment behavior, legal/policy/board/lender advice, collection/customer-contact instruction, generated prose, finance writes, autonomous action, or source mutation beyond proof upload/bind/compile setup
 - `F6X — actual certification`
   - later only if operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints are proven
+- `F6Z — final F6/v1 exit audit and handoff`
+  - active implementation-ready contract in `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md`
+  - one final F6/v1 audit and handoff slice only
+  - docs-and-validation only
+  - no product runtime behavior, route, schema, migration, package script, smoke alias, eval dataset, fixture, monitor family, discovery family, provider integration, outbox/send/delivery behavior, report creation/release/circulation, approval workflow, actual certification, legal/audit opinion, runtime-Codex, generated prose, source mutation, finance write, or autonomous action
+  - preserves shipped F6A through F6Y behavior and validates the shipped source-pack proof posture plus safety-boundary posture before later provider or certification planning

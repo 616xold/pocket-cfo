@@ -80,7 +80,7 @@ Decision: F6Y preserves shipped F5 and F6 behavior.
 Rationale: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L/F6O/F6R/F6U/F6W source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6P provider-boundary behavior changes, no F6Q certification-boundary behavior changes, no F6S human-confirmation behavior changes, no F6T certification-safety behavior changes, no new approval kind, and no report conversion belong in F6Y.
 
 Decision: later slices are named but not created here.
-Rationale: F6V actual provider integration should happen only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send. F6X actual certification should happen only if a future plan proves operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints. F6Z final F6/v1 exit audit should happen only after source-pack and safety-boundary docs are fresh. Do not create FP-0073 in this slice.
+Rationale: F6V actual provider integration should happen only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send. F6X actual certification should happen only if a future plan proves operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints. F6Z final F6/v1 exit audit should happen only after source-pack and safety-boundary docs are fresh. FP-0073 is the later F6Z plan candidate once those docs are fresh; this F6Y slice did not create it.
 
 ## Context and Orientation
 
@@ -282,9 +282,9 @@ Human-observable acceptance for this shipped F6Y slice:
 - `plans/FP-0071-policy-covenant-document-source-pack-foundation.md` remains the shipped F6W record
 - active docs record FP-0072 as shipped F6Y truth and FP-0071 as shipped F6W truth
 - FP-0050 through FP-0072 remain shipped F6A through F6Y records
-- no FP-0073 is created
+- no FP-0073 was created in the F6Y slice
 - F6Y shipped as one board/lender document source-pack foundation only
-- F6V, F6X, F6Z, and later plans are named only as likely later slices and are not created
+- at F6Y closeout, F6V, F6X, F6Z, and later plans were named only as likely later slices and were not created
 
 ## Idempotence and Recovery
 
@@ -329,8 +329,8 @@ This implementation slice creates or updates only:
 
 This implementation slice adds source-pack code, fixtures, tests, proof tooling, and docs only; it does not add routes, schema, migrations, package scripts, smoke commands, eval datasets, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
 
-Do not create FP-0073.
-Do not start F6V, F6X, F6Z, or later work in this slice.
+Historical F6Y boundary: this slice did not create FP-0073 and did not start F6V, F6X, F6Z, or later work.
+Post-F6Y handoff clarification: `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` may now exist as the later F6Z plan; that does not change this shipped F6Y record, and F6Z implementation still must not start from FP-0072.
 
 ## Interfaces and Dependencies
 
@@ -345,4 +345,4 @@ If a later continuation finds it cannot extend this source-pack posture using on
 This implementation slice ships F6Y because repo truth supports a safe board/lender document source-pack foundation through existing source and CFO Wiki routes.
 F6Y remains one deterministic source-pack implementation slice and keeps provider integration, actual certification, external delivery, approvals, reports, runtime-Codex, monitor families, discovery families, generated prose, and autonomous actions out of scope.
 
-Recommendation: do not start F6V provider integration, F6X actual certification, F6Z exit audit, or later work until a new Finance Plan names that scope. If review finds another F6Y truthfulness gap, continue with one more narrow F6Y follow-up instead of widening into provider, certification, or delivery behavior.
+Recommendation at F6Y closeout was not to start F6V provider integration, F6X actual certification, F6Z exit audit, or later work until a new Finance Plan named that scope. FP-0073 is that later named F6Z plan candidate; if review finds another F6Y truthfulness gap, continue with one more narrow F6Y follow-up instead of widening into provider, certification, or delivery behavior.
