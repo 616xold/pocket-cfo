@@ -2,10 +2,10 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan for the Pocket CFO F6W implementation contract.
+This is now the shipped Finance Plan record for the Pocket CFO F6W implementation contract.
 The target phase is `F6`, and the implementation slice is exactly `F6W-policy-covenant-document-source-pack-foundation`.
 
-The user-visible goal is narrow: after shipped F6A through F6T and F6U, Pocket CFO should be able to prove one additional checked-in source-pack family for policy/covenant documents using the existing source registry and CFO Wiki bind, compile, and read routes only.
+The user-visible goal was narrow: after shipped F6A through F6T and F6U, Pocket CFO can prove one additional checked-in source-pack family for policy/covenant documents using the existing source registry and CFO Wiki bind, compile, and read routes only.
 The source-pack family is limited to deterministic markdown or plain-text `policy_document` sources.
 It is a fixture, manifest, normalized expected-output, and deterministic direct-proof slice.
 It is not product runtime behavior.
@@ -27,6 +27,12 @@ Do not invoke GitHub Connector Guard for F6W.
 - [x] 2026-05-01T17:42:38Z Updated the active docs spine to point F6W at this FP-0071 contract while preserving FP-0050 through FP-0070 as shipped records.
 - [x] 2026-05-01T17:42:38Z Ran the full docs-and-plan validation ladder through `pnpm ci:repro:current`; all requested smokes, source-pack proofs, focused specs, lint, typecheck, test, and CI reproduction passed.
 - [x] 2026-05-01T17:59:29Z QA corrected stale local-dev guidance that still said not to create FP-0071; `docs/ops/local-dev.md` now keeps FP-0070 shipped and points F6W planning at this active contract without starting implementation.
+- [x] 2026-05-02T00:21:54Z Ran F6W implementation preflight against fetched `origin/main`, confirmed branch `codex/f6w-policy-covenant-document-source-pack-foundation-local-v1`, clean worktree before edits, GitHub auth/repo access, and local Docker Postgres/object storage availability.
+- [x] 2026-05-02T00:21:54Z Added the `pocket-cfo-policy-covenant-document-source-pack` manifest, document source-pack descriptor type, exports, and stack-pack assertions without changing shipped F6L/F6O/F6R/F6U manifest semantics.
+- [x] 2026-05-02T00:21:54Z Added one immutable F6W fixture family with markdown and plain-text `policy_document` sources, normalized expected source/wiki/policy posture, raw fixture immutability assertions, and forbidden-content boundary checks.
+- [x] 2026-05-02T00:21:54Z Added direct deterministic proof `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs`, driven by the manifest source files and existing source registry plus CFO Wiki bind/compile/read routes.
+- [x] 2026-05-02T00:21:54Z Ran focused narrow validation: `pnpm --filter @pocket-cto/stack-packs exec vitest run src/stack-pack.spec.ts`, `pnpm --filter @pocket-cto/testkit exec vitest run src/f6w-policy-covenant-document-source-pack.spec.ts`, and `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs` passed.
+- [x] 2026-05-02T00:31:28Z Ran the full F6W implementation validation ladder through `pnpm ci:repro:current`; all requested narrow specs, DB-backed smokes/proofs, twin guardrails, lint, typecheck, test, and CI reproduction passed.
 
 ## Surprises & Discoveries
 
@@ -37,6 +43,15 @@ The current policy/covenant threshold monitor and close/control policy-source it
 That means F6W does not need a new monitor family, discovery family, evaluator, checklist item family, route, schema, or mission behavior.
 
 The tiny F6T local-dev freshness line already includes FP-0070 as the shipped certification-safety record, so no `docs/ops/local-dev.md` edit is needed for that correction.
+
+The CFO Wiki source-list route returns bound-source summaries directly, while the bind route returns a source binding view under `source`.
+F6W proof normalization now respects those two existing response shapes rather than changing routes.
+
+The existing CFO Wiki bind route requires a persisted finance company.
+The proof sets up the deterministic demo company row before exercising source registration/upload and CFO Wiki bind/compile/read routes; it does not add a product route or runtime behavior.
+
+Repeated local proof runs can leave older bound sources for the deterministic demo company.
+The normalized posture therefore compares the manifest-driven current proof source IDs inside source-list and policy-corpus reads, while still checking company-level minimum posture and raw fixture immutability.
 
 ## Decision Log
 
@@ -53,16 +68,22 @@ Decision: F6W is not certification, legal advice, audit opinion, approval, or re
 Rationale: do not add actual certification, certified status, close-complete status, sign-off, attestation, assurance, legal opinion, audit opinion, approval workflow, report release, report circulation, legal advice, or policy advice.
 
 Decision: F6W expands source packs, not product runtime behavior.
-Rationale: the implementation should define one checked-in policy/covenant document source-pack manifest or fixture family, one normalized expected source/wiki/policy posture file, and one deterministic direct proof path. It must not add DB tables, routes, monitor evaluators, mission behavior, UI, package scripts, root smoke aliases, eval datasets, provider integrations, outbox behavior, runtime-Codex, delivery, report, approval, certification, close-complete, sign-off, attestation, legal/audit opinion, or finance-action behavior.
+Rationale: the implementation defines one checked-in policy/covenant document source-pack manifest and fixture family, one normalized expected source/wiki/policy posture file, and one deterministic direct proof path. It does not add DB tables, routes, monitor evaluators, mission behavior, UI, package scripts, root smoke aliases, eval datasets, provider integrations, outbox behavior, runtime-Codex, delivery, report, approval, certification, close-complete, sign-off, attestation, legal/audit opinion, or finance-action behavior.
 
 Decision: F6W source scope is intentionally narrow.
 Rationale: document role is exactly `policy_document`, source kind is exactly `document`, source-pack family count is one, and media types are limited to `text/markdown` and `text/plain` unless this plan is explicitly amended after repo truth proves another deterministic document path.
 
 Decision: F6W inputs are fixture and proof inputs only.
-Rationale: allowed inputs for the later implementation are checked-in static policy/covenant document fixture files, expected normalized source/wiki/policy posture, existing source registration/upload routes in proof tooling only, existing CFO Wiki bind/compile/read routes in proof tooling only, and existing policy/covenant plus close/control read surfaces as validation context only. Generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, generated prose, monitor reruns, provider state, provider credentials, outbox jobs, external communications, and source mutation beyond proof upload/bind/compile setup are out of scope.
+Rationale: allowed inputs for the implementation are checked-in static policy/covenant document fixture files, expected normalized source/wiki/policy posture, existing source registration/upload routes in proof tooling only, existing CFO Wiki bind/compile/read routes in proof tooling only, and existing policy/covenant plus close/control read surfaces as validation context only. Generic chat, report artifacts as primary input, runtime-Codex, mission-generated prose, generated prose, monitor reruns, provider state, provider credentials, outbox jobs, external communications, and source mutation beyond proof upload/bind/compile setup are out of scope.
 
 Decision: F6W output contract is one source-pack manifest/fixture contract plus one deterministic direct proof path.
 Rationale: the expected posture should include source file list, source role/descriptors, document role, source kind, media type, expected CFO Wiki document extract posture, expected policy page posture, expected policy-corpus posture, expected source coverage posture, expected limitations, absence boundaries, raw fixture immutability, and fixed monitor/discovery family boundaries. It should add no new monitor result semantics, checklist item families, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, provider-boundary behavior, certification-boundary behavior, human-confirmation behavior, certification-safety behavior, investigation behavior, legal/policy advice, or product runtime behavior.
+
+Decision: F6W policy documents do not use Finance Twin extractor keys.
+Rationale: the shipped F6L/F6O/F6R/F6U source packs remain dataset/extractor-key packs, while F6W is a document/CFO-Wiki source pack. F6W uses a separate document descriptor with `documentRole` and `expectedDocumentKind` and does not force `expectedExtractorKey`.
+
+Decision: the manifest drives proof operation.
+Rationale: proof tooling reads the source-pack manifest source files as the operational source of truth; the expected posture source files are assertion data only. This preserves one manifest family and avoids generated IDs, timestamps, storage refs, or source IDs in expected outputs.
 
 Decision: F6W preserves shipped F5 and F6 behavior.
 Rationale: no F5 report/release/circulation/correction changes, no monitor evaluator changes, no F6B/F6G mission changes, no F6H checklist behavior changes, no F6J readiness behavior changes, no F6K acknowledgement behavior changes, no F6L/F6O/F6R/F6U source-pack behavior changes, no F6M delivery-readiness behavior changes, no F6N review-summary behavior changes, no F6P provider-boundary behavior changes, no F6Q certification-boundary behavior changes, no F6S human-confirmation behavior changes, no F6T certification-safety behavior changes, no new approval kind, and no report conversion belong in F6W.
@@ -118,26 +139,26 @@ No database schema migration, eval dataset, package script, smoke alias, provide
 
 ## Plan of Work
 
-First, the implementation should add one policy/covenant document source-pack manifest contract beside the shipped F6L/F6O/F6R/F6U manifests.
+First, the implementation added one policy/covenant document source-pack manifest contract beside the shipped F6L/F6O/F6R/F6U manifests.
 The source-pack family should be named `pocket-cfo-policy-covenant-document-source-pack`.
 It should include exactly one source role: `policy_document`.
 It should include source kind `document`, document role `policy_document`, and media types `text/markdown` and `text/plain`.
 It should not declare monitor families, discovery families, extractor keys, provider targets, delivery targets, approval targets, report targets, certification targets, runtime-Codex targets, or action targets.
 
-Second, the implementation should add one checked-in immutable fixture directory for F6W.
+Second, the implementation added one checked-in immutable fixture directory for F6W.
 The fixture should contain static markdown and/or plain-text policy/covenant document source files plus one normalized expected source/wiki/policy posture file.
 The fixture content may include exact deterministic threshold lines such as `Pocket CFO threshold: collections_past_due_share <= 50 percent` only as proof posture, not as legal advice or policy advice.
 The expected posture should avoid generated IDs, timestamps, storage refs, or any other volatile fields.
 
-Third, the implementation should add one direct deterministic proof tool.
+Third, the implementation added one direct deterministic proof tool.
 The proof should use only existing `/sources`, `/sources/:sourceId/files`, `/cfo-wiki/companies/:companyKey/sources/:sourceId/bind`, `/cfo-wiki/companies/:companyKey/compile`, `/cfo-wiki/companies/:companyKey/sources`, and `/cfo-wiki/companies/:companyKey/pages/*` routes to register/upload/bind/compile/read the fixture documents.
 It should then validate existing policy/covenant and close/control read surfaces as context only, without rerunning monitors as part of checklist, readiness, acknowledgement, delivery-readiness, review-summary, provider-boundary, certification-boundary, human-confirmation, certification-safety, or source-pack proof paths.
 
-Fourth, the proof must assert absence boundaries.
-It should verify raw fixture source immutability, no monitor or discovery family expansion, no monitor evaluator changes, no mission creation, no report artifacts, no approvals, no delivery/outbox/provider behavior, no certification/sign-off/attestation/legal/audit opinion/assurance artifacts, no generated prose, no runtime-Codex threads, no source mutation outside proof upload/bind/compile setup, no finance writes, and no autonomous action.
+Fourth, the proof asserts absence boundaries.
+It verifies raw fixture source immutability, no monitor or discovery family expansion, no monitor evaluator changes, no mission creation, no report artifacts, no approvals, no delivery/outbox/provider behavior, no certification/sign-off/attestation/legal/audit opinion/assurance artifacts, no generated prose, no runtime-Codex threads, no source mutation outside proof upload/bind/compile setup, no finance writes, and no autonomous action.
 
-Fifth, active docs should be refreshed after implementation exists and passes validation.
-The implementation must not add a package script, root smoke alias, eval dataset, route, schema, migration, UI, provider integration, credential scaffold, or product runtime behavior unless this plan is explicitly amended before coding.
+Fifth, active docs were refreshed after implementation existed and the direct proof passed.
+The implementation did not add a package script, root smoke alias, eval dataset, route, schema, migration, UI, provider integration, credential scaffold, or product runtime behavior.
 
 ## Concrete Steps
 
@@ -258,11 +279,12 @@ Implementation acceptance requires all of the following:
 
 Human-observable acceptance for this implementation slice:
 
-- `plans/FP-0071-policy-covenant-document-source-pack-foundation.md` exists as the active F6W contract before implementation starts
-- active docs point future Codex threads at FP-0071 as the one implementation-ready F6W contract
+- `plans/FP-0071-policy-covenant-document-source-pack-foundation.md` is the shipped F6W record after implementation
+- active docs point future Codex threads at FP-0071 as the shipped F6W record
 - FP-0050 through FP-0070 remain shipped F6A through F6T/F6U records
 - F6V, F6X, F6Y, and later plans are named only as likely later slices and are not created
-- F6W implementation does not start in this docs-and-plan slice
+- F6W shipped one policy/covenant document source-pack foundation only
+- the direct F6W proof command is `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs`
 
 ## Idempotence and Recovery
 
@@ -270,7 +292,7 @@ This implementation slice should be retry-safe because it will use static fixtur
 If a proof run creates additional source uploads, source bindings, or compile runs, rerunning should still normalize away volatile IDs and timestamps and compare only stable posture.
 Raw checked-in fixture files must never be rewritten by proof tooling.
 
-Rollback for the later implementation should be simple: remove only the F6W manifest, fixture family, proof tool, focused tests, and docs changes from that implementation branch.
+Rollback for this implementation should be simple: remove only the F6W manifest, fixture family, proof tool, focused tests, and docs changes from this implementation branch.
 Do not remove shipped F6L/F6O/F6R/F6U source packs, shipped CFO Wiki routes, shipped policy lookup, shipped policy/covenant monitor, shipped close/control checklist, shipped F6T certification-safety, GitHub modules, engineering-twin modules, or historical F5/F6 records.
 
 Replay implication for F6W is explicit absence.
@@ -279,31 +301,26 @@ If a future plan wants persisted source-pack proof history, it must name that be
 
 ## Artifacts and Notes
 
-This docs-and-plan slice creates or updates:
+This implementation slice creates or updates:
 
 - `plans/FP-0071-policy-covenant-document-source-pack-foundation.md`
+- `packages/stack-packs/src/stack-pack.ts`
+- `packages/stack-packs/src/packs/pocket-cfo-policy-covenant-document-source-pack.ts`
+- `packages/stack-packs/src/index.ts`
+- `packages/stack-packs/src/stack-pack.spec.ts`
+- `packages/testkit/fixtures/f6w-policy-covenant-document-source-pack/**`
+- `packages/testkit/src/f6w-policy-covenant-document-source-pack.spec.ts`
+- `tools/policy-covenant-document-source-pack-proof.mjs`
 - `README.md`
 - `START_HERE.md`
 - `docs/ACTIVE_DOCS.md`
 - `plans/ROADMAP.md`
 - `docs/ops/local-dev.md`
-
-The known FP-0070 local-dev freshness correction was already present.
-The QA pass also refreshed the adjacent local-dev guidance so it no longer says not to create FP-0071 after this active contract exists.
-
-The later F6W implementation slice is expected to create or update:
-
-- `packages/stack-packs/src/stack-pack.ts`
-- `packages/stack-packs/src/packs/pocket-cfo-policy-covenant-document-source-pack.ts`
-- `packages/stack-packs/src/index.ts`
-- `packages/stack-packs/src/stack-pack.spec.ts` if type coverage changes
-- `packages/testkit/fixtures/f6w-policy-covenant-document-source-pack/**`
-- focused testkit specs if needed
-- `tools/policy-covenant-document-source-pack-proof.mjs`
-- active docs after implementation passes validation
+- `docs/ops/source-ingest-and-cfo-wiki.md`
+- `docs/ops/codex-app-server.md`
+- `evals/README.md`
 
 Do not create FP-0072.
-Do not start F6W implementation in this docs-and-plan slice.
 Do not start F6V, F6X, F6Y, or later work in this slice.
 
 ## Interfaces and Dependencies
@@ -312,11 +329,11 @@ F6W depends on the existing source registry, source-file object storage, CFO Wik
 It does not depend on GitHub, runtime-Codex, reports, approvals, outbox, providers, delivery, actual certification, legal/audit opinion, assurance, payment behavior, tax filing, UI, new database schema, new routes, new package scripts, new root smoke aliases, or new environment variables.
 
 Route files must remain unchanged unless this plan is explicitly amended.
-If a later implementation finds it cannot prove the source pack using only existing source registry and CFO Wiki routes, stop and report the blocker instead of adding runtime behavior.
+If a future continuation finds it cannot extend this source-pack posture using only named existing source registry and CFO Wiki routes, stop and create or amend a Finance Plan instead of adding runtime behavior.
 
 ## Outcomes & Retrospective
 
-This docs-and-plan slice selected F6W as the next safe implementation contract because the repo truth supports a fixture/manifest/proof-only policy/covenant document source-pack expansion.
-F6W remains one deterministic source-pack planning slice and keeps provider integration, actual certification, external delivery, approvals, reports, runtime-Codex, monitor families, discovery families, and autonomous actions out of scope.
+This implementation slice shipped F6W as one fixture/manifest/proof-only policy/covenant document source-pack expansion.
+F6W remains one deterministic source-pack slice and keeps provider integration, actual certification, external delivery, approvals, reports, runtime-Codex, monitor families, discovery families, and autonomous actions out of scope.
 
-Recommendation: after this plan is reviewed and merged, start F6W implementation next only if the branch remains green and the implementation can stay within this contract. If it cannot, do not start provider integration or certification by default; stop and create the next safer planning slice.
+Recommendation: after this implementation is reviewed and merged, do not start F6V, F6X, F6Y, or later work without a new Finance Plan. A future planning slice may choose F6V provider integration or F6X certification only after it proves the named safety and evidence boundaries; no FP-0072 is created here.

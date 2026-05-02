@@ -1,0 +1,291 @@
+{
+  "sourcePackId": "pocket-cfo-policy-covenant-document-source-pack",
+  "companyKey": "demo-policy-covenant-document-source-pack",
+  "sourceFiles": [
+    {
+      "role": "policy_document",
+      "path": "sources/policy-covenant-threshold.md",
+      "sourceKind": "document",
+      "mediaType": "text/markdown",
+      "documentRole": "policy_document",
+      "expectedDocumentKind": "markdown_text"
+    },
+    {
+      "role": "policy_document",
+      "path": "sources/policy-covenant-control.txt",
+      "sourceKind": "document",
+      "mediaType": "text/plain",
+      "documentRole": "policy_document",
+      "expectedDocumentKind": "plain_text"
+    }
+  ],
+  "sourceRolesPresent": [
+    "policy_document"
+  ],
+  "documentRolesPresent": [
+    "policy_document"
+  ],
+  "sourceKindsPresent": [
+    "document"
+  ],
+  "mediaTypesPresent": [
+    "text/markdown",
+    "text/plain"
+  ],
+  "expectedDocumentKinds": [
+    "markdown_text",
+    "plain_text"
+  ],
+  "sourceRegistrationPosture": {
+    "registeredSourceCount": 2,
+    "uploadedSourceFileCount": 2,
+    "sourceSnapshotCountPerSource": 2,
+    "sourceFileChecksumPresent": true,
+    "rawObjectStoreWriteExpected": true,
+    "rawFixtureFilesRewritten": false
+  },
+  "sourceFilePosture": [
+    {
+      "path": "sources/policy-covenant-threshold.md",
+      "sourceKind": "document",
+      "mediaType": "text/markdown",
+      "documentRole": "policy_document",
+      "expectedDocumentKind": "markdown_text",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "latestSnapshotPresent": true,
+      "latestSourceFilePresent": true,
+      "latestExtractPresent": true,
+      "lineagePresent": true,
+      "sourceLimitationsPresent": false
+    },
+    {
+      "path": "sources/policy-covenant-control.txt",
+      "sourceKind": "document",
+      "mediaType": "text/plain",
+      "documentRole": "policy_document",
+      "expectedDocumentKind": "plain_text",
+      "sourceRegistered": true,
+      "sourceFileUploaded": true,
+      "latestSnapshotPresent": true,
+      "latestSourceFilePresent": true,
+      "latestExtractPresent": true,
+      "lineagePresent": true,
+      "sourceLimitationsPresent": false
+    }
+  ],
+  "cfoWikiBindingPosture": {
+    "boundSourceCount": 2,
+    "includedInCompileCount": 2,
+    "policyDocumentBindingCount": 2,
+    "bindingLimitationsPresent": true
+  },
+  "deterministicExtractPosture": [
+    {
+      "path": "sources/policy-covenant-threshold.md",
+      "extractStatus": "extracted",
+      "documentKind": "markdown_text",
+      "title": "Policy Covenant Threshold Evidence Fixture",
+      "headingCount": 3,
+      "excerptBlockCount": 3,
+      "thresholdLinePresent": true,
+      "renderedMarkdownPresent": true,
+      "warningsPresent": false
+    },
+    {
+      "path": "sources/policy-covenant-control.txt",
+      "extractStatus": "extracted",
+      "documentKind": "plain_text",
+      "title": "Policy covenant control evidence fixture",
+      "headingCount": 0,
+      "excerptBlockCount": 2,
+      "thresholdLinePresent": false,
+      "renderedMarkdownPresent": true,
+      "warningsPresent": false
+    }
+  ],
+  "sourceListPosture": {
+    "sourceCount": 2,
+    "allSourcesIncludedInCompile": true,
+    "allSourcesBoundAsPolicyDocument": true,
+    "listLimitationsPresent": true
+  },
+  "policyPagePosture": [
+    {
+      "path": "sources/policy-covenant-threshold.md",
+      "pagePresent": true,
+      "pageKind": "policy",
+      "ownershipKind": "compiler_owned",
+      "freshnessState": "fresh",
+      "title": "Policy: Policy Covenant Threshold Evidence Fixture",
+      "extractStatusVisible": true,
+      "deterministicExtractSectionPresent": true,
+      "relatedPolicyHistoryPresent": true,
+      "limitationsPresent": true
+    },
+    {
+      "path": "sources/policy-covenant-control.txt",
+      "pagePresent": true,
+      "pageKind": "policy",
+      "ownershipKind": "compiler_owned",
+      "freshnessState": "fresh",
+      "title": "Policy: Policy covenant control evidence fixture",
+      "extractStatusVisible": true,
+      "deterministicExtractSectionPresent": true,
+      "relatedPolicyHistoryPresent": true,
+      "limitationsPresent": true
+    }
+  ],
+  "sourceDigestPosture": [
+    {
+      "path": "sources/policy-covenant-threshold.md",
+      "latestDigestPresent": true,
+      "pageKind": "source_digest",
+      "freshnessState": "fresh",
+      "extractStatusVisible": true,
+      "documentKindVisible": true,
+      "limitationsPresent": true
+    },
+    {
+      "path": "sources/policy-covenant-control.txt",
+      "latestDigestPresent": true,
+      "pageKind": "source_digest",
+      "freshnessState": "fresh",
+      "extractStatusVisible": true,
+      "documentKindVisible": true,
+      "limitationsPresent": true
+    }
+  ],
+  "policyCorpusPosture": {
+    "pagePresent": true,
+    "pageKey": "concepts/policy-corpus",
+    "pageKind": "concept",
+    "freshnessState": "fresh",
+    "policyPageCount": 2,
+    "policyPageLinksPresent": true,
+    "sourceDigestLinksPresent": true,
+    "limitationsPresent": true
+  },
+  "sourceCoveragePosture": {
+    "pagePresent": true,
+    "pageKey": "sources/coverage",
+    "pageKind": "source_coverage",
+    "freshnessState": "missing",
+    "limitationsPresent": true
+  },
+  "companySummaryPosture": {
+    "latestSuccessfulCompilePresent": true,
+    "pageCountMinimum": 15,
+    "policyPageCountMinimum": 2,
+    "sourceDigestPageCountMinimum": 4,
+    "limitationsPresent": true
+  },
+  "freshnessSourceBackedStateByRole": {
+    "policy_document": {
+      "freshnessState": "fresh",
+      "sourceBackedState": "source_backed",
+      "sourceCount": 2
+    }
+  },
+  "lineagePresenceBySource": [
+    {
+      "path": "sources/policy-covenant-threshold.md",
+      "sourceRegistrationLineagePresent": true,
+      "sourceFileLineagePresent": true,
+      "cfoWikiBindingLineagePresent": true,
+      "policyPageLineagePresent": true,
+      "policyCorpusLineagePresent": true,
+      "sourceCoverageLineagePresent": true
+    },
+    {
+      "path": "sources/policy-covenant-control.txt",
+      "sourceRegistrationLineagePresent": true,
+      "sourceFileLineagePresent": true,
+      "cfoWikiBindingLineagePresent": true,
+      "policyPageLineagePresent": true,
+      "policyCorpusLineagePresent": true,
+      "sourceCoverageLineagePresent": true
+    }
+  ],
+  "limitationPresenceBySource": [
+    {
+      "path": "sources/policy-covenant-threshold.md",
+      "sourceLimitationsPresent": false,
+      "policyPageLimitationsPresent": true,
+      "policyCorpusLimitationsPresent": true,
+      "sourceCoverageLimitationsPresent": true
+    },
+    {
+      "path": "sources/policy-covenant-control.txt",
+      "sourceLimitationsPresent": false,
+      "policyPageLimitationsPresent": true,
+      "policyCorpusLimitationsPresent": true,
+      "sourceCoverageLimitationsPresent": true
+    }
+  ],
+  "familyBoundary": {
+    "newMonitorFamilyAdded": false,
+    "newDiscoveryFamilyAdded": false,
+    "monitorFamilies": [
+      "cash_posture",
+      "collections_pressure",
+      "payables_pressure",
+      "policy_covenant_threshold"
+    ],
+    "discoveryFamilies": [
+      "cash_posture",
+      "collections_pressure",
+      "payables_pressure",
+      "spend_posture",
+      "obligation_calendar_review",
+      "policy_lookup"
+    ]
+  },
+  "runtimeActionBoundary": {
+    "monitorRunTriggered": false,
+    "monitorResultCreated": false,
+    "checklistReadTriggered": false,
+    "operatorReadinessReadTriggered": false,
+    "acknowledgementReadTriggered": false,
+    "deliveryReadinessReadTriggered": false,
+    "reviewSummaryReadTriggered": false,
+    "providerBoundaryReadTriggered": false,
+    "certificationBoundaryReadTriggered": false,
+    "humanConfirmationBoundaryReadTriggered": false,
+    "certificationSafetyReadTriggered": false,
+    "missionCreated": false,
+    "reportCreated": false,
+    "approvalCreated": false,
+    "deliveryCreated": false,
+    "providerCallCreated": false,
+    "providerCredentialCreated": false,
+    "providerJobCreated": false,
+    "outboxSendCreated": false,
+    "runtimeCodexUsed": false,
+    "generatedProseCreated": false,
+    "generatedNotificationProseCreated": false,
+    "paymentInstructionCreated": false,
+    "accountingWriteCreated": false,
+    "bankWriteCreated": false,
+    "taxFilingCreated": false,
+    "legalAdviceGenerated": false,
+    "policyAdviceGenerated": false,
+    "collectionInstructionCreated": false,
+    "customerContactInstructionCreated": false,
+    "certificationCreated": false,
+    "closeCompleteCreated": false,
+    "signOffCreated": false,
+    "attestationCreated": false,
+    "legalOpinionCreated": false,
+    "auditOpinionCreated": false,
+    "assuranceCreated": false,
+    "sourceMutationOutsideProofSetupCreated": false,
+    "autonomousActionCreated": false
+  },
+  "limitations": [
+    "The pack is one deterministic local fixture family, not a broad source-pack platform.",
+    "The pack covers only text/markdown and text/plain document source posture for the explicit policy_document role.",
+    "The pack proves existing source registry and CFO Wiki bind, compile, and read route behavior only; it does not add routes, schema, migrations, package scripts, monitor families, discovery families, or extractors.",
+    "The pack does not create missions, reports, approvals, delivery, runtime-Codex drafts, provider calls, provider credentials, provider jobs, certification, close-complete status, sign-off, attestation, legal opinions, audit opinions, assurance artifacts, payment behavior, accounting writes, bank writes, tax filings, legal advice, policy advice, collection instructions, customer-contact instructions, generated prose, source mutation outside proof upload/bind/compile setup, or autonomous finance action."
+  ]
+}

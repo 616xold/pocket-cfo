@@ -1,0 +1,7 @@
+Policy covenant control evidence fixture
+
+Scope: source binding and deterministic plain-text extraction.
+Control posture line: review stored policy_document source coverage before relying on threshold posture.
+Freshness posture: latest uploaded fixture file is the only proof input.
+Boundary posture: evidence review stays internal and deterministic.
+Raw fixture posture: bytes are static for checksum comparison.

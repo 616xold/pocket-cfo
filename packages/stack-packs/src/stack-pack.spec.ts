@@ -7,6 +7,7 @@ import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source
 import { pocketCfoContractObligationSourcePack } from "./packs/pocket-cfo-contract-obligation-source-pack";
 import { pocketCfoLedgerReconciliationSourcePack } from "./packs/pocket-cfo-ledger-reconciliation-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
+import { pocketCfoPolicyCovenantDocumentSourcePack } from "./packs/pocket-cfo-policy-covenant-document-source-pack";
 import { pocketCfoReceivablesPayablesSourcePack } from "./packs/pocket-cfo-receivables-payables-source-pack";
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -25,6 +26,24 @@ type ExpectedSourceFileDescriptor = {
   sourceKind: string;
   mediaType: string;
   expectedExtractorKey: string;
+};
+
+type DocumentManifestSourceFileDescriptor = {
+  role: string;
+  fixturePath: string;
+  sourceKind: string;
+  mediaType: string;
+  documentRole: string;
+  expectedDocumentKind: string;
+};
+
+type ExpectedDocumentSourceFileDescriptor = {
+  role: string;
+  path: string;
+  sourceKind: string;
+  mediaType: string;
+  documentRole: string;
+  expectedDocumentKind: string;
 };
 
 describe("stack packs", () => {
@@ -321,6 +340,101 @@ describe("stack packs", () => {
       "discoveryFamiliesCovered",
     );
   });
+
+  it("exports the Pocket CFO F6W policy/covenant document source pack without extractor, monitor, or discovery semantics", () => {
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.id).toBe(
+      "pocket-cfo-policy-covenant-document-source-pack",
+    );
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.displayName).toBe(
+      "Pocket CFO Policy/Covenant Document Source Pack",
+    );
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.fixtureDirectory).toBe(
+      "packages/testkit/fixtures/f6w-policy-covenant-document-source-pack",
+    );
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.sourceRoles).toEqual([
+      "policy_document",
+    ]);
+    expect(
+      pocketCfoPolicyCovenantDocumentSourcePack.sourceFiles.map(
+        (file) => file.role,
+      ),
+    ).toEqual(["policy_document", "policy_document"]);
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.sourceKinds).toEqual([
+      "document",
+    ]);
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.documentRoles).toEqual([
+      "policy_document",
+    ]);
+    expect(pocketCfoPolicyCovenantDocumentSourcePack.mediaTypes).toEqual([
+      "text/markdown",
+      "text/plain",
+    ]);
+    expect(
+      pocketCfoPolicyCovenantDocumentSourcePack.expectedDocumentKinds,
+    ).toEqual(["markdown_text", "plain_text"]);
+    expect(
+      pocketCfoPolicyCovenantDocumentSourcePack.sourceFiles.map(
+        (file) => file.expectedDocumentKind,
+      ),
+    ).toEqual(
+      pocketCfoPolicyCovenantDocumentSourcePack.expectedDocumentKinds,
+    );
+    expect(
+      pocketCfoPolicyCovenantDocumentSourcePack.expectedNormalizedPosturePath,
+    ).toBe(
+      "packages/testkit/fixtures/f6w-policy-covenant-document-source-pack/expected-source-wiki-policy-posture.json",
+    );
+    expect(
+      normalizeDocumentManifestSourceFiles(
+        pocketCfoPolicyCovenantDocumentSourcePack.sourceFiles,
+      ),
+    ).toEqual(
+      normalizeExpectedDocumentSourceFiles(
+        loadDocumentExpectedPosture(
+          pocketCfoPolicyCovenantDocumentSourcePack.expectedNormalizedPosturePath,
+        ).sourceFiles,
+      ),
+    );
+    for (const sourceFile of normalizeDocumentManifestSourceFiles(
+      pocketCfoPolicyCovenantDocumentSourcePack.sourceFiles,
+    )) {
+      const absolutePath = join(
+        repoRoot,
+        pocketCfoPolicyCovenantDocumentSourcePack.fixtureDirectory,
+        sourceFile.path,
+      );
+
+      expect(existsSync(absolutePath)).toBe(true);
+      expect(readFileSync(absolutePath, "utf8").trim().length).toBeGreaterThan(
+        0,
+      );
+    }
+    expect(
+      pocketCfoPolicyCovenantDocumentSourcePack.runtimeDeliveryActionBoundary,
+    ).toContain("runtime-free");
+    expect(pocketCfoPolicyCovenantDocumentSourcePack).not.toHaveProperty(
+      "expectedExtractorKeys",
+    );
+    expect(pocketCfoPolicyCovenantDocumentSourcePack).not.toHaveProperty(
+      "monitorFamiliesCovered",
+    );
+    expect(pocketCfoPolicyCovenantDocumentSourcePack).not.toHaveProperty(
+      "discoveryFamiliesCovered",
+    );
+    for (const forbidden of [
+      "providerTargets",
+      "deliveryTargets",
+      "reportTargets",
+      "approvalTargets",
+      "certificationTargets",
+      "runtimeCodexTargets",
+      "actionTargets",
+    ]) {
+      expect(pocketCfoPolicyCovenantDocumentSourcePack).not.toHaveProperty(
+        forbidden,
+      );
+    }
+  });
 });
 
 function loadExpectedPosture(expectedPath: string) {
@@ -350,5 +464,37 @@ function normalizeExpectedSourceFiles(
     sourceKind: sourceFile.sourceKind,
     mediaType: sourceFile.mediaType,
     expectedExtractorKey: sourceFile.expectedExtractorKey,
+  }));
+}
+
+function loadDocumentExpectedPosture(expectedPath: string) {
+  return JSON.parse(readFileSync(join(repoRoot, expectedPath), "utf8")) as {
+    sourceFiles: ExpectedDocumentSourceFileDescriptor[];
+  };
+}
+
+function normalizeDocumentManifestSourceFiles(
+  sourceFiles: DocumentManifestSourceFileDescriptor[],
+): ExpectedDocumentSourceFileDescriptor[] {
+  return sourceFiles.map((sourceFile) => ({
+    role: sourceFile.role,
+    path: sourceFile.fixturePath,
+    sourceKind: sourceFile.sourceKind,
+    mediaType: sourceFile.mediaType,
+    documentRole: sourceFile.documentRole,
+    expectedDocumentKind: sourceFile.expectedDocumentKind,
+  }));
+}
+
+function normalizeExpectedDocumentSourceFiles(
+  sourceFiles: ExpectedDocumentSourceFileDescriptor[],
+): ExpectedDocumentSourceFileDescriptor[] {
+  return sourceFiles.map((sourceFile) => ({
+    role: sourceFile.role,
+    path: sourceFile.path,
+    sourceKind: sourceFile.sourceKind,
+    mediaType: sourceFile.mediaType,
+    documentRole: sourceFile.documentRole,
+    expectedDocumentKind: sourceFile.expectedDocumentKind,
   }));
 }
