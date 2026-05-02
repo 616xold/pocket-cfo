@@ -1,4 +1,6 @@
 import type {
+  CfoWikiDocumentKind,
+  CfoWikiDocumentRole,
   FinanceTwinExtractorKey,
   MissionType,
   MonitorKind,
@@ -174,6 +176,39 @@ export type PocketCfoLedgerReconciliationSourcePack = {
       FinanceTwinExtractorKey,
       "chart_of_accounts_csv" | "trial_balance_csv" | "general_ledger_csv"
     >
+  >;
+  expectedNormalizedPosturePath: string;
+  limitations: string[];
+  runtimeDeliveryActionBoundary: string;
+};
+
+export type PocketCfoPolicyCovenantDocumentSourcePackSourceRole =
+  "policy_document";
+
+export type PocketCfoPolicyCovenantDocumentSourcePackSourceFile = {
+  role: PocketCfoPolicyCovenantDocumentSourcePackSourceRole;
+  fixturePath: string;
+  sourceKind: Extract<SourceKind, "document">;
+  mediaType: "text/markdown" | "text/plain";
+  documentRole: Extract<CfoWikiDocumentRole, "policy_document">;
+  expectedDocumentKind: Extract<
+    CfoWikiDocumentKind,
+    "markdown_text" | "plain_text"
+  >;
+};
+
+export type PocketCfoPolicyCovenantDocumentSourcePack = {
+  id: string;
+  displayName: string;
+  purpose: string;
+  fixtureDirectory: string;
+  sourceFiles: PocketCfoPolicyCovenantDocumentSourcePackSourceFile[];
+  sourceRoles: PocketCfoPolicyCovenantDocumentSourcePackSourceRole[];
+  sourceKinds: Array<Extract<SourceKind, "document">>;
+  documentRoles: Array<Extract<CfoWikiDocumentRole, "policy_document">>;
+  mediaTypes: Array<"text/markdown" | "text/plain">;
+  expectedDocumentKinds: Array<
+    Extract<CfoWikiDocumentKind, "markdown_text" | "plain_text">
   >;
   expectedNormalizedPosturePath: string;
   limitations: string[];

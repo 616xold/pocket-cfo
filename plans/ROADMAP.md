@@ -436,7 +436,7 @@ Turn Pocket CFO into a recurring finance operating system without weakening the 
 `plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` is the shipped F6S implementation record for one internal external-delivery human-confirmation / delivery-preflight boundary only.
 `plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` is the shipped F6U record for one ledger/reconciliation source-pack foundation only.
 `plans/FP-0070-close-control-certification-safety-foundation.md` is the shipped F6T implementation record for one internal close/control certification-safety/readiness foundation only.
-`plans/FP-0071-policy-covenant-document-source-pack-foundation.md` is the active F6W implementation-ready planning contract for one policy/covenant document source-pack foundation only.
+`plans/FP-0071-policy-covenant-document-source-pack-foundation.md` is the shipped F6W record for one policy/covenant document source-pack foundation only.
 F6A is not a broad monitoring platform.
 The first shipped implementation slice is exactly `F6A-monitoring-foundation-and-first-cash-posture-alert`.
 The first shipped F6B slice is exactly `F6B-alert-to-investigation-mission-foundation`.
@@ -459,7 +459,7 @@ The shipped F6R slice is exactly `F6R-contract-obligation-source-pack-foundation
 The shipped F6S slice is exactly `F6S-external-delivery-human-confirmation-boundary-foundation`.
 The shipped F6U slice is exactly `F6U-ledger-reconciliation-source-pack-foundation`.
 The shipped F6T contract is exactly `F6T-close-control-certification-safety-foundation` and is not actual certification.
-The active F6W contract is exactly `F6W-policy-covenant-document-source-pack-foundation` and is source-pack-only planning, not implementation.
+The shipped F6W slice is exactly `F6W-policy-covenant-document-source-pack-foundation` and is source-pack-only implementation.
 
 Focus:
 
@@ -483,6 +483,7 @@ Focus:
 - one shipped F6R contract/obligation source-pack foundation that stays fixture/manifest/proof-oriented, source role `contract_metadata` only, extractor key `contract_metadata_csv` only, proof surface limited to existing source registry and Finance Twin contract/obligation routes, direct proof `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`, and no product runtime behavior
 - one shipped F6S deterministic internal external-delivery human-confirmation / delivery-preflight boundary, not actual external delivery, with no send behavior, provider calls, provider credentials, provider jobs, outbox sends, scheduled delivery, auto-send, report creation/release/circulation, approvals, certification, generated prose, runtime-Codex, source mutation, finance actions, monitor reruns, missions, or autonomous action
 - one shipped F6U ledger/reconciliation source-pack foundation that stays fixture/manifest/proof-oriented, source roles `chart_of_accounts`, `trial_balance`, and `general_ledger` only, extractor keys `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv` only, proof surface limited to existing source registry and Finance Twin sync/read/reconciliation routes, direct proof `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs`, and no product runtime behavior
+- one shipped F6W policy/covenant document source-pack foundation that stays fixture/manifest/proof-oriented, source role and document role `policy_document` only, source kind `document` only, media types `text/markdown` and `text/plain` only, proof surface limited to existing source registry and CFO Wiki bind/compile/read routes, direct proof `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs`, and no product runtime behavior
 
 Exit criteria:
 
@@ -506,6 +507,7 @@ Exit criteria:
 - the shipped F6R slice adds one contract/obligation source-pack manifest, one immutable checked-in contract-metadata CSV fixture, one normalized expected source/twin posture file, and one deterministic direct proof path, while preserving shipped F5 and F6 behavior and adding no monitor family, discovery family, product runtime behavior, package script, root smoke alias, route, schema, migration, eval dataset, mission behavior, report, approval, delivery, provider call, runtime-Codex, generated prose, source mutation outside proof upload/sync setup, finance write, certification, close-complete status, sign-off, attestation, legal/audit opinion, assurance, or autonomous action
 - the shipped F6S slice adds exactly one deterministic internal human-confirmation/readiness result or read model over shipped F6M/F6P/F6Q/F6N posture, with bounded delivery-gate targets, evidence basis, source/freshness posture, limitations, proof posture, status, human-review next step, explicit absence boundaries, read-only/no-schema posture, and no actual delivery, provider call, provider credential, provider job, outbox send, scheduled delivery, auto-send, approval, report creation/release/circulation, certification, mission creation, monitor rerun/result creation, runtime-Codex, generated prose, source mutation, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
 - the shipped F6U slice adds exactly one ledger/reconciliation source-pack manifest, one immutable checked-in chart-of-accounts/trial-balance/general-ledger CSV fixture family, one normalized expected ledger/reconciliation source/twin posture file, and one deterministic direct proof path, while preserving shipped F5 and F6 behavior and adding no product runtime behavior, package script, root smoke alias, route, schema, migration, eval dataset, mission behavior, report, approval, delivery, provider call, provider credential, provider job, runtime-Codex, generated prose, source mutation outside proof upload/sync setup, finance write, certification, close-complete status, sign-off, attestation, legal/audit opinion, assurance, monitor family, discovery family, or autonomous action
+- the shipped F6W slice adds exactly one policy/covenant document source-pack manifest, one immutable checked-in markdown/plain-text policy-document fixture family, one normalized expected source/wiki/policy posture file, and one deterministic direct proof path, while preserving shipped F5 and F6 behavior and adding no product runtime behavior, package script, root smoke alias, route, schema, migration, eval dataset, UI, mission behavior, report, approval, delivery, notification provider, provider call, provider credential, provider job, outbox send, runtime-Codex, generated prose, source mutation outside proof upload/bind/compile setup, finance write, certification, certified status, close-complete status, sign-off, attestation, legal/audit opinion, assurance, monitor family, discovery family, payment behavior, legal/policy advice, collection/customer-contact instruction, or autonomous action
 
 Slice map:
 
@@ -723,14 +725,15 @@ Slice map:
 - `F6V — actual provider integration`
   - later only if a future plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send
 - `F6W — additional source-pack expansion`
-  - active implementation-ready planning contract in `plans/FP-0071-policy-covenant-document-source-pack-foundation.md`
-  - first F6W scope is exactly `F6W-policy-covenant-document-source-pack-foundation`
+  - shipped record in `plans/FP-0071-policy-covenant-document-source-pack-foundation.md`
+  - shipped F6W scope is exactly `F6W-policy-covenant-document-source-pack-foundation`
   - one source-pack family only: `pocket-cfo-policy-covenant-document-source-pack`
   - document role is exactly `policy_document`
   - source kind is exactly `document`
   - media types are limited to `text/markdown` and `text/plain`
+  - direct proof is `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs`
   - proof surface is limited to existing source registry and CFO Wiki bind, compile, and read routes, with shipped policy/covenant and close/control reads as validation context only
   - not a monitor family, not a discovery-family expansion, not a monitor evaluator change, not product runtime behavior, not runtime-Codex, not provider integration, not external delivery, not approval, not report release, not certification, not legal/policy advice, not audit opinion, and not autonomous finance action
-  - later implementation must prove raw fixture immutability, normalized source/wiki/policy posture, fixed monitor/discovery families, freshness/limitations posture, and absence boundaries without adding routes, schema, migrations, package scripts, root smoke aliases, eval datasets, missions, monitor reruns/results, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation/certification-safety behavior, delivery, provider calls, reports, approvals, generated prose, finance writes, or source mutation beyond proof upload/bind/compile setup
+  - shipped implementation proves raw fixture immutability, normalized source/wiki/policy posture, fixed monitor/discovery families, freshness/limitations posture, and absence boundaries without adding routes, schema, migrations, package scripts, root smoke aliases, eval datasets, UI, missions, monitor reruns/results, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation/certification-safety behavior, delivery, provider calls, provider credentials, provider jobs, outbox sends, reports, approvals, certification, certified status, close-complete status, sign-off, attestation, assurance, legal/audit opinion, payment behavior, legal/policy advice, collection/customer-contact instruction, generated prose, finance writes, autonomous action, or source mutation beyond proof upload/bind/compile setup
 - `F6X — actual certification`
   - later only if operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints are proven
