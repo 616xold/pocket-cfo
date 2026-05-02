@@ -48,7 +48,9 @@ The CFO Wiki source-list route returns bound-source summaries directly, while th
 F6W proof normalization now respects those two existing response shapes rather than changing routes.
 
 The existing CFO Wiki bind route requires a persisted finance company.
-The proof sets up the deterministic demo company row before exercising source registration/upload and CFO Wiki bind/compile/read routes; it does not add a product route or runtime behavior.
+The proof may seed the deterministic demo finance company row as proof setup only because that route requires an existing finance company.
+This is not product runtime behavior, not a new route, and not source-pack behavior beyond proof setup.
+All source registration, raw source upload, CFO Wiki binding, compile, source-list, source-digest, policy-page, policy-corpus, and source-coverage behavior remains exercised through existing routes only.
 
 Repeated local proof runs can leave older bound sources for the deterministic demo company.
 The normalized posture therefore compares the manifest-driven current proof source IDs inside source-list and policy-corpus reads, while still checking company-level minimum posture and raw fixture immutability.
@@ -296,7 +298,8 @@ Rollback for this implementation should be simple: remove only the F6W manifest,
 Do not remove shipped F6L/F6O/F6R/F6U source packs, shipped CFO Wiki routes, shipped policy lookup, shipped policy/covenant monitor, shipped close/control checklist, shipped F6T certification-safety, GitHub modules, engineering-twin modules, or historical F5/F6 records.
 
 Replay implication for F6W is explicit absence.
-The implementation proof may create source upload, source binding, and CFO Wiki compile records as proof setup, but it must not create mission replay events, monitor results, report artifacts, approvals, delivery/outbox/provider records, certification records, generated prose, finance writes, or autonomous-action records.
+The implementation proof may seed the deterministic demo finance company row as proof setup only because the existing CFO Wiki bind route requires an existing company.
+It may create source upload, source binding, and CFO Wiki compile records as proof setup, but it must not create mission replay events, monitor results, report artifacts, approvals, delivery/outbox/provider records, certification records, generated prose, finance writes, or autonomous-action records.
 If a future plan wants persisted source-pack proof history, it must name that behavior explicitly and keep it separate from runtime product behavior.
 
 ## Artifacts and Notes
