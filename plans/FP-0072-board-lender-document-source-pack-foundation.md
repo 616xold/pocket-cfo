@@ -330,7 +330,7 @@ This implementation slice creates or updates only:
 This implementation slice adds source-pack code, fixtures, tests, proof tooling, and docs only; it does not add routes, schema, migrations, package scripts, smoke commands, eval datasets, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
 
 Historical F6Y boundary: this slice did not create FP-0073 and did not start F6V, F6X, F6Z, or later work.
-Post-F6Y handoff clarification: `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` may now exist as the later F6Z plan; that does not change this shipped F6Y record, and F6Z implementation still must not start from FP-0072.
+Post-F6Y handoff clarification: `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` now exists as the shipped F6Z final audit/handoff record; that does not change this shipped F6Y record, and later F6V/F6X/F7/v1 launch polish work must wait for future Finance Plans or roadmap updates.
 
 ## Interfaces and Dependencies
 
