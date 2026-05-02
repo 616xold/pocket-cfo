@@ -653,10 +653,11 @@ function normalizeIndexLogPosture(input) {
     indexLinksToSourceCoverage: input.wikiReads.indexPage.links.some(
       (link) => link.toPageKey === "sources/coverage",
     ),
-    indexLinksToCurrentSourceDigests: sourceDigestPageKeys.every((pageKey) =>
-      input.wikiReads.sourceCoveragePage.links.some(
-        (link) => link.toPageKey === pageKey,
-      ),
+    sourceCoverageLinksToCurrentSourceDigests: sourceDigestPageKeys.every(
+      (pageKey) =>
+        input.wikiReads.sourceCoveragePage.links.some(
+          (link) => link.toPageKey === pageKey,
+        ),
     ),
     logPagePresent: Boolean(input.wikiReads.logPage.page?.pageKey),
     logPageKey: "log",

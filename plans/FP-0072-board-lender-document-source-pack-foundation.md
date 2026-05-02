@@ -28,6 +28,7 @@ Do not invoke GitHub Connector Guard for F6Y.
 - [x] 2026-05-02T11:30:20Z Added `pocket-cfo-board-lender-document-source-pack`, immutable F6Y board/lender markdown/plain-text fixtures, normalized expected source/wiki posture, focused manifest/fixture specs, and `tools/board-lender-document-source-pack-proof.mjs`.
 - [x] 2026-05-02T11:30:20Z Ran the new direct proof `pnpm exec tsx tools/board-lender-document-source-pack-proof.mjs`; it proved existing source registry upload/registration, CFO Wiki bind/compile/read posture, raw fixture immutability, fixed monitor/discovery family boundaries, and runtime/report/action absence boundaries.
 - [x] 2026-05-02T11:48:23Z Completed the full F6Y validation ladder through focused specs, all requested shipped proofs and DB-backed smokes, reporting/approval safety specs, twin guardrails, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed, with no outbox specs present in the current checkout.
+- [x] 2026-05-02T12:17:00Z Applied post-merge proof-posture polish by renaming the normalized F6Y source-digest-link field from an index-attributed name to `sourceCoverageLinksToCurrentSourceDigests`, reflecting that the proof checks current source digest links on the source coverage page while leaving F6Y behavior unchanged.
 
 ## Surprises & Discoveries
 
