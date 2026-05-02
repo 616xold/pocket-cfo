@@ -1,13 +1,13 @@
-# Plan final F6/v1 exit audit and handoff
+# Close final F6/v1 exit audit and handoff
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan contract for the Pocket CFO F6Z final F6/v1 exit audit and handoff slice.
+This is the shipped Finance Plan record for the Pocket CFO F6Z final F6/v1 exit audit and handoff slice.
 The target phase is `F6`, and the slice is exactly `F6Z-final-f6-v1-exit-audit-and-handoff`.
 
-The user-visible goal is one final deterministic audit and handoff contract for shipped F6A through F6Y before any later provider, certification, launch-polish, or deeper document-precision work is considered.
-F6Z is a docs-and-validation-only final audit slice.
-It must not add product runtime behavior.
+The user-visible outcome is one final deterministic audit and handoff record for shipped F6A through F6Y before any later provider, certification, launch-polish, or deeper document-precision work is considered.
+F6Z shipped as a docs-and-validation-only final audit slice.
+It added no product runtime behavior.
 
 F6Z does not implement F6V actual provider integration.
 F6V may be named only as a future plan if provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, and no autonomous send are proven.
@@ -15,7 +15,7 @@ F6V may be named only as a future plan if provider security, compliance posture,
 F6Z does not implement F6X actual certification.
 F6X may be named only as a future plan if operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, and non-advice constraints are proven.
 
-Repo truth supports planning F6Z now because shipped F6L/F6O/F6R/F6U/F6W/F6Y source-pack proofs remain green, shipped F6Y truthfully labels source-coverage links to current source digests, shipped F6T certification-safety remains green and non-certifying, shipped F6S human-confirmation remains no-send/no-provider/no-outbox, shipped F6P and F6Q remain internal boundary reads only, shipped close/control surfaces remain green, monitor families remain exactly four, discovery families remain exactly six, and active docs can describe FP-0050 through FP-0072 as shipped records without starting provider or certification behavior.
+Repo truth supports closing F6Z because shipped F6L/F6O/F6R/F6U/F6W/F6Y source-pack proofs remain green, shipped F6Y truthfully labels source-coverage links to current source digests, shipped F6T certification-safety remains green and non-certifying, shipped F6S human-confirmation remains no-send/no-provider/no-outbox, shipped F6P and F6Q remain internal boundary reads only, shipped close/control surfaces remain green, monitor families remain exactly four, discovery families remain exactly six, and active docs can describe FP-0050 through FP-0073 as shipped F6 records without starting provider or certification behavior.
 
 GitHub connector work is explicitly out of scope.
 Do not invoke GitHub Connector Guard for F6Z.
@@ -27,10 +27,14 @@ Do not invoke GitHub Connector Guard for F6Z.
 - [x] 2026-05-02T13:03:47Z Read the active doc spine, shipped FP-0072 F6Y record, shipped FP-0071 F6W record, shipped FP-0070 F6T record, shipped FP-0069 F6U record, package scripts, shipped source-pack manifests and proofs, monitoring and discovery family contracts, source/wiki/finance-twin modules, close/control safety-boundary modules, reporting/approval/outbox boundaries, and Codex runtime guidance.
 - [x] 2026-05-02T13:03:47Z Ran the F6Z readiness gate before creating this plan: all six shipped source-pack proofs passed, close/control checklist, delivery-readiness, operator-readiness, close/control acknowledgement, monitor demo replay, supported discovery families, focused domain specs, and focused control-plane specs passed.
 - [x] 2026-05-02T13:03:47Z Decided F6Z is safe to plan now as one final F6/v1 exit audit and handoff slice, not one more source/evidence/certification-safety polish slice.
-- [x] 2026-05-02T13:03:47Z Created this FP-0073 implementation-ready contract without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
-- [x] 2026-05-02T13:18:15Z Refreshed only directly adjacent active docs and the FP-0072 handoff note so FP-0073 is the active F6Z final audit/handoff contract, FP-0072 remains the shipped F6Y record, F6V/F6X remain future-only, and F6Y source-digest proof posture stays attributed to source coverage rather than index posture.
+- [x] 2026-05-02T13:03:47Z Created this FP-0073 planning contract without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
+- [x] 2026-05-02T13:18:15Z Refreshed only directly adjacent active docs and the FP-0072 handoff note so FP-0073 was ready for the F6Z final audit/handoff closeout, FP-0072 remains the shipped F6Y record, F6V/F6X remain future-only, and F6Y source-digest proof posture stays attributed to source coverage rather than index posture.
 - [x] 2026-05-02T13:22:44Z Ran the full final validation ladder on the docs-and-plan tree: all six source-pack proofs, DB-backed smokes, focused domain/control-plane/twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed.
-- [ ] During F6Z implementation, perform the final F6/v1 exit audit and update this Progress section, Decision Log, and Outcomes & Retrospective without widening into runtime behavior.
+- [x] 2026-05-02T16:08:13Z Re-invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor; did not invoke GitHub Connector Guard.
+- [x] 2026-05-02T16:08:13Z Ran implementation preflight against fetched `origin/main`, confirmed the branch is `codex/f6z-final-f6-v1-exit-audit-and-handoff-local-v1`, confirmed local `HEAD` matched fetched `origin/main`, confirmed the worktree was clean before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-05-02T16:08:13Z Performed the final F6/v1 validation audit before closeout edits: all six source-pack proofs, DB-backed smokes, focused domain/control-plane/twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed.
+- [x] 2026-05-02T16:08:13Z Closed F6Z as a docs-and-validation-only final audit/handoff: updated this Progress section, Decision Log, Validation and Acceptance, Artifacts and Notes, Outcomes & Retrospective, and directly adjacent active docs without adding product runtime behavior or creating FP-0074.
+- [x] 2026-05-02T16:24:08Z Re-ran the required post-closeout validation minimum: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed on the docs-only closeout tree.
 
 ## Surprises & Discoveries
 
@@ -46,6 +50,10 @@ F6T is certification-safety/readiness, not actual certification, certified statu
 
 The F6Y shipped plan still correctly says not to create FP-0073 in the F6Y implementation slice.
 This F6Z planning thread is the later named Finance Plan candidate that FP-0072 deferred to; FP-0072 should remain the shipped F6Y record and should receive only a tiny handoff clarification if needed.
+
+The final F6Z validation audit found no shipped F6A through F6Y proof gap.
+The only stale posture found during closeout was adjacent documentation that still described FP-0073/F6Z as active or implementation-ready after the final audit had passed; those docs were refreshed to shipped F6Z posture.
+No FP-0074 was created.
 
 ## Decision Log
 
@@ -67,11 +75,18 @@ Rationale: no F6A/F6C/F6D/F6E monitor evaluator changes, no F6B/F6G mission hand
 Decision: later slices are named but not created here.
 Rationale: likely post-F6/v1 slices include F6V actual provider integration, F6X actual certification, F7 or v1 launch polish only if a new roadmap or Finance Plan names concrete scope, and deeper document precision, PDF, OCR, or vector search only if a future plan proves a source/evidence gap. Do not create FP-0074 in this slice.
 
+Decision: FP-0073 is the shipped F6Z final audit/handoff record.
+Rationale: the final validation audit passed against shipped F6A through F6Y source/proof/safety posture, and this closeout changed only plan and adjacent docs.
+
+Decision: FP-0050 through FP-0073 are shipped F6 records.
+Rationale: F6Z added no runtime behavior and closed the F6/v1 exit posture after validating the shipped monitor, discovery, source-pack, Finance Twin, CFO Wiki, close/control, delivery-readiness, provider-boundary, certification-boundary, human-confirmation, certification-safety, reporting, approval, outbox, and runtime-Codex absence boundaries.
+
 ## Context and Orientation
 
-Pocket CFO has shipped F6A through F6Y.
-FP-0050 through FP-0072 are shipped F6 records.
+Pocket CFO has shipped F6A through F6Z.
+FP-0050 through FP-0073 are shipped F6 records.
 FP-0072 is the shipped F6Y board/lender document source-pack record and must remain a historical shipped record.
+FP-0073 is the shipped F6Z final F6/v1 exit audit and handoff record.
 
 The shipped source-pack foundation records and direct proofs are:
 
@@ -120,19 +135,19 @@ Run the source-pack proofs, close/control and safety-boundary smokes, focused sp
 If any required proof fails, stop and recommend one narrow corrective slice instead of creating or executing F6Z.
 
 Second, perform a docs-only final F6/v1 audit.
-Update only directly adjacent active docs if they still imply F6Z cannot be planned after shipped FP-0072, that FP-0073 already existed before this slice, that F6V or F6X should start before the final audit, that F6T is actual certification, or that F6Y source-digest links are index posture rather than source-coverage posture.
+Update only directly adjacent active docs if they still imply F6Z is active rather than shipped after final validation, that F6V or F6X should start before the final audit closes, that F6T is actual certification, that F6S is external delivery, that F6P is provider integration, that F6Q is actual certification, that F6Y source-digest links are index posture rather than source-coverage posture, or that FP-0074 exists or should be created in this slice.
 Preserve FP-0072 as the shipped F6Y record and preserve the F6Y proof-posture polish.
 
-Third, produce the handoff contract.
-The handoff must state what shipped through F6Y, what remains absent, what proof commands passed, what future slices are allowed to consider, and what future slices remain blocked without a new plan.
-The handoff must be suitable for a human to decide whether to start F6Z final audit implementation next, not F6V or F6X.
+Third, produce the handoff closeout.
+The handoff must state what shipped through F6Z, what remains absent, what proof commands passed, what future slices are allowed to consider, and what future slices remain blocked without a new plan.
+The handoff must be suitable for a human to decide whether F6V/F6X planning may start next under a future Finance Plan, or whether one more narrow F6/v1 closeout correction is needed.
 
 Fourth, run the full validation ladder on the final tree.
 Because F6Z is docs-and-validation-only, validation proves that the documentation and plan did not drift away from shipped runtime truth.
 
 ## Concrete Steps
 
-1. Keep the active plan as exactly this file:
+1. Keep the shipped plan record as exactly this file:
    - `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md`
 
 2. Refresh only directly adjacent active docs if needed:
@@ -151,7 +166,7 @@ Because F6Z is docs-and-validation-only, validation proves that the documentatio
    Specifically do not add or change routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, source-pack manifests, proof tools, monitor evaluators, mission behavior, runtime-Codex behavior, provider integrations, credentials, provider jobs, outbox send behavior, UI, approval workflows, report-release behavior, report-circulation behavior, certification behavior, close-complete behavior, source mutation behavior, finance writes, or autonomous actions.
 
 4. Record final F6/v1 handoff facts:
-   - FP-0050 through FP-0072 are shipped F6A through F6Y records.
+   - FP-0050 through FP-0073 are shipped F6A through F6Z records.
    - F6L/F6O/F6R/F6U/F6W/F6Y direct proofs are the source-pack proof spine.
    - F6T is internal certification-safety/readiness only and non-certifying.
    - F6S is human-confirmation/delivery-preflight only and no-send/no-provider/no-outbox.
@@ -201,11 +216,11 @@ Run DB-backed smokes serially:
 
 Acceptance requires:
 
-- exactly one new active Finance Plan exists: `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md`
+- exactly one shipped F6Z Finance Plan record exists: `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md`
 - no FP-0074 exists
 - F6Z is narrowed to final F6/v1 exit audit and handoff only
-- active docs state FP-0050 through FP-0072 are shipped F6A through F6Y records
-- active docs state FP-0073 is the implementation-ready F6Z final audit/handoff contract, not F6Z implementation
+- active docs state FP-0050 through FP-0073 are shipped F6A through F6Z records
+- active docs state FP-0073 is the shipped F6Z final audit/handoff record
 - active docs do not imply F6V provider integration or F6X actual certification should start before F6Z
 - active docs do not imply F6T is actual certification
 - active docs do not attribute F6Y current source-digest links to index posture
@@ -230,9 +245,9 @@ The audit may run proof and smoke commands that create local proof setup state i
 
 Expected artifacts are:
 
-- this active Finance Plan
-- tiny active-doc freshness edits if needed
-- validation logs from the readiness gate and final validation ladder
+- this shipped Finance Plan
+- tiny active-doc freshness edits
+- validation logs from the readiness gate, final validation ladder, and final rerun ladder
 - a final human handoff that names the branch, commit, PR, changed files, validation results, gaps, and next recommendation
 
 This slice must not create code artifacts, migration artifacts, package scripts, smoke aliases, eval datasets, fixtures, provider configuration, outbox behavior, UI screens, approval workflows, report-release behavior, certification artifacts, close-complete artifacts, generated prose artifacts, source mutations, finance writes, or autonomous actions.
@@ -250,7 +265,21 @@ No GitHub connector work is expected.
 
 ## Outcomes & Retrospective
 
-This section will be completed when the F6Z final audit/handoff implementation slice finishes.
-For this master-plan thread, the outcome is that repo truth supports creating FP-0073 as the active implementation-ready F6Z final F6/v1 exit audit and handoff contract, with final validation green and no code/runtime scope added.
+F6Z shipped the final F6/v1 exit audit and handoff only.
+FP-0073 is now the shipped F6Z record, and FP-0050 through FP-0073 are shipped F6 records.
+The closeout added no code, route, schema, migration, package script, smoke alias, eval dataset, fixture, UI, product runtime behavior, provider integration, delivery, outbox send, report release, report circulation, approval, certification, legal/audit opinion, runtime-Codex behavior, generated prose, source mutation, finance write, payment behavior, monitor family, discovery family, mission behavior, or autonomous action.
 
-Recommendation for the next thread: start F6Z final audit implementation from this plan after reviewing the final PR, not F6V provider integration and not F6X actual certification.
+The final audit confirmed all six source-pack proofs remain green: bank/card, receivables/payables, contract/obligation, ledger/reconciliation, policy/covenant document, and board/lender document.
+Those proofs remain deterministic, source-backed, fixture/manifest/proof-oriented, and bounded to existing source registry, Finance Twin, and CFO Wiki routes.
+The shipped monitor families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`.
+The shipped discovery families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, `spend_posture`, `obligation_calendar_review`, and `policy_lookup`.
+
+F6T remains non-certifying certification-safety/readiness only.
+F6S remains no-send/no-provider/no-outbox human-confirmation/delivery-preflight only.
+F6P remains provider-boundary/readiness only, not provider integration.
+F6Q remains certification-boundary/readiness only, not actual certification.
+F6V provider integration and F6X actual certification remain future-plan-only.
+F7 or v1 launch polish must wait for a future roadmap or Finance Plan.
+No FP-0074 was created.
+
+Recommendation for the next thread: F6V/F6X planning may start next only under a new future Finance Plan; no additional F6/v1 closeout correction is needed from the F6Z audit.
