@@ -1,4 +1,5 @@
 export * from "./stack-pack";
+export * from "./packs/pocket-cfo-board-lender-document-source-pack";
 export * from "./packs/pocket-cfo-contract-obligation-source-pack";
 export * from "./packs/pocket-cfo-ledger-reconciliation-source-pack";
 export * from "./packs/pocket-cfo-policy-covenant-document-source-pack";

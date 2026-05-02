@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { nextjsVercelPack } from "./packs/nextjs-vercel";
 import { pocketCfoBankCardSourcePack } from "./packs/pocket-cfo-bank-card-source-pack";
+import { pocketCfoBoardLenderDocumentSourcePack } from "./packs/pocket-cfo-board-lender-document-source-pack";
 import { pocketCfoContractObligationSourcePack } from "./packs/pocket-cfo-contract-obligation-source-pack";
 import { pocketCfoLedgerReconciliationSourcePack } from "./packs/pocket-cfo-ledger-reconciliation-source-pack";
 import { pocketCfoMonitorDemoPack } from "./packs/pocket-cfo-monitor-demo";
@@ -376,9 +377,7 @@ describe("stack packs", () => {
       pocketCfoPolicyCovenantDocumentSourcePack.sourceFiles.map(
         (file) => file.expectedDocumentKind,
       ),
-    ).toEqual(
-      pocketCfoPolicyCovenantDocumentSourcePack.expectedDocumentKinds,
-    );
+    ).toEqual(pocketCfoPolicyCovenantDocumentSourcePack.expectedDocumentKinds);
     expect(
       pocketCfoPolicyCovenantDocumentSourcePack.expectedNormalizedPosturePath,
     ).toBe(
@@ -431,6 +430,106 @@ describe("stack packs", () => {
       "actionTargets",
     ]) {
       expect(pocketCfoPolicyCovenantDocumentSourcePack).not.toHaveProperty(
+        forbidden,
+      );
+    }
+  });
+
+  it("exports the Pocket CFO F6Y board/lender document source pack without extractor, monitor, or discovery semantics", () => {
+    expect(pocketCfoBoardLenderDocumentSourcePack.id).toBe(
+      "pocket-cfo-board-lender-document-source-pack",
+    );
+    expect(pocketCfoBoardLenderDocumentSourcePack.displayName).toBe(
+      "Pocket CFO Board/Lender Document Source Pack",
+    );
+    expect(pocketCfoBoardLenderDocumentSourcePack.fixtureDirectory).toBe(
+      "packages/testkit/fixtures/f6y-board-lender-document-source-pack",
+    );
+    expect(pocketCfoBoardLenderDocumentSourcePack.sourceRoles).toEqual([
+      "board_material",
+      "lender_document",
+    ]);
+    expect(
+      pocketCfoBoardLenderDocumentSourcePack.sourceFiles.map(
+        (file) => file.role,
+      ),
+    ).toEqual(pocketCfoBoardLenderDocumentSourcePack.sourceRoles);
+    expect(pocketCfoBoardLenderDocumentSourcePack.sourceKinds).toEqual([
+      "document",
+    ]);
+    expect(pocketCfoBoardLenderDocumentSourcePack.documentRoles).toEqual([
+      "board_material",
+      "lender_document",
+    ]);
+    expect(pocketCfoBoardLenderDocumentSourcePack.mediaTypes).toEqual([
+      "text/markdown",
+      "text/plain",
+    ]);
+    expect(
+      pocketCfoBoardLenderDocumentSourcePack.expectedDocumentKinds,
+    ).toEqual(["markdown_text", "plain_text"]);
+    expect(
+      pocketCfoBoardLenderDocumentSourcePack.sourceFiles.map(
+        (file) => file.expectedDocumentKind,
+      ),
+    ).toEqual(pocketCfoBoardLenderDocumentSourcePack.expectedDocumentKinds);
+    expect(
+      pocketCfoBoardLenderDocumentSourcePack.expectedNormalizedPosturePath,
+    ).toBe(
+      "packages/testkit/fixtures/f6y-board-lender-document-source-pack/expected-source-wiki-posture.json",
+    );
+    expect(
+      normalizeDocumentManifestSourceFiles(
+        pocketCfoBoardLenderDocumentSourcePack.sourceFiles,
+      ),
+    ).toEqual(
+      normalizeExpectedDocumentSourceFiles(
+        loadDocumentExpectedPosture(
+          pocketCfoBoardLenderDocumentSourcePack.expectedNormalizedPosturePath,
+        ).sourceFiles,
+      ),
+    );
+    for (const sourceFile of normalizeDocumentManifestSourceFiles(
+      pocketCfoBoardLenderDocumentSourcePack.sourceFiles,
+    )) {
+      const absolutePath = join(
+        repoRoot,
+        pocketCfoBoardLenderDocumentSourcePack.fixtureDirectory,
+        sourceFile.path,
+      );
+
+      expect(existsSync(absolutePath)).toBe(true);
+      expect(readFileSync(absolutePath, "utf8").trim().length).toBeGreaterThan(
+        0,
+      );
+    }
+    expect(
+      pocketCfoBoardLenderDocumentSourcePack.runtimeDeliveryActionBoundary,
+    ).toContain("runtime-free");
+    expect(pocketCfoBoardLenderDocumentSourcePack).not.toHaveProperty(
+      "expectedExtractorKeys",
+    );
+    expect(
+      pocketCfoBoardLenderDocumentSourcePack.sourceFiles.every(
+        (sourceFile) => !Object.hasOwn(sourceFile, "expectedExtractorKey"),
+      ),
+    ).toBe(true);
+    expect(pocketCfoBoardLenderDocumentSourcePack).not.toHaveProperty(
+      "monitorFamiliesCovered",
+    );
+    expect(pocketCfoBoardLenderDocumentSourcePack).not.toHaveProperty(
+      "discoveryFamiliesCovered",
+    );
+    for (const forbidden of [
+      "providerTargets",
+      "deliveryTargets",
+      "reportTargets",
+      "approvalTargets",
+      "certificationTargets",
+      "runtimeCodexTargets",
+      "actionTargets",
+    ]) {
+      expect(pocketCfoBoardLenderDocumentSourcePack).not.toHaveProperty(
         forbidden,
       );
     }

@@ -1,0 +1,7 @@
+Lender document evidence fixture
+
+Scope: deterministic source binding and plain-text extraction.
+Evidence snippet: lender package source index references monthly covenant reporting schedule, cash balance excerpt labels, and borrowing base source labels.
+
+Freshness posture: latest uploaded fixture file is the proof input.
+Lineage posture: raw bytes are static for checksum comparison.

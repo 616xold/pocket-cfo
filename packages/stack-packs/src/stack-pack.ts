@@ -214,3 +214,42 @@ export type PocketCfoPolicyCovenantDocumentSourcePack = {
   limitations: string[];
   runtimeDeliveryActionBoundary: string;
 };
+
+export type PocketCfoBoardLenderDocumentSourcePackSourceRole =
+  | "board_material"
+  | "lender_document";
+
+export type PocketCfoBoardLenderDocumentSourcePackSourceFile = {
+  role: PocketCfoBoardLenderDocumentSourcePackSourceRole;
+  fixturePath: string;
+  sourceKind: Extract<SourceKind, "document">;
+  mediaType: "text/markdown" | "text/plain";
+  documentRole: Extract<
+    CfoWikiDocumentRole,
+    "board_material" | "lender_document"
+  >;
+  expectedDocumentKind: Extract<
+    CfoWikiDocumentKind,
+    "markdown_text" | "plain_text"
+  >;
+};
+
+export type PocketCfoBoardLenderDocumentSourcePack = {
+  id: string;
+  displayName: string;
+  purpose: string;
+  fixtureDirectory: string;
+  sourceFiles: PocketCfoBoardLenderDocumentSourcePackSourceFile[];
+  sourceRoles: PocketCfoBoardLenderDocumentSourcePackSourceRole[];
+  sourceKinds: Array<Extract<SourceKind, "document">>;
+  documentRoles: Array<
+    Extract<CfoWikiDocumentRole, "board_material" | "lender_document">
+  >;
+  mediaTypes: Array<"text/markdown" | "text/plain">;
+  expectedDocumentKinds: Array<
+    Extract<CfoWikiDocumentKind, "markdown_text" | "plain_text">
+  >;
+  expectedNormalizedPosturePath: string;
+  limitations: string[];
+  runtimeDeliveryActionBoundary: string;
+};
