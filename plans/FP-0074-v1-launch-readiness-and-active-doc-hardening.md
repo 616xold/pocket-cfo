@@ -2,15 +2,15 @@
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan contract for the Pocket CFO F7/v1 launch-readiness planning slice.
+This is the shipped Finance Plan record for the Pocket CFO F7/v1 launch-readiness and active-doc hardening slice.
 The target phase is `F7`, and the slice is exactly `F7-v1-launch-readiness-and-active-doc-hardening`.
 
-The user-visible goal is narrow: after shipped F6A through F6Z, Pocket CFO needs one implementation-ready contract that hardens the active docs and validation posture before any v1 launch-readiness implementation starts.
+The user-visible goal is narrow: after shipped F6A through F6Z, Pocket CFO closed one deterministic v1 launch-readiness and active-doc hardening audit so the active docs match current repo truth.
 F7 is not a product feature slice.
 It is docs-and-validation only.
-It must not add product runtime behavior.
+It added no product runtime behavior.
 
-Repo truth supports this F7 planning contract because FP-0050 through FP-0073 are shipped F6 records, FP-0073 is the shipped final F6/v1 exit audit and handoff record, the pre-plan readiness gate passed on 2026-05-04, all six shipped source-pack proofs remain green, shipped F6T/F6S/F6P/F6Q safety boundaries remain green and correctly non-certifying/non-provider/non-sending, shipped close/control surfaces remain green, shipped monitor families remain exactly four, shipped discovery families remain exactly six, and F6V provider integration plus F6X actual certification can remain future-plan-only.
+Repo truth supports this shipped F7 closeout because FP-0050 through FP-0073 are shipped F6 records, FP-0073 is the shipped final F6/v1 exit audit and handoff record, the F7 validation ladder passed on 2026-05-04, all six shipped source-pack proofs remain green, shipped F6T/F6S/F6P/F6Q safety boundaries remain green and correctly non-certifying/non-provider/non-sending, shipped close/control surfaces remain green, shipped monitor families remain exactly four, shipped discovery families remain exactly six, and F6V provider integration plus F6X actual certification remain future-plan-only.
 
 GitHub connector work is explicitly out of scope.
 Do not invoke GitHub Connector Guard for F7.
@@ -23,15 +23,19 @@ Do not invoke GitHub Connector Guard for F7.
 - [x] 2026-05-04T13:01:44Z Ran the pre-plan F7 readiness gate: all six shipped source-pack proofs, policy/covenant monitor, close/control checklist, delivery-readiness, operator-readiness, close/control acknowledgement, monitor demo replay, supported discovery families, focused domain safety specs, and focused control-plane safety specs passed.
 - [x] 2026-05-04T13:01:44Z Decided the safest next slice is F7/v1 launch-readiness and active-doc hardening, not a narrow F6 closeout correction, not F6V provider integration planning, and not F6X actual certification planning.
 - [x] 2026-05-04T13:01:44Z Created this FP-0074 planning contract without adding code, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, UI, approval workflow, report-release behavior, certification behavior, or product runtime behavior.
-- [x] 2026-05-04T13:13:56Z Refreshed only directly adjacent active docs so README, START_HERE, ACTIVE_DOCS, PLANS, ROADMAP, local-dev, source-ingest/CFO Wiki, Codex App Server, seeded-missions, evals, and the FP-0073 handoff clarification agree that FP-0074 is the active F7/v1 launch-readiness contract while F6V/F6X remain future-plan-only.
+- [x] 2026-05-04T13:13:56Z Refreshed only directly adjacent active docs during the planning pass so README, START_HERE, ACTIVE_DOCS, PLANS, ROADMAP, local-dev, source-ingest/CFO Wiki, Codex App Server, seeded-missions, evals, and the FP-0073 handoff clarification agreed that FP-0074 was the F7/v1 launch-readiness contract while F6V/F6X remained future-plan-only.
 - [x] 2026-05-04T13:20:20Z Ran the full final validation ladder serially, including all six source-pack proofs, all required CFO Wiki, Finance Twin, monitoring, close/control, delivery-readiness, operator-readiness, acknowledgement, discovery-family, domain, control-plane, twin-sync, lint, typecheck, test, and `pnpm ci:repro:current` commands; validation passed with logs under `/tmp/pocket-cfo-f7-full-validation.HKPycD`.
-- [ ] Future F7 implementation thread reviewed this plan after merge and executed only the docs-and-validation hardening steps explicitly allowed below.
+- [x] 2026-05-04T14:11:10Z Ran implementation-thread preflight against fetched `origin/main`, confirmed branch `codex/f7-v1-launch-readiness-and-active-doc-hardening-local-v1`, confirmed `HEAD` matched `origin/main`, confirmed a clean worktree, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-05-04T14:11:10Z Re-read the active doc spine, shipped FP-0073/F6Z record, shipped FP-0072/F6Y, FP-0071/F6W, and FP-0070/F6T records, package scripts, source-pack manifests, proof tools, and the source, wiki, Finance Twin, monitoring, close/control, safety-boundary, reporting, approval, and outbox module boundaries.
+- [x] 2026-05-04T14:11:10Z Ran the full F7 launch-readiness validation ladder before closeout edits; all requested source-pack proofs, DB-backed smokes, focused domain/control-plane/twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed with logs under `/tmp/pocket-cfo-f7-validation.6bGpFu`.
+- [x] 2026-05-04T14:11:10Z Closed F7 as docs-and-validation-only launch-readiness and active-doc hardening: refreshed only directly stale active-doc lines, left runtime code untouched, kept F6V/F6X future-plan-only, and created no FP-0075.
+- [x] 2026-05-04T14:23:41Z Ran the required post-closeout validation minimum after active-doc edits; `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed with logs under `/tmp/pocket-cfo-f7-postclose-validation.cCBtEx`.
 
 ## Surprises & Discoveries
 
-The shipped F6Z record is fresh enough to support this planning slice.
+The shipped F6Z record was fresh enough to support this F7 closeout.
 It already records FP-0050 through FP-0073 as shipped F6 records, explicitly keeps FP-0074 absent from the F6Z closeout, and says later launch work must wait for a future roadmap or Finance Plan.
-This FP-0074 file is that future-plan candidate, but it still does not start F7 implementation.
+This FP-0074 file is now the shipped F7/v1 launch-readiness and active-doc hardening record, and it did not add product runtime behavior.
 
 The six source-pack proofs are the strongest current evidence spine for launch-readiness truthfulness.
 They verify raw fixture immutability, normalized expected-output posture, fixed monitor/discovery family boundaries, and no product runtime behavior from source-pack proofs.
@@ -40,8 +44,9 @@ The safety-boundary stack remains correctly internal and review-oriented.
 F6S is human-confirmation/delivery-preflight only, F6P is provider-boundary/readiness only, F6Q is certification-boundary/readiness only, and F6T is certification-safety/readiness only.
 None of those surfaces is actual delivery, provider integration, approval, report release, certification, close complete, sign-off, attestation, legal/audit opinion, assurance, runtime-Codex behavior, source mutation, finance write, or autonomous action.
 
-No new runtime behavior is required to make F7 implementation-ready.
-The next implementation slice can be limited to active-doc hardening and deterministic validation if review accepts this plan.
+No new runtime behavior was required to close F7.
+The implementation slice was limited to active-doc hardening and deterministic validation.
+No separate launch-readiness report file, product artifact, route, schema, migration, package script, smoke alias, eval dataset, fixture, UI, provider integration, delivery, report-release, approval, certification, runtime-Codex behavior, generated product prose, source mutation, finance write, monitor family, discovery family, mission behavior, or autonomous action was added.
 
 ## Decision Log
 
@@ -66,12 +71,15 @@ Rationale: active docs must agree on shipped F6 and future work, local-dev must 
 Decision: post-v1 future slices are named but not created here.
 Rationale: likely later work may include F6V actual provider integration, F6X actual certification, deeper document precision/PDF/OCR/vector search only after a source/evidence gap is proven, and product UI launch polish only after a future plan names exact UX scope and avoids provider/certification/delivery behavior. Do not create FP-0075 in this slice.
 
+Decision: FP-0074 is the shipped F7/v1 launch-readiness and active-doc hardening record.
+Rationale: the required F7 validation ladder passed before closeout edits, adjacent active-doc stale lines were refreshed, and the slice added no product runtime behavior.
+
 ## Context and Orientation
 
-Pocket CFO has shipped F6A through F6Z.
+Pocket CFO has shipped F6A through F6Z and F7.
 FP-0050 through FP-0073 are shipped F6 records.
 FP-0073 is the shipped F6Z final F6/v1 exit audit and handoff record.
-This FP-0074 file is the active F7/v1 launch-readiness planning contract.
+This FP-0074 file is the shipped F7/v1 launch-readiness and active-doc hardening record.
 
 The shipped source-pack proof spine is:
 
@@ -112,36 +120,36 @@ No code changes are expected for F7.
 
 ## Plan of Work
 
-First, preserve the shipped F6/v1 truth.
-The F7 implementation thread must start by rereading README.md, START_HERE.md, docs/ACTIVE_DOCS.md, PLANS.md, plans/ROADMAP.md, this FP-0074 file, and the shipped FP-0073 record.
-If repo truth no longer supports docs-and-validation-only launch-readiness, stop and recommend the smallest corrective closeout slice instead of widening this plan.
+First, the implementation preserved the shipped F6/v1 truth.
+The F7 closeout thread reread README.md, START_HERE.md, docs/ACTIVE_DOCS.md, PLANS.md, plans/ROADMAP.md, this FP-0074 file, and the shipped FP-0073 record.
+Repo truth supported docs-and-validation-only launch-readiness, so no corrective runtime slice was needed.
 
-Second, harden the active docs only where they are stale or ambiguous.
-Allowed docs are README.md, START_HERE.md, docs/ACTIVE_DOCS.md, PLANS.md if needed, plans/ROADMAP.md, docs/ops/local-dev.md, docs/ops/source-ingest-and-cfo-wiki.md, docs/ops/codex-app-server.md, docs/benchmarks/seeded-missions.md, evals/README.md, and one tiny FP-0073 handoff clarification only if needed.
-Do not rewrite historical records broadly.
+Second, the implementation hardened the active docs only where they were stale or ambiguous.
+Allowed docs were README.md, START_HERE.md, docs/ACTIVE_DOCS.md, PLANS.md if needed, plans/ROADMAP.md, docs/ops/local-dev.md, docs/ops/source-ingest-and-cfo-wiki.md, docs/ops/codex-app-server.md, docs/benchmarks/seeded-missions.md, evals/README.md, and one tiny FP-0073 handoff clarification only if needed.
+Historical records were not broadly rewritten.
 
-Third, verify shipped direct proof posture.
-The implementation thread must run all six direct source-pack proofs and confirm raw fixture immutability, normalized expected-output posture, source lineage/freshness/limitations posture, fixed monitor/discovery family boundaries, and no product runtime behavior from proof paths.
+Third, the implementation verified shipped direct proof posture.
+It ran all six direct source-pack proofs and confirmed raw fixture immutability, normalized expected-output posture, source lineage/freshness/limitations posture, fixed monitor/discovery family boundaries, and no product runtime behavior from proof paths.
 
-Fourth, verify shipped safety-boundary posture.
-The implementation thread must run the close/control, delivery-readiness, operator-readiness, acknowledgement, monitor demo, supported-family, domain, and control-plane validation ladder listed below.
-The result must continue to show delivery-readiness is not actual delivery, provider-boundary is not provider integration, certification-boundary is not actual certification, human-confirmation is no-send/no-provider/no-outbox, and certification-safety is non-certifying.
+Fourth, the implementation verified shipped safety-boundary posture.
+It ran the close/control, delivery-readiness, operator-readiness, acknowledgement, monitor demo, supported-family, domain, and control-plane validation ladder listed below.
+The result continued to show delivery-readiness is not actual delivery, provider-boundary is not provider integration, certification-boundary is not actual certification, human-confirmation is no-send/no-provider/no-outbox, and certification-safety is non-certifying.
 
-Fifth, close the F7 implementation thread as docs-and-validation-only.
-The closeout must state what changed, what remained absent, what commands passed, whether any docs were intentionally left untouched, and whether F7 implementation is safe to consider complete.
-It must not recommend F6V or F6X implementation unless a new future plan proves the needed boundaries.
+Fifth, the implementation closed F7 as docs-and-validation-only.
+The closeout states what changed, what remained absent, what commands passed, and that F7 is complete as launch-readiness/active-doc hardening only.
+It does not recommend F6V or F6X implementation unless a new future plan proves the needed boundaries.
 
 ## Concrete Steps
 
-1. Confirm this active Finance Plan remains the only FP-0074 file.
-   Do not create FP-0075.
+1. Confirmed this shipped Finance Plan remains the only FP-0074 file.
+   No FP-0075 was created.
 
 2. Refresh active docs only where they directly misstate current shipped truth.
    Required truths:
    - FP-0050 through FP-0073 are shipped F6A through F6Z records.
    - FP-0073 is the shipped F6Z final audit/handoff record.
-   - FP-0074 is the active F7/v1 launch-readiness and active-doc hardening contract.
-   - F7 implementation must be docs-and-validation-only and must not start until this plan is reviewed and merged.
+   - FP-0074 is the shipped F7/v1 launch-readiness and active-doc hardening record.
+   - F7 closeout shipped as docs-and-validation-only and added no product runtime behavior.
    - F6V provider integration and F6X actual certification remain future-plan-only.
    - F6T is non-certifying certification-safety/readiness only.
    - F6S is no-send/no-provider/no-outbox human-confirmation/delivery-preflight only.
@@ -156,7 +164,7 @@ It must not recommend F6V or F6X implementation unless a new future plan proves 
 4. Keep local-dev validation as direct commands.
    Do not add a package script, smoke alias, eval dataset, fixture, or wrapper command for F7.
 
-5. Record the implementation closeout in this Progress section, Surprises & Discoveries, Decision Log if a decision changed, and Outcomes & Retrospective.
+5. Recorded the implementation closeout in this Progress section, Surprises & Discoveries, Decision Log, Validation and Acceptance, Artifacts and Notes, and Outcomes & Retrospective.
 
 ## Validation and Acceptance
 
@@ -199,11 +207,11 @@ Run DB-backed smokes serially:
 
 Acceptance requires:
 
-- exactly one new active Finance Plan exists: `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md`
+- exactly one shipped F7 Finance Plan record exists: `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md`
 - no FP-0075 exists
-- F7 remains narrowed to docs-and-validation-only launch-readiness planning
+- F7 remains narrowed to docs-and-validation-only launch-readiness and active-doc hardening
 - no code, route, schema, migration, package script, smoke alias, eval dataset, fixture, UI, monitor family, discovery family, runtime-Codex, delivery, provider, outbox, approval, report, certification, close-complete, source mutation, finance write, generated product prose, or autonomous action is added
-- active docs agree that FP-0050 through FP-0073 are shipped F6 records and FP-0074 is the active F7 plan
+- active docs agree that FP-0050 through FP-0073 are shipped F6 records and FP-0074 is the shipped F7 record
 - F6V provider integration and F6X actual certification remain future-plan-only
 - shipped source-pack proofs and safety-boundary smokes/specs pass on the final tree
 
@@ -221,9 +229,9 @@ The validation ladder may create local proof setup state in the development data
 
 ## Artifacts and Notes
 
-Expected artifacts for this planning slice are:
+Shipped artifacts for this slice are:
 
-- this active Finance Plan
+- this shipped Finance Plan
 - minimal active-doc freshness edits
 - validation logs
 - a final human handoff that names the branch, commit, PR, changed files, validation results, gaps, and next recommendation
@@ -243,11 +251,16 @@ No GitHub connector work is expected.
 
 ## Outcomes & Retrospective
 
-This planning slice created FP-0074 as the active F7/v1 launch-readiness and active-doc hardening contract only.
-No F7 implementation has started.
-F7 implementation should start next only after this plan is reviewed and merged, and it must remain docs-and-validation-only unless a future plan explicitly changes scope.
+F7 shipped the v1 launch-readiness and active-doc hardening closeout only.
+FP-0074 is now the shipped F7/v1 launch-readiness record.
+F7 added no product runtime behavior.
 
 FP-0050 through FP-0073 remain shipped F6 records.
+FP-0073 remains the shipped F6Z final F6/v1 exit audit and handoff record.
 F6V provider integration and F6X actual certification remain future-plan-only.
-The final validation ladder passed, including the six direct source-pack proofs and `pnpm ci:repro:current`.
+F8, v1 launch polish, product UI launch polish, deeper PDF/OCR/vector search, provider integration, certification, and later work require a future roadmap update or Finance Plan.
+No FP-0075 was created.
+
+The final validation ladder passed before closeout edits, including the six direct source-pack proofs and `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-f7-validation.6bGpFu`.
+Post-closeout rerun results are recorded in Progress.
 No additional F6 closeout correction is currently required by the pre-plan readiness gate.
