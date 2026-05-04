@@ -17,7 +17,7 @@ Existing `EP-*` files are Pocket CTO history and should be archived or treated a
 
 1. Every Finance Plan must be self-contained.
 2. Every Finance Plan must explain the user-visible purpose first.
-3. Every Finance Plan must name the target phase explicitly (`F0` through `F6`).
+3. Every Finance Plan must name the target phase explicitly (`F0` through `F7`, or a later named roadmap phase once active docs add it).
 4. Every Finance Plan must define exact files, modules, commands, and acceptance checks.
 5. Every Finance Plan must stay current while work proceeds.
 6. Every Finance Plan must keep `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` up to date.
