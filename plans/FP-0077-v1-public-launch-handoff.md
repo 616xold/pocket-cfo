@@ -1,16 +1,17 @@
-# Plan v1 public launch handoff
+# Close v1 public launch handoff
 
 ## Purpose / Big Picture
 
-This is the active Finance Plan contract for the Pocket CFO F10/v1 public launch handoff planning slice.
+This is the shipped Finance Plan record for the Pocket CFO F10/v1 public launch handoff closeout slice.
 The target phase is `F10`, and the slice is exactly `F10-v1-public-launch-handoff`.
 
-The user-visible goal is narrow: after shipped F6A through F6Z, shipped F7 launch-readiness, shipped F8 future-scope triage, and shipped F9 read-only product UI launch polish, Pocket CFO needs one implementation-ready public launch handoff contract that a later reviewed thread can execute without widening product behavior.
+The user-visible goal is narrow: after shipped F6A through F6Z, shipped F7 launch-readiness, shipped F8 future-scope triage, and shipped F9 read-only product UI launch polish, Pocket CFO closed one deterministic public launch handoff record that validates shipped posture and aligns active docs without widening product behavior.
 F10 is not a product feature slice.
 This plan is docs-and-validation only.
-It must add no product runtime behavior.
+It added no product runtime behavior.
+It created no public launch artifact, launch announcement, external communications, deployment automation, generated launch copy, approval, report release, certification, delivery, provider setup, or runtime-Codex output.
 
-Repo truth supports creating this FP-0077 contract because FP-0076 is the shipped F9 product UI launch-polish record, FP-0075 is the shipped F8/v1 future-scope triage record, FP-0074 is the shipped F7/v1 launch-readiness record, FP-0073 is the shipped F6Z final F6/v1 exit audit and handoff record, FP-0050 through FP-0073 are shipped F6 records, the shipped source-pack proof spine remains the required proof gate, shipped F6P/F6Q/F6S/F6T safety boundaries remain internal and non-provider/non-certifying/no-send, shipped monitor families remain fixed at four, shipped discovery families remain fixed at six, and no route, schema, migration, monitor evaluator, mission behavior, runtime-Codex, delivery, report, approval, certification, provider call, source mutation, finance write, external action, generated prose, or product runtime behavior is required to define this handoff.
+Repo truth supports shipping this FP-0077 closeout because FP-0076 is the shipped F9 product UI launch-polish record, FP-0075 is the shipped F8/v1 future-scope triage record, FP-0074 is the shipped F7/v1 launch-readiness record, FP-0073 is the shipped F6Z final F6/v1 exit audit and handoff record, FP-0050 through FP-0073 are shipped F6 records, the shipped source-pack proof spine passed the required proof gate, shipped F6P/F6Q/F6S/F6T safety boundaries remain internal and non-provider/non-certifying/no-send, shipped monitor families remain fixed at four, shipped discovery families remain fixed at six, and no route, schema, migration, monitor evaluator, mission behavior, runtime-Codex, delivery, report, approval, certification, provider call, source mutation, finance write, external action, generated prose, or product runtime behavior was required to close this handoff.
 
 GitHub connector work is explicitly out of scope.
 Do not invoke GitHub Connector Guard for F10.
@@ -20,15 +21,20 @@ Do not invoke GitHub Connector Guard for F10.
 - [x] 2026-05-04T17:50:55Z Invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor; did not invoke GitHub Connector Guard.
 - [x] 2026-05-04T17:50:55Z Ran preflight against fetched `origin/main`, confirmed branch `codex/f10-v1-public-launch-handoff-master-plan-local-v1`, confirmed local `HEAD` matched `origin/main`, confirmed a clean worktree before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
 - [x] 2026-05-04T17:50:55Z Read the active doc spine, shipped FP-0076/F9 record, shipped FP-0075/F8 record, shipped FP-0074/F7 record, shipped FP-0073/F6Z record, package scripts, app/web product surfaces, source-pack manifests and proof tools, and relevant source, wiki, Finance Twin, monitoring, close/control, delivery-readiness, provider-boundary, certification-boundary, human-confirmation, certification-safety, reporting, approvals, outbox, and proof-tool boundaries.
-- [x] 2026-05-04T17:50:55Z Evaluated candidate directions and decided the safest next direction is this F10/v1 public launch handoff planning contract, not one narrow F9 closeout correction alone, not deeper document precision/PDF/OCR/vector-search planning, not F6V provider integration planning, not F6X actual certification planning, and not a no-new-plan hold.
+- [x] 2026-05-04T17:50:55Z Evaluated candidate directions and decided the safest next direction is this F10/v1 public launch handoff record, not one narrow F9 closeout correction alone, not deeper document precision/PDF/OCR/vector-search planning, not F6V provider integration planning, not F6X actual certification planning, and not a no-new-plan hold.
 - [x] 2026-05-04T17:50:55Z Created this FP-0077 v1 public launch handoff contract without adding code, UI, routes, schema, migrations, package scripts, smoke commands, eval datasets, fixtures, implementation scaffolding, provider integrations, credential scaffolding, outbox send behavior, approval workflow, report-release behavior, certification behavior, product runtime behavior, source mutation, finance writes, generated prose, or autonomous action.
-- [x] 2026-05-04T18:00:28Z Refreshed only directly stale active docs and FP-0076 shipped-record wording so FP-0077 is the active F10 planning contract, FP-0076 remains the shipped F9 record, FP-0050 through FP-0073 remain shipped F6 records, FP-0074 remains shipped F7, FP-0075 remains shipped F8, and F10 implementation/F6V/F6X/deeper PDF-OCR-vector/deployment/external comms/later work remain future-plan-only.
+- [x] 2026-05-04T18:00:28Z Refreshed only directly stale active docs and FP-0076 shipped-record wording so FP-0077 is the shipped F10 record, FP-0076 remains the shipped F9 record, FP-0050 through FP-0073 remain shipped F6 records, FP-0074 remains shipped F7, FP-0075 remains shipped F8, and public launch implementation beyond docs-and-validation/F6V/F6X/deeper PDF-OCR-vector/deployment/external comms/later work remain future-plan-only.
 - [x] 2026-05-04T18:06:15Z Ran the full final docs-and-plan validation ladder serially. All six source-pack proofs, all required CFO Wiki, Finance Twin, policy lookup, monitoring, close/control, delivery-readiness, operator-readiness, acknowledgement, discovery-family, web, domain, control-plane, twin-sync, lint, typecheck, test, and `pnpm ci:repro:current` commands passed with logs under `/tmp/pocket-cfo-f10-validation.20260504T180208Z.84471`.
-- [ ] Start F10 implementation or public launch handoff closeout only in a later thread after this FP-0077 planning contract is reviewed and merged.
+- [x] 2026-05-04T18:54:57Z Re-invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor; did not invoke GitHub Connector Guard.
+- [x] 2026-05-04T18:54:57Z Ran implementation preflight against fetched `origin/main`, confirmed branch `codex/f10-v1-public-launch-handoff-closeout-local-v1`, confirmed local `HEAD` matched `origin/main`, confirmed a clean worktree before edits, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
+- [x] 2026-05-04T18:54:57Z Re-read this FP-0077 contract, README, START_HERE, ACTIVE_DOCS, PLANS, ROADMAP, shipped FP-0076/F9, FP-0075/F8, FP-0074/F7, FP-0073/F6Z, package scripts, app/web surfaces, source-pack manifests and proofs, and the relevant source, wiki, Finance Twin, monitoring, close/control, delivery-readiness, provider-boundary, certification-boundary, human-confirmation, certification-safety, reporting, approvals, outbox, and proof-tool boundaries.
+- [x] 2026-05-04T18:54:57Z Ran the required serial F10/v1 public launch handoff validation ladder before closeout edits. All six source-pack proofs, required CFO Wiki, Finance Twin, policy lookup, monitoring, close/control, delivery-readiness, operator-readiness, acknowledgement, monitor demo replay, discovery-family, web, domain, control-plane, twin-sync, lint, typecheck, test, and `pnpm ci:repro:current` commands passed with logs under `/tmp/pocket-cfo-f10-closeout-validation.20260504T185110Z.83707`.
+- [x] 2026-05-04T18:54:57Z Closed F10 as a docs-and-validation-only v1 public launch handoff record: refreshed this FP-0077 record and directly adjacent stale active-doc lines only, added no product runtime behavior, created no public launch artifact, launch announcement, external communications, deployment automation, generated launch copy, approval, report release, certification, delivery, provider setup, runtime-Codex output, source mutation, finance write, monitor family, discovery family, package script, smoke alias, eval dataset, fixture, route, schema, migration, UI, mission behavior, or autonomous action, and created no FP-0078.
+- [x] 2026-05-04T19:01:13Z Ran the required post-closeout minimum validation set. `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed with logs under `/tmp/pocket-cfo-f10-postclose-validation.20260504T190113Z.7448`.
 
 ## Surprises & Discoveries
 
-FP-0076 is fresh enough to support this F10 planning contract, but its closeout still contained narrow stale post-implementation Git/PR wording and wording that could imply FP-0077 remained absent after F9.
+FP-0076 was fresh enough to support this F10 closeout record, but its closeout still contained narrow stale post-implementation Git/PR wording and wording that could imply FP-0077 remained absent after F9.
 This slice corrected only that adjacent wording to shipped-record wording.
 The correction does not reopen F9 and does not justify a separate F9 docs-only PR.
 
@@ -45,15 +51,20 @@ F6Q certification-boundary is not actual certification.
 F6S human-confirmation is not send, approval, provider, outbox, report release, or certification behavior.
 F6T certification-safety is not actual certification, legal/audit opinion, assurance, attestation, sign-off, or close complete.
 
-No current evidence requires provider integration, actual certification, deeper PDF/OCR/vector search, public launch external communications, deployment work, report release, approval workflow, generated prose, source mutation, finance writes, or autonomous action before this handoff contract is reviewed.
+No current evidence requires provider integration, actual certification, deeper PDF/OCR/vector search, public launch external communications, deployment work, report release, approval workflow, generated prose, source mutation, finance writes, or autonomous action after this handoff record shipped.
+
+The implementation closeout found no shipped F6/F7/F8/F9 proof gap.
+The validation ladder remained green before closeout edits, so F10 could close as a documentation and validation record only.
+Directly adjacent docs still described FP-0077 as active planning; those lines were stale only after validation passed and were refreshed to shipped F10 record wording.
+No FP-0078 was created.
 
 ## Decision Log
 
-Decision: proceed with `F10-v1-public-launch-handoff`.
-Rationale: shipped F6Z, F7, F8, and F9 records are present and fresh enough, active docs support a post-F9 handoff plan, and the slice can remain docs-and-validation-only without product runtime behavior.
+Decision: ship `F10-v1-public-launch-handoff` as a closeout record.
+Rationale: shipped F6Z, F7, F8, and F9 records are present and fresh enough, the required validation ladder passed, and the slice remained docs-and-validation-only without product runtime behavior.
 
 Decision: F10 is not a product feature slice.
-Rationale: this plan defines a public launch handoff contract only. It must not add routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, UI, monitor families, discovery families, mission behavior, runtime-Codex, delivery, provider behavior, approval workflow, report release, certification, source mutation, finance writes, generated product prose, or autonomous actions.
+Rationale: this record closes a public launch handoff only. It did not add routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, UI, monitor families, discovery families, mission behavior, runtime-Codex, delivery, provider behavior, approval workflow, report release, certification, source mutation, finance writes, generated product prose, or autonomous actions.
 
 Decision: F10 is not provider integration.
 Rationale: F6V remains future-plan-only until a later plan proves provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, credential boundaries, provider-job boundaries, outbox boundaries, and no autonomous send.
@@ -70,12 +81,12 @@ Rationale: F9 already shipped read-only app/web product UI launch-polish. Any la
 Decision: F10 preserves shipped F6/F7/F8/F9.
 Rationale: no F6A/F6C/F6D/F6E monitor evaluator changes, no F6B/F6G mission handoff changes, no F6H checklist changes, no F6J readiness changes, no F6K acknowledgement changes, no F6L/F6O/F6R/F6U/F6W/F6Y source-pack behavior changes, no F6M delivery-readiness changes, no F6N review-summary changes, no F6P provider-boundary changes, no F6Q certification-boundary changes, no F6S human-confirmation changes, no F6T certification-safety changes, no F6Z final audit/handoff rewrite beyond tiny stale-line polish if needed, and no broad FP-0074/FP-0075/FP-0076 rewrite belong in F10.
 
-Decision: v1 public launch handoff outputs are plan contracts and active-doc agreement only.
-Rationale: F10 may define a launch handoff checklist as a plan contract, align active docs to shipped product truth, and require direct proof/smoke commands without adding scripts. It must not create a public launch artifact, launch announcement, report artifact, board packet, lender update, certification artifact, close-complete artifact, provider setup, delivery artifact, generated launch copy, or external communication.
+Decision: v1 public launch handoff outputs are the FP-0077 shipped record, active-doc agreement, and validation logs only.
+Rationale: F10 aligned active docs to shipped product truth and required direct proof/smoke commands without adding scripts. It did not create a public launch artifact, launch announcement, report artifact, board packet, lender update, certification artifact, close-complete artifact, provider setup, delivery artifact, generated launch copy, deployment automation, public release note, or external communication.
 
-Decision: likely later candidate slices are named but not created here.
-Rationale: possible later work includes F10 implementation/v1 public launch handoff closeout after this plan is reviewed and merged, deeper document precision/PDF/OCR/vector search if a source/evidence gap is proven, F6V actual provider integration, F6X actual certification, and public launch deployment or external communications only if a later roadmap/Finance Plan names exact scope.
-Do not create FP-0078 in this slice.
+Decision: later candidate slices are named but not created here.
+Rationale: possible later work includes deeper document precision/PDF/OCR/vector search if a source/evidence gap is proven, F6V actual provider integration, F6X actual certification, public launch deployment or external communications, and any F11-or-later work only if a later roadmap or Finance Plan names exact scope.
+No FP-0078 was created in this slice.
 
 ## Context and Orientation
 
@@ -85,7 +96,7 @@ FP-0073 is the shipped F6Z final F6/v1 exit audit and handoff record.
 FP-0074 is the shipped F7/v1 launch-readiness and active-doc hardening record.
 FP-0075 is the shipped F8/v1 future-scope triage and roadmap-hardening record.
 FP-0076 is the shipped F9 product UI launch-polish foundation record.
-This FP-0077 file is the active F10/v1 public launch handoff planning contract.
+This FP-0077 file is the shipped F10/v1 public launch handoff record.
 
 The shipped source-pack proof spine is:
 
@@ -122,12 +133,11 @@ No route, schema, migration, package script, smoke alias, eval dataset, fixture,
 ## Plan of Work
 
 First, preserve shipped F6/F7/F8/F9 truth.
-Refresh only stale wording that directly misstates shipped F9 or the new active FP-0077 handoff contract.
-The known FP-0076 closeout stale sentence may be replaced with shipped-record wording.
+The closeout refreshed only stale wording that directly misstated shipped F9 or FP-0077 after validation proved F10 was ready to ship.
 
-Second, define one public launch handoff contract.
-The contract is this FP-0077 file only.
-It narrows F10 to docs-and-validation-only public launch handoff planning and states which later candidate slices may be considered without creating them.
+Second, close one public launch handoff record.
+The record is this FP-0077 file only.
+It narrows F10 to docs-and-validation-only public launch handoff closeout and states which later candidate slices may be considered without creating them.
 
 Third, refresh only directly adjacent active docs.
 README, START_HERE, ACTIVE_DOCS, ROADMAP, local-dev, source-ingest/CFO Wiki, Codex App Server, seeded-missions, and evals may be touched only where they otherwise imply FP-0077 is absent, F10 is still merely future-only, F9 is awaiting PR review/merge, or source/CFO Wiki/runtime/eval docs imply provider, delivery, certification, report release, approval, generated prose, runtime-Codex finance actions, product-runtime eval behavior, or autonomous action.
@@ -137,7 +147,7 @@ Because F10 is docs-and-validation-only, validation proves that the plan and act
 
 ## Concrete Steps
 
-1. Create exactly one active F10 Finance Plan:
+1. Keep exactly one shipped F10 Finance Plan record:
    - `plans/FP-0077-v1-public-launch-handoff.md`
 
 2. Apply the embedded F9 freshness correction only where needed:
@@ -158,16 +168,16 @@ Because F10 is docs-and-validation-only, validation proves that the plan and act
    Specifically do not add or change routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, source-pack manifests, proof tools, monitor evaluators, mission behavior, runtime-Codex behavior, provider integrations, credentials, provider jobs, outbox send behavior, UI, approval workflows, report-release behavior, report-circulation behavior, certification behavior, close-complete behavior, source mutation behavior, finance writes, generated product prose, or autonomous actions.
 
 5. Record F10 handoff decisions:
-   - F10 is docs-and-validation-only public launch handoff planning.
+   - F10 is docs-and-validation-only public launch handoff closeout.
    - F10 is not provider integration.
    - F10 is not certification.
    - F10 is not deeper document precision, PDF, OCR, or vector search.
    - F10 is not product UI implementation.
    - F10 preserves shipped F6/F7/F8/F9 behavior.
    - F6V/F6X/deeper PDF-OCR-vector/deployment/external comms remain future-only.
-   - No FP-0078 is created.
+   - No FP-0078 was created.
 
-6. Record validation and closeout in this Progress section, Surprises & Discoveries, Decision Log, Validation and Acceptance, Artifacts and Notes, and Outcomes & Retrospective before this planning PR is ready.
+6. Record validation and closeout in this Progress section, Surprises & Discoveries, Decision Log, Validation and Acceptance, Artifacts and Notes, and Outcomes & Retrospective before this closeout PR is ready.
 
 ## Validation and Acceptance
 
@@ -210,16 +220,20 @@ Run DB-backed smokes serially:
 - `pnpm test`
 - `pnpm ci:repro:current`
 
+The full F10 closeout validation ladder passed before closeout edits with logs under `/tmp/pocket-cfo-f10-closeout-validation.20260504T185110Z.83707`.
+The required post-closeout minimum validation set passed with logs under `/tmp/pocket-cfo-f10-postclose-validation.20260504T190113Z.7448`.
+
 Acceptance requires:
 
-- exactly one active F10 Finance Plan exists: `plans/FP-0077-v1-public-launch-handoff.md`
+- exactly one shipped F10 Finance Plan record exists: `plans/FP-0077-v1-public-launch-handoff.md`
 - no FP-0078 exists
 - FP-0076 is preserved as the shipped F9 record with only tiny stale closeout wording corrected if needed
 - FP-0075 is preserved as the shipped F8 future-scope triage record
 - FP-0074 is preserved as the shipped F7 record
 - FP-0050 through FP-0073 are preserved as shipped F6 records
-- F10 remains docs-and-validation-only public launch handoff planning
+- F10 remains docs-and-validation-only public launch handoff closeout
 - no code, UI, route, schema, migration, package script, smoke alias, eval dataset, fixture, monitor family, discovery family, mission behavior, runtime-Codex, delivery, provider, outbox, approval, report, certification, close-complete, source mutation, finance write, generated product prose, or autonomous action is added
+- no public launch artifact, launch announcement, external communication, deployment automation, generated launch copy, public release note, legal/audit opinion, assurance artifact, delivery record, or close-complete artifact is added
 - shipped monitor families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`
 - shipped discovery families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, `spend_posture`, `obligation_calendar_review`, and `policy_lookup`
 - F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, public launch deployment/external comms, and later high-liability work remain future-plan-only
@@ -243,10 +257,10 @@ The validation ladder may create local proof setup state in the development data
 
 Artifacts created by this slice are:
 
-- this FP-0077 v1 public launch handoff planning contract
+- this FP-0077 v1 public launch handoff shipped record
 - tiny FP-0076 shipped-F9 closeout wording polish if still needed
 - minimal active-doc freshness edits
-- validation logs under `/tmp/pocket-cfo-f10-validation.20260504T180208Z.84471`
+- validation logs under `/tmp/pocket-cfo-f10-validation.20260504T180208Z.84471`, `/tmp/pocket-cfo-f10-closeout-validation.20260504T185110Z.83707`, and `/tmp/pocket-cfo-f10-postclose-validation.20260504T190113Z.7448`
 - a final human handoff that names the branch, commit, PR, changed files, validation results, gaps, and next recommendation
 
 This slice must not create code artifacts, migration artifacts, package scripts, smoke aliases, eval datasets, fixtures, provider configuration, outbox behavior, UI screens, approval workflows, report-release behavior, certification artifacts, close-complete artifacts, generated product prose artifacts, source mutations, finance writes, public launch artifacts, public launch announcements, board packets, lender updates, diligence packets, provider setup, delivery artifacts, or autonomous actions.
@@ -264,10 +278,13 @@ No GitHub connector work is expected.
 
 ## Outcomes & Retrospective
 
-This planning slice produced one active F10/v1 public launch handoff contract, minimal active-doc freshness edits, and no product runtime behavior.
-Final validation passed with logs under `/tmp/pocket-cfo-f10-validation.20260504T180208Z.84471`.
+F10 shipped the v1 public launch handoff closeout only.
+FP-0077 is now the shipped F10/v1 public launch handoff record.
+The closeout produced minimal active-doc freshness edits and no product runtime behavior.
+Final pre-closeout validation passed with logs under `/tmp/pocket-cfo-f10-closeout-validation.20260504T185110Z.83707`; post-closeout minimum validation passed with logs under `/tmp/pocket-cfo-f10-postclose-validation.20260504T190113Z.7448`; the earlier planning validation remains recorded under `/tmp/pocket-cfo-f10-validation.20260504T180208Z.84471`.
 The validation ladder verified the shipped source-pack proof posture, shipped F9 read-only UI posture by web specs/typecheck, shipped safety-boundary posture, active-doc truthfulness, fixed monitor-family posture, fixed discovery-family posture, and repo-wide reproducibility.
 
-F10 implementation must not start from this planning thread.
-The next implementation step should be the F10/v1 public launch handoff closeout only after FP-0077 is reviewed and merged.
-F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, public launch deployment/external communications, and later high-liability work remain future-plan-only.
+No public launch artifact, launch announcement, external communication, deployment automation, generated launch copy, public release note, board packet, lender update, diligence packet, approval, report release, report circulation, certification, certified status, close-complete record, sign-off, attestation, assurance, legal opinion, audit opinion, delivery record, provider setup, provider call, provider credential, provider job, outbox send, runtime-Codex output, generated product prose, source mutation, finance write, payment behavior, monitor family, discovery family, mission behavior, UI, route, schema, migration, package script, smoke alias, eval dataset, fixture, or autonomous action was added.
+No FP-0078 was created.
+
+F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, public launch implementation beyond this docs-and-validation closeout, deployment/external communications, F11, and later high-liability work remain future-plan-only.
