@@ -842,7 +842,7 @@ Subsequent shipped and future slices:
 - F6X actual certification, future only after operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, non-advice constraints, and non-legal-opinion boundaries are proven
 - F9 product UI launch polish, now shipped in `plans/FP-0076-product-ui-launch-polish-foundation.md` and bounded away from provider, certification, delivery, approval, report-release, legal/audit, generated-prose, finance-action, and autonomous-action behavior
 - deeper document precision/PDF/OCR/vector search, future only if a source/evidence gap is proven and provenance, freshness, limitations, and no-generated-prose boundaries stay intact
-- v1 public launch handoff, now narrowed by active `plans/FP-0077-v1-public-launch-handoff.md` to docs-and-validation-only planning; F10 implementation, deployment, and external comms remain future-only until a later reviewed Finance Plan names concrete scope
+- v1 public launch handoff, now shipped in `plans/FP-0077-v1-public-launch-handoff.md` as docs-and-validation-only closeout; public launch implementation beyond docs-and-validation, deployment, external comms, launch announcements, and generated launch copy remain future-only until a later reviewed Finance Plan names concrete scope
 
 ## F9 - product UI launch polish foundation
 
@@ -879,19 +879,19 @@ Candidate future slices, not created here:
 - deeper document precision/PDF/OCR/vector search, future only if a source/evidence gap is proven
 - F6V actual provider integration, future only
 - F6X actual certification, future only
-- v1 public launch handoff is now planned in `plans/FP-0077-v1-public-launch-handoff.md` as F10 docs-and-validation-only planning
-- F10 implementation, deployment/external comms, F6V, F6X, deeper PDF/OCR/vector search, and later work remain future-only unless a later reviewed Finance Plan names exact scope
+- v1 public launch handoff is now shipped in `plans/FP-0077-v1-public-launch-handoff.md` as F10 docs-and-validation-only closeout
+- public launch implementation beyond docs-and-validation, deployment/external comms, launch announcements, generated launch copy, F6V, F6X, deeper PDF/OCR/vector search, and later work remain future-only unless a later reviewed Finance Plan names exact scope
 
 ## F10 - v1 public launch handoff
 
-Active planning contract: `plans/FP-0077-v1-public-launch-handoff.md`.
+Shipped record: `plans/FP-0077-v1-public-launch-handoff.md`.
 
 Purpose:
 
-- one v1 public launch handoff planning slice only
+- one v1 public launch handoff closeout only
 - docs-and-validation only
 - no product runtime behavior
-- no FP-0078 created in the planning slice
+- no FP-0078 created in F10
 
 Scope boundaries:
 
@@ -910,12 +910,12 @@ F10 decision contract:
 - F10 is not deeper document precision, PDF, OCR, or vector search
 - F10 is not product UI implementation
 - F10 preserves shipped F6/F7/F8/F9 behavior
-- F10 defines v1 public launch handoff outputs as a plan contract only, without creating product artifacts
-- F10 verifies shipped source-pack proof posture and shipped safety-boundary posture before any later implementation closeout
+- F10 closed v1 public launch handoff outputs as the FP-0077 shipped record, active-doc agreement, and validation logs only, without creating product artifacts
+- F10 verified shipped source-pack proof posture and shipped safety-boundary posture before closing this docs-and-validation handoff
 
 Candidate future slices, not created here:
 
-- F10 implementation/v1 public launch handoff closeout only after FP-0077 is reviewed and merged
+- one more narrow v1 handoff correction only if a future Finance Plan names a concrete docs/validation gap
 - deeper document precision/PDF/OCR/vector search, future only if a source/evidence gap is proven
 - F6V actual provider integration, future only
 - F6X actual certification, future only
