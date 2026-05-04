@@ -15,6 +15,7 @@ This repo is now past the Pocket CFO pivot-foundation reset, through the F1 sour
 That means two things are true at once:
 
 `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` is now the shipped F6Z final audit/handoff record. It is docs-and-validation-only; it did not start provider integration, actual certification, report release, delivery, approvals, runtime-Codex, source mutation, finance writes, autonomous action, or product runtime behavior.
+`plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md` is now the active F7/v1 launch-readiness and active-doc hardening contract. It lists direct proof and smoke commands only, adds no package scripts or smoke aliases, and does not start product runtime behavior, provider integration, actual certification, delivery, report release, approval workflow, runtime-Codex, generated prose, source mutation, finance writes, FP-0075, or autonomous action.
 
 - the active docs now define a finance evidence product
 - parts of the working codebase still reflect the older Pocket CTO implementation

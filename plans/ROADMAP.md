@@ -760,3 +760,49 @@ Slice map:
   - docs-and-validation only
   - no product runtime behavior, route, schema, migration, package script, smoke alias, eval dataset, fixture, monitor family, discovery family, provider integration, outbox/send/delivery behavior, report creation/release/circulation, approval workflow, actual certification, legal/audit opinion, runtime-Codex, generated prose, source mutation, finance write, or autonomous action
   - preserves shipped F6A through F6Y behavior and validates the shipped source-pack proof posture plus safety-boundary posture before later provider or certification planning
+
+## F7 — v1 launch-readiness and active-doc hardening
+
+Active record: `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md`.
+
+Purpose:
+
+- one v1 launch-readiness and active-doc hardening slice only
+- docs-and-validation only
+- no product runtime behavior
+- no FP-0075 in this slice
+
+Scope boundaries:
+
+- no route, schema, migration, package script, smoke alias, eval dataset, fixture, monitor family, discovery family, UI, mission behavior, runtime-Codex, provider integration, outbox/send/delivery behavior, report creation/release/circulation, approval workflow, actual certification, legal/audit opinion, generated prose, source mutation, finance write, or autonomous action
+- no F6A/F6C/F6D/F6E monitor evaluator changes
+- no F6B/F6G mission handoff changes
+- no F6H/F6J/F6K/F6M/F6N/F6P/F6Q/F6S/F6T behavior changes
+- no F6L/F6O/F6R/F6U/F6W/F6Y source-pack implementation changes
+- no broad FP-0073 rewrite beyond a tiny handoff clarification if needed
+
+Launch-readiness outputs:
+
+- active docs describe current shipped product truth
+- README, START_HERE, ACTIVE_DOCS, PLANS, and ROADMAP agree that FP-0050 through FP-0073 are shipped F6 records and FP-0074 is the active F7 plan
+- local-dev lists direct proof and smoke commands without adding scripts
+- source-ingest/CFO Wiki docs do not imply provider integration, delivery, report release, certification, approval, source mutation, finance writes, or autonomous action
+- Codex App Server docs do not imply runtime-Codex finance actions, launch-readiness drafting, notification prose, or external communications
+- seeded-missions and evals docs do not imply generated prose or product-runtime eval behavior
+- no report artifact, board packet, lender update, certification artifact, close-complete artifact, provider setup, delivery artifact, approval workflow, or product artifact is created
+
+Validation posture:
+
+- verify direct source-pack proofs for F6L, F6O, F6R, F6U, F6W, and F6Y
+- verify raw fixture immutability where each shipped proof asserts it
+- verify normalized expected-output posture where each shipped proof asserts it
+- verify shipped monitor families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`
+- verify shipped discovery families remain exactly `cash_posture`, `collections_pressure`, `payables_pressure`, `spend_posture`, `obligation_calendar_review`, and `policy_lookup`
+- verify delivery-readiness is not actual delivery, provider-boundary is not provider integration, certification-boundary is not actual certification, human-confirmation is no-send/no-provider/no-outbox, and certification-safety is non-certifying
+
+Future-only posture:
+
+- F6V actual provider integration remains future only, after provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, credential boundaries, provider-job boundaries, outbox boundaries, and no autonomous send are proven
+- F6X actual certification remains future only, after operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, non-advice constraints, and non-legal-opinion boundaries are proven
+- deeper document precision, PDF, OCR, or vector search remains future only if a later plan proves a source/evidence gap
+- product UI launch polish remains future only if a later plan names exact UX scope and avoids provider, certification, delivery, report-release, approval, and autonomous-action behavior
