@@ -28,7 +28,7 @@ Do not invoke GitHub Connector Guard for F7.
 - [x] 2026-05-04T14:11:10Z Ran implementation-thread preflight against fetched `origin/main`, confirmed branch `codex/f7-v1-launch-readiness-and-active-doc-hardening-local-v1`, confirmed `HEAD` matched `origin/main`, confirmed a clean worktree, confirmed GitHub auth/repo access, and confirmed Docker Postgres plus object storage were up.
 - [x] 2026-05-04T14:11:10Z Re-read the active doc spine, shipped FP-0073/F6Z record, shipped FP-0072/F6Y, FP-0071/F6W, and FP-0070/F6T records, package scripts, source-pack manifests, proof tools, and the source, wiki, Finance Twin, monitoring, close/control, safety-boundary, reporting, approval, and outbox module boundaries.
 - [x] 2026-05-04T14:11:10Z Ran the full F7 launch-readiness validation ladder before closeout edits; all requested source-pack proofs, DB-backed smokes, focused domain/control-plane/twin specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed with logs under `/tmp/pocket-cfo-f7-validation.6bGpFu`.
-- [x] 2026-05-04T14:11:10Z Closed F7 as docs-and-validation-only launch-readiness and active-doc hardening: refreshed only directly stale active-doc lines, left runtime code untouched, kept F6V/F6X future-plan-only, and created no FP-0075.
+- [x] 2026-05-04T14:11:10Z Closed F7 as docs-and-validation-only launch-readiness and active-doc hardening: refreshed only directly stale active-doc lines, left runtime code untouched, kept F6V/F6X future-plan-only, and created no FP-0075 during F7.
 - [x] 2026-05-04T14:23:41Z Ran the required post-closeout validation minimum after active-doc edits; `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed with logs under `/tmp/pocket-cfo-f7-postclose-validation.cCBtEx`.
 
 ## Surprises & Discoveries
@@ -208,7 +208,7 @@ Run DB-backed smokes serially:
 Acceptance requires:
 
 - exactly one shipped F7 Finance Plan record exists: `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md`
-- no FP-0075 exists
+- no FP-0075 exists in the F7 slice
 - F7 remains narrowed to docs-and-validation-only launch-readiness and active-doc hardening
 - no code, route, schema, migration, package script, smoke alias, eval dataset, fixture, UI, monitor family, discovery family, runtime-Codex, delivery, provider, outbox, approval, report, certification, close-complete, source mutation, finance write, generated product prose, or autonomous action is added
 - active docs agree that FP-0050 through FP-0073 are shipped F6 records and FP-0074 is the shipped F7 record
@@ -260,6 +260,9 @@ FP-0073 remains the shipped F6Z final F6/v1 exit audit and handoff record.
 F6V provider integration and F6X actual certification remain future-plan-only.
 F8, v1 launch polish, product UI launch polish, deeper PDF/OCR/vector search, provider integration, certification, and later work require a future roadmap update or Finance Plan.
 No FP-0075 was created.
+
+FP-0075 now exists as the later active F8/v1 future-scope triage and roadmap-hardening contract that this F7 handoff deferred to.
+It does not change shipped F7 and does not start F8 implementation, F6V provider integration, F6X actual certification, product UI launch polish, deeper PDF/OCR/vector search, or product runtime behavior.
 
 The final validation ladder passed before closeout edits, including the six direct source-pack proofs and `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-f7-validation.6bGpFu`.
 Post-closeout rerun results are recorded in Progress.

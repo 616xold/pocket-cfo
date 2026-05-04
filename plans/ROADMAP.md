@@ -770,7 +770,7 @@ Purpose:
 - one v1 launch-readiness and active-doc hardening closeout only
 - docs-and-validation only
 - no product runtime behavior
-- no FP-0075 was created
+- no FP-0075 was created during F7
 
 Scope boundaries:
 
@@ -806,3 +806,40 @@ Future-only posture:
 - F6X actual certification remains future only, after operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, non-advice constraints, and non-legal-opinion boundaries are proven
 - deeper document precision, PDF, OCR, or vector search remains future only if a later plan proves a source/evidence gap
 - product UI launch polish remains future only if a later plan names exact UX scope and avoids provider, certification, delivery, report-release, approval, and autonomous-action behavior
+
+## F8 - v1 future-scope triage and roadmap hardening
+
+Active record: `plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md`.
+
+Purpose:
+
+- one future-scope decision and roadmap-hardening slice only
+- docs-and-validation only
+- no product runtime behavior
+- no FP-0076 created
+
+Scope boundaries:
+
+- no route, schema, migration, package script, smoke alias, eval dataset, fixture, monitor family, discovery family, UI, mission behavior, runtime-Codex, provider integration, outbox/send/delivery behavior, report creation/release/circulation, approval workflow, actual certification, legal/audit opinion, generated prose, source mutation, finance write, or autonomous action
+- no F6A/F6C/F6D/F6E monitor evaluator changes
+- no F6B/F6G mission handoff changes
+- no F6H/F6J/F6K/F6M/F6N/F6P/F6Q/F6S/F6T behavior changes
+- no F6L/F6O/F6R/F6U/F6W/F6Y source-pack implementation changes
+- no F6Z final audit rewrite and no broad FP-0074 rewrite
+
+F8 decision contract:
+
+- F8 is not a product feature slice
+- F8 does not implement F6V provider integration
+- F8 does not implement F6X actual certification
+- F8 does not implement product UI launch polish
+- F8 does not implement deeper document precision, PDF, OCR, or vector search
+- F8 preserves shipped F6 and F7 posture
+
+Candidate future slices, not created here:
+
+- F6V actual provider integration, future only after provider security, compliance posture, human confirmation, observability, retry behavior, safe failure modes, credential boundaries, provider-job boundaries, outbox boundaries, and no autonomous send are proven
+- F6X actual certification, future only after operator need, legal boundaries, evidence boundaries, review gates, assurance constraints, non-advice constraints, and non-legal-opinion boundaries are proven
+- F9 product UI launch polish, future only if roadmap-approved and bounded away from provider, certification, delivery, approval, report-release, legal/audit, generated-prose, finance-action, and autonomous-action behavior
+- F9 document precision/PDF/OCR/vector search, future only if a source/evidence gap is proven and provenance, freshness, limitations, and no-generated-prose boundaries stay intact
+- v1 public launch handoff, future only if a future roadmap/Finance Plan names concrete scope
