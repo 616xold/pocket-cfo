@@ -53,7 +53,7 @@ This F6Z planning thread is the later named Finance Plan candidate that FP-0072 
 
 The final F6Z validation audit found no shipped F6A through F6Y proof gap.
 The only stale posture found during closeout was adjacent documentation that still described FP-0073/F6Z as active or implementation-ready after the final audit had passed; those docs were refreshed to shipped F6Z posture.
-No FP-0074 was created during F6Z; FP-0074 was created later as the active F7/v1 launch-readiness planning candidate.
+No FP-0074 was created during F6Z; FP-0074 was created later and is now the shipped F7/v1 launch-readiness and active-doc hardening record.
 
 ## Decision Log
 
@@ -73,7 +73,7 @@ Decision: F6Z preserves shipped F6 behavior.
 Rationale: no F6A/F6C/F6D/F6E monitor evaluator changes, no F6B/F6G mission handoff changes, no F6H checklist changes, no F6J readiness changes, no F6K acknowledgement changes, no F6L/F6O/F6R/F6U/F6W/F6Y source-pack behavior changes, no F6M delivery-readiness changes, no F6N review-summary changes, no F6P provider-boundary changes, no F6Q certification-boundary changes, no F6S human-confirmation changes, and no F6T certification-safety changes belong in F6Z.
 
 Decision: later slices are named but not created here.
-Rationale: likely post-F6/v1 slices include F6V actual provider integration, F6X actual certification, F7 or v1 launch polish only if a new roadmap or Finance Plan names concrete scope, and deeper document precision, PDF, OCR, or vector search only if a future plan proves a source/evidence gap. Do not create FP-0074 in the F6Z slice; FP-0074 was created later as the active F7/v1 launch-readiness planning candidate.
+Rationale: likely post-F6/v1 slices include F6V actual provider integration, F6X actual certification, F8 or v1 launch polish only if a new roadmap or Finance Plan names concrete scope, and deeper document precision, PDF, OCR, or vector search only if a future plan proves a source/evidence gap. Do not create FP-0074 in the F6Z slice; FP-0074 was created later and shipped as the F7/v1 launch-readiness and active-doc hardening record.
 
 Decision: FP-0073 is the shipped F6Z final audit/handoff record.
 Rationale: the final validation audit passed against shipped F6A through F6Y source/proof/safety posture, and this closeout changed only plan and adjacent docs.
@@ -279,7 +279,7 @@ F6S remains no-send/no-provider/no-outbox human-confirmation/delivery-preflight 
 F6P remains provider-boundary/readiness only, not provider integration.
 F6Q remains certification-boundary/readiness only, not actual certification.
 F6V provider integration and F6X actual certification remain future-plan-only.
-FP-0074 now exists as the later F7/v1 launch-readiness planning candidate this F6Z handoff deferred to.
-FP-0074 does not change shipped F6Z and does not start F7 implementation, F6V, F6X, provider integration, actual certification, or product runtime behavior.
+FP-0074 now exists as the later shipped F7/v1 launch-readiness and active-doc hardening record this F6Z handoff deferred to.
+FP-0074 does not change shipped F6Z and did not start F6V, F6X, provider integration, actual certification, F8, v1 launch polish, or product runtime behavior.
 
 Recommendation for the next thread: F6V/F6X planning may start next only under a new future Finance Plan; no additional F6/v1 closeout correction is needed from the F6Z audit.

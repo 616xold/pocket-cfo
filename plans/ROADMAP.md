@@ -763,14 +763,14 @@ Slice map:
 
 ## F7 — v1 launch-readiness and active-doc hardening
 
-Active record: `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md`.
+Shipped record: `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md`.
 
 Purpose:
 
-- one v1 launch-readiness and active-doc hardening slice only
+- one v1 launch-readiness and active-doc hardening closeout only
 - docs-and-validation only
 - no product runtime behavior
-- no FP-0075 in this slice
+- no FP-0075 was created
 
 Scope boundaries:
 
@@ -779,12 +779,12 @@ Scope boundaries:
 - no F6B/F6G mission handoff changes
 - no F6H/F6J/F6K/F6M/F6N/F6P/F6Q/F6S/F6T behavior changes
 - no F6L/F6O/F6R/F6U/F6W/F6Y source-pack implementation changes
-- no broad FP-0073 rewrite beyond a tiny handoff clarification if needed
+- no broad FP-0073 rewrite beyond the tiny F7 handoff clarification
 
 Launch-readiness outputs:
 
 - active docs describe current shipped product truth
-- README, START_HERE, ACTIVE_DOCS, PLANS, and ROADMAP agree that FP-0050 through FP-0073 are shipped F6 records and FP-0074 is the active F7 plan
+- README, START_HERE, ACTIVE_DOCS, PLANS, and ROADMAP agree that FP-0050 through FP-0073 are shipped F6 records and FP-0074 is the shipped F7 record
 - local-dev lists direct proof and smoke commands without adding scripts
 - source-ingest/CFO Wiki docs do not imply provider integration, delivery, report release, certification, approval, source mutation, finance writes, or autonomous action
 - Codex App Server docs do not imply runtime-Codex finance actions, launch-readiness drafting, notification prose, or external communications
