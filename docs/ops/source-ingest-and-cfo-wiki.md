@@ -1,5 +1,7 @@
 # Source ingest and CFO Wiki
 
+For current shipped-state detail, see `docs/PROJECT_STATE.md`. For the F11/V2 authority and safety boundary, see `docs/V2_BOUNDARY.md`.
+
 This doc operationalizes the Pocket CFO design choice that matters most for the pivot:
 
 > finance evidence becomes the product boundary, and a compiled markdown wiki sits beside the Finance Twin rather than replacing it.
@@ -688,4 +690,4 @@ Pocket CFO should be:
 
 **Source Registry + Finance Twin + CFO Wiki + Mission/Proof Control Plane**
 
-not a shallow rename of the old GitHub-first Pocket CTO slice.
+not a shallow rename of the old GitHub-first Pocket CTO product. Pocket CTO references in active docs are historical context or internal scaffolding only.

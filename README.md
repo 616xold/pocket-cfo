@@ -1,292 +1,58 @@
 # Pocket CFO
 
-Pocket CFO is an evidence-native finance discovery and decision system.
+Pocket CFO is an evidence-native finance cockpit that turns raw company exports and documents into a persisted Finance Twin, a compiled CFO Wiki, and proof-backed answers a human can review outside chat.
 
-It is **not** a generic finance chatbot and it is **not** an autonomous accounting agent.
-It turns messy finance questions and raw source bundles into typed finance missions, a persisted Finance Twin, a compiled CFO Wiki, and decision-ready evidence artifacts.
+## Problem And Niche
 
-## Current repo state
+Small-company finance work often lives in fragile spreadsheets, email attachments, bank exports, board materials, policy docs, and half-remembered context. The hard part is not making an assistant sound finance-fluent. The hard part is keeping evidence, freshness, limitations, and review boundaries intact while answering real operating questions.
 
-This repository is past the pivot-foundation reset and the first narrow finance-twin slices.
+Pocket CFO is aimed at a single finance operator or founder who needs a local, auditable system for:
 
-The active guidance layer now describes **Pocket CFO**.
-Some code, package names, database names, and legacy modules still say `pocket-cto`.
-Treat those as implementation scaffolding, not as product direction.
-The control-plane spine stays; the finance evidence substrate is what changes.
+- registering raw finance source truth
+- deriving deterministic structured finance state
+- compiling readable finance knowledge pages
+- answering supported finance questions with provenance
+- producing durable proof, memo, packet, monitoring, and readiness artifacts without pretending those are external actions
 
-Read `docs/ACTIVE_DOCS.md` before trusting older plans or engineering-era docs.
+## Hero Demo Story
 
-Post-F10, `plans/FP-0078-public-repo-hygiene-and-v2-transition.md` is the active F11 public repo hygiene and V2 transition contract.
-It is an implementation-ready docs-and-plan contract only; it has not started V2 feature implementation, package renaming, provider integration, certification, deployment, or external communications.
+A founder drops a bundle of bank-account summaries, receivables aging, payables aging, ledger exports, policy documents, board materials, and lender documents into Pocket CFO.
 
-Today the merged backbone is:
+Pocket CFO registers each raw file with checksum and provenance, syncs supported CSVs into the Finance Twin, compiles the CFO Wiki, runs deterministic discovery and monitor paths, and returns a source-backed answer such as cash posture or collections pressure with freshness, limitations, related wiki pages, and proof references. A human can then inspect the evidence bundle before using any conclusion elsewhere.
 
-- F1 raw source registration and immutable file ingest
-- F2A deterministic trial-balance CSV sync into the Finance Twin
-- F2B deterministic chart-of-accounts CSV sync and account-catalog reads
-- F2C deterministic general-ledger CSV sync and persisted journal-entry or journal-line state
-- F2D additive company snapshot and lineage reads across the latest successful implemented finance slices
-- F2E additive backend-first reconciliation-readiness reads, source-grounded slice-alignment truthfulness, and more specific general-ledger activity lineage drill behavior
-- F2F additive reporting-window truth hardening, explicit general-ledger period-context reads, and period-scoped reconciliation semantics without fake variance
-- F2G additive matched-period account-bridge-readiness reads plus chart-of-accounts-backed unmatched diagnostics without inventing a numeric bridge
-- F2H additive balance-bridge-prerequisites reads for trial-balance-versus-general-ledger account scope, explicit account-level proof diagnostics, and diagnostic-versus-limitation hardening without fake bridge numbers or variance
-- F2I additive source-backed general-ledger opening-balance and ending-balance proof support from explicit persisted fields only, plus snapshot diagnostic-versus-limitation polish
-- F2J additive backend-first balance-proof lineage drill and read behavior on top of persisted proof rows and lineage
-- F2K additive deterministic `bank_account_summary_csv` extraction plus backend-first bank-account inventory and cash-posture reads without fake FX conversion, transaction detail, or bank reconciliation
-- F2L additive deterministic `receivables_aging_csv` extraction plus backend-first receivables-aging and collections-posture reads without fake invoice detail, expected cash timing, reserve logic, or DSO
-- F2M additive deterministic `payables_aging_csv` extraction plus backend-first payables-aging and payables-posture reads without fake bill detail, expected payment timing, reserve logic, or DPO
-- F2N additive deterministic `contract_metadata_csv` extraction plus backend-first contract inventory and obligation-calendar reads without clause parsing, legal interpretation, payment forecasting, or covenant logic
-- F2O additive deterministic `card_expense_csv` extraction plus backend-first spend-item inventory and spend-posture reads without fake policy scores, reimbursement inference, accrual logic, or payment forecasting
-- F3A additive deterministic CFO Wiki foundation with persisted compile runs, compiler-owned pages, page links, and page refs for one company, compiled only from stored source-inventory metadata plus Finance Twin state
-- F3B additive company-scoped CFO Wiki document bindings, deterministic markdown or plain-text document extracts from stored raw bytes, compiler-owned source digest pages, and route-backed backlinks while unsupported PDFs or fileless snapshots remain visible as gaps
-- F3C additive persisted CFO Wiki lint runs and findings, deterministic markdown-first export runs, and ownership-safe filed artifact pages preserved across later compiler-owned compiles
-- F3D additive deterministic concept pages, metric-definition pages, and policy pages compiled from fixed registries plus explicit `policy_document` bindings while unsupported policy extracts remain visible as gaps
-- F4A additive deterministic finance-discovery missions for one typed `cash_posture` question family, backed only by stored Finance Twin plus stored CFO Wiki state, with durable answer artifacts and finance-ready proof bundles
-- F4B additive deterministic finance-discovery missions for four more typed families already grounded in shipped Finance Twin plus CFO Wiki state: `collections_pressure`, `payables_pressure`, `spend_posture`, and `obligation_calendar_review`
-- F4C1 additive deterministic finance-discovery missions for one explicit-source `policy_lookup` family, requiring `policySourceId` and answering only from scoped `policy_document` wiki state plus bound-source extract posture
-- F4C2 additive discovery-quality hardening for the shipped six-family baseline: deterministic policy-document selection from the existing bound-source route, additive policy source-scope rendering across answer, mission, list, and proof-bundle surfaces, packaged `pnpm smoke:finance-discovery-quality:local`, and finance-native `pnpm eval:finance-discovery-quality` report capture
-- F6A additive deterministic monitoring foundation for one first `cash_posture` monitor over stored Finance Twin cash-posture state, with persisted monitor results, source freshness or missing-source posture, lineage, limitations, proof posture, and an operator alert-card read model when source-backed conditions warrant it
-- F6B additive manual alert-to-investigation handoff from one persisted alerting `cash_posture` monitor result into one deterministic taskless mission, with source ref, freshness or missing-source posture, lineage, limitations, proof posture, and human-review next step carried forward without runtime-codex, reports, approvals, notifications, delivery, or autonomous finance actions
-- F6C additive deterministic monitoring for one second monitor family, `collections_pressure`, over stored Finance Twin receivables-aging / collections-posture state only, with one persisted monitor result plus optional operator alert-card posture carrying source lineage, freshness or missing-source posture, deterministic severity rationale, limitations, proof posture, and a human-review next step while remaining investigation-free for collections
-- F6D additive deterministic monitoring for one third monitor family, `payables_pressure`, over stored Finance Twin payables-aging / payables-posture state only, with one persisted monitor result plus optional operator alert-card posture carrying source lineage, freshness or missing-source posture, deterministic severity rationale, limitations, proof posture, and a human-review next step while remaining investigation-free, delivery-free, runtime-free, payment-free, and non-autonomous
-- F6E additive deterministic monitoring for one fourth monitor family, `policy_covenant_threshold`, over stored CFO Wiki policy-document posture and explicit comparable Finance Twin collections/payables posture only, with exact grammar threshold facts, fail-closed coverage/data-quality posture, source lineage, proof posture, and no investigations, delivery, runtime-Codex, legal/policy advice, payments, reports, approvals, or autonomous finance actions
-- F6F additive checked-in Pocket CFO monitor demo stack-pack fixture set plus deterministic replay smoke, bootstrapping one demo company from immutable bank/cash, receivables-aging, payables-aging, and policy threshold sources, verifying the four shipped monitor families, and proving the shipped monitor handoff boundary while staying runtime-free, delivery-free, report-free, approval-free, payment-free, legal/policy-advice-free, and non-autonomous
-- F6G additive manual alert-to-investigation handoff from one persisted alerting `collections_pressure` monitor result into one deterministic taskless mission, preserving shipped `cash_posture` handoff behavior while keeping `payables_pressure` and `policy_covenant_threshold` investigations rejected and avoiding runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, and autonomous finance actions
-- F6H additive deterministic close/control checklist foundation from stored Finance Twin source posture, stored CFO Wiki policy/source posture, and latest persisted monitor results as context only, with review/blocked statuses, explicit absence boundaries, and no monitor reruns, missions, reports, approvals, delivery, runtime-Codex, accounting/bank/tax writes, legal/policy advice, payment behavior, collection/customer-contact instructions, or autonomous actions
-- F6I additive close/control expected-output expansion for the existing `pocket-cfo-monitor-demo` stack-pack, extending `pnpm smoke:monitor-demo-replay:local` so the existing replay proof also verifies normalized F6H checklist posture, raw fixture immutability, absence boundaries, and no new monitor or discovery families
-- F6J additive deterministic internal operator attention/readiness read model from latest persisted monitor results, close/control checklist posture, source/freshness posture, and proof posture only, with explicit runtime/action absence boundaries and no monitor reruns, missions, reports, approvals, delivery, runtime-Codex, payment behavior, legal/policy advice, collection/customer-contact instructions, or new monitor/discovery families
-- F6K additive deterministic internal close/control acknowledgement-readiness read model from shipped close/control checklist posture and operator-readiness posture only, with source/freshness posture, proof posture, limitations, human-review next step, and explicit absence boundaries proving no approval, close-complete status, delivery, outbox send, report, mission creation, monitor rerun, runtime-Codex, finance write, legal/policy advice, collection/customer-contact instruction, autonomous action, new monitor family, or new discovery family
-- F6L additive checked-in bank/card source-pack foundation with one `pocket-cfo-bank-card-source-pack` manifest, immutable bank-account-summary and card-expense CSV fixtures, normalized expected source/twin posture, and a direct deterministic proof at `pnpm exec tsx tools/bank-card-source-pack-proof.mjs` using existing source registry and Finance Twin routes only
-- F6M additive deterministic internal delivery-readiness boundary read model from shipped F6J operator-readiness and F6K acknowledgement-readiness posture only, with delivery-readiness targets, evidence/source/freshness/proof posture, limitations, human-review next steps, and explicit absence boundaries proving no external delivery, notification provider, outbox send, email, Slack, SMS, webhook, generated notification prose, report, approval, mission creation, monitor rerun, source mutation, runtime-Codex, finance write, advice, collection/customer-contact instruction, autonomous action, new monitor family, or new discovery family
-- F6N additive deterministic internal close/control review-summary read model from shipped F6H checklist, F6J operator-readiness, F6K acknowledgement-readiness, and F6M delivery-readiness posture only, with bounded review sections, evidence/source/freshness/proof posture, limitations, human-review next steps, company-scope guardrails, and explicit absence boundaries proving no certification, close-complete status, sign-off, attestation, approval, report release, report circulation, external delivery, provider call, outbox send, generated prose, mission creation, monitor rerun/result creation, source mutation, runtime-Codex, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
-- F6O additive checked-in receivables/payables source-pack foundation with one `pocket-cfo-receivables-payables-source-pack` manifest, immutable receivables-aging and payables-aging CSV fixtures, normalized expected source/twin posture, and a direct deterministic proof at `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs` using existing source registry and Finance Twin routes only
-- F6P additive deterministic internal external-provider-boundary/readiness read model from shipped F6M delivery-readiness and F6N close/control review-summary posture only, with provider-boundary targets, evidence/source/freshness/proof posture, limitations, human-review next steps, company-scope guardrails, and explicit absence boundaries proving no provider calls, provider credentials, provider jobs, delivery, outbox sends, email, Slack, SMS, webhook, generated notification prose, generated prose, report creation, report release, approvals, missions, monitor reruns/results, source mutation, runtime-Codex, finance writes, advice/instructions, autonomous action, new monitor family, or new discovery family
-- F6Q additive deterministic internal close/control certification-boundary/readiness read model from shipped F6N review-summary and F6P provider-boundary posture only, with bounded certification-boundary targets, evidence/source/freshness/proof posture, limitations, human-review next steps, company-scope guardrails, and explicit absence boundaries proving no actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, approval, report release, report circulation, external delivery, provider call, provider credential, provider job, outbox send, generated prose, mission creation, monitor rerun/result creation, source mutation, runtime-Codex, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
-- F6R additive checked-in contract/obligation source-pack foundation with one `pocket-cfo-contract-obligation-source-pack` manifest, immutable contract-metadata CSV fixture, normalized expected source/twin posture, and a direct deterministic proof at `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs` using existing source registry and Finance Twin contract/obligation routes only
-- F6S additive deterministic internal external-delivery human-confirmation / delivery-preflight boundary read model from shipped F6M delivery-readiness, F6P provider-boundary, F6Q certification-boundary, and F6N review-summary posture only, through `GET /external-delivery/companies/:companyKey/human-confirmation-boundary`, with bounded delivery-gate targets, evidence/source/freshness/proof posture, limitations, human-review next steps, company-scope guardrails, and explicit absence boundaries proving no actual external delivery, provider call, provider credential, provider job, outbox send, email, Slack, SMS, webhook, scheduled delivery, auto-send, generated notification prose, approval, report creation, report release, report circulation, certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, mission creation, monitor rerun/result creation, source mutation, runtime-Codex, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family
-- F6U additive checked-in ledger/reconciliation source-pack foundation with one `pocket-cfo-ledger-reconciliation-source-pack` manifest, immutable chart-of-accounts, trial-balance, and general-ledger CSV fixtures, normalized source/twin/reconciliation posture, and a direct deterministic proof at `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs` using existing source registry and Finance Twin sync/read/reconciliation routes only
-- F6W additive checked-in policy/covenant document source-pack foundation with one `pocket-cfo-policy-covenant-document-source-pack` manifest, immutable markdown and plain-text `policy_document` fixtures, normalized source/wiki/policy posture, and a direct deterministic proof at `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs` using existing source registry and CFO Wiki bind/compile/read routes only
-- F6Y additive checked-in board/lender document source-pack foundation with one `pocket-cfo-board-lender-document-source-pack` manifest, immutable markdown/plain-text `board_material` and `lender_document` fixtures, normalized source/wiki posture, and a direct deterministic proof at `pnpm exec tsx tools/board-lender-document-source-pack-proof.mjs` using existing source registry and CFO Wiki bind/compile/read routes only
-- F6Z shipped final F6/v1 exit audit and handoff record in `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md`, limited to docs-and-validation only with no product runtime behavior
+## Shipped Today
 
-`plans/FP-0072-board-lender-document-source-pack-foundation.md` is the shipped F6Y record.
-F6Y shipped one board/lender document source-pack foundation only, limited to existing `board_material` and `lender_document` document roles, source kind `document`, deterministic markdown/plain-text paths, existing source registry and CFO Wiki bind/compile/read routes, no product runtime behavior, and no F6V/F6X/F6Z implementation.
-`plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` is now the shipped F6Z final audit and handoff record; it added no F6V provider integration, F6X actual certification, report release, delivery, approvals, runtime-Codex, source mutation, finance writes, autonomous action, or product runtime behavior.
-`plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md` is the shipped F7/v1 launch-readiness and active-doc hardening record. It is docs-and-validation-only, added no product runtime behavior, created no FP-0075 during F7, and leaves F6V provider integration plus F6X actual certification future-plan-only. `plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md` is the shipped F8/v1 future-scope triage record; it is docs-and-validation-only and did not start F8 implementation, F6V provider integration, F6X actual certification, product UI launch polish, deeper PDF/OCR/vector search, delivery, approvals, report release, runtime-Codex, source mutation, finance writes, or autonomous action. `plans/FP-0076-product-ui-launch-polish-foundation.md` is the shipped F9 product UI launch-polish foundation record; F9 shipped read-only app/web navigation, copy, warning, and status-surface truthfulness only, with no backend runtime behavior. `plans/FP-0077-v1-public-launch-handoff.md` is the shipped F10/v1 public launch handoff record; it is docs-and-validation-only and does not start public launch implementation beyond docs-and-validation, deployment, external communications, launch announcements, generated launch copy, product runtime behavior, provider integration, certification, delivery, approvals, report release, runtime-Codex, source mutation, finance writes, generated prose, or autonomous action.
+The current v1 repository is shipped at the proof and handoff layer, not as a public hosted deployment.
 
-`plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` is now the shipped F6S record.
-F6S shipped exactly one deterministic internal external-delivery human-confirmation / delivery-preflight boundary foundation; it did not send, call providers, create credentials or provider jobs, create outbox sends, schedule delivery, auto-send, release/circulate reports, create approvals, certify, invoke runtime-Codex, generate prose, rerun monitors, create missions, mutate sources, write finance state, give advice/instructions, or take autonomous action.
+Shipped capabilities include:
 
-`plans/FP-0069-ledger-reconciliation-source-pack-foundation.md` is now the shipped F6U record.
-F6U shipped one ledger/reconciliation source-pack foundation only, with source roles limited to `chart_of_accounts`, `trial_balance`, and `general_ledger`, extractor keys limited to `chart_of_accounts_csv`, `trial_balance_csv`, and `general_ledger_csv`, proof surface limited to existing source registry and Finance Twin sync/read/reconciliation routes, direct proof command `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs`, no product runtime behavior, no package script or smoke alias, no new route, schema, migration, monitor family, discovery family, eval dataset, delivery, provider call, provider credential, provider job, outbox send, approval, report, certification, close-complete status, sign-off, attestation, legal/audit opinion, payment behavior, runtime-Codex, generated prose, finance action, source mutation outside proof upload/sync setup, advice/instruction, or autonomous action.
+- Source Registry for immutable raw source registration, snapshots, checksums, and provenance.
+- Finance Twin reads for account catalogs, general ledger state, trial-balance and reconciliation posture, cash, receivables, payables, spend, contracts, obligations, and source-backed balance proof.
+- CFO Wiki compilation for company, period, source coverage, source digest, concept, metric-definition, policy, lint, export, and filed artifact pages.
+- Mission Engine support for typed finance discovery, reporting, packets, review/readiness posture, and deterministic monitor handoffs.
+- Evidence and proof bundles that expose source lineage, freshness or missing-source posture, limitations, and absence boundaries.
+- Operator UI read-only truthfulness polish from F9, without backend runtime expansion.
+- Source-pack proof commands for bank/card, receivables/payables, contract/obligation, ledger/reconciliation, policy/covenant documents, and board/lender documents.
+- Fixed shipped monitor families: `cash_posture`, `collections_pressure`, `payables_pressure`, and `policy_covenant_threshold`.
+- Fixed shipped discovery families: `cash_posture`, `collections_pressure`, `payables_pressure`, `spend_posture`, `obligation_calendar_review`, and `policy_lookup`.
 
-`plans/FP-0070-close-control-certification-safety-foundation.md` is now the shipped F6T implementation record.
-F6T shipped one deterministic internal close/control certification-safety/readiness foundation through `GET /close-control/companies/:companyKey/certification-safety`, derived only from shipped F6Q certification-boundary, F6S human-confirmation, and F6N review-summary posture. It is explicitly not actual certification, certified status, close complete, sign-off, attestation, assurance, legal opinion, audit opinion, approval, report creation, report release, report circulation, external delivery, provider calls, provider credentials, provider jobs, outbox send behavior, scheduled delivery, auto-send, runtime-Codex, generated prose, mission creation, monitor rerun/result creation, source mutation, finance write, payment behavior, advice/instruction, customer-contact instruction, autonomous action, a new monitor family, or a new discovery family.
+For the phase ledger and exact shipped records, see [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md).
 
-`plans/FP-0071-policy-covenant-document-source-pack-foundation.md` is now the shipped F6W record.
-F6W shipped exactly one deterministic policy/covenant document source-pack foundation over existing source registry and CFO Wiki bind, compile, and read routes only, with direct proof `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs`. It added no new monitor family, discovery family, route, schema, migration, package script, smoke alias, eval dataset, UI, runtime-Codex, delivery, notification provider, provider call, provider credential, provider job, outbox send, report, report release, report circulation, approval, certification, certified status, close complete, sign-off, attestation, assurance, legal opinion, audit opinion, mission behavior, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation/certification-safety behavior, payment behavior, legal/policy advice, collection/customer-contact instruction, generated prose, source mutation outside proof upload/bind/compile setup, finance writes, or autonomous action.
+## What Pocket CFO Is Not
 
-`plans/FP-0072-board-lender-document-source-pack-foundation.md` is now the shipped F6Y record.
-F6Y shipped exactly one deterministic board/lender document source-pack foundation over existing source registry and CFO Wiki bind, compile, and read routes only, with direct proof `pnpm exec tsx tools/board-lender-document-source-pack-proof.mjs`. It added no new monitor family, discovery family, route, schema, migration, package script, smoke alias, eval dataset, UI, runtime-Codex, delivery, notification provider, provider call, provider credential, provider job, outbox send, report, board packet, lender update, report release, report circulation, approval, certification, certified status, close complete, sign-off, attestation, assurance, legal opinion, audit opinion, mission behavior, checklist/readiness/acknowledgement/delivery-readiness/review-summary/provider-boundary/certification-boundary/human-confirmation/certification-safety behavior, payment behavior, legal/policy/board/lender advice, collection/customer-contact instruction, generated prose, source mutation outside proof upload/bind/compile setup, finance writes, or autonomous action. `plans/FP-0073-final-f6-v1-exit-audit-and-handoff.md` is the shipped F6Z final audit/handoff record. `plans/FP-0074-v1-launch-readiness-and-active-doc-hardening.md` is the shipped F7/v1 launch-readiness and active-doc hardening record; F7 shipped docs-and-validation-only. `plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md` is now the shipped F8 future-scope triage record. `plans/FP-0076-product-ui-launch-polish-foundation.md` is the shipped F9 product UI launch-polish record for read-only app/web copy/navigation/status-surface polish only. `plans/FP-0077-v1-public-launch-handoff.md` is the shipped F10/v1 public launch handoff record; it remains docs-and-validation-only while F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, public launch implementation beyond docs-and-validation, deployment/external comms, and later work remain future-plan-only.
+Pocket CFO is not:
 
-`plans/FP-0064-receivables-payables-source-pack-foundation.md` is now the shipped F6O record.
-F6O adds one receivables/payables source-pack foundation only, with source roles limited to `receivables_aging` and `payables_aging`, extractor keys limited to `receivables_aging_csv` and `payables_aging_csv`, no package script or smoke alias, no new monitor or discovery families, and no product runtime behavior.
-`plans/FP-0065-external-provider-boundary-foundation.md` is now the shipped F6P record.
-F6P adds one deterministic internal provider-boundary/readiness foundation only, through `GET /external-provider-boundary/companies/:companyKey`, derived from shipped F6M/F6N posture and with no actual external delivery, provider calls, provider credentials, provider jobs, outbox sends, reports, approvals, generated prose, source mutation, runtime-Codex, finance actions, new monitor families, or new discovery families.
-`plans/FP-0066-close-control-certification-boundary-foundation.md` is now the shipped F6Q record.
-F6Q shipped one deterministic internal close/control certification-boundary/readiness foundation through `GET /close-control/companies/:companyKey/certification-boundary`, derived only from shipped F6N/F6P read posture and with no actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, approval, report release, report circulation, external delivery, provider call, provider credential, provider job, outbox send, generated prose, runtime-Codex, source mutation, finance write, advice/instruction, autonomous action, new monitor family, or new discovery family.
-`plans/FP-0067-contract-obligation-source-pack-foundation.md` is now the shipped F6R record.
-F6R adds one contract/obligation source-pack foundation only, with source role limited to `contract_metadata`, extractor key limited to `contract_metadata_csv`, direct proof command `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`, proof surface limited to existing source registry and Finance Twin contract/obligation routes, no product runtime behavior, no package script or smoke alias, no monitor or discovery family, and no delivery behavior.
-`plans/FP-0068-external-delivery-human-confirmation-boundary-foundation.md` is now the shipped F6S record for a non-sending internal human-confirmation boundary; it is not actual external delivery.
+- a generic finance chatbot
+- an autonomous accountant
+- a bank, payment, accounting, tax, legal, or assurance agent
+- a multi-tenant SaaS product in the current boundary
+- a provider-integration or external-delivery system
+- a certification, sign-off, close-complete, legal-opinion, or audit-opinion engine
+- a system where an LLM answer becomes source truth
 
-`plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` is now the shipped F6F record for one deterministic monitor demo replay and one stack-pack foundation.
-`plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` is now the shipped F6G record for the first collections-pressure alert-to-investigation handoff.
-F6G shipped only a manual, source-backed `collections_pressure` alert-to-investigation handoff from persisted alert monitor results; it preserves existing cash behavior and keeps payables, policy/covenant, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection instructions, customer-contact instructions, and autonomous action out of scope.
-`plans/FP-0057-close-control-checklist-foundation.md` is now the shipped F6H record for one deterministic close/control checklist foundation. That slice did not add F6I, monitor families, discovery families, monitor reruns, investigations, runtime-Codex, delivery, reports, approvals, accounting/bank/tax writes, payment behavior, legal/policy advice, collection/customer-contact instructions, or autonomous actions.
-`plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` is now the shipped F6I record. F6I extended the existing `pocket-cfo-monitor-demo` stack-pack with normalized close/control checklist expected output and updated the existing deterministic replay proof only. It did not add monitor families, discovery families, routes, schema, migrations, package scripts, runtime-Codex, delivery, reports, approvals, payment behavior, legal or policy advice, collection/customer-contact instructions, or autonomous actions.
-`plans/FP-0059-operator-notification-readiness-foundation.md` is now the shipped F6J record. F6J adds one read-only internal operator attention/readiness foundation over shipped stored state only; it did not add external delivery, notification providers, outbox send behavior, report delivery, runtime-Codex drafting, approvals, mission creation, monitor reruns, payment behavior, legal/policy advice, collection/customer-contact instructions, new monitor families, or new discovery families.
-`plans/FP-0060-close-control-acknowledgement-foundation.md` is now the shipped F6K record. F6K adds one read-only internal close/control acknowledgement-readiness result over shipped checklist/readiness posture only; it does not add approvals, close-complete status, delivery, notifications, reports, runtime-Codex, mission creation, monitor reruns, source mutation, finance actions, new monitor families, or new discovery families.
-`plans/FP-0061-source-pack-expansion-foundation.md` is now the shipped F6L record. F6L adds one bank/card source-pack foundation over checked-in bank-account-summary and card-expense source-pack posture only, with direct proof command `pnpm exec tsx tools/bank-card-source-pack-proof.mjs`. It did not add routes, schema, migrations, package scripts, smoke aliases, eval datasets, runtime-Codex, delivery, reports, approvals, monitor families, discovery families, mission behavior, checklist/readiness/acknowledgement behavior, payment behavior, finance writes, legal/policy advice, collection/customer-contact instructions, or autonomous action.
-`plans/FP-0062-external-notification-delivery-planning-foundation.md` is now the shipped F6M record. F6M adds one deterministic read-only internal delivery-readiness boundary from shipped F6J operator-readiness and F6K acknowledgement-readiness posture only; it did not add external delivery, notification providers, outbox sends, scheduled notifications, auto-send, approvals, reports, runtime-Codex drafting, generated notification prose, mission creation, monitor reruns, source mutation, finance writes, payment behavior, legal/policy advice, collection/customer-contact instruction, autonomous action, new monitor families, or new discovery families.
-`plans/FP-0063-close-control-review-summary-foundation.md` is now the shipped F6N record. F6N adds one deterministic read-only internal close/control review summary over shipped F6H/F6J/F6K/F6M posture only; it did not add certification, close-complete status, sign-off, attestation, approval, report release, report circulation, external delivery, provider calls, outbox sends, generated prose, mission creation, monitor reruns or monitor-result creation, source mutation, runtime-Codex, finance writes, legal/policy/payment/collection/customer-contact instruction, autonomous action, new monitor families, new discovery families, or F6O implementation.
-`plans/FP-0064-receivables-payables-source-pack-foundation.md` is now the shipped F6O record. F6O adds one receivables/payables source-pack manifest and checked-in fixture proof only, with direct proof command `pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs`. It did not add routes, schema, migrations, package scripts, smoke aliases, eval datasets, runtime-Codex, delivery, notification providers, reports, approvals, mission behavior, checklist behavior, readiness behavior, acknowledgement behavior, delivery-readiness behavior, review-summary behavior, payment behavior, accounting/bank/tax writes, legal/policy advice, collection/customer-contact instructions, generated prose, source mutation outside the proof upload/sync setup, autonomous action, new monitor families, or new discovery families.
+## Quick Local Setup
 
-Broad F2 Finance Twin breadth is now shipped through F2O.
-The final F2 closeout and handoff are recorded in `plans/FP-0024-final-f2-exit-audit-and-polish.md` and `plans/FP-0025-final-f2-handoff-and-plan-chain-polish.md`.
-F3A through F3D are now shipped.
-F4A through F4C2 are now the shipped finance-discovery baseline.
-F4B widens the first answer path to the truthful stored-state posture, spend, and obligation families listed above.
-F4C1 adds explicit-source `policy_lookup`, grounded only in `policy_document` bindings, stored deterministic extracts, compiler-owned policy pages, same-source digest history when useful, and `concepts/policy-corpus`.
-F4C2 hardens that shipped six-family discovery baseline with operator-safe policy source selection from existing `policy_document` bindings, additive policy source-scope rendering across answer, mission, list, and proof-bundle surfaces, packaged deterministic `pnpm smoke:finance-discovery-quality:local`, and finance-native `pnpm eval:finance-discovery-quality` reporting that reuses the deterministic smoke without fake model metadata.
-`plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` now serves as the shipped final F4 record.
-`plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` now records the landed first F5A slice: a first-class reporting mission that compiles one draft `finance_memo` plus one `evidence_appendix` from a completed discovery mission and its stored evidence rather than from generic chat intake.
-`plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` now serves as the shipped F5B record: expose the stored report bodies directly, add mission-centric filing and markdown export actions that reuse the existing CFO Wiki seams, keep reporting deterministic and draft-only, and preserve proof readiness semantics while packaged `pnpm smoke:finance-report-filed-artifact:local` proves the stored -> filed -> exported path.
-`plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md` now serves as the shipped F5C1 record: one deterministic, runtime-free, draft-only `board_packet` specialization path from one completed reporting mission with stored `finance_memo` plus stored `evidence_appendix`.
-`plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md` now serves as the shipped F5C2 record: one deterministic, runtime-free, draft-only `lender_update` specialization path from one completed reporting mission with stored `finance_memo` plus stored `evidence_appendix`.
-`plans/FP-0040-diligence-packet-specialization-and-draft-review-foundation.md` now serves as the shipped F5C3 record: one deterministic, runtime-free, draft-only `diligence_packet` specialization from one completed reporting mission with stored `finance_memo` plus stored `evidence_appendix`.
-`plans/FP-0041-approval-review-and-first-lender-update-release-readiness.md` now serves as the shipped F5C4A record: the repo already supports one finance-facing `report_release` approval on one completed `lender_update` reporting mission, approval resolution without live runtime continuation, and explicit release-readiness posture while staying deterministic, runtime-free, and delivery-free.
-`plans/FP-0042-release-log-and-first-lender-update-release-record-foundation.md` now serves as the shipped F5C4B record: the repo can record that one already-approved `lender_update` was released externally, persist one explicit release record on the existing `report_release` approval seam, and stay deterministic, runtime-free, and delivery-free in the system sense.
-`plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md` now serves as the shipped F5C4C record: the repo can request and resolve one finance-facing `report_release` approval for one completed `diligence_packet` reporting mission, derive explicit diligence release-readiness posture without live runtime continuation, and keep the slice deterministic, runtime-free, delivery-free, and release-log-free.
-`plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` now serves as the shipped F5C4D record: the repo can record one explicit external release record only for one completed approved-for-release `diligence_packet` reporting mission, surface that release-record posture across reporting, mission, proof-bundle, and approval-card views, reuse the existing `report_release` approval seam as the persistence anchor, and stay deterministic, runtime-free, delivery-free, and multi-artifact-free in the first slice.
-`plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` now serves as the shipped F5C4E record: the repo already supports one internal `report_circulation` review path plus derived circulation-ready posture for one completed `board_packet` reporting mission with one stored `board_packet` artifact while staying deterministic, runtime-free, delivery-free, and circulation-log-free.
-`plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` is now the shipped F5C4F implementation record: the repo already supports one explicit board-packet circulation record on the existing `report_circulation` seam for one completed approved-for-circulation `board_packet` reporting mission with one stored artifact.
-`plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` is now the shipped F5C4G implementation record: the repo already supports one append-only board-packet correction-and-chronology slice on that same `report_circulation` seam, keeps the original `circulationRecord` immutable, derives a current effective circulation view plus explicit chronology summary, and stays deterministic, runtime-free, and delivery-free.
-`plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is now the shipped F5C4H record: the repo can append optional corrected `circulatedBy` on that same seam, preserve the immutable original circulation record, derive truthful effective-actor chronology, and stay deterministic, runtime-free, delivery-free, and board-packet-only.
-`plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is now the shipped F5C4I record: the repo can append explicit clear-to-absent `circulationNote` correction on that same seam, preserve the immutable original circulation record, derive truthful effective-note chronology, and stay deterministic, runtime-free, delivery-free, and board-packet-only.
-`plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` now records the shipped first F6A implementation slice: one deterministic, source-backed `cash_posture` monitor result plus one operator-visible alert-card posture, with source lineage, freshness or missing-source posture, deterministic severity rationale, limitations, proof-bundle posture, and a human-review next step.
-`plans/FP-0051-alert-to-investigation-mission-foundation.md` now records the shipped first F6B implementation slice: one manual operator handoff from one persisted alerting `cash_posture` monitor result into one deterministic source-backed investigation mission, while keeping F6B runtime-free, delivery-free, non-autonomous, report-free, approval-kind-free, and limited to the existing alert evidence.
-`plans/FP-0052-collections-pressure-monitor-foundation.md` now records the F6C implementation slice: one deterministic `collections_pressure` monitor result plus optional operator alert-card posture over stored receivables-aging or collections-posture Finance Twin state, while preserving shipped F6A/F6B behavior and avoiding runtime-codex, delivery, investigations for collections, approvals, report conversion, or multi-monitor widening.
-`plans/FP-0053-payables-pressure-monitor-foundation.md` now records the shipped F6D implementation slice: one deterministic `payables_pressure` monitor result plus optional operator alert-card posture over stored payables-aging or payables-posture Finance Twin state, while preserving F6A/F6B/F6C behavior and avoiding investigations for payables, payment recommendations, payment instructions, delivery, runtime-codex, approvals, report conversion, or autonomous finance action.
-`plans/FP-0054-policy-covenant-threshold-monitor-foundation.md` now records the shipped F6E implementation slice: one deterministic `policy_covenant_threshold` monitor result plus optional operator alert-card posture over stored CFO Wiki policy-document posture, stored deterministic policy extracts, policy pages, policy-corpus posture, and explicit comparable Finance Twin posture only. F6E does not create investigations, delivery, runtime-codex, approvals, reports, legal or policy advice, payment behavior, new discovery families, or a broad monitoring platform.
-`plans/FP-0055-monitor-demo-replay-and-stack-pack-foundation.md` now records the shipped F6F implementation slice: one checked-in demo stack-pack fixture set, one Pocket CFO demo stack-pack manifest, one deterministic replay smoke at `pnpm smoke:monitor-demo-replay:local`, expected outputs for the four shipped monitor families, and the shipped monitor handoff boundary. F6F does not add monitor families, discovery families, delivery, runtime-Codex, approvals, reports, payment behavior, legal or policy advice, or autonomous finance action.
-`plans/FP-0056-non-cash-alert-investigation-generalization-foundation.md` now records the shipped F6G implementation slice: one manual `collections_pressure` alert-to-investigation handoff from persisted alert monitor results while preserving cash and keeping payables and policy/covenant investigations absent.
-`plans/FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md` now records the shipped F6I implementation slice: the existing monitor demo replay also verifies the normalized close/control checklist output without adding F6J or any product runtime behavior.
-
-## Product boundary for v1
-
-Pocket CFO v1 is intentionally narrow:
-
-- single company
-- single operator
-- single trust boundary
-- manual-export and file-first ingest
-- finance evidence first; GitHub is only an optional connector
-- PWA-first operator surface
-- Codex App Server as the coding/runtime seam
-- no autonomous bank writes, accounting writes, tax filings, or legal advice
-- no multi-tenant SaaS boundary in v1
-
-## What is already decided
-
-1. **Mission, replay, and proof stay.**
-   The orchestration spine from Pocket CTO is still the most valuable part of the repo.
-
-2. **Raw finance sources become the product boundary.**
-   The primary source of truth is no longer a repository or PR flow.
-   It is source files, documents, policies, definitions, exports, and derived structured state.
-
-3. **The engineering twin becomes a Finance Twin.**
-   Keep the twin engine pattern, but replace the ontology and query semantics.
-
-4. **A compiled CFO Wiki sits beside the twin.**
-   The twin is the machine-queryable layer.
-   The CFO Wiki is the operator-readable markdown layer built from raw sources plus twin facts.
-
-5. **GitHub is demoted to connector status.**
-   Keep the integration patterns, but do not let GitHub define the product.
-
-6. **Internal package scope stays stable for now.**
-   Keep `@pocket-cto/*` until the finance vertical is implemented cleanly enough to justify a later rename.
-
-## Working architecture planes
-
-1. **Source Registry** for uploads, snapshots, checksums, provenance, and raw artifacts.
-2. **Finance Twin** for deterministic structured entities, edges, freshness, and lineage.
-3. **CFO Wiki** for compiled markdown pages, indexes, backlinks, and durable analysis notes.
-4. **Mission Engine** for analysis, reporting, monitoring, diligence, and close/control work.
-5. **Evidence & Output Layer** for answers, memos, packets, and appendices.
-6. **Operator Surface** for ingest, review, approval, export, and tracked questions.
-
-## Repository map
-
-```text
-.
-├── AGENTS.md
-├── PLANS.md
-├── WORKFLOW.md
-├── START_HERE.md
-├── apps
-│   ├── control-plane
-│   └── web
-├── docs
-│   ├── ACTIVE_DOCS.md
-│   ├── architecture
-│   ├── archive
-│   ├── benchmarks
-│   └── ops
-├── packages
-│   ├── codex-runtime
-│   ├── config
-│   ├── db
-│   ├── domain
-│   ├── stack-packs
-│   └── testkit
-├── plans
-│   ├── ROADMAP.md
-│   ├── FP-0001-pocket-cfo-pivot-foundation.md
-│   ├── FP-0009-finance-twin-foundation-and-first-extractor.md
-│   ├── FP-0010-chart-of-accounts-and-f2a-polish.md
-│   ├── FP-0011-general-ledger-and-finance-twin-hardening.md
-│   ├── FP-0012-cross-slice-finance-snapshot-and-lineage.md
-│   ├── FP-0013-reconciliation-readiness-and-snapshot-hardening.md
-│   ├── FP-0014-reporting-window-truth-and-period-scoped-reconciliation.md
-│   ├── FP-0015-account-bridge-readiness-and-f2f-polish.md
-│   ├── FP-0016-balance-bridge-prerequisites-and-diagnostic-hardening.md
-│   ├── FP-0017-source-backed-balance-proof-and-snapshot-polish.md
-│   ├── FP-0018-balance-proof-lineage-and-f2i-polish.md
-│   ├── FP-0019-bank-account-summary-and-cash-posture.md
-│   ├── FP-0020-receivables-aging-and-collections-posture.md
-│   ├── FP-0021-payables-aging-and-payables-posture.md
-│   ├── FP-0022-contract-metadata-and-obligation-calendar.md
-│   ├── FP-0023-card-expense-and-spend-posture.md
-│   ├── FP-0024-final-f2-exit-audit-and-polish.md
-│   ├── FP-0025-final-f2-handoff-and-plan-chain-polish.md
-│   ├── FP-0026-cfo-wiki-foundation-and-page-registry.md
-│   ├── FP-0027-cfo-wiki-document-page-compiler-and-backlinks.md
-│   ├── FP-0028-cfo-wiki-lint-export-and-durable-filing.md
-│   ├── FP-0029-cfo-wiki-concept-metric-and-policy-pages.md
-│   ├── FP-0030-finance-discovery-foundation-and-first-answer.md
-│   ├── FP-0031-finance-discovery-supported-posture-and-obligation-families.md
-│   ├── FP-0032-finance-discovery-polish-and-compatibility.md
-│   ├── FP-0033-finance-discovery-baseline-closeout-polish.md
-│   ├── FP-0034-finance-discovery-final-artifact-and-doc-polish.md
-│   ├── FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md
-│   ├── FP-0036-reporting-mission-foundation-and-first-finance-memo.md
-│   ├── FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md
-│   ├── FP-0038-board-packet-specialization-and-draft-review-foundation.md
-│   ├── FP-0039-lender-update-specialization-and-draft-review-foundation.md
-│   ├── FP-0040-diligence-packet-specialization-and-draft-review-foundation.md
-│   ├── FP-0041-approval-review-and-first-lender-update-release-readiness.md
-│   ├── FP-0042-release-log-and-first-lender-update-release-record-foundation.md
-│   ├── FP-0043-diligence-packet-approval-review-and-release-readiness.md
-│   ├── FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md
-│   ├── FP-0045-board-packet-review-or-circulation-readiness-foundation.md
-│   ├── FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md
-│   ├── FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md
-│   ├── FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md
-│   ├── FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md
-│   ├── FP-0050-monitoring-foundation-and-first-cash-posture-alert.md
-│   ├── FP-0051-alert-to-investigation-mission-foundation.md
-│   ├── FP-0052-collections-pressure-monitor-foundation.md
-│   ├── FP-0053-payables-pressure-monitor-foundation.md
-│   ├── FP-0054-policy-covenant-threshold-monitor-foundation.md
-│   ├── FP-0055-monitor-demo-replay-and-stack-pack-foundation.md
-│   ├── FP-0056-non-cash-alert-investigation-generalization-foundation.md
-│   ├── FP-0057-close-control-checklist-foundation.md
-│   ├── FP-0058-stack-pack-expansion-and-close-control-demo-foundation.md
-│   └── templates
-├── plugins
-│   └── pocket-cfo-codex-operator
-└── .agents
-    └── plugins
-```
-
-## Immediate build order
-
-1. Read `docs/ACTIVE_DOCS.md`.
-2. Read `START_HERE.md`.
-3. Read `AGENTS.md`.
-4. Read `PLANS.md`.
-5. Read `plans/ROADMAP.md`.
-6. Check whether an unfinished `plans/FP-*.md` file exists instead of restarting from `FP-0001`.
-7. If one exists, read it and continue only that slice.
-8. If none exists, read the latest closeout or handoff record, then create the next-phase Finance Plan before code changes.
-9. Keep progress updates inside the Finance Plan you are actively executing.
-10. Do not delete legacy engineering modules until the finance replacement path exists and a smoke proves it.
-
-## Local development
-
-The repo still boots with the existing monorepo structure and internal package names.
+Requirements: Node/pnpm, Docker, and the local Postgres plus S3-compatible object storage services from this repo.
 
 ```bash
 cp .env.example .env
@@ -297,119 +63,88 @@ pnpm db:migrate
 pnpm dev
 ```
 
-Use `docs/ops/local-dev.md` for the pivot-aware operating pattern.
-The current packaged local proofs for the finance path are:
+Use [docs/ops/local-dev.md](docs/ops/local-dev.md) for the current local operating pattern.
+
+## Core Validation
+
+The broad repo gates are:
 
 ```bash
-pnpm smoke:source-ingest:local
-pnpm smoke:finance-twin:local
-pnpm smoke:finance-twin-account-catalog:local
-pnpm smoke:finance-twin-general-ledger:local
-pnpm smoke:finance-twin-snapshot:local
-pnpm smoke:finance-twin-reconciliation:local
-pnpm smoke:finance-twin-period-context:local
-pnpm smoke:finance-twin-account-bridge:local
-pnpm smoke:finance-twin-balance-bridge-prerequisites:local
-pnpm smoke:finance-twin-source-backed-balance-proof:local
-pnpm smoke:finance-twin-balance-proof-lineage:local
-pnpm smoke:finance-twin-bank-account-summary:local
-pnpm smoke:finance-twin-receivables-aging:local
-pnpm smoke:finance-twin-payables-aging:local
-pnpm smoke:finance-twin-contract-metadata:local
-pnpm smoke:finance-twin-card-expense:local
-pnpm smoke:cfo-wiki-foundation:local
-pnpm smoke:cfo-wiki-document-pages:local
-pnpm smoke:cfo-wiki-lint-export:local
-pnpm smoke:cfo-wiki-concept-metric-policy:local
-pnpm smoke:finance-discovery-answer:local
-pnpm smoke:finance-discovery-supported-families:local
-pnpm smoke:finance-policy-lookup:local
-pnpm smoke:finance-discovery-quality:local
-pnpm eval:finance-discovery-quality
-pnpm smoke:cash-posture-monitor:local
-pnpm smoke:cash-posture-alert-investigation:local
-pnpm smoke:collections-pressure-monitor:local
-pnpm smoke:payables-pressure-monitor:local
-pnpm smoke:policy-covenant-threshold-monitor:local
-pnpm smoke:monitor-demo-replay:local
-pnpm smoke:close-control-checklist:local
-pnpm smoke:close-control-acknowledgement:local
-pnpm smoke:operator-readiness:local
-pnpm smoke:delivery-readiness:local
-pnpm smoke:finance-memo:local
-pnpm smoke:finance-report-filed-artifact:local
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm ci:repro:current
 ```
 
-The current backend-first finance-twin read surface is:
+The core finance proof spine also includes the direct source-pack proofs:
 
-- company summary
-- company snapshot
-- account catalog
-- general ledger
-- lineage drill
-- trial-balance-versus-general-ledger reconciliation readiness
-- trial-balance-versus-general-ledger matched-period account-bridge readiness
-- trial-balance-versus-general-ledger balance-bridge prerequisites
-- truthful source-backed general-ledger balance proof inside balance-bridge prerequisites
-- general-ledger balance-proof lineage drill
-- bank-account inventory
-- cash posture
-- contract inventory
-- obligation calendar
-- spend-item inventory
-- spend posture
-- payables-aging
-- payables posture
-- receivables-aging
-- collections posture
-- general-ledger account activity lineage
+```bash
+pnpm exec tsx tools/board-lender-document-source-pack-proof.mjs
+pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs
+pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs
+pnpm exec tsx tools/bank-card-source-pack-proof.mjs
+pnpm exec tsx tools/receivables-payables-source-pack-proof.mjs
+pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs
+```
 
-The current backend-first monitoring surface is:
+See the active Finance Plan and [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md) for the full validation ladder that belongs to a given slice.
 
-- `POST /monitoring/companies/:companyKey/cash-posture/run`
-- `GET /monitoring/companies/:companyKey/cash-posture/latest`
-- `POST /monitoring/companies/:companyKey/collections-pressure/run`
-- `GET /monitoring/companies/:companyKey/collections-pressure/latest`
-- `POST /monitoring/companies/:companyKey/payables-pressure/run`
-- `GET /monitoring/companies/:companyKey/payables-pressure/latest`
-- `POST /monitoring/companies/:companyKey/policy-covenant-threshold/run`
-- `GET /monitoring/companies/:companyKey/policy-covenant-threshold/latest`
-- `GET /close-control/companies/:companyKey/checklist`
-- `GET /close-control/companies/:companyKey/acknowledgement-readiness`
-- `GET /close-control/companies/:companyKey/review-summary`
-- `GET /operator-readiness/companies/:companyKey`
-- `GET /delivery-readiness/companies/:companyKey`
-- `GET /external-provider-boundary/companies/:companyKey`
-- `GET /close-control/companies/:companyKey/certification-boundary`
-- `GET /close-control/companies/:companyKey/certification-safety`
-- `POST /missions/monitoring-investigations` for persisted alerting `cash_posture` and `collections_pressure` results only; F6G preserves the shipped cash handoff and keeps `payables_pressure` and `policy_covenant_threshold` investigations rejected
+## Architecture Overview
 
-FP-0056 is now the shipped F6G record for widening only the manual investigation handoff to persisted alerting `collections_pressure` results. FP-0057 is now the shipped F6H record for one deterministic source-backed close/control checklist foundation. FP-0058 is now the shipped F6I record for extending the existing demo stack-pack replay proof with normalized close/control checklist expected output. FP-0059 is now the shipped F6J record for one deterministic internal operator attention/readiness read model. FP-0060 is now the shipped F6K record for one deterministic internal close/control acknowledgement-readiness read model. FP-0061 is now the shipped F6L bank/card source-pack foundation record. FP-0062 is now the shipped F6M record for one deterministic internal delivery-readiness boundary foundation. FP-0063 is now the shipped F6N record for one deterministic internal close/control review-summary foundation. FP-0064 is now the shipped F6O receivables/payables source-pack foundation record. FP-0065 is now the shipped F6P external-provider-boundary foundation record. FP-0066 is now the shipped F6Q close/control certification-boundary foundation record. F6Q shipped one internal certification-boundary/readiness read model only and did not add actual certification, close-complete status, sign-off, attestation, legal opinion, audit opinion, assurance, approval, report release, report circulation, external delivery, provider calls, provider credentials, provider jobs, outbox sends, reports, generated prose, source mutation, runtime-Codex, finance actions, new monitor families, or new discovery families. FP-0067 is now the shipped F6R contract/obligation source-pack foundation record with direct proof `pnpm exec tsx tools/contract-obligation-source-pack-proof.mjs`; it added no route, schema, migration, package script, smoke alias, monitor family, discovery family, runtime-Codex, delivery, provider call, report, approval, certification, close-complete, sign-off, attestation, legal/audit opinion, payment behavior, advice, customer-contact instruction, generated prose, source mutation outside proof upload/sync setup, finance write, or autonomous action. FP-0068 is now the shipped F6S implementation record for a deterministic internal external-delivery human-confirmation boundary only; it must not be treated as actual send, provider integration, outbox work, approval, report release, or certification. FP-0069 is now the shipped F6U ledger/reconciliation source-pack foundation record with direct proof `pnpm exec tsx tools/ledger-reconciliation-source-pack-proof.mjs`; it added no route, schema, migration, package script, smoke alias, monitor family, discovery family, runtime-Codex, delivery, provider call, provider credential, provider job, report, approval, certification, close-complete, sign-off, attestation, legal/audit opinion, payment behavior, legal/policy advice, collection/customer-contact instruction, generated prose, source mutation outside proof upload/sync setup, finance write, or autonomous action. FP-0070 is now the shipped F6T close/control certification-safety implementation record; it added one deterministic read-only certification-safety result over shipped F6Q/F6S/F6N posture through `GET /close-control/companies/:companyKey/certification-safety`, and it added no schema, package script, smoke alias, UI, actual certification, certified status, close complete, sign-off, attestation, assurance, legal/audit opinion, approval, report creation/release/circulation, external delivery, provider call/credential/job, outbox send, scheduled delivery, auto-send, runtime-Codex, generated prose, mission creation, monitor rerun/result creation, source mutation, finance write, payment behavior, advice/instruction, customer-contact instruction, autonomous action, new monitor family, or new discovery family. FP-0071 is now the shipped F6W policy/covenant document source-pack foundation record with direct proof `pnpm exec tsx tools/policy-covenant-document-source-pack-proof.mjs`; it added no route, schema, migration, package script, smoke alias, eval dataset, UI, monitor family, discovery family, runtime-Codex, delivery, provider call/credential/job, outbox send, report, approval, certification, certified status, close-complete, sign-off, attestation, assurance, legal/audit opinion, payment behavior, legal/policy advice, collection/customer-contact instruction, generated prose, source mutation outside proof upload/bind/compile setup, finance write, or autonomous action. FP-0072 is the shipped F6Y board/lender document source-pack record with direct proof `pnpm exec tsx tools/board-lender-document-source-pack-proof.mjs`; it added no route, schema, migration, package script, smoke alias, eval dataset, UI, monitor family, discovery family, runtime-Codex, delivery, provider behavior, outbox send, report, board packet, lender update, approval, certification, generated prose, source mutation outside proof upload/bind/compile setup, finance write, advice, instruction, or autonomous action. FP-0073 is the shipped F6Z final audit/handoff record. FP-0074 is the shipped F7/v1 launch-readiness and active-doc hardening record; F7 shipped docs-and-validation-only, created no FP-0075 during F7, and F6V/F6X remain future-plan-only. FP-0075 is the shipped F8 future-scope triage record. FP-0076 is the shipped F9 product UI launch-polish record for read-only app/web copy/navigation/status-surface polish only. FP-0077 is the shipped F10/v1 public launch handoff record and adds no product runtime behavior.
+Pocket CFO is organized around six product planes:
 
-The current backend-first CFO Wiki read surface is:
+- **Source Registry**: raw uploads, snapshots, checksums, source roles, provenance, and immutable source artifacts.
+- **Finance Twin**: deterministic structured finance facts, lineage, freshness posture, and company-scoped read models.
+- **CFO Wiki**: compiler-owned markdown knowledge pages derived from source inventory, deterministic document extracts, and Finance Twin state.
+- **Mission Engine**: typed discovery, reporting, monitoring, close/control, and readiness workflows with replay-aware state transitions.
+- **Evidence/proof layer**: answer artifacts, proof bundles, evidence sections, limitations, freshness posture, and absence boundaries.
+- **Operator UI**: read-only operator surfaces for source, mission, wiki, evidence, and safety-boundary posture.
 
-- `POST /cfo-wiki/companies/:companyKey/compile`
-- `POST /cfo-wiki/companies/:companyKey/lint`
-- `GET /cfo-wiki/companies/:companyKey/lint`
-- `POST /cfo-wiki/companies/:companyKey/export`
-- `GET /cfo-wiki/companies/:companyKey/exports`
-- `GET /cfo-wiki/companies/:companyKey/exports/:exportRunId`
-- `GET /cfo-wiki/companies/:companyKey`
-- `POST /cfo-wiki/companies/:companyKey/sources/:sourceId/bind`
-- `GET /cfo-wiki/companies/:companyKey/sources`
-- `POST /cfo-wiki/companies/:companyKey/filed-pages`
-- `GET /cfo-wiki/companies/:companyKey/filed-pages`
-- `GET /cfo-wiki/companies/:companyKey/index`
-- `GET /cfo-wiki/companies/:companyKey/log`
-- `GET /cfo-wiki/companies/:companyKey/pages/*`
+The Codex runtime seam is bounded: it is an operator/coding seam for session transport, draft assistance where a future plan permits it, and developer workflow. It is not the source of finance truth and does not authorize autonomous finance actions.
 
-The current success condition is no longer an F0 guidance reset.
-It is preserving the authoritative raw-source ingest spine while extending the deterministic Finance Twin additively and truthfully.
+## Current Boundaries
 
-## North star
+The current product boundary is intentionally narrow:
 
-The hero behavior is:
+- one company
+- one operator and one trust boundary
+- file-first/manual export default
+- raw sources are authoritative for document claims
+- the Finance Twin is authoritative for structured finance facts
+- the CFO Wiki is compiled and derived
+- no autonomous bank, accounting, tax, legal, provider, delivery, certification, payment, or customer-contact actions
+- no package-scope rename yet; internal packages remain `@pocket-cto/*` and the root package name remains `pocket-cto`
 
-> a founder or finance operator drops raw exports and documents into Pocket CFO, asks a typed finance question, and receives a cited answer, freshness posture, limitations, and a memo or packet that can survive outside chat.
+## V2 Roadmap Summary
 
-Everything in this repository should push toward that behavior.
+F11 closes public repo hygiene and V2 transition framing. The recommended next step is F12: a manual UI and demo-readiness audit that inspects the existing read-only product surfaces and demo posture without starting V2 implementation.
+
+Candidate V2 sequence after that:
+
+- V2A EvidenceIndex and document-map foundation
+- V2B document precision adapters
+- V2C read-only agent/MCP/ChatGPT Evidence App alpha
+- V2D Evidence Atlas UI
+- V2E bounded LLM orchestration
+- V2F benchmark/community pack
+- V2G optional distribution tracks
+
+Those tracks are future-plan-only. See [docs/V2_BOUNDARY.md](docs/V2_BOUNDARY.md).
+
+## Screenshots And Demo Audit
+
+Screenshots are intentionally not invented in this F11 docs slice. The placeholder for screenshots and demo-readiness evidence is the future F12 manual UI/demo-readiness audit.
+
+## For Codex Operators
+
+Codex/operator workflow guidance lives in [CODEX_README.md](CODEX_README.md). The active guidance order is tracked in [docs/ACTIVE_DOCS.md](docs/ACTIVE_DOCS.md).
+
+## Contribution, Security, And Privacy
+
+Contribution and security policies are not yet formalized as separate OSS baseline docs. Treat them as future OSS-baseline placeholders until a later Finance Plan creates `CONTRIBUTING.md`, `SECURITY.md`, or related governance files.
+
+Finance-data privacy warning: do not commit real company exports, bank data, payroll data, customer/vendor lists, tax records, legal materials, credentials, or private board/lender materials. Use synthetic, fixture, or explicitly approved data only.
+
+## License
+
+Apache-2.0. See [LICENSE](LICENSE).

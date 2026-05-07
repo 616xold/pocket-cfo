@@ -1,0 +1,161 @@
+# Pocket CFO Codex Operator Guide
+
+This guide is for Codex and human operators working in this repository. The human-facing product overview is [README.md](README.md).
+
+## Active Docs Order
+
+Read active docs in this order before meaningful work:
+
+1. [START_HERE.md](START_HERE.md)
+2. [README.md](README.md)
+3. [CODEX_README.md](CODEX_README.md)
+4. [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md)
+5. [docs/V2_BOUNDARY.md](docs/V2_BOUNDARY.md)
+6. [docs/ACTIVE_DOCS.md](docs/ACTIVE_DOCS.md)
+7. [AGENTS.md](AGENTS.md)
+8. [PLANS.md](PLANS.md)
+9. [WORKFLOW.md](WORKFLOW.md)
+10. [plans/ROADMAP.md](plans/ROADMAP.md)
+11. the unfinished `plans/FP-*.md` file if one exists
+12. [docs/ops/local-dev.md](docs/ops/local-dev.md)
+13. [docs/ops/source-ingest-and-cfo-wiki.md](docs/ops/source-ingest-and-cfo-wiki.md)
+14. [docs/ops/codex-app-server.md](docs/ops/codex-app-server.md)
+15. [docs/benchmarks/seeded-missions.md](docs/benchmarks/seeded-missions.md)
+16. [evals/README.md](evals/README.md)
+
+Read [docs/ops/github-app-setup.md](docs/ops/github-app-setup.md) only when GitHub connector work is explicitly in scope.
+
+## Starting A Codex Local Thread
+
+Open the repository root in the Codex app and start one local thread per slice. A good first prompt asks Codex to:
+
+- read the active docs order above
+- identify the active unfinished Finance Plan, if any
+- confirm the current branch and clean worktree
+- state the active phase and forbidden scopes
+- implement only the next unchecked slice
+- update the active Finance Plan as work progresses
+- run the validation ladder named by the plan
+
+Do not start from archived Pocket CTO material or from chat memory.
+
+## Branch Naming Pattern
+
+Use `codex/<phase-and-slice>-local-vN` unless the user gives an exact branch. Do not create a new branch when the user says the current branch is already correct.
+
+## Finance Plan Lifecycle
+
+Meaningful work uses exactly one active `plans/FP-*.md` file.
+
+- If an unfinished FP exists, continue that plan.
+- If no unfinished FP exists, read the latest shipped closeout or handoff record and create the next Finance Plan before code changes.
+- Do not create the next FP number during closeout unless the active plan explicitly asks for it.
+- Update `Progress`, `Surprises & Discoveries`, `Decision Log`, `Validation and Acceptance`, `Artifacts and Notes`, and `Outcomes & Retrospective` before declaring the slice shipped.
+
+## Deciding Whether An Unfinished FP Exists
+
+Use the active docs first, then inspect `plans/FP-*.md`.
+
+An FP is unfinished when it says it is active, has unchecked implementation/closeout boxes, or its retrospective says the implementation has not started or has not shipped. A shipped FP is historical truth, not a new implementation mandate.
+
+For F11, [plans/FP-0078-public-repo-hygiene-and-v2-transition.md](plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the public repo hygiene and V2 transition record. Continue it while it is unfinished; after closeout, treat it as shipped history. Do not create FP-0079 in the F11 slice.
+
+## Required Operator Guards
+
+Invoke the Pocket CFO operator guards that match the slice:
+
+- `$finance-plan-orchestrator`
+- `$modular-architecture-guard`
+- `$source-provenance-guard`
+- `$cfo-wiki-maintainer`
+- `$evidence-bundle-auditor`
+- `$f6-monitoring-semantics-guard`
+- `$validation-ladder-composer`
+- `$pocket-cfo-handoff-auditor`
+
+Use `$execplan-orchestrator` only for a separate step-by-step execution document when the user or plan asks for one.
+
+## When GitHub Connector Guard Is In Scope
+
+`$github-app-integration-guard` is in scope only for product GitHub connector behavior: connector modules, GitHub app setup, webhook behavior, issue/PR ingestion, GitHub-backed source boundaries, or GitHub app docs.
+
+Routine repository operations such as `git status`, `git commit`, `git push`, and opening a PR with `gh` are not product GitHub connector behavior. Keep GitHub as an optional connector, not the Pocket CFO product center.
+
+## Validation Ladder Rules
+
+Use the active Finance Plan's validation ladder. For F11, run the required DB-backed source-pack proofs, CFO Wiki smokes, Finance Twin smokes, monitoring/readiness smokes, package specs, web tests, lint, typecheck, test, and `pnpm ci:repro:current`.
+
+If validation fails:
+
+- do not widen scope
+- do not add runtime behavior to make docs pass
+- record the exact failing command and log location
+- recommend the narrowest corrective slice
+- do not publish a partially green branch
+
+After FP closeout edits, rerun at minimum:
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm ci:repro:current
+```
+
+## Keeping Plans Current
+
+Update the active FP after meaningful progress and at closeout. Record:
+
+- what changed
+- what stayed out of scope
+- validation commands run, skipped, or rerun
+- surprises that affect sequence
+- replay/evidence implications
+- exact next recommendation
+
+Docs-only slices should explicitly say they created no mission replay events and no product runtime behavior.
+
+## Forbidden Scopes
+
+Do not add product runtime behavior without an active plan. In F11 specifically, do not add code, UI, backend routes, web API routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, monitor families, discovery families, implementation scaffolding, provider integration, certification, deployment, external communications, source mutation, finance writes, generated product prose, or autonomous action.
+
+Do not start F12, V2A, F6V, F6X, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, or external communications from F11 docs.
+
+## Internal Package Names
+
+The internal package scope remains `@pocket-cto/*`, and the root package name remains `pocket-cto`. Treat those names as historical implementation scaffolding. Do not rename package scopes, imports, database names, service names, scripts, or root `package.json` without a dedicated future plan.
+
+## Stale Pocket CTO And Engineering Docs
+
+Pocket CTO-era docs and engineering-first modules may remain as historical reference or internal scaffolding. Clarify active/public docs when wording could confuse Pocket CFO direction, but do not rewrite archived history broadly, delete GitHub modules, delete engineering-twin modules, or treat old GitHub-first product assumptions as active truth.
+
+## Avoiding Broad Rewrites
+
+Patch the smallest set of active docs that are directly stale. Move ledger detail into [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md) instead of repeating it everywhere. Prefer links to shipped FP records over copying every phase paragraph into new docs.
+
+## README vs PROJECT_STATE vs V2_BOUNDARY
+
+- [README.md](README.md): human-facing landing page, setup, product definition, architecture, boundaries, roadmap summary, privacy warning.
+- [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md): current shipped-state ledger, fixed family lists, source-pack proof commands, future-only tracks, internal scaffolding note.
+- [docs/V2_BOUNDARY.md](docs/V2_BOUNDARY.md): V2 north star, allowed boundaries, forbidden boundaries, LLM/agent rules, phase sequence, acceptance criteria.
+
+## Final Handoff Responses
+
+A final handoff should name:
+
+- verdict
+- stale wording fixed
+- docs created
+- files changed
+- validation results
+- branch
+- commit hash
+- push status
+- PR status
+- exact next recommendation
+
+For Pocket CFO closeouts, include the handoff audit facts without hiding failures or claiming validation that did not pass.
+
+## Runtime Reminder
+
+No runtime or product behavior should be added without an active Finance Plan that names exact scope, evidence contracts, replay implications, validation, and safety boundaries.

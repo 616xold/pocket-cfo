@@ -1,5 +1,9 @@
 # Local development
 
+For public orientation, start with `README.md`. For Codex/operator workflow, start with `CODEX_README.md`. For shipped-state detail, use `docs/PROJECT_STATE.md` instead of treating this local-dev guide as the phase ledger.
+
+F11 public repo hygiene and V2 transition is docs-only. It does not add package scripts, smoke aliases, runtime behavior, schema, routes, fixtures, eval datasets, provider integration, certification, deployment, external communications, source mutation, finance writes, or autonomous action.
+
 This repo is now past the Pocket CFO pivot-foundation reset, through the F1 source-ingest milestone, through the shipped F2A through F2O finance-twin breadth, through the shipped F3A through F3D CFO Wiki slices, through the shipped F4A through F4C2 finance-discovery baseline, and through the shipped F5A through the shipped F5C4I reporting slice. `plans/FP-0035-finance-policy-lookup-and-discovery-quality-hardening.md` is the shipped final F4 record, `plans/FP-0036-reporting-mission-foundation-and-first-finance-memo.md` is the shipped F5A record, `plans/FP-0037-draft-report-body-filed-artifact-and-markdown-export-hardening.md` is the shipped F5B record, `plans/FP-0038-board-packet-specialization-and-draft-review-foundation.md` is the shipped F5C1 record, `plans/FP-0039-lender-update-specialization-and-draft-review-foundation.md` is the shipped F5C2 record, `plans/FP-0040-diligence-packet-specialization-and-draft-review-foundation.md` is the shipped F5C3 record, `plans/FP-0041-approval-review-and-first-lender-update-release-readiness.md` is the shipped F5C4A record, `plans/FP-0042-release-log-and-first-lender-update-release-record-foundation.md` is the shipped F5C4B record, `plans/FP-0043-diligence-packet-approval-review-and-release-readiness.md` is the shipped F5C4C record, `plans/FP-0044-release-log-and-first-diligence-packet-release-record-foundation.md` is the shipped F5C4D record, `plans/FP-0045-board-packet-review-or-circulation-readiness-foundation.md` is the shipped F5C4E record, `plans/FP-0046-circulation-log-and-first-board-packet-circulation-record-foundation.md` is the shipped F5C4F implementation record, `plans/FP-0047-board-packet-circulation-record-correction-and-chronology-foundation.md` is the shipped F5C4G implementation record, `plans/FP-0048-board-packet-circulation-actor-correction-and-chronology-hardening.md` is the shipped F5C4H record, and `plans/FP-0049-board-packet-circulation-note-reset-and-effective-record-hardening.md` is the shipped F5C4I record.
 `plans/FP-0050-monitoring-foundation-and-first-cash-posture-alert.md` now records the shipped first F6A implementation slice.
 `plans/FP-0051-alert-to-investigation-mission-foundation.md` now records the shipped first F6B implementation slice.
@@ -233,6 +237,6 @@ For most source-ingest and reconciliation work, GitHub should stay out of the cr
 
 ## Working with Codex
 
-Open the repo in the Codex app and start from `START_HERE.md`.
+Open the repo in the Codex app and start from `CODEX_README.md`, then follow `docs/ACTIVE_DOCS.md`.
 
 Keep one thread per slice, update the active Finance Plan as you work, and prefer narrow validations after each meaningful change.

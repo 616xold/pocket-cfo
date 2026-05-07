@@ -3,6 +3,7 @@
 Pocket CFO should benchmark trusted finance work, not generic “AI CFO” vibes.
 
 This file defines the first seeded mission families the product should benchmark and grade, including the shipped F4A through F4C2 discovery baseline below.
+F11 adds no benchmark dataset, fixture, source-pack behavior, smoke alias, product runtime behavior, or eval harness change. Future V2 benchmark/community packs require a dedicated Finance Plan.
 
 ## Why these matter
 

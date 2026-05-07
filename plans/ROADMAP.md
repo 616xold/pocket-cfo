@@ -4,7 +4,7 @@ This roadmap replaces the old engineering-centric milestone story with a finance
 
 ## Build philosophy
 
-Preserve the strongest spine from Pocket CTO:
+Preserve the strongest spine from historical Pocket CTO scaffolding:
 
 - typed missions
 - replay
@@ -27,7 +27,7 @@ Turn the repo into a Pocket CFO repo at the active-doc and workflow layer withou
 
 Focus:
 
-- tag the current engineering product as `pocket-cto-m3-final`
+- tag the historical engineering product as `pocket-cto-m3-final`
 - rewrite root docs and active guidance
 - establish active-vs-archive boundaries
 - introduce the generic source-registry concept in guidance
@@ -201,7 +201,7 @@ Focus:
 Slice map:
 
 - `F4A — finance discovery foundation and first supported answer`
-  - retarget the discovery mission contract from engineering blast radius to company-scoped finance discovery
+  - retarget the historical engineering blast-radius discovery contract to company-scoped finance discovery
   - define the finance discovery question contract
   - define the finance discovery answer artifact contract
   - define finance-ready proof-bundle expectations for analysis missions
@@ -921,26 +921,25 @@ Candidate future slices, not created here:
 - F6X actual certification, future only
 - public launch deployment or external communications, future only if a later roadmap/Finance Plan names exact scope
 
-## Post-F10 / V2 transition
+## Post-F10 / F11 / V2 transition
 
-Active planning record: `plans/FP-0078-public-repo-hygiene-and-v2-transition.md`.
+F11 record: `plans/FP-0078-public-repo-hygiene-and-v2-transition.md`.
 
 Purpose:
 
 - move from shipped F10/v1 public launch handoff into a cleaner public repository and V2 planning posture
-- keep F11 as docs-and-plan only until implementation starts under FP-0078
 - split public-facing and Codex-facing docs before beginning V2 feature work
-- preserve shipped source/proof/safety boundaries while making the repo easier for humans to understand
+- move the full shipped FP ledger out of README and into `docs/PROJECT_STATE.md`
+- define V2 authority and safety boundaries in `docs/V2_BOUNDARY.md`
+- preserve shipped source/proof/safety boundaries while making the repo easier for humans and future Codex threads to understand
 
 F11 - public repo hygiene and V2 transition:
 
-- active contract is `plans/FP-0078-public-repo-hygiene-and-v2-transition.md`
-- docs-and-plan only in the FP-0078 planning slice
-- future implementation may create a human-facing README.md, root CODEX_README.md, docs/PROJECT_STATE.md, docs/V2_BOUNDARY.md, and directly adjacent active-doc freshness edits
-- must move the full shipped FP ledger out of README and into a maintainable state doc
-- must preserve `@pocket-cto/*`, root `pocket-cto`, package names, imports, database names, scripts, GitHub modules, and engineering-twin modules as internal scaffolding
-- must clean only allowed public/active stale Pocket CTO wording and must not broadly rewrite archived history
-- no product runtime behavior, code, UI, route, schema, migration, package script, smoke alias, eval dataset, fixture, EvidenceIndex, document map, provider integration, actual certification, PDF/OCR/vector implementation, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, source mutation, finance write, generated prose, autonomous action, or FP-0079
+- docs-only public repo hygiene, README split, active-doc freshness, V2 boundary framing, and stale public wording cleanup
+- created or refreshed `README.md`, `CODEX_README.md`, `docs/PROJECT_STATE.md`, `docs/V2_BOUNDARY.md`, `START_HERE.md`, `docs/ACTIVE_DOCS.md`, this roadmap, and directly stale active ops/eval docs
+- preserves `@pocket-cto/*`, root `pocket-cto`, package names, imports, database names, scripts, GitHub modules, and engineering-twin modules as internal scaffolding
+- does not broadly rewrite archived Pocket CTO history
+- no product runtime behavior, code, UI, route, schema, migration, package script, smoke alias, eval dataset, fixture, EvidenceIndex, document map, provider integration, actual certification, PDF/OCR/vector implementation, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, source mutation, finance write, generated product prose, autonomous action, or FP-0079
 
 F12 - manual UI and demo-readiness audit:
 
@@ -953,7 +952,7 @@ F12 - manual UI and demo-readiness audit:
 V2A - EvidenceIndex and document-map foundation:
 
 - future-only candidate after F11 and F12
-- should define a read-only evidence index and document-map layer only if F11/F12 prove the need
+- may implement a read-only evidence index and document-map layer only after a V2A Finance Plan exists
 - raw sources remain authoritative for document claims
 - Finance Twin remains authoritative for structured finance facts
 - CFO Wiki remains compiled/derived
@@ -970,7 +969,7 @@ V2B - document precision adapters:
 V2C - read-only agent/MCP/ChatGPT Evidence App alpha:
 
 - future-only candidate after V2A/V2B foundations
-- agents get read-only structured tools first
+- agents get read-only structured evidence tools first
 - LLMs may navigate or summarize only under evidence contracts
 - ChatGPT App and MCP server implementation remain future-only until a dedicated plan proves scope, safety, auth, privacy, and non-autonomous boundaries
 
