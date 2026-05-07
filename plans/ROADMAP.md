@@ -943,10 +943,10 @@ F11 - public repo hygiene and V2 transition:
 
 F12 - manual UI and demo-readiness audit:
 
-- future-only candidate after F11
-- should manually inspect existing app/web product surfaces, screenshots, and demo posture
-- should classify stale public/product copy, missing screenshots, launch-demo clarity gaps, and demo-readiness limits
-- must not add UI implementation unless a later plan explicitly names it
+- active through `plans/FP-0079-manual-ui-demo-readiness-audit.md`
+- manually inspects existing app/web product surfaces, screenshots, and demo posture only when FP-0079 implementation starts
+- classifies stale public/product copy, missing screenshots, launch-demo clarity gaps, and demo-readiness limits
+- must not add product feature work; only direct read-only copy/layout corrections are allowed if the audit proves them
 - must keep provider, certification, delivery, external communications, package rename, EvidenceIndex, and V2 implementation out of scope
 
 V2A - EvidenceIndex and document-map foundation:

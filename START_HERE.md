@@ -14,7 +14,7 @@ Use [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md) for the shipped phase/state l
 
 Start with [CODEX_README.md](CODEX_README.md), then follow [docs/ACTIVE_DOCS.md](docs/ACTIVE_DOCS.md).
 
-[plans/FP-0078-public-repo-hygiene-and-v2-transition.md](plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the F11 public repo hygiene and V2 transition record. If it still has unchecked work, continue that plan only; after closeout, treat it as the shipped F11 record. Do not create FP-0079 during F11.
+[plans/FP-0079-manual-ui-demo-readiness-audit.md](plans/FP-0079-manual-ui-demo-readiness-audit.md) is the active F12 manual UI/demo-readiness audit plan. [plans/FP-0078-public-repo-hygiene-and-v2-transition.md](plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the shipped F11 public repo hygiene and V2 transition record.
 
 ## First Local Thread Prompt
 
@@ -38,7 +38,7 @@ Current shipped records:
 - FP-0074 is the shipped F7 launch-readiness record.
 - FP-0050 through FP-0073 are shipped F6 records.
 
-The recommended next phase after F11 is F12 manual UI/demo-readiness audit. F12 must not start until a future Finance Plan names it.
+The active next phase after F11 is F12 manual UI/demo-readiness audit under FP-0079 only.
 
 ## Internal Scaffolding
 
@@ -46,4 +46,4 @@ The root package name remains `pocket-cto`, and packages remain under `@pocket-c
 
 ## Do Not Start From This File Alone
 
-Do not start F12, V2A EvidenceIndex, F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, package-scope renaming, product runtime behavior, schema/routes, UI, finance writes, source mutation, or autonomous action from this file alone.
+Do not start F12 implementation from this file alone; follow FP-0079. Do not start V2A EvidenceIndex, F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, package-scope renaming, product runtime behavior, schema/routes, UI, finance writes, source mutation, or autonomous action from this file alone.
