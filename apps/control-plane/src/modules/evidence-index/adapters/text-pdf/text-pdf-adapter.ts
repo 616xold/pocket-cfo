@@ -8,7 +8,10 @@ import {
   buildFailedTextPdfArtifacts,
   buildSupportedTextPdfArtifacts,
 } from "./artifacts";
-import { TEXT_PDF_RUNTIME_BOUNDARY } from "./boundaries";
+import {
+  buildPrecisionCapabilityBoundaries,
+  TEXT_PDF_RUNTIME_BOUNDARY,
+} from "./boundaries";
 import {
   checksumPdfBytes,
   extractDeterministicPdfText,
@@ -81,16 +84,10 @@ export class TextPdfAdapter {
       ...artifacts,
       adapterName: TEXT_PDF_ADAPTER_NAME,
       adapterVersion: TEXT_PDF_ADAPTER_VERSION,
-      capabilityBoundaries: artifacts.sourceCoverageMatrix.capabilityBoundaries.map(
-        (limitation) => ({
-          code: boundaryCodeForLimitation(limitation.code),
-          extractionMethod: limitationToExtractionMethod(limitation.code),
-          forbiddenActions: [],
-          freshness: artifacts.documentMap.sourceDocument.freshness,
-          limitations: [limitation],
-          permittedNextActions: [],
-        }),
-      ),
+      capabilityBoundaries: buildPrecisionCapabilityBoundaries({
+        freshness: artifacts.documentMap.sourceDocument.freshness,
+        sourceId: artifacts.documentMap.sourceDocument.sourceId,
+      }),
       companyKey: input.companyKey,
       documentRole: input.documentRole,
       extractionMethod: "text_pdf_deterministic",
@@ -118,16 +115,10 @@ export class TextPdfAdapter {
       ...artifacts,
       adapterName: TEXT_PDF_ADAPTER_NAME,
       adapterVersion: TEXT_PDF_ADAPTER_VERSION,
-      capabilityBoundaries: artifacts.sourceCoverageMatrix.capabilityBoundaries.map(
-        (limitation) => ({
-          code: boundaryCodeForLimitation(limitation.code),
-          extractionMethod: limitationToExtractionMethod(limitation.code),
-          forbiddenActions: [],
-          freshness: artifacts.documentMap.sourceDocument.freshness,
-          limitations: [limitation],
-          permittedNextActions: [],
-        }),
-      ),
+      capabilityBoundaries: buildPrecisionCapabilityBoundaries({
+        freshness: artifacts.documentMap.sourceDocument.freshness,
+        sourceId: artifacts.documentMap.sourceDocument.sourceId,
+      }),
       companyKey: input.companyKey,
       documentRole: input.documentRole,
       extractionMethod: artifacts.documentMap.extractionMethod,
@@ -144,39 +135,4 @@ export class TextPdfAdapter {
 
 export function inspectTextPdfSource(input: TextPdfAdapterSourceInput) {
   return new TextPdfAdapter().inspect(input);
-}
-
-function boundaryCodeForLimitation(code: string) {
-  if (code === "unsupported_no_text_layer") return "no_embedded_text_layer";
-  if (code === "encrypted_pdf") return "encrypted_pdf";
-  if (code === "malformed_pdf") return "malformed_pdf";
-  if (code === "ambiguous_layout") return "ambiguous_layout";
-  if (code === "numeric_ambiguity") return "numeric_ambiguity";
-  if (code === "unsupported_vector_only") return "vector_only_recall";
-  if (code === "unsupported_pageindex") return "pageindex_only_navigation";
-  if (code === "unsupported_llm") return "llm_generated_extraction";
-  if (code === "unsupported_ocr_only") return "ocr_only_content";
-  if (code === "unsupported_table") return "table_like_region";
-  if (code === "unsupported_graphics" || code === "unsupported_figure") {
-    return "figure_graphic_chart_region";
-  }
-  return "scan_or_image_only_pdf";
-}
-
-function limitationToExtractionMethod(code: string) {
-  if (code === "unsupported_no_text_layer") return "unsupported_no_text_layer";
-  if (code === "encrypted_pdf") return "unsupported_encrypted_pdf";
-  if (code === "malformed_pdf") return "unsupported_malformed_pdf";
-  if (code === "ambiguous_layout" || code === "numeric_ambiguity") {
-    return "unsupported_ambiguous_layout";
-  }
-  if (code === "unsupported_vector_only") return "unsupported_vector_only";
-  if (code === "unsupported_pageindex") return "unsupported_pageindex";
-  if (code === "unsupported_llm") return "unsupported_llm";
-  if (code === "unsupported_ocr_only") return "unsupported_ocr_only";
-  if (code === "unsupported_table") return "unsupported_table";
-  if (code === "unsupported_graphics" || code === "unsupported_figure") {
-    return "unsupported_figure";
-  }
-  return "unsupported_image_only";
 }

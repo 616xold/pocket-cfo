@@ -52,6 +52,22 @@ describe("TextPdfAdapter", () => {
         expect.objectContaining({ action: "request_human_review" }),
       ]),
     });
+    expect(first.capabilityBoundaries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          code: "ocr_only_content",
+          forbiddenActions: expect.arrayContaining([
+            "run_ocr",
+            "run_vector_search",
+            "run_pageindex_navigation",
+          ]),
+          permittedNextActions: expect.arrayContaining([
+            "inspect_source",
+            "request_human_review",
+          ]),
+        }),
+      ]),
+    );
     expect(first.runtimeBoundary).toMatchObject({
       llmUsed: false,
       ocrUsed: false,

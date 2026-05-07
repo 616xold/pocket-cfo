@@ -120,6 +120,10 @@ async function main() {
   ]) {
     assert(boundaryCodes.has(code), `missing capability boundary ${code}`);
   }
+  assert(
+    verifyCapabilityBoundaryPosture(supported),
+    "expected capability boundaries to preserve permitted and forbidden actions",
+  );
 
   console.log(
     JSON.stringify(
@@ -133,6 +137,8 @@ async function main() {
           supported.documentMap.adapterProvenance?.parserName === "pdfjs-dist",
         adapterVersion: TEXT_PDF_ADAPTER_VERSION,
         ambiguousLayoutFailClosed: true,
+        capabilityBoundaryPostureVerified:
+          verifyCapabilityBoundaryPosture(supported),
         cfoWikiRemainsCompiledDerived: true,
         checksumBindingVerified:
           supportedAnchor.checksumSha256 === sha256(supportedBytes),
@@ -227,6 +233,18 @@ function verifyEvidenceCard(result) {
       card.permittedNextActions.some((action) => action.action === "inspect_source") &&
       card.forbiddenActions.includes("mutate_raw_source") &&
       card.forbiddenActions.includes("write_finance_twin_fact"),
+  );
+}
+
+function verifyCapabilityBoundaryPosture(result) {
+  return result.capabilityBoundaries.some(
+    (boundary) =>
+      boundary.code === "ocr_only_content" &&
+      boundary.permittedNextActions.includes("inspect_source") &&
+      boundary.permittedNextActions.includes("request_human_review") &&
+      boundary.forbiddenActions.includes("run_ocr") &&
+      boundary.forbiddenActions.includes("run_vector_search") &&
+      boundary.forbiddenActions.includes("run_pageindex_navigation"),
   );
 }
 

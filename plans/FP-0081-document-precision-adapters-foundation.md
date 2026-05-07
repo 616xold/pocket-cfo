@@ -33,6 +33,7 @@ Repo source truth came from current code, current active docs, shipped Finance P
 - [x] 2026-05-07T20:54:24Z - Ran focused V2B validation and then the full requested 40-command validation ladder; all commands passed, including `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-v2b-validation.UizFrweLjy`.
 - [x] 2026-05-07T20:54:24Z - Refreshed only directly stale active docs so FP-0081 is recorded as the shipped first V2B document precision adapter foundation, with V2C and all broader precision/provider/certification/delivery/runtime tracks still future-only.
 - [x] 2026-05-07T21:01:59Z - Re-ran the minimum final validation after doc closeout updates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-05-07T21:21:07Z - Ran strict V2B QA. The audit found no scope expansion, route/schema/UI/script/fixture/source-pack/provider/certification/delivery/source-mutation/finance-write/autonomous leak, and hardened result-level `CapabilityBoundary` output so permitted/forbidden action posture is preserved for future read-only consumers.
 
 ## Surprises & Discoveries
 
@@ -63,6 +64,8 @@ The `pdfjs-dist` lockfile update includes optional `@napi-rs/canvas` packages th
 The root focused command form `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/evidence-index/**/*.spec.ts` can be sensitive to shell glob expansion. The equivalent explicit EvidenceIndex specs passed from `apps/control-plane`, and the requested full control-plane zsh glob validation command passed.
 
 The first validation harness attempt used `status` as a zsh variable name and stopped before reporting command results because `status` is read-only in zsh. That was a wrapper failure, not a product failure. The unchanged validation ladder was rerun with the wrapper variable renamed and passed all 37 commands.
+
+The strict QA pass found one narrow contract hardening issue: `EvidenceCard` actions were present, but result-level `CapabilityBoundary` objects were reconstructed from flattened coverage limitations and dropped their permitted/forbidden action arrays. This was corrected without adding behavior, scope, routes, schema, scripts, fixtures, source mutation, finance writes, or autonomous action.
 
 ## Decision Log
 
@@ -125,6 +128,9 @@ Rationale: raw sources remain authoritative for document claims, the Finance Twi
 
 Decision: no replay event is added for V2B.
 Rationale: the shipped slice adds deterministic derived adapter code, focused specs, and a direct proof command. It does not mutate mission state, raw sources, durable Finance Twin facts, CFO Wiki pages, reports, approvals, providers, delivery records, or certification state.
+
+Decision: preserve permitted and forbidden action posture on result-level `CapabilityBoundary` objects.
+Rationale: FP-0081 names `CapabilityBoundary` and `PermittedNextAction` fields as future read-only V2C/MCP consumption inputs. The QA correction reuses the adapter's structured precision capability-boundary builder instead of recreating boundaries from flattened coverage limitations.
 
 ## Context and Orientation
 
@@ -339,6 +345,21 @@ Acceptance for the shipped V2B slice:
 - Active docs are updated only where directly stale.
 - Validation passes, including `pnpm ci:repro:current`.
 
+Strict V2B QA validation passed after the capability-boundary hardening correction:
+
+```bash
+pnpm exec tsx tools/document-precision-foundation-proof.mjs
+pnpm exec tsx tools/evidence-index-foundation-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts
+cd apps/control-plane && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm ci:repro:current
+```
+
+The requested DB-backed source-pack, CFO Wiki, Finance Twin, monitoring, close-control, delivery-readiness, operator-readiness, web, domain, control-plane, and twin validation ladder also passed serially during QA.
+
 ## Idempotence and Recovery
 
 This shipped implementation slice is safe to re-run because the adapter is read-only/derived and proof data is generated in memory. If validation fails, classify whether the failure is a docs typo, stale active-doc pointer, local service problem, wrapper failure, or real product regression before changing scope.
@@ -439,6 +460,6 @@ The implementation slice passed the full requested validation ladder on 2026-05-
 
 After the active-doc closeout updates, the minimum final validation rerun also passed on 2026-05-07: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
-The recommended next step after this implementation merges is V2B implementation QA over the shipped narrow `TextPdfAdapter` behavior and proof output. No narrower corrective slice is currently required.
+The V2B implementation QA pass is complete. No narrower V2B correction remains after the capability-boundary hardening commit.
 
 V2C MCP/ChatGPT App, F6V provider integration, F6X certification, OCR, vector/file search, PageIndex, OpenAI vector store/file-search adapters, iOS, OpenClaw, deployment/external communications, package-scope rename, GitHub module deletion, engineering-twin deletion, and later work remain future-plan-only.
