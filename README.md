@@ -119,11 +119,11 @@ The current product boundary is intentionally narrow:
 
 F11 closed public repo hygiene and V2 transition framing. F12 closed the manual UI/demo-readiness audit in [docs/qa/v1-ui-demo-readiness-audit.md](docs/qa/v1-ui-demo-readiness-audit.md) without starting V2 implementation.
 
-[FP-0080](plans/FP-0080-evidence-index-and-document-map-foundation.md) is the active implementation-ready plan for a read-only V2A EvidenceIndex and document-map foundation. It is a docs-and-plan contract first; product implementation should follow that plan in a later thread.
+[FP-0080](plans/FP-0080-evidence-index-and-document-map-foundation.md) is the shipped first V2A EvidenceIndex and document-map foundation record. It adds a native deterministic read-only anchor/trace layer for supported markdown/plain-text source text, evidence cards, source coverage posture, and a direct proof command without adding UI, routes, schema, migrations, package scripts, fixture files, OCR, vector search, PageIndex, MCP, ChatGPT App, provider behavior, certification, delivery, source mutation, finance writes, generated product prose, or autonomous action.
 
-Candidate V2 sequence after FP-0080:
+Candidate V2 sequence after the shipped FP-0080 foundation:
 
-- V2A EvidenceIndex and document-map foundation implementation under FP-0080
+- V2A implementation QA or narrow corrective slice if a defect is found
 - V2B document precision adapters
 - V2C read-only agent/MCP/ChatGPT Evidence App alpha
 - V2D Evidence Atlas UI

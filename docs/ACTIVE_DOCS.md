@@ -32,7 +32,7 @@ Read [docs/ops/github-app-setup.md](ops/github-app-setup.md) only when GitHub co
 
 FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F9 read-only UI truthfulness polish. FP-0075 is shipped F8 future-scope triage. FP-0074 is shipped F7 launch-readiness. FP-0050 through FP-0073 remain shipped F6 records.
 
-[plans/FP-0080-evidence-index-and-document-map-foundation.md](../plans/FP-0080-evidence-index-and-document-map-foundation.md) is the active implementation-ready V2A EvidenceIndex/document-map foundation plan. The FP-0080 master-plan slice is docs-and-plan only; product implementation must follow FP-0080 in a later thread.
+[plans/FP-0080-evidence-index-and-document-map-foundation.md](../plans/FP-0080-evidence-index-and-document-map-foundation.md) is the shipped first V2A EvidenceIndex/document-map foundation record. It records the original docs-and-plan contract and the narrow native deterministic read-only implementation closeout.
 
 ## Historical Reference
 
@@ -73,7 +73,7 @@ These remain blocked until a future Finance Plan names exact scope:
 - package-scope renaming
 - product runtime behavior, source mutation, finance writes, or autonomous action
 
-F12 is shipped through FP-0079, and FP-0080 is the active V2A implementation-ready contract. Anything beyond the first FP-0080 EvidenceIndex/document-map foundation remains blocked.
+F12 is shipped through FP-0079, and the first V2A EvidenceIndex/document-map foundation is shipped through FP-0080. Anything beyond the shipped FP-0080 foundation remains blocked until a future Finance Plan names exact scope.
 
 ## Update Rule
 

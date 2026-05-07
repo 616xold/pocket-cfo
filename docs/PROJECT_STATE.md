@@ -10,7 +10,7 @@ FP-0078 records the F11 public repo hygiene and V2 transition slice. It rewrites
 
 FP-0079 records the F12 manual UI/demo-readiness audit. It adds `docs/qa/v1-ui-demo-readiness-audit.md`, records the screenshot-capture limitation, applies only direct read-only UI copy corrections, and adds no product runtime behavior.
 
-FP-0080 is the active implementation-ready V2A EvidenceIndex and document-map foundation plan. The FP-0080 master-plan slice is docs-and-plan only; it adds no product runtime behavior. V2A implementation must remain limited to the FP-0080 read-only anchor/trace contract until a later plan changes that boundary.
+FP-0080 is the shipped first V2A EvidenceIndex and document-map foundation record. It adds shared domain contracts, a native deterministic read-only control-plane anchor/trace layer, focused specs, and a direct proof command while preserving raw sources as authoritative for document claims, Finance Twin as authoritative for structured facts, and CFO Wiki as compiled/derived.
 
 ## Shipped Architecture Summary
 
@@ -85,7 +85,7 @@ These tracks remain future-only until a later Finance Plan names exact scope and
 - F6V provider integration
 - F6X actual certification
 - deeper PDF/OCR/vector search
-- EvidenceIndex implementation outside the FP-0080 first foundation contract
+- EvidenceIndex expansion outside the shipped FP-0080 first foundation contract
 - V2B document precision adapters
 - ChatGPT App/MCP
 - iOS
