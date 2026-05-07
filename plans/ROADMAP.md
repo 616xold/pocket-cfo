@@ -952,13 +952,14 @@ F12 - manual UI and demo-readiness audit:
 
 V2A - EvidenceIndex and document-map foundation:
 
-- future-only candidate after shipped F11 and F12
-- may implement a read-only evidence index and document-map layer only after a V2A Finance Plan exists
+- active implementation-ready plan: `plans/FP-0080-evidence-index-and-document-map-foundation.md`
+- may implement a read-only evidence index and document-map layer only within the FP-0080 contract
 - raw sources remain authoritative for document claims
 - Finance Twin remains authoritative for structured finance facts
 - CFO Wiki remains compiled/derived
-- no deeper PDF/OCR/vector implementation unless explicitly planned later
-- no schema, route, adapter, dataset, fixture, or implementation scaffold before a V2A Finance Plan exists
+- first implementation starts with deterministic markdown/plain-text and already-supported source text only
+- no deeper PDF/OCR/vector/PageIndex/OpenAI vector store or file-search implementation unless explicitly planned later
+- no UI, package script, smoke alias, eval dataset, fixture, provider integration, certification, ChatGPT App, MCP server, deployment, external communications, package-scope rename, GitHub module deletion, engineering-twin deletion, source mutation, finance write, generated prose, autonomous action, or FP-0081 in FP-0080
 
 V2B - document precision adapters:
 
@@ -1004,7 +1005,7 @@ Still blocked until future Finance Plans:
 - F6V provider integration
 - F6X actual certification
 - deeper PDF/OCR/vector search
-- EvidenceIndex implementation
+- EvidenceIndex implementation outside the FP-0080 first foundation contract
 - ChatGPT App implementation
 - MCP server implementation
 - iOS implementation

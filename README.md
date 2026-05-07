@@ -119,11 +119,11 @@ The current product boundary is intentionally narrow:
 
 F11 closed public repo hygiene and V2 transition framing. F12 closed the manual UI/demo-readiness audit in [docs/qa/v1-ui-demo-readiness-audit.md](docs/qa/v1-ui-demo-readiness-audit.md) without starting V2 implementation.
 
-The recommended next step is V2A master-plan creation for a read-only EvidenceIndex and document-map foundation.
+[FP-0080](plans/FP-0080-evidence-index-and-document-map-foundation.md) is the active implementation-ready plan for a read-only V2A EvidenceIndex and document-map foundation. It is a docs-and-plan contract first; product implementation should follow that plan in a later thread.
 
-Candidate V2 sequence after that:
+Candidate V2 sequence after FP-0080:
 
-- V2A EvidenceIndex and document-map foundation
+- V2A EvidenceIndex and document-map foundation implementation under FP-0080
 - V2B document precision adapters
 - V2C read-only agent/MCP/ChatGPT Evidence App alpha
 - V2D Evidence Atlas UI
@@ -131,7 +131,7 @@ Candidate V2 sequence after that:
 - V2F benchmark/community pack
 - V2G optional distribution tracks
 
-Those tracks are future-plan-only. See [docs/V2_BOUNDARY.md](docs/V2_BOUNDARY.md).
+V2B and later tracks remain future-plan-only. See [docs/V2_BOUNDARY.md](docs/V2_BOUNDARY.md).
 
 ## Screenshots And Demo Audit
 

@@ -32,7 +32,7 @@ Read [docs/ops/github-app-setup.md](ops/github-app-setup.md) only when GitHub co
 
 FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F9 read-only UI truthfulness polish. FP-0075 is shipped F8 future-scope triage. FP-0074 is shipped F7 launch-readiness. FP-0050 through FP-0073 remain shipped F6 records.
 
-FP-0080 was not created during F12. The recommended next step is V2A EvidenceIndex master-plan creation only; V2A implementation must wait for a dedicated Finance Plan.
+[plans/FP-0080-evidence-index-and-document-map-foundation.md](../plans/FP-0080-evidence-index-and-document-map-foundation.md) is the active implementation-ready V2A EvidenceIndex/document-map foundation plan. The FP-0080 master-plan slice is docs-and-plan only; product implementation must follow FP-0080 in a later thread.
 
 ## Historical Reference
 
@@ -62,9 +62,9 @@ Do not claim a finance capability exists until code and acceptance prove it.
 
 These remain blocked until a future Finance Plan names exact scope:
 
-- V2A EvidenceIndex and document-map foundation
 - F6V provider integration
 - F6X actual certification
+- V2B document precision adapters
 - deeper PDF/OCR/vector search
 - ChatGPT App/MCP
 - iOS
@@ -73,7 +73,7 @@ These remain blocked until a future Finance Plan names exact scope:
 - package-scope renaming
 - product runtime behavior, source mutation, finance writes, or autonomous action
 
-F12 is shipped through FP-0079. Anything beyond the next dedicated V2A planning contract remains blocked.
+F12 is shipped through FP-0079, and FP-0080 is the active V2A implementation-ready contract. Anything beyond the first FP-0080 EvidenceIndex/document-map foundation remains blocked.
 
 ## Update Rule
 

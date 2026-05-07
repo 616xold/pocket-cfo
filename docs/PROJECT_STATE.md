@@ -10,6 +10,8 @@ FP-0078 records the F11 public repo hygiene and V2 transition slice. It rewrites
 
 FP-0079 records the F12 manual UI/demo-readiness audit. It adds `docs/qa/v1-ui-demo-readiness-audit.md`, records the screenshot-capture limitation, applies only direct read-only UI copy corrections, and adds no product runtime behavior.
 
+FP-0080 is the active implementation-ready V2A EvidenceIndex and document-map foundation plan. The FP-0080 master-plan slice is docs-and-plan only; it adds no product runtime behavior. V2A implementation must remain limited to the FP-0080 read-only anchor/trace contract until a later plan changes that boundary.
+
 ## Shipped Architecture Summary
 
 The shipped system is organized around:
@@ -83,7 +85,8 @@ These tracks remain future-only until a later Finance Plan names exact scope and
 - F6V provider integration
 - F6X actual certification
 - deeper PDF/OCR/vector search
-- EvidenceIndex implementation
+- EvidenceIndex implementation outside the FP-0080 first foundation contract
+- V2B document precision adapters
 - ChatGPT App/MCP
 - iOS
 - OpenClaw
@@ -113,6 +116,7 @@ Key records:
 
 - [FP-0078 F11 public repo hygiene and V2 transition](../plans/FP-0078-public-repo-hygiene-and-v2-transition.md)
 - [FP-0079 F12 manual UI/demo-readiness audit](../plans/FP-0079-manual-ui-demo-readiness-audit.md)
+- [FP-0080 V2A EvidenceIndex and document-map foundation](../plans/FP-0080-evidence-index-and-document-map-foundation.md)
 - [FP-0077 F10 v1 public launch handoff](../plans/FP-0077-v1-public-launch-handoff.md)
 - [FP-0076 F9 product UI launch polish](../plans/FP-0076-product-ui-launch-polish-foundation.md)
 - [FP-0075 F8 future-scope triage](../plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md)
