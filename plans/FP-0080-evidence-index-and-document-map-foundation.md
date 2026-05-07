@@ -1,14 +1,14 @@
-# FP-0080 - Plan EvidenceIndex and Document-Map Foundation
+# FP-0080 - EvidenceIndex and Document-Map Foundation
 
 ## Purpose / Big Picture
 
 The target phase is `V2A`, and the exact slice is `V2A-evidence-index-and-document-map-foundation`.
 
-The user-visible goal is narrow: after shipped F12, Pocket CFO needs an implementation-ready contract for a native read-only EvidenceIndex and document-map foundation. The foundation should make raw evidence, derived Finance Twin facts, and compiled CFO Wiki context easier for a human or future read-only agent to inspect without weakening the authority model.
+The user-visible goal is narrow: after shipped F12, Pocket CFO needed a native read-only EvidenceIndex and document-map foundation. The foundation makes raw evidence, derived Finance Twin facts, and compiled CFO Wiki context easier for a human or future read-only agent to inspect without weakening the authority model.
 
-This master-plan thread is docs-and-plan only. It creates this FP-0080 contract and refreshes directly stale active docs. It does not implement EvidenceIndex, document maps, product runtime behavior, code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, source-pack behavior, provider integration, certification, PDF/OCR/vector/PageIndex integration, OpenAI vector store/file-search integration, MCP, ChatGPT App, iOS, OpenClaw, deployment, external communications, package-scope renames, GitHub module deletion, engineering-twin deletion, source mutation, finance writes, generated product prose, or autonomous finance action.
+FP-0080 started as the docs-and-plan contract for V2A and now records the shipped first foundation implementation. The implementation adds shared domain contracts, a native deterministic control-plane EvidenceIndex bounded context, focused specs, and a direct proof command. It does not add UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixture files, source-pack behavior, provider integration, certification, PDF/OCR/vector/PageIndex integration, OpenAI vector store/file-search integration, MCP, ChatGPT App, iOS, OpenClaw, deployment, external communications, package-scope renames, GitHub module deletion, engineering-twin deletion, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous finance action.
 
-The future implementation under this plan should start from deterministic markdown/plain-text and already-supported source text only. Unsupported PDFs, scans, image-only files, ambiguous layout, OCR-only content, vector-only hits, tables, figures, and graphics must fail closed with explicit limitations rather than fake precision.
+The shipped implementation starts from deterministic markdown/plain-text and already-supported source text only. Unsupported PDFs, scans, image-only files, ambiguous layout, OCR-only content, vector-only hits, tables, figures, and graphics fail closed with explicit limitations rather than fake precision.
 
 GitHub connector product work is explicitly out of scope. Routine git, `gh`, push, and PR operations for this repository do not invoke GitHub Connector Guard.
 
@@ -24,7 +24,14 @@ GitHub connector product work is explicitly out of scope. Routine git, `gh`, pus
 - [x] 2026-05-07T17:36:49Z - Ran the full 36-command docs-and-plan validation ladder serially; all commands passed, including `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-v2a-planning-validation.FkMA5cLX44`.
 - [x] 2026-05-07T17:36:49Z - Prepared the final docs-and-plan tree for the requested commit, push, PR, and final handoff after validation passed.
 - [x] 2026-05-07T18:01:51Z - QA correction pass fixed two active-doc wording issues without widening scope: `START_HERE.md` now consistently marks FP-0078 as shipped F11, and `docs/V2_BOUNDARY.md` now refers to the final docs-and-plan tree for the F12-to-V2A planning transition rather than the final F12 tree.
-- [ ] In a later implementation thread, implement only the first narrow V2A foundation slice described here.
+- [x] 2026-05-07 - Implementation-thread preflight passed against fetched `origin/main`; current branch was `codex/v2a-evidence-index-and-document-map-foundation-local-v1`, worktree started clean, GitHub auth/repo access worked, Docker Postgres/MinIO were available, FP-0080 existed on `origin/main`, and FP-0081 was absent.
+- [x] 2026-05-07 - Re-invoked the required Pocket CFO operator skills for implementation: Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor. GitHub Connector Guard was not invoked because GitHub connector product behavior was out of scope.
+- [x] 2026-05-07 - Implemented pure domain EvidenceIndex contracts for source documents, source anchors, document maps, evidence claims, evidence traces, evidence cards, source coverage matrices, capability boundaries, freshness posture, limitation posture, permitted next actions, and forbidden actions.
+- [x] 2026-05-07 - Implemented the native control-plane EvidenceIndex bounded context as a read-only derived service for supported markdown/plain-text source text, unsupported/fail-closed capability posture, evidence card generation, traces, and source coverage matrix output.
+- [x] 2026-05-07 - Added `tools/evidence-index-foundation-proof.mjs` as the direct proof command using synthetic local data only; it requires no UI, external service, runtime LLM, vector store, OCR, PageIndex, provider, certification, delivery, source mutation, finance write, or autonomous action.
+- [x] 2026-05-07 - Added focused domain and control-plane specs for schemas, deterministic map/anchor creation, unsupported fail-closed posture, cards, coverage, and runtime boundary flags.
+- [x] 2026-05-07 - Ran the full 37-command V2A implementation validation ladder serially; all commands passed, including the new EvidenceIndex proof, source-pack smokes, wiki/Finance Twin/monitoring smokes, web/domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-v2a-validation.7G296TnlnX`.
+- [x] 2026-05-07 - Refreshed FP-0080 and directly stale active docs to record the shipped first V2A foundation without widening scope or creating FP-0081.
 
 ## Surprises & Discoveries
 
@@ -46,7 +53,9 @@ The source-pack proof tools already prove immutable fixture posture, fixed monit
 
 GitHub-first and engineering-first hits are either historical/architecture references, active docs that explicitly demote them, or isolated existing connector/twin scaffolding. No product behavior leak requires a smaller corrective slice.
 
-No external web research was used in this planning pass. Repo source truth was current code, current active docs, shipped Finance Plans, and this active Finance Plan.
+No external web research was used in the planning or implementation pass. Repo source truth was current code, current active docs, shipped Finance Plans, and this active Finance Plan.
+
+The implementation confirmed that the first V2A foundation can be deterministic and in-memory/derived. No persistence migration was needed for acceptance because the proof command exercises source documents, anchors, document maps, claims, traces, cards, coverage posture, and runtime boundary flags without creating product state.
 
 ## Decision Log
 
@@ -74,14 +83,20 @@ Rationale: raw sources remain authoritative for document claims, the Finance Twi
 Decision: every future EvidenceCard must preserve the four-field output posture.
 Rationale: humans and future agents must see `evidence`, `freshness`, `limitations`, and `permitted next action` together. Cards that cannot populate those fields truthfully must fail closed.
 
-Decision: the first implementation starts with markdown/plain-text and already-supported deterministic source text only.
+Decision: the first implementation supports markdown/plain-text and already-supported deterministic source text only.
 Rationale: current code already proves deterministic markdown/plain-text extraction. Unsupported PDFs, scans, image-only files, ambiguous layout, OCR-only content, vector-only hits, tables, figures, and graphics must produce unsupported CapabilityBoundary and LimitationPosture records instead of claims.
 
 Decision: the F12 public demo/self-host baseline is not a blocker for V2A implementation.
 Rationale: F12 recorded that a one-command demo seed/self-host baseline and reliable screenshot capture remain missing, but those are deferred demo-packaging work. V2A can be proven by a direct read-only proof command without claiming public demo polish.
 
-Decision: the first implementation shape should be native, read-only, and proof-command first.
-Rationale: the later implementation slice may add only a native EvidenceIndex bounded context, deterministic document maps for supported documents, source anchors, evidence claims, evidence traces, evidence cards, source coverage matrix, a read-only proof command, tests/specs, and active-doc refresh. It should not add UI or routes in the first implementation unless this plan is explicitly amended with exact route scope.
+Decision: the first implementation shape is native, read-only, and proof-command first.
+Rationale: the implementation added only a native EvidenceIndex bounded context, deterministic document maps for supported documents, source anchors, evidence claims, evidence traces, evidence cards, source coverage matrix, a read-only proof command, tests/specs, and active-doc refresh. It did not add UI or routes.
+
+Decision: ship the first V2A foundation without routes, migrations, package scripts, smoke aliases, or fixture files.
+Rationale: the domain contracts, control-plane derived service, synthetic direct proof command, and focused specs are enough to prove FP-0080 acceptance. Routes, durable read-model storage, and UI remain future-only until a later Finance Plan names exact scope.
+
+Decision: create no replay events for the first implementation.
+Rationale: the implementation is read-only and derived. It does not mutate mission state, raw sources, Finance Twin facts, CFO Wiki pages, reports, approvals, providers, delivery records, or certification state, so there is no replay-worthy product state transition.
 
 Decision: use one machine-readable humans-and-agents contract.
 Rationale: EvidenceCard and related schemas should be shared by humans, CLI proof output, future UI, and future agents. The contract must not expose write tools.
@@ -152,28 +167,28 @@ Safe first source roles are the current shipped source-pack roles and explicitly
 
 ## Plan of Work
 
-This master-plan thread creates the active FP-0080 plan and refreshes directly stale active docs only. It creates no product runtime behavior.
+The master-plan thread created the active FP-0080 plan and refreshed directly stale active docs only. It created no product runtime behavior.
 
-The later V2A implementation thread should follow this sequence:
+The shipped V2A implementation followed this sequence:
 
-1. Add shared domain contracts for EvidenceIndex concepts and EvidenceCard schemas, keeping them pure and package-boundary safe.
-2. Add a native control-plane bounded context only if needed under `apps/control-plane/src/modules/evidence-index/**`.
-3. Build deterministic document maps from existing supported markdown/plain-text CFO Wiki document extracts and source metadata.
-4. Build source anchors that point back to source id, snapshot id, source file id, checksum, extraction method, and deterministic section or line locators.
-5. Build evidence claims and evidence traces that reference SourceAnchor records plus optional Finance Twin refs and CFO Wiki refs.
-6. Build EvidenceCards that expose evidence, freshness, limitations, permitted next action, and forbidden actions.
-7. Build a SourceCoverageMatrix that states supported, unsupported, stale, failed, missing, and ambiguous coverage by source/document role.
-8. Add `tools/evidence-index-foundation-proof.mjs` as a direct read-only proof command.
-9. Add focused specs for schemas, mapping, fail-closed unsupported cases, and proof output.
-10. Run the validation ladder and update this plan before closeout.
+1. Added shared domain contracts for EvidenceIndex concepts and EvidenceCard schemas, keeping them pure and package-boundary safe.
+2. Added a native control-plane bounded context under `apps/control-plane/src/modules/evidence-index/**`.
+3. Built deterministic document maps from supported markdown/plain-text source text and explicit source metadata.
+4. Built source anchors that point back to source id, snapshot id, source file id, checksum, storage metadata when available, extraction method, and deterministic section or line locators.
+5. Built evidence claims and evidence traces that reference SourceAnchor records plus optional Finance Twin refs and CFO Wiki refs.
+6. Built EvidenceCards that expose evidence, freshness, limitations, permitted next action, and forbidden actions.
+7. Built a SourceCoverageMatrix that states supported, unsupported, stale, failed, missing, and not-indexed coverage by source/document role.
+8. Added `tools/evidence-index-foundation-proof.mjs` as a direct read-only proof command.
+9. Added focused specs for schemas, mapping, fail-closed unsupported cases, coverage matrix, runtime boundaries, and proof output.
+10. Ran the validation ladder and updated this plan before closeout.
 
-The first implementation should not add UI. Evidence Atlas UI belongs to a later V2D plan after the substrate exists.
+The first implementation did not add UI. Evidence Atlas UI belongs to a later V2D plan after the substrate exists.
 
-The first implementation should not add read-only routes. If a later amendment under this plan proves that routes are required before UI, the only allowed route scope to consider is read-only company-scoped EvidenceIndex fetch/list surfaces that return the same EvidenceCard contract as the proof command. No write route, POST action, external tool, source mutation, finance write, or agent write tool is allowed.
+The first implementation did not add read-only routes. If a later plan proves that routes are required before UI, the only route scope to consider is read-only company-scoped EvidenceIndex fetch/list surfaces that return the same EvidenceCard contract as the proof command. No write route, POST action, external tool, source mutation, finance write, or agent write tool is allowed.
 
 ## Concrete Steps
 
-This master-plan thread may touch only:
+The master-plan thread touched only:
 
 - `plans/FP-0080-evidence-index-and-document-map-foundation.md`
 - `README.md` if stale after FP-0080 creation
@@ -186,17 +201,17 @@ This master-plan thread may touch only:
 - `plans/ROADMAP.md` if stale after FP-0080 creation
 - `docs/ops/local-dev.md`, `docs/ops/source-ingest-and-cfo-wiki.md`, `docs/ops/codex-app-server.md`, `docs/benchmarks/seeded-missions.md`, and `evals/README.md` only if directly stale
 
-The future implementation thread may add, but must not add in this master-plan thread:
+The implementation thread added only:
 
-- possible new bounded context: `apps/control-plane/src/modules/evidence-index/**`
-- possible domain package additions: `packages/domain/src/evidence-index*.ts` or equivalent
-- possible DB schema/migration only if derived read models cannot satisfy the proof
-- possible read-only routes only if this plan is amended with exact route scope
+- new bounded context: `apps/control-plane/src/modules/evidence-index/**`
+- domain package additions: `packages/domain/src/evidence-index*.ts` and `packages/domain/src/evidence-index/**` equivalents split by responsibility
 - direct proof command: `tools/evidence-index-foundation-proof.mjs`
 - focused tests/specs
 - active-doc refresh
 
-The future implementation thread must not add:
+The implementation thread did not add DB schema/migrations or read-only routes because derived read models and the direct proof command satisfied the proof.
+
+The implementation thread did not add:
 
 - UI
 - write routes
@@ -267,7 +282,11 @@ type EvidenceCard = {
     evidenceTraces: EvidenceTrace[];
   };
   sourceAnchors: SourceAnchor[];
-  financeTwinRefs: Array<{ targetKind: string; targetId: string; summary: string }>;
+  financeTwinRefs: Array<{
+    targetKind: string;
+    targetId: string;
+    summary: string;
+  }>;
   wikiRefs: Array<{ pageKey: string; summary: string }>;
   freshness: FreshnessPosture;
   confidence: {
@@ -305,7 +324,7 @@ This master-plan thread is accepted only if:
 - No code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, implementation scaffolding, package-scope rename, GitHub module deletion, engineering-twin deletion, source-pack behavior, runtime behavior, delivery, provider integration, certification, PDF/OCR/vector/PageIndex/OpenAI file-search implementation, MCP, ChatGPT App, iOS, OpenClaw, source mutation, finance write, generated prose, or autonomous action is added.
 - Validation is green before commit.
 
-Future V2A implementation is accepted only if:
+The V2A implementation is accepted because:
 
 - EvidenceIndex concepts are represented in the right module boundaries.
 - EvidenceCard output exposes evidence, freshness, limitations, and permitted next action.
@@ -313,7 +332,7 @@ Future V2A implementation is accepted only if:
 - Unsupported PDFs, scans, image-only files, ambiguous layout, OCR-only content, vector-only hits, tables, figures, and graphics fail closed with limitations.
 - Raw sources remain authoritative for document claims, Finance Twin remains authoritative for structured facts, and CFO Wiki remains compiled/derived.
 - The direct proof command proves the behavior without UI.
-- Replay implications are explicit. The expected first implementation is read-only derived indexing and should create no mission replay events unless a later plan-amended design adds a replay-worthy persisted state change.
+- Replay implications are explicit. The first implementation is read-only derived indexing and creates no mission replay events.
 
 Run DB-backed smokes serially for this master-plan thread:
 
@@ -362,17 +381,23 @@ Master-plan validation status on 2026-05-07:
 - Passing log root: `/tmp/pocket-cfo-v2a-planning-validation.FkMA5cLX44`
 - No validation reruns were required.
 
+Implementation validation status on 2026-05-07:
+
+- Passed. All 37 required commands passed serially.
+- Passing log root: `/tmp/pocket-cfo-v2a-validation.7G296TnlnX`
+- The ladder included `pnpm exec tsx tools/evidence-index-foundation-proof.mjs`, all listed DB-backed smokes, focused web/domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+
 ## Idempotence and Recovery
 
-This master-plan slice is retry-safe because it is docs-and-plan only. It creates no mission replay events, monitor results, report artifacts, approvals, delivery records, provider records, certification records, source mutations, finance writes, runtime-Codex outputs, generated product prose, or autonomous actions.
+The shipped implementation is retry-safe because it is read-only and deterministic. It creates no mission replay events, monitor results, report artifacts, approvals, delivery records, provider records, certification records, source mutations, finance writes, runtime-Codex outputs, generated product prose, or autonomous actions.
 
 Validation commands may create local database/object-storage test state. They must not mutate repository source truth or raw checked-in fixtures.
 
 If validation fails, record the exact failing command and failure summary in this plan before stopping or applying a docs-only correction. If a failure points to runtime behavior, source-pack behavior, family drift, provider/certification/delivery behavior, package-scope rename, source mutation, finance write, generated prose, or autonomous action, do not broaden V2A. Recommend the smallest corrective slice instead.
 
-If the future V2A implementation discovers that durable storage is required, stop and amend this plan before adding schema or migrations. The default first implementation path is derived read models plus a direct proof command.
+If future V2A/V2B work discovers that durable storage is required, stop and create or amend a named plan before adding schema or migrations. The shipped first implementation path is derived read models plus a direct proof command.
 
-If the future V2A implementation discovers that read-only routes are required before UI, stop and amend this plan with exact route scope before adding routes. The default first implementation path is no routes.
+If future V2A/V2B work discovers that read-only routes are required before UI, stop and create or amend a named plan with exact route scope before adding routes. The shipped first implementation path is no routes.
 
 Do not create FP-0081 from this plan or its first implementation closeout.
 
@@ -409,18 +434,42 @@ Artifacts intentionally not created by this master-plan thread:
 - autonomous actions
 - FP-0081
 
-Future implementation artifacts planned but not implemented here:
+Implementation artifacts created by this V2A foundation:
 
-- `packages/domain/src/evidence-index*.ts` or equivalent
-- `apps/control-plane/src/modules/evidence-index/**` if needed
+- `packages/domain/src/evidence-index-common.ts`
+- `packages/domain/src/evidence-index-document.ts`
+- `packages/domain/src/evidence-index-card.ts`
+- `packages/domain/src/evidence-index-coverage.ts`
+- `packages/domain/src/evidence-index.ts`
+- `packages/domain/src/evidence-index.spec.ts`
+- `apps/control-plane/src/modules/evidence-index/**`
 - `tools/evidence-index-foundation-proof.mjs`
-- focused specs for EvidenceCard schemas, source anchors, document maps, fail-closed unsupported cases, coverage matrix, and proof output
-- optional additive DB schema/migration only if derived read models are proven insufficient
-- optional exact read-only routes only if this plan is amended first
+- focused specs for EvidenceCard schemas, source anchors, document maps, fail-closed unsupported cases, coverage matrix, runtime boundaries, and proof output
+
+Implementation artifacts intentionally not created by this V2A foundation:
+
+- UI
+- routes
+- schema or migrations
+- package scripts or smoke aliases
+- eval datasets
+- fixture files
+- source-pack changes
+- provider integration
+- certification
+- PDF/OCR/vector/PageIndex/OpenAI vector store/file-search implementation
+- MCP or ChatGPT App
+- iOS or OpenClaw
+- deployment or external communications
+- generated product prose
+- source mutation
+- finance writes
+- autonomous actions
+- FP-0081
 
 External web/browser research used:
 
-- none in this master-plan pass
+- none in this master-plan or implementation pass
 
 ## Interfaces and Dependencies
 
@@ -460,8 +509,10 @@ Future adapters remain out of scope:
 
 ## Outcomes & Retrospective
 
-This section is intentionally open while FP-0080 is active.
+FP-0080 is closed as the shipped first V2A EvidenceIndex/document-map foundation record. The master-plan pass created the implementation contract, and the implementation pass shipped the narrow native deterministic read-only anchor/trace layer described by that contract.
 
-Master-plan outcome so far: FP-0080 exists as the active V2A implementation-ready contract, directly stale active docs point to it, and the full validation ladder passed. The final handoff will record repository publication state. The master-plan thread added no product runtime behavior.
+The implementation proves that a source document can be represented as a deterministic document map; a source anchor can point to source id, snapshot id, checksum, storage metadata when available, line/section range, extraction method, freshness/limitation posture, and lifecycle status; an evidence claim can point to one or more source anchors and optional Finance Twin/CFO Wiki refs; an evidence trace can describe raw source to extracted anchor to derived page/fact/answer relationships where existing shipped state supports it; an evidence card can expose evidence, freshness, limitations, permitted next actions, and forbidden actions; a source coverage matrix can show supported, unsupported, stale, missing, and not-indexed source/document families; and a direct proof command can prove the substrate from synthetic local data.
 
-Expected next recommendation if validation passes: start V2A implementation next under this FP-0080, limited to the read-only EvidenceIndex/document-map foundation and direct proof command described above. One more narrow F12 correction is not required. OSS demo/self-host baseline remains deferred demo-packaging work rather than a blocker for V2A implementation.
+The implementation deliberately leaves V2B document precision adapters, V2C MCP/ChatGPT App, F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, PageIndex, OpenAI vector store/file-search integration, OCR, UI, iOS, OpenClaw, deployment, external communications, package-scope renaming, GitHub module deletion, engineering-twin deletion, source mutation, finance writes, generated product prose, and autonomous action out of scope.
+
+Recommended next step: run V2A implementation QA next. No narrow V2A correction is currently known from validation.
