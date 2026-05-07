@@ -4,9 +4,11 @@ This file carries the shipped-state ledger that no longer belongs in the root RE
 
 ## Current State Summary
 
-Pocket CFO v1/F10 is shipped at the proof and handoff layer, not as a public hosted deployment.
+Pocket CFO v1/F12 is shipped at the proof, handoff, and manual UI/demo-readiness audit layer, not as a public hosted deployment.
 
 FP-0078 records the F11 public repo hygiene and V2 transition slice. It rewrites the public documentation surface, splits Codex/operator guidance from the human README, records current project state here, and frames V2 boundaries. It adds no product runtime behavior.
+
+FP-0079 records the F12 manual UI/demo-readiness audit. It adds `docs/qa/v1-ui-demo-readiness-audit.md`, records the screenshot-capture limitation, applies only direct read-only UI copy corrections, and adds no product runtime behavior.
 
 ## Shipped Architecture Summary
 
@@ -33,6 +35,7 @@ The shipped system is organized around:
 - **F9 read-only UI truthfulness polish**: app/web navigation, copy, warning, and status-surface truthfulness only.
 - **F10 v1 public launch handoff**: docs-and-validation-only shipped handoff record, with no public deployment or external communications.
 - **F11 public repo hygiene and V2 transition**: docs-only README split, active-doc freshness, V2 boundary framing, and stale public wording cleanup.
+- **F12 manual UI/demo-readiness audit**: manual app/web route audit, safety-boundary audit, evidence UX audit, screenshot limitation record, and direct read-only copy fixes only.
 
 ## Fixed Shipped Monitor Families
 
@@ -100,7 +103,7 @@ The repo still contains historical/internal scaffolding names:
 - engineering-twin modules
 - Pocket CTO archive and historical plan material
 
-Do not rename packages, imports, root `package.json`, database names, service names, or scripts without a dedicated future plan. Do not delete GitHub or engineering-twin modules in F11.
+Do not rename packages, imports, root `package.json`, database names, service names, or scripts without a dedicated future plan. Do not delete GitHub or engineering-twin modules in F12 or V2A planning.
 
 ## Plan Records
 
@@ -109,6 +112,7 @@ Use plan records for details rather than copying every shipped slice into the RE
 Key records:
 
 - [FP-0078 F11 public repo hygiene and V2 transition](../plans/FP-0078-public-repo-hygiene-and-v2-transition.md)
+- [FP-0079 F12 manual UI/demo-readiness audit](../plans/FP-0079-manual-ui-demo-readiness-audit.md)
 - [FP-0077 F10 v1 public launch handoff](../plans/FP-0077-v1-public-launch-handoff.md)
 - [FP-0076 F9 product UI launch polish](../plans/FP-0076-product-ui-launch-polish-foundation.md)
 - [FP-0075 F8 future-scope triage](../plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md)

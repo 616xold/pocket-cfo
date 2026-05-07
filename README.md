@@ -117,7 +117,9 @@ The current product boundary is intentionally narrow:
 
 ## V2 Roadmap Summary
 
-F11 closes public repo hygiene and V2 transition framing. The recommended next step is F12: a manual UI and demo-readiness audit that inspects the existing read-only product surfaces and demo posture without starting V2 implementation.
+F11 closed public repo hygiene and V2 transition framing. F12 closed the manual UI/demo-readiness audit in [docs/qa/v1-ui-demo-readiness-audit.md](docs/qa/v1-ui-demo-readiness-audit.md) without starting V2 implementation.
+
+The recommended next step is V2A master-plan creation for a read-only EvidenceIndex and document-map foundation.
 
 Candidate V2 sequence after that:
 
@@ -133,7 +135,7 @@ Those tracks are future-plan-only. See [docs/V2_BOUNDARY.md](docs/V2_BOUNDARY.md
 
 ## Screenshots And Demo Audit
 
-Screenshots are intentionally not invented in this F11 docs slice. The placeholder for screenshots and demo-readiness evidence is the future F12 manual UI/demo-readiness audit.
+The F12 manual UI/demo-readiness audit is recorded in [docs/qa/v1-ui-demo-readiness-audit.md](docs/qa/v1-ui-demo-readiness-audit.md). Screenshot artifacts were not invented; the audit records the local browser screenshot-capture limitation and the remaining public demo polish needs.
 
 ## For Codex Operators
 

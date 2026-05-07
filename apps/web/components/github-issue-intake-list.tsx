@@ -10,7 +10,7 @@ type GitHubIssueIntakeListProps = {
 
 export function GitHubIssueIntakeList({
   emptyHeading = "No GitHub issue envelopes yet",
-  emptyMessage = "Send an issues webhook delivery to see actionable intake cards here.",
+  emptyMessage = "No signed GitHub issues delivery has been stored for this secondary intake path yet.",
   issues,
 }: GitHubIssueIntakeListProps) {
   if (issues.length === 0) {
