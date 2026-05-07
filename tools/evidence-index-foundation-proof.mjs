@@ -32,6 +32,16 @@ function main() {
   );
   assertIncludes(
     capabilityCodes,
+    "unsupported_scan",
+    "scan fail-closed boundary",
+  );
+  assertIncludes(
+    capabilityCodes,
+    "unsupported_image_only",
+    "image-only fail-closed boundary",
+  );
+  assertIncludes(
+    capabilityCodes,
     "unsupported_ocr_only",
     "OCR fail-closed boundary",
   );
@@ -44,6 +54,26 @@ function main() {
     capabilityCodes,
     "unsupported_pageindex",
     "PageIndex fail-closed boundary",
+  );
+  assertIncludes(
+    capabilityCodes,
+    "unsupported_table",
+    "table fail-closed boundary",
+  );
+  assertIncludes(
+    capabilityCodes,
+    "unsupported_figure",
+    "figure fail-closed boundary",
+  );
+  assertIncludes(
+    capabilityCodes,
+    "unsupported_graphics",
+    "graphics fail-closed boundary",
+  );
+  assertIncludes(
+    capabilityCodes,
+    "ambiguous_layout",
+    "ambiguous layout fail-closed boundary",
   );
   assertIncludes(relationshipKinds, "raw_source_to_anchor", "raw source trace");
   assertIncludes(
@@ -59,6 +89,18 @@ function main() {
 
   const firstCard = foundation.evidenceCards[0];
   if (!firstCard) throw new Error("Expected at least one evidence card");
+  const supportedMap = foundation.documentMaps.find(
+    (map) => map.coverageStatus === "supported",
+  );
+  if (!supportedMap) {
+    throw new Error("Expected a supported deterministic document map");
+  }
+  if (supportedMap.sourceTables.length === 0) {
+    throw new Error("Expected unsupported table placeholders");
+  }
+  if (supportedMap.sourceFigures.length === 0) {
+    throw new Error("Expected unsupported figure placeholders");
+  }
   if (firstCard.sourceAnchors.length === 0) {
     throw new Error("Expected evidence cards to expose source anchors");
   }

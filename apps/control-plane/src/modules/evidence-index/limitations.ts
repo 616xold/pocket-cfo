@@ -55,6 +55,11 @@ export function buildDefaultCapabilityBoundaries() {
       summary: "V2A does not read scans or image-only documents.",
     }),
     buildLimitation({
+      code: "unsupported_image_only",
+      severity: "blocking",
+      summary: "V2A does not read image-only documents.",
+    }),
+    buildLimitation({
       code: "unsupported_ocr_only",
       severity: "blocking",
       summary: "V2A does not use OCR-only evidence.",
@@ -85,6 +90,18 @@ export function buildDefaultCapabilityBoundaries() {
       severity: "blocking",
       summary:
         "V2A figure and graphics regions are placeholders until a later adapter proves visual facts.",
+    }),
+    buildLimitation({
+      code: "unsupported_graphics",
+      severity: "blocking",
+      summary:
+        "V2A does not claim facts from graphics without a later deterministic adapter.",
+    }),
+    buildLimitation({
+      code: "ambiguous_layout",
+      severity: "blocking",
+      summary:
+        "V2A treats ambiguous document layout as unsupported instead of inferring structure.",
     }),
   ];
 }

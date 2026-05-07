@@ -49,9 +49,15 @@ describe("EvidenceIndexService", () => {
     ).toEqual(
       expect.arrayContaining([
         "unsupported_pdf",
+        "unsupported_scan",
+        "unsupported_image_only",
         "unsupported_ocr_only",
         "unsupported_vector_only",
         "unsupported_pageindex",
+        "unsupported_table",
+        "unsupported_figure",
+        "unsupported_graphics",
+        "ambiguous_layout",
       ]),
     );
     expect(coverageStatuses).toEqual(

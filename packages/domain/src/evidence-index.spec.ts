@@ -152,6 +152,20 @@ describe("evidence index domain schemas", () => {
           severity: "blocking",
           summary: "PDF handling is out of scope.",
         },
+        {
+          affectedAnchorIds: [],
+          affectedSourceIds: [],
+          code: "unsupported_graphics",
+          severity: "blocking",
+          summary: "Graphics handling is out of scope.",
+        },
+        {
+          affectedAnchorIds: [],
+          affectedSourceIds: [],
+          code: "ambiguous_layout",
+          severity: "blocking",
+          summary: "Ambiguous layout handling is out of scope.",
+        },
       ],
       companyKey: "acme",
       entries: [
@@ -174,5 +188,10 @@ describe("evidence index domain schemas", () => {
 
     expect(parsed.entries[0]?.coverageStatus).toBe("unsupported");
     expect(parsed.entries[0]?.unsupportedMethods).toContain("unsupported_pdf");
+    expect(
+      parsed.capabilityBoundaries.map((boundary) => boundary.code),
+    ).toEqual(
+      expect.arrayContaining(["unsupported_graphics", "ambiguous_layout"]),
+    );
   });
 });

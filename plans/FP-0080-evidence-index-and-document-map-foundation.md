@@ -32,6 +32,7 @@ GitHub connector product work is explicitly out of scope. Routine git, `gh`, pus
 - [x] 2026-05-07 - Added focused domain and control-plane specs for schemas, deterministic map/anchor creation, unsupported fail-closed posture, cards, coverage, and runtime boundary flags.
 - [x] 2026-05-07 - Ran the full 37-command V2A implementation validation ladder serially; all commands passed, including the new EvidenceIndex proof, source-pack smokes, wiki/Finance Twin/monitoring smokes, web/domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-v2a-validation.7G296TnlnX`.
 - [x] 2026-05-07 - Refreshed FP-0080 and directly stale active docs to record the shipped first V2A foundation without widening scope or creating FP-0081.
+- [x] 2026-05-07 - QA correction hardened explicit fail-closed capability boundaries and proof assertions for image-only, graphics, ambiguous layout, table, and figure unsupported posture without widening beyond V2A.
 
 ## Surprises & Discoveries
 
