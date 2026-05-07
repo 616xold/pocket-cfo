@@ -26,11 +26,13 @@ Read [docs/ops/github-app-setup.md](ops/github-app-setup.md) only when GitHub co
 
 ## Current Plan Truth
 
-[plans/FP-0078-public-repo-hygiene-and-v2-transition.md](../plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the F11 public repo hygiene and V2 transition record. If it still has unchecked work, continue that plan only; after closeout, treat it as the shipped F11 record. F11 is docs-only: README split, public repo hygiene, active-doc freshness, V2 boundary framing, and stale public wording cleanup.
+[plans/FP-0079-manual-ui-demo-readiness-audit.md](../plans/FP-0079-manual-ui-demo-readiness-audit.md) is the active F12 manual UI/demo-readiness audit plan. It is limited to planning and future implementation of a manual app/web demo-readiness audit, `docs/qa/v1-ui-demo-readiness-audit.md`, optional local screenshots, and direct read-only copy/layout corrections only if proven by the audit.
+
+[plans/FP-0078-public-repo-hygiene-and-v2-transition.md](../plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the shipped F11 public repo hygiene and V2 transition record.
 
 FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F9 read-only UI truthfulness polish. FP-0075 is shipped F8 future-scope triage. FP-0074 is shipped F7 launch-readiness. FP-0050 through FP-0073 remain shipped F6 records.
 
-Do not create FP-0079 during F11.
+Do not create FP-0080 during F12.
 
 ## Historical Reference
 
@@ -60,7 +62,6 @@ Do not claim a finance capability exists until code and acceptance prove it.
 
 These remain blocked until a future Finance Plan names exact scope:
 
-- F12 manual UI/demo-readiness audit
 - V2A EvidenceIndex and document-map foundation
 - F6V provider integration
 - F6X actual certification
@@ -71,6 +72,8 @@ These remain blocked until a future Finance Plan names exact scope:
 - deployment/external communications
 - package-scope renaming
 - product runtime behavior, source mutation, finance writes, or autonomous action
+
+F12 is active only through FP-0079's manual UI/demo-readiness audit contract. Anything beyond that contract remains blocked.
 
 ## Update Rule
 
