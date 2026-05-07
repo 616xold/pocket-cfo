@@ -36,6 +36,8 @@ FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F
 
 [plans/FP-0081-document-precision-adapters-foundation.md](../plans/FP-0081-document-precision-adapters-foundation.md) is the shipped V2B document precision adapters foundation record. It ships one deterministic policy/covenant TextPdfAdapter over EvidenceIndex with direct proof/spec coverage, while keeping broad PDF/OCR/vector/PageIndex/MCP/ChatGPT App/provider/certification/UI/runtime work future-only.
 
+[plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md](../plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md) is the active V2C read-only MCP/ChatGPT Evidence App alpha planning record. It is docs-and-plan only: it defines the future read-only agent-and-human evidence contract, candidate read-only search/fetch tools, security posture, and validation ladder without implementing MCP, ChatGPT App, Apps SDK, UI, routes, schema, package scripts, evals, fixtures, provider work, certification, deployment, source mutation, finance writes, generated advice, or autonomous action.
+
 ## Historical Reference
 
 These archived files are reference-only. They may contain reusable implementation ideas, but they are not active product truth:
@@ -67,14 +69,14 @@ These remain blocked until a future Finance Plan names exact scope:
 - F6V provider integration
 - F6X actual certification
 - deeper PDF/OCR/vector search beyond the shipped narrow FP-0081 text-PDF precision-adapter candidate
-- ChatGPT App/MCP
+- ChatGPT App/MCP implementation beyond the active docs-and-plan-only FP-0082 contract
 - iOS
 - OpenClaw
 - deployment/external communications
 - package-scope renaming
 - product runtime behavior outside the active Finance Plan, source mutation, finance writes, or autonomous action
 
-F12 is shipped through FP-0079, the first V2A EvidenceIndex/document-map foundation is shipped through FP-0080, and the first V2B document precision adapter foundation is shipped through FP-0081. Anything beyond FP-0081 remains blocked until a future Finance Plan names exact scope.
+F12 is shipped through FP-0079, the first V2A EvidenceIndex/document-map foundation is shipped through FP-0080, and the first V2B document precision adapter foundation is shipped through FP-0081. FP-0082 is the active docs-and-plan-only V2C read-only MCP/ChatGPT Evidence App alpha record. V2C implementation and anything beyond the FP-0082 planning contract remain blocked until a future Finance Plan names exact scope.
 
 ## Update Rule
 
