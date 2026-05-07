@@ -2,11 +2,11 @@
 
 ## Purpose / Big Picture
 
-F12 is a manual UI/demo-readiness audit after shipped F11/FP-0078 public repo hygiene and V2 transition work.
+F12 is the shipped manual UI/demo-readiness audit after shipped F11/FP-0078 public repo hygiene and V2 transition work.
 
-This plan creates the implementation-ready contract for exactly one future slice: `F12-manual-ui-demo-readiness-audit`. The slice is docs-and-plan only in this master-plan thread. It must not add product runtime behavior, code, UI implementation, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, implementation scaffolding, package-scope renames, GitHub module deletion, engineering-twin deletion, provider integration, certification, delivery, deployment, external communications, EvidenceIndex, PDF/OCR/vector search, ChatGPT App/MCP, iOS, OpenClaw, source mutation, finance writes, generated product prose, or autonomous action.
+This plan records both the original implementation-ready contract for `F12-manual-ui-demo-readiness-audit` and the shipped implementation closeout. The implementation created the durable QA report, applied only direct read-only copy/docs corrections proven by the audit, and did not add product runtime behavior, backend code, control-plane routes, web API routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, implementation scaffolding, package-scope renames, GitHub module deletion, engineering-twin deletion, provider integration, certification, delivery, deployment, external communications, EvidenceIndex, PDF/OCR/vector search, ChatGPT App/MCP, iOS, OpenClaw, source mutation, finance writes, generated product prose, or autonomous action.
 
-The future F12 implementation should audit the existing app/web operator surface and demo story, produce a durable QA artifact, and patch only direct read-only copy/layout defects if the audit proves them.
+The shipped F12 implementation audited the existing app/web operator surface and demo story, produced `docs/qa/v1-ui-demo-readiness-audit.md`, and patched only direct read-only copy/layout defects proven by the audit.
 
 ## Progress
 
@@ -96,19 +96,19 @@ Internal `pocket-cto` and `@pocket-cto/*` package scope remains scaffolding and 
 
 ## Plan of Work
 
-F12 implementation should run as one manual UI/demo-readiness audit slice. It should inspect the existing app/web product surface against F11 public docs and V2 boundaries, record demo readiness gaps, and create one durable QA report.
+F12 implementation ran as one manual UI/demo-readiness audit slice. It inspected the existing app/web product surface against F11 public docs and V2 boundaries, recorded demo readiness gaps, and created one durable QA report.
 
-The implementation slice must not add product behavior. It may only patch direct read-only copy/navigation/layout defects if the audit proves they are stale, confusing, or unsafe for the demo-readiness story.
+The implementation slice did not add product behavior. It only patched direct read-only copy/navigation/layout defects proven stale, confusing, or unsafe for the demo-readiness story.
 
-F12 must answer whether a human can understand the product from the README and running UI, follow a demo journey from sources to evidence/readiness posture, and see the relevant source/freshness/limitation/proof boundaries without mistaking Pocket CFO for a provider, certification, delivery, payment, legal, or autonomous finance system.
+F12 answered whether a human can understand the product from the README and running UI, follow a demo journey from sources to evidence/readiness posture, and see the relevant source/freshness/limitation/proof boundaries without mistaking Pocket CFO for a provider, certification, delivery, payment, legal, or autonomous finance system.
 
 ## Concrete Steps
 
-1. Re-run preflight on the F12 implementation branch/thread:
+1. Re-ran preflight on the F12 implementation branch/thread:
    - confirm the current branch is the intended F12 branch
    - confirm the repo is clean before work
    - confirm Docker Postgres and object storage are available
-   - confirm FP-0079 is the active unfinished plan
+   - confirm FP-0079 exists as the active implementation contract during F12 work
    - confirm FP-0080 does not exist
 2. Re-read the active docs and this plan before inspecting the UI:
    - `README.md`
@@ -264,12 +264,12 @@ Validation log root for this planning slice:
 
 - `/var/folders/41/pj1kw0tj2xd832wl_62gn73m0000gn/T//pocket-cfo-f12-planning-validation.20260507T161733Z.50846`
 
-Required future F12 implementation artifact:
+Required F12 implementation artifact:
 
 - `docs/qa/v1-ui-demo-readiness-audit.md`
   - Created in the F12 implementation slice.
 
-Optional future F12 implementation artifacts:
+Optional F12 implementation artifacts:
 
 - `docs/qa/screenshots/*.png`
   - Not created; screenshot capture was unavailable in the Codex Browser runtime and this limitation is recorded in the audit report.
@@ -320,11 +320,11 @@ F12 implementation must not depend on:
 
 FP-0079 is now the shipped F12 manual UI/demo-readiness audit record. F12 stayed bounded to manual app/web demo-readiness inspection, `docs/qa/v1-ui-demo-readiness-audit.md`, optional local screenshots only if browser capture was available, and direct read-only copy/layout/docs corrections proven by the audit.
 
-The planning slice changed only this plan and directly stale active-doc/roadmap F12 handoff pointers. It added no code, UI implementation, route, schema, migration, package script, smoke alias, eval dataset, fixture, runtime behavior, provider integration, certification, delivery, deployment, external communication, source mutation, finance write, generated product prose, autonomous action, or FP-0080.
+The original planning slice changed only this plan and directly stale active-doc/roadmap F12 handoff pointers. It added no code, UI implementation, route, schema, migration, package script, smoke alias, eval dataset, fixture, runtime behavior, provider integration, certification, delivery, deployment, external communication, source mutation, finance write, generated product prose, autonomous action, or FP-0080.
 
 Validation passed across the full ladder, including `pnpm ci:repro:current`.
 
-Closeout QA confirmed the docs-only planning commit is on the F12 branch and PR #222 is open. Recommended next product step after this PR: start F12 implementation under FP-0079. V2A should wait until F12 closes and a later V2A plan names exact scope.
+Closeout QA for the original planning slice confirmed the docs-only planning commit landed through PR #222. The implementation closeout commit is on branch `codex/f12-manual-ui-demo-readiness-audit-implementation-local-v1` and PR #223 closes the shipped F12 audit. Recommended next product step after F12 implementation: create the V2A EvidenceIndex master plan before any V2A implementation starts.
 
 The implementation slice added the F12 audit report, corrected stale read-only UI/demo copy, refreshed directly stale active docs, and did not add any product runtime behavior, backend code, routes, schemas, migrations, package scripts, smoke commands, eval datasets, source-pack fixtures, provider integration, certification, delivery, deployment, external communications, EvidenceIndex, PDF/OCR/vector implementation, ChatGPT App/MCP, iOS, OpenClaw, source mutation, finance writes, generated product prose, autonomous action, or FP-0080.
 
