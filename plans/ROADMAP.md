@@ -971,10 +971,12 @@ V2B - document precision adapters:
 
 V2C - read-only agent/MCP/ChatGPT Evidence App alpha:
 
-- future-only candidate after V2A/V2B foundations
-- agents get read-only structured evidence tools first
-- LLMs may navigate or summarize only under evidence contracts
-- ChatGPT App and MCP server implementation remain future-only until a dedicated plan proves scope, safety, auth, privacy, and non-autonomous boundaries
+- active planning through `plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md`
+- docs-and-plan-only in FP-0082, with no implementation in the master-plan slice
+- agents and humans get the same read-only evidence contract first
+- future tools are limited to read-only search/fetch/inspect over shipped EvidenceIndex, TextPdfAdapter provenance, SourceAnchors, DocumentMaps, EvidenceCards, SourceCoverageMatrix, CapabilityBoundaries, Finance Twin summaries, CFO Wiki references, mission answers, and proof bundles
+- LLMs may navigate or summarize only under evidence contracts in V2E or later
+- ChatGPT App, MCP server, Apps SDK, remote deployment, OAuth, app submission, public publication, write tools, provider integration, certification, delivery, report release, payment, source mutation, finance writes, generated advice, and autonomous action remain future-only until a dedicated plan proves scope, safety, auth, privacy, and non-autonomous boundaries
 
 V2D - Evidence Atlas UI:
 
@@ -1007,8 +1009,8 @@ Still blocked until future Finance Plans:
 - F6X actual certification
 - deeper PDF/OCR/vector search beyond the shipped narrow FP-0081 text-PDF precision-adapter candidate
 - EvidenceIndex or precision-adapter expansion outside the shipped FP-0081 first V2B contract
-- ChatGPT App implementation
-- MCP server implementation
+- ChatGPT App implementation beyond the docs-and-plan-only FP-0082 contract
+- MCP server implementation beyond the docs-and-plan-only FP-0082 contract
 - iOS implementation
 - OpenClaw integration
 - deployment and external communications
