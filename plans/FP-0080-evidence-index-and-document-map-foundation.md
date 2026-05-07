@@ -23,6 +23,7 @@ GitHub connector product work is explicitly out of scope. Routine git, `gh`, pus
 - [x] 2026-05-07T17:30:07Z - Refreshed directly stale active docs so they point to FP-0080 as the active V2A implementation-ready plan rather than saying FP-0080 does not exist.
 - [x] 2026-05-07T17:36:49Z - Ran the full 36-command docs-and-plan validation ladder serially; all commands passed, including `pnpm ci:repro:current`, with logs under `/tmp/pocket-cfo-v2a-planning-validation.FkMA5cLX44`.
 - [x] 2026-05-07T17:36:49Z - Prepared the final docs-and-plan tree for the requested commit, push, PR, and final handoff after validation passed.
+- [x] 2026-05-07T18:01:51Z - QA correction pass fixed two active-doc wording issues without widening scope: `START_HERE.md` now consistently marks FP-0078 as shipped F11, and `docs/V2_BOUNDARY.md` now refers to the final docs-and-plan tree for the F12-to-V2A planning transition rather than the final F12 tree.
 - [ ] In a later implementation thread, implement only the first narrow V2A foundation slice described here.
 
 ## Surprises & Discoveries

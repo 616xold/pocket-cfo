@@ -86,4 +86,4 @@ The F11/F12-to-V2A transition is acceptable when:
 - `@pocket-cto/*` and root `pocket-cto` are documented as internal scaffolding.
 - GitHub and engineering-twin modules remain present and isolated as internal/historical scaffolding.
 - no product runtime behavior, schema, route, package script, smoke alias, eval dataset, fixture, source mutation, finance write, generated product prose, provider behavior, certification behavior, delivery behavior, deployment, external communication, or autonomous action was added.
-- validation passes on the final F12 tree.
+- validation passes on the final docs-and-plan tree for the F12-to-V2A planning transition.

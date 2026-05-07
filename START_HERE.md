@@ -32,7 +32,7 @@ Use one Codex thread per slice. Keep work phase-bounded and plan-scoped.
 Current shipped records:
 
 - FP-0079 is the shipped F12 manual UI/demo-readiness audit record.
-- FP-0078 is the F11 public repo hygiene and V2 transition record.
+- FP-0078 is the shipped F11 public repo hygiene and V2 transition record.
 - FP-0077 is the shipped F10/v1 public launch handoff record.
 - FP-0076 is the shipped F9 read-only product UI launch-polish record.
 - FP-0075 is the shipped F8 future-scope triage record.
