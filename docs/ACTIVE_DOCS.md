@@ -26,13 +26,13 @@ Read [docs/ops/github-app-setup.md](ops/github-app-setup.md) only when GitHub co
 
 ## Current Plan Truth
 
-[plans/FP-0079-manual-ui-demo-readiness-audit.md](../plans/FP-0079-manual-ui-demo-readiness-audit.md) is the active F12 manual UI/demo-readiness audit plan. It is limited to planning and future implementation of a manual app/web demo-readiness audit, `docs/qa/v1-ui-demo-readiness-audit.md`, optional local screenshots, and direct read-only copy/layout corrections only if proven by the audit.
+[plans/FP-0079-manual-ui-demo-readiness-audit.md](../plans/FP-0079-manual-ui-demo-readiness-audit.md) is the shipped F12 manual UI/demo-readiness audit record. It created `docs/qa/v1-ui-demo-readiness-audit.md`, recorded the local browser screenshot-capture limitation, applied only direct read-only copy fixes proven by the audit, and added no product runtime behavior.
 
 [plans/FP-0078-public-repo-hygiene-and-v2-transition.md](../plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the shipped F11 public repo hygiene and V2 transition record.
 
 FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F9 read-only UI truthfulness polish. FP-0075 is shipped F8 future-scope triage. FP-0074 is shipped F7 launch-readiness. FP-0050 through FP-0073 remain shipped F6 records.
 
-Do not create FP-0080 during F12.
+FP-0080 was not created during F12. The recommended next step is V2A EvidenceIndex master-plan creation only; V2A implementation must wait for a dedicated Finance Plan.
 
 ## Historical Reference
 
@@ -73,7 +73,7 @@ These remain blocked until a future Finance Plan names exact scope:
 - package-scope renaming
 - product runtime behavior, source mutation, finance writes, or autonomous action
 
-F12 is active only through FP-0079's manual UI/demo-readiness audit contract. Anything beyond that contract remains blocked.
+F12 is shipped through FP-0079. Anything beyond the next dedicated V2A planning contract remains blocked.
 
 ## Update Rule
 

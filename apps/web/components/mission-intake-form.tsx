@@ -22,7 +22,7 @@ export function MissionIntakeForm({
         className="text-area"
         id="mission-text"
         name="text"
-        placeholder="Implement passkeys without breaking email login."
+        placeholder="Review stored finance evidence and summarize the next human-review step."
         required
         rows={5}
       />

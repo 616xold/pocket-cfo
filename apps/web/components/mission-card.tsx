@@ -1066,7 +1066,7 @@ function buildProofBundleReadinessMessage(
   }
 
   if (proofBundle.status === "ready") {
-    return "The proof bundle now reads like a final GitHub-aware decision package with planner, validation, and PR evidence linked together.";
+    return "The proof bundle now reads like a final legacy engineering decision package with planner, validation, and PR evidence linked together.";
   }
 
   if (proofBundle.status === "failed") {
@@ -1074,7 +1074,7 @@ function buildProofBundleReadinessMessage(
   }
 
   if (proofBundle.status === "incomplete") {
-    return "The bundle is partially assembled, but the final GitHub-first evidence package is still missing one or more required artifacts.";
+    return "The bundle is partially assembled, but the legacy non-finance evidence package is still missing one or more required artifacts.";
   }
 
   return "The proof bundle is still at the placeholder stage and has not yet accumulated meaningful persisted evidence.";

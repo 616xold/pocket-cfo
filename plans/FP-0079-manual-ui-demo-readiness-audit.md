@@ -18,6 +18,13 @@ The future F12 implementation should audit the existing app/web operator surface
 - [x] 2026-05-07T16:21:06Z - Ran the validation ladder named in this plan; all 36 commands passed, including `pnpm ci:repro:current`.
 - [x] 2026-05-07T16:21:06Z - Prepared the repo-doc portion of this planning slice for the single commit, push, PR, and final response from the master-plan thread.
 - [x] 2026-05-07T16:27:07Z - QA corrected stale closeout wording after confirming the planning commit, pushed branch, and PR exist; no scope, artifact, or implementation contract changed.
+- [x] 2026-05-07T16:52:19Z - Reopened FP-0079 as the active implementation contract for F12 on branch `codex/f12-manual-ui-demo-readiness-audit-implementation-local-v1`; preflight passed against fetched `origin/main`, clean starting tree, authenticated `gh`, available Docker services, existing FP-0079, and no FP-0080.
+- [x] 2026-05-07T16:52:19Z - Re-read FP-0079, active docs, roadmap, FP-0078, package metadata, ops docs, benchmark/eval docs, and app/web source surfaces before UI inspection.
+- [x] 2026-05-07T16:52:19Z - Ran documented local setup and seed/proof commands with existing scripts only; started the local app with `pnpm dev` and inspected local routes through Codex Browser.
+- [x] 2026-05-07T16:52:19Z - Created `docs/qa/v1-ui-demo-readiness-audit.md` with required F12 scope, setup, tooling, route coverage, demo journey, safety-boundary, evidence UX, docs consistency, findings, fixes, deferred follow-up, and verdict sections.
+- [x] 2026-05-07T16:52:19Z - Classified high-liability UI-source search hits and applied only direct read-only copy/docs corrections proven by the audit.
+- [x] 2026-05-07T16:52:19Z - Ran the full F12 validation ladder; after correcting shell-wrapper mistakes, all required commands passed, including root `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-07T16:52:19Z - Closed FP-0079 as the shipped F12 manual UI/demo-readiness audit record; no FP-0080 was created.
 
 ## Surprises & Discoveries
 
@@ -31,6 +38,11 @@ The future F12 implementation should audit the existing app/web operator surface
 - Future-only language for EvidenceIndex, provider integration, actual certification, PDF/OCR/vector search, ChatGPT App/MCP, iOS, OpenClaw, deployment, external communications, source mutation, finance writes, and autonomous action remains intentional.
 - No behavior leak was found during planning that requires a smaller corrective slice instead of FP-0079. If F12 implementation finds one, it must stop and recommend the smallest corrective plan rather than broaden F12.
 - Validation passed with the log root recorded under Artifacts and Notes.
+- F12 implementation found Codex Browser route/DOM inspection usable for the local app, but screenshot capture was unavailable: both full-page and visible screenshot calls timed out. The audit records this limitation and no screenshot artifacts were invented.
+- No separate `apps/web` CFO Wiki page or reporting index page was discovered. CFO Wiki and reporting evidence are visible through mission-detail related routes and control-plane read-model endpoints.
+- The UI source search found stale/demo-confusing copy only in read-only labels and fallback text: passkeys placeholders, one GitHub issue-intake empty-state instruction, `sends` wording for an internal policy-source contract, and legacy GitHub-aware/GitHub-first fallback proof text. These were corrected without behavior changes.
+- Board packet/reporting mission details still include pre-existing shipped release/circulation approval controls with safe boundary copy. The audit classifies them as acceptable shipped controls but recommends avoiding action-heavy states in first public screenshots.
+- The local shell validation wrapper had two tooling-only mistakes before the green run: `commands` collided with zsh's special command hash parameter, and a `cd apps/control-plane` command persisted for the repo-level tail. The affected commands were rerun from the repository root and passed.
 
 ## Decision Log
 
@@ -47,6 +59,9 @@ The future F12 implementation should audit the existing app/web operator surface
 - This plan does not invoke GitHub Connector Guard because F12 does not touch GitHub connector product behavior.
 - Do not create FP-0080 from this slice.
 - The validation ladder passed, so this planning slice is ready for one docs-only commit and PR.
+- F12 implementation is now closed as a manual audit plus direct read-only copy/docs correction slice. It did not add product runtime behavior, backend code, control-plane routes, web API routes, schemas, migrations, package scripts, smoke commands, eval datasets, fixtures, source-pack changes, provider setup, certification, delivery, finance writes, source mutation, generated product prose, or autonomous action.
+- Screenshot artifacts were not created because local browser screenshot capture timed out; the durable audit report is the evidence artifact for F12.
+- V2A EvidenceIndex should start next only as a new master-plan/Finance Plan. One more F12 corrective slice is not required based on the audit and validation results.
 
 ## Context and Orientation
 
@@ -173,6 +188,15 @@ Future F12 implementation is accepted only if:
 - No public deployment or external communication is performed.
 - FP-0080 is not created.
 
+F12 implementation acceptance status on 2026-05-07:
+
+- Accepted. `docs/qa/v1-ui-demo-readiness-audit.md` exists and answers the required audit questions.
+- Accepted. No screenshot artifacts were added because browser screenshot capture timed out; the limitation is recorded in the audit report.
+- Accepted. UI/doc changes are limited to direct read-only copy/docs corrections proven by the audit.
+- Accepted. No real company data, public deployment, external communication, source mutation, finance write, generated product prose, or autonomous action was introduced.
+- Accepted. FP-0080 was not created.
+- Accepted. The full validation ladder passed after wrapper-only command issues were corrected and rerun from the intended repository root.
+
 Run these validations serially for this planning slice:
 
 ```bash
@@ -226,6 +250,10 @@ If browser screenshot capture is unavailable in F12 implementation, record that 
 
 If F12 implementation discovers behavior that implies provider calls, external delivery, certification, report release, legal/audit opinion, payment instruction, finance write, customer contact, source mutation, or autonomous action beyond shipped boundaries, stop and recommend the smallest safety corrective slice.
 
+Implementation validation note:
+
+- A first wrapper attempt failed before running the intended ladder because `commands` is a special zsh parameter. A second wrapper attempt completed the specified command sequence through `pnpm test` but looked up `pnpm ci:repro:current` from `apps/control-plane` after an inline `cd`; this was a wrapper current-directory mistake, not a repository failure. The repo-level tail was rerun from `/Users/sohaib/Downloads/pocket-cto-starter` and passed: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+
 ## Artifacts and Notes
 
 Planning artifact created by this slice:
@@ -239,10 +267,29 @@ Validation log root for this planning slice:
 Required future F12 implementation artifact:
 
 - `docs/qa/v1-ui-demo-readiness-audit.md`
+  - Created in the F12 implementation slice.
 
 Optional future F12 implementation artifacts:
 
 - `docs/qa/screenshots/*.png`
+  - Not created; screenshot capture was unavailable in the Codex Browser runtime and this limitation is recorded in the audit report.
+
+Direct read-only UI copy fixes applied by the F12 implementation:
+
+- `apps/web/components/mission-intake-form.tsx`
+- `apps/web/components/discovery-mission-intake-form.tsx`
+- `apps/web/components/github-issue-intake-list.tsx`
+- `apps/web/components/mission-card.tsx`
+- `apps/web/app/missions/[missionId]/page.tsx`
+
+Directly stale active docs refreshed after F12:
+
+- `README.md`
+- `START_HERE.md`
+- `docs/ACTIVE_DOCS.md`
+- `docs/PROJECT_STATE.md`
+- `docs/V2_BOUNDARY.md`
+- `plans/ROADMAP.md`
 
 No real company data, public deployment, external communications, source mutation, finance writes, generated launch copy, or autonomous action is allowed.
 
@@ -271,10 +318,14 @@ F12 implementation must not depend on:
 
 ## Outcomes & Retrospective
 
-FP-0079 is now the active F12 manual UI/demo-readiness audit contract. The plan keeps F12 bounded to manual app/web demo-readiness inspection, `docs/qa/v1-ui-demo-readiness-audit.md`, optional local screenshots if browser capture is available, and direct read-only copy/layout corrections only if the audit proves them.
+FP-0079 is now the shipped F12 manual UI/demo-readiness audit record. F12 stayed bounded to manual app/web demo-readiness inspection, `docs/qa/v1-ui-demo-readiness-audit.md`, optional local screenshots only if browser capture was available, and direct read-only copy/layout/docs corrections proven by the audit.
 
 The planning slice changed only this plan and directly stale active-doc/roadmap F12 handoff pointers. It added no code, UI implementation, route, schema, migration, package script, smoke alias, eval dataset, fixture, runtime behavior, provider integration, certification, delivery, deployment, external communication, source mutation, finance write, generated product prose, autonomous action, or FP-0080.
 
 Validation passed across the full ladder, including `pnpm ci:repro:current`.
 
 Closeout QA confirmed the docs-only planning commit is on the F12 branch and PR #222 is open. Recommended next product step after this PR: start F12 implementation under FP-0079. V2A should wait until F12 closes and a later V2A plan names exact scope.
+
+The implementation slice added the F12 audit report, corrected stale read-only UI/demo copy, refreshed directly stale active docs, and did not add any product runtime behavior, backend code, routes, schemas, migrations, package scripts, smoke commands, eval datasets, source-pack fixtures, provider integration, certification, delivery, deployment, external communications, EvidenceIndex, PDF/OCR/vector implementation, ChatGPT App/MCP, iOS, OpenClaw, source mutation, finance writes, generated product prose, autonomous action, or FP-0080.
+
+The final F12 verdict is that Pocket CFO v1 is ready for V2A EvidenceIndex master-plan planning. One more narrow F12 correction is not required. Public screenshot/demo polish and a self-host/demo seed baseline remain deferred demo-packaging work, not blockers for V2A planning.

@@ -75,23 +75,27 @@ function buildDemoMissionDetail(): MissionDetailView {
       id: "00000000-0000-4000-8000-000000000001",
       type: "build",
       status: "planned",
-      title: "Implement passkeys for sign-in",
-      objective: "Ship passkeys without breaking email login.",
+      title: "Static legacy mission-detail demo",
+      objective:
+        "Demonstrate mission-detail chrome only; this fallback is not the Pocket CFO finance demo journey.",
       sourceKind: "manual_text",
       sourceRef: null,
       createdBy: "demo-operator",
       primaryRepo: "web",
       spec: {
-        acceptance: ["Ship passkeys without breaking email login."],
+        acceptance: [
+          "Show the legacy mission-detail chrome without claiming finance evidence is present.",
+        ],
         constraints: {
           allowedPaths: [],
           mustNot: [],
         },
         deliverables: [
-          "Updated mission detail route with approvals and artifacts.",
+          "Static mission-detail fallback for local UI inspection only.",
         ],
         evidenceRequirements: ["approval ledger", "artifact ledger"],
-        objective: "Ship passkeys without breaking email login.",
+        objective:
+          "Demonstrate mission-detail chrome only; this fallback is not the Pocket CFO finance demo journey.",
         repos: ["web"],
         riskBudget: {
           allowNetwork: false,
@@ -100,7 +104,7 @@ function buildDemoMissionDetail(): MissionDetailView {
           requiresHumanApprovalFor: [],
           sandboxMode: "patch-only",
         },
-        title: "Implement passkeys for sign-in",
+        title: "Static legacy mission-detail demo",
         type: "build",
       },
       createdAt: now,
@@ -140,8 +144,9 @@ function buildDemoMissionDetail(): MissionDetailView {
     ],
     proofBundle: {
       missionId: "00000000-0000-4000-8000-000000000001",
-      missionTitle: "Implement passkeys for sign-in",
-      objective: "Ship passkeys without breaking email login.",
+      missionTitle: "Static legacy mission-detail demo",
+      objective:
+        "Demonstrate mission-detail chrome only; this fallback is not the Pocket CFO finance demo journey.",
       sourceDiscoveryMissionId: null,
       sourceReportingMissionId: null,
       companyKey: null,

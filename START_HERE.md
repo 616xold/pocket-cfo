@@ -14,7 +14,7 @@ Use [docs/PROJECT_STATE.md](docs/PROJECT_STATE.md) for the shipped phase/state l
 
 Start with [CODEX_README.md](CODEX_README.md), then follow [docs/ACTIVE_DOCS.md](docs/ACTIVE_DOCS.md).
 
-[plans/FP-0079-manual-ui-demo-readiness-audit.md](plans/FP-0079-manual-ui-demo-readiness-audit.md) is the active F12 manual UI/demo-readiness audit plan. [plans/FP-0078-public-repo-hygiene-and-v2-transition.md](plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the shipped F11 public repo hygiene and V2 transition record.
+[plans/FP-0079-manual-ui-demo-readiness-audit.md](plans/FP-0079-manual-ui-demo-readiness-audit.md) is the shipped F12 manual UI/demo-readiness audit record. [plans/FP-0078-public-repo-hygiene-and-v2-transition.md](plans/FP-0078-public-repo-hygiene-and-v2-transition.md) is the shipped F11 public repo hygiene and V2 transition record.
 
 ## First Local Thread Prompt
 
@@ -31,6 +31,7 @@ Use one Codex thread per slice. Keep work phase-bounded and plan-scoped.
 
 Current shipped records:
 
+- FP-0079 is the shipped F12 manual UI/demo-readiness audit record.
 - FP-0078 is the F11 public repo hygiene and V2 transition record.
 - FP-0077 is the shipped F10/v1 public launch handoff record.
 - FP-0076 is the shipped F9 read-only product UI launch-polish record.
@@ -38,7 +39,7 @@ Current shipped records:
 - FP-0074 is the shipped F7 launch-readiness record.
 - FP-0050 through FP-0073 are shipped F6 records.
 
-The active next phase after F11 is F12 manual UI/demo-readiness audit under FP-0079 only.
+F12 is now shipped through FP-0079. The recommended next step is to create a V2A EvidenceIndex master plan before any V2A implementation starts.
 
 ## Internal Scaffolding
 
@@ -46,4 +47,4 @@ The root package name remains `pocket-cto`, and packages remain under `@pocket-c
 
 ## Do Not Start From This File Alone
 
-Do not start F12 implementation from this file alone; follow FP-0079. Do not start V2A EvidenceIndex, F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, package-scope renaming, product runtime behavior, schema/routes, UI, finance writes, source mutation, or autonomous action from this file alone.
+Do not start V2A EvidenceIndex implementation from this file alone; create and follow a dedicated V2A Finance Plan first. Do not start F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, package-scope renaming, product runtime behavior, schema/routes, UI, finance writes, source mutation, or autonomous action from this file alone.

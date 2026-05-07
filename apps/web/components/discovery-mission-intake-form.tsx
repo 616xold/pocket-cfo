@@ -181,7 +181,7 @@ export function DiscoveryMissionIntakeForm({
           <p className="muted" style={{ marginTop: 8 }}>
             Required for <code>policy_lookup</code>. Only sources already bound
             as <code>policy_document</code> appear here, and submission still
-            sends the explicit <code>policySourceId</code> contract.
+            submits the explicit <code>policySourceId</code> contract.
           </p>
           {selectedPolicySource ? (
             <p className="muted" style={{ marginTop: 8 }}>

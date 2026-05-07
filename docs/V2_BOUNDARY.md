@@ -58,7 +58,7 @@ No agent may release external communications, move money, file taxes, write acco
 ## V2 Phase Sequence
 
 - **F11 public repo hygiene and V2 transition**: docs-only public repo hygiene, README split, active-doc freshness, V2 boundary framing, and stale public wording cleanup.
-- **F12 manual UI/demo-readiness audit**: inspect existing read-only UI and demo posture, classify gaps, and avoid implementation.
+- **F12 manual UI/demo-readiness audit**: shipped through FP-0079; inspected existing read-only UI and demo posture, classified gaps, recorded screenshot limitations, and avoided product runtime implementation.
 - **V2A EvidenceIndex and document-map foundation**: define and implement the first read-only evidence index/document-map layer only after a V2A plan exists.
 - **V2B document precision adapters**: add deterministic precision adapters only after EvidenceIndex boundaries are proven.
 - **V2C read-only agent/MCP/ChatGPT Evidence App alpha**: expose read-only structured evidence tools after EvidenceIndex and document precision foundations.
@@ -76,14 +76,14 @@ No agent may release external communications, move money, file taxes, write acco
 
 ## Acceptance Criteria For V2 Transition
 
-The F11-to-V2 transition is acceptable when:
+The F11/F12-to-V2A transition is acceptable when:
 
 - README is human-facing and no longer carries the full FP ledger.
 - Codex/operator guidance lives in root `CODEX_README.md`.
 - current shipped state lives in `docs/PROJECT_STATE.md`.
 - this V2 boundary doc exists and is linked from active docs.
-- active docs and roadmap point to F12 and V2A as future-plan-only, not active implementation.
+- active docs and roadmap point to V2A as future-plan-only until a dedicated V2A Finance Plan exists.
 - `@pocket-cto/*` and root `pocket-cto` are documented as internal scaffolding.
 - GitHub and engineering-twin modules remain present and isolated as internal/historical scaffolding.
-- no product runtime behavior, schema, route, UI, package script, smoke alias, eval dataset, fixture, source mutation, finance write, generated product prose, provider behavior, certification behavior, delivery behavior, deployment, external communication, or autonomous action was added.
-- validation passes on the final docs-only tree.
+- no product runtime behavior, schema, route, package script, smoke alias, eval dataset, fixture, source mutation, finance write, generated product prose, provider behavior, certification behavior, delivery behavior, deployment, external communication, or autonomous action was added.
+- validation passes on the final F12 tree.
