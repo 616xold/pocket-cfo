@@ -16,6 +16,9 @@ The control-plane spine stays; the finance evidence substrate is what changes.
 
 Read `docs/ACTIVE_DOCS.md` before trusting older plans or engineering-era docs.
 
+Post-F10, `plans/FP-0078-public-repo-hygiene-and-v2-transition.md` is the active F11 public repo hygiene and V2 transition contract.
+It is an implementation-ready docs-and-plan contract only; it has not started V2 feature implementation, package renaming, provider integration, certification, deployment, or external communications.
+
 Today the merged backbone is:
 
 - F1 raw source registration and immutable file ingest
