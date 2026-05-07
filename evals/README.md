@@ -1,7 +1,8 @@
 # Pocket CFO evals
 
-The eval harness architecture from Pocket CTO is worth keeping.
+The eval harness architecture from historical Pocket CTO scaffolding is worth keeping.
 What changes is the dataset and rubric content.
+F11 public repo hygiene and V2 transition adds no eval dataset, fixture, model-scored benchmark, product runtime behavior, or eval command. Future V2 eval work requires a dedicated Finance Plan.
 
 ## What to optimize for
 

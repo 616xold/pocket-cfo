@@ -1,6 +1,7 @@
 # Codex App Server integration notes
 
 Pocket CFO still uses Codex App Server as a primary runtime seam.
+For local Codex/operator workflow, see `CODEX_README.md`. For V2 agent and LLM boundaries, see `docs/V2_BOUNDARY.md`.
 
 The key change is not the transport.
 The key change is what the surrounding control plane asks the runtime to do.
@@ -8,6 +9,7 @@ The key change is what the surrounding control plane asks the runtime to do.
 ## Role in Pocket CFO
 
 The runtime seam should stay narrow and generic.
+ChatGPT App and MCP server implementation are future-only distribution tracks, not current Codex App Server behavior.
 
 The control plane owns:
 

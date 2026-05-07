@@ -17,7 +17,7 @@ Existing `EP-*` files are Pocket CTO history and should be archived or treated a
 
 1. Every Finance Plan must be self-contained.
 2. Every Finance Plan must explain the user-visible purpose first.
-3. Every Finance Plan must name the target phase explicitly (`F0` through `F7`, or a later named roadmap phase once active docs add it).
+3. Every Finance Plan must name the target phase explicitly (`F0` through `F11`, or a later named roadmap/V2 phase once active docs add it).
 4. Every Finance Plan must define exact files, modules, commands, and acceptance checks.
 5. Every Finance Plan must stay current while work proceeds.
 6. Every Finance Plan must keep `Progress`, `Surprises & Discoveries`, `Decision Log`, and `Outcomes & Retrospective` up to date.
@@ -74,6 +74,7 @@ For Pocket CFO plans:
 - mention any new environment variables and where they are documented
 - say whether the change is docs-only, schema-only, route-driven, artifact-driven, or cross-cutting
 - keep internal `@pocket-cto/*` package scope unchanged unless the plan is specifically about renaming it later
+- treat F12, V2A, V2B, V2C, V2D, V2E, V2F, and V2G as named roadmap phases only when an active Finance Plan exists for the exact slice
 
 ## When you are implementing a Finance Plan
 
@@ -83,6 +84,7 @@ For Pocket CFO plans:
 - if scope changes, record the reason in the `Decision Log`
 - if a safer or simpler design emerges, prefer it and document the change
 - if a stale Pocket CTO doc caused confusion, either update the active-doc boundary or archive that file in the same slice
+- for docs-only public repo hygiene slices, move shipped-state ledgers into `docs/PROJECT_STATE.md`, keep V2 safety boundaries in `docs/V2_BOUNDARY.md`, and avoid code/runtime changes
 
 ## Template
 
