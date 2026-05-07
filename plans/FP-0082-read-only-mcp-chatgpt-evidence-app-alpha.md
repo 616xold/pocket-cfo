@@ -41,7 +41,7 @@ Official OpenAI docs were reviewed only as future platform/security context. The
 - [x] Updated only active-facing docs that became stale once FP-0082 existed.
 - [x] Ran the full validation ladder named in this plan. All commands passed; log root: `/tmp/pocket-cfo-v2c-validation-20260507T223125Z`.
 - [x] Ran final commit-candidate hygiene after the validation closeout edit. `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed; log root: `/tmp/pocket-cfo-v2c-final-validation-20260507T223652Z`.
-- [ ] If validation is green, commit, push, and open the requested PR.
+- [x] Committed, pushed, and opened PR #228 for the docs-and-plan-only V2C slice.
 
 ## Surprises & Discoveries
 
@@ -69,6 +69,7 @@ Official OpenAI docs were reviewed only as future platform/security context. The
 - 2026-05-07T22:28:15Z - Tool naming will use Pocket CFO explicit candidate names in this plan. If official ChatGPT/App platform requirements later require conventional `search`/`fetch` entry points for a data-app surface, the implementation plan may add aliases while preserving the internal evidence contract.
 - 2026-05-07T22:36:29Z - Full validation ladder passed on the docs-and-plan diff before commit. Validation log root: `/tmp/pocket-cfo-v2c-validation-20260507T223125Z`.
 - 2026-05-07T22:36:52Z - Final commit-candidate hygiene passed after validation closeout text was added. Final validation log root: `/tmp/pocket-cfo-v2c-final-validation-20260507T223652Z`.
+- 2026-05-07T22:49:54Z - QA correction updated this plan's closeout state to reflect that the V2C docs-and-plan-only slice was committed, pushed, and opened as PR #228. This correction remains docs-only and does not change V2C scope.
 
 ## Context and Orientation
 
@@ -486,10 +487,8 @@ Initial outcome:
 - No V2B corrective slice is required before planning V2C.
 - OSS demo/self-host/security/privacy/contribution/threat-model baseline is not required before an internal/local V2C proof, but should be planned before any public ChatGPT App alpha, app submission, external deployment, OAuth-backed publication, or public demo distribution.
 
-Closeout to update after validation:
+Closeout:
 
 - Validation status: passed. The full required validation ladder completed successfully, including `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-v2c-validation-20260507T223125Z`. Final commit-candidate hygiene also passed after closeout text was added; log root: `/tmp/pocket-cfo-v2c-final-validation-20260507T223652Z`.
-- Commit: pending final git step after this plan document is staged.
-- Push: pending final git step after commit.
-- PR: pending final git step after push.
-- Remaining work: commit, push, and open the requested PR if final hygiene remains green. Future V2C implementation should start with a local/internal read-only evidence-tool contract and direct proof; OSS demo/self-host/security/privacy/contribution/threat-model baseline should be planned before public ChatGPT App alpha, remote deployment, OAuth-backed publication, app submission, or public demo distribution.
+- Commit/push/PR status: completed for the original V2C docs-and-plan-only slice; PR #228 is the active PR for this branch. Any QA correction must remain docs-only and update the same PR.
+- Remaining work: no implementation work remains inside FP-0082. Future V2C implementation should start with a local/internal read-only evidence-tool contract and direct proof; OSS demo/self-host/security/privacy/contribution/threat-model baseline should be planned before public ChatGPT App alpha, remote deployment, OAuth-backed publication, app submission, or public demo distribution.
