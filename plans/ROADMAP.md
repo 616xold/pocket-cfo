@@ -920,3 +920,96 @@ Candidate future slices, not created here:
 - F6V actual provider integration, future only
 - F6X actual certification, future only
 - public launch deployment or external communications, future only if a later roadmap/Finance Plan names exact scope
+
+## Post-F10 / V2 transition
+
+Active planning record: `plans/FP-0078-public-repo-hygiene-and-v2-transition.md`.
+
+Purpose:
+
+- move from shipped F10/v1 public launch handoff into a cleaner public repository and V2 planning posture
+- keep F11 as docs-and-plan only until implementation starts under FP-0078
+- split public-facing and Codex-facing docs before beginning V2 feature work
+- preserve shipped source/proof/safety boundaries while making the repo easier for humans to understand
+
+F11 - public repo hygiene and V2 transition:
+
+- active contract is `plans/FP-0078-public-repo-hygiene-and-v2-transition.md`
+- docs-and-plan only in the FP-0078 planning slice
+- future implementation may create a human-facing README.md, root CODEX_README.md, docs/PROJECT_STATE.md, docs/V2_BOUNDARY.md, and directly adjacent active-doc freshness edits
+- must move the full shipped FP ledger out of README and into a maintainable state doc
+- must preserve `@pocket-cto/*`, root `pocket-cto`, package names, imports, database names, scripts, GitHub modules, and engineering-twin modules as internal scaffolding
+- must clean only allowed public/active stale Pocket CTO wording and must not broadly rewrite archived history
+- no product runtime behavior, code, UI, route, schema, migration, package script, smoke alias, eval dataset, fixture, EvidenceIndex, document map, provider integration, actual certification, PDF/OCR/vector implementation, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, source mutation, finance write, generated prose, autonomous action, or FP-0079
+
+F12 - manual UI and demo-readiness audit:
+
+- future-only candidate after F11
+- should manually inspect existing app/web product surfaces, screenshots, and demo posture
+- should classify stale public/product copy, missing screenshots, launch-demo clarity gaps, and demo-readiness limits
+- must not add UI implementation unless a later plan explicitly names it
+- must keep provider, certification, delivery, external communications, package rename, EvidenceIndex, and V2 implementation out of scope
+
+V2A - EvidenceIndex and document-map foundation:
+
+- future-only candidate after F11 and F12
+- should define a read-only evidence index and document-map layer only if F11/F12 prove the need
+- raw sources remain authoritative for document claims
+- Finance Twin remains authoritative for structured finance facts
+- CFO Wiki remains compiled/derived
+- no deeper PDF/OCR/vector implementation unless explicitly planned later
+- no schema, route, adapter, dataset, fixture, or implementation scaffold before a V2A Finance Plan exists
+
+V2B - document precision adapters:
+
+- future-only candidate after V2A
+- may consider deterministic adapters for higher-precision document handling
+- must preserve provenance, freshness posture, limitations, and raw-source authority
+- PDF/OCR/vector work remains blocked until a dedicated plan names exact safety and proof requirements
+
+V2C - read-only agent/MCP/ChatGPT Evidence App alpha:
+
+- future-only candidate after V2A/V2B foundations
+- agents get read-only structured tools first
+- LLMs may navigate or summarize only under evidence contracts
+- ChatGPT App and MCP server implementation remain future-only until a dedicated plan proves scope, safety, auth, privacy, and non-autonomous boundaries
+
+V2D - Evidence Atlas UI:
+
+- future-only candidate
+- should visualize source, Finance Twin, CFO Wiki, evidence, freshness, and limitation posture only after the evidence substrate exists
+- no UI implementation starts from roadmap text alone
+
+V2E - bounded LLM orchestration:
+
+- future-only candidate
+- LLMs may assist with navigation, summarization, and drafting only after deterministic evidence contracts exist
+- no LLM output becomes source truth
+- no generated advice, generated external communications, autonomous actions, or finance writes
+
+V2F - benchmark/community pack:
+
+- future-only candidate
+- may package benchmark/community source packs only after V2 evidence contracts are stable
+- no eval dataset, fixture, source-pack behavior, or community distribution starts from roadmap text alone
+
+V2G - optional distribution tracks:
+
+- future-only candidate
+- may consider optional ChatGPT App, MCP, iOS, OpenClaw, deployment, or other distribution tracks only after V2 foundations and safety boundaries are proven
+- no deployment, external communications, provider setup, certification, legal/audit posture, or external release starts from roadmap text alone
+
+Still blocked until future Finance Plans:
+
+- F6V provider integration
+- F6X actual certification
+- deeper PDF/OCR/vector search
+- EvidenceIndex implementation
+- ChatGPT App implementation
+- MCP server implementation
+- iOS implementation
+- OpenClaw integration
+- deployment and external communications
+- package-scope rename
+- GitHub module deletion
+- engineering-twin module deletion

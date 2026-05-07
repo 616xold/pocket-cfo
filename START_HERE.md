@@ -95,6 +95,11 @@ Suggested thread naming:
 - `F6W-policy-covenant-document-source-pack-foundation`
 - `F6Y-board-lender-document-source-pack-foundation`
 - `F6Z-final-f6-v1-exit-audit-and-handoff`
+- `F7-v1-launch-readiness-and-active-doc-hardening`
+- `F8-v1-future-scope-triage-and-roadmap-hardening`
+- `F9-product-ui-launch-polish-foundation`
+- `F10-v1-public-launch-handoff`
+- `F11-public-repo-hygiene-and-v2-transition`
 
 Broad F2 Finance Twin work now runs through F2O.
 `F2P-final-f2-exit-audit-and-polish` and `F2Q-final-f2-handoff-and-plan-chain-polish` are the historical closeout and handoff threads for that completed breadth.
@@ -140,6 +145,7 @@ The first F3 thread is the master-plan and active-doc refresh slice.
 `plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md` is the shipped F8/v1 future-scope triage record. It is docs-and-validation-only and did not start F8 implementation, F6V provider integration, F6X actual certification, product UI launch polish, deeper PDF/OCR/vector search, delivery, approval, report release, runtime-Codex, source mutation, finance writes, or autonomous action.
 `plans/FP-0076-product-ui-launch-polish-foundation.md` is the shipped F9 product UI launch-polish foundation record. F9 shipped read-only app/web navigation, copy, warning, and status-surface truthfulness only. It added no backend code, backend route, web API route, schema, migration, package script, smoke alias, eval dataset, fixture, product runtime behavior, provider integration, delivery, approval workflow, report release, report circulation, certification, legal/audit opinion, runtime-Codex, generated prose, source mutation, finance writes, monitor family, discovery family, mission behavior, autonomous action, or FP-0077 during F9.
 `plans/FP-0077-v1-public-launch-handoff.md` is the shipped F10/v1 public launch handoff record. It is docs-and-validation-only and must not start public launch implementation beyond docs-and-validation, F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, delivery, approval workflow, report release, certification, legal/audit opinion, runtime-Codex, generated prose, source mutation, finance writes, product runtime behavior, or autonomous action. Public launch implementation beyond docs-and-validation, deployment/external comms, launch announcements, generated launch copy, provider integration, certification, deeper document precision, and later work remain future-plan-only until a later reviewed plan names exact scope.
+`plans/FP-0078-public-repo-hygiene-and-v2-transition.md` is the active F11 public repo hygiene and V2 transition contract. It is docs-and-plan only; do not start F11 implementation, V2A EvidenceIndex implementation, manual UI audit implementation, provider integration, certification, PDF/OCR/vector work, ChatGPT App, MCP, iOS, OpenClaw, deployment, external communications, package-scope renaming, code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, source mutation, finance writes, generated prose, autonomous action, or FP-0079 from the planning slice.
 
 ## Review ritual
 
