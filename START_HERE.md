@@ -39,7 +39,7 @@ Current shipped records:
 - FP-0074 is the shipped F7 launch-readiness record.
 - FP-0050 through FP-0073 are shipped F6 records.
 
-F12 is now shipped through FP-0079. The recommended next step is to create a V2A EvidenceIndex master plan before any V2A implementation starts.
+F12 is now shipped through FP-0079. [FP-0080](plans/FP-0080-evidence-index-and-document-map-foundation.md) is the active implementation-ready plan for the V2A EvidenceIndex and document-map foundation.
 
 ## Internal Scaffolding
 
@@ -47,4 +47,4 @@ The root package name remains `pocket-cto`, and packages remain under `@pocket-c
 
 ## Do Not Start From This File Alone
 
-Do not start V2A EvidenceIndex implementation from this file alone; create and follow a dedicated V2A Finance Plan first. Do not start F6V provider integration, F6X actual certification, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, package-scope renaming, product runtime behavior, schema/routes, UI, finance writes, source mutation, or autonomous action from this file alone.
+Do not start V2A EvidenceIndex implementation from this file alone; follow FP-0080 and keep its first implementation limited to the read-only EvidenceIndex/document-map foundation. Do not start F6V provider integration, F6X actual certification, V2B document precision, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, external communications, package-scope renaming, product runtime behavior beyond FP-0080, schema/routes outside FP-0080, UI, finance writes, source mutation, or autonomous action from this file alone.

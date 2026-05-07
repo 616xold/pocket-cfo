@@ -59,7 +59,7 @@ No agent may release external communications, move money, file taxes, write acco
 
 - **F11 public repo hygiene and V2 transition**: docs-only public repo hygiene, README split, active-doc freshness, V2 boundary framing, and stale public wording cleanup.
 - **F12 manual UI/demo-readiness audit**: shipped through FP-0079; inspected existing read-only UI and demo posture, classified gaps, recorded screenshot limitations, and avoided product runtime implementation.
-- **V2A EvidenceIndex and document-map foundation**: define and implement the first read-only evidence index/document-map layer only after a V2A plan exists.
+- **V2A EvidenceIndex and document-map foundation**: FP-0080 defines the first read-only evidence index/document-map contract. Implementation must follow FP-0080 and stay limited to native anchors, traces, cards, coverage, direct proof, and fail-closed unsupported-source posture.
 - **V2B document precision adapters**: add deterministic precision adapters only after EvidenceIndex boundaries are proven.
 - **V2C read-only agent/MCP/ChatGPT Evidence App alpha**: expose read-only structured evidence tools after EvidenceIndex and document precision foundations.
 - **V2D Evidence Atlas UI**: visualize evidence, sources, freshness, limitations, and derived state after the substrate exists.
@@ -82,7 +82,7 @@ The F11/F12-to-V2A transition is acceptable when:
 - Codex/operator guidance lives in root `CODEX_README.md`.
 - current shipped state lives in `docs/PROJECT_STATE.md`.
 - this V2 boundary doc exists and is linked from active docs.
-- active docs and roadmap point to V2A as future-plan-only until a dedicated V2A Finance Plan exists.
+- active docs and roadmap point to FP-0080 as the dedicated V2A Finance Plan, with V2A implementation still limited to that contract.
 - `@pocket-cto/*` and root `pocket-cto` are documented as internal scaffolding.
 - GitHub and engineering-twin modules remain present and isolated as internal/historical scaffolding.
 - no product runtime behavior, schema, route, package script, smoke alias, eval dataset, fixture, source mutation, finance write, generated product prose, provider behavior, certification behavior, delivery behavior, deployment, external communication, or autonomous action was added.
