@@ -995,10 +995,12 @@ V2D - Evidence Atlas UI:
 
 V2E - bounded LLM orchestration:
 
-- future-only candidate
-- LLMs may assist with navigation, summarization, and drafting only after deterministic evidence contracts and the OSS/read-only-agent threat-model baseline exist
+- active implementation-ready plan: `plans/FP-0085-bounded-llm-orchestration-foundation.md`
+- implementation has not started
+- first implementation must stay local/internal proof-only over fixed read-only V2C tools
+- LLMs may assist with navigation, summarization, and drafting only under deterministic evidence contracts after evidence selection
 - no LLM output becomes source truth
-- no generated advice, generated external communications, autonomous actions, or finance writes
+- no OpenAI API calls, routes, UI, schema, migrations, package scripts, eval datasets, fixtures, sample data, public app/MCP, generated advice, generated external communications, autonomous actions, or finance writes in the master-plan slice
 
 V2F - benchmark/community pack:
 
