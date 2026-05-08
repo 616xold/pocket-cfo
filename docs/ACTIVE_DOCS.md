@@ -48,6 +48,8 @@ FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F
 
 [plans/FP-0083-oss-demo-self-host-security-baseline.md](../plans/FP-0083-oss-demo-self-host-security-baseline.md) is the shipped OSS demo/self-host/security baseline documentation record. It created `SECURITY.md`, `PRIVACY.md`, `CONTRIBUTING.md`, demo-data policy, local demo journey, self-host guidance, finance-data threat model, and read-only-agent threat model docs before any public ChatGPT App, remote MCP, Apps SDK UI, OAuth, app submission, V2D UI, V2E LLM orchestration, V2F community packs, provider integration, certification, deployment, external communications, package-scope rename, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action.
 
+[plans/FP-0084-evidence-atlas-ui-foundation.md](../plans/FP-0084-evidence-atlas-ui-foundation.md) is the active implementation-ready V2D Evidence Atlas UI foundation plan. It is a read-only UI visualization plan over existing EvidenceIndex, V2B TextPdfAdapter, V2C evidence-tool, Finance Twin, CFO Wiki, mission answer, proof bundle, and source coverage artifacts. Implementation has not started, and no code, UI, routes, schema, migrations, package scripts, fixtures, sample data, public app, MCP, OpenAI vector/file-search, source mutation, finance write, generated product prose, LLM orchestration, runtime-Codex finance output, or autonomous action is shipped by this plan record alone.
+
 ## Historical Reference
 
 These archived files are reference-only. They may contain reusable implementation ideas, but they are not active product truth:
@@ -86,7 +88,7 @@ These remain blocked until a future Finance Plan names exact scope:
 - package-scope renaming
 - product runtime behavior outside the active Finance Plan, source mutation, finance writes, or autonomous action
 
-F12 is shipped through FP-0079, the first V2A EvidenceIndex/document-map foundation is shipped through FP-0080, the first V2B document precision adapter foundation is shipped through FP-0081, the first V2C local/internal read-only evidence-tool contract is shipped through FP-0082, and the OSS demo/self-host/security baseline is shipped through FP-0083. Public ChatGPT App/MCP deployment, Apps SDK UI, OAuth, app submission, V2D UI, V2E LLM orchestration, and anything beyond the FP-0082 local contract remain blocked until a future Finance Plan names exact scope.
+F12 is shipped through FP-0079, the first V2A EvidenceIndex/document-map foundation is shipped through FP-0080, the first V2B document precision adapter foundation is shipped through FP-0081, the first V2C local/internal read-only evidence-tool contract is shipped through FP-0082, the OSS demo/self-host/security baseline is shipped through FP-0083, and the first V2D Evidence Atlas UI foundation is active through FP-0084 as a plan only. Public ChatGPT App/MCP deployment, Apps SDK UI, OAuth, app submission, V2D implementation outside FP-0084, V2E LLM orchestration, and anything beyond the FP-0082 local contract remain blocked until a future Finance Plan names exact scope.
 
 ## Update Rule
 

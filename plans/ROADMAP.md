@@ -983,13 +983,14 @@ OSS demo/self-host/security baseline:
 - docs-only baseline before public app, remote MCP, community pack, or deployment work
 - adds SECURITY.md, PRIVACY.md, CONTRIBUTING.md, local demo operator journey, demo-data policy, self-host baseline, finance-data threat model, and read-only-agent threat model
 - first implementation should not add code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample source-pack data, source mutation, finance writes, generated product prose, LLM orchestration, runtime-Codex finance output, deployment, provider integration, certification, external communications, or autonomous action
-- public ChatGPT App alpha, remote MCP deployment, Apps SDK UI, OAuth, app submission, V2D UI, V2E LLM orchestration, V2F community packs, and V2G distribution tracks remain future-plan-only after this baseline
+- public ChatGPT App alpha, remote MCP deployment, Apps SDK UI, OAuth, app submission, V2E LLM orchestration, V2F community packs, and V2G distribution tracks remain future-plan-only after this baseline
 
 V2D - Evidence Atlas UI:
 
-- future-only candidate
-- should visualize source, Finance Twin, CFO Wiki, evidence, freshness, and limitation posture only after the evidence substrate and OSS baseline exist
-- no UI implementation starts from roadmap text alone
+- active implementation-ready plan through `plans/FP-0084-evidence-atlas-ui-foundation.md`
+- should visualize source, Finance Twin, CFO Wiki, evidence, freshness, and limitation posture only as a read-only UI over existing EvidenceIndex, V2B TextPdfAdapter, V2C evidence-tool, mission answer, proof bundle, and source coverage artifacts
+- first implementation should start with Source Coverage Matrix UI plus capability boundary and unsupported/missing/stale evidence states
+- no V2D code, UI, route, schema, migration, package script, fixture, sample data, public app, MCP, OpenAI vector/file-search, source mutation, finance write, LLM orchestration, generated advice, runtime-Codex finance output, or autonomous action starts from roadmap text alone
 
 V2E - bounded LLM orchestration:
 
