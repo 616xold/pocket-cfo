@@ -2,13 +2,13 @@
 
 ## Purpose / Big Picture
 
-Status: active implementation-ready Finance Plan, created 2026-05-08T17:26:48Z. Implementation has not started.
+Status: shipped read-only V2D Evidence Atlas UI foundation record, created 2026-05-08T17:26:48Z and implemented 2026-05-08T18:02:26Z.
 
 Target phase: `V2D`.
 
 Exact slice: `V2D-evidence-atlas-ui-foundation`.
 
-This Finance Plan defines the next safe slice after shipped FP-0083. It is a plan for one read-only Evidence Atlas UI foundation. This master-plan thread is docs-and-plan only: it creates this plan and refreshes only directly stale active docs. It does not implement V2D.
+This Finance Plan began as the next safe slice after shipped FP-0083. It now records the shipped read-only Evidence Atlas UI foundation. The shipped implementation adds one narrow `apps/web/app/evidence-atlas` route, modular read-only atlas components, a web-only atlas read-model helper, and focused web specs. It does not add backend routes, web API routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public ChatGPT App, MCP, Apps SDK UI, OAuth, app submission, OpenAI API/vector/file-search, OCR, PageIndex, provider integration, certification, delivery, external communications, source mutation, finance writes, generated advice, LLM orchestration, runtime-Codex finance output, or autonomous action.
 
 The user-visible purpose of V2D is to make existing source evidence, EvidenceIndex artifacts, V2C evidence-tool posture, Finance Twin references, CFO Wiki references, mission-answer references, proof-bundle references, freshness, limitations, and capability boundaries easier for a human operator to inspect. The Evidence Atlas must help the operator see what is supported, stale, missing, unsupported, cited, redacted, and permitted next. It must not become a new source of truth or a generated-answer layer.
 
@@ -37,6 +37,16 @@ No external web or browser research was used for FP-0084. Repo source truth came
 - [x] 2026-05-08T17:26:48Z - Decided V2D is safe to plan now as `V2D-evidence-atlas-ui-foundation` because FP-0083 is shipped, active docs support FP-0083 as shipped, V2A/V2B/V2C proofs pass, EvidenceIndex/TextPdfAdapter/V2C local read-only contracts exist, and the next slice can remain read-only UI visualization over existing artifacts.
 - [x] 2026-05-08T17:26:48Z - Created this FP-0084 active implementation-ready plan and refreshed only directly stale active-doc/roadmap wording.
 - [x] 2026-05-08T17:38:16Z - Ran the required docs-and-plan validation ladder, including direct V2 proofs, source-pack proofs, CFO Wiki/Finance Twin/monitoring/delivery/operator smokes, focused web/domain/control-plane specs, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed. Log root: `/tmp/pocket-cfo-fp0084-validation-20260508T173251Z`.
+- [x] 2026-05-08T18:02:26Z - Implementation-thread preflight passed on branch `codex/v2d-evidence-atlas-ui-foundation-local-v1`; the worktree started clean, `HEAD` matched fetched `origin/main`, GitHub auth/repo access worked, Docker Postgres/MinIO were available, FP-0084 existed, FP-0085 was absent, and the required V2 proof commands existed.
+- [x] 2026-05-08T18:02:26Z - Re-invoked the requested Pocket CFO operator skills for implementation and confirmed GitHub Connector Guard remained out of scope because no GitHub connector product behavior was touched.
+- [x] 2026-05-08T18:02:26Z - Re-ran the direct V2 proofs before coding: `pnpm exec tsx tools/read-only-evidence-app-proof.mjs`, `pnpm exec tsx tools/document-precision-foundation-proof.mjs`, and `pnpm exec tsx tools/evidence-index-foundation-proof.mjs`; all passed.
+- [x] 2026-05-08T18:02:26Z - Inventoried existing app/web routes and V2A/V2B/V2C contracts. No existing app/web Evidence Atlas route or EvidenceIndex/V2C HTTP read route exists, so the implementation stayed web-only and renders live-artifact absence as explicit missing/limitation posture instead of adding backend routes.
+- [x] 2026-05-08T18:02:26Z - Implemented the read-only `/evidence-atlas` UI foundation with Source Coverage Matrix posture, evidence timeline path, Document Map summary, Evidence Card Detail, Answer Anatomy, Capability Boundary, unsupported/missing/stale states, bounded/cited excerpt rendering, and no write/action controls.
+- [x] 2026-05-08T18:02:26Z - Added focused web specs for the page and atlas components, including prompt-injection-like source text displayed only as data, redacted/cited excerpts, forbidden actions shown only as blocked text, and absence of `<form>` and `<button>` controls.
+- [x] 2026-05-08T18:02:26Z - Ran focused validation: direct V2 proofs, `pnpm --filter @pocket-cto/web exec vitest run`, `pnpm --filter @pocket-cto/web typecheck`, focused domain evidence specs, and focused control-plane EvidenceIndex specs all passed.
+- [x] 2026-05-08T18:02:26Z - Ran the requested DB-backed smoke/full validation ladder. The first run passed through command 32, then `pnpm lint` failed on one unused `React` import in the new page spec. This was corrected without widening scope, and `pnpm --filter @pocket-cto/web lint` passed.
+- [x] 2026-05-08T18:02:26Z - Reran the corrected full-ladder tail: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed. Log roots: `/tmp/pocket-cfo-v2d-full-validation-20260508T175633Z` and `/tmp/pocket-cfo-v2d-validation-tail-20260508T175818Z`.
+- [x] 2026-05-08T18:14:02Z - Updated FP-0084 and directly stale active docs to mark V2D as shipped, then reran the required final minimum validation: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed. Log root: `/tmp/pocket-cfo-v2d-final-validation-20260508T180618Z`.
 
 ## Surprises & Discoveries
 
@@ -53,6 +63,10 @@ No external web or browser research was used for FP-0084. Repo source truth came
 - Search hits for provider, certification, delivery, report release, payment, legal advice, audit opinion, source mutation, finance writes, generated prose, runtime-Codex, and autonomous action were active safety boundaries, shipped absence assertions, existing internal boundary/readiness modules, or reference-only history. No behavior leak requires a smaller corrective slice before FP-0084.
 - Search hits for route, schema, migration, package script, smoke alias, eval dataset, fixture, sample data, `pocket-cto`, and `@pocket-cto` are valid shipped code, active guardrails, source-pack proof posture, or internal scaffolding. They must not be renamed or mutated in V2D planning.
 - No external web/search research was used. If a later implementation needs official/current accessibility/security/OpenAI platform docs, that plan or implementation record must name the official sources and state exactly what they were used for.
+- The implementation confirmed that a live EvidenceIndex/V2C app/web data path would require a backend read route, which FP-0084 did not need for the first foundation. The shipped route therefore uses existing source-list reachability plus contract-shaped component rendering and explicit missing EvidenceIndex/V2C artifact limitations.
+- The Evidence Atlas page intentionally has one navigation link back to the operator home and no forms or buttons. Forbidden actions such as `upload_source`, `provider_call`, `generate_finance_advice`, and `take_autonomous_action` are displayed only as blocked contract text.
+- Inline component specs use in-memory contract-shaped data to exercise SourceCoverageMatrix, DocumentMap, EvidenceCard, SafeSourceExcerpt, and Answer Anatomy rendering. No checked-in fixture file, sample data file, eval dataset, or source-pack mutation was added.
+- The first full validation pass found a narrow lint issue in the new page spec. The correction removed an unused import only; it did not change product behavior.
 
 ## Decision Log
 
@@ -87,7 +101,19 @@ Decision: F12 screenshot limitation does not block first V2D implementation.
 Rationale: first implementation can be proven with DOM/component/page specs and a direct proof of read-only absence boundaries before any manual screenshot artifact is claimed.
 
 Decision: public demo/docs screenshots are not updated in this planning slice.
-Rationale: V2D implementation has not started. Demo docs may be updated only after implementation proves a safe route and screenshot/data posture.
+Rationale: the shipped V2D implementation is proven by DOM/component/page specs and direct V2 proof commands. Demo screenshots remain out of scope until a future screenshot/data posture plan uses synthetic or approved data.
+
+Decision: ship V2D without a backend read route.
+Rationale: FP-0084 strongly preferred no backend expansion. Existing app/web APIs do not expose EvidenceIndex/V2C artifacts, but the first UI foundation can truthfully render the Evidence Atlas contract, source-list reachability, and missing live-artifact posture without adding control-plane routes, web API routes, SQL, schema, migrations, or persistence.
+
+Decision: live EvidenceIndex/V2C absence is a first-class UI limitation.
+Rationale: the atlas must not invent source claims or pretend local/internal V2C artifacts are live web data. The route renders missing coverage, missing DocumentMap, missing EvidenceCard, and unavailable Answer Anatomy states until a future named plan authorizes a read-only data path.
+
+Decision: component specs may use inline contract-shaped data.
+Rationale: focused specs need to prove the shipped UI can render SourceCoverageMatrix, DocumentMap, EvidenceCard, safe excerpts, citations, stale/missing/unsupported states, and answer anatomy. Inline spec data is not a checked-in fixture, sample source pack, eval dataset, or product source truth.
+
+Decision: do not add `tools/evidence-atlas-ui-proof.mjs`.
+Rationale: FP-0084 allowed a direct proof only if needed. Focused web specs plus the existing V2A/V2B/V2C direct proofs were enough to prove the UI foundation without adding a new tool or package script.
 
 Decision: V2E bounded LLM orchestration must wait.
 Rationale: V2D should first make the evidence contract navigable and visible without LLM summarization. Prompt-injection text and private finance data remain source data only.
@@ -114,7 +140,7 @@ Current shipped plan truth:
 - FP-0074 is the shipped F7 launch-readiness record.
 - FP-0050 through FP-0073 remain shipped F6 records.
 
-The gap from V2A/V2B/V2C/FP-0083 is an operator inspection gap. V2A created deterministic EvidenceIndex artifacts. V2B added one TextPdfAdapter candidate with provenance and fail-closed limitations. V2C exposed local/internal read-only evidence-tool responses over those artifacts. FP-0083 added OSS/security/privacy/self-host/demo policy. But a human operator still has no first-class UI for seeing the coverage matrix, stale/missing/unsupported regions, citations, capability boundaries, evidence card detail, document-map posture, or answer anatomy in one place.
+The gap from V2A/V2B/V2C/FP-0083 was an operator inspection gap. V2A created deterministic EvidenceIndex artifacts. V2B added one TextPdfAdapter candidate with provenance and fail-closed limitations. V2C exposed local/internal read-only evidence-tool responses over those artifacts. FP-0083 added OSS/security/privacy/self-host/demo policy. FP-0084 now ships the first read-only operator UI foundation for seeing the coverage matrix posture, stale/missing/unsupported regions, citations, capability boundaries, evidence card detail, document-map posture, and answer anatomy boundary in one place.
 
 V2D is safe before public ChatGPT App/MCP deployment because it stays local/operator-facing and read-only. It should reduce public app risk by making evidence/freshness/limitation boundaries visible before any LLM or public app wrapper is added.
 
@@ -169,44 +195,43 @@ Required planning answers:
 - How will source excerpts remain bounded/redacted/cited? Reuse V2C safe excerpt policy: small excerpts, citation required, full-file dumps disallowed, obvious secrets/credentials/tokens/private finance identifiers redacted, source text treated as untrusted data.
 - How will prompt-injection text remain source data only? Render source text/excerpts only as cited evidence strings. Do not execute URLs, instructions, tool calls, or action text from excerpts. Specs must include prompt-injection-like source text and assert it is displayed only as data.
 - How will proof commands/specs prove no high-liability behavior? Specs must assert absence of upload, ingest, mission creation, monitor rerun, approval, release, circulation, provider, delivery, certification, payment, legal/audit, source mutation, finance write, LLM generation, public app, MCP, OAuth, and autonomous controls. A direct proof may render normalized atlas props and boundary flags if implementation adds one.
-- What active-doc updates are needed after planning? Active docs and roadmap should point to FP-0084 as the active implementation-ready V2D plan while making implementation unstarted and later tracks future-only.
+- What active-doc updates are needed after implementation? Active docs and roadmap should point to FP-0084 as the shipped V2D read-only Evidence Atlas UI foundation record while keeping later tracks future-only.
 - What should V2E bounded LLM orchestration wait for? A shipped V2D route/spec/proof showing evidence/freshness/limitations/citations/boundaries are navigable without LLM-generated truth.
 - What should public ChatGPT App planning wait for? Shipped V2D read-only UI proof plus separate public app/MCP/auth/privacy/deployment threat model.
 - What should V2F benchmark/community pack wait for? Shipped atlas/evidence UX plus a future sample-data/community-pack plan proving synthetic non-private data and no fixture/source-pack behavior leak.
 
 ## Plan of Work
 
-This master-plan thread may touch only:
+The original master-plan thread touched only:
 
 - `plans/FP-0084-evidence-atlas-ui-foundation.md`
-- directly stale active docs/roadmap files needed to mark FP-0084 active and implementation unstarted
+- directly stale active docs/roadmap files needed to mark FP-0084 active and implementation-ready
 
-The future implementation thread should stay narrow:
+The implementation thread stayed narrow:
 
-1. Keep this FP-0084 as the active plan. Do not create FP-0085.
-2. Re-run preflight and direct V2 proofs before code.
-3. Re-confirm no existing EvidenceIndex/V2C route can satisfy live app/web data before adding any backend route.
-4. Implement the first UI surface as Source Coverage Matrix UI, with enough detail-panel support to inspect coverage, citations, limitations, freshness, and capability boundaries.
-5. Prefer app/web components and focused specs first.
-6. Add a single app/web route only if needed for the operator to navigate the atlas.
-7. Add a single thin control-plane read route only if required to expose existing V2C/EvidenceIndex artifacts to app/web, with no SQL in route handlers and no schema/migration.
-8. Keep all actions as read-only navigation/filter/inspection. No upload, sync, mission creation, monitor rerun, report release, approval, certification, delivery, provider, payment, source mutation, finance write, generated advice, LLM summarization, or autonomous action.
-9. Add focused specs and, if justified, one direct proof command for UI absence boundaries. Do not add package scripts or smoke aliases.
-10. Update active docs only after implementation ships.
+1. Kept FP-0084 as the active plan during implementation and did not create FP-0085.
+2. Re-ran preflight and direct V2 proofs before code.
+3. Re-confirmed no existing EvidenceIndex/V2C route can satisfy live app/web data, then avoided backend routes by rendering missing live-artifact posture.
+4. Implemented Source Coverage Matrix UI posture with enough detail-panel support to inspect coverage states, citations, limitations, freshness, and capability boundaries when existing artifacts are supplied.
+5. Used app/web components and focused specs first.
+6. Added one app/web route for `/evidence-atlas`.
+7. Added no control-plane route, web API route, schema, migration, SQL, package script, smoke alias, eval dataset, fixture, sample data, or source-pack change.
+8. Kept all controls read-only navigation/inspection. No upload, sync, mission creation, monitor rerun, report release, approval, certification, delivery, provider, payment, source mutation, finance write, generated advice, LLM summarization, or autonomous action was added.
+9. Added focused specs rather than a new direct proof command.
+10. Updated active docs only after implementation validation passed.
 
-Potential future implementation files, subject to re-confirmation before code:
+Implementation files:
 
 - `apps/web/app/evidence-atlas/page.tsx`
 - `apps/web/app/evidence-atlas/page.spec.tsx`
 - `apps/web/components/evidence-atlas/*`
-- `apps/web/lib/api.ts` only for read-only fetch helpers if a control-plane read route exists
-- `apps/control-plane/src/modules/evidence-index/routes.ts` only if a thin read route is required and no existing route can serve V2D
-- `apps/control-plane/src/app.ts` only to register that thin read route if approved by implementation inspection
-- focused specs under `apps/control-plane/src/modules/evidence-index/**/*.spec.ts` only if a control-plane route/read service is added
+- `apps/web/lib/evidence-atlas.ts`
 
-Files intentionally not planned for first implementation:
+Files intentionally not added:
 
 - `packages/db/**`
+- `apps/control-plane/**`
+- `apps/web/lib/api.ts`
 - migration folders
 - package scripts
 - smoke aliases
@@ -219,10 +244,10 @@ Files intentionally not planned for first implementation:
 
 ## Concrete Steps
 
-The future implementation thread should:
+The implementation thread completed these steps:
 
-1. Re-run the preflight from this prompt, including clean worktree, branch, PR #232 merged status, Docker services, FP-0084 present, FP-0085 absent, and V2 proof tools present.
-2. Run direct V2 proofs first:
+1. Re-ran the preflight from this prompt, including clean worktree, branch, Docker services, FP-0084 present, FP-0085 absent, and V2 proof tools present.
+2. Ran direct V2 proofs first:
 
 ```bash
 pnpm exec tsx tools/read-only-evidence-app-proof.mjs
@@ -231,18 +256,18 @@ pnpm exec tsx tools/evidence-index-foundation-proof.mjs
 ```
 
 3. Re-read this FP-0084, active docs, `apps/control-plane/src/app.ts`, `apps/web/lib/api.ts`, and EvidenceIndex/V2C service contracts.
-4. If no existing read route exists, decide whether the first implementation can be component/spec-only or needs one thin read-only control-plane GET route.
-5. Build Source Coverage Matrix UI as the first surface.
-6. Include Capability Boundary Panel and Unsupported/Missing/Stale Evidence states in that first surface.
-7. Include narrow detail affordances for SourceAnchor/DocumentMap/EvidenceCard only as read-only drilldowns when data is already present.
-8. Ensure rendered source excerpts are bounded, cited, and redacted through V2C policy.
-9. Ensure prompt-injection-like source text is displayed only as data.
-10. Add focused specs for rendering, filtering, stale/missing/unsupported posture, citation links, redaction, prompt-injection-as-data, and absence of forbidden controls.
-11. Run the validation ladder in this plan and update Progress, Decision Log, Validation and Acceptance, Artifacts and Notes, and Outcomes & Retrospective.
+4. Confirmed no existing read route exists and chose a web-only foundation rather than a thin control-plane GET route.
+5. Built Source Coverage Matrix UI posture as the first surface.
+6. Included Capability Boundary Panel and Unsupported/Missing/Stale Evidence states in that first surface.
+7. Included narrow read-only detail panels for DocumentMap, EvidenceCard, and Answer Anatomy when existing artifacts are supplied, while rendering missing states on the live page.
+8. Ensured rendered source excerpts are bounded, cited, and redacted through the V2C-shaped `SafeSourceExcerpt` contract in focused specs.
+9. Ensured prompt-injection-like source text is displayed only as data in focused specs.
+10. Added focused specs for rendering, stale/missing/unsupported posture, citation/redaction, prompt-injection-as-data, and absence of forbidden controls.
+11. Ran the validation ladder in this plan and updated Progress, Decision Log, Validation and Acceptance, Artifacts and Notes, and Outcomes & Retrospective.
 
 ## Validation and Acceptance
 
-This master-plan thread is accepted only if:
+The original master-plan thread was accepted because:
 
 - `plans/FP-0084-evidence-atlas-ui-foundation.md` exists as the single new active Finance Plan.
 - FP-0085 does not exist.
@@ -250,7 +275,7 @@ This master-plan thread is accepted only if:
 - No code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public ChatGPT App, MCP, Apps SDK UI, OAuth, app submission, provider integration, certification, deployment, external communications, OCR, vector search, PageIndex, OpenAI vector/file-search, LLM orchestration, runtime-Codex finance output, generated product prose, source mutation, finance write, or autonomous action is added.
 - Required validation passes before commit.
 
-Required validation commands for this master-plan slice:
+Implementation validation passed on the shipped tree. Commands run before and after implementation included:
 
 ```bash
 pnpm exec tsx tools/read-only-evidence-app-proof.mjs
@@ -294,20 +319,20 @@ pnpm test
 pnpm ci:repro:current
 ```
 
-Future implementation acceptance requires:
+Implementation acceptance results:
 
-- Source Coverage Matrix UI renders coverage statuses, methods, freshness, limitations, citations, and capability boundaries from existing artifacts.
+- Source Coverage Matrix UI posture renders coverage statuses, methods, freshness, limitations, citations, and capability boundaries from existing artifacts when supplied by contract-shaped props; the live route renders missing live EvidenceIndex/V2C posture truthfully because no existing backend read route exists.
 - Unsupported, missing, and stale evidence states are visible and cannot be mistaken for supported claims.
-- Evidence Atlas UI exposes no upload, sync, mission creation, monitor rerun, approval, release, circulation, provider, delivery, certification, payment, legal/audit, source mutation, finance write, LLM generation, runtime-Codex, public app, MCP, OAuth, deployment, or autonomous controls.
-- No schema/migration is added unless this plan is amended with explicit proof and recovery guidance.
-- No package script, smoke alias, eval dataset, fixture, sample data, source-pack change, or public demo artifact is added.
-- Proof does not rely on screenshots alone.
+- Evidence Atlas UI exposes no upload, sync, mission creation, monitor rerun, approval, release, circulation, provider, delivery, certification, payment, legal/audit, source mutation, finance write, LLM generation, runtime-Codex, public app, MCP, OAuth, deployment, or autonomous controls. Specs assert no `<form>` or `<button>` is rendered.
+- No schema/migration was added.
+- No package script, smoke alias, eval dataset, fixture, sample data, source-pack change, or public demo artifact was added.
+- Proof relies on DOM/page/component specs plus the existing direct V2A/V2B/V2C proof commands, not screenshots.
 
 ## Idempotence and Recovery
 
-This master-plan slice is idempotent:
+This shipped implementation is idempotent:
 
-- rerunning the thread should find FP-0084 and update it instead of creating a duplicate
+- rerunning the thread should find shipped FP-0084 and update it instead of creating FP-0085
 - rerunning direct V2 proofs should not mutate raw source fixtures
 - rerunning DB-backed smokes should use existing local proof patterns and should not create new source-pack behavior
 - FP-0085 must not be created
@@ -327,15 +352,31 @@ Recovery paths:
 Artifacts created by this master-plan thread:
 
 - `plans/FP-0084-evidence-atlas-ui-foundation.md`
-- directly stale active-doc/roadmap refreshes that point to FP-0084 as the active implementation-ready V2D plan
+- directly stale active-doc/roadmap refreshes that first pointed to FP-0084 as the active implementation-ready V2D plan
 - validation logs under `/tmp/pocket-cfo-fp0084-validation-20260508T173251Z`
+
+Artifacts created by the implementation thread:
+
+- `apps/web/app/evidence-atlas/page.tsx`
+- `apps/web/app/evidence-atlas/page.spec.tsx`
+- `apps/web/components/evidence-atlas/answer-anatomy.tsx`
+- `apps/web/components/evidence-atlas/capability-boundary-panel.tsx`
+- `apps/web/components/evidence-atlas/document-map-summary.tsx`
+- `apps/web/components/evidence-atlas/evidence-atlas-view.tsx`
+- `apps/web/components/evidence-atlas/evidence-atlas-view.spec.tsx`
+- `apps/web/components/evidence-atlas/evidence-card-detail.tsx`
+- `apps/web/components/evidence-atlas/evidence-timeline.tsx`
+- `apps/web/components/evidence-atlas/source-coverage-matrix.tsx`
+- `apps/web/lib/evidence-atlas.ts`
+- validation logs under `/tmp/pocket-cfo-v2d-full-validation-20260508T175633Z` and `/tmp/pocket-cfo-v2d-validation-tail-20260508T175818Z`
+- final closeout validation logs under `/tmp/pocket-cfo-v2d-final-validation-20260508T180618Z`
 
 Artifacts intentionally not created:
 
 - FP-0085
-- code
-- UI
-- routes
+- backend code
+- control-plane routes
+- web API routes
 - schema or migrations
 - package scripts or smoke aliases
 - eval datasets
@@ -349,7 +390,7 @@ Artifacts intentionally not created:
 Search-hit classification:
 
 - shipped V2A/V2B/V2C/FP-0083 foundation language: EvidenceIndex, DocumentMap, SourceAnchor, EvidenceCard, SourceCoverageMatrix, TextPdfAdapter, V2C tool names, OSS/security/privacy/demo/self-host references, and direct proof outputs.
-- active public-facing stale wording requiring future V2D planning correction: active docs and roadmap lines that said V2D was future-only before FP-0084 existed; these are refreshed in this slice.
+- active public-facing stale wording requiring implementation closeout correction: active docs and roadmap lines that still said V2D was only active/planned before the implementation shipped; these are refreshed in this slice.
 - valid internal scaffolding that must not be renamed: `pocket-cto`, `@pocket-cto/*`, GitHub modules, engineering-twin/twin modules, existing route/schema/migration/test fixture vocabulary, and source-pack proof fixtures.
 - archived history that must stay reference-only: Pocket CTO-era docs, engineering-first milestones, GitHub-first historical wording, and older EP material.
 - future-only planning language: public ChatGPT App, remote MCP, Apps SDK UI, OAuth, app submission, V2E, V2F, V2G, F6V, F6X, OCR/vector/PageIndex/OpenAI file-search adapters, iOS, OpenClaw, deployment, external communications, package rename, GitHub deletion, and engineering-twin deletion.
@@ -357,8 +398,9 @@ Search-hit classification:
 
 Replay and evidence implications:
 
-- This master-plan slice is docs-only and creates no mission state changes, ingest actions, report actions, approvals, replay events, evidence bundles, source mutations, or finance writes.
-- Future V2D implementation should create no replay events if it remains derived/read-only UI. If any future action mutates mission/source/report/approval state, it is out of FP-0084 and must stop for a new plan.
+- The master-plan slice was docs-only and created no mission state changes, ingest actions, report actions, approvals, replay events, evidence bundles, source mutations, or finance writes.
+- The shipped implementation creates no mission state changes, ingest actions, report actions, approvals, replay events, evidence bundles, source mutations, finance writes, or durable atlas artifacts. It is app/web visualization only.
+- Any future action that mutates mission/source/report/approval state is out of FP-0084 and must stop for a new plan.
 
 External web/browser research:
 
@@ -403,14 +445,13 @@ FP-0084 does not depend on:
 
 ## Outcomes & Retrospective
 
-Implementation has not started.
+Implementation outcome:
 
-Master-plan outcome:
-
-- FP-0084 exists as the active implementation-ready V2D Evidence Atlas UI foundation plan.
+- FP-0084 closes as the shipped V2D read-only Evidence Atlas UI foundation record.
 - FP-0083 remains the shipped OSS demo/self-host/security baseline record.
 - FP-0082 remains shipped V2C, FP-0081 remains shipped V2B, FP-0080 remains shipped V2A, FP-0079 remains shipped F12, FP-0078 remains shipped F11, FP-0077 remains shipped F10, FP-0076 remains shipped F9, FP-0075 remains shipped F8, FP-0074 remains shipped F7, and FP-0050 through FP-0073 remain shipped F6 records.
 - No FP-0085 is created.
-- No code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public app/MCP, Apps SDK, OAuth, app submission, provider work, certification, deployment, external communications, OCR/vector/PageIndex/OpenAI file-search, LLM orchestration, runtime-Codex finance output, generated prose, source mutation, finance write, or autonomous action is added.
-- Required validation passed, including `pnpm ci:repro:current`.
-- Exact next recommendation after this plan ships: start one V2D implementation slice for the Source Coverage Matrix UI only, with a read-only capability boundary panel and unsupported/missing/stale states. Do not start V2E, V2F, public ChatGPT App/MCP, provider integration, certification, OCR/vector/PageIndex/OpenAI file-search, deployment, external communications, package-scope rename, FP-0085, or any high-liability action track.
+- The implementation adds one read-only app/web route plus modular read-only components and focused specs only.
+- No backend route, web API route, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public app/MCP, Apps SDK, OAuth, app submission, provider work, certification, deployment, external communications, OCR/vector/PageIndex/OpenAI file-search, LLM orchestration, runtime-Codex finance output, generated prose, source mutation, finance write, or autonomous action is added.
+- Required validation passed, including `pnpm ci:repro:current`. The first full validation pass had one narrow lint correction, the corrected tail passed, and final minimum validation passed after closeout docs.
+- Exact next recommendation after this implementation ships: run V2D implementation QA against the shipped read-only `/evidence-atlas` UI foundation. If QA finds a defect, make one narrow V2D correction inside app/web UI/spec/doc scope. V2E/V2F planning should wait until V2D QA confirms the atlas boundary, missing live-artifact posture, and no-action controls remain solid.
