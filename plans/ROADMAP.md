@@ -1003,9 +1003,9 @@ V2E - bounded LLM orchestration:
 
 V2F - benchmark/community pack:
 
-- future-only candidate
-- may package benchmark/community source packs only after V2 evidence contracts are stable and the demo/sample-data policy is implemented
-- no eval dataset, fixture, source-pack behavior, or community distribution starts from roadmap text alone
+- active through `plans/FP-0086-benchmark-community-pack-foundation.md` as a docs-and-plan-only foundation contract
+- first implementation should be SafeDemoDataPolicy-first and docs/proof-only benchmark/community manifest contracts, not datasets
+- no eval dataset, fixture, sample data, source-pack behavior, package script, smoke alias, OpenAI API/model call, public app/MCP work, community distribution, source mutation, finance write, or autonomous action starts from roadmap text alone
 
 V2G - optional distribution tracks:
 
