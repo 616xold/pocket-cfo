@@ -66,6 +66,37 @@ export class ReadOnlyEvidenceToolService {
     query: string;
   }): EvidenceToolResponse<EvidenceSearchResult[]> {
     const query = normalize(input.query);
+    if (query.length === 0) {
+      return this.response({
+        artifactIds: [],
+        citations: [],
+        excerptCharacterCount: 0,
+        limitations: [
+          {
+            affectedAnchorIds: [],
+            affectedSourceIds: [],
+            code: "not_source_truth",
+            severity: "blocking",
+            summary:
+              "Empty or whitespace-only evidence searches are unsupported to avoid broad local evidence disclosure.",
+          },
+        ],
+        normalizedQuery: null,
+        ok: false,
+        permittedNextActions: [
+          {
+            action: "request_human_review",
+            label: "Provide a specific source-backed search query before using this tool.",
+            targetId: this.companyKey,
+          },
+        ],
+        result: [],
+        toolName: "search_evidence",
+        unsupportedReason:
+          "Empty or whitespace-only query is unsupported by the V2C read-only evidence-tool contract.",
+      });
+    }
+
     const results = this.store.evidenceCards
       .filter((card) => normalize(card.claimText).includes(query))
       .slice(0, Math.max(1, Math.min(input.limit ?? 10, 25)))
