@@ -66,6 +66,10 @@ No external web or browser research was used for FP-0085. No official OpenAI doc
 - [x] 2026-05-08T21:31:16Z - Hardened V2E without widening scope by adding exact forbidden-action token matching, conflict-signal refusal detection, focused service-spec coverage, and stronger direct proof checks.
 - [x] 2026-05-08T21:31:16Z - Re-ran focused QA validation after correction; V2E proof, V2C/V2B/V2A proofs, domain focused specs, and control-plane focused specs passed under `/tmp/pocket-cfo-v2e-qa-focused-rerun-20260508T213116Z`.
 - [x] 2026-05-08T21:31:53Z - Re-ran the full DB-backed smoke/spec/lint/type/test ladder after correction; all 36 gates passed, including `pnpm ci:repro:current`, under `/tmp/pocket-cfo-v2e-qa-full-rerun-20260508T213153Z`.
+- [x] 2026-05-08T23:01:21Z - Ran strict post-merge QA on shipped PR #238 / FP-0085 from branch `codex/v2e-bounded-llm-orchestration-foundation-postmerge-qa-local-v1`; preflight confirmed the branch was clean, `HEAD` matched fetched `origin/main`, PR #238 was merged, Docker Postgres/MinIO were available, FP-0085 existed, FP-0086 was absent, and the required proof commands existed.
+- [x] 2026-05-08T23:01:21Z - QA found two narrow V2E contract-hardening gaps: `EvidenceFaithfulnessGrade` did not independently fail positive claims with zero citation IDs or no SourceAnchor/accepted derived ref IDs, and deterministic evidence selection did not fail closed on raw full-file-dump-like V2C response fields before carrying selected tool responses forward.
+- [x] 2026-05-08T23:01:21Z - Hardened only the V2E contract/proof/spec surface by adding domain raw-full-file field rejection, selection-level unsupported-evidence refusal, grade-level citation/ref checks, focused spec coverage, and proof booleans for the new fail-closed behavior.
+- [x] 2026-05-08T23:10:24Z - Re-ran the required post-merge QA validation after correction. The focused V2E/V2C/V2B/V2A proof/spec ladder passed, and the full DB-backed smoke/spec/lint/type/test/repro ladder passed under `/tmp/pocket-cfo-v2e-postmerge-qa-full-20260508T230315Z`.
 
 ## Surprises & Discoveries
 
@@ -89,9 +93,11 @@ No external web or browser research was used for FP-0085. No official OpenAI doc
 - Synthetic in-memory V2C responses are built inside specs and the direct proof command only. No checked-in fixture file, sample source pack, eval dataset, or sample data artifact was added.
 - The focused control-plane validation command as written needed `NULL_GLOB` because no `apps/control-plane/src/modules/llm-orchestration/**` implementation exists. V2E shipped under `bounded-llm-orchestration/**` only.
 - The full validation wrapper reached the final gate but stayed in `apps/control-plane` after a `cd` command. The root tail rerun passed from the repository root; this was a shell wrapper issue, not a product failure.
-- Strict QA confirmed PR #238 is open against `main`; fetched `origin/main` does not yet contain the V2E implementation commit despite the QA prompt's "merged to main" assumption.
+- Post-merge QA confirmed PR #238 is merged into `main`, and local `HEAD` matched fetched `origin/main` at the start of the post-merge QA branch.
 - Exact snake_case forbidden-action tokens needed explicit token matching in addition to natural-language unsafe-action patterns because underscores are word characters and can evade simple word-boundary regexes.
 - The domain refusal contract already included `conflicting`, but the local selector's unsupported-reason set was narrower until QA aligned it to the exported domain refusal reason type.
+- `LlmOutputSchema` and the bounded summary constructor already refused positive claims missing citation posture, but `EvidenceFaithfulnessGrade` needed its own independent fail-closed posture so grade results cannot pass malformed or bypassed summary objects.
+- V2C `EvidenceToolResponse.result` is intentionally `unknown`, so V2E selection needed an explicit raw-full-file-dump field guard for `rawFullText`, `rawFileText`, `fullText`, `fullFileText`, `fileContents`, `unboundedText`, `originalFullText`, `sourceText`, `rawMarkdown`, `documentText`, and `pageTextDump`.
 
 ## Decision Log
 
@@ -148,6 +154,12 @@ Rationale: V2E must refuse both natural-language requests and exact internal/act
 
 Decision: conflicting evidence signals fail closed as unsupported evidence.
 Rationale: `UnsupportedEvidenceRefusal` already includes `conflicting`; the selector now treats explicit conflict markers in synthetic V2C responses as refusal posture instead of allowing a bounded summary.
+
+Decision: evidence-faithfulness grades fail closed independently of output schema parsing.
+Rationale: summary construction and `LlmOutputSchema` already reject positive claims without citation IDs and SourceAnchor or accepted derived refs, but the deterministic grade must also fail those cases directly because proof/eval callers should not be able to treat malformed positive claims as supported.
+
+Decision: raw full-file-dump-like V2C response fields fail closed during V2E selection.
+Rationale: V2E may carry only selected evidence, citations, and bounded/redacted/cited `SafeSourceExcerpt` values into selected output. Unknown V2C result fields named like raw full-file dumps are refused as unsupported evidence instead of being preserved inside `EvidenceSelectionResult.toolResponses`.
 
 ## Context and Orientation
 
@@ -442,6 +454,21 @@ Strict QA focused validation result: passed on 2026-05-08T21:31:16Z under `/tmp/
 
 Strict QA full validation result: passed on 2026-05-08T21:31:53Z under `/tmp/pocket-cfo-v2e-qa-full-rerun-20260508T213153Z`. The rerun included the DB-backed source-pack proofs, CFO Wiki smokes, Finance Twin smokes, monitoring/close-control/delivery/operator smokes, finance-discovery supported-families smoke, web vitest/typecheck, domain focused specs, broad control-plane specs, twin guard specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
+Post-merge QA correction validation:
+
+```bash
+pnpm exec tsx tools/bounded-llm-orchestration-proof.mjs
+pnpm exec tsx tools/read-only-evidence-app-proof.mjs
+pnpm exec tsx tools/document-precision-foundation-proof.mjs
+pnpm exec tsx tools/evidence-index-foundation-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts src/evidence-tool.spec.ts src/bounded-llm.spec.ts
+zsh -lc "cd apps/control-plane && setopt NULL_GLOB && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts src/modules/llm-orchestration/**/*.spec.ts src/modules/bounded-llm-orchestration/**/*.spec.ts"
+```
+
+Post-merge QA focused validation result: passed on 2026-05-08T23:02:17Z. The direct V2E proof now includes machine-readable `rawFullFileDumpFieldsRejected`, `rawFullFileDumpFieldNamesChecked`, and strengthened `evidenceFaithfulnessGradeVerified` posture for zero-citation and no-accepted-ref positive claims.
+
+Post-merge QA full validation result: passed on 2026-05-08T23:10:24Z under `/tmp/pocket-cfo-v2e-postmerge-qa-full-20260508T230315Z`. The first full-ladder wrapper attempt failed before repo commands executed because `commands` is a reserved zsh parameter; the rerun used a neutral array name and all 37 gates passed, including DB-backed source-pack proofs, CFO Wiki smokes, Finance Twin smokes, monitoring/close-control/delivery/operator smokes, finance-discovery supported-families smoke, web vitest/typecheck, domain focused specs, broad control-plane specs, twin guard specs, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+
 ## Idempotence and Recovery
 
 This FP-0085 record is idempotent:
@@ -482,6 +509,9 @@ Artifacts created or refreshed:
 - directly stale active-doc/roadmap refreshes that point to FP-0085 as the shipped V2E local/internal proof-only bounded LLM orchestration foundation record
 - QA hardening in `apps/control-plane/src/modules/bounded-llm-orchestration/policy.ts`
 - QA hardening in `apps/control-plane/src/modules/bounded-llm-orchestration/selection.ts`
+- QA hardening in `apps/control-plane/src/modules/bounded-llm-orchestration/grades.ts`
+- QA hardening in `packages/domain/src/bounded-llm-selection.ts`
+- QA coverage in `packages/domain/src/bounded-llm.spec.ts`
 - QA coverage in `apps/control-plane/src/modules/bounded-llm-orchestration/service.spec.ts`
 - QA proof strengthening in `tools/bounded-llm-orchestration-proof.mjs`
 
@@ -578,5 +608,5 @@ Implementation outcome:
 - No FP-0086 is created.
 - No UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public app/MCP, Apps SDK, OAuth, app submission, OpenAI API calls, model calls, vector/file-search integration, OCR, PageIndex, provider work, certification, delivery, deployment, external communications, runtime-Codex finance output, generated product prose, source mutation, finance write, or autonomous action is added.
 - Validation passed, including the direct V2E proof command and `pnpm ci:repro:current`.
-- Strict QA found and corrected one narrow V2E contract-only hardening issue around exact forbidden-action tokens and conflicting-evidence refusal posture.
-- Exact next recommendation: after the QA hardening commit is reviewed and merged through PR #238, V2F benchmark/community pack master-planning can start next if the goal is public examples, real model-call evaluation posture, community distribution, or public claims. Public ChatGPT App planning should still wait until V2F/public-example and app/MCP threat-model boundaries are explicitly planned.
+- Strict QA found and corrected narrow V2E contract-only hardening issues around exact forbidden-action tokens, conflicting-evidence refusal posture, grade-level missing-citation/accepted-ref checks, and raw full-file-dump field refusal posture.
+- Exact next recommendation: after this post-merge QA correction is reviewed and merged, V2F benchmark/community pack master-planning can start next if the goal is public examples, real model-call evaluation posture, community distribution, or public claims. Public ChatGPT App planning should still wait until V2F/public-example and app/MCP threat-model boundaries are explicitly planned.

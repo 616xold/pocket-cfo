@@ -17,15 +17,43 @@ export function gradeEvidenceFaithfulness(input: {
   const selectedCitationIds = new Set(
     input.selection.selectedCitations.map((citation) => citation.id),
   );
-  const claims = input.output.summary?.claims ?? [];
+  const selectedSourceAnchorIds = new Set(
+    input.selection.selectedSourceAnchorIds,
+  );
+  const selectedAcceptedDerivedRefIds = new Set(
+    input.selection.selectedCitations
+      .filter((citation) => citation.citationType !== "source_anchor")
+      .map((citation) => citation.id),
+  );
+  const claims = (input.output.summary?.claims ?? []).filter(
+    (claim) => claim.positiveClaim,
+  );
   const unsupportedClaimIds = claims
     .filter((claim) => claim.positiveClaim)
-    .filter((claim) =>
-      claim.citationIds.some((citationId) => !selectedCitationIds.has(citationId)),
-    )
+    .filter((claim) => {
+      const hasSelectedCitation =
+        claim.citationIds.length > 0 &&
+        claim.citationIds.every((citationId) =>
+          selectedCitationIds.has(citationId),
+        );
+      const hasSelectedSourceAnchor =
+        claim.sourceAnchorIds.length > 0 &&
+        claim.sourceAnchorIds.every((anchorId) =>
+          selectedSourceAnchorIds.has(anchorId),
+        );
+      const hasSelectedAcceptedDerivedRef =
+        claim.acceptedDerivedRefIds.length > 0 &&
+        claim.acceptedDerivedRefIds.every((refId) =>
+          selectedAcceptedDerivedRefIds.has(refId),
+        );
+
+      return (
+        !hasSelectedCitation ||
+        (!hasSelectedSourceAnchor && !hasSelectedAcceptedDerivedRef)
+      );
+    })
     .map((claim) => claim.claimId);
   const supportedClaimIds = claims
-    .filter((claim) => claim.positiveClaim)
     .filter((claim) => !unsupportedClaimIds.includes(claim.claimId))
     .map((claim) => claim.claimId);
 

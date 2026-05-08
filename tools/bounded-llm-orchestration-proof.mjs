@@ -11,6 +11,7 @@ import {
 } from "../apps/control-plane/src/modules/evidence-index/tools/index.ts";
 import {
   BOUNDED_LLM_ORCHESTRATION_SCHEMA_VERSION,
+  BOUNDED_LLM_RAW_FULL_FILE_DUMP_FIELD_NAMES,
   BOUNDED_LLM_READ_ONLY_TOOL_ALLOWLIST,
   LlmOutputSchema,
 } from "../packages/domain/src/index.ts";
@@ -54,17 +55,11 @@ async function main() {
     companyKey,
     originalText: "What evidence supports deterministic policy posture?",
     query: "deterministic policy",
-    responses: [
-      search,
-      card,
-      sourceAnchor,
-      documentMap,
-      posture,
-      boundaries,
-    ],
+    responses: [search, card, sourceAnchor, documentMap, posture, boundaries],
     timestamp: generatedAt,
   });
-  if (!selected.ok) throw new Error("Expected deterministic evidence selection.");
+  if (!selected.ok)
+    throw new Error("Expected deterministic evidence selection.");
 
   const summary = bounded.summarize({
     companyKey,
@@ -138,6 +133,24 @@ async function main() {
     ],
     timestamp: generatedAt,
   });
+  const rawFullFileDumpSelections =
+    BOUNDED_LLM_RAW_FULL_FILE_DUMP_FIELD_NAMES.map((field) =>
+      bounded.selectEvidence({
+        companyKey,
+        originalText: `What evidence carries ${field}?`,
+        query: field,
+        responses: [
+          {
+            ...search,
+            result: {
+              entries: search.result,
+              [field]: "unbounded raw source text must not be selected",
+            },
+          },
+        ],
+        timestamp: generatedAt,
+      }),
+    );
   const malformed = LlmOutputSchema.safeParse({
     ...summary,
     permittedNextActions: [],
@@ -145,6 +158,31 @@ async function main() {
   const faithfulnessGrade = gradeEvidenceFaithfulness({
     companyKey,
     output: summary,
+    selection: selected.selection,
+  });
+  const supportedClaim = summary.summary?.claims[0];
+  if (!supportedClaim) throw new Error("Expected summary claim.");
+  const zeroCitationFaithfulnessGrade = gradeEvidenceFaithfulness({
+    companyKey,
+    output: outputWithClaims(summary, [
+      {
+        ...supportedClaim,
+        citationIds: [],
+        claimId: "claim:zero-citation",
+      },
+    ]),
+    selection: selected.selection,
+  });
+  const noAcceptedRefFaithfulnessGrade = gradeEvidenceFaithfulness({
+    companyKey,
+    output: outputWithClaims(summary, [
+      {
+        ...supportedClaim,
+        acceptedDerivedRefIds: [],
+        claimId: "claim:no-accepted-ref",
+        sourceAnchorIds: [],
+      },
+    ]),
     selection: selected.selection,
   });
   const missingCitationGrade = gradeMissingCitationRefusal({
@@ -228,6 +266,14 @@ async function main() {
       !unsupportedConflicting.ok &&
       unsupportedConflicting.refusal.responseKind ===
         "unsupported_evidence_refusal",
+    rawFullFileDumpFieldsRejected:
+      rawFullFileDumpSelections.length ===
+        BOUNDED_LLM_RAW_FULL_FILE_DUMP_FIELD_NAMES.length &&
+      rawFullFileDumpSelections.every(
+        (outcome) =>
+          !outcome.ok &&
+          outcome.refusal.responseKind === "unsupported_evidence_refusal",
+      ),
     unsafeActionRefusalVerified:
       unsafe.responseKind === "unsafe_action_refusal" &&
       unsafe.refusal?.refusalType === "unsafe_action_refusal" &&
@@ -242,7 +288,9 @@ async function main() {
         "provider_connect",
         "certify_close",
         "contact_customer",
-      ].every((action) => exactUnsafe.refusal.requestedActions.includes(action)),
+      ].every((action) =>
+        exactUnsafe.refusal.requestedActions.includes(action),
+      ),
     promptInjectionTreatedAsData:
       selected.selection.promptInjectionTextTreatedAsData === true &&
       sourceExcerptTexts.some((text) =>
@@ -264,8 +312,9 @@ async function main() {
       summary.summary?.claims.every(
         (claim) =>
           !claim.positiveClaim ||
-          claim.sourceAnchorIds.length > 0 ||
-          claim.acceptedDerivedRefIds.length > 0,
+          (claim.citationIds.length > 0 &&
+            (claim.sourceAnchorIds.length > 0 ||
+              claim.acceptedDerivedRefIds.length > 0)),
       ) === true,
     evidenceFreshnessLimitationsPermittedActionVerified:
       summary.freshness.state === "fresh" &&
@@ -274,7 +323,15 @@ async function main() {
     outputSchemaFailClosedVerified: malformed.success === false,
     evidenceFaithfulnessGradeVerified:
       faithfulnessGrade.gradeName === "EvidenceFaithfulnessGrade" &&
-      faithfulnessGrade.passed === true,
+      faithfulnessGrade.passed === true &&
+      zeroCitationFaithfulnessGrade.passed === false &&
+      zeroCitationFaithfulnessGrade.unsupportedClaimIds.includes(
+        "claim:zero-citation",
+      ) &&
+      noAcceptedRefFaithfulnessGrade.passed === false &&
+      noAcceptedRefFaithfulnessGrade.unsupportedClaimIds.includes(
+        "claim:no-accepted-ref",
+      ),
     missingCitationGradeVerified:
       missingCitationGrade.gradeName === "MissingCitationGrade" &&
       missingCitationGrade.passed === true,
@@ -300,6 +357,9 @@ async function main() {
     publicAppMcpFutureOnly: true,
     v2fFutureOnly: true,
     fp0086Absent: true,
+    rawFullFileDumpFieldNamesChecked: [
+      ...BOUNDED_LLM_RAW_FULL_FILE_DUMP_FIELD_NAMES,
+    ],
   };
 
   for (const [key, value] of Object.entries(proof)) {
@@ -465,6 +525,17 @@ function readOnlyRef(refKind, id, summary) {
     refKind,
     routePath: null,
     summary,
+  };
+}
+
+function outputWithClaims(output, claims) {
+  if (!output.summary) throw new Error("Expected summary output.");
+  return {
+    ...output,
+    summary: {
+      ...output.summary,
+      claims,
+    },
   };
 }
 
