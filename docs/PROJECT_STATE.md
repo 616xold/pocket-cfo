@@ -18,7 +18,7 @@ FP-0082 is the shipped V2C local/internal read-only evidence-tool contract recor
 
 FP-0083 is the shipped OSS demo/self-host/security baseline documentation record. It adds `SECURITY.md`, `PRIVACY.md`, `CONTRIBUTING.md`, finance-data and read-only-agent threat models, demo-data policy, local demo operator journey, and local-only self-host baseline docs without adding code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, provider integration, public app behavior, deployment, source mutation, finance writes, generated product prose, LLM orchestration, runtime-Codex finance output, or autonomous action.
 
-FP-0084 is the active implementation-ready V2D Evidence Atlas UI foundation plan. It narrows the next implementation to read-only UI visualization over existing EvidenceIndex, V2B TextPdfAdapter, V2C evidence-tool, Finance Twin, CFO Wiki, mission answer, proof bundle, and source coverage artifacts. Implementation has not started.
+FP-0084 is the shipped V2D read-only Evidence Atlas UI foundation record. It adds one local `apps/web` route at `/evidence-atlas`, modular atlas components, a web-only atlas read-model helper, and focused specs for source coverage, evidence timeline, document map, evidence card, answer anatomy, unsupported/missing/stale states, bounded/cited excerpts, and capability-boundary posture. It adds no backend route, web API route, schema, migrations, package scripts, fixtures, sample data, public app, MCP, OpenAI vector/file-search, source mutation, finance write, generated product prose, LLM orchestration, runtime-Codex finance output, or autonomous action.
 
 ## Shipped Architecture Summary
 
@@ -50,10 +50,11 @@ The shipped system is organized around:
 - **V2B document precision adapters foundation**: shipped through FP-0081 as one deterministic policy/covenant TextPdfAdapter over EvidenceIndex with source-anchor metadata, adapter provenance, direct proof/spec coverage, and fail-closed unsupported posture.
 - **V2C read-only evidence-tool contract**: shipped through FP-0082 as one local/internal read-only evidence-tool contract and direct proof over existing EvidenceIndex/TextPdfAdapter outputs, with no public MCP/App deployment or write/action tools.
 - **OSS demo/self-host/security baseline**: shipped through FP-0083 as documentation-only security, privacy, contribution, demo-data, local-demo, self-host, finance-data threat-model, and read-only-agent threat-model baseline.
+- **V2D Evidence Atlas UI foundation**: shipped through FP-0084 as one read-only local operator UI route and modular atlas component foundation.
 
-## Active Plan
+## Latest Shipped V2 Plan
 
-- **V2D Evidence Atlas UI foundation**: active through FP-0084 as a read-only UI foundation plan only. No V2D implementation is shipped yet.
+- **V2D Evidence Atlas UI foundation**: shipped through FP-0084. No FP-0085 exists.
 
 ## Fixed Shipped Monitor Families
 
@@ -103,7 +104,7 @@ These tracks remain future-only until a later Finance Plan names exact scope and
 - deeper PDF/OCR/vector search beyond the shipped narrow FP-0081 text-PDF precision-adapter candidate
 - EvidenceIndex or precision-adapter expansion outside the shipped FP-0081 first V2B contract
 - public ChatGPT App/MCP deployment beyond the shipped local/internal FP-0082 contract
-- V2D implementation outside the active FP-0084 Source Coverage Matrix UI foundation boundary
+- V2D expansion outside the shipped FP-0084 read-only Evidence Atlas UI foundation boundary
 - V2E bounded LLM orchestration
 - V2F benchmark/community packs
 - iOS

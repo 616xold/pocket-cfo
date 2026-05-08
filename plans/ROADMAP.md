@@ -987,10 +987,11 @@ OSS demo/self-host/security baseline:
 
 V2D - Evidence Atlas UI:
 
-- active implementation-ready plan through `plans/FP-0084-evidence-atlas-ui-foundation.md`
-- should visualize source, Finance Twin, CFO Wiki, evidence, freshness, and limitation posture only as a read-only UI over existing EvidenceIndex, V2B TextPdfAdapter, V2C evidence-tool, mission answer, proof bundle, and source coverage artifacts
-- first implementation should start with Source Coverage Matrix UI plus capability boundary and unsupported/missing/stale evidence states
-- no V2D code, UI, route, schema, migration, package script, fixture, sample data, public app, MCP, OpenAI vector/file-search, source mutation, finance write, LLM orchestration, generated advice, runtime-Codex finance output, or autonomous action starts from roadmap text alone
+- shipped through `plans/FP-0084-evidence-atlas-ui-foundation.md`
+- visualizes source, Finance Twin, CFO Wiki, evidence, freshness, and limitation posture only as a read-only UI foundation over existing EvidenceIndex, V2B TextPdfAdapter, V2C evidence-tool, mission answer, proof bundle, and source coverage contracts
+- first shipped implementation adds `/evidence-atlas`, Source Coverage Matrix posture, evidence timeline, document-map summary, evidence-card detail, answer anatomy boundary, capability boundary, unsupported/missing/stale evidence states, and bounded/cited excerpt rendering
+- no backend route, web API route, schema, migration, package script, fixture, sample data, public app, MCP, OpenAI vector/file-search, source mutation, finance write, LLM orchestration, generated advice, runtime-Codex finance output, or autonomous action was added
+- V2D expansion beyond FP-0084 remains future-plan-only
 
 V2E - bounded LLM orchestration:
 
