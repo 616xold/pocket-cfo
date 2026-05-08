@@ -55,6 +55,8 @@ Official OpenAI docs were reviewed only in the original docs-and-plan pass as fu
 - [x] 2026-05-08T13:38:41Z - Ran final minimum validation after closeout docs: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed.
 - [x] 2026-05-08T12:54:27Z - QA correction hardened V2C `fetch_document_map` excerpts and `fetch_capability_boundaries` unknown-action handling. Focused V2C/V2A/V2B proofs, focused specs, and the 35-command QA ladder passed; log root: `/tmp/pocket-cfo-v2c-qa-20260508T125048Z`.
 - [x] 2026-05-08T12:54:55Z - Final QA correction validation passed on the patched tree: `tools/read-only-evidence-app-proof.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-v2c-qa-final-20260508T125455Z`.
+- [x] 2026-05-08T13:54:13Z - Post-merge hardening QA found and corrected three narrow V2C contract issues: blank `search_evidence` queries now return a structured fail-closed response instead of relying on schema failure, redaction coverage now includes obvious key/value token and account-like identifiers, and direct proof absence booleans now carry repo-scope audit notes. No FP-0083, routes, schema, migrations, UI, scripts, fixtures, provider calls, OpenAI/file-search/vector integration, OCR, PageIndex, finance writes, LLM behavior, runtime-Codex finance output, or autonomous action was added.
+- [x] 2026-05-08T14:00:36Z - Post-merge hardening validation passed on the corrected tree: `pnpm exec tsx tools/read-only-evidence-app-proof.mjs`, `pnpm exec tsx tools/document-precision-foundation-proof.mjs`, `pnpm exec tsx tools/evidence-index-foundation-proof.mjs`, `pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts src/evidence-tool.spec.ts`, `zsh -lc "cd apps/control-plane && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts"`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
@@ -72,6 +74,9 @@ Official OpenAI docs were reviewed only in the original docs-and-plan pass as fu
 - The root-form command `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/evidence-index/**/*.spec.ts` hit zsh `no matches found` before repo commands executed. The equivalent plan pattern run from `apps/control-plane` passed, so this was a shell wrapper issue, not a product failure.
 - TextPdfAdapter provenance needed to remain visible through `DocumentMapFetch`. The V2C fetch contract therefore accepts the precision document-map shape as well as the base document-map shape.
 - V2C QA found two narrow contract-hardening gaps: `DocumentMapFetch` could return unsanitized source-section excerpts from the existing DocumentMap artifact, and unknown requested actions in capability-boundary inspection did not fail closed. Both were corrected inside the V2C evidence-tool slice.
+- Post-merge V2C hardening QA found that blank or whitespace-only `search_evidence` input did not return broad local results, but it relied on response-schema rejection of an empty audit query instead of a structured fail-closed tool response. The correction now returns `ok: false`, an empty result set, explicit unsupported reason, limitations, and a human-review next action.
+- Post-merge V2C hardening QA found that direct proof booleans such as `noRoutesAdded`, `noMigrationsAdded`, `noUiAdded`, `noPackageScriptsAdded`, and `noFixturesAdded` are repo-scope audit assertions rather than runtime checks. The proof now says that plainly instead of widening into runtime route/schema/package/fixture scanning.
+- Post-merge V2C hardening QA found that the first redaction policy covered `sk-*`, credential keywords, and account-number phrases, but not common key/value token forms such as `api_key=...` or `access_token=...`. The correction keeps redaction narrow and local to obvious secret/account-like strings.
 
 ## Decision Log
 
@@ -95,6 +100,9 @@ Official OpenAI docs were reviewed only in the original docs-and-plan pass as fu
 - 2026-05-08T12:27:41Z - Source excerpts are bounded, cited, redacted, and treated as untrusted data. Prompt-injection text inside synthetic source excerpts is returned only as data and never followed.
 - 2026-05-08T12:27:41Z - Full pre-closeout validation passed on the implementation tree. Validation log root: `/tmp/pocket-cfo-v2c-validation-20260508T122741Z`.
 - 2026-05-08T12:54:27Z - V2C QA correction keeps `DocumentMapFetch` source-section excerpts within the V2C redaction/excerpt policy and treats any unknown requested action as blocked unless it is a registered read-only evidence tool. No routes, schema, migrations, UI, scripts, fixtures, provider calls, finance writes, LLM, runtime-Codex, or autonomous behavior were added.
+- 2026-05-08T13:54:13Z - Blank or whitespace-only `search_evidence` queries are an unsupported local/internal evidence-tool request and must fail closed as a structured `EvidenceToolResponse` with no broad result disclosure.
+- 2026-05-08T13:54:13Z - Redaction remains deliberately narrow DLP, but V2C must cover obvious token/credential/account-like key-value strings before returning source excerpts.
+- 2026-05-08T13:54:13Z - Direct proof booleans for absence of routes, migrations, UI, package scripts, and fixtures remain repo-scope audit notes; V2C should not add broader runtime behavior just to prove those absence claims.
 
 ## Context and Orientation
 
@@ -530,6 +538,6 @@ Closeout:
 
 - Pre-closeout validation status: passed. The full 41-command V2C implementation validation ladder completed successfully, including `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-v2c-validation-20260508T122741Z`.
 - Final validation after closeout docs: passed. `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed on the final closeout tree.
-- QA correction status: one narrow V2C contract-only hardening correction was applied after implementation QA. It bounded/redacted returned DocumentMap source-section excerpts and made capability-boundary inspection fail closed for unknown requested actions.
+- QA correction status: narrow V2C contract-only hardening corrections were applied after implementation and post-merge QA. They bounded/redacted returned DocumentMap source-section excerpts, made capability-boundary inspection fail closed for unknown requested actions, made blank searches fail closed as structured tool responses, expanded narrow redaction coverage for obvious key/value secrets and account-like identifiers, and clarified repo-scope absence proof notes.
 - Commit/push/PR status: PR #229 carries the V2C implementation branch; the QA correction is validated for one additional fix commit on that branch.
 - Remaining work: no further V2C correction is needed after the green QA hardening pass. The next new planning track should be OSS demo/self-host/security/privacy baseline before any public ChatGPT App alpha, remote MCP deployment, OAuth-backed publication, app submission, or public demo distribution.

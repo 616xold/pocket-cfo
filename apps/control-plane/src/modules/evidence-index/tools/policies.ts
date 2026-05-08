@@ -16,6 +16,15 @@ const REDACTION_PATTERNS: Array<{
     redaction: { applied: true, pattern: "token", reason: "Token redacted." },
   },
   {
+    pattern:
+      /\b(?:api[_-]?key|access[_-]?token|refresh[_-]?token|client[_-]?secret|secret[_-]?key|private[_-]?key|token|bearer)\s*[:=]\s*\S+/giu,
+    redaction: {
+      applied: true,
+      pattern: "token",
+      reason: "Token-like key/value redacted.",
+    },
+  },
+  {
     pattern: /\b(?:password|credential|secret)\s*[:=]\s*\S+/giu,
     redaction: {
       applied: true,
@@ -24,7 +33,8 @@ const REDACTION_PATTERNS: Array<{
     },
   },
   {
-    pattern: /\b(?:bank\s*)?account\s*(?:number|id)?\s*[:#=]?\s*\d{6,}\b/giu,
+    pattern:
+      /\b(?:(?:bank\s*)?account\s*(?:number|id)?|acct|routing\s*number|sort\s*code)\s*[:#=]?\s*\d[\d -]{5,}\b|\biban\s*[:#=]?\s*[A-Z]{2}\d{2}[A-Z0-9 ]{8,}\b/giu,
     redaction: {
       applied: true,
       pattern: "private_finance_identifier",
