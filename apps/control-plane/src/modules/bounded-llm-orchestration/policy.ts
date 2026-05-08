@@ -62,6 +62,13 @@ const UNSAFE_ACTION_PATTERNS: Array<{
   { action: "deploy_public_app", pattern: /\bdeploy\b.*\b(public|app|mcp)\b/u },
 ];
 
+const FORBIDDEN_ACTION_TOKEN_PATTERNS = V2E_FORBIDDEN_ACTIONS.map(
+  (action) => ({
+    action,
+    pattern: forbiddenActionTokenPattern(action),
+  }),
+);
+
 export function normalizeQuestion(question: string) {
   return question.trim().replace(/\s+/gu, " ").toLowerCase();
 }
@@ -70,10 +77,22 @@ export function detectUnsafeActions(
   normalizedQuery: string,
 ): BoundedLlmForbiddenAction[] {
   const matches = new Set<BoundedLlmForbiddenAction>();
+  for (const entry of FORBIDDEN_ACTION_TOKEN_PATTERNS) {
+    if (entry.pattern.test(normalizedQuery)) matches.add(entry.action);
+  }
   for (const entry of UNSAFE_ACTION_PATTERNS) {
     if (entry.pattern.test(normalizedQuery)) matches.add(entry.action);
   }
   return [...matches];
+}
+
+function forbiddenActionTokenPattern(action: BoundedLlmForbiddenAction) {
+  const parts = action.split("_").map(escapeRegExp);
+  return new RegExp(`(^|[^a-z0-9])${parts.join("[_\\s-]+")}($|[^a-z0-9])`, "u");
+}
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 }
 
 export function defaultCitationRequirements(): CitationRequirement[] {

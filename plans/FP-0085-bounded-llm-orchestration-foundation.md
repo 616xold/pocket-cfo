@@ -60,6 +60,12 @@ No external web or browser research was used for FP-0085. No official OpenAI doc
 - [x] 2026-05-08T21:08:51Z - Ran the requested DB-backed smoke/full validation ladder. Commands 1-32 passed under `/tmp/pocket-cfo-v2e-full-validation-20260508T210054Z`; a wrapper cwd issue made the final `pnpm ci:repro:current` look up the script from `apps/control-plane`, so the root tail was rerun from the repo root and `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed under `/tmp/pocket-cfo-v2e-root-tail-20260508T210353Z`.
 - [x] 2026-05-08T21:08:51Z - Updated FP-0085 and directly stale active docs to mark V2E as shipped local/internal proof-only bounded LLM orchestration foundation, with V2F and public app/MCP tracks still future-only.
 - [x] 2026-05-08T21:14:57Z - Ran final docs-closeout validation after the active-doc updates: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed under `/tmp/pocket-cfo-v2e-final-closeout-20260508T211457Z`.
+- [x] 2026-05-08T21:31:16Z - Ran strict V2E QA on the implementation branch after the branch correction to `codex/v2e-bounded-llm-orchestration-foundation-local-v1`; confirmed the worktree started clean, Docker Postgres/MinIO were available, GitHub auth/repo access worked, FP-0085 existed, FP-0086 was absent, and required proof commands existed.
+- [x] 2026-05-08T21:31:16Z - QA found one narrow behavior gap: exact snake_case forbidden action tokens such as `send_report`, `upload_source`, `update_ledger`, `provider_connect`, `certify_close`, `contact_customer`, and `create_mission` could bypass the natural-language unsafe-action regex path.
+- [x] 2026-05-08T21:31:16Z - QA found one narrow unsupported-evidence gap: conflicting evidence was present in the domain refusal taxonomy, but synthetic V2C result conflict signals were not selected into an `unsupported_evidence_refusal` path.
+- [x] 2026-05-08T21:31:16Z - Hardened V2E without widening scope by adding exact forbidden-action token matching, conflict-signal refusal detection, focused service-spec coverage, and stronger direct proof checks.
+- [x] 2026-05-08T21:31:16Z - Re-ran focused QA validation after correction; V2E proof, V2C/V2B/V2A proofs, domain focused specs, and control-plane focused specs passed under `/tmp/pocket-cfo-v2e-qa-focused-rerun-20260508T213116Z`.
+- [x] 2026-05-08T21:31:53Z - Re-ran the full DB-backed smoke/spec/lint/type/test ladder after correction; all 36 gates passed, including `pnpm ci:repro:current`, under `/tmp/pocket-cfo-v2e-qa-full-rerun-20260508T213153Z`.
 
 ## Surprises & Discoveries
 
@@ -83,6 +89,9 @@ No external web or browser research was used for FP-0085. No official OpenAI doc
 - Synthetic in-memory V2C responses are built inside specs and the direct proof command only. No checked-in fixture file, sample source pack, eval dataset, or sample data artifact was added.
 - The focused control-plane validation command as written needed `NULL_GLOB` because no `apps/control-plane/src/modules/llm-orchestration/**` implementation exists. V2E shipped under `bounded-llm-orchestration/**` only.
 - The full validation wrapper reached the final gate but stayed in `apps/control-plane` after a `cd` command. The root tail rerun passed from the repository root; this was a shell wrapper issue, not a product failure.
+- Strict QA confirmed PR #238 is open against `main`; fetched `origin/main` does not yet contain the V2E implementation commit despite the QA prompt's "merged to main" assumption.
+- Exact snake_case forbidden-action tokens needed explicit token matching in addition to natural-language unsafe-action patterns because underscores are word characters and can evade simple word-boundary regexes.
+- The domain refusal contract already included `conflicting`, but the local selector's unsupported-reason set was narrower until QA aligned it to the exported domain refusal reason type.
 
 ## Decision Log
 
@@ -133,6 +142,12 @@ Rationale: the implementation emits local proof/spec audit events only and creat
 
 Decision: deterministic grades are local contract helpers, not public eval datasets.
 Rationale: `EvidenceFaithfulnessGrade`, `MissingCitationGrade`, and `UnsafeActionRefusalGrade` prove the first schema/refusal posture in specs and proof output without adding eval datasets, fixtures, sample packs, public benchmark claims, or V2F community-pack behavior.
+
+Decision: exact forbidden action tokens fail closed through deterministic token matching.
+Rationale: V2E must refuse both natural-language requests and exact internal/action-like tokens such as `send_report`, `upload_source`, `update_ledger`, `provider_connect`, `certify_close`, `contact_customer`, and `create_mission`. This stays inside the contract-only QueryPlanner/refusal boundary and adds no write/action behavior.
+
+Decision: conflicting evidence signals fail closed as unsupported evidence.
+Rationale: `UnsupportedEvidenceRefusal` already includes `conflicting`; the selector now treats explicit conflict markers in synthetic V2C responses as refusal posture instead of allowing a bounded summary.
 
 ## Context and Orientation
 
@@ -412,6 +427,21 @@ Earlier master-plan validation also passed on 2026-05-08T19:37:30Z, with log roo
 
 Final docs-closeout validation after the active-doc updates passed on 2026-05-08T21:14:57Z: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Final implementation closeout log root: `/tmp/pocket-cfo-v2e-final-closeout-20260508T211457Z`.
 
+Strict QA correction validation:
+
+```bash
+pnpm exec tsx tools/bounded-llm-orchestration-proof.mjs
+pnpm exec tsx tools/read-only-evidence-app-proof.mjs
+pnpm exec tsx tools/document-precision-foundation-proof.mjs
+pnpm exec tsx tools/evidence-index-foundation-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts src/evidence-tool.spec.ts src/bounded-llm.spec.ts
+zsh -lc "cd apps/control-plane && setopt NULL_GLOB && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts src/modules/llm-orchestration/**/*.spec.ts src/modules/bounded-llm-orchestration/**/*.spec.ts"
+```
+
+Strict QA focused validation result: passed on 2026-05-08T21:31:16Z under `/tmp/pocket-cfo-v2e-qa-focused-rerun-20260508T213116Z`.
+
+Strict QA full validation result: passed on 2026-05-08T21:31:53Z under `/tmp/pocket-cfo-v2e-qa-full-rerun-20260508T213153Z`. The rerun included the DB-backed source-pack proofs, CFO Wiki smokes, Finance Twin smokes, monitoring/close-control/delivery/operator smokes, finance-discovery supported-families smoke, web vitest/typecheck, domain focused specs, broad control-plane specs, twin guard specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+
 ## Idempotence and Recovery
 
 This FP-0085 record is idempotent:
@@ -450,6 +480,10 @@ Artifacts created or refreshed:
 - `apps/control-plane/src/modules/bounded-llm-orchestration/**`
 - `tools/bounded-llm-orchestration-proof.mjs`
 - directly stale active-doc/roadmap refreshes that point to FP-0085 as the shipped V2E local/internal proof-only bounded LLM orchestration foundation record
+- QA hardening in `apps/control-plane/src/modules/bounded-llm-orchestration/policy.ts`
+- QA hardening in `apps/control-plane/src/modules/bounded-llm-orchestration/selection.ts`
+- QA coverage in `apps/control-plane/src/modules/bounded-llm-orchestration/service.spec.ts`
+- QA proof strengthening in `tools/bounded-llm-orchestration-proof.mjs`
 
 Artifacts intentionally not created:
 
@@ -544,4 +578,5 @@ Implementation outcome:
 - No FP-0086 is created.
 - No UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public app/MCP, Apps SDK, OAuth, app submission, OpenAI API calls, model calls, vector/file-search integration, OCR, PageIndex, provider work, certification, delivery, deployment, external communications, runtime-Codex finance output, generated product prose, source mutation, finance write, or autonomous action is added.
 - Validation passed, including the direct V2E proof command and `pnpm ci:repro:current`.
-- Exact next recommendation: run V2E implementation QA next against the shipped local/internal proof-only contract. Do not start V2F benchmark/community pack until V2E QA is clean or until future implementation pressure shifts toward public examples, real model calls, community distribution, or public claims. If QA finds a defect, prefer one narrow V2E contract-only correction.
+- Strict QA found and corrected one narrow V2E contract-only hardening issue around exact forbidden-action tokens and conflicting-evidence refusal posture.
+- Exact next recommendation: after the QA hardening commit is reviewed and merged through PR #238, V2F benchmark/community pack master-planning can start next if the goal is public examples, real model-call evaluation posture, community distribution, or public claims. Public ChatGPT App planning should still wait until V2F/public-example and app/MCP threat-model boundaries are explicitly planned.

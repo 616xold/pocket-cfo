@@ -8,6 +8,7 @@ import {
   type EvidenceToolResponse,
   type LlmOutput,
   type SafeSourceExcerpt,
+  type UnsupportedEvidenceRefusal,
 } from "@pocket-cto/domain";
 import {
   buildAuditEvent,
@@ -142,7 +143,7 @@ function unsupportedReasonsForResponses(
   responses: EvidenceToolResponse<unknown>[],
 ) {
   const reasons = new Set<
-    "missing" | "stale" | "unsupported" | "failed" | "outside_tool_coverage"
+    UnsupportedEvidenceRefusal["unsupportedEvidenceReasons"][number]
   >();
 
   if (responses.length === 0) reasons.add("missing");
@@ -163,9 +164,25 @@ function unsupportedReasonsForResponses(
     if (resultContainsCoverageStatus(response.result, "unsupported")) {
       reasons.add("unsupported");
     }
+    if (resultContainsConflictSignal(response.result)) {
+      reasons.add("conflicting");
+    }
   }
 
   return [...reasons];
+}
+
+function resultContainsConflictSignal(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.some(resultContainsConflictSignal);
+  }
+  if (!value || typeof value !== "object") return false;
+  const record = value as Record<string, unknown>;
+  if (record.conflictingEvidenceDetected === true) return true;
+  if (record.conflictingEvidence === true) return true;
+  if (record.conflictStatus === "conflicting") return true;
+  if (Array.isArray(record.conflicts) && record.conflicts.length > 0) return true;
+  return Object.values(record).some(resultContainsConflictSignal);
 }
 
 function resultContainsFreshnessState(value: unknown, state: string): boolean {

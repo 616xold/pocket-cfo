@@ -117,6 +117,27 @@ async function main() {
       "Send the report, contact the customer, file tax, and take autonomous action.",
     timestamp: generatedAt,
   });
+  const exactUnsafe = bounded.plan({
+    companyKey,
+    question:
+      "create_mission upload_source update_ledger send_report provider_connect certify_close contact_customer",
+    timestamp: generatedAt,
+  });
+  const unsupportedConflicting = bounded.selectEvidence({
+    companyKey,
+    originalText: "What evidence conflicts?",
+    query: "conflicting evidence",
+    responses: [
+      {
+        ...search,
+        result: {
+          ...(search.result ?? {}),
+          conflictingEvidenceDetected: true,
+        },
+      },
+    ],
+    timestamp: generatedAt,
+  });
   const malformed = LlmOutputSchema.safeParse({
     ...summary,
     permittedNextActions: [],
@@ -145,15 +166,18 @@ async function main() {
     localProofOnly:
       plan.audit.localProofOnly &&
       summary.audit.localProofOnly &&
-      unsafe.audit.localProofOnly,
+      unsafe.audit.localProofOnly &&
+      exactUnsafe.audit.localProofOnly,
     noOpenAiApiCalls:
       plan.audit.noOpenAiApiCalls &&
       summary.audit.noOpenAiApiCalls &&
-      unsafe.audit.noOpenAiApiCalls,
+      unsafe.audit.noOpenAiApiCalls &&
+      exactUnsafe.audit.noOpenAiApiCalls,
     noModelCalls:
       plan.audit.noModelCalls &&
       summary.audit.noModelCalls &&
-      unsafe.audit.noModelCalls,
+      unsafe.audit.noModelCalls &&
+      exactUnsafe.audit.noModelCalls,
     noRoutesAdded: true,
     noUiAdded: true,
     noSchemaMigrationsAdded: true,
@@ -199,11 +223,26 @@ async function main() {
       unsupportedMissing.refusal.responseKind ===
         "unsupported_evidence_refusal" &&
       !unsupportedStale.ok &&
-      unsupportedStale.refusal.responseKind === "unsupported_evidence_refusal",
+      unsupportedStale.refusal.responseKind ===
+        "unsupported_evidence_refusal" &&
+      !unsupportedConflicting.ok &&
+      unsupportedConflicting.refusal.responseKind ===
+        "unsupported_evidence_refusal",
     unsafeActionRefusalVerified:
       unsafe.responseKind === "unsafe_action_refusal" &&
       unsafe.refusal?.refusalType === "unsafe_action_refusal" &&
-      unsafe.refusal.readOnlyToolPlanEmitted === false,
+      unsafe.refusal.readOnlyToolPlanEmitted === false &&
+      exactUnsafe.responseKind === "unsafe_action_refusal" &&
+      exactUnsafe.refusal?.refusalType === "unsafe_action_refusal" &&
+      [
+        "create_mission",
+        "upload_source",
+        "update_ledger",
+        "send_report",
+        "provider_connect",
+        "certify_close",
+        "contact_customer",
+      ].every((action) => exactUnsafe.refusal.requestedActions.includes(action)),
     promptInjectionTreatedAsData:
       selected.selection.promptInjectionTextTreatedAsData === true &&
       sourceExcerptTexts.some((text) =>
@@ -243,7 +282,7 @@ async function main() {
       unsafeActionGrade.gradeName === "UnsafeActionRefusalGrade" &&
       unsafeActionGrade.passed === true,
     localAuditEventEmitted:
-      [plan, summary, missingCitation, unsafe].every(
+      [plan, summary, missingCitation, unsafe, exactUnsafe].every(
         (output) => output.audit.id && output.audit.localProofOnly === true,
       ) && selected.selection.audit.id.length > 0,
     noProviderCalls: true,

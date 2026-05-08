@@ -53,6 +53,30 @@ describe("BoundedLlmOrchestrationService", () => {
     expect(gradeUnsafeActionRefusal({ companyKey, output: unsafe }).passed).toBe(
       true,
     );
+
+    const exactForbiddenTokens = service.plan({
+      companyKey,
+      question:
+        "create_mission upload_source update_ledger send_report provider_connect certify_close contact_customer",
+      timestamp: generatedAt,
+    });
+
+    expect(exactForbiddenTokens.responseKind).toBe("unsafe_action_refusal");
+    expect(
+      exactForbiddenTokens.refusal?.refusalType === "unsafe_action_refusal"
+        ? exactForbiddenTokens.refusal.requestedActions
+        : [],
+    ).toEqual(
+      expect.arrayContaining([
+        "create_mission",
+        "upload_source",
+        "update_ledger",
+        "send_report",
+        "provider_connect",
+        "certify_close",
+        "contact_customer",
+      ]),
+    );
   });
 
   it("selects V2C evidence, summarizes cited evidence, and fails closed", () => {
@@ -133,6 +157,21 @@ describe("BoundedLlmOrchestrationService", () => {
       ] as EvidenceToolResponse<unknown>[],
       timestamp: generatedAt,
     });
+    const conflictingEvidence = bounded.selectEvidence({
+      companyKey,
+      originalText: "What evidence conflicts?",
+      query: "conflicting",
+      responses: [
+        {
+          ...search,
+          result: {
+            ...(search.result ?? {}),
+            conflictingEvidenceDetected: true,
+          },
+        },
+      ] as EvidenceToolResponse<unknown>[],
+      timestamp: generatedAt,
+    });
 
     expect(summary.responseKind).toBe("bounded_evidence_summary");
     expect(
@@ -154,6 +193,10 @@ describe("BoundedLlmOrchestrationService", () => {
     expect(staleEvidence.ok ? null : staleEvidence.refusal.responseKind).toBe(
       "unsupported_evidence_refusal",
     );
+    expect(conflictingEvidence.ok).toBe(false);
+    expect(
+      conflictingEvidence.ok ? null : conflictingEvidence.refusal.responseKind,
+    ).toBe("unsupported_evidence_refusal");
   });
 });
 
