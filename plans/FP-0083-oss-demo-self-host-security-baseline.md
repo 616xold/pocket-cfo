@@ -45,6 +45,8 @@ No external web research was used for this FP-0083 planning slice. Repo source t
 - [x] 2026-05-08T16:16:41Z - Created the FP-0083 OSS baseline docs: `SECURITY.md`, `PRIVACY.md`, `CONTRIBUTING.md`, `docs/security/finance-data-threat-model.md`, `docs/security/read-only-agent-threat-model.md`, `docs/demo/local-demo-operator-journey.md`, `docs/demo/demo-data-policy.md`, and `docs/ops/self-host-baseline.md`.
 - [x] 2026-05-08T16:16:41Z - Refreshed only directly stale active docs: README, CODEX_README, START_HERE, ACTIVE_DOCS, PROJECT_STATE, V2_BOUNDARY, and ROADMAP now point to FP-0083 as shipped baseline documentation and keep later tracks future-plan-only.
 - [x] 2026-05-08T16:16:41Z - Ran the full 36-command implementation validation ladder after docs edits; all commands passed, including `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-fp0083-full-validation-20260508T161302Z`.
+- [x] 2026-05-08T17:08:02Z - Post-merge QA correction found and fixed one directly stale active-doc line in `CODEX_README.md`: the forbidden-scope guidance still referred to F11 and starting F12/V2A even though FP-0083 is shipped. The correction keeps docs-only QA boundaries current and does not add code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, public app/deployment/provider/certification behavior, source mutation, finance writes, generated product prose, LLM orchestration, runtime-Codex finance output, or autonomous action.
+- [x] 2026-05-08T17:13:23Z - Ran the required post-correction validation ladder, including direct V2 proofs, source-pack proofs, CFO Wiki/Finance Twin/monitoring/delivery/operator smokes, focused web/domain/control-plane specs, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed. Log root: `/tmp/pocket-cfo-fp0083-qa-validation-20260508T170854Z`.
 
 ## Surprises & Discoveries
 
@@ -61,6 +63,7 @@ No external web research was used for this FP-0083 planning slice. Repo source t
 - Implementation used no external web/search research. The repo source truth and shipped V2C code/proofs were sufficient for the docs baseline.
 - The first implementation-thread FP-0084 check had a zsh wrapper hiccup because `path` is a special zsh variable; the safe rerun showed no FP-0084 files. This was a shell wrapper issue, not a product failure.
 - No sample data, source-pack fixtures, eval datasets, package scripts, smoke aliases, source-pack mutations, screenshots, or generated demo artifacts were needed.
+- Post-merge QA found one stale active operator-guide sentence pair in `CODEX_README.md`: F11-specific forbidden-scope wording and a warning not to start F12/V2A from F11 docs. The product boundary was correct, but the phase references were stale after FP-0083 shipped.
 
 ## Decision Log
 
@@ -99,6 +102,9 @@ Rationale: the required V2C audit points are already covered by the shipped V2C 
 
 Decision: FP-0084 must not be created in this slice.
 Rationale: FP-0083 closeout is sufficient; the next track should start only when a future prompt asks for a new named plan.
+
+Decision: correct the stale `CODEX_README.md` phase references inside FP-0083 QA.
+Rationale: the lines were active operator guidance, not historical plan text. Updating them to docs-only QA and future-track wording preserves the shipped FP-0083 boundary without creating FP-0084 or starting V2D/V2E/V2F/public app/deployment work.
 
 ## Context and Orientation
 
@@ -260,6 +266,8 @@ Master-plan validation result on 2026-05-08: all required commands above passed.
 
 Implementation validation result on 2026-05-08: focused V2C/V2B/V2A proof gates passed before docs edits. The full 36-command implementation ladder passed after docs edits, including source-pack proofs, CFO Wiki/Finance Twin/monitoring/delivery/operator smokes, focused web/domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-fp0083-full-validation-20260508T161302Z`.
 
+Post-merge QA correction validation result on 2026-05-08: all required commands in this section passed again after the docs-only stale-wording correction, and `git diff --check` also passed. Log root: `/tmp/pocket-cfo-fp0083-qa-validation-20260508T170854Z`.
+
 ## Idempotence and Recovery
 
 This plan is idempotent:
@@ -345,5 +353,5 @@ Implementation outcome:
 - The implementation added no code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source-pack changes, public MCP server code, ChatGPT App code, Apps SDK code, OAuth, app submission, OpenAI API/file-search/vector integration, OCR/vector/PageIndex code, provider integration, certification, delivery, deployment, external communications, source mutation, finance writes, generated product prose, LLM orchestration, runtime-Codex finance output, or autonomous action.
 - FP-0082 remains the shipped local/internal V2C read-only evidence-tool contract. FP-0081 remains shipped V2B, FP-0080 remains shipped V2A, FP-0079 remains shipped F12, FP-0078 remains shipped F11, FP-0077 remains shipped F10, FP-0076 remains shipped F9, FP-0075 remains shipped F8, FP-0074 remains shipped F7, and FP-0050 through FP-0073 remain shipped F6 records.
 - No FP-0084 was created.
-- Required focused and full validation passed for the implementation closeout.
+- Required focused and full validation passed for the implementation closeout and for the post-merge QA correction.
 - Exact next recommendation: start V2D Evidence Atlas UI planning next if continuing the roadmap. Do not start public ChatGPT App planning, remote MCP deployment, V2F benchmark/community pack work, or an OSS baseline correction unless a new narrow defect is found.

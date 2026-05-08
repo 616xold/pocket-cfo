@@ -125,9 +125,9 @@ Docs-only slices should explicitly say they created no mission replay events and
 
 ## Forbidden Scopes
 
-Do not add product runtime behavior without an active plan. In F11 specifically, do not add code, UI, backend routes, web API routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, monitor families, discovery families, implementation scaffolding, provider integration, certification, deployment, external communications, source mutation, finance writes, generated product prose, or autonomous action.
+Do not add product runtime behavior without an active plan. For docs-only closeout or QA slices, do not add code, UI, backend routes, web API routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, monitor families, discovery families, implementation scaffolding, provider integration, certification, deployment, external communications, source mutation, finance writes, generated product prose, or autonomous action.
 
-Do not start F12, V2A, F6V, F6X, deeper PDF/OCR/vector search, ChatGPT App, MCP server, iOS, OpenClaw, deployment, or external communications from F11 docs.
+Do not start V2D, V2E, V2F, public ChatGPT App, remote MCP deployment, Apps SDK UI, OAuth, app submission, F6V, F6X, deeper PDF/OCR/vector/PageIndex/OpenAI file-search work, iOS, OpenClaw, deployment, or external communications from shipped docs alone.
 
 ## Internal Package Names
 
