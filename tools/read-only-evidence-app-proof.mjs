@@ -97,6 +97,12 @@ async function main() {
   const boundaries = service.fetchCapabilityBoundaries({
     requestedAction: "send_report",
   });
+  const unknownActionBoundaries = service.fetchCapabilityBoundaries({
+    requestedAction: "unknown_write_surface",
+  });
+  const readOnlyActionBoundaries = service.fetchCapabilityBoundaries({
+    requestedAction: "search_evidence",
+  });
   const missing = service.fetchEvidenceCard({
     evidenceCardId: "missing-evidence-card",
   });
@@ -113,6 +119,8 @@ async function main() {
     coverage,
     posture,
     boundaries,
+    unknownActionBoundaries,
+    readOnlyActionBoundaries,
     missing,
   ];
   const manifestToolNames = manifest.tools.map((tool) => tool.name);
@@ -141,7 +149,11 @@ async function main() {
     appMode: "local_proof",
     capabilityBoundariesBlockWrites:
       boundaries.audit.forbiddenRequestBlocked === true &&
-      boundaries.result.requestedActionAllowed === false,
+      boundaries.result.requestedActionAllowed === false &&
+      unknownActionBoundaries.audit.forbiddenRequestBlocked === true &&
+      unknownActionBoundaries.result.requestedActionAllowed === false &&
+      readOnlyActionBoundaries.audit.forbiddenRequestBlocked === false &&
+      readOnlyActionBoundaries.result.requestedActionAllowed === true,
     cfoWikiRefsRemainReadOnly: posture.result.cfoWikiRefs.every(
       (ref) => ref.readOnly === true,
     ),
@@ -239,7 +251,16 @@ async function main() {
     sourceExcerptLimitVerified:
       sourceAnchor.result.safeExcerpt.characterCount <=
         SOURCE_EXCERPT_MAX_CHARACTERS &&
-      sourceAnchor.result.safeExcerpt.truncated === false,
+      sourceAnchor.result.safeExcerpt.truncated === false &&
+      documentMap.result.documentMap.sourceSections.every(
+        (section) => section.excerpt.length <= SOURCE_EXCERPT_MAX_CHARACTERS,
+      ) &&
+      !JSON.stringify(documentMap.result.documentMap.sourceSections).includes(
+        "sk-test-secret123",
+      ) &&
+      !JSON.stringify(documentMap.result.documentMap.sourceSections).includes(
+        "123456789",
+      ),
     textPdfAdapterProvenancePreserved:
       textPdf.documentMap.adapterProvenance?.adapterName === "TextPdfAdapter" &&
       pdfDocumentMap.result.documentMap.adapterProvenance?.parserName ===

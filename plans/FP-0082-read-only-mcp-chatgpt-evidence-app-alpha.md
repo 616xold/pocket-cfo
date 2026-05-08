@@ -53,6 +53,8 @@ Official OpenAI docs were reviewed only in the original docs-and-plan pass as fu
 - [x] 2026-05-08T12:27:41Z - Added focused domain and control-plane specs for the read-only evidence-tool contract and local service behavior.
 - [x] 2026-05-08T12:27:41Z - Ran the full 41-command V2C validation ladder before closeout docs; all commands passed, including `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-v2c-validation-20260508T122741Z`.
 - [x] 2026-05-08T13:38:41Z - Ran final minimum validation after closeout docs: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed.
+- [x] 2026-05-08T12:54:27Z - QA correction hardened V2C `fetch_document_map` excerpts and `fetch_capability_boundaries` unknown-action handling. Focused V2C/V2A/V2B proofs, focused specs, and the 35-command QA ladder passed; log root: `/tmp/pocket-cfo-v2c-qa-20260508T125048Z`.
+- [x] 2026-05-08T12:54:55Z - Final QA correction validation passed on the patched tree: `tools/read-only-evidence-app-proof.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-v2c-qa-final-20260508T125455Z`.
 
 ## Surprises & Discoveries
 
@@ -69,6 +71,7 @@ Official OpenAI docs were reviewed only in the original docs-and-plan pass as fu
 - No external web/search was used in the implementation thread. Repo source truth came from current code, current active docs, shipped Finance Plans, and FP-0082.
 - The root-form command `pnpm --filter @pocket-cto/control-plane exec vitest run src/modules/evidence-index/**/*.spec.ts` hit zsh `no matches found` before repo commands executed. The equivalent plan pattern run from `apps/control-plane` passed, so this was a shell wrapper issue, not a product failure.
 - TextPdfAdapter provenance needed to remain visible through `DocumentMapFetch`. The V2C fetch contract therefore accepts the precision document-map shape as well as the base document-map shape.
+- V2C QA found two narrow contract-hardening gaps: `DocumentMapFetch` could return unsanitized source-section excerpts from the existing DocumentMap artifact, and unknown requested actions in capability-boundary inspection did not fail closed. Both were corrected inside the V2C evidence-tool slice.
 
 ## Decision Log
 
@@ -91,6 +94,7 @@ Official OpenAI docs were reviewed only in the original docs-and-plan pass as fu
 - 2026-05-08T12:27:41Z - The read-only tool manifest registers only `search_evidence`, `fetch_evidence_card`, `fetch_source_anchor`, `fetch_document_map`, `fetch_source_coverage`, `fetch_company_posture`, and `fetch_capability_boundaries`. Generic platform aliases such as `search`/`fetch` remain future-only until a public platform plan proves the need.
 - 2026-05-08T12:27:41Z - Source excerpts are bounded, cited, redacted, and treated as untrusted data. Prompt-injection text inside synthetic source excerpts is returned only as data and never followed.
 - 2026-05-08T12:27:41Z - Full pre-closeout validation passed on the implementation tree. Validation log root: `/tmp/pocket-cfo-v2c-validation-20260508T122741Z`.
+- 2026-05-08T12:54:27Z - V2C QA correction keeps `DocumentMapFetch` source-section excerpts within the V2C redaction/excerpt policy and treats any unknown requested action as blocked unless it is a registered read-only evidence tool. No routes, schema, migrations, UI, scripts, fixtures, provider calls, finance writes, LLM, runtime-Codex, or autonomous behavior were added.
 
 ## Context and Orientation
 
@@ -526,5 +530,6 @@ Closeout:
 
 - Pre-closeout validation status: passed. The full 41-command V2C implementation validation ladder completed successfully, including `pnpm ci:repro:current`; log root: `/tmp/pocket-cfo-v2c-validation-20260508T122741Z`.
 - Final validation after closeout docs: passed. `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed on the final closeout tree.
-- Commit/push/PR status: ready for final commit, push, and PR creation after the green validation tree.
-- Remaining work: V2C implementation QA should run next against this local/internal contract. If QA finds a defect, use one narrow V2C contract-only hardening correction. If QA is clean, the next new planning track should be OSS demo/self-host/security/privacy baseline before any public ChatGPT App alpha, remote MCP deployment, OAuth-backed publication, app submission, or public demo distribution.
+- QA correction status: one narrow V2C contract-only hardening correction was applied after implementation QA. It bounded/redacted returned DocumentMap source-section excerpts and made capability-boundary inspection fail closed for unknown requested actions.
+- Commit/push/PR status: PR #229 carries the V2C implementation branch; the QA correction is validated for one additional fix commit on that branch.
+- Remaining work: no further V2C correction is needed after the green QA hardening pass. The next new planning track should be OSS demo/self-host/security/privacy baseline before any public ChatGPT App alpha, remote MCP deployment, OAuth-backed publication, app submission, or public demo distribution.

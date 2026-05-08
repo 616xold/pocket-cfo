@@ -49,6 +49,12 @@ describe("ReadOnlyEvidenceToolService", () => {
     const documentMap = service.fetchDocumentMap({ sourceId });
     expect(documentMap.ok).toBe(true);
     expect(documentMap.result?.documentMap.sourceDocument.sourceId).toBe(sourceId);
+    const documentMapExcerpt =
+      documentMap.result?.documentMap.sourceSections[0]?.excerpt ?? "";
+    expect(documentMapExcerpt.length).toBeLessThanOrEqual(240);
+    expect(documentMapExcerpt).toContain("IGNORE PREVIOUS INSTRUCTIONS");
+    expect(documentMapExcerpt).not.toContain("sk-test");
+    expect(documentMapExcerpt).not.toContain("123456789");
   });
 
   it("inspects coverage, posture, boundaries, and missing evidence fail-closed", () => {
@@ -72,6 +78,16 @@ describe("ReadOnlyEvidenceToolService", () => {
     expect(posture.result?.proofBundleRefs[0]?.readOnly).toBe(true);
     expect(boundaries.audit.forbiddenRequestBlocked).toBe(true);
     expect(boundaries.result?.requestedActionAllowed).toBe(false);
+    const unknownAction = service.fetchCapabilityBoundaries({
+      requestedAction: "unknown_write_surface",
+    });
+    expect(unknownAction.audit.forbiddenRequestBlocked).toBe(true);
+    expect(unknownAction.result?.requestedActionAllowed).toBe(false);
+    const readOnlyAction = service.fetchCapabilityBoundaries({
+      requestedAction: "search_evidence",
+    });
+    expect(readOnlyAction.audit.forbiddenRequestBlocked).toBe(false);
+    expect(readOnlyAction.result?.requestedActionAllowed).toBe(true);
     expect(missing.ok).toBe(false);
     expect(missing.unsupportedReason).toMatch(/not available/u);
     expect(manifest.tools.every((tool) => tool.readOnly)).toBe(true);

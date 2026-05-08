@@ -16,7 +16,11 @@ import {
   type SourceAnchor,
 } from "@pocket-cto/domain";
 import { V2C_FORBIDDEN_ACTIONS } from "./manifest";
-import { buildSafeExcerpt } from "./policies";
+import {
+  SOURCE_EXCERPT_MAX_CHARACTERS,
+  buildSafeExcerpt,
+  redactText,
+} from "./policies";
 import { buildEvidenceToolResponse } from "./response";
 import type { EvidenceToolArtifactStore } from "./store";
 
@@ -151,6 +155,30 @@ export function normalize(value: string) {
 export function documentMapForCard(card: EvidenceCard, maps: DocumentMap[]) {
   const sourceDocumentId = card.sourceAnchors[0]?.sourceDocumentId;
   return maps.find((map) => map.sourceDocument.id === sourceDocumentId);
+}
+
+export function sanitizeDocumentMapForFetch<T extends DocumentMap>(
+  store: EvidenceToolArtifactStore,
+  map: T,
+): T {
+  return {
+    ...map,
+    sourceSections: map.sourceSections.map((section) => {
+      const anchor = findAnchor(store, section.anchorId);
+      if (anchor) {
+        return {
+          ...section,
+          excerpt: buildSafeExcerpt({ anchor, text: section.excerpt }).text,
+        };
+      }
+
+      const { redactedText } = redactText(section.excerpt);
+      return {
+        ...section,
+        excerpt: redactedText.slice(0, SOURCE_EXCERPT_MAX_CHARACTERS),
+      };
+    }),
+  };
 }
 
 export function postureRefs(posture: CompanyPostureFetch): EvidenceReference[] {

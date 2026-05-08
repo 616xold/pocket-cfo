@@ -16,7 +16,11 @@ import {
   type SourceAnchorFetch,
   type SourceCoverageFetch,
 } from "@pocket-cto/domain";
-import { V2C_FORBIDDEN_ACTIONS, isV2CForbiddenAction } from "./manifest";
+import {
+  V2C_FORBIDDEN_ACTIONS,
+  isV2CForbiddenAction,
+  isV2CReadOnlyToolName,
+} from "./manifest";
 import { buildCitation, buildSafeExcerpt } from "./policies";
 import {
   buildFetchResponse,
@@ -28,6 +32,7 @@ import {
   normalize,
   postureRefs,
   safeExcerptsForAnchor,
+  sanitizeDocumentMapForFetch,
   toSearchResult,
 } from "./service-helpers";
 import {
@@ -170,7 +175,7 @@ export class ReadOnlyEvidenceToolService {
       .filter((excerpt): excerpt is NonNullable<typeof excerpt> => excerpt !== null);
     const result = DocumentMapFetchSchema.parse({
       citations: citationsForAnchors(map.sourceAnchors),
-      documentMap: map,
+      documentMap: sanitizeDocumentMapForFetch(this.store, map),
       safeExcerpts,
     });
 
@@ -255,7 +260,13 @@ export class ReadOnlyEvidenceToolService {
     requestedAction?: string | null;
   }): EvidenceToolResponse<CapabilityBoundaryFetch> {
     const requestedAction = input.requestedAction ?? null;
-    const blocked = requestedAction !== null && isV2CForbiddenAction(requestedAction);
+    const readOnlyToolRequested =
+      requestedAction !== null && isV2CReadOnlyToolName(requestedAction);
+    const forbiddenActionRequested =
+      requestedAction !== null && isV2CForbiddenAction(requestedAction);
+    const blocked =
+      requestedAction !== null &&
+      (forbiddenActionRequested || !readOnlyToolRequested);
     const result = CapabilityBoundaryFetchSchema.parse({
       capabilityBoundaries: this.store.capabilityBoundaries,
       citations: this.store.capabilityBoundaries.map((boundary) =>
@@ -269,7 +280,7 @@ export class ReadOnlyEvidenceToolService {
       noWriteToolsRegistered: true,
       readOnlyToolsOnly: true,
       requestedAction,
-      requestedActionAllowed: !blocked,
+      requestedActionAllowed: requestedAction === null || readOnlyToolRequested,
     });
 
     return this.response({
@@ -282,7 +293,7 @@ export class ReadOnlyEvidenceToolService {
       result,
       toolName: "fetch_capability_boundaries",
       unsupportedReason: blocked
-        ? `Requested action ${requestedAction} is forbidden in V2C.`
+        ? `Requested action ${requestedAction} is not permitted by the V2C read-only evidence-tool contract.`
         : null,
     });
   }

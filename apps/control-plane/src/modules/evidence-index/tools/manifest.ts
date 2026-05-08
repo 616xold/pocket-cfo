@@ -150,3 +150,9 @@ export function isV2CForbiddenAction(
 ): action is ForbiddenToolAction {
   return (V2C_FORBIDDEN_ACTIONS as readonly string[]).includes(action);
 }
+
+export function isV2CReadOnlyToolName(
+  action: string,
+): action is ReadOnlyToolManifest["tools"][number]["name"] {
+  return TOOL_DESCRIPTORS.some((tool) => tool.name === action);
+}
