@@ -22,6 +22,8 @@ FP-0084 is the shipped V2D read-only Evidence Atlas UI foundation record. It add
 
 FP-0085 is the shipped V2E local/internal proof-only bounded LLM orchestration foundation record. It adds pure domain contracts, one proof-only control-plane bounded context, a deterministic QueryPlanner over the fixed read-only V2C tool allowlist, deterministic evidence selection handoff from synthetic in-memory V2C responses, schema-constrained bounded evidence summaries, missing-citation refusal, unsupported-evidence refusal, unsafe-action refusal, local proof audit events, `tools/bounded-llm-orchestration-proof.mjs`, and deterministic EvidenceFaithfulnessGrade, MissingCitationGrade, and UnsafeActionRefusalGrade posture. It adds no OpenAI API calls, model calls, vector/file-search, OCR, PageIndex, public ChatGPT App/MCP, Apps SDK UI, OAuth, app submission, routes, UI, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, provider behavior, certification, delivery, deployment, external communications, source mutation, finance writes, generated advice, runtime-Codex finance output, or autonomous action.
 
+FP-0086 is the active V2F benchmark/community pack foundation plan. It is docs-and-plan only until a later implementation thread continues it. It narrows V2F to a SafeDemoDataPolicy-first benchmark/community contract, docs/proof-only manifest planning, read-only benchmark task taxonomy, no-runtime boundaries, and no-real-finance-data posture. No V2F implementation, code, UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source packs, source-pack mutations, OpenAI API/model calls, public ChatGPT App/MCP, Apps SDK UI, OAuth, app submission, provider behavior, certification, delivery, deployment, external communications, finance writes, generated advice, runtime-Codex finance output, or autonomous action has shipped.
+
 ## Shipped Architecture Summary
 
 The shipped system is organized around:
@@ -54,6 +56,7 @@ The shipped system is organized around:
 - **OSS demo/self-host/security baseline**: shipped through FP-0083 as documentation-only security, privacy, contribution, demo-data, local-demo, self-host, finance-data threat-model, and read-only-agent threat-model baseline.
 - **V2D Evidence Atlas UI foundation**: shipped through FP-0084 as one read-only local operator UI route and modular atlas component foundation.
 - **V2E bounded LLM orchestration foundation**: shipped through FP-0085 as a local/internal proof-only planning/refusal/validation contract over fixed read-only V2C tools.
+- **V2F benchmark/community pack foundation**: active through FP-0086 as docs-and-plan-only benchmark/community contract planning; implementation has not started.
 
 ## Latest Shipped V2 Plan
 
@@ -61,7 +64,7 @@ The shipped system is organized around:
 
 ## Active V2 Plan
 
-- No next V2 implementation plan is active. V2F benchmark/community pack remains future-only until a future Finance Plan names exact scope.
+- FP-0086 is the active V2F benchmark/community pack foundation plan. Implementation has not started; continue it only as the first narrow docs/proof-only benchmark/community manifest contract slice unless the plan is explicitly amended.
 
 ## Fixed Shipped Monitor Families
 
