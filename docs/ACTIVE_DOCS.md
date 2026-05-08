@@ -38,6 +38,8 @@ FP-0077 is the shipped F10/v1 public launch handoff record. FP-0076 is shipped F
 
 [plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md](../plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md) is the shipped V2C local/internal read-only evidence-tool contract record. It adds a pure shared `EvidenceToolResponse` contract, local read-only search/fetch/inspect functions over existing EvidenceIndex/TextPdfAdapter artifacts, focused specs, and a direct proof command without implementing a public MCP server, ChatGPT App, Apps SDK UI, routes, schema, migrations, package scripts, evals, fixtures, provider work, certification, deployment, source mutation, finance writes, generated advice, LLM orchestration, runtime-Codex finance output, or autonomous action.
 
+[plans/FP-0083-oss-demo-self-host-security-baseline.md](../plans/FP-0083-oss-demo-self-host-security-baseline.md) is the active implementation-ready OSS demo/self-host/security baseline plan. It is docs-only and plans SECURITY/PRIVACY/CONTRIBUTING, demo-data policy, local demo journey, self-host guidance, finance-data threat model, and read-only-agent threat model work before public ChatGPT App, remote MCP, Apps SDK UI, OAuth, app submission, V2D UI, V2E LLM orchestration, V2F community packs, provider integration, certification, deployment, external communications, package-scope rename, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action.
+
 ## Historical Reference
 
 These archived files are reference-only. They may contain reusable implementation ideas, but they are not active product truth:
