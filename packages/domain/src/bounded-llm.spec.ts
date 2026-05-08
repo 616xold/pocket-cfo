@@ -127,13 +127,52 @@ describe("bounded LLM orchestration domain schemas", () => {
       },
       toolPlan: null,
     });
+    const rawFullFileDumpSelection = EvidenceSelectionResultSchema.safeParse({
+      ...selection,
+      toolResponses: [
+        {
+          ...toolResponse(),
+          result: {
+            rawFullText: "full raw source text must fail closed",
+          },
+        },
+      ],
+    });
     const missingCitations = LlmOutputSchema.safeParse({
       ...output,
       citations: [],
     });
+    const positiveClaimWithoutCitationIds = LlmOutputSchema.safeParse({
+      ...output,
+      summary: {
+        ...output.summary!,
+        claims: [
+          {
+            ...output.summary!.claims[0],
+            citationIds: [],
+          },
+        ],
+      },
+    });
+    const positiveClaimWithoutAcceptedRefs = LlmOutputSchema.safeParse({
+      ...output,
+      summary: {
+        ...output.summary!,
+        claims: [
+          {
+            ...output.summary!.claims[0],
+            acceptedDerivedRefIds: [],
+            sourceAnchorIds: [],
+          },
+        ],
+      },
+    });
 
     expect(output.summary?.selectedEvidenceOnly).toBe(true);
+    expect(rawFullFileDumpSelection.success).toBe(false);
     expect(missingCitations.success).toBe(false);
+    expect(positiveClaimWithoutCitationIds.success).toBe(false);
+    expect(positiveClaimWithoutAcceptedRefs.success).toBe(false);
   });
 
   it("defines deterministic grade schemas", () => {

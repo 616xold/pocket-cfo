@@ -3,6 +3,7 @@ import {
   BOUNDED_LLM_READ_ONLY_TOOL_ALLOWLIST,
   EvidenceSelectionResultSchema,
   SafeSourceExcerptSchema,
+  containsBoundedLlmRawFullFileDumpField,
   type EvidenceSelectionResult,
   type EvidenceToolCitation,
   type EvidenceToolResponse,
@@ -39,7 +40,9 @@ export function selectEvidenceFromToolResponses(
     return {
       ok: false,
       refusal: unsupportedEvidenceRefusalOutput({
-        artifactIds: input.responses.flatMap((response) => response.audit.artifactIds),
+        artifactIds: input.responses.flatMap(
+          (response) => response.audit.artifactIds,
+        ),
         companyKey: input.companyKey,
         normalizedQuery,
         originalText: input.originalText,
@@ -56,7 +59,9 @@ export function selectEvidenceFromToolResponses(
     return {
       ok: false,
       refusal: unsupportedEvidenceRefusalOutput({
-        artifactIds: input.responses.flatMap((response) => response.audit.artifactIds),
+        artifactIds: input.responses.flatMap(
+          (response) => response.audit.artifactIds,
+        ),
         companyKey: input.companyKey,
         normalizedQuery,
         originalText: input.originalText,
@@ -152,6 +157,9 @@ function unsupportedReasonsForResponses(
       reasons.add("outside_tool_coverage");
     }
     if (!response.ok || response.unsupportedReason) reasons.add("unsupported");
+    if (containsBoundedLlmRawFullFileDumpField(response)) {
+      reasons.add("unsupported");
+    }
     if (response.freshness.state === "missing") reasons.add("missing");
     if (response.freshness.state === "stale") reasons.add("stale");
     if (response.freshness.state === "failed") reasons.add("failed");
@@ -181,7 +189,8 @@ function resultContainsConflictSignal(value: unknown): boolean {
   if (record.conflictingEvidenceDetected === true) return true;
   if (record.conflictingEvidence === true) return true;
   if (record.conflictStatus === "conflicting") return true;
-  if (Array.isArray(record.conflicts) && record.conflicts.length > 0) return true;
+  if (Array.isArray(record.conflicts) && record.conflicts.length > 0)
+    return true;
   return Object.values(record).some(resultContainsConflictSignal);
 }
 
