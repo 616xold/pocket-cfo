@@ -1,4 +1,8 @@
 import React from "react";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { RefusalPanel } from "./refusal-panel";
 import { bodyStyle, colors, compactPanelStyle, stackStyle } from "./styles";
 import type {
@@ -8,6 +12,8 @@ import type {
 import { ReadOnlyPanel, SectionHeading } from "./ui";
 
 type SharedStateProps = {
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
+  sectionIdScope?: string;
   summary?: string;
 };
 
@@ -31,7 +37,11 @@ function buildRefusalState(
   };
 }
 
-export function PromptInjectionWarningState({ summary }: SharedStateProps) {
+export function PromptInjectionWarningState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
   const refusal = buildRefusalState(
     "prompt_injection",
     "Prompt-injection warning",
@@ -39,10 +49,20 @@ export function PromptInjectionWarningState({ summary }: SharedStateProps) {
       "Source instructions are treated as untrusted evidence text and are not followed.",
   );
 
-  return <RefusalPanel refusal={refusal} />;
+  return (
+    <RefusalPanel
+      headingLevel={headingLevel}
+      refusal={refusal}
+      sectionIdScope={sectionIdScope}
+    />
+  );
 }
 
-export function MissingCitationRefusalState({ summary }: SharedStateProps) {
+export function MissingCitationRefusalState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
   const refusal = buildRefusalState(
     "missing_citation",
     "Missing citation refusal",
@@ -50,10 +70,18 @@ export function MissingCitationRefusalState({ summary }: SharedStateProps) {
       "The UI fails closed when an answer cannot point to a bounded citation and source anchor.",
   );
 
-  return <RefusalPanel refusal={refusal} />;
+  return (
+    <RefusalPanel
+      headingLevel={headingLevel}
+      refusal={refusal}
+      sectionIdScope={sectionIdScope}
+    />
+  );
 }
 
 export function UnsupportedEvidenceRefusalState({
+  headingLevel,
+  sectionIdScope,
   summary,
 }: SharedStateProps) {
   const refusal = buildRefusalState(
@@ -63,10 +91,20 @@ export function UnsupportedEvidenceRefusalState({
       "Unsupported evidence cannot be rendered as a supported answer; review must resolve it first.",
   );
 
-  return <RefusalPanel refusal={refusal} />;
+  return (
+    <RefusalPanel
+      headingLevel={headingLevel}
+      refusal={refusal}
+      sectionIdScope={sectionIdScope}
+    />
+  );
 }
 
-export function StaleEvidenceRefusalState({ summary }: SharedStateProps) {
+export function StaleEvidenceRefusalState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
   const refusal = buildRefusalState(
     "stale_evidence",
     "Stale evidence refusal",
@@ -74,21 +112,41 @@ export function StaleEvidenceRefusalState({ summary }: SharedStateProps) {
       "Stale evidence remains a limitation until freshness is re-established by a future host.",
   );
 
-  return <RefusalPanel refusal={refusal} />;
+  return (
+    <RefusalPanel
+      headingLevel={headingLevel}
+      refusal={refusal}
+      sectionIdScope={sectionIdScope}
+    />
+  );
 }
 
-export function UnsafeActionRefusalState({ summary }: SharedStateProps) {
+export function UnsafeActionRefusalState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
   const refusal = buildRefusalState(
     "unsafe_action",
     "Unsafe action refusal",
     summary ??
-      "Requests to send, approve, mutate, connect, submit, or otherwise act are refused.",
+      "External release, mutation, provider setup, filing, or other action requests are refused.",
   );
 
-  return <RefusalPanel refusal={refusal} />;
+  return (
+    <RefusalPanel
+      headingLevel={headingLevel}
+      refusal={refusal}
+      sectionIdScope={sectionIdScope}
+    />
+  );
 }
 
-export function RawFullFileDumpRefusalState({ summary }: SharedStateProps) {
+export function RawFullFileDumpRefusalState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
   const refusal = buildRefusalState(
     "raw_full_file_dump_request",
     "Raw full-file dump refused",
@@ -96,15 +154,31 @@ export function RawFullFileDumpRefusalState({ summary }: SharedStateProps) {
       "Requests for raw full-file or page dumps fail closed. The UI only displays bounded citation posture.",
   );
 
-  return <RefusalPanel refusal={refusal} />;
+  return (
+    <RefusalPanel
+      headingLevel={headingLevel}
+      refusal={refusal}
+      sectionIdScope={sectionIdScope}
+    />
+  );
 }
 
-export function EmptyEvidenceState({ summary }: SharedStateProps) {
+export function EmptyEvidenceState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "empty-evidence",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-empty-evidence-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <SectionHeading
         eyebrow="Empty state"
-        id="read-only-empty-evidence-title"
+        headingLevel={headingLevel}
+        id={titleId}
         summary={
           summary ??
           "No evidence cards, citations, or source anchors are available for this local proof state."
@@ -119,17 +193,27 @@ export function EmptyEvidenceState({ summary }: SharedStateProps) {
   );
 }
 
-export function LoadingEvidenceState({ summary }: SharedStateProps) {
+export function LoadingEvidenceState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "loading-evidence",
+  });
+
   return (
     <section
       aria-busy="true"
-      aria-labelledby="read-only-loading-evidence-title"
+      aria-labelledby={titleId}
       style={compactPanelStyle}
     >
       <div style={stackStyle}>
         <SectionHeading
           eyebrow="Loading state"
-          id="read-only-loading-evidence-title"
+          headingLevel={headingLevel}
+          id={titleId}
           summary={
             summary ??
             "A future host can show this while waiting for local evidence posture."
@@ -152,12 +236,22 @@ export function LoadingEvidenceState({ summary }: SharedStateProps) {
   );
 }
 
-export function ErrorAndUnsupportedState({ summary }: SharedStateProps) {
+export function ErrorAndUnsupportedState({
+  headingLevel,
+  sectionIdScope,
+  summary,
+}: SharedStateProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "error-unsupported",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-error-unsupported-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <SectionHeading
         eyebrow="Error and unsupported state"
-        id="read-only-error-unsupported-title"
+        headingLevel={headingLevel}
+        id={titleId}
         summary={
           summary ??
           "The response cannot be displayed as supported evidence. The UI fails closed."

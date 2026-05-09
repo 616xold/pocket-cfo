@@ -1,18 +1,34 @@
 import React from "react";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { bodyStyle, colors, compactPanelStyle, strongBodyStyle } from "./styles";
 import type { ReadOnlyAppMcpLimitation } from "./types";
 import { ReadOnlyList, ReadOnlyPanel, SectionHeading } from "./ui";
 
 type LimitationCalloutProps = {
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
   limitations: ReadOnlyAppMcpLimitation[];
+  sectionIdScope?: string;
 };
 
-export function LimitationCallout({ limitations }: LimitationCalloutProps) {
+export function LimitationCallout({
+  headingLevel,
+  limitations,
+  sectionIdScope,
+}: LimitationCalloutProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "limitations",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-limitations-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <SectionHeading
         eyebrow="Limitations"
-        id="read-only-limitations-title"
+        headingLevel={headingLevel}
+        id={titleId}
         summary="Limitations are displayed with text labels and severity, not by color alone."
         title="Limitation callout"
       />

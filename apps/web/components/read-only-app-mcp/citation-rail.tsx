@@ -1,18 +1,34 @@
 import React from "react";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { bodyStyle, colors, compactPanelStyle, strongBodyStyle } from "./styles";
 import type { ReadOnlyAppMcpCitation } from "./types";
 import { ReadOnlyList, SectionHeading } from "./ui";
 
 type CitationRailProps = {
   citations: ReadOnlyAppMcpCitation[];
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
+  sectionIdScope?: string;
 };
 
-export function CitationRail({ citations }: CitationRailProps) {
+export function CitationRail({
+  citations,
+  headingLevel,
+  sectionIdScope,
+}: CitationRailProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "citations",
+  });
+
   return (
-    <aside aria-labelledby="read-only-citations-title" style={compactPanelStyle}>
+    <aside aria-labelledby={titleId} style={compactPanelStyle}>
       <SectionHeading
         eyebrow="Citations"
-        id="read-only-citations-title"
+        headingLevel={headingLevel}
+        id={titleId}
         summary="Every positive evidence display keeps a citation and bounded excerpt posture visible."
         title="Citation rail"
       />

@@ -1,4 +1,5 @@
 import React, { type ReactNode } from "react";
+import type { ReadOnlyAppMcpHeadingLevel } from "./ids";
 import {
   bodyStyle,
   colors,
@@ -11,6 +12,7 @@ import {
 
 type SectionHeadingProps = {
   eyebrow?: string;
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
   id: string;
   summary?: string;
   title: string;
@@ -18,16 +20,19 @@ type SectionHeadingProps = {
 
 export function SectionHeading({
   eyebrow,
+  headingLevel = 2,
   id,
   summary,
   title,
 }: SectionHeadingProps) {
+  const HeadingTag = readHeadingTag(headingLevel);
+
   return (
     <div style={stackStyle}>
       {eyebrow ? <p style={labelStyle}>{eyebrow}</p> : null}
-      <h2 id={id} style={headingStyle}>
+      <HeadingTag id={id} style={headingStyle}>
         {title}
-      </h2>
+      </HeadingTag>
       {summary ? <p style={bodyStyle}>{summary}</p> : null}
     </div>
   );
@@ -88,4 +93,8 @@ export function ReadOnlyList<T>({
       ))}
     </ul>
   );
+}
+
+function readHeadingTag(headingLevel: ReadOnlyAppMcpHeadingLevel) {
+  return `h${headingLevel}` as "h2" | "h3" | "h4" | "h5" | "h6";
 }

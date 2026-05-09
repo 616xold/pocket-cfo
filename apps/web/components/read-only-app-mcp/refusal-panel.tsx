@@ -1,17 +1,29 @@
 import React from "react";
 import { FreshnessBadge } from "./freshness-badge";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { bodyStyle, colors, stackStyle } from "./styles";
 import type { ReadOnlyAppMcpRefusal } from "./types";
 import { ReadOnlyPanel, SectionHeading } from "./ui";
 
 type RefusalPanelProps = {
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
   refusal: ReadOnlyAppMcpRefusal;
+  sectionIdScope?: string;
 };
 
-export function RefusalPanel({ refusal }: RefusalPanelProps) {
-  const headingId = `read-only-refusal-${slugify(
-    `${refusal.title}-${refusal.reason}`,
-  )}`;
+export function RefusalPanel({
+  headingLevel,
+  refusal,
+  sectionIdScope,
+}: RefusalPanelProps) {
+  const headingId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "refusal",
+    suffix: `${refusal.title}-${refusal.reason}`,
+  });
 
   return (
     <ReadOnlyPanel labelledBy={headingId}>
@@ -26,6 +38,7 @@ export function RefusalPanel({ refusal }: RefusalPanelProps) {
       >
         <SectionHeading
           eyebrow="Refusal status"
+          headingLevel={headingLevel}
           id={headingId}
           summary={refusal.summary}
           title={refusal.title}
@@ -61,8 +74,4 @@ function readReasonLabel(reason: ReadOnlyAppMcpRefusal["reason"]) {
     return "prompt injection";
   }
   return reason.replaceAll("_", " ");
-}
-
-function slugify(value: string) {
-  return value.toLowerCase().replace(/[^a-z0-9]+/gu, "-").replace(/^-|-$/gu, "");
 }

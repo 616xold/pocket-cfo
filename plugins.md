@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for this QA pass.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0092 local UI composition/accessibility slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0091 same-branch QA:
+  - Skills invoked for this FP-0092 same-branch local UI composition/accessibility hardening slice:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard
@@ -39,5 +39,5 @@ This file records the plugins available in this Codex local thread and the repo-
 ## Notes
 
 - Routine `git` and `gh` CLI operations were used for repository and PR metadata.
-- OpenAI Developers was added to this inventory after installation at the user's request; it was not used to create API keys, call OpenAI APIs, call models, or widen app/runtime scope.
+- OpenAI Developers was available but was not used to create API keys, call OpenAI APIs, call models, or widen app/runtime scope.
 - No Figma, app-submission, design-generation, OpenAI API/model-call, artifact-upload, dependency-installation, or public-asset generation plugin workflow was used for this slice.

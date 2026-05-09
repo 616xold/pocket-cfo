@@ -1,18 +1,34 @@
 import React from "react";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { bodyStyle, compactPanelStyle, strongBodyStyle } from "./styles";
 import type { ReadOnlyAppMcpBoundary } from "./types";
 import { ReadOnlyList, ReadOnlyPanel, SectionHeading } from "./ui";
 
 type PrivacyBoundaryPanelProps = {
   boundary: ReadOnlyAppMcpBoundary;
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
+  sectionIdScope?: string;
 };
 
-export function PrivacyBoundaryPanel({ boundary }: PrivacyBoundaryPanelProps) {
+export function PrivacyBoundaryPanel({
+  boundary,
+  headingLevel,
+  sectionIdScope,
+}: PrivacyBoundaryPanelProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "privacy-boundary",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-privacy-boundary-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <SectionHeading
         eyebrow="Privacy boundary"
-        id="read-only-privacy-boundary-title"
+        headingLevel={headingLevel}
+        id={titleId}
         summary={boundary.summary}
         title={boundary.title}
       />
