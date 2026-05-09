@@ -40,6 +40,8 @@ const FP0091_PLAN_FILE =
   "FP-0091-read-only-chatgpt-app-mcp-premium-ui-component-foundation.md";
 const FP0092_PLAN_FILE =
   "FP-0092-read-only-chatgpt-app-mcp-premium-ui-composition-accessibility-foundation.md";
+const FP0093_PLAN_FILE =
+  "FP-0093-read-only-chatgpt-app-mcp-premium-ui-preview-route-master-plan.md";
 
 function safeDemoDataPolicy() {
   return {
@@ -343,7 +345,10 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
       fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified:
         fp0092LocalUiCompositionAccessibilityBoundary()
           .absentOrLocalUiCompositionAccessibilityBoundaryVerified,
-      fp0093Absent: fp0093Absent(),
+      fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified:
+        fp0093LocalUiPreviewRouteBoundary()
+          .absentOrDocsOnlyPreviewRouteBoundaryVerified,
+      fp0094Absent: fp0094Absent(),
       premiumUiSecurityPlanBoundaryVerified:
         fp0088DocsOnlyBoundary().premiumUiSecurityPlanBoundaryVerified,
       premiumUiDesignSystemPlanBoundaryVerified:
@@ -355,6 +360,9 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
       premiumUiCompositionAccessibilityFoundationVerified:
         fp0092LocalUiCompositionAccessibilityBoundary()
           .premiumUiCompositionAccessibilityFoundationVerified,
+      localUiPreviewRoutePlanBoundaryVerified:
+        fp0093LocalUiPreviewRouteBoundary()
+          .localUiPreviewRoutePlanBoundaryVerified,
       noUiImplementationFromFp0088:
         fp0088DocsOnlyBoundary().noUiImplementationFromFp0088,
       noUiImplementationFromFp0089:
@@ -404,6 +412,25 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
       noSourceMutationFinanceWriteFromFp0092:
         fp0092LocalUiCompositionAccessibilityBoundary()
           .noSourceMutationFinanceWriteFromFp0092,
+      noRouteImplementationFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary().noRouteImplementationFromFp0093,
+      noEndpointOauthSubmissionFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noEndpointOauthSubmissionFromFp0093,
+      noPublicAppImplementationFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noPublicAppImplementationFromFp0093,
+      noAppsSdkIframeFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary().noAppsSdkIframeFromFp0093,
+      noOpenAiApiModelCallsFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noOpenAiApiModelCallsFromFp0093,
+      noSourceMutationFinanceWriteFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noSourceMutationFinanceWriteFromFp0093,
+      noGeneratedProductProseRuntimeCodexFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noGeneratedProductProseRuntimeCodexFromFp0093,
     }),
   );
 
@@ -881,9 +908,158 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
   };
 }
 
-function fp0093Absent() {
+function fp0093LocalUiPreviewRouteBoundary() {
   const plansPath = existsSync("plans") ? "plans" : "../../plans";
-  return !readdirSync(plansPath).some((name) => /^FP-0093/u.test(name));
+  const repoRoot = existsSync("plans") ? "." : "../..";
+  const fp0093Files = readdirSync(plansPath).filter((name) =>
+    /^FP-0093/u.test(name),
+  );
+  const absentBoundary = {
+    absentOrDocsOnlyPreviewRouteBoundaryVerified: true,
+    localUiPreviewRoutePlanBoundaryVerified: true,
+    noAppsSdkIframeFromFp0093: true,
+    noEndpointOauthSubmissionFromFp0093: true,
+    noGeneratedProductProseRuntimeCodexFromFp0093: true,
+    noOpenAiApiModelCallsFromFp0093: true,
+    noPublicAppImplementationFromFp0093: true,
+    noRouteImplementationFromFp0093: true,
+    noSourceMutationFinanceWriteFromFp0093: true,
+  };
+  const failedBoundary = {
+    absentOrDocsOnlyPreviewRouteBoundaryVerified: false,
+    localUiPreviewRoutePlanBoundaryVerified: false,
+    noAppsSdkIframeFromFp0093: false,
+    noEndpointOauthSubmissionFromFp0093: false,
+    noGeneratedProductProseRuntimeCodexFromFp0093: false,
+    noOpenAiApiModelCallsFromFp0093: false,
+    noPublicAppImplementationFromFp0093: false,
+    noRouteImplementationFromFp0093: false,
+    noSourceMutationFinanceWriteFromFp0093: false,
+  };
+
+  if (fp0093Files.length === 0) return absentBoundary;
+  if (fp0093Files.length !== 1 || fp0093Files[0] !== FP0093_PLAN_FILE) {
+    return failedBoundary;
+  }
+
+  const lowerPlanText = readFileSync(
+    `${plansPath}/${FP0093_PLAN_FILE}`,
+    "utf8",
+  )
+    .toLowerCase()
+    .replace(/[`_*]+/gu, "");
+  const routeExists = existsSync(
+    `${repoRoot}/apps/web/app/read-only-app-mcp-preview`,
+  );
+  const apiRouteExists = existsSync(
+    `${repoRoot}/apps/web/app/api/read-only-app-mcp-preview`,
+  );
+  const docsOnlyBoundaryVerified = [
+    "fp-0093 is not implementation",
+    "docs-and-plan plus proof-gate compatibility",
+    "local ui preview route master-plan only",
+    "creates no product code",
+    "no route code",
+    "no app route",
+    "no api route",
+    "no backend route",
+    "no endpoint implementation",
+    "no remote mcp server",
+    "no apps sdk iframe/ui resource registration",
+    "no oauth",
+    "no app submission",
+    "no public app implementation",
+    "no openai api/model calls",
+    "no source mutation",
+    "no finance writes",
+    "no generated product prose",
+    "no runtime-codex finance output",
+    "no autonomous action",
+  ].every((requiredText) => lowerPlanText.includes(requiredText));
+  const localUiPreviewRoutePlanBoundaryVerified = [
+    "future local preview route boundary",
+    "apps/web/app/read-only-app-mcp-preview/page.tsx",
+    "future route implementation slice may add one local read-only web page only",
+    "existing fp-0091 and fp-0092 components only",
+    "no fetch",
+    "no post",
+    "no form",
+    "no buttons or action-looking forbidden controls",
+    "no server action",
+    "no api route",
+    "no backend route",
+    "no raw full-file dump panels",
+    "no advice-like cta copy",
+  ].every((requiredText) => lowerPlanText.includes(requiredText));
+  const noRouteImplementationFromFp0093 =
+    [
+      "does not authorize route code yet",
+      "this is not route implementation",
+      "no route code",
+      "no app route",
+    ].every((requiredText) => lowerPlanText.includes(requiredText)) &&
+    !routeExists;
+  const noEndpointOauthSubmissionFromFp0093 =
+    [
+      "does not authorize endpoint implementation",
+      "does not authorize remote mcp deployment",
+      "does not authorize oauth implementation",
+      "does not authorize app submission",
+      "no endpoint implementation",
+      "no oauth",
+      "no app submission",
+    ].every((requiredText) => lowerPlanText.includes(requiredText)) &&
+    !apiRouteExists;
+  const noPublicAppImplementationFromFp0093 = [
+    "does not authorize public app implementation",
+    "public chatgpt app implementation must still wait",
+    "public app implementation",
+  ].every((requiredText) => lowerPlanText.includes(requiredText));
+  const noAppsSdkIframeFromFp0093 = [
+    "does not authorize apps sdk iframe/ui resources",
+    "no apps sdk iframe/ui resource registration",
+    "apps sdk iframe/ui resource implementation",
+  ].every((requiredText) => lowerPlanText.includes(requiredText));
+  const noOpenAiApiModelCallsFromFp0093 = [
+    "no openai api/model calls",
+    "no openai api key was created or used",
+  ].every((requiredText) => lowerPlanText.includes(requiredText));
+  const noSourceMutationFinanceWriteFromFp0093 =
+    ["no source mutation", "no finance writes"].every((requiredText) =>
+      lowerPlanText.includes(requiredText),
+    );
+  const noGeneratedProductProseRuntimeCodexFromFp0093 =
+    [
+      "no generated product prose",
+      "no runtime-codex finance output",
+      "no mission-facing output was generated",
+    ].every((requiredText) => lowerPlanText.includes(requiredText));
+
+  return {
+    absentOrDocsOnlyPreviewRouteBoundaryVerified:
+      docsOnlyBoundaryVerified &&
+      localUiPreviewRoutePlanBoundaryVerified &&
+      noRouteImplementationFromFp0093 &&
+      noEndpointOauthSubmissionFromFp0093 &&
+      noPublicAppImplementationFromFp0093 &&
+      noAppsSdkIframeFromFp0093 &&
+      noOpenAiApiModelCallsFromFp0093 &&
+      noSourceMutationFinanceWriteFromFp0093 &&
+      noGeneratedProductProseRuntimeCodexFromFp0093,
+    localUiPreviewRoutePlanBoundaryVerified,
+    noAppsSdkIframeFromFp0093,
+    noEndpointOauthSubmissionFromFp0093,
+    noGeneratedProductProseRuntimeCodexFromFp0093,
+    noOpenAiApiModelCallsFromFp0093,
+    noPublicAppImplementationFromFp0093,
+    noRouteImplementationFromFp0093,
+    noSourceMutationFinanceWriteFromFp0093,
+  };
+}
+
+function fp0094Absent() {
+  const plansPath = existsSync("plans") ? "plans" : "../../plans";
+  return !readdirSync(plansPath).some((name) => /^FP-0094/u.test(name));
 }
 
 function readComponentSource(directory: string): string {
@@ -1255,7 +1431,10 @@ describe("benchmark community pack foundation contracts", () => {
       fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified:
         fp0092LocalUiCompositionAccessibilityBoundary()
           .absentOrLocalUiCompositionAccessibilityBoundaryVerified,
-      fp0093Absent: fp0093Absent(),
+      fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified:
+        fp0093LocalUiPreviewRouteBoundary()
+          .absentOrDocsOnlyPreviewRouteBoundaryVerified,
+      fp0094Absent: fp0094Absent(),
       premiumUiSecurityPlanBoundaryVerified:
         fp0088DocsOnlyBoundary().premiumUiSecurityPlanBoundaryVerified,
       premiumUiDesignSystemPlanBoundaryVerified:
@@ -1267,6 +1446,9 @@ describe("benchmark community pack foundation contracts", () => {
       premiumUiCompositionAccessibilityFoundationVerified:
         fp0092LocalUiCompositionAccessibilityBoundary()
           .premiumUiCompositionAccessibilityFoundationVerified,
+      localUiPreviewRoutePlanBoundaryVerified:
+        fp0093LocalUiPreviewRouteBoundary()
+          .localUiPreviewRoutePlanBoundaryVerified,
       noUiImplementationFromFp0088:
         fp0088DocsOnlyBoundary().noUiImplementationFromFp0088,
       noUiImplementationFromFp0089:
@@ -1316,6 +1498,25 @@ describe("benchmark community pack foundation contracts", () => {
       noSourceMutationFinanceWriteFromFp0092:
         fp0092LocalUiCompositionAccessibilityBoundary()
           .noSourceMutationFinanceWriteFromFp0092,
+      noRouteImplementationFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary().noRouteImplementationFromFp0093,
+      noEndpointOauthSubmissionFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noEndpointOauthSubmissionFromFp0093,
+      noPublicAppImplementationFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noPublicAppImplementationFromFp0093,
+      noAppsSdkIframeFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary().noAppsSdkIframeFromFp0093,
+      noOpenAiApiModelCallsFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noOpenAiApiModelCallsFromFp0093,
+      noSourceMutationFinanceWriteFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noSourceMutationFinanceWriteFromFp0093,
+      noGeneratedProductProseRuntimeCodexFromFp0093:
+        fp0093LocalUiPreviewRouteBoundary()
+          .noGeneratedProductProseRuntimeCodexFromFp0093,
       inMemorySyntheticExamplesOnlyVerified: true,
       missingCitationTaskVerified: true,
       monitorBoundaryTaskVerified: true,
@@ -1345,12 +1546,14 @@ describe("benchmark community pack foundation contracts", () => {
     expect(
       proof.fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0093Absent).toBe(true);
+    expect(proof.fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified).toBe(true);
+    expect(proof.fp0094Absent).toBe(true);
     expect(proof.premiumUiSecurityPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiDesignSystemPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiImplementationPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiComponentFoundationVerified).toBe(true);
     expect(proof.premiumUiCompositionAccessibilityFoundationVerified).toBe(true);
+    expect(proof.localUiPreviewRoutePlanBoundaryVerified).toBe(true);
     expect(proof.noUiImplementationFromFp0088).toBe(true);
     expect(proof.noUiImplementationFromFp0089).toBe(true);
     expect(proof.noAppsSdkIframeFromFp0089).toBe(true);
@@ -1374,6 +1577,13 @@ describe("benchmark community pack foundation contracts", () => {
     expect(proof.noPublicAppImplementationFromFp0092).toBe(true);
     expect(proof.noOpenAiApiCallsFromFp0092).toBe(true);
     expect(proof.noSourceMutationFinanceWriteFromFp0092).toBe(true);
+    expect(proof.noRouteImplementationFromFp0093).toBe(true);
+    expect(proof.noEndpointOauthSubmissionFromFp0093).toBe(true);
+    expect(proof.noPublicAppImplementationFromFp0093).toBe(true);
+    expect(proof.noAppsSdkIframeFromFp0093).toBe(true);
+    expect(proof.noOpenAiApiModelCallsFromFp0093).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0093).toBe(true);
+    expect(proof.noGeneratedProductProseRuntimeCodexFromFp0093).toBe(true);
     expect(() =>
       BenchmarkProofSchema.parse({
         ...proof,

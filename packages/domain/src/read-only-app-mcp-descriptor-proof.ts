@@ -122,12 +122,14 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     fp0090AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
     fp0091AbsentOrLocalUiComponentBoundaryVerified: trueLiteral,
     fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified: trueLiteral,
-    fp0093Absent: trueLiteral,
+    fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified: trueLiteral,
+    fp0094Absent: trueLiteral,
     premiumUiSecurityPlanBoundaryVerified: trueLiteral,
     premiumUiDesignSystemPlanBoundaryVerified: trueLiteral,
     premiumUiImplementationPlanBoundaryVerified: trueLiteral,
     premiumUiComponentFoundationVerified: trueLiteral,
     premiumUiCompositionAccessibilityFoundationVerified: trueLiteral,
+    localUiPreviewRoutePlanBoundaryVerified: trueLiteral,
     noUiImplementationFromFp0088: trueLiteral,
     noUiImplementationFromFp0089: trueLiteral,
     noAppsSdkIframeFromFp0089: trueLiteral,
@@ -151,6 +153,13 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     noPublicAppImplementationFromFp0092: trueLiteral,
     noOpenAiApiCallsFromFp0092: trueLiteral,
     noSourceMutationFinanceWriteFromFp0092: trueLiteral,
+    noRouteImplementationFromFp0093: trueLiteral,
+    noEndpointOauthSubmissionFromFp0093: trueLiteral,
+    noPublicAppImplementationFromFp0093: trueLiteral,
+    noAppsSdkIframeFromFp0093: trueLiteral,
+    noOpenAiApiModelCallsFromFp0093: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0093: trueLiteral,
+    noGeneratedProductProseRuntimeCodexFromFp0093: trueLiteral,
     descriptorsVerified: z.array(z.string()).length(MCP_TOOL_ALLOWLIST.length),
     responseEnvelopeRequiredFields: z.array(z.string()).min(1),
   })
@@ -163,12 +172,14 @@ export function buildAppMcpDescriptorEnvelopeProof(
     fp0090AbsentOrDocsOnlyBoundaryVerified: boolean;
     fp0091AbsentOrLocalUiComponentBoundaryVerified: boolean;
     fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified: boolean;
-    fp0093Absent: boolean;
+    fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified: boolean;
+    fp0094Absent: boolean;
     premiumUiSecurityPlanBoundaryVerified: boolean;
     premiumUiDesignSystemPlanBoundaryVerified: boolean;
     premiumUiImplementationPlanBoundaryVerified: boolean;
     premiumUiComponentFoundationVerified: boolean;
     premiumUiCompositionAccessibilityFoundationVerified: boolean;
+    localUiPreviewRoutePlanBoundaryVerified: boolean;
     noUiImplementationFromFp0088: boolean;
     noUiImplementationFromFp0089: boolean;
     noAppsSdkIframeFromFp0089: boolean;
@@ -192,6 +203,13 @@ export function buildAppMcpDescriptorEnvelopeProof(
     noPublicAppImplementationFromFp0092: boolean;
     noOpenAiApiCallsFromFp0092: boolean;
     noSourceMutationFinanceWriteFromFp0092: boolean;
+    noRouteImplementationFromFp0093: boolean;
+    noEndpointOauthSubmissionFromFp0093: boolean;
+    noPublicAppImplementationFromFp0093: boolean;
+    noAppsSdkIframeFromFp0093: boolean;
+    noOpenAiApiModelCallsFromFp0093: boolean;
+    noSourceMutationFinanceWriteFromFp0093: boolean;
+    noGeneratedProductProseRuntimeCodexFromFp0093: boolean;
     noPackageScriptsAdded: boolean;
     noSmokeAliasesAdded: boolean;
   }> = {},
@@ -297,7 +315,9 @@ export function buildAppMcpDescriptorEnvelopeProof(
     fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified:
       input.fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified ??
       true,
-    fp0093Absent: input.fp0093Absent ?? true,
+    fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified:
+      input.fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified ?? true,
+    fp0094Absent: input.fp0094Absent ?? true,
     premiumUiSecurityPlanBoundaryVerified:
       input.premiumUiSecurityPlanBoundaryVerified ?? true,
     premiumUiDesignSystemPlanBoundaryVerified:
@@ -308,6 +328,8 @@ export function buildAppMcpDescriptorEnvelopeProof(
       input.premiumUiComponentFoundationVerified ?? true,
     premiumUiCompositionAccessibilityFoundationVerified:
       input.premiumUiCompositionAccessibilityFoundationVerified ?? true,
+    localUiPreviewRoutePlanBoundaryVerified:
+      input.localUiPreviewRoutePlanBoundaryVerified ?? true,
     noUiImplementationFromFp0088: input.noUiImplementationFromFp0088 ?? true,
     noUiImplementationFromFp0089: input.noUiImplementationFromFp0089 ?? true,
     noAppsSdkIframeFromFp0089: input.noAppsSdkIframeFromFp0089 ?? true,
@@ -341,6 +363,19 @@ export function buildAppMcpDescriptorEnvelopeProof(
       input.noOpenAiApiCallsFromFp0092 ?? true,
     noSourceMutationFinanceWriteFromFp0092:
       input.noSourceMutationFinanceWriteFromFp0092 ?? true,
+    noRouteImplementationFromFp0093:
+      input.noRouteImplementationFromFp0093 ?? true,
+    noEndpointOauthSubmissionFromFp0093:
+      input.noEndpointOauthSubmissionFromFp0093 ?? true,
+    noPublicAppImplementationFromFp0093:
+      input.noPublicAppImplementationFromFp0093 ?? true,
+    noAppsSdkIframeFromFp0093: input.noAppsSdkIframeFromFp0093 ?? true,
+    noOpenAiApiModelCallsFromFp0093:
+      input.noOpenAiApiModelCallsFromFp0093 ?? true,
+    noSourceMutationFinanceWriteFromFp0093:
+      input.noSourceMutationFinanceWriteFromFp0093 ?? true,
+    noGeneratedProductProseRuntimeCodexFromFp0093:
+      input.noGeneratedProductProseRuntimeCodexFromFp0093 ?? true,
     localProofOnly: noRuntimeBoundary.localProofOnly,
     missingCitationEnvelopeVerified:
       AppMcpMissingCitationEnvelopeSchema.safeParse(missingCitation).success &&
