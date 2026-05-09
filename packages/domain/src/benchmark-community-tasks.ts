@@ -89,114 +89,140 @@ export const BenchmarkForbiddenActionSchema = z.enum([
   "app_submission",
 ]);
 
-export const BenchmarkCitationRequirementSchema = z.object({
-  positiveClaimsRequireCitation: z.literal(true),
-  sourceAnchorOrAcceptedDerivedRefRequired: z.literal(true),
-  acceptedDerivedRefKinds: z.array(BenchmarkAcceptedDerivedRefKindSchema).min(1),
-  missingCitationFailsClosed: z.literal(true),
-});
+const BenchmarkFreshnessPostureSchema =
+  EvidenceIndexFreshnessPostureSchema.strict();
+const BenchmarkLimitationPostureSchema =
+  EvidenceIndexLimitationPostureSchema.strict();
+const BenchmarkPermittedNextActionSchema = PermittedNextActionSchema.strict();
 
-export const BenchmarkEvidenceRequirementSchema = z.object({
-  evidenceIndexAllowed: z.literal(true),
-  v2cEvidenceToolsAllowedReadOnly: z.literal(true),
-  rawSourcesRemainAuthoritative: z.literal(true),
-  financeTwinStructuredFactsRemainAuthoritative: z.literal(true),
-  cfoWikiCompiledDerived: z.literal(true),
-  noFullFileDumps: z.literal(true),
-});
+export const BenchmarkCitationRequirementSchema = z
+  .object({
+    positiveClaimsRequireCitation: z.literal(true),
+    sourceAnchorOrAcceptedDerivedRefRequired: z.literal(true),
+    acceptedDerivedRefKinds: z
+      .array(BenchmarkAcceptedDerivedRefKindSchema)
+      .min(1),
+    missingCitationFailsClosed: z.literal(true),
+  })
+  .strict();
 
-export const BenchmarkRefusalPostureSchema = z.object({
-  expectedRefusalKind: BenchmarkExpectedRefusalKindSchema,
-  whenEvidenceMissing: z.literal("unsupported_evidence_refusal"),
-  whenEvidenceStale: z.literal("unsupported_evidence_refusal"),
-  whenEvidenceUnsupported: z.literal("unsupported_evidence_refusal"),
-  whenEvidenceConflicting: z.literal("unsupported_evidence_refusal"),
-  whenCitationMissing: z.literal("missing_citation_refusal"),
-  whenUnsafeActionRequested: z.literal("unsafe_action_refusal"),
-});
+export const BenchmarkEvidenceRequirementSchema = z
+  .object({
+    evidenceIndexAllowed: z.literal(true),
+    v2cEvidenceToolsAllowedReadOnly: z.literal(true),
+    rawSourcesRemainAuthoritative: z.literal(true),
+    financeTwinStructuredFactsRemainAuthoritative: z.literal(true),
+    cfoWikiCompiledDerived: z.literal(true),
+    noFullFileDumps: z.literal(true),
+  })
+  .strict();
 
-const BenchmarkTaskBaseSchema = z.object({
-  schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
-  taskKind: BenchmarkTaskKindSchema,
-  taskName: z.string().min(1),
-  readOnlyDefinitionOnly: z.literal(true),
-  contractPlaceholderOnly: z.literal(true),
-  companyContext: z.object({
+export const BenchmarkRefusalPostureSchema = z
+  .object({
+    expectedRefusalKind: BenchmarkExpectedRefusalKindSchema,
+    whenEvidenceMissing: z.literal("unsupported_evidence_refusal"),
+    whenEvidenceStale: z.literal("unsupported_evidence_refusal"),
+    whenEvidenceUnsupported: z.literal("unsupported_evidence_refusal"),
+    whenEvidenceConflicting: z.literal("unsupported_evidence_refusal"),
+    whenCitationMissing: z.literal("missing_citation_refusal"),
+    whenUnsafeActionRequested: z.literal("unsafe_action_refusal"),
+  })
+  .strict();
+
+const BenchmarkCompanyContextSchema = z
+  .object({
     syntheticOnly: z.literal(true),
     companyKey: z.string().min(1),
-  }),
-  evidenceRequirements: BenchmarkEvidenceRequirementSchema,
-  citationRequirements: BenchmarkCitationRequirementSchema,
-  freshnessPosture: EvidenceIndexFreshnessPostureSchema,
-  limitationPosture: z.array(EvidenceIndexLimitationPostureSchema).min(1),
-  permittedNextActions: z.array(PermittedNextActionSchema).min(1),
-  forbiddenActions: z.array(BenchmarkForbiddenActionSchema).min(1),
-  privacyBoundary: BenchmarkPrivacyBoundarySchema,
-  noRuntimeBoundary: BenchmarkNoRuntimeBoundarySchema,
-  expectedRefusalPosture: BenchmarkRefusalPostureSchema,
-  proofExpectations: z.object({
+  })
+  .strict();
+
+const BenchmarkProofExpectationsSchema = z
+  .object({
     machineReadable: z.literal(true),
     localProofOnly: z.literal(true),
     noDatasetRequired: z.literal(true),
     noRuntimeBehavior: z.literal(true),
-  }),
-});
+  })
+  .strict();
+
+const BenchmarkTaskBaseSchema = z
+  .object({
+    schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
+    taskKind: BenchmarkTaskKindSchema,
+    taskName: z.string().min(1),
+    readOnlyDefinitionOnly: z.literal(true),
+    contractPlaceholderOnly: z.literal(true),
+    companyContext: BenchmarkCompanyContextSchema,
+    evidenceRequirements: BenchmarkEvidenceRequirementSchema,
+    citationRequirements: BenchmarkCitationRequirementSchema,
+    freshnessPosture: BenchmarkFreshnessPostureSchema,
+    limitationPosture: z.array(BenchmarkLimitationPostureSchema).min(1),
+    permittedNextActions: z.array(BenchmarkPermittedNextActionSchema).min(1),
+    forbiddenActions: z.array(BenchmarkForbiddenActionSchema).min(1),
+    privacyBoundary: BenchmarkPrivacyBoundarySchema,
+    noRuntimeBoundary: BenchmarkNoRuntimeBoundarySchema,
+    expectedRefusalPosture: BenchmarkRefusalPostureSchema,
+    proofExpectations: BenchmarkProofExpectationsSchema,
+  })
+  .strict();
 
 export const EvidenceRecallTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("evidence_recall"),
   recallsExistingEvidenceOnly: z.literal(true),
-});
+}).strict();
 
 export const SourceCoverageTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("source_coverage"),
   checksSupportedUnsupportedMissingStaleFailedNotIndexed: z.literal(true),
-});
+}).strict();
 
 export const PolicyLookupTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("policy_lookup"),
   explicitPolicySourceScopeRequired: z.literal(true),
   noLegalOrPolicyAdvice: z.literal(true),
-});
+}).strict();
 
 export const ReportTraceabilityTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("report_traceability"),
   tracesStoredArtifactsOnly: z.literal(true),
   createsOrReleasesReports: z.literal(false),
-});
+}).strict();
 
 export const MonitorBoundaryTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("monitor_boundary"),
   deterministicStoredStateOnly: z.literal(true),
   createsAlertsOrMissions: z.literal(false),
-});
+}).strict();
 
 export const UnsafeActionRefusalTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("unsafe_action_refusal"),
   readOnlyProofOnly: z.literal(true),
   expectedRefusalPosture: BenchmarkRefusalPostureSchema.extend({
     expectedRefusalKind: z.literal("unsafe_action_refusal"),
-  }),
-});
+  }).strict(),
+}).strict();
 
 export const MissingCitationTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("missing_citation"),
+  readOnlyProofOnly: z.literal(true),
   citationRequirements: BenchmarkCitationRequirementSchema.extend({
     sourceAnchorOrAcceptedDerivedRefRequired: z.literal(true),
-  }),
+  }).strict(),
   expectedRefusalPosture: BenchmarkRefusalPostureSchema.extend({
     expectedRefusalKind: z.literal("missing_citation_refusal"),
-  }),
-});
+  }).strict(),
+}).strict();
 
 export const EvidenceFaithfulnessTaskSchema = BenchmarkTaskBaseSchema.extend({
   taskKind: z.literal("evidence_faithfulness"),
+  readOnlyProofOnly: z.literal(true),
   rejectsUnsupportedEvidence: z.literal(true),
   rejectsStaleEvidence: z.literal(true),
   rejectsMissingEvidence: z.literal(true),
   rejectsConflictingEvidence: z.literal(true),
   rejectsUncitedClaims: z.literal(true),
   rejectsRawFullFileDumpLikePosture: z.literal(true),
-});
+}).strict();
 
 export const BenchmarkTaskSchema = z.discriminatedUnion("taskKind", [
   EvidenceRecallTaskSchema,

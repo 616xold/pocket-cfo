@@ -1,12 +1,14 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   ArchitectureMapSchema,
+  BENCHMARK_AUTHORITY_LAYERS,
   BENCHMARK_COMMUNITY_SCHEMA_VERSION,
   BENCHMARK_TASK_KINDS,
   BenchmarkCaseSchema,
   BenchmarkNoRuntimeBoundarySchema,
   BenchmarkProofSchema,
+  COMMUNITY_PACK_MANIFEST_FORBIDDEN_DATA_FIELDS,
   BenchmarkTaskKindSchema,
   BenchmarkTaskTaxonomySchema,
   CommunityPackManifestSchema,
@@ -105,6 +107,7 @@ function noRuntimeBoundary() {
     noFinanceWrite: true,
     noFixturesAdded: true,
     noGeneratedAdvice: true,
+    noGeneratedProductProse: true,
     noModelCalls: true,
     noOauth: true,
     noOcr: true,
@@ -162,14 +165,7 @@ function contributorChallenge() {
 function architectureMap() {
   return {
     authorityLayers: [
-      "raw_sources",
-      "finance_twin",
-      "cfo_wiki",
-      "evidence_index",
-      "v2c_evidence_tools",
-      "v2d_evidence_atlas",
-      "v2e_bounded_orchestration",
-      "v2f_benchmark_community_contracts",
+      ...BENCHMARK_AUTHORITY_LAYERS,
     ],
     benchmarkArtifactsNotProductRuntime: true,
     cfoWikiCompiledDerived: true,
@@ -265,6 +261,35 @@ function baseTask(
     taskKind,
     taskName: `Synthetic ${taskKind} task contract`,
   };
+}
+
+function communityPackManifest() {
+  return {
+    allowedTaskKinds: [...BENCHMARK_TASK_KINDS],
+    architectureMap: architectureMap(),
+    benchmarkCase: benchmarkCase(),
+    containsNoDataOrSourcePackReferences: true,
+    contributorChallenge: contributorChallenge(),
+    describesFutureCommunityPackOnly: true,
+    manifestKind: "CommunityPackManifest",
+    noRuntimeBoundary: noRuntimeBoundary(),
+    owningFinancePlan: "FP-0086",
+    privacyBoundary: privacyBoundary(),
+    safeDemoDataPolicy: safeDemoDataPolicy(),
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+    syntheticFinanceSourcePolicy: syntheticFinanceSourcePolicy(),
+    validationPosture: {
+      directProofCommandOnly: true,
+      inMemorySyntheticExamplesOnly: true,
+      noDataFileAliasesAllowed: true,
+      noPackageScriptOrSmokeAlias: true,
+    },
+  };
+}
+
+function fp0087Absent() {
+  const plansPath = existsSync("plans") ? "plans" : "../../plans";
+  return !readdirSync(plansPath).some((name) => /^FP-0087/u.test(name));
 }
 
 describe("benchmark community pack foundation contracts", () => {
@@ -377,6 +402,81 @@ describe("benchmark community pack foundation contracts", () => {
     ).toThrow();
   });
 
+  it("rejects unknown keys on V2F boundary-bearing schemas", () => {
+    const strictSchemas = [
+      [SafeDemoDataPolicySchema, safeDemoDataPolicy()],
+      [SyntheticFinanceSourcePolicySchema, syntheticFinanceSourcePolicy()],
+      [BenchmarkNoRuntimeBoundarySchema, noRuntimeBoundary()],
+      [ContributorChallengeSchema, contributorChallenge()],
+      [ArchitectureMapSchema, architectureMap()],
+      [BenchmarkCaseSchema, benchmarkCase()],
+      [CommunityPackManifestSchema, communityPackManifest()],
+    ] as const;
+
+    for (const [schema, sample] of strictSchemas) {
+      expect(() =>
+        schema.parse({
+          ...sample,
+          runtimeBehaviorSmuggledThroughUnknownKey: true,
+        }),
+      ).toThrow();
+    }
+  });
+
+  it("rejects CommunityPackManifest data, source-pack, raw-text, URL, and example aliases", () => {
+    for (const field of COMMUNITY_PACK_MANIFEST_FORBIDDEN_DATA_FIELDS) {
+      expect(() =>
+        CommunityPackManifestSchema.parse({
+          ...communityPackManifest(),
+          [field]: [],
+        }),
+      ).toThrow();
+      expect(() =>
+        CommunityPackManifestSchema.parse({
+          ...communityPackManifest(),
+          [field]: ["synthetic alias payload"],
+        }),
+      ).toThrow();
+    }
+  });
+
+  it("requires the exact V2F architecture authority layer order", () => {
+    expect(ArchitectureMapSchema.parse(architectureMap()).authorityLayers).toEqual(
+      BENCHMARK_AUTHORITY_LAYERS,
+    );
+    expect(() =>
+      ArchitectureMapSchema.parse({
+        ...architectureMap(),
+        authorityLayers: [
+          ...BENCHMARK_AUTHORITY_LAYERS.slice(0, 7),
+          "raw_sources",
+        ],
+      }),
+    ).toThrow();
+    expect(() =>
+      ArchitectureMapSchema.parse({
+        ...architectureMap(),
+        authorityLayers: BENCHMARK_AUTHORITY_LAYERS.slice(0, 7),
+      }),
+    ).toThrow();
+    expect(() =>
+      ArchitectureMapSchema.parse({
+        ...architectureMap(),
+        authorityLayers: [...BENCHMARK_AUTHORITY_LAYERS, "raw_sources"],
+      }),
+    ).toThrow();
+    expect(() =>
+      ArchitectureMapSchema.parse({
+        ...architectureMap(),
+        authorityLayers: [
+          "finance_twin",
+          "raw_sources",
+          ...BENCHMARK_AUTHORITY_LAYERS.slice(2),
+        ],
+      }),
+    ).toThrow();
+  });
+
   it("parses all task contracts with evidence, freshness, limitations, actions, and refusal posture", () => {
     const tasks = [
       EvidenceRecallTaskSchema.parse({
@@ -408,9 +508,11 @@ describe("benchmark community pack foundation contracts", () => {
       }),
       MissingCitationTaskSchema.parse({
         ...baseTask("missing_citation", "missing_citation_refusal"),
+        readOnlyProofOnly: true,
       }),
       EvidenceFaithfulnessTaskSchema.parse({
         ...baseTask("evidence_faithfulness"),
+        readOnlyProofOnly: true,
         rejectsConflictingEvidence: true,
         rejectsMissingEvidence: true,
         rejectsRawFullFileDumpLikePosture: true,
@@ -436,35 +538,52 @@ describe("benchmark community pack foundation contracts", () => {
     ).toBe(true);
   });
 
+  it("rejects unknown keys on benchmark tasks and nested task posture", () => {
+    expect(() =>
+      EvidenceRecallTaskSchema.parse({
+        ...baseTask("evidence_recall"),
+        recallsExistingEvidenceOnly: true,
+        route: "/should-not-exist",
+      }),
+    ).toThrow();
+    expect(() =>
+      EvidenceRecallTaskSchema.parse({
+        ...baseTask("evidence_recall"),
+        companyContext: {
+          ...baseTask("evidence_recall").companyContext,
+          rawFullText: "synthetic but forbidden raw text posture",
+        },
+        recallsExistingEvidenceOnly: true,
+      }),
+    ).toThrow();
+    expect(() =>
+      EvidenceRecallTaskSchema.parse({
+        ...baseTask("evidence_recall"),
+        freshnessPosture: {
+          ...baseTask("evidence_recall").freshnessPosture,
+          pageTextDump: "synthetic but forbidden page text dump posture",
+        },
+        recallsExistingEvidenceOnly: true,
+      }),
+    ).toThrow();
+    expect(() =>
+      MissingCitationTaskSchema.parse({
+        ...baseTask("missing_citation", "missing_citation_refusal"),
+        readOnlyProofOnly: true,
+        expectedRefusalPosture: {
+          ...baseTask("missing_citation", "missing_citation_refusal")
+            .expectedRefusalPosture,
+          unsafeBypass: true,
+        },
+      }),
+    ).toThrow();
+  });
+
   it("keeps community manifests and benchmark cases as data-free placeholders", () => {
-    const manifest = CommunityPackManifestSchema.parse({
-      allowedTaskKinds: [...BENCHMARK_TASK_KINDS],
-      architectureMap: architectureMap(),
-      benchmarkCase: benchmarkCase(),
-      contributorChallenge: contributorChallenge(),
-      dataFiles: [],
-      describesFutureCommunityPackOnly: true,
-      evalDatasetFiles: [],
-      fixtureFiles: [],
-      manifestKind: "CommunityPackManifest",
-      noRuntimeBoundary: noRuntimeBoundary(),
-      owningFinancePlan: "FP-0086",
-      privacyBoundary: privacyBoundary(),
-      safeDemoDataPolicy: safeDemoDataPolicy(),
-      schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
-      sourcePackFiles: [],
-      syntheticFinanceSourcePolicy: syntheticFinanceSourcePolicy(),
-      validationPosture: {
-        directProofCommandOnly: true,
-        inMemorySyntheticExamplesOnly: true,
-        noPackageScriptOrSmokeAlias: true,
-      },
-    });
+    const manifest = CommunityPackManifestSchema.parse(communityPackManifest());
     const placeholder = BenchmarkCaseSchema.parse(benchmarkCase());
 
-    expect(manifest.dataFiles).toEqual([]);
-    expect(manifest.sourcePackFiles).toEqual([]);
-    expect(manifest.evalDatasetFiles).toEqual([]);
+    expect(manifest.containsNoDataOrSourcePackReferences).toBe(true);
     expect(placeholder.placeholderOnly).toBe(true);
     expect(placeholder.noBenchmarkCasesCheckedIn).toBe(true);
   });
@@ -477,18 +596,31 @@ describe("benchmark community pack foundation contracts", () => {
       ...boundary,
       architectureMapBoundaryVerified:
         architecture.v2fContractsNotTruthRuntimeOrData,
+      authorityLayerDuplicatesRejected: true,
+      authorityLayerExtraRejected: true,
+      authorityLayerMissingRejected: true,
+      authorityLayerReorderRejected: true,
+      authorityLayersExactOrderVerified:
+        JSON.stringify(architecture.authorityLayers) ===
+        JSON.stringify(BENCHMARK_AUTHORITY_LAYERS),
       benchmarkCasePlaceholderOnlyVerified:
         BenchmarkCaseSchema.parse(benchmarkCase()).placeholderOnly,
       benchmarkNoRuntimeBoundaryVerified: boundary.noProductRuntime,
       benchmarkPrivacyBoundaryVerified: privacyBoundary().noRealCompanyData,
       benchmarkTaskTaxonomyVerified: BENCHMARK_TASK_KINDS.length === 8,
+      benchmarkProofUnknownKeysRejected: true,
+      benchmarkTaskNestedUnknownKeysRejected: true,
+      benchmarkTaskUnknownKeysRejected: true,
+      communityPackManifestDataAliasesRejected: true,
+      communityPackManifestExplicitDataFieldsRejected: true,
       communityPackManifestVerified: true,
       contributorChallengeBoundaryVerified: challenge.noPublicLaunchImplied,
       evidenceFaithfulnessTaskVerified: true,
       evidenceFreshnessLimitationsPermittedActionFieldsVerified: true,
       evidenceRecallTaskVerified: true,
       forbiddenActionsVerified: true,
-      fp0087Absent: !existsSync("plans/FP-0087.md"),
+      fp0087Absent: fp0087Absent(),
+      inMemorySyntheticExamplesOnlyVerified: true,
       missingCitationTaskVerified: true,
       monitorBoundaryTaskVerified: true,
       noCredentialTokenSecretPolicyVerified:
@@ -501,12 +633,20 @@ describe("benchmark community pack foundation contracts", () => {
       reportTraceabilityTaskVerified: true,
       safeDemoDataPolicyVerified: true,
       sourceCoverageTaskVerified: true,
+      syntheticExamplesClearlyLabeledVerified: true,
       syntheticFinanceSourcePolicyVerified: true,
+      unknownKeysRejected: true,
       unsafeActionRefusalTaskVerified: true,
     });
 
     expect(proof.localProofOnly).toBe(true);
     expect(proof.noOpenAiApiCalls).toBe(true);
     expect(proof.fp0087Absent).toBe(true);
+    expect(() =>
+      BenchmarkProofSchema.parse({
+        ...proof,
+        rawFullText: "synthetic but forbidden proof field",
+      }),
+    ).toThrow();
   });
 });
