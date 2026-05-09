@@ -53,6 +53,8 @@ Replay and evidence-bundle implications: this slice creates no mission state tra
 - [x] 2026-05-09T22:40:03Z - Ran focused validation after edits; the V2A/V2B/V2C/V2E/V2F/V2G proof gates and focused domain specs passed.
 - [x] 2026-05-09T22:40:03Z - Ran same-branch QA over changed paths and implementation-pattern probes; no route code, app route, API route, backend route, endpoint, migration, package script, dataset, fixture, sample data, source pack, binary asset, public asset, FP-0094, OpenAI API/model call, OAuth implementation, app submission artifact, provider/deployment work, source mutation, finance write, generated product prose, runtime-Codex finance output, or autonomous action was found.
 - [x] 2026-05-09T22:45:55Z - Ran final validation through `git diff --check`, the V2A/V2B/V2C/V2E/V2F/V2G proof gates, focused domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed before this closeout edit.
+- [x] 2026-05-09T22:53:40Z - Same-branch QA found this FP-0093 closeout still described the post-closeout minimum gate as pending after the branch commit; corrected that wording on the same branch without widening scope.
+- [x] 2026-05-09T22:57:29Z - Reran same-branch QA validation after the wording correction through `git diff --check`, the V2A/V2B/V2C/V2E/V2F/V2G proof gates, focused domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed before this closeout note.
 
 ## Surprises & Discoveries
 
@@ -285,6 +287,6 @@ Future route tests must prove:
 
 Outcome: active docs-and-plan-only master-plan ready for PR review.
 
-Validation outcome: green through final validation before closeout. Per closeout policy, the post-closeout minimum gate (`git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm ci:repro:current`) must pass again before the final commit.
+Validation outcome: green through final validation, the post-closeout minimum gate (`git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm ci:repro:current`), and clean-worktree reproduction before the initial PR commit. Same-branch QA corrected stale closeout wording only, then reran the requested proof, focused-spec, lint, typecheck, test, and clean-worktree reproduction validation before the corrective commit.
 
 Scope outcome must remain: docs-and-plan plus proof-gate compatibility only; no route code, app route, API route, backend route, endpoint, remote MCP server, Apps SDK iframe/UI resource registration, OAuth, app submission, schema, migration, package script, smoke alias, eval dataset, fixture, sample data, public demo data, source pack, OpenAI API/model call, vector/file-search, OCR, PageIndex, provider/certification/delivery/deployment, external communication, source mutation, finance write, generated product prose, runtime-Codex finance output, autonomous action, FP-0094, or public app implementation.
