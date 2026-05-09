@@ -18,28 +18,83 @@ const freshProof: ReadOnlyAppMcpFreshness = {
   summary: "Local proof state uses no runtime call.",
 };
 
-export function PromptInjectionWarningState({ summary }: SharedStateProps) {
-  const refusal: ReadOnlyAppMcpRefusal = {
+function buildRefusalState(
+  reason: ReadOnlyAppMcpRefusal["reason"],
+  title: string,
+  summary: string,
+): ReadOnlyAppMcpRefusal {
+  return {
     freshness: freshProof,
-    reason: "prompt_injection",
-    summary:
-      summary ??
-      "Source instructions are treated as untrusted evidence text and are not followed.",
-    title: "Prompt-injection warning",
+    reason,
+    summary,
+    title,
   };
+}
+
+export function PromptInjectionWarningState({ summary }: SharedStateProps) {
+  const refusal = buildRefusalState(
+    "prompt_injection",
+    "Prompt-injection warning",
+    summary ??
+      "Source instructions are treated as untrusted evidence text and are not followed.",
+  );
+
+  return <RefusalPanel refusal={refusal} />;
+}
+
+export function MissingCitationRefusalState({ summary }: SharedStateProps) {
+  const refusal = buildRefusalState(
+    "missing_citation",
+    "Missing citation refusal",
+    summary ??
+      "The UI fails closed when an answer cannot point to a bounded citation and source anchor.",
+  );
+
+  return <RefusalPanel refusal={refusal} />;
+}
+
+export function UnsupportedEvidenceRefusalState({
+  summary,
+}: SharedStateProps) {
+  const refusal = buildRefusalState(
+    "unsupported_evidence",
+    "Unsupported evidence refusal",
+    summary ??
+      "Unsupported evidence cannot be rendered as a supported answer; review must resolve it first.",
+  );
+
+  return <RefusalPanel refusal={refusal} />;
+}
+
+export function StaleEvidenceRefusalState({ summary }: SharedStateProps) {
+  const refusal = buildRefusalState(
+    "stale_evidence",
+    "Stale evidence refusal",
+    summary ??
+      "Stale evidence remains a limitation until freshness is re-established by a future host.",
+  );
+
+  return <RefusalPanel refusal={refusal} />;
+}
+
+export function UnsafeActionRefusalState({ summary }: SharedStateProps) {
+  const refusal = buildRefusalState(
+    "unsafe_action",
+    "Unsafe action refusal",
+    summary ??
+      "Requests to send, approve, mutate, connect, submit, or otherwise act are refused.",
+  );
 
   return <RefusalPanel refusal={refusal} />;
 }
 
 export function RawFullFileDumpRefusalState({ summary }: SharedStateProps) {
-  const refusal: ReadOnlyAppMcpRefusal = {
-    freshness: freshProof,
-    reason: "raw_full_file_dump_request",
-    summary:
-      summary ??
+  const refusal = buildRefusalState(
+    "raw_full_file_dump_request",
+    "Raw full-file dump refused",
+    summary ??
       "Requests for raw full-file or page dumps fail closed. The UI only displays bounded citation posture.",
-    title: "Raw full-file dump refused",
-  };
+  );
 
   return <RefusalPanel refusal={refusal} />;
 }

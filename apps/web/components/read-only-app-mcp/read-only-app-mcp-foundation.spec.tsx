@@ -15,6 +15,7 @@ import {
   ForbiddenActionsPanel,
   LimitationCallout,
   LoadingEvidenceState,
+  MissingCitationRefusalState,
   NoRuntimeBoundaryPanel,
   PermittedNextActionsPanel,
   PrivacyBoundaryPanel,
@@ -22,6 +23,9 @@ import {
   RawFullFileDumpRefusalState,
   RefusalPanel,
   SourceAnchorPanel,
+  StaleEvidenceRefusalState,
+  UnsafeActionRefusalState,
+  UnsupportedEvidenceRefusalState,
   type ReadOnlyAppMcpCitation,
   type ReadOnlyAppMcpEvidenceCard,
   type ReadOnlyAppMcpForbiddenAction,
@@ -127,6 +131,30 @@ describe("read-only app/MCP premium UI component foundation", () => {
     expect(html).toContain("source text instructions remain untrusted data");
     expect(html).not.toContain("<button");
     expect(html).not.toContain("<form");
+  });
+
+  it("renders fail-closed missing, unsupported, stale, and unsafe-action refusals", () => {
+    const html = renderToStaticMarkup(
+      <>
+        <MissingCitationRefusalState />
+        <UnsupportedEvidenceRefusalState />
+        <StaleEvidenceRefusalState />
+        <UnsafeActionRefusalState />
+      </>,
+    );
+
+    expect(html).toContain("Missing citation refusal");
+    expect(html).toContain("missing citation");
+    expect(html).toContain("Unsupported evidence refusal");
+    expect(html).toContain("unsupported evidence");
+    expect(html).toContain("Stale evidence refusal");
+    expect(html).toContain("stale evidence");
+    expect(html).toContain("Unsafe action refusal");
+    expect(html).toContain("unsafe action");
+    expect(html).toContain("No action was taken");
+    expect(html).not.toContain("<button");
+    expect(html).not.toContain("<form");
+    expect(html).not.toContain("type=\"submit\"");
   });
 
   it("renders empty, loading, error, and unsupported evidence states", () => {

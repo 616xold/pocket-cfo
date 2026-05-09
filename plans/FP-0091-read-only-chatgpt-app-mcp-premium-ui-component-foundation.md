@@ -44,8 +44,12 @@ Replay and evidence-bundle implications: this slice creates no mission state tra
 - [x] 2026-05-09T20:25:00+01:00 - Updated the minimal V2F/V2G proof schemas, builders, proof tools, and focused specs so the exact FP-0091 local UI component boundary is accepted while FP-0092 remains absent.
 - [x] 2026-05-09T20:35:00+01:00 - Refreshed directly stale active docs, ROADMAP, and tiny FP-0090 shipped-state wording so FP-0090 was shipped and FP-0091 was opened as local component-only implementation.
 - [x] 2026-05-09T20:48:00+01:00 - Ran focused validation and strict same-branch QA; no route, endpoint, schema, migration, package-script, fixture, sample-data, source-pack, Apps SDK, OAuth, app-submission, OpenAI API/model, source-mutation, finance-write, autonomous-action, raw-dump-panel, or advice-like CTA defect was found.
+- [x] 2026-05-09T21:00:08+01:00 - Same-branch QA tightened the local state matrix by adding named missing-citation, unsupported-evidence, stale-evidence, and unsafe-action refusal states plus component tests; no runtime, route, endpoint, Apps SDK, OAuth, submission, source mutation, or finance-write scope was added.
 - [x] 2026-05-09T20:50:35+01:00 - Ran final validation successfully, including `git diff --check`, all required V2 proof tools, web tests/typecheck, focused domain proof specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-09T20:50:35+01:00 - Closed out this plan and directly stale active docs so FP-0091 is shipped and FP-0092 remains absent.
+- [x] 2026-05-09T21:05:16+01:00 - Reran same-branch QA correction validation successfully, including `git diff --check`, all required V2 proof tools, web tests/typecheck, focused domain proof specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-09T21:09:59+01:00 - Added `plugins.md` at the user's request as a documentation-only inventory of installed/used Codex plugins; this does not change product runtime, UI behavior, app/MCP scope, source data, or finance state.
+- [x] 2026-05-09T21:14:28+01:00 - Updated `plugins.md` to include the newly installed OpenAI Developers plugin as documentation-only inventory; no API key creation, OpenAI API/model call, app runtime, public app, or product scope was used.
 
 ## Surprises & Discoveries
 
@@ -68,6 +72,9 @@ Rationale: the slice must not add fixtures, sample data, eval datasets, public d
 
 Decision: component copy is evidence navigation copy, not finance advice.
 Rationale: the UI can explain evidence, freshness, limitations, and refusal posture, but it must not create advice-like CTAs, generated finance conclusions, or action-looking controls for forbidden actions.
+
+Decision: explicit refusal-state components cover every fail-closed QA state.
+Rationale: the generic refusal panel can render every refusal reason, but same-branch QA benefits from named local components and tests for missing citation, unsupported evidence, stale evidence, prompt injection, raw full-file dump requests, and unsafe action refusals.
 
 Decision: proof gates must accept exactly one FP-0091 file and reject FP-0092.
 Rationale: the successor bridge should be stronger than simple absence. It must prove FP-0091 authorizes only local read-only UI components and still rejects routes, endpoints, remote MCP, Apps SDK iframe/UI resources, OAuth, app submission, public app implementation, OpenAI API/model calls, source mutation, finance writes, generated product prose, runtime-Codex finance output, and autonomous action.
@@ -297,7 +304,7 @@ No new dependencies, package scripts, environment variables, runtime routes, end
 
 Outcome: FP-0091 shipped the first local/proof-only/read-only premium UI component foundation after FP-0090. The shipped component surface is limited to `apps/web/components/read-only-app-mcp/**`, focused tests, the exact proof-gate bridge, this plan, and directly stale docs.
 
-Validation outcome: green. Focused and final validation passed, including the required V2 proof tools, web tests/typecheck, focused domain proof specs, repo lint/typecheck/test, `git diff --check`, and `pnpm ci:repro:current`.
+Validation outcome: green. Focused and final validation passed, including the required V2 proof tools, web tests/typecheck, focused domain proof specs, repo lint/typecheck/test, `git diff --check`, and `pnpm ci:repro:current`. The same-branch QA correction revalidated the same ladder successfully.
 
 Scope outcome must remain: local UI component code only; no app routes, API routes, backend routes, endpoints, remote MCP server, Apps SDK iframe/UI resource registration, OAuth, app submission, schema, migration, package script, smoke alias, eval dataset, fixture, sample data, public demo data, source pack, OpenAI API/model call, vector/file-search, OCR, PageIndex, provider/certification/delivery/deployment, external communication, source mutation, finance write, generated product prose, runtime-Codex finance output, autonomous action, FP-0092, or public app implementation.
 
