@@ -121,6 +121,7 @@ export const AppSourceCoverageFetchSchema = z
     mutatesSourcePacks: falseLiteral,
     freshness: EvidenceIndexFreshnessPostureSchema,
     limitations: z.array(EvidenceIndexLimitationPostureSchema),
+    responseRequiredFields: AppResponseRequiredFieldsSchema,
   })
   .strict();
 
@@ -135,6 +136,7 @@ export const AppCapabilityBoundaryFetchSchema = z
     returnsPermittedNextActions: trueLiteral,
     permittedNextActions: z.array(PermittedNextActionSchema).min(1),
     noWriteOrActionTools: trueLiteral,
+    responseRequiredFields: AppResponseRequiredFieldsSchema,
   })
   .strict();
 

@@ -115,16 +115,42 @@ export const MCP_FORBIDDEN_TOOL_ALIASES: ReadonlyArray<{
     aliases: ["email report", "share report", "send memo"],
   },
   {
+    canonical: "delete",
+    aliases: [
+      "delete source",
+      "delete evidence",
+      "delete source pack",
+      "remove source",
+      "remove evidence",
+      "remove source pack",
+    ],
+  },
+  {
     canonical: "release_report",
     aliases: ["publish report", "release memo", "issue report"],
   },
   {
     canonical: "approve_report",
-    aliases: ["approve memo", "mark approved", "approval"],
+    aliases: [
+      "approve",
+      "approve this",
+      "approve report",
+      "approve memo",
+      "mark approved",
+      "approval",
+    ],
   },
   {
     canonical: "provider_call",
     aliases: ["call provider", "connect bank", "provider integration"],
+  },
+  {
+    canonical: "provider_connect",
+    aliases: ["connect provider", "provider connect", "provider setup"],
+  },
+  {
+    canonical: "certify_close",
+    aliases: ["certify this close", "certify close", "close certification"],
   },
   {
     canonical: "deploy_public_app",
@@ -140,7 +166,7 @@ export const MCP_FORBIDDEN_TOOL_ALIASES: ReadonlyArray<{
   },
   {
     canonical: "create_oauth_flow",
-    aliases: ["oauth", "connect oauth", "authorization flow"],
+    aliases: ["oauth", "oauth connect", "connect oauth", "authorization flow"],
   },
   {
     canonical: "submit_app",
@@ -148,11 +174,16 @@ export const MCP_FORBIDDEN_TOOL_ALIASES: ReadonlyArray<{
   },
   {
     canonical: "contact_customer",
-    aliases: ["customer contact", "email customer", "message customer"],
+    aliases: [
+      "customer contact",
+      "email customer",
+      "message customer",
+      "send to customer",
+    ],
   },
   {
     canonical: "issue_payment_instruction",
-    aliases: ["pay vendor", "make payment", "wire funds"],
+    aliases: ["pay invoice", "pay vendor", "make payment", "wire funds"],
   },
   {
     canonical: "file_tax",

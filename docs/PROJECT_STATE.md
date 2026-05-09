@@ -63,7 +63,7 @@ The shipped system is organized around:
 
 ## Latest Shipped V2 Plan
 
-- **V2F benchmark/community pack foundation**: shipped through FP-0086.
+- **V2G read-only ChatGPT App/MCP contract foundation**: shipped through FP-0087.
 
 ## Active V2 Plan
 
