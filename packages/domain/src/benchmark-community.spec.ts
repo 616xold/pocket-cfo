@@ -1,0 +1,512 @@
+import { existsSync } from "node:fs";
+import { describe, expect, it } from "vitest";
+import {
+  ArchitectureMapSchema,
+  BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+  BENCHMARK_TASK_KINDS,
+  BenchmarkCaseSchema,
+  BenchmarkNoRuntimeBoundarySchema,
+  BenchmarkProofSchema,
+  BenchmarkTaskKindSchema,
+  BenchmarkTaskTaxonomySchema,
+  CommunityPackManifestSchema,
+  ContributorChallengeSchema,
+  EvidenceFaithfulnessTaskSchema,
+  EvidenceRecallTaskSchema,
+  MissingCitationTaskSchema,
+  PolicyLookupTaskSchema,
+  ReportTraceabilityTaskSchema,
+  SafeDemoDataPolicySchema,
+  SourceCoverageTaskSchema,
+  SyntheticFinanceSourcePolicySchema,
+  UnsafeActionRefusalTaskSchema,
+  MonitorBoundaryTaskSchema,
+} from "./benchmark-community";
+
+const checkedAt = "2026-05-09T00:30:00.000Z";
+
+function safeDemoDataPolicy() {
+  return {
+    firstGate: true,
+    forbiddenFinanceData: [
+      "customer_data",
+      "vendor_data",
+      "payroll_data",
+      "tax_data",
+      "bank_data",
+      "legal_data",
+      "board_data",
+      "lender_data",
+    ],
+    forbiddenPrivateArtifacts: [
+      "credentials",
+      "tokens",
+      "secrets",
+      "oauth_material",
+      "provider_credentials",
+      "api_keys",
+      "object_store_dumps",
+      "database_dumps",
+      "private_screenshots",
+      "private_finance_source_text",
+    ],
+    forbidsCheckedInSensitiveFinanceData: true,
+    forbidsLightlyAnonymizedRealFinanceData: true,
+    forbidsRealCompanyData: true,
+    noDataFilesCreatedByPolicy: true,
+    policyName: "SafeDemoDataPolicy",
+    requiresClearSyntheticLabel: true,
+    requiresReviewBeforeAnyFutureDataFile: true,
+    requiresSyntheticOnlyBeforeFutureCase: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+  };
+}
+
+function syntheticFinanceSourcePolicy() {
+  return {
+    forbidsLightlyAnonymizedRealFinanceData: true,
+    forbidsRealCompanyDerivedData: true,
+    forbidsSourcePackDerivedPrivateData: true,
+    gatedBySafeDemoDataPolicyFirst: true,
+    noFutureSampleDemoBenchmarkCaseWithoutPolicy: true,
+    policyName: "SyntheticFinanceSourcePolicy",
+    requiresClearSyntheticLabeling: true,
+    requiresInventedCompanyFacts: true,
+    requiresInventedSourceFacts: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+  };
+}
+
+function privacyBoundary() {
+  return {
+    benchmarkArtifactsAreNotSourceTruth: true,
+    noCredentialsTokensSecretsOauthProviderKeys: true,
+    noLightlyAnonymizedRealFinanceData: true,
+    noObjectStoreOrDatabaseDumps: true,
+    noPrivateCustomerVendorPayrollTaxBankLegalBoardLenderData: true,
+    noPrivateFinanceSourceText: true,
+    noPrivateScreenshots: true,
+    noRealCompanyData: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+  };
+}
+
+function noRuntimeBoundary() {
+  return {
+    localProofOnly: true,
+    noAppSubmission: true,
+    noAppsSdkUi: true,
+    noAutonomousAction: true,
+    noCertification: true,
+    noDelivery: true,
+    noDeployment: true,
+    noEvalDatasetsAdded: true,
+    noExternalCommunications: true,
+    noFinanceWrite: true,
+    noFixturesAdded: true,
+    noGeneratedAdvice: true,
+    noModelCalls: true,
+    noOauth: true,
+    noOcr: true,
+    noOpenAiApiCalls: true,
+    noPackageScriptsAdded: true,
+    noPageIndex: true,
+    noProductRuntime: true,
+    noProviderCalls: true,
+    noPublicChatGptApp: true,
+    noPublicDemoDataAdded: true,
+    noPublicSourcePacksAdded: true,
+    noRemoteMcpDeployment: true,
+    noRoutesAdded: true,
+    noRuntimeCodex: true,
+    noSampleDataAdded: true,
+    noSchemaMigrationsAdded: true,
+    noSmokeAliasesAdded: true,
+    noSourceMutation: true,
+    noSourcePackMutation: true,
+    noUiAdded: true,
+    noVectorFileSearch: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+  };
+}
+
+function benchmarkCase() {
+  return {
+    futureCaseRequiresSafeDemoDataPolicy: true,
+    futureCaseRequiresSyntheticFinanceSourcePolicy: true,
+    noBenchmarkCasesCheckedIn: true,
+    noDatasetFile: true,
+    noFixtureFile: true,
+    noSampleDataFile: true,
+    placeholderOnly: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+  };
+}
+
+function contributorChallenge() {
+  return {
+    challengeName: "Synthetic read-only evidence challenge",
+    noAutonomousActionImplied: true,
+    noCertificationImplied: true,
+    noFinanceWritesImplied: true,
+    noLegalAuditTaxAdviceImplied: true,
+    noProviderIntegrationImplied: true,
+    noPublicLaunchImplied: true,
+    noSaasDeploymentImplied: true,
+    readOnlyProofOnly: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+    syntheticOnlyRequiredBeforeAnyFutureData: true,
+  };
+}
+
+function architectureMap() {
+  return {
+    authorityLayers: [
+      "raw_sources",
+      "finance_twin",
+      "cfo_wiki",
+      "evidence_index",
+      "v2c_evidence_tools",
+      "v2d_evidence_atlas",
+      "v2e_bounded_orchestration",
+      "v2f_benchmark_community_contracts",
+    ],
+    benchmarkArtifactsNotProductRuntime: true,
+    cfoWikiCompiledDerived: true,
+    evidenceIndexReadOnlyAnchorTraceCardCoverageLimitationLayer: true,
+    financeTwinAuthoritativeForStructuredFacts: true,
+    rawSourcesAuthoritativeForDocumentClaims: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+    v2cToolsLocalInternalReadOnlyContract: true,
+    v2dAtlasVisualizationOnly: true,
+    v2eBoundedOrchestrationLocalInternalProofOnly: true,
+    v2fContractsNotTruthRuntimeOrData: true,
+  };
+}
+
+function baseTask(
+  taskKind: (typeof BENCHMARK_TASK_KINDS)[number],
+  expectedRefusalKind:
+    | "none"
+    | "missing_citation_refusal"
+    | "unsupported_evidence_refusal"
+    | "unsafe_action_refusal" = "unsupported_evidence_refusal",
+) {
+  return {
+    citationRequirements: {
+      acceptedDerivedRefKinds: ["evidence_card", "document_map"],
+      missingCitationFailsClosed: true,
+      positiveClaimsRequireCitation: true,
+      sourceAnchorOrAcceptedDerivedRefRequired: true,
+    },
+    companyContext: { companyKey: "synthetic-company", syntheticOnly: true },
+    contractPlaceholderOnly: true,
+    evidenceRequirements: {
+      cfoWikiCompiledDerived: true,
+      evidenceIndexAllowed: true,
+      financeTwinStructuredFactsRemainAuthoritative: true,
+      noFullFileDumps: true,
+      rawSourcesRemainAuthoritative: true,
+      v2cEvidenceToolsAllowedReadOnly: true,
+    },
+    expectedRefusalPosture: {
+      expectedRefusalKind,
+      whenCitationMissing: "missing_citation_refusal",
+      whenEvidenceConflicting: "unsupported_evidence_refusal",
+      whenEvidenceMissing: "unsupported_evidence_refusal",
+      whenEvidenceStale: "unsupported_evidence_refusal",
+      whenEvidenceUnsupported: "unsupported_evidence_refusal",
+      whenUnsafeActionRequested: "unsafe_action_refusal",
+    },
+    forbiddenActions: [
+      "upload_source",
+      "report_release",
+      "provider_call",
+      "finance_write",
+      "generated_advice",
+      "autonomous_action",
+      "openai_api_call",
+      "model_call",
+    ],
+    freshnessPosture: {
+      checkedAt,
+      compiledAt: checkedAt,
+      extractedAt: checkedAt,
+      sourceCapturedAt: checkedAt,
+      state: "fresh" as const,
+      summary: "Fresh synthetic benchmark contract posture.",
+    },
+    limitationPosture: [
+      {
+        affectedAnchorIds: [],
+        affectedSourceIds: [],
+        code: "not_source_truth" as const,
+        severity: "blocking" as const,
+        summary: "V2F benchmark contracts are not source truth.",
+      },
+    ],
+    noRuntimeBoundary: noRuntimeBoundary(),
+    permittedNextActions: [
+      {
+        action: "request_human_review" as const,
+        label: "Review benchmark contract posture.",
+        targetId: "synthetic-company",
+      },
+    ],
+    privacyBoundary: privacyBoundary(),
+    proofExpectations: {
+      localProofOnly: true,
+      machineReadable: true,
+      noDatasetRequired: true,
+      noRuntimeBehavior: true,
+    },
+    readOnlyDefinitionOnly: true,
+    schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+    taskKind,
+    taskName: `Synthetic ${taskKind} task contract`,
+  };
+}
+
+describe("benchmark community pack foundation contracts", () => {
+  it("puts SafeDemoDataPolicy first and forbids real or lightly anonymized finance data", () => {
+    const safe = SafeDemoDataPolicySchema.parse(safeDemoDataPolicy());
+    const synthetic = SyntheticFinanceSourcePolicySchema.parse(
+      syntheticFinanceSourcePolicy(),
+    );
+
+    expect(safe.firstGate).toBe(true);
+    expect(safe.forbidsRealCompanyData).toBe(true);
+    expect(safe.forbidsLightlyAnonymizedRealFinanceData).toBe(true);
+    expect(safe.forbiddenFinanceData).toEqual(
+      expect.arrayContaining([
+        "customer_data",
+        "vendor_data",
+        "payroll_data",
+        "tax_data",
+        "bank_data",
+        "legal_data",
+        "board_data",
+        "lender_data",
+      ]),
+    );
+    expect(safe.forbiddenPrivateArtifacts).toEqual(
+      expect.arrayContaining([
+        "credentials",
+        "tokens",
+        "secrets",
+        "oauth_material",
+        "provider_credentials",
+        "api_keys",
+        "object_store_dumps",
+        "database_dumps",
+        "private_screenshots",
+        "private_finance_source_text",
+      ]),
+    );
+    expect(synthetic.gatedBySafeDemoDataPolicyFirst).toBe(true);
+    expect(synthetic.requiresInventedCompanyFacts).toBe(true);
+    expect(synthetic.requiresInventedSourceFacts).toBe(true);
+    expect(synthetic.requiresClearSyntheticLabeling).toBe(true);
+  });
+
+  it("rejects partial or duplicated SafeDemoDataPolicy category lists", () => {
+    const safe = safeDemoDataPolicy();
+
+    expect(() =>
+      SafeDemoDataPolicySchema.parse({
+        ...safe,
+        forbiddenFinanceData: [
+          "customer_data",
+          "vendor_data",
+          "payroll_data",
+          "tax_data",
+          "bank_data",
+          "legal_data",
+          "board_data",
+          "customer_data",
+        ],
+      }),
+    ).toThrow();
+    expect(() =>
+      SafeDemoDataPolicySchema.parse({
+        ...safe,
+        forbiddenPrivateArtifacts: [
+          "credentials",
+          "tokens",
+          "secrets",
+          "oauth_material",
+          "provider_credentials",
+          "api_keys",
+          "object_store_dumps",
+          "database_dumps",
+          "private_screenshots",
+          "credentials",
+        ],
+      }),
+    ).toThrow();
+  });
+
+  it("defines only the allowed read-only benchmark task taxonomy", () => {
+    expect(BENCHMARK_TASK_KINDS).toEqual([
+      "evidence_recall",
+      "source_coverage",
+      "policy_lookup",
+      "report_traceability",
+      "monitor_boundary",
+      "unsafe_action_refusal",
+      "missing_citation",
+      "evidence_faithfulness",
+    ]);
+    expect(
+      BENCHMARK_TASK_KINDS.map((kind) => BenchmarkTaskKindSchema.parse(kind)),
+    ).toHaveLength(8);
+    expect(BenchmarkTaskTaxonomySchema.parse([...BENCHMARK_TASK_KINDS])).toEqual(
+      BENCHMARK_TASK_KINDS,
+    );
+    expect(() =>
+      BenchmarkTaskTaxonomySchema.parse([
+        "evidence_recall",
+        "source_coverage",
+        "policy_lookup",
+        "report_traceability",
+        "monitor_boundary",
+        "unsafe_action_refusal",
+        "missing_citation",
+        "evidence_recall",
+      ]),
+    ).toThrow();
+  });
+
+  it("parses all task contracts with evidence, freshness, limitations, actions, and refusal posture", () => {
+    const tasks = [
+      EvidenceRecallTaskSchema.parse({
+        ...baseTask("evidence_recall"),
+        recallsExistingEvidenceOnly: true,
+      }),
+      SourceCoverageTaskSchema.parse({
+        ...baseTask("source_coverage"),
+        checksSupportedUnsupportedMissingStaleFailedNotIndexed: true,
+      }),
+      PolicyLookupTaskSchema.parse({
+        ...baseTask("policy_lookup"),
+        explicitPolicySourceScopeRequired: true,
+        noLegalOrPolicyAdvice: true,
+      }),
+      ReportTraceabilityTaskSchema.parse({
+        ...baseTask("report_traceability"),
+        createsOrReleasesReports: false,
+        tracesStoredArtifactsOnly: true,
+      }),
+      MonitorBoundaryTaskSchema.parse({
+        ...baseTask("monitor_boundary"),
+        createsAlertsOrMissions: false,
+        deterministicStoredStateOnly: true,
+      }),
+      UnsafeActionRefusalTaskSchema.parse({
+        ...baseTask("unsafe_action_refusal", "unsafe_action_refusal"),
+        readOnlyProofOnly: true,
+      }),
+      MissingCitationTaskSchema.parse({
+        ...baseTask("missing_citation", "missing_citation_refusal"),
+      }),
+      EvidenceFaithfulnessTaskSchema.parse({
+        ...baseTask("evidence_faithfulness"),
+        rejectsConflictingEvidence: true,
+        rejectsMissingEvidence: true,
+        rejectsRawFullFileDumpLikePosture: true,
+        rejectsStaleEvidence: true,
+        rejectsUncitedClaims: true,
+        rejectsUnsupportedEvidence: true,
+      }),
+    ];
+
+    expect(tasks.map((task) => task.taskKind)).toEqual(BENCHMARK_TASK_KINDS);
+    expect(
+      tasks.every(
+        (task) =>
+          task.readOnlyDefinitionOnly &&
+          task.evidenceRequirements.noFullFileDumps &&
+          task.freshnessPosture.state === "fresh" &&
+          task.limitationPosture.length > 0 &&
+          task.permittedNextActions.length > 0 &&
+          task.citationRequirements.sourceAnchorOrAcceptedDerivedRefRequired &&
+          task.privacyBoundary.noRealCompanyData &&
+          task.noRuntimeBoundary.noProductRuntime,
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps community manifests and benchmark cases as data-free placeholders", () => {
+    const manifest = CommunityPackManifestSchema.parse({
+      allowedTaskKinds: [...BENCHMARK_TASK_KINDS],
+      architectureMap: architectureMap(),
+      benchmarkCase: benchmarkCase(),
+      contributorChallenge: contributorChallenge(),
+      dataFiles: [],
+      describesFutureCommunityPackOnly: true,
+      evalDatasetFiles: [],
+      fixtureFiles: [],
+      manifestKind: "CommunityPackManifest",
+      noRuntimeBoundary: noRuntimeBoundary(),
+      owningFinancePlan: "FP-0086",
+      privacyBoundary: privacyBoundary(),
+      safeDemoDataPolicy: safeDemoDataPolicy(),
+      schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
+      sourcePackFiles: [],
+      syntheticFinanceSourcePolicy: syntheticFinanceSourcePolicy(),
+      validationPosture: {
+        directProofCommandOnly: true,
+        inMemorySyntheticExamplesOnly: true,
+        noPackageScriptOrSmokeAlias: true,
+      },
+    });
+    const placeholder = BenchmarkCaseSchema.parse(benchmarkCase());
+
+    expect(manifest.dataFiles).toEqual([]);
+    expect(manifest.sourcePackFiles).toEqual([]);
+    expect(manifest.evalDatasetFiles).toEqual([]);
+    expect(placeholder.placeholderOnly).toBe(true);
+    expect(placeholder.noBenchmarkCasesCheckedIn).toBe(true);
+  });
+
+  it("proves no-runtime, contributor, architecture, and final proof posture", () => {
+    const boundary = BenchmarkNoRuntimeBoundarySchema.parse(noRuntimeBoundary());
+    const challenge = ContributorChallengeSchema.parse(contributorChallenge());
+    const architecture = ArchitectureMapSchema.parse(architectureMap());
+    const proof = BenchmarkProofSchema.parse({
+      ...boundary,
+      architectureMapBoundaryVerified:
+        architecture.v2fContractsNotTruthRuntimeOrData,
+      benchmarkCasePlaceholderOnlyVerified:
+        BenchmarkCaseSchema.parse(benchmarkCase()).placeholderOnly,
+      benchmarkNoRuntimeBoundaryVerified: boundary.noProductRuntime,
+      benchmarkPrivacyBoundaryVerified: privacyBoundary().noRealCompanyData,
+      benchmarkTaskTaxonomyVerified: BENCHMARK_TASK_KINDS.length === 8,
+      communityPackManifestVerified: true,
+      contributorChallengeBoundaryVerified: challenge.noPublicLaunchImplied,
+      evidenceFaithfulnessTaskVerified: true,
+      evidenceFreshnessLimitationsPermittedActionFieldsVerified: true,
+      evidenceRecallTaskVerified: true,
+      forbiddenActionsVerified: true,
+      fp0087Absent: !existsSync("plans/FP-0087.md"),
+      missingCitationTaskVerified: true,
+      monitorBoundaryTaskVerified: true,
+      noCredentialTokenSecretPolicyVerified:
+        safeDemoDataPolicy().forbiddenPrivateArtifacts.includes("secrets"),
+      noPrivateCustomerVendorPayrollTaxBankLegalBoardLenderDataVerified:
+        safeDemoDataPolicy().forbiddenFinanceData.includes("payroll_data"),
+      noRealFinanceDataPolicyVerified:
+        safeDemoDataPolicy().forbidsRealCompanyData,
+      policyLookupTaskVerified: true,
+      reportTraceabilityTaskVerified: true,
+      safeDemoDataPolicyVerified: true,
+      sourceCoverageTaskVerified: true,
+      syntheticFinanceSourcePolicyVerified: true,
+      unsafeActionRefusalTaskVerified: true,
+    });
+
+    expect(proof.localProofOnly).toBe(true);
+    expect(proof.noOpenAiApiCalls).toBe(true);
+    expect(proof.fp0087Absent).toBe(true);
+  });
+});
