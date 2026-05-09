@@ -24,6 +24,8 @@ FP-0085 is the shipped V2E local/internal proof-only bounded LLM orchestration f
 
 FP-0086 is the shipped V2F docs/proof-only benchmark/community manifest foundation record. It ships SafeDemoDataPolicy first, SyntheticFinanceSourcePolicy, BenchmarkPrivacyBoundary, BenchmarkNoRuntimeBoundary, exact read-only BenchmarkTask taxonomy, BenchmarkCase placeholder rules, CommunityPackManifest, ContributorChallenge, ArchitectureMap, BenchmarkProof, focused specs, and `tools/benchmark-community-pack-proof.mjs`. It adds no UI, routes, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, source packs, source-pack mutations, OpenAI API/model calls, public ChatGPT App/MCP, Apps SDK UI, OAuth, app submission, provider behavior, certification, delivery, deployment, external communications, finance writes, generated advice, runtime-Codex finance output, or autonomous action.
 
+FP-0087 is the active V2G read-only ChatGPT App/MCP master-plan record. It is docs-and-plan only and defines future read-only app/MCP concepts, allowlists, forbidden tools, refusal posture, prompt-injection/privacy/no-runtime boundaries, proof posture, and wait conditions without adding code, UI, routes, endpoints, remote MCP server, Apps SDK iframe, OAuth, app submission, schema, migrations, package scripts, smoke aliases, eval datasets, fixtures, sample data, public demo data, source-pack behavior, OpenAI API/model calls, vector/file-search integration, OCR, PageIndex, provider behavior, certification, delivery, deployment, external communications, source mutation, finance writes, generated advice, runtime-Codex finance output, or autonomous action.
+
 ## Shipped Architecture Summary
 
 The shipped system is organized around:
@@ -57,6 +59,7 @@ The shipped system is organized around:
 - **V2D Evidence Atlas UI foundation**: shipped through FP-0084 as one read-only local operator UI route and modular atlas component foundation.
 - **V2E bounded LLM orchestration foundation**: shipped through FP-0085 as a local/internal proof-only planning/refusal/validation contract over fixed read-only V2C tools.
 - **V2F benchmark/community pack foundation**: shipped through FP-0086 as a docs/proof-only SafeDemoDataPolicy-first benchmark/community manifest contract foundation with no datasets or runtime behavior.
+- **V2G read-only ChatGPT App/MCP master plan**: active through FP-0087 as a docs-and-plan-only master-plan record with no implementation.
 
 ## Latest Shipped V2 Plan
 
@@ -64,7 +67,7 @@ The shipped system is organized around:
 
 ## Active V2 Plan
 
-- No later active V2 implementation plan exists in this repository. Continue only with V2F implementation QA or a later named Finance Plan; do not create FP-0087 from shipped docs alone.
+- **V2G read-only ChatGPT App/MCP master plan**: active through FP-0087 as a docs-and-plan-only record. It does not authorize implementation. Continue only with FP-0087 planning/doc refresh, or a later named Finance Plan after this record is merged.
 
 ## Fixed Shipped Monitor Families
 
@@ -115,6 +118,7 @@ These tracks remain future-only until a later Finance Plan names exact scope and
 - EvidenceIndex or precision-adapter expansion outside the shipped FP-0081 first V2B contract
 - V2E expansion beyond the shipped FP-0085 local/internal proof-only bounded LLM orchestration foundation
 - public ChatGPT App/MCP deployment beyond the shipped local/internal FP-0082 contract
+- V2G implementation beyond the active FP-0087 docs-and-plan-only master-plan boundary
 - V2D expansion outside the shipped FP-0084 read-only Evidence Atlas UI foundation boundary
 - V2F expansion beyond the shipped FP-0086 docs/proof-only benchmark/community manifest foundation
 - iOS
@@ -150,6 +154,9 @@ Key records:
 - [FP-0082 V2C read-only MCP/ChatGPT Evidence App alpha](../plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md)
 - [FP-0083 OSS demo/self-host/security baseline](../plans/FP-0083-oss-demo-self-host-security-baseline.md)
 - [FP-0084 V2D Evidence Atlas UI foundation](../plans/FP-0084-evidence-atlas-ui-foundation.md)
+- [FP-0085 V2E bounded LLM orchestration foundation](../plans/FP-0085-bounded-llm-orchestration-foundation.md)
+- [FP-0086 V2F benchmark/community pack foundation](../plans/FP-0086-benchmark-community-pack-foundation.md)
+- [FP-0087 V2G read-only ChatGPT App/MCP master plan](../plans/FP-0087-read-only-chatgpt-app-mcp-master-plan.md)
 - [FP-0077 F10 v1 public launch handoff](../plans/FP-0077-v1-public-launch-handoff.md)
 - [FP-0076 F9 product UI launch polish](../plans/FP-0076-product-ui-launch-polish-foundation.md)
 - [FP-0075 F8 future-scope triage](../plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md)

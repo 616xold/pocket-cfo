@@ -92,8 +92,39 @@ const taskSpecs = [
 ];
 
 const checkedAt = "2026-05-09T00:30:00.000Z";
-const fp0087Absent = !readdirSync("plans").some((name) =>
-  /^FP-0087/u.test(name),
+
+function fp0087AbsentOrDocsOnlyBoundaryVerified() {
+  const fp0087Files = readdirSync("plans").filter((name) =>
+    /^FP-0087/u.test(name),
+  );
+
+  if (fp0087Files.length === 0) {
+    return true;
+  }
+
+  if (
+    fp0087Files.length !== 1 ||
+    fp0087Files[0] !== "FP-0087-read-only-chatgpt-app-mcp-master-plan.md"
+  ) {
+    return false;
+  }
+
+  const planText = readFileSync(`plans/${fp0087Files[0]}`, "utf8");
+  return [
+    "docs-and-plan-only",
+    "V2G is not implementation",
+    "No FP-0088 exists",
+    "no remote endpoint",
+    "no app submission",
+    "no OpenAI API/model calls",
+    "source mutation",
+    "finance writes",
+    "autonomous action",
+  ].every((requiredText) => planText.includes(requiredText));
+}
+
+const fp0088Absent = !readdirSync("plans").some((name) =>
+  /^FP-0088/u.test(name),
 );
 
 function safeDemoDataPolicy() {
@@ -480,7 +511,9 @@ const proof = BenchmarkProofSchema.parse({
       task.forbiddenActions.includes(action),
     ),
   ),
-  fp0087Absent,
+  fp0087AbsentOrDocsOnlyBoundaryVerified:
+    fp0087AbsentOrDocsOnlyBoundaryVerified(),
+  fp0088Absent,
   inMemorySyntheticExamplesOnlyVerified:
     manifest.validationPosture.inMemorySyntheticExamplesOnly,
   missingCitationTaskVerified:

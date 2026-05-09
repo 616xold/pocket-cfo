@@ -1,4 +1,4 @@
-import { existsSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
   ArchitectureMapSchema,
@@ -287,9 +287,40 @@ function communityPackManifest() {
   };
 }
 
-function fp0087Absent() {
+function fp0087AbsentOrDocsOnlyBoundaryVerified() {
   const plansPath = existsSync("plans") ? "plans" : "../../plans";
-  return !readdirSync(plansPath).some((name) => /^FP-0087/u.test(name));
+  const fp0087Files = readdirSync(plansPath).filter((name) =>
+    /^FP-0087/u.test(name),
+  );
+
+  if (fp0087Files.length === 0) {
+    return true;
+  }
+
+  if (
+    fp0087Files.length !== 1 ||
+    fp0087Files[0] !== "FP-0087-read-only-chatgpt-app-mcp-master-plan.md"
+  ) {
+    return false;
+  }
+
+  const planText = readFileSync(`${plansPath}/${fp0087Files[0]}`, "utf8");
+  return [
+    "docs-and-plan-only",
+    "V2G is not implementation",
+    "No FP-0088 exists",
+    "no remote endpoint",
+    "no app submission",
+    "no OpenAI API/model calls",
+    "source mutation",
+    "finance writes",
+    "autonomous action",
+  ].every((requiredText) => planText.includes(requiredText));
+}
+
+function fp0088Absent() {
+  const plansPath = existsSync("plans") ? "plans" : "../../plans";
+  return !readdirSync(plansPath).some((name) => /^FP-0088/u.test(name));
 }
 
 describe("benchmark community pack foundation contracts", () => {
@@ -619,7 +650,9 @@ describe("benchmark community pack foundation contracts", () => {
       evidenceFreshnessLimitationsPermittedActionFieldsVerified: true,
       evidenceRecallTaskVerified: true,
       forbiddenActionsVerified: true,
-      fp0087Absent: fp0087Absent(),
+      fp0087AbsentOrDocsOnlyBoundaryVerified:
+        fp0087AbsentOrDocsOnlyBoundaryVerified(),
+      fp0088Absent: fp0088Absent(),
       inMemorySyntheticExamplesOnlyVerified: true,
       missingCitationTaskVerified: true,
       monitorBoundaryTaskVerified: true,
@@ -641,7 +674,8 @@ describe("benchmark community pack foundation contracts", () => {
 
     expect(proof.localProofOnly).toBe(true);
     expect(proof.noOpenAiApiCalls).toBe(true);
-    expect(proof.fp0087Absent).toBe(true);
+    expect(proof.fp0087AbsentOrDocsOnlyBoundaryVerified).toBe(true);
+    expect(proof.fp0088Absent).toBe(true);
     expect(() =>
       BenchmarkProofSchema.parse({
         ...proof,
