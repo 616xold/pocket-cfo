@@ -6,12 +6,16 @@ import {
 } from "./benchmark-community";
 import {
   APP_REFUSAL_REASONS,
+  AppPrivacyBoundarySchema,
+  AppPromptInjectionBoundarySchema,
   MCP_TOOL_ALLOWLIST,
+  McpToolAllowlistSchema,
   READ_ONLY_APP_MCP_SCHEMA_VERSION,
   classifyMcpToolCandidate,
   isMcpToolAllowed,
 } from "./read-only-app-mcp-boundaries";
 import {
+  APP_RESPONSE_REQUIRED_FIELDS,
   APP_THREAT_MODEL_QUESTIONS,
   AppCapabilityBoundaryFetchSchema,
   AppEvidenceFetchSchema,
@@ -31,6 +35,7 @@ import {
   baseForbiddenTools,
 } from "./read-only-app-mcp-contracts";
 import {
+  AppNoRuntimeBoundarySchema,
   buildAppAuthorityBoundary,
   buildAppNoRuntimeBoundary,
 } from "./read-only-app-mcp-runtime";
@@ -39,6 +44,10 @@ import {
   AppProofSchema,
   type AppProof,
 } from "./read-only-app-mcp-proof-schema";
+
+type SafeParseSchema = {
+  safeParse(value: unknown): { success: boolean };
+};
 
 export function buildReadOnlyChatGptAppMcpProof(
   input: Partial<{
@@ -123,6 +132,7 @@ export function buildReadOnlyChatGptAppMcpProof(
     freshness: freshness(),
     limitations: [limitation()],
     mutatesSourcePacks: false,
+    responseRequiredFields: readOnlyAppPlan.responseRequiredFields,
     returnsFreshnessPosture: true,
     returnsUnsupportedMissingStalePosture: true,
     schemaVersion: READ_ONLY_APP_MCP_SCHEMA_VERSION,
@@ -133,6 +143,7 @@ export function buildReadOnlyChatGptAppMcpProof(
     forbiddenTools: baseForbiddenTools(),
     noWriteOrActionTools: true,
     permittedNextActions: [humanReviewAction()],
+    responseRequiredFields: readOnlyAppPlan.responseRequiredFields,
     returnsForbiddenActions: true,
     returnsLimitations: true,
     returnsPermittedNextActions: true,
@@ -230,11 +241,78 @@ export function buildReadOnlyChatGptAppMcpProof(
       JSON.stringify(MCP_TOOL_ALLOWLIST) &&
     JSON.stringify(mcpPlan.toolAllowlist) ===
       JSON.stringify(MCP_TOOL_ALLOWLIST);
+  const mcpToolAllowlistDuplicatesRejected = rejects(McpToolAllowlistSchema, [
+    ...MCP_TOOL_ALLOWLIST.slice(0, -1),
+    MCP_TOOL_ALLOWLIST[0],
+  ]);
+  const mcpToolAllowlistMissingRejected = rejects(
+    McpToolAllowlistSchema,
+    MCP_TOOL_ALLOWLIST.slice(0, -1),
+  );
+  const mcpToolAllowlistReorderRejected = rejects(McpToolAllowlistSchema, [
+    MCP_TOOL_ALLOWLIST[1],
+    MCP_TOOL_ALLOWLIST[0],
+    ...MCP_TOOL_ALLOWLIST.slice(2),
+  ]);
+  const mcpToolAllowlistExtraRejected = rejects(McpToolAllowlistSchema, [
+    ...MCP_TOOL_ALLOWLIST,
+    "send_report",
+  ]);
+  const mcpDynamicToolsRejected =
+    !isMcpToolAllowed("dynamic_tool") &&
+    rejects(McpToolAllowlistSchema, [
+      ...MCP_TOOL_ALLOWLIST.slice(0, -1),
+      "dynamic_tool",
+    ]);
+  const unknownKeyCases: ReadonlyArray<readonly [SafeParseSchema, unknown]> = [
+    [ReadOnlyChatGptAppPlanSchema, readOnlyAppPlan],
+    [AppEvidenceQuerySchema, evidenceQuery],
+    [AppEvidenceFetchSchema, evidenceFetch],
+    [AppSourceCoverageFetchSchema, sourceCoverageFetch],
+    [AppCapabilityBoundaryFetchSchema, capabilityBoundaryFetch],
+    [AppRefusalPostureSchema, refusalPosture],
+    [AppPromptInjectionBoundarySchema, BaseAppPromptInjectionBoundary],
+    [AppPrivacyBoundarySchema, BaseAppPrivacyBoundary],
+    [AppNoRuntimeBoundarySchema, noRuntimeBoundary],
+    [AppOAuthDeferredBoundarySchema, oauthBoundary],
+    [AppSubmissionDeferredBoundarySchema, submissionBoundary],
+    [AppProviderCertificationDeferredBoundarySchema, providerBoundary],
+    [AppProofPlanSchema, proofPlan],
+    [AppThreatModelQuestionsSchema, threatQuestions],
+  ];
+  const appMcpUnknownKeysRejected = unknownKeyCases.every(([schema, value]) =>
+    rejectsUnknownKey(schema, value),
+  );
+  const naturalLanguageForbiddenToolsVerified =
+    forbiddenCandidatesRejected && noForbiddenCandidateInAllowlist;
+  const promptInjectionStringsInertDataVerified =
+    BaseAppPromptInjectionBoundary.sourceTextTrust === "untrusted_data" &&
+    BaseAppPromptInjectionBoundary.userTextTrust === "untrusted_data" &&
+    BaseAppPromptInjectionBoundary.toolOutputTrust === "untrusted_data" &&
+    BaseAppPromptInjectionBoundary.sourceInstructionsCanAuthorizeTools ===
+      false &&
+    BaseAppPromptInjectionBoundary.userTextCanWidenScope === false &&
+    BaseAppPromptInjectionBoundary.toolOutputCanBypassBoundaries === false;
+  const rawFullFileDumpAndDataExfiltrationRefusalVerified =
+    refusalPosture.requiredFailClosedReasons.includes(
+      "raw_full_file_dump_request",
+    ) && refusalPosture.requiredFailClosedReasons.includes("data_exfiltration");
+  const fp0087TypedBoundaryVerified =
+    (input.fp0087DocsOnlyBoundaryVerified ?? true) &&
+    readOnlyAppPlan.contractOnly &&
+    !readOnlyAppPlan.publicChatGptAppImplemented &&
+    mcpPlan.contractOnly &&
+    !mcpPlan.serverImplemented &&
+    noRuntimeBoundary.noOpenAiApiCalls &&
+    noRuntimeBoundary.noModelCalls;
 
   return AppProofSchema.parse({
     allowedTools: baseAllowedTools(),
     appCapabilityBoundaryFetchVerified:
-      capabilityBoundaryFetch.noWriteOrActionTools,
+      capabilityBoundaryFetch.noWriteOrActionTools &&
+      matchesResponseRequiredFields(
+        capabilityBoundaryFetch.responseRequiredFields,
+      ),
     appEvidenceFetchVerified:
       evidenceFetch.rawFullFileDumpsAllowed === false &&
       evidenceFetch.sourceMutationAllowed === false,
@@ -248,7 +326,13 @@ export function buildReadOnlyChatGptAppMcpProof(
         APP_REFUSAL_REASONS.length,
     appSourceCoverageFetchVerified:
       sourceCoverageFetch.returnsFreshnessPosture &&
-      sourceCoverageFetch.returnsUnsupportedMissingStalePosture,
+      sourceCoverageFetch.returnsUnsupportedMissingStalePosture &&
+      matchesResponseRequiredFields(sourceCoverageFetch.responseRequiredFields),
+    appMcpUnknownKeysRejected,
+    capabilityBoundaryResponseRequiredFieldsVerified:
+      matchesResponseRequiredFields(
+        capabilityBoundaryFetch.responseRequiredFields,
+      ),
     dataExfiltrationRefusalVerified:
       refusalPosture.requiredFailClosedReasons.includes("data_exfiltration"),
     evidenceFreshnessLimitationsPermittedActionCitationFieldsVerified:
@@ -260,6 +344,7 @@ export function buildReadOnlyChatGptAppMcpProof(
     responseRefusalPostureForbiddenActionsFieldsVerified:
       readOnlyAppPlan.responseRequiredFields.includes("refusalPosture") &&
       readOnlyAppPlan.responseRequiredFields.includes("forbiddenActions"),
+    fp0087TypedBoundaryVerified,
     forbiddenToolCandidates: [...APP_FORBIDDEN_TOOL_PROOF_CANDIDATES],
     fp0087DocsOnlyBoundaryVerified:
       input.fp0087DocsOnlyBoundaryVerified ?? true,
@@ -267,9 +352,15 @@ export function buildReadOnlyChatGptAppMcpProof(
     localProofOnly: noRuntimeBoundary.localProofOnly,
     mcpForbiddenToolsVerified:
       forbiddenCandidatesRejected && noForbiddenCandidateInAllowlist,
+    mcpDynamicToolsRejected,
+    mcpToolAllowlistDuplicatesRejected,
     mcpToolAllowlistExactVerified:
       allowlistExact &&
       MCP_TOOL_ALLOWLIST.every((toolName) => isMcpToolAllowed(toolName)),
+    mcpToolAllowlistExtraRejected,
+    mcpToolAllowlistMissingRejected,
+    mcpToolAllowlistReorderRejected,
+    naturalLanguageForbiddenToolsVerified,
     missingCitationRefusalVerified:
       refusalPosture.requiredFailClosedReasons.includes("missing_citation"),
     noAppSubmission: noRuntimeBoundary.noAppSubmission,
@@ -327,6 +418,7 @@ export function buildReadOnlyChatGptAppMcpProof(
     privacyBoundaryVerified:
       BaseAppPrivacyBoundary.noRawFullFileDumps &&
       BaseAppPrivacyBoundary.noCopiedOrLightlyAnonymizedRealFinanceData,
+    promptInjectionStringsInertDataVerified,
     promptInjectionBoundaryVerified:
       BaseAppPromptInjectionBoundary.sourceTextTrust === "untrusted_data" &&
       BaseAppPromptInjectionBoundary.toolOutputCanBypassBoundaries === false,
@@ -340,6 +432,7 @@ export function buildReadOnlyChatGptAppMcpProof(
       refusalPosture.requiredFailClosedReasons.includes(
         "raw_full_file_dump_request",
       ),
+    rawFullFileDumpAndDataExfiltrationRefusalVerified,
     readOnlyChatGptAppPlanVerified:
       readOnlyAppPlan.contractOnly &&
       !readOnlyAppPlan.publicChatGptAppImplemented,
@@ -350,6 +443,8 @@ export function buildReadOnlyChatGptAppMcpProof(
       safeDemoDataPolicy.firstGate &&
       safeDemoDataPolicy.forbidsLightlyAnonymizedRealFinanceData,
     schemaVersion: READ_ONLY_APP_MCP_SCHEMA_VERSION,
+    sourceCoverageResponseRequiredFieldsVerified:
+      matchesResponseRequiredFields(sourceCoverageFetch.responseRequiredFields),
     staleEvidenceRefusalVerified:
       refusalPosture.requiredFailClosedReasons.includes("stale_evidence"),
     submissionDeferredBoundaryVerified:
@@ -364,6 +459,29 @@ export function buildReadOnlyChatGptAppMcpProof(
     unsupportedEvidenceRefusalVerified:
       refusalPosture.requiredFailClosedReasons.includes("unsupported_evidence"),
   });
+}
+
+function matchesResponseRequiredFields(fields: readonly string[]): boolean {
+  return (
+    JSON.stringify(fields) === JSON.stringify(APP_RESPONSE_REQUIRED_FIELDS)
+  );
+}
+
+function rejects(
+  schema: SafeParseSchema,
+  value: unknown,
+): boolean {
+  return !schema.safeParse(value).success;
+}
+
+function rejectsUnknownKey(
+  schema: SafeParseSchema,
+  value: unknown,
+): boolean {
+  return !schema.safeParse({
+    ...(value as Record<string, unknown>),
+    unknownKey: true,
+  }).success;
 }
 
 function freshness() {

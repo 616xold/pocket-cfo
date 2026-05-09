@@ -34,12 +34,22 @@ The north star remains unchanged: raw finance evidence becomes a persisted, fres
 - [x] 2026-05-09T14:00:00Z - Reran final-tail validation after the correction; `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed. Log root: `/tmp/pocket-cfo-v2g-final-tail-rerun-20260509T135956Z-1079`.
 - [x] 2026-05-09T14:11:06Z - Same-branch QA found and patched one contract hardening gap: app/MCP response-required fields now also include `refusalPosture` and `forbiddenActions`, and the proof/spec verify those fields directly.
 - [x] 2026-05-09T14:18:53Z - Same-branch QA validation passed after the response-field hardening: focused V2A/V2B/V2C/V2E/V2F/V2G proofs/specs, DB-backed smoke ladder, web/domain/control-plane/twin test ladders, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-09T14:38:41Z - Post-merge QA found a narrow V2G contract hardening gap: `AppSourceCoverageFetch` and `AppCapabilityBoundaryFetch` did not yet carry the full `responseRequiredFields` tuple, and several natural-language write/action aliases from the post-merge QA list were not explicitly classified as forbidden.
+- [x] 2026-05-09T14:38:41Z - Patched only V2G domain/proof/spec contracts plus one directly stale `docs/PROJECT_STATE.md` line; no runtime surface, route, endpoint, UI, schema, migration, package script, data file, source-pack behavior, OpenAI API/model call, provider behavior, source mutation, finance write, generated product prose, runtime-Codex finance output, or autonomous action was added.
+- [x] 2026-05-09T14:49:40Z - Post-merge QA focused validation passed for V2A-through-V2G direct proofs/specs and focused control-plane EvidenceIndex/bounded-LLM specs. Log root: `/tmp/pocket-cfo-v2g-postmerge-focused-5rPh3M`.
+- [x] 2026-05-09T14:49:40Z - First full post-merge QA ladder found a TypeScript-only proof-helper typing issue at `pnpm typecheck` after all DB-backed proof/smoke/spec/lint gates had passed; the helper typing was narrowed without changing runtime scope.
+- [x] 2026-05-09T14:49:40Z - Reran the full required DB-backed post-merge QA ladder on the final tree; all 37 commands passed, including `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2g-postmerge-full-final-3t08DT`.
+- [x] 2026-05-09T14:57:11Z - Split bulky V2G spec input builders into `packages/domain/src/read-only-app-mcp.spec-support.ts` inside the same QA slice, then reran the final proof/spec/repo tail; all 8 commands passed. Log root: `/tmp/pocket-cfo-v2g-postmerge-final-tail-dDwpBD`.
 
 ## Surprises & Discoveries
 
 The most useful QA finding was small but important: a natural-language renamed tax-filing tool, `file tax return`, did not initially classify as forbidden. The fix stayed inside the V2G forbidden-tool alias contract and the focused proof/spec now covers it.
 
 Same-branch QA also found that the response-field tuple proved evidence, freshness, limitations, permitted next actions, and citations, but did not require the explicit refusal posture and forbidden-action fields that the V2G boundary text already called for. The correction stayed in pure domain/proof/spec files and did not add runtime behavior.
+
+Post-merge QA found the same response-posture issue one layer deeper: source-coverage and capability-boundary fetch contracts are response-bearing and needed the same full response-required field tuple as evidence query/fetch contracts. The alias classifier also needed explicit natural-language coverage for deletion, approval, provider connect, close certification, customer send, invoice payment, and OAuth-connect phrasings.
+
+The first full post-merge QA ladder exposed one local TypeScript helper inference issue after the product proof/smoke/spec/lint gates had already passed. This was a proof-helper typing issue, not a product behavior regression; the final full ladder was rerun from the beginning and passed.
 
 The earlier FP-0087 planning thread had already replaced the stale V2F hard absence check with a docs-only boundary check. After the typed V2G proof existed, this implementation tightened that gate again: V2F now accepts FP-0087 only when the typed V2G proof validates the FP-0087 boundary, public-app absence, remote-MCP absence, and OpenAI API/model-call absence.
 
@@ -51,6 +61,7 @@ No web browsing was used in this implementation thread. The official OpenAI docs
 - `ReadOnlyChatGptAppPlan` and `ReadOnlyMcpServerPlan` are contracts only. They do not start an app, server, endpoint, OAuth flow, UI, or submission path.
 - The MCP tool allowlist is exact and read-only: `search_evidence`, `fetch_evidence_card`, `fetch_source_anchor`, `fetch_document_map`, `fetch_source_coverage`, `fetch_company_posture`, and `fetch_capability_boundaries`.
 - Renamed write/action/provider/deployment/legal/audit/payment/customer-contact tool names are rejected by contract classification, not by prompt wording.
+- Response-bearing V2G fetch contracts must carry the full response posture explicitly: evidence, freshness, limitations, permitted next actions, citations, refusal posture, and forbidden actions.
 - V2G inherits the V2F SafeDemoDataPolicy posture. Proof/spec examples use in-memory synthetic examples only; no fixtures, eval datasets, sample data, public demo data, or source packs are added.
 - No replay event is produced by this local contract/proof slice because no product runtime state, mission state, source state, evidence bundle, Finance Twin state, CFO Wiki page, route, schema, or external action changes.
 - FP-0088 was not created.
@@ -145,6 +156,40 @@ pnpm ci:repro:current
 
 Log root: `/tmp/pocket-cfo-v2g-final-tail-rerun-20260509T135956Z-1079`.
 
+Post-merge QA correction validation passed on the final tree:
+
+```bash
+pnpm exec tsx tools/read-only-chatgpt-app-mcp-proof.mjs
+pnpm exec tsx tools/benchmark-community-pack-proof.mjs
+pnpm exec tsx tools/bounded-llm-orchestration-proof.mjs
+pnpm exec tsx tools/read-only-evidence-app-proof.mjs
+pnpm exec tsx tools/document-precision-foundation-proof.mjs
+pnpm exec tsx tools/evidence-index-foundation-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts src/evidence-tool.spec.ts src/bounded-llm.spec.ts src/benchmark-community.spec.ts src/read-only-app-mcp.spec.ts
+zsh -lc "cd apps/control-plane && setopt NULL_GLOB && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts src/modules/bounded-llm-orchestration/**/*.spec.ts"
+```
+
+Focused log root: `/tmp/pocket-cfo-v2g-postmerge-focused-5rPh3M`.
+
+The full required DB-backed post-merge QA ladder passed on the final tree, including all source-pack proofs, CFO Wiki/Finance Twin/monitor/readiness smokes, web/domain/control-plane/twin specs, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+
+Full final log root: `/tmp/pocket-cfo-v2g-postmerge-full-final-3t08DT`.
+
+After splitting V2G spec input builders into a spec-support module, this final tail passed:
+
+```bash
+pnpm exec tsx tools/read-only-chatgpt-app-mcp-proof.mjs
+pnpm exec tsx tools/benchmark-community-pack-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/read-only-app-mcp.spec.ts
+git diff --check
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm ci:repro:current
+```
+
+Final tail log root: `/tmp/pocket-cfo-v2g-postmerge-final-tail-dDwpBD`.
+
 Acceptance evidence:
 
 - `tools/read-only-chatgpt-app-mcp-proof.mjs` prints machine-readable JSON with the required V2G no-runtime, no-public-app, no-OpenAI/API/model, allowlist, forbidden-tool, refusal, privacy, prompt-injection, deferred-boundary, SafeDemoDataPolicy, FP-0087, and FP-0088 fields.
@@ -172,6 +217,7 @@ Created artifacts:
 - `packages/domain/src/read-only-app-mcp-runtime.ts`
 - `packages/domain/src/read-only-app-mcp.ts`
 - `packages/domain/src/read-only-app-mcp.spec.ts`
+- `packages/domain/src/read-only-app-mcp.spec-support.ts`
 - `tools/read-only-chatgpt-app-mcp-proof.mjs`
 
 Updated artifacts:
