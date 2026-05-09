@@ -73,6 +73,8 @@ export function buildReadOnlyChatGptAppMcpProof(
       "limitations",
       "permittedNextActions",
       "citations",
+      "refusalPosture",
+      "forbiddenActions",
     ],
     schemaVersion: READ_ONLY_APP_MCP_SCHEMA_VERSION,
   });
@@ -255,6 +257,9 @@ export function buildReadOnlyChatGptAppMcpProof(
       readOnlyAppPlan.responseRequiredFields.includes("limitations") &&
       readOnlyAppPlan.responseRequiredFields.includes("permittedNextActions") &&
       readOnlyAppPlan.responseRequiredFields.includes("citations"),
+    responseRefusalPostureForbiddenActionsFieldsVerified:
+      readOnlyAppPlan.responseRequiredFields.includes("refusalPosture") &&
+      readOnlyAppPlan.responseRequiredFields.includes("forbiddenActions"),
     forbiddenToolCandidates: [...APP_FORBIDDEN_TOOL_PROOF_CANDIDATES],
     fp0087DocsOnlyBoundaryVerified:
       input.fp0087DocsOnlyBoundaryVerified ?? true,

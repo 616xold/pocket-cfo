@@ -92,6 +92,8 @@ describe("V2G read-only ChatGPT App/MCP contracts", () => {
         "limitations",
         "permittedNextActions",
         "citations",
+        "refusalPosture",
+        "forbiddenActions",
       ],
       schemaVersion: "v2g.read-only-app-mcp.v1",
     });
@@ -136,6 +138,8 @@ describe("V2G read-only ChatGPT App/MCP contracts", () => {
         "limitations",
         "permittedNextActions",
         "citations",
+        "refusalPosture",
+        "forbiddenActions",
       ],
       schemaVersion: "v2g.read-only-app-mcp.v1",
       vectorFileSearchAllowed: false,
@@ -178,6 +182,9 @@ describe("V2G read-only ChatGPT App/MCP contracts", () => {
     expect(proof.noModelCalls).toBe(true);
     expect(proof.noFixturesAdded).toBe(true);
     expect(proof.noSampleDataAdded).toBe(true);
+    expect(proof.responseRefusalPostureForbiddenActionsFieldsVerified).toBe(
+      true,
+    );
     expect(proof.fp0088Absent).toBe(true);
   });
 });

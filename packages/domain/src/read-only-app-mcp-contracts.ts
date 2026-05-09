@@ -28,6 +28,8 @@ export const APP_RESPONSE_REQUIRED_FIELDS = [
   "limitations",
   "permittedNextActions",
   "citations",
+  "refusalPosture",
+  "forbiddenActions",
 ] as const;
 
 export const AppResponseRequiredFieldsSchema = z.tuple([
@@ -36,6 +38,8 @@ export const AppResponseRequiredFieldsSchema = z.tuple([
   z.literal("limitations"),
   z.literal("permittedNextActions"),
   z.literal("citations"),
+  z.literal("refusalPosture"),
+  z.literal("forbiddenActions"),
 ]);
 
 export const ReadOnlyChatGptAppPlanSchema = z

@@ -32,10 +32,14 @@ The north star remains unchanged: raw finance evidence becomes a persisted, fres
 - [x] 2026-05-09T14:00:00Z - Final-tail `pnpm ci:repro:current` initially failed inside the reproduced temp worktree because the typed V2F boundary predicate required the exact phrase `no app submission` after the FP-0087 closeout rewrite. Patched the FP-0087 closeout text to carry that exact no-submission boundary.
 - [x] 2026-05-09T14:00:00Z - Reran `pnpm --filter @pocket-cto/domain exec vitest run src/benchmark-community.spec.ts src/read-only-app-mcp.spec.ts`, `pnpm exec tsx tools/benchmark-community-pack-proof.mjs`, and `pnpm exec tsx tools/read-only-chatgpt-app-mcp-proof.mjs`; all passed after the closeout-text correction.
 - [x] 2026-05-09T14:00:00Z - Reran final-tail validation after the correction; `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` all passed. Log root: `/tmp/pocket-cfo-v2g-final-tail-rerun-20260509T135956Z-1079`.
+- [x] 2026-05-09T14:11:06Z - Same-branch QA found and patched one contract hardening gap: app/MCP response-required fields now also include `refusalPosture` and `forbiddenActions`, and the proof/spec verify those fields directly.
+- [x] 2026-05-09T14:18:53Z - Same-branch QA validation passed after the response-field hardening: focused V2A/V2B/V2C/V2E/V2F/V2G proofs/specs, DB-backed smoke ladder, web/domain/control-plane/twin test ladders, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
 The most useful QA finding was small but important: a natural-language renamed tax-filing tool, `file tax return`, did not initially classify as forbidden. The fix stayed inside the V2G forbidden-tool alias contract and the focused proof/spec now covers it.
+
+Same-branch QA also found that the response-field tuple proved evidence, freshness, limitations, permitted next actions, and citations, but did not require the explicit refusal posture and forbidden-action fields that the V2G boundary text already called for. The correction stayed in pure domain/proof/spec files and did not add runtime behavior.
 
 The earlier FP-0087 planning thread had already replaced the stale V2F hard absence check with a docs-only boundary check. After the typed V2G proof existed, this implementation tightened that gate again: V2F now accepts FP-0087 only when the typed V2G proof validates the FP-0087 boundary, public-app absence, remote-MCP absence, and OpenAI API/model-call absence.
 

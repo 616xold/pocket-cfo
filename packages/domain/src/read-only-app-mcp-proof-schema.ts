@@ -97,6 +97,7 @@ export const AppProofSchema = z
     threatModelQuestionsVerified: trueLiteral,
     evidenceFreshnessLimitationsPermittedActionCitationFieldsVerified:
       trueLiteral,
+    responseRefusalPostureForbiddenActionsFieldsVerified: trueLiteral,
     missingCitationRefusalVerified: trueLiteral,
     unsupportedEvidenceRefusalVerified: trueLiteral,
     staleEvidenceRefusalVerified: trueLiteral,
