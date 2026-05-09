@@ -51,65 +51,71 @@ export const SAFE_DEMO_DATA_POLICY_FORBIDDEN_PRIVATE_ARTIFACTS = [
   "private_finance_source_text",
 ] as const satisfies readonly z.infer<typeof PrivateArtifactCategorySchema>[];
 
-export const SafeDemoDataPolicySchema = z.object({
-  schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
-  policyName: z.literal("SafeDemoDataPolicy"),
-  firstGate: z.literal(true),
-  forbidsRealCompanyData: z.literal(true),
-  forbidsLightlyAnonymizedRealFinanceData: z.literal(true),
-  forbidsCheckedInSensitiveFinanceData: z.literal(true),
-  forbiddenFinanceData: z.tuple([
-    z.literal("customer_data"),
-    z.literal("vendor_data"),
-    z.literal("payroll_data"),
-    z.literal("tax_data"),
-    z.literal("bank_data"),
-    z.literal("legal_data"),
-    z.literal("board_data"),
-    z.literal("lender_data"),
-  ]),
-  forbiddenPrivateArtifacts: z.tuple([
-    z.literal("credentials"),
-    z.literal("tokens"),
-    z.literal("secrets"),
-    z.literal("oauth_material"),
-    z.literal("provider_credentials"),
-    z.literal("api_keys"),
-    z.literal("object_store_dumps"),
-    z.literal("database_dumps"),
-    z.literal("private_screenshots"),
-    z.literal("private_finance_source_text"),
-  ]),
-  requiresSyntheticOnlyBeforeFutureCase: z.literal(true),
-  requiresClearSyntheticLabel: z.literal(true),
-  requiresReviewBeforeAnyFutureDataFile: z.literal(true),
-  noDataFilesCreatedByPolicy: z.literal(true),
-});
+export const SafeDemoDataPolicySchema = z
+  .object({
+    schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
+    policyName: z.literal("SafeDemoDataPolicy"),
+    firstGate: z.literal(true),
+    forbidsRealCompanyData: z.literal(true),
+    forbidsLightlyAnonymizedRealFinanceData: z.literal(true),
+    forbidsCheckedInSensitiveFinanceData: z.literal(true),
+    forbiddenFinanceData: z.tuple([
+      z.literal("customer_data"),
+      z.literal("vendor_data"),
+      z.literal("payroll_data"),
+      z.literal("tax_data"),
+      z.literal("bank_data"),
+      z.literal("legal_data"),
+      z.literal("board_data"),
+      z.literal("lender_data"),
+    ]),
+    forbiddenPrivateArtifacts: z.tuple([
+      z.literal("credentials"),
+      z.literal("tokens"),
+      z.literal("secrets"),
+      z.literal("oauth_material"),
+      z.literal("provider_credentials"),
+      z.literal("api_keys"),
+      z.literal("object_store_dumps"),
+      z.literal("database_dumps"),
+      z.literal("private_screenshots"),
+      z.literal("private_finance_source_text"),
+    ]),
+    requiresSyntheticOnlyBeforeFutureCase: z.literal(true),
+    requiresClearSyntheticLabel: z.literal(true),
+    requiresReviewBeforeAnyFutureDataFile: z.literal(true),
+    noDataFilesCreatedByPolicy: z.literal(true),
+  })
+  .strict();
 
-export const SyntheticFinanceSourcePolicySchema = z.object({
-  schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
-  policyName: z.literal("SyntheticFinanceSourcePolicy"),
-  gatedBySafeDemoDataPolicyFirst: z.literal(true),
-  requiresInventedCompanyFacts: z.literal(true),
-  requiresInventedSourceFacts: z.literal(true),
-  requiresClearSyntheticLabeling: z.literal(true),
-  forbidsRealCompanyDerivedData: z.literal(true),
-  forbidsLightlyAnonymizedRealFinanceData: z.literal(true),
-  forbidsSourcePackDerivedPrivateData: z.literal(true),
-  noFutureSampleDemoBenchmarkCaseWithoutPolicy: z.literal(true),
-});
+export const SyntheticFinanceSourcePolicySchema = z
+  .object({
+    schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
+    policyName: z.literal("SyntheticFinanceSourcePolicy"),
+    gatedBySafeDemoDataPolicyFirst: z.literal(true),
+    requiresInventedCompanyFacts: z.literal(true),
+    requiresInventedSourceFacts: z.literal(true),
+    requiresClearSyntheticLabeling: z.literal(true),
+    forbidsRealCompanyDerivedData: z.literal(true),
+    forbidsLightlyAnonymizedRealFinanceData: z.literal(true),
+    forbidsSourcePackDerivedPrivateData: z.literal(true),
+    noFutureSampleDemoBenchmarkCaseWithoutPolicy: z.literal(true),
+  })
+  .strict();
 
-export const BenchmarkPrivacyBoundarySchema = z.object({
-  schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
-  noRealCompanyData: z.literal(true),
-  noLightlyAnonymizedRealFinanceData: z.literal(true),
-  noPrivateCustomerVendorPayrollTaxBankLegalBoardLenderData: z.literal(true),
-  noCredentialsTokensSecretsOauthProviderKeys: z.literal(true),
-  noObjectStoreOrDatabaseDumps: z.literal(true),
-  noPrivateScreenshots: z.literal(true),
-  noPrivateFinanceSourceText: z.literal(true),
-  benchmarkArtifactsAreNotSourceTruth: z.literal(true),
-});
+export const BenchmarkPrivacyBoundarySchema = z
+  .object({
+    schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
+    noRealCompanyData: z.literal(true),
+    noLightlyAnonymizedRealFinanceData: z.literal(true),
+    noPrivateCustomerVendorPayrollTaxBankLegalBoardLenderData: z.literal(true),
+    noCredentialsTokensSecretsOauthProviderKeys: z.literal(true),
+    noObjectStoreOrDatabaseDumps: z.literal(true),
+    noPrivateScreenshots: z.literal(true),
+    noPrivateFinanceSourceText: z.literal(true),
+    benchmarkArtifactsAreNotSourceTruth: z.literal(true),
+  })
+  .strict();
 
 export type SensitiveFinanceDataCategory = z.infer<
   typeof SensitiveFinanceDataCategorySchema

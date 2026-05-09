@@ -59,6 +59,11 @@ No Codex built-in web/search or browser research was used for FP-0086. No offici
 - [x] 2026-05-09T01:47:08Z - Hardened only the V2F contract/proof/spec surface by making SafeDemoDataPolicy forbidden category lists exact tuples, making BenchmarkTask taxonomy exact in manifest validation, moving synthetic examples into the spec and proof command, deleting the source helper, and making the proof command treat any `plans/FP-0087*` file as failing `fp0087Absent`.
 - [x] 2026-05-09T01:47:08Z - Ran focused QA validation after correction; V2F proof, V2E/V2C/V2B/V2A proofs, focused domain specs, and focused control-plane EvidenceIndex/bounded-LLM specs passed. Log root: `/tmp/pocket-cfo-v2f-qa-focused-vAIZaUcG4X`.
 - [x] 2026-05-09T01:47:08Z - Ran the full DB-backed QA validation ladder after correction; all 36 gates passed, including `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2f-qa-full-M22n9jlRO4`.
+- [x] 2026-05-09T12:10:09Z - Ran strict post-merge QA for shipped PR #241 / FP-0086 on branch `codex/v2f-benchmark-community-pack-foundation-postmerge-qa-local-v1`; preflight passed from clean `origin/main` at `6df7ed4153f441d818333c057df6e6b157c1c442`, PR #241 was merged, Docker Postgres/MinIO were available, FP-0086 existed, FP-0087 was absent, and required proof tools existed.
+- [x] 2026-05-09T12:10:09Z - QA found one narrow V2F contract-hardening gap: boundary-bearing schemas were still strip-mode for unknown keys, `CommunityPackManifest` could silently strip data/source-pack/raw-text alias fields, and `ArchitectureMap.authorityLayers` allowed duplicate, missing, extra, or reordered layers through length-based validation.
+- [x] 2026-05-09T12:10:09Z - Hardened only the V2F domain/proof/spec surface by making boundary, policy, manifest, task, and proof schemas strict; rejecting explicit and alias manifest data/source-pack/raw-text/URL/example fields; requiring the exact authority layer tuple; making missing-citation and evidence-faithfulness tasks explicitly read-only proof-only; and adding machine-readable proof flags for unknown-key, manifest-alias, authority-layer, synthetic-example, and generated-product-prose absence posture.
+- [x] 2026-05-09T12:10:09Z - Ran the required focused validation after correction; V2F/V2E/V2C/V2B/V2A proofs, focused domain specs, and focused control-plane EvidenceIndex/bounded-LLM specs passed.
+- [x] 2026-05-09T12:10:09Z - Ran the required full DB-backed post-merge QA validation ladder after correction; all 37 gates passed, including `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2f-postmerge-qa-full-7v0InmMpW6`.
 - [ ] Future plan only: public sample data, eval datasets, community pack files, public ChatGPT App/MCP, Apps SDK UI, OAuth, provider/certification/deployment/delivery behavior, source mutation, finance writes, generated advice, runtime-Codex finance output, and autonomous action remain blocked until a later named plan proves scope and safety.
 
 ## Surprises & Discoveries
@@ -84,6 +89,9 @@ No Codex built-in web/search or browser research was used for FP-0086. No offici
 - Strict V2F QA confirmed the implementation branch and PR #241 were linked and clean, but found the first implementation could harden list validation and proof/spec synthetic-example placement without widening scope.
 - Exact tuple validation is safer than length-based validation for SafeDemoDataPolicy and BenchmarkTask taxonomy because duplicate entries should never satisfy no-real-finance-data or taxonomy proof posture.
 - The V2F proof now treats any `plans/FP-0087*` file as a failure instead of checking only `plans/FP-0087.md`.
+- Post-merge QA on shipped PR #241 found a second narrow contract-hardening gap: Zod object strip-mode could hide unknown fields on V2F boundary contracts, `CommunityPackManifest` did not explicitly fail on data/source-pack/raw-text alias keys, and `ArchitectureMap.authorityLayers` needed an exact tuple rather than an array minimum.
+- Strict manifest validation now rejects every forbidden data/source-pack/raw-text/URL/example alias named by the QA prompt even when the value is an empty array, so those keys cannot be silently stripped.
+- `ArchitectureMap.authorityLayers` now proves the exact authority chain from raw sources through V2F benchmark/community contracts and fails on duplicates, missing layers, extra layers, or reordered layers.
 - No Codex built-in web/search or browser research was used. If a later implementation needs official/current OpenAI evals/graders, Structured Outputs, or security/privacy docs for benchmark context, that implementation record must name the official source and state exactly what it was used for.
 
 ## Decision Log
@@ -123,6 +131,9 @@ Rationale: this thread adds contracts, tests, proof tooling, and documentation o
 
 Decision: QA correction stays inside V2F contract/proof hardening.
 Rationale: exact tuple validation, spec/proof-local synthetic examples, source-helper removal, and broader FP-0087 absence checking improve the shipped SafeDemoDataPolicy/no-real-data/no-runtime posture without adding datasets, fixtures, sample data, routes, UI, schema, migrations, package scripts, smoke aliases, OpenAI API/model calls, provider behavior, source mutation, finance writes, generated advice, runtime-Codex finance output, or autonomous action.
+
+Decision: post-merge QA correction keeps V2F schemas fail-closed by default.
+Rationale: V2F contracts describe safety boundaries and future community-pack posture, so unknown keys, manifest data aliases, raw-text aliases, and authority-layer drift must fail closed instead of being stripped or tolerated. The correction stays in `packages/domain/src/benchmark-community*.ts`, focused specs, and `tools/benchmark-community-pack-proof.mjs`; it adds no runtime surface, data files, package scripts, source mutation, finance writes, model calls, provider work, public app/MCP work, or autonomous action.
 
 ## Context and Orientation
 
@@ -397,12 +408,31 @@ Strict V2F QA focused validation result on 2026-05-09T01:47:08Z: all commands pa
 
 Strict V2F QA full validation result on 2026-05-09T01:47:08Z: all 36 requested DB-backed proof/smoke/spec/lint/type/test/repro gates passed, including `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2f-qa-full-M22n9jlRO4`.
 
+Strict V2F post-merge QA focused validation after the second contract hardening correction:
+
+```bash
+pnpm exec tsx tools/benchmark-community-pack-proof.mjs
+pnpm exec tsx tools/bounded-llm-orchestration-proof.mjs
+pnpm exec tsx tools/read-only-evidence-app-proof.mjs
+pnpm exec tsx tools/document-precision-foundation-proof.mjs
+pnpm exec tsx tools/evidence-index-foundation-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts src/evidence-tool.spec.ts src/bounded-llm.spec.ts src/benchmark-community.spec.ts
+zsh -lc "cd apps/control-plane && setopt NULL_GLOB && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts src/modules/bounded-llm-orchestration/**/*.spec.ts"
+```
+
+Strict V2F post-merge QA focused validation result on 2026-05-09T12:10:09Z: all commands passed. The V2F proof now prints machine-readable `unknownKeysRejected`, `communityPackManifestDataAliasesRejected`, `communityPackManifestExplicitDataFieldsRejected`, `authorityLayersExactOrderVerified`, `authorityLayerDuplicatesRejected`, `authorityLayerMissingRejected`, `authorityLayerExtraRejected`, `authorityLayerReorderRejected`, `benchmarkTaskUnknownKeysRejected`, `benchmarkTaskNestedUnknownKeysRejected`, `benchmarkProofUnknownKeysRejected`, `inMemorySyntheticExamplesOnlyVerified`, and `syntheticExamplesClearlyLabeledVerified` flags.
+
+Strict V2F post-merge QA full validation result on 2026-05-09T12:10:09Z: all 37 requested DB-backed proof/smoke/spec/lint/type/test/repro gates passed, including `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2f-postmerge-qa-full-7v0InmMpW6`.
+
 Proof/spec posture shipped in this implementation proves:
 
 - benchmark definitions are separate from product runtime
 - no real finance data
 - no checked-in private customer/vendor/payroll/tax/bank/legal/board/lender data
 - no fixtures/sample data until explicitly planned
+- no explicit or alias manifest data/source-pack/raw-text/URL/example fields can be smuggled through `CommunityPackManifest`
+- no unknown keys can be silently stripped from the V2F policy, manifest, no-runtime, architecture, contributor challenge, benchmark case, benchmark task, or benchmark proof contracts
+- the architecture authority chain is exact and fails on duplicates, missing layers, extra layers, and reordered layers
 - no source-pack mutation
 - no provider/certification/delivery/payment/customer-contact/legal/audit behavior
 - no OpenAI API/model calls
@@ -449,6 +479,7 @@ Artifacts created by this implementation thread:
 - direct export update in `packages/domain/src/index.ts`
 - directly stale active-doc/roadmap/security/demo refreshes that point to FP-0086 as the shipped V2F docs/proof-only benchmark/community manifest foundation
 - strict QA hardening updates to exact policy/task taxonomy schemas and the V2F proof command
+- post-merge QA hardening updates to strict unknown-key rejection, forbidden CommunityPackManifest alias rejection, exact architecture authority-layer tuple validation, read-only proof-only refusal-task posture, and machine-readable proof flags
 
 Artifacts intentionally not created:
 
@@ -482,6 +513,8 @@ Search-hit classification:
 - behavior leak requiring a smaller corrective slice instead of FP-0086: none found.
 - strict QA behavior leak requiring runtime correction: none found.
 - strict QA correction applied: source-side synthetic helper removed; in-memory synthetic examples now live directly in the focused spec and direct proof command.
+- post-merge QA strictness gap requiring correction: V2F Zod object strip-mode, manifest data/source-pack/raw-text alias stripping, and length-based authority-layer validation.
+- post-merge QA correction applied: strict schemas, manifest alias rejection, exact authority-chain tuple validation, explicit refusal-task read-only proof-only posture, `noGeneratedProductProse`, and proof flags for unknown-key/alias/authority-layer checks.
 
 Replay and evidence implications:
 
@@ -564,4 +597,6 @@ Implementation outcome:
 - Required focused and full validation passed before docs closeout, including `pnpm ci:repro:current`; minimum final validation also passed after closeout edits.
 - Strict V2F QA found and corrected one narrow contract/proof hardening gap without widening scope.
 - Required focused and full QA validation passed after correction, including `pnpm ci:repro:current`.
-- Exact next recommendation after this QA correction merges: keep V2F contract-only; do not start public ChatGPT App/MCP master planning until the V2F QA correction is reviewed and a later named Finance Plan explicitly opens that scope.
+- Strict V2F post-merge QA found and corrected one additional narrow contract-hardening gap around unknown keys, manifest data aliases, and authority-layer exactness without widening scope.
+- Required focused and full post-merge QA validation passed after correction, including `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- Exact next recommendation after this post-merge QA correction merges: keep V2F contract-only; do not start public ChatGPT App/MCP master planning until this correction is reviewed and merged, and until a later named Finance Plan explicitly opens public app/MCP scope.

@@ -1,11 +1,13 @@
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   ArchitectureMapSchema,
+  BENCHMARK_AUTHORITY_LAYERS,
   BENCHMARK_COMMUNITY_SCHEMA_VERSION,
   BENCHMARK_TASK_KINDS,
   BenchmarkCaseSchema,
   BenchmarkNoRuntimeBoundarySchema,
   BenchmarkProofSchema,
+  COMMUNITY_PACK_MANIFEST_FORBIDDEN_DATA_FIELDS,
   CommunityPackManifestSchema,
   ContributorChallengeSchema,
   EvidenceFaithfulnessTaskSchema,
@@ -71,7 +73,7 @@ const taskSpecs = [
   [
     MissingCitationTaskSchema,
     "missing_citation",
-    {},
+    { readOnlyProofOnly: true },
     "missing_citation_refusal",
   ],
   [
@@ -79,6 +81,7 @@ const taskSpecs = [
     "evidence_faithfulness",
     {
       rejectsConflictingEvidence: true,
+      readOnlyProofOnly: true,
       rejectsMissingEvidence: true,
       rejectsRawFullFileDumpLikePosture: true,
       rejectsStaleEvidence: true,
@@ -164,6 +167,7 @@ function noRuntimeBoundary() {
     noFinanceWrite: true,
     noFixturesAdded: true,
     noGeneratedAdvice: true,
+    noGeneratedProductProse: true,
     noModelCalls: true,
     noOauth: true,
     noOcr: true,
@@ -192,14 +196,7 @@ function noRuntimeBoundary() {
 function architectureMap() {
   return {
     authorityLayers: [
-      "raw_sources",
-      "finance_twin",
-      "cfo_wiki",
-      "evidence_index",
-      "v2c_evidence_tools",
-      "v2d_evidence_atlas",
-      "v2e_bounded_orchestration",
-      "v2f_benchmark_community_contracts",
+      ...BENCHMARK_AUTHORITY_LAYERS,
     ],
     benchmarkArtifactsNotProductRuntime: true,
     cfoWikiCompiledDerived: true,
@@ -341,50 +338,135 @@ const tasks = taskSpecs.map(([schema, kind, extra, refusal]) =>
   schema.parse({ ...baseTask(kind, refusal), ...extra }),
 );
 const taskFor = (kind) => tasks.find((task) => task.taskKind === kind);
-const manifest = CommunityPackManifestSchema.parse({
+const manifestInput = {
   allowedTaskKinds: [...BENCHMARK_TASK_KINDS],
   architectureMap: architecture,
   benchmarkCase: placeholder,
+  containsNoDataOrSourcePackReferences: true,
   contributorChallenge: challenge,
-  dataFiles: [],
   describesFutureCommunityPackOnly: true,
-  evalDatasetFiles: [],
-  fixtureFiles: [],
   manifestKind: "CommunityPackManifest",
   noRuntimeBoundary: noRuntime,
   owningFinancePlan: "FP-0086",
   privacyBoundary: privacy,
   safeDemoDataPolicy: safePolicy,
   schemaVersion: BENCHMARK_COMMUNITY_SCHEMA_VERSION,
-  sourcePackFiles: [],
   syntheticFinanceSourcePolicy: syntheticPolicy,
   validationPosture: {
     directProofCommandOnly: true,
     inMemorySyntheticExamplesOnly: true,
+    noDataFileAliasesAllowed: true,
     noPackageScriptOrSmokeAlias: true,
   },
+};
+const manifest = CommunityPackManifestSchema.parse(manifestInput);
+
+const rejects = (schema, value) => !schema.safeParse(value).success;
+const unknownKeysRejected = [
+  [SafeDemoDataPolicySchema, { ...safeDemoDataPolicy(), unknownKey: true }],
+  [
+    SyntheticFinanceSourcePolicySchema,
+    { ...syntheticFinanceSourcePolicy(), unknownKey: true },
+  ],
+  [BenchmarkNoRuntimeBoundarySchema, { ...noRuntimeBoundary(), unknownKey: true }],
+  [ContributorChallengeSchema, { ...contributorChallenge(), unknownKey: true }],
+  [ArchitectureMapSchema, { ...architectureMap(), unknownKey: true }],
+  [BenchmarkCaseSchema, { ...benchmarkCase(), unknownKey: true }],
+  [CommunityPackManifestSchema, { ...manifestInput, unknownKey: true }],
+].every(([schema, value]) => rejects(schema, value));
+const communityPackManifestDataAliasesRejected =
+  COMMUNITY_PACK_MANIFEST_FORBIDDEN_DATA_FIELDS.every(
+    (field) =>
+      rejects(CommunityPackManifestSchema, { ...manifestInput, [field]: [] }) &&
+      rejects(CommunityPackManifestSchema, {
+        ...manifestInput,
+        [field]: ["synthetic alias payload"],
+      }),
+  );
+const communityPackManifestExplicitDataFieldsRejected = [
+  "dataFiles",
+  "sourcePackFiles",
+  "evalDatasetFiles",
+  "fixtureFiles",
+].every((field) =>
+  rejects(CommunityPackManifestSchema, {
+    ...manifestInput,
+    [field]: ["synthetic explicit data reference"],
+  }),
+);
+const authorityLayerDuplicatesRejected = rejects(ArchitectureMapSchema, {
+  ...architectureMap(),
+  authorityLayers: [...BENCHMARK_AUTHORITY_LAYERS.slice(0, 7), "raw_sources"],
 });
+const authorityLayerMissingRejected = rejects(ArchitectureMapSchema, {
+  ...architectureMap(),
+  authorityLayers: BENCHMARK_AUTHORITY_LAYERS.slice(0, 7),
+});
+const authorityLayerExtraRejected = rejects(ArchitectureMapSchema, {
+  ...architectureMap(),
+  authorityLayers: [...BENCHMARK_AUTHORITY_LAYERS, "raw_sources"],
+});
+const authorityLayerReorderRejected = rejects(ArchitectureMapSchema, {
+  ...architectureMap(),
+  authorityLayers: [
+    "finance_twin",
+    "raw_sources",
+    ...BENCHMARK_AUTHORITY_LAYERS.slice(2),
+  ],
+});
+const authorityLayersExactOrderVerified =
+  JSON.stringify(architecture.authorityLayers) ===
+  JSON.stringify(BENCHMARK_AUTHORITY_LAYERS);
+const benchmarkTaskUnknownKeysRejected = rejects(EvidenceRecallTaskSchema, {
+  ...baseTask("evidence_recall"),
+  recallsExistingEvidenceOnly: true,
+  route: "/should-not-exist",
+});
+const benchmarkTaskNestedUnknownKeysRejected =
+  rejects(EvidenceRecallTaskSchema, {
+    ...baseTask("evidence_recall"),
+    companyContext: {
+      ...baseTask("evidence_recall").companyContext,
+      rawFullText: "synthetic but forbidden raw text posture",
+    },
+    recallsExistingEvidenceOnly: true,
+  }) &&
+  rejects(EvidenceRecallTaskSchema, {
+    ...baseTask("evidence_recall"),
+    freshnessPosture: {
+      ...baseTask("evidence_recall").freshnessPosture,
+      pageTextDump: "synthetic but forbidden page text dump posture",
+    },
+    recallsExistingEvidenceOnly: true,
+  });
 
 const proof = BenchmarkProofSchema.parse({
   ...noRuntime,
   architectureMapBoundaryVerified: architecture.v2fContractsNotTruthRuntimeOrData,
+  authorityLayerDuplicatesRejected,
+  authorityLayerExtraRejected,
+  authorityLayerMissingRejected,
+  authorityLayerReorderRejected,
+  authorityLayersExactOrderVerified,
   benchmarkCasePlaceholderOnlyVerified: placeholder.placeholderOnly,
   benchmarkNoRuntimeBoundaryVerified: noRuntime.noProductRuntime,
   benchmarkPrivacyBoundaryVerified: privacy.noRealCompanyData,
   benchmarkTaskTaxonomyVerified:
     JSON.stringify(tasks.map((task) => task.taskKind)) ===
     JSON.stringify(BENCHMARK_TASK_KINDS),
-  communityPackManifestVerified:
-    manifest.dataFiles.length === 0 &&
-    manifest.sourcePackFiles.length === 0 &&
-    manifest.evalDatasetFiles.length === 0 &&
-    manifest.fixtureFiles.length === 0,
+  benchmarkProofUnknownKeysRejected: true,
+  benchmarkTaskNestedUnknownKeysRejected,
+  benchmarkTaskUnknownKeysRejected,
+  communityPackManifestDataAliasesRejected,
+  communityPackManifestExplicitDataFieldsRejected,
+  communityPackManifestVerified: manifest.containsNoDataOrSourcePackReferences,
   contributorChallengeBoundaryVerified:
     challenge.noPublicLaunchImplied &&
     challenge.noSaasDeploymentImplied &&
     challenge.noProviderIntegrationImplied,
   evidenceFaithfulnessTaskVerified:
-    taskFor("evidence_faithfulness")?.proofExpectations.noDatasetRequired === true,
+    taskFor("evidence_faithfulness")?.proofExpectations.noDatasetRequired ===
+      true && taskFor("evidence_faithfulness")?.readOnlyProofOnly === true,
   evidenceFreshnessLimitationsPermittedActionFieldsVerified: tasks.every(
     (task) =>
       task.freshnessPosture.summary &&
@@ -399,9 +481,12 @@ const proof = BenchmarkProofSchema.parse({
     ),
   ),
   fp0087Absent,
+  inMemorySyntheticExamplesOnlyVerified:
+    manifest.validationPosture.inMemorySyntheticExamplesOnly,
   missingCitationTaskVerified:
     taskFor("missing_citation")?.expectedRefusalPosture.expectedRefusalKind ===
-    "missing_citation_refusal",
+      "missing_citation_refusal" &&
+    taskFor("missing_citation")?.readOnlyProofOnly === true,
   monitorBoundaryTaskVerified:
     taskFor("monitor_boundary")?.noRuntimeBoundary.noProductRuntime === true,
   noCredentialTokenSecretPolicyVerified: ["credentials", "tokens", "secrets"].every(
@@ -424,14 +509,30 @@ const proof = BenchmarkProofSchema.parse({
   sourceCoverageTaskVerified:
     taskFor("source_coverage")?.expectedRefusalPosture.whenEvidenceUnsupported ===
     "unsupported_evidence_refusal",
+  syntheticExamplesClearlyLabeledVerified: tasks.every(
+    (task) =>
+      task.companyContext.syntheticOnly &&
+      task.companyContext.companyKey.includes("synthetic") &&
+      task.freshnessPosture.summary.includes("synthetic"),
+  ),
   syntheticFinanceSourcePolicyVerified:
     syntheticPolicy.requiresInventedCompanyFacts &&
     syntheticPolicy.requiresInventedSourceFacts &&
     syntheticPolicy.requiresClearSyntheticLabeling,
+  unknownKeysRejected,
   unsafeActionRefusalTaskVerified:
     taskFor("unsafe_action_refusal")?.expectedRefusalPosture.expectedRefusalKind ===
-    "unsafe_action_refusal",
+      "unsafe_action_refusal" &&
+    taskFor("unsafe_action_refusal")?.readOnlyProofOnly === true,
 });
+
+const benchmarkProofUnknownKeysRejected = rejects(BenchmarkProofSchema, {
+  ...proof,
+  rawFullText: "synthetic but forbidden proof field",
+});
+if (!benchmarkProofUnknownKeysRejected) {
+  throw new Error("V2F benchmark proof failed: benchmarkProofUnknownKeysRejected");
+}
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
