@@ -10,7 +10,7 @@ import {
   SafeDemoDataPolicySchema,
   SyntheticFinanceSourcePolicySchema,
 } from "./benchmark-community-policy";
-import { BenchmarkTaskKindSchema } from "./benchmark-community-tasks";
+import { BenchmarkTaskTaxonomySchema } from "./benchmark-community-tasks";
 
 export const BenchmarkCaseSchema = z.object({
   schemaVersion: z.literal(BENCHMARK_COMMUNITY_SCHEMA_VERSION),
@@ -34,7 +34,7 @@ export const CommunityPackManifestSchema = z.object({
   fixtureFiles: z.array(z.never()).length(0),
   safeDemoDataPolicy: SafeDemoDataPolicySchema,
   syntheticFinanceSourcePolicy: SyntheticFinanceSourcePolicySchema,
-  allowedTaskKinds: z.array(BenchmarkTaskKindSchema).length(8),
+  allowedTaskKinds: BenchmarkTaskTaxonomySchema,
   benchmarkCase: BenchmarkCaseSchema,
   privacyBoundary: BenchmarkPrivacyBoundarySchema,
   noRuntimeBoundary: BenchmarkNoRuntimeBoundarySchema,

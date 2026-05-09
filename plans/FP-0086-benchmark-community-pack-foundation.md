@@ -54,6 +54,11 @@ No Codex built-in web/search or browser research was used for FP-0086. No offici
 - [x] 2026-05-09T00:20:05Z - Updated this plan and directly stale active docs to record V2F as shipped docs/proof-only benchmark/community manifest foundation.
 - [x] 2026-05-09T00:20:05Z - Confirmed FP-0087 remains absent.
 - [x] 2026-05-09T00:28:10Z - Reran minimum final validation after docs closeout: `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-05-09T01:47:08Z - Ran strict V2F implementation QA on branch `codex/v2f-benchmark-community-pack-foundation-local-v1`; preflight passed after the user corrected the intended branch, the worktree started clean, GitHub auth/repo access worked, Docker Postgres/MinIO were available, FP-0086 existed, FP-0087 was absent, and required proof commands existed.
+- [x] 2026-05-09T01:47:08Z - QA found one narrow contract/proof hardening gap: policy/task taxonomy schemas accepted duplicate list values if lengths matched, and in-memory synthetic examples were centralized in a source helper instead of living directly in spec/proof code.
+- [x] 2026-05-09T01:47:08Z - Hardened only the V2F contract/proof/spec surface by making SafeDemoDataPolicy forbidden category lists exact tuples, making BenchmarkTask taxonomy exact in manifest validation, moving synthetic examples into the spec and proof command, deleting the source helper, and making the proof command treat any `plans/FP-0087*` file as failing `fp0087Absent`.
+- [x] 2026-05-09T01:47:08Z - Ran focused QA validation after correction; V2F proof, V2E/V2C/V2B/V2A proofs, focused domain specs, and focused control-plane EvidenceIndex/bounded-LLM specs passed. Log root: `/tmp/pocket-cfo-v2f-qa-focused-vAIZaUcG4X`.
+- [x] 2026-05-09T01:47:08Z - Ran the full DB-backed QA validation ladder after correction; all 36 gates passed, including `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2f-qa-full-M22n9jlRO4`.
 - [ ] Future plan only: public sample data, eval datasets, community pack files, public ChatGPT App/MCP, Apps SDK UI, OAuth, provider/certification/deployment/delivery behavior, source mutation, finance writes, generated advice, runtime-Codex finance output, and autonomous action remain blocked until a later named plan proves scope and safety.
 
 ## Surprises & Discoveries
@@ -76,6 +81,9 @@ No Codex built-in web/search or browser research was used for FP-0086. No offici
 - Search hits for provider, certification, delivery, report release, payment, legal advice, audit opinion, source mutation, finance write, generated advice, runtime-Codex, and autonomous action are active safety boundaries, shipped absence assertions, existing internal boundary/readiness modules, or historical roadmap material. No behavior leak requires a smaller corrective slice before FP-0086.
 - Search hits for route, schema, migration, package script, smoke alias, eval dataset, fixture, sample data, `pocket-cto`, and `@pocket-cto` are valid shipped code, active guardrails, source-pack proof posture, DB migration history, internal scaffolding, or historical shipped records. They must not be renamed or mutated in V2F planning.
 - The first validation runner used `commands` as a zsh variable name and failed before any repo command executed because `commands` is a special zsh parameter. The same ladder was rerun under bash with a neutral variable name and passed. This was a shell wrapper issue, not a product failure.
+- Strict V2F QA confirmed the implementation branch and PR #241 were linked and clean, but found the first implementation could harden list validation and proof/spec synthetic-example placement without widening scope.
+- Exact tuple validation is safer than length-based validation for SafeDemoDataPolicy and BenchmarkTask taxonomy because duplicate entries should never satisfy no-real-finance-data or taxonomy proof posture.
+- The V2F proof now treats any `plans/FP-0087*` file as a failure instead of checking only `plans/FP-0087.md`.
 - No Codex built-in web/search or browser research was used. If a later implementation needs official/current OpenAI evals/graders, Structured Outputs, or security/privacy docs for benchmark context, that implementation record must name the official source and state exactly what it was used for.
 
 ## Decision Log
@@ -112,6 +120,9 @@ Rationale: FP-0086 can define future benchmark concepts from repo source truth. 
 
 Decision: no replay event is added for this V2F implementation slice.
 Rationale: this thread adds contracts, tests, proof tooling, and documentation only. It creates no mission state transition, source ingest action, report action, approval, durable product output, source mutation, Finance Twin write, CFO Wiki write, evidence bundle, provider job, certification, delivery record, or product runtime behavior.
+
+Decision: QA correction stays inside V2F contract/proof hardening.
+Rationale: exact tuple validation, spec/proof-local synthetic examples, source-helper removal, and broader FP-0087 absence checking improve the shipped SafeDemoDataPolicy/no-real-data/no-runtime posture without adding datasets, fixtures, sample data, routes, UI, schema, migrations, package scripts, smoke aliases, OpenAI API/model calls, provider behavior, source mutation, finance writes, generated advice, runtime-Codex finance output, or autonomous action.
 
 ## Context and Orientation
 
@@ -370,6 +381,22 @@ pnpm ci:repro:current
 
 Minimum final validation result on 2026-05-09T00:28:10Z: all four commands passed.
 
+Strict V2F QA focused validation after correction:
+
+```bash
+pnpm exec tsx tools/benchmark-community-pack-proof.mjs
+pnpm exec tsx tools/bounded-llm-orchestration-proof.mjs
+pnpm exec tsx tools/read-only-evidence-app-proof.mjs
+pnpm exec tsx tools/document-precision-foundation-proof.mjs
+pnpm exec tsx tools/evidence-index-foundation-proof.mjs
+pnpm --filter @pocket-cto/domain exec vitest run src/evidence-index.spec.ts src/evidence-tool.spec.ts src/bounded-llm.spec.ts src/benchmark-community.spec.ts
+zsh -lc "cd apps/control-plane && setopt NULL_GLOB && pnpm exec vitest run src/modules/evidence-index/**/*.spec.ts src/modules/bounded-llm-orchestration/**/*.spec.ts"
+```
+
+Strict V2F QA focused validation result on 2026-05-09T01:47:08Z: all commands passed. Log root: `/tmp/pocket-cfo-v2f-qa-focused-vAIZaUcG4X`.
+
+Strict V2F QA full validation result on 2026-05-09T01:47:08Z: all 36 requested DB-backed proof/smoke/spec/lint/type/test/repro gates passed, including `pnpm ci:repro:current`. Log root: `/tmp/pocket-cfo-v2f-qa-full-M22n9jlRO4`.
+
 Proof/spec posture shipped in this implementation proves:
 
 - benchmark definitions are separate from product runtime
@@ -421,6 +448,7 @@ Artifacts created by this implementation thread:
 - `tools/benchmark-community-pack-proof.mjs`
 - direct export update in `packages/domain/src/index.ts`
 - directly stale active-doc/roadmap/security/demo refreshes that point to FP-0086 as the shipped V2F docs/proof-only benchmark/community manifest foundation
+- strict QA hardening updates to exact policy/task taxonomy schemas and the V2F proof command
 
 Artifacts intentionally not created:
 
@@ -452,6 +480,8 @@ Search-hit classification:
 - archived history that must stay reference-only: Pocket CTO-era docs, engineering-first milestones, GitHub-first historical wording, and older EP material.
 - future-only planning language: FP-0087, public ChatGPT App, remote MCP, Apps SDK UI, OAuth, app submission, F6V, F6X, OCR/vector/PageIndex/OpenAI file-search adapters, iOS, OpenClaw, deployment, external communications, package rename, GitHub deletion, engineering-twin deletion, datasets, public demo packs, public community distribution, and V2F expansion beyond this contract/proof foundation.
 - behavior leak requiring a smaller corrective slice instead of FP-0086: none found.
+- strict QA behavior leak requiring runtime correction: none found.
+- strict QA correction applied: source-side synthetic helper removed; in-memory synthetic examples now live directly in the focused spec and direct proof command.
 
 Replay and evidence implications:
 
@@ -532,4 +562,6 @@ Implementation outcome:
 - No eval datasets, fixtures, sample data, public demo source packs, package scripts, smoke aliases, model calls, OpenAI API calls, public ChatGPT App/MCP, Apps SDK UI, OAuth, app submission, provider/certification/delivery/deployment/external communications, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action was added.
 - No UI, routes, schema, migrations, control-plane runtime modules, web API routes, product runtime behavior, source-pack files, or source-pack fixture edits were added.
 - Required focused and full validation passed before docs closeout, including `pnpm ci:repro:current`; minimum final validation also passed after closeout edits.
-- Exact next recommendation after this implementation PR merges: run V2F implementation QA next against the shipped contract/proof foundation. No narrow V2F correction is currently known. Public ChatGPT App planning should wait for a later named plan after V2F QA confirms the no-real-finance-data and no-runtime posture.
+- Strict V2F QA found and corrected one narrow contract/proof hardening gap without widening scope.
+- Required focused and full QA validation passed after correction, including `pnpm ci:repro:current`.
+- Exact next recommendation after this QA correction merges: keep V2F contract-only; do not start public ChatGPT App/MCP master planning until the V2F QA correction is reviewed and a later named Finance Plan explicitly opens that scope.

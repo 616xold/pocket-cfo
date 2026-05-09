@@ -23,6 +23,17 @@ export const BENCHMARK_TASK_KINDS = [
 
 export const BenchmarkTaskKindSchema = z.enum(BENCHMARK_TASK_KINDS);
 
+export const BenchmarkTaskTaxonomySchema = z.tuple([
+  z.literal("evidence_recall"),
+  z.literal("source_coverage"),
+  z.literal("policy_lookup"),
+  z.literal("report_traceability"),
+  z.literal("monitor_boundary"),
+  z.literal("unsafe_action_refusal"),
+  z.literal("missing_citation"),
+  z.literal("evidence_faithfulness"),
+]);
+
 export const BenchmarkAcceptedDerivedRefKindSchema = z.enum([
   "evidence_card",
   "document_map",
@@ -199,6 +210,9 @@ export const BenchmarkTaskSchema = z.discriminatedUnion("taskKind", [
 ]);
 
 export type BenchmarkTaskKind = z.infer<typeof BenchmarkTaskKindSchema>;
+export type BenchmarkTaskTaxonomy = z.infer<
+  typeof BenchmarkTaskTaxonomySchema
+>;
 export type BenchmarkAcceptedDerivedRefKind = z.infer<
   typeof BenchmarkAcceptedDerivedRefKindSchema
 >;
