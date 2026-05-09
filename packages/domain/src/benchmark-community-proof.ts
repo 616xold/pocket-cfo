@@ -81,11 +81,13 @@ export const BenchmarkProofSchema = z
     fp0089AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
     fp0090AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
     fp0091AbsentOrLocalUiComponentBoundaryVerified: trueLiteral,
-    fp0092Absent: trueLiteral,
+    fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified: trueLiteral,
+    fp0093Absent: trueLiteral,
     premiumUiSecurityPlanBoundaryVerified: trueLiteral,
     premiumUiDesignSystemPlanBoundaryVerified: trueLiteral,
     premiumUiImplementationPlanBoundaryVerified: trueLiteral,
     premiumUiComponentFoundationVerified: trueLiteral,
+    premiumUiCompositionAccessibilityFoundationVerified: trueLiteral,
     noUiImplementationFromFp0088: trueLiteral,
     noUiImplementationFromFp0089: trueLiteral,
     noAppsSdkIframeFromFp0089: trueLiteral,
@@ -102,6 +104,13 @@ export const BenchmarkProofSchema = z
     noPublicAppImplementationFromFp0091: trueLiteral,
     noOpenAiApiCallsFromFp0091: trueLiteral,
     noSourceMutationFinanceWriteFromFp0091: trueLiteral,
+    noRoutesFromFp0092: trueLiteral,
+    noEndpointsFromFp0092: trueLiteral,
+    noAppsSdkIframeFromFp0092: trueLiteral,
+    noOauthSubmissionFromFp0092: trueLiteral,
+    noPublicAppImplementationFromFp0092: trueLiteral,
+    noOpenAiApiCallsFromFp0092: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0092: trueLiteral,
   })
   .strict();
 

@@ -1,20 +1,34 @@
 import React from "react";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { bodyStyle, compactPanelStyle, strongBodyStyle } from "./styles";
 import type { ReadOnlyAppMcpBoundary } from "./types";
 import { ReadOnlyList, ReadOnlyPanel, SectionHeading } from "./ui";
 
 type NoRuntimeBoundaryPanelProps = {
   boundary: ReadOnlyAppMcpBoundary;
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
+  sectionIdScope?: string;
 };
 
 export function NoRuntimeBoundaryPanel({
   boundary,
+  headingLevel,
+  sectionIdScope,
 }: NoRuntimeBoundaryPanelProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "no-runtime-boundary",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-no-runtime-boundary-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <SectionHeading
         eyebrow="No-runtime boundary"
-        id="read-only-no-runtime-boundary-title"
+        headingLevel={headingLevel}
+        id={titleId}
         summary={boundary.summary}
         title={boundary.title}
       />

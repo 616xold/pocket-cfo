@@ -1,5 +1,9 @@
 import React from "react";
 import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
+import {
   bodyStyle,
   colors,
   strongBodyStyle,
@@ -10,11 +14,22 @@ import { ReadOnlyPanel, SectionHeading } from "./ui";
 
 type EvidenceAnswerPanelProps = {
   answer: ReadOnlyAppMcpAnswer;
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
+  sectionIdScope?: string;
 };
 
-export function EvidenceAnswerPanel({ answer }: EvidenceAnswerPanelProps) {
+export function EvidenceAnswerPanel({
+  answer,
+  headingLevel,
+  sectionIdScope,
+}: EvidenceAnswerPanelProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "answer",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-answer-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <div
         style={{
           alignItems: "start",
@@ -26,7 +41,8 @@ export function EvidenceAnswerPanel({ answer }: EvidenceAnswerPanelProps) {
       >
         <SectionHeading
           eyebrow="Answer status"
-          id="read-only-answer-title"
+          headingLevel={headingLevel}
+          id={titleId}
           summary={answer.summary}
           title={answer.title}
         />

@@ -34,6 +34,8 @@ FP-0090 is the shipped V2J premium read-only ChatGPT App/MCP UI implementation r
 
 FP-0091 is the shipped V2K local/proof-only/read-only premium UI component foundation. It opens real local React component code under `apps/web/components/read-only-app-mcp/**` only, plus focused tests and the minimum proof-gate bridge, while keeping routes, endpoints, Apps SDK iframe/UI resources, public app implementation, OAuth, remote MCP, app submission, OpenAI API/model calls, source mutation, finance writes, generated product prose, runtime-Codex finance output, and autonomous action out of scope.
 
+FP-0092 is the shipped V2L local/proof-only/read-only premium UI composition and accessibility foundation. It composes the FP-0091 components into a local evidence hierarchy, adds heading-level controls, scoped section IDs, accessibility, contrast/token, responsive structure, raw/private-field, no-control, and no-advice-copy tests, and updates only the minimum proof-gate bridge while keeping routes, endpoints, Apps SDK iframe/UI resources, public app implementation, OAuth, remote MCP, app submission, OpenAI API/model calls, source mutation, finance writes, generated product prose, runtime-Codex finance output, and autonomous action out of scope.
+
 ## Shipped Architecture Summary
 
 The shipped system is organized around:
@@ -72,14 +74,15 @@ The shipped system is organized around:
 - **V2I premium read-only ChatGPT App/MCP UI design-system readiness**: shipped through FP-0089 as a docs-and-plan plus proof-gate compatibility record with no UI, endpoints, remote MCP, OAuth, app submission, OpenAI API/model calls, data files, package scripts, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action.
 - **V2J premium read-only ChatGPT App/MCP UI implementation readiness**: shipped through FP-0090 as a docs-and-plan plus proof-gate compatibility record with no UI code, routes, endpoints, remote MCP, Apps SDK iframe/UI resources, OAuth, app submission, OpenAI API/model calls, data files, package scripts, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action.
 - **V2K premium read-only ChatGPT App/MCP UI component foundation**: shipped through FP-0091 as a local/proof-only/read-only component foundation under `apps/web/components/read-only-app-mcp/**`, with no routes, endpoints, remote MCP, Apps SDK iframe/UI resources, OAuth, app submission, OpenAI API/model calls, data files, package scripts, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action.
+- **V2L premium read-only ChatGPT App/MCP UI composition/accessibility foundation**: shipped through FP-0092 as a local/proof-only/read-only composition and accessibility hardening foundation under `apps/web/components/read-only-app-mcp/**`, with no routes, endpoints, remote MCP, Apps SDK iframe/UI resources, OAuth, app submission, OpenAI API/model calls, data files, package scripts, source mutation, finance writes, generated product prose, runtime-Codex finance output, or autonomous action.
 
 ## Latest Shipped V2 Plan
 
-- **V2K premium read-only ChatGPT App/MCP UI component foundation**: shipped through FP-0091.
+- **V2L premium read-only ChatGPT App/MCP UI composition/accessibility foundation**: shipped through FP-0092.
 
 ## Active V2 Plan
 
-- No FP-0092 is active. Public app implementation, routes, endpoints, remote MCP deployment, Apps SDK UI resources, OAuth, app submission, provider/certification/delivery/deployment, and V2G expansion beyond the shipped local proof-only contracts and descriptor/envelope foundation still require a later named Finance Plan.
+- No FP-0093 is active. Public app implementation, routes, endpoints, remote MCP deployment, Apps SDK UI resources, OAuth, app submission, provider/certification/delivery/deployment, and V2G expansion beyond the shipped local proof-only contracts and descriptor/envelope foundation still require a later named Finance Plan.
 
 ## Fixed Shipped Monitor Families
 
@@ -129,7 +132,8 @@ These tracks remain future-only until a later Finance Plan names exact scope and
 - deeper PDF/OCR/vector search beyond the shipped narrow FP-0081 text-PDF precision-adapter candidate
 - EvidenceIndex or precision-adapter expansion outside the shipped FP-0081 first V2B contract
 - V2E expansion beyond the shipped FP-0085 local/internal proof-only bounded LLM orchestration foundation
-- public ChatGPT App/MCP deployment beyond the shipped local/internal FP-0082 contract and shipped FP-0091 local component-only boundary
+- public ChatGPT App/MCP deployment beyond the shipped local/internal FP-0082 contract, shipped FP-0091 local component-only boundary, and shipped FP-0092 local composition/accessibility boundary
+- FP-0092 implementation beyond local/proof-only/read-only composition and accessibility hardening
 - FP-0091 implementation beyond local/proof-only/read-only component foundation
 - FP-0090 implementation beyond docs-only premium UI implementation readiness and proof-gate compatibility
 - FP-0089 implementation beyond shipped docs-only premium UI design-system readiness and proof-gate compatibility
@@ -177,6 +181,7 @@ Key records:
 - [FP-0089 V2I premium read-only ChatGPT App/MCP UI design-system readiness master plan](../plans/FP-0089-read-only-chatgpt-app-mcp-premium-ui-design-system-master-plan.md)
 - [FP-0090 V2J premium read-only ChatGPT App/MCP UI implementation readiness master plan](../plans/FP-0090-read-only-chatgpt-app-mcp-premium-ui-implementation-master-plan.md)
 - [FP-0091 V2K read-only ChatGPT App/MCP premium UI component foundation](../plans/FP-0091-read-only-chatgpt-app-mcp-premium-ui-component-foundation.md)
+- [FP-0092 V2L read-only ChatGPT App/MCP premium UI composition/accessibility foundation](../plans/FP-0092-read-only-chatgpt-app-mcp-premium-ui-composition-accessibility-foundation.md)
 - [FP-0077 F10 v1 public launch handoff](../plans/FP-0077-v1-public-launch-handoff.md)
 - [FP-0076 F9 product UI launch polish](../plans/FP-0076-product-ui-launch-polish-foundation.md)
 - [FP-0075 F8 future-scope triage](../plans/FP-0075-v1-future-scope-triage-and-roadmap-hardening.md)

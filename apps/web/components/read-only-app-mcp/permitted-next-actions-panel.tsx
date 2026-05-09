@@ -1,21 +1,35 @@
 import React from "react";
+import {
+  createReadOnlyAppMcpSectionId,
+  type ReadOnlyAppMcpHeadingLevel,
+} from "./ids";
 import { bodyStyle, compactPanelStyle, strongBodyStyle } from "./styles";
 import type { ReadOnlyAppMcpPermittedNextAction } from "./types";
 import { ReadOnlyList, ReadOnlyPanel, SectionHeading } from "./ui";
 
 type PermittedNextActionsPanelProps = {
   actions: ReadOnlyAppMcpPermittedNextAction[];
+  headingLevel?: ReadOnlyAppMcpHeadingLevel;
+  sectionIdScope?: string;
 };
 
 export function PermittedNextActionsPanel({
   actions,
+  headingLevel,
+  sectionIdScope,
 }: PermittedNextActionsPanelProps) {
+  const titleId = createReadOnlyAppMcpSectionId({
+    scope: sectionIdScope,
+    section: "permitted-actions",
+  });
+
   return (
-    <ReadOnlyPanel labelledBy="read-only-permitted-actions-title">
+    <ReadOnlyPanel labelledBy={titleId}>
       <SectionHeading
         eyebrow="Permitted next actions"
-        id="read-only-permitted-actions-title"
-        summary="These are static review steps. They do not submit, send, approve, or mutate anything."
+        headingLevel={headingLevel}
+        id={titleId}
+        summary="These are static review steps. They do not run tools, mutate data, or release anything."
         title="Permitted next review steps"
       />
       <ReadOnlyList
