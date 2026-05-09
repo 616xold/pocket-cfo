@@ -25,13 +25,16 @@ const FP0091_PLAN =
   "plans/FP-0091-read-only-chatgpt-app-mcp-premium-ui-component-foundation.md";
 const FP0092_PLAN =
   "plans/FP-0092-read-only-chatgpt-app-mcp-premium-ui-composition-accessibility-foundation.md";
+const FP0093_PLAN =
+  "plans/FP-0093-read-only-chatgpt-app-mcp-premium-ui-preview-route-master-plan.md";
 const fp0088Boundary = fp0088DocsOnlyBoundary();
 const fp0089Boundary = fp0089DocsOnlyBoundary();
 const fp0090Boundary = fp0090DocsOnlyBoundary();
 const fp0091Boundary = fp0091LocalUiComponentBoundary();
 const fp0092Boundary = fp0092LocalUiCompositionAccessibilityBoundary();
-const fp0093Absent = !repoFilePaths().some((path) =>
-  /(^|\/)FP-0093/u.test(path),
+const fp0093Boundary = fp0093LocalUiPreviewRouteBoundary();
+const fp0094Absent = !repoFilePaths().some((path) =>
+  /(^|\/)FP-0094/u.test(path),
 );
 
 function fp0087DocsOnlyBoundaryVerified() {
@@ -72,7 +75,9 @@ const proof = AppProofSchema.parse(
       fp0091Boundary.absentOrLocalUiComponentBoundaryVerified,
     fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified:
       fp0092Boundary.absentOrLocalUiCompositionAccessibilityBoundaryVerified,
-    fp0093Absent,
+    fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified:
+      fp0093Boundary.absentOrDocsOnlyPreviewRouteBoundaryVerified,
+    fp0094Absent,
     premiumUiSecurityPlanBoundaryVerified:
       fp0088Boundary.premiumUiSecurityPlanBoundaryVerified,
     premiumUiDesignSystemPlanBoundaryVerified:
@@ -83,6 +88,8 @@ const proof = AppProofSchema.parse(
       fp0091Boundary.premiumUiComponentFoundationVerified,
     premiumUiCompositionAccessibilityFoundationVerified:
       fp0092Boundary.premiumUiCompositionAccessibilityFoundationVerified,
+    localUiPreviewRoutePlanBoundaryVerified:
+      fp0093Boundary.localUiPreviewRoutePlanBoundaryVerified,
     noUiImplementationFromFp0088:
       fp0088Boundary.noUiImplementationFromFp0088,
     noUiImplementationFromFp0089:
@@ -120,6 +127,19 @@ const proof = AppProofSchema.parse(
     noOpenAiApiCallsFromFp0092: fp0092Boundary.noOpenAiApiCallsFromFp0092,
     noSourceMutationFinanceWriteFromFp0092:
       fp0092Boundary.noSourceMutationFinanceWriteFromFp0092,
+    noRouteImplementationFromFp0093:
+      fp0093Boundary.noRouteImplementationFromFp0093,
+    noEndpointOauthSubmissionFromFp0093:
+      fp0093Boundary.noEndpointOauthSubmissionFromFp0093,
+    noPublicAppImplementationFromFp0093:
+      fp0093Boundary.noPublicAppImplementationFromFp0093,
+    noAppsSdkIframeFromFp0093: fp0093Boundary.noAppsSdkIframeFromFp0093,
+    noOpenAiApiModelCallsFromFp0093:
+      fp0093Boundary.noOpenAiApiModelCallsFromFp0093,
+    noSourceMutationFinanceWriteFromFp0093:
+      fp0093Boundary.noSourceMutationFinanceWriteFromFp0093,
+    noGeneratedProductProseRuntimeCodexFromFp0093:
+      fp0093Boundary.noGeneratedProductProseRuntimeCodexFromFp0093,
     noPackageScriptsAdded,
     noSmokeAliasesAdded,
   }),
@@ -653,6 +673,141 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
     noRoutesFromFp0092,
     noSourceMutationFinanceWriteFromFp0092,
     premiumUiCompositionAccessibilityFoundationVerified,
+  };
+}
+
+function fp0093LocalUiPreviewRouteBoundary() {
+  const fp0093PathHits = repoFilePaths().filter((path) =>
+    /(^|\/)FP-0093/u.test(path),
+  );
+  const absentBoundary = {
+    absentOrDocsOnlyPreviewRouteBoundaryVerified: true,
+    localUiPreviewRoutePlanBoundaryVerified: true,
+    noAppsSdkIframeFromFp0093: true,
+    noEndpointOauthSubmissionFromFp0093: true,
+    noGeneratedProductProseRuntimeCodexFromFp0093: true,
+    noOpenAiApiModelCallsFromFp0093: true,
+    noPublicAppImplementationFromFp0093: true,
+    noRouteImplementationFromFp0093: true,
+    noSourceMutationFinanceWriteFromFp0093: true,
+  };
+  const failedBoundary = Object.fromEntries(
+    Object.keys(absentBoundary).map((key) => [key, false]),
+  );
+
+  if (fp0093PathHits.length === 0) return absentBoundary;
+  if (fp0093PathHits.length !== 1 || fp0093PathHits[0] !== FP0093_PLAN) {
+    return failedBoundary;
+  }
+
+  const lower = readFileSync(FP0093_PLAN, "utf8").toLowerCase();
+  const normalized = lower.replace(/[`_*]+/gu, "");
+  const routeExists = repoFilePaths().some((path) =>
+    path.startsWith("apps/web/app/read-only-app-mcp-preview"),
+  );
+  const apiRouteExists = repoFilePaths().some((path) =>
+    path.startsWith("apps/web/app/api/read-only-app-mcp-preview"),
+  );
+  const docsOnlyBoundaryVerified = [
+    "fp-0093 is not implementation",
+    "docs-and-plan plus proof-gate compatibility",
+    "local ui preview route master-plan only",
+    "creates no product code",
+    "no route code",
+    "no app route",
+    "no api route",
+    "no backend route",
+    "no endpoint implementation",
+    "no remote mcp server",
+    "no apps sdk iframe/ui resource registration",
+    "no oauth",
+    "no app submission",
+    "no public app implementation",
+    "no openai api/model calls",
+    "no source mutation",
+    "no finance writes",
+    "no generated product prose",
+    "no runtime-codex finance output",
+    "no autonomous action",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const localUiPreviewRoutePlanBoundaryVerified = [
+    "future local preview route boundary",
+    "apps/web/app/read-only-app-mcp-preview/page.tsx",
+    "future route implementation slice may add one local read-only web page only",
+    "existing fp-0091 and fp-0092 components only",
+    "no fetch",
+    "no post",
+    "no form",
+    "no buttons or action-looking forbidden controls",
+    "no server action",
+    "no api route",
+    "no backend route",
+    "no raw full-file dump panels",
+    "no advice-like cta copy",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noRouteImplementationFromFp0093 =
+    [
+      "does not authorize route code yet",
+      "this is not route implementation",
+      "no route code",
+      "no app route",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    !routeExists;
+  const noEndpointOauthSubmissionFromFp0093 =
+    [
+      "does not authorize endpoint implementation",
+      "does not authorize remote mcp deployment",
+      "does not authorize oauth implementation",
+      "does not authorize app submission",
+      "no endpoint implementation",
+      "no oauth",
+      "no app submission",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    !apiRouteExists;
+  const noPublicAppImplementationFromFp0093 = [
+    "does not authorize public app implementation",
+    "public chatgpt app implementation must still wait",
+    "public app implementation",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noAppsSdkIframeFromFp0093 = [
+    "does not authorize apps sdk iframe/ui resources",
+    "no apps sdk iframe/ui resource registration",
+    "apps sdk iframe/ui resource implementation",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noOpenAiApiModelCallsFromFp0093 =
+    ["no openai api/model calls", "no openai api key was created or used"].every(
+      (requiredText) => normalized.includes(requiredText),
+    );
+  const noSourceMutationFinanceWriteFromFp0093 =
+    ["no source mutation", "no finance writes"].every((requiredText) =>
+      normalized.includes(requiredText),
+    );
+  const noGeneratedProductProseRuntimeCodexFromFp0093 =
+    [
+      "no generated product prose",
+      "no runtime-codex finance output",
+      "no mission-facing output was generated",
+    ].every((requiredText) => normalized.includes(requiredText));
+
+  return {
+    absentOrDocsOnlyPreviewRouteBoundaryVerified:
+      docsOnlyBoundaryVerified &&
+      localUiPreviewRoutePlanBoundaryVerified &&
+      noRouteImplementationFromFp0093 &&
+      noEndpointOauthSubmissionFromFp0093 &&
+      noPublicAppImplementationFromFp0093 &&
+      noAppsSdkIframeFromFp0093 &&
+      noOpenAiApiModelCallsFromFp0093 &&
+      noSourceMutationFinanceWriteFromFp0093 &&
+      noGeneratedProductProseRuntimeCodexFromFp0093,
+    localUiPreviewRoutePlanBoundaryVerified,
+    noAppsSdkIframeFromFp0093,
+    noEndpointOauthSubmissionFromFp0093,
+    noGeneratedProductProseRuntimeCodexFromFp0093,
+    noOpenAiApiModelCallsFromFp0093,
+    noPublicAppImplementationFromFp0093,
+    noRouteImplementationFromFp0093,
+    noSourceMutationFinanceWriteFromFp0093,
   };
 }
 

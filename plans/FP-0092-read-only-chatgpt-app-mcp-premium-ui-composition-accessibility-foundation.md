@@ -207,6 +207,6 @@ Component tests use in-memory examples only. Those examples are synthetic proof 
 
 Outcome: shipped.
 
-Validation outcome: green through final validation and clean-worktree reproduction before closeout docs. Per closeout policy, the post-document minimum gate (`git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm ci:repro:current`) must pass again before the final commit.
+Validation outcome: green through final validation, clean-worktree reproduction, and the post-document minimum gate (`git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, `pnpm ci:repro:current`) before merge.
 
 Scope outcome must remain: local UI composition/accessibility hardening only; no app routes, API routes, backend routes, endpoints, remote MCP server, Apps SDK iframe/UI resource registration, OAuth, app submission, schema, migration, package script, smoke alias, eval dataset, fixture, sample data, public demo data, source pack, OpenAI API/model call, vector/file-search, OCR, PageIndex, provider/certification/delivery/deployment, external communication, source mutation, finance write, generated product prose, runtime-Codex finance output, autonomous action, FP-0093, or public app implementation.
