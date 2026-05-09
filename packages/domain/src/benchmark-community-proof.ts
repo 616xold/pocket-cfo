@@ -77,7 +77,11 @@ export const BenchmarkProofSchema = z
     inMemorySyntheticExamplesOnlyVerified: trueLiteral,
     syntheticExamplesClearlyLabeledVerified: trueLiteral,
     fp0087AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
-    fp0088Absent: trueLiteral,
+    fp0088AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
+    fp0089Absent: trueLiteral,
+    premiumUiSecurityPlanBoundaryVerified: trueLiteral,
+    noUiImplementationFromFp0088: trueLiteral,
+    noEndpointOauthSubmissionFromFp0088: trueLiteral,
   })
   .strict();
 

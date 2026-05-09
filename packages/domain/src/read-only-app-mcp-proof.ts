@@ -52,7 +52,11 @@ type SafeParseSchema = {
 export function buildReadOnlyChatGptAppMcpProof(
   input: Partial<{
     fp0087DocsOnlyBoundaryVerified: boolean;
-    fp0088Absent: boolean;
+    fp0088AbsentOrDocsOnlyBoundaryVerified: boolean;
+    fp0089Absent: boolean;
+    premiumUiSecurityPlanBoundaryVerified: boolean;
+    noUiImplementationFromFp0088: boolean;
+    noEndpointOauthSubmissionFromFp0088: boolean;
     noPackageScriptsAdded: boolean;
     noSmokeAliasesAdded: boolean;
   }> = {},
@@ -348,7 +352,14 @@ export function buildReadOnlyChatGptAppMcpProof(
     forbiddenToolCandidates: [...APP_FORBIDDEN_TOOL_PROOF_CANDIDATES],
     fp0087DocsOnlyBoundaryVerified:
       input.fp0087DocsOnlyBoundaryVerified ?? true,
-    fp0088Absent: input.fp0088Absent ?? true,
+    fp0088AbsentOrDocsOnlyBoundaryVerified:
+      input.fp0088AbsentOrDocsOnlyBoundaryVerified ?? true,
+    fp0089Absent: input.fp0089Absent ?? true,
+    premiumUiSecurityPlanBoundaryVerified:
+      input.premiumUiSecurityPlanBoundaryVerified ?? true,
+    noUiImplementationFromFp0088: input.noUiImplementationFromFp0088 ?? true,
+    noEndpointOauthSubmissionFromFp0088:
+      input.noEndpointOauthSubmissionFromFp0088 ?? true,
     localProofOnly: noRuntimeBoundary.localProofOnly,
     mcpForbiddenToolsVerified:
       forbiddenCandidatesRejected && noForbiddenCandidateInAllowlist,

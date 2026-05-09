@@ -137,7 +137,11 @@ export const AppProofSchema = z
     safeDemoDataPolicyInheritedVerified: trueLiteral,
     noRealFinanceDataPostureVerified: trueLiteral,
     fp0087DocsOnlyBoundaryVerified: trueLiteral,
-    fp0088Absent: trueLiteral,
+    fp0088AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
+    fp0089Absent: trueLiteral,
+    premiumUiSecurityPlanBoundaryVerified: trueLiteral,
+    noUiImplementationFromFp0088: trueLiteral,
+    noEndpointOauthSubmissionFromFp0088: trueLiteral,
     allowedTools: z.tuple([
       z.literal(MCP_TOOL_ALLOWLIST[0]),
       z.literal(MCP_TOOL_ALLOWLIST[1]),

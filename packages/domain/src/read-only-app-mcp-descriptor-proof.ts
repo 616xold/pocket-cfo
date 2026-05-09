@@ -117,7 +117,11 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     noRuntimeCodex: trueLiteral,
     noAutonomousAction: trueLiteral,
     safeDemoDataPolicyInheritedVerified: trueLiteral,
-    fp0088Absent: trueLiteral,
+    fp0088AbsentOrDocsOnlyBoundaryVerified: trueLiteral,
+    fp0089Absent: trueLiteral,
+    premiumUiSecurityPlanBoundaryVerified: trueLiteral,
+    noUiImplementationFromFp0088: trueLiteral,
+    noEndpointOauthSubmissionFromFp0088: trueLiteral,
     descriptorsVerified: z.array(z.string()).length(MCP_TOOL_ALLOWLIST.length),
     responseEnvelopeRequiredFields: z.array(z.string()).min(1),
   })
@@ -125,7 +129,11 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
 
 export function buildAppMcpDescriptorEnvelopeProof(
   input: Partial<{
-    fp0088Absent: boolean;
+    fp0088AbsentOrDocsOnlyBoundaryVerified: boolean;
+    fp0089Absent: boolean;
+    premiumUiSecurityPlanBoundaryVerified: boolean;
+    noUiImplementationFromFp0088: boolean;
+    noEndpointOauthSubmissionFromFp0088: boolean;
     noPackageScriptsAdded: boolean;
     noSmokeAliasesAdded: boolean;
   }> = {},
@@ -220,7 +228,14 @@ export function buildAppMcpDescriptorEnvelopeProof(
     forbiddenToolsRejected: APP_FORBIDDEN_TOOL_PROOF_CANDIDATES.every(
       (candidate) => classifyMcpToolCandidate(candidate).forbidden,
     ),
-    fp0088Absent: input.fp0088Absent ?? true,
+    fp0088AbsentOrDocsOnlyBoundaryVerified:
+      input.fp0088AbsentOrDocsOnlyBoundaryVerified ?? true,
+    fp0089Absent: input.fp0089Absent ?? true,
+    premiumUiSecurityPlanBoundaryVerified:
+      input.premiumUiSecurityPlanBoundaryVerified ?? true,
+    noUiImplementationFromFp0088: input.noUiImplementationFromFp0088 ?? true,
+    noEndpointOauthSubmissionFromFp0088:
+      input.noEndpointOauthSubmissionFromFp0088 ?? true,
     localProofOnly: noRuntimeBoundary.localProofOnly,
     missingCitationEnvelopeVerified:
       AppMcpMissingCitationEnvelopeSchema.safeParse(missingCitation).success &&

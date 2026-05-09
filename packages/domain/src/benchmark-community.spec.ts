@@ -30,6 +30,8 @@ import {
 } from "./read-only-app-mcp";
 
 const checkedAt = "2026-05-09T00:30:00.000Z";
+const FP0088_PLAN_FILE =
+  "FP-0088-read-only-chatgpt-app-mcp-premium-ui-security-master-plan.md";
 
 function safeDemoDataPolicy() {
   return {
@@ -321,7 +323,15 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
   const typedProof = AppProofSchema.safeParse(
     buildReadOnlyChatGptAppMcpProof({
       fp0087DocsOnlyBoundaryVerified: planBoundaryVerified,
-      fp0088Absent: fp0088Absent(),
+      fp0088AbsentOrDocsOnlyBoundaryVerified:
+        fp0088DocsOnlyBoundary().absentOrDocsOnlyBoundaryVerified,
+      fp0089Absent: fp0089Absent(),
+      premiumUiSecurityPlanBoundaryVerified:
+        fp0088DocsOnlyBoundary().premiumUiSecurityPlanBoundaryVerified,
+      noUiImplementationFromFp0088:
+        fp0088DocsOnlyBoundary().noUiImplementationFromFp0088,
+      noEndpointOauthSubmissionFromFp0088:
+        fp0088DocsOnlyBoundary().noEndpointOauthSubmissionFromFp0088,
     }),
   );
 
@@ -334,9 +344,67 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
   );
 }
 
-function fp0088Absent() {
+function fp0088DocsOnlyBoundary() {
   const plansPath = existsSync("plans") ? "plans" : "../../plans";
-  return !readdirSync(plansPath).some((name) => /^FP-0088/u.test(name));
+  const fp0088Files = readdirSync(plansPath).filter((name) =>
+    /^FP-0088/u.test(name),
+  );
+
+  if (fp0088Files.length === 0) {
+    return {
+      absentOrDocsOnlyBoundaryVerified: true,
+      noEndpointOauthSubmissionFromFp0088: true,
+      noUiImplementationFromFp0088: true,
+      premiumUiSecurityPlanBoundaryVerified: true,
+    };
+  }
+
+  if (fp0088Files.length !== 1 || fp0088Files[0] !== FP0088_PLAN_FILE) {
+    return {
+      absentOrDocsOnlyBoundaryVerified: false,
+      noEndpointOauthSubmissionFromFp0088: false,
+      noUiImplementationFromFp0088: false,
+      premiumUiSecurityPlanBoundaryVerified: false,
+    };
+  }
+
+  const lowerPlanText = readFileSync(
+    `${plansPath}/${FP0088_PLAN_FILE}`,
+    "utf8",
+  ).toLowerCase();
+
+  return {
+    absentOrDocsOnlyBoundaryVerified: [
+      "fp-0088 is not implementation",
+      "docs-and-plan plus proof-gate compatibility",
+      "no product code",
+      "no ui implementation",
+      "no routes or endpoints",
+      "no oauth",
+      "no app submission",
+    ].every((requiredText) => lowerPlanText.includes(requiredText)),
+    noEndpointOauthSubmissionFromFp0088: [
+      "does not authorize remote mcp deployment",
+      "does not authorize oauth implementation",
+      "does not authorize public app submission",
+    ].every((requiredText) => lowerPlanText.includes(requiredText)),
+    noUiImplementationFromFp0088: [
+      "does not authorize apps sdk iframe/ui code",
+      "future ui polish/design-system implementation plan",
+      "do not implement ui",
+    ].every((requiredText) => lowerPlanText.includes(requiredText)),
+    premiumUiSecurityPlanBoundaryVerified: [
+      "premium ui readiness requirements only",
+      "app/mcp security readiness requirements only",
+      "evidenceanswerpanel",
+      "privacyboundarypanel",
+    ].every((requiredText) => lowerPlanText.includes(requiredText)),
+  };
+}
+
+function fp0089Absent() {
+  const plansPath = existsSync("plans") ? "plans" : "../../plans";
+  return !readdirSync(plansPath).some((name) => /^FP-0089/u.test(name));
 }
 
 describe("benchmark community pack foundation contracts", () => {
@@ -669,7 +737,15 @@ describe("benchmark community pack foundation contracts", () => {
       forbiddenActionsVerified: true,
       fp0087AbsentOrDocsOnlyBoundaryVerified:
         fp0087AbsentOrDocsOnlyBoundaryVerified(),
-      fp0088Absent: fp0088Absent(),
+      fp0088AbsentOrDocsOnlyBoundaryVerified:
+        fp0088DocsOnlyBoundary().absentOrDocsOnlyBoundaryVerified,
+      fp0089Absent: fp0089Absent(),
+      premiumUiSecurityPlanBoundaryVerified:
+        fp0088DocsOnlyBoundary().premiumUiSecurityPlanBoundaryVerified,
+      noUiImplementationFromFp0088:
+        fp0088DocsOnlyBoundary().noUiImplementationFromFp0088,
+      noEndpointOauthSubmissionFromFp0088:
+        fp0088DocsOnlyBoundary().noEndpointOauthSubmissionFromFp0088,
       inMemorySyntheticExamplesOnlyVerified: true,
       missingCitationTaskVerified: true,
       monitorBoundaryTaskVerified: true,
@@ -692,7 +768,11 @@ describe("benchmark community pack foundation contracts", () => {
     expect(proof.localProofOnly).toBe(true);
     expect(proof.noOpenAiApiCalls).toBe(true);
     expect(proof.fp0087AbsentOrDocsOnlyBoundaryVerified).toBe(true);
-    expect(proof.fp0088Absent).toBe(true);
+    expect(proof.fp0088AbsentOrDocsOnlyBoundaryVerified).toBe(true);
+    expect(proof.fp0089Absent).toBe(true);
+    expect(proof.premiumUiSecurityPlanBoundaryVerified).toBe(true);
+    expect(proof.noUiImplementationFromFp0088).toBe(true);
+    expect(proof.noEndpointOauthSubmissionFromFp0088).toBe(true);
     expect(() =>
       BenchmarkProofSchema.parse({
         ...proof,
