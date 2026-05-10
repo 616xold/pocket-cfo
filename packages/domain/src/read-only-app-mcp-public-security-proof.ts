@@ -5,6 +5,7 @@ import {
   PUBLIC_APP_SECURITY_SCHEMA_VERSION,
   PUBLIC_APP_AUDIT_LOGGING_QUESTIONS,
   PUBLIC_APP_CONSENT_RBAC_QUESTIONS,
+  PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS,
 } from "./read-only-app-mcp-public-security-contracts";
 
 const trueLiteral = z.literal(true);
@@ -49,7 +50,11 @@ export const PublicAppSecurityProofSchema = z
     rawDumpAndDataExfiltrationFailClosed: trueLiteral,
     promptInjectionIsUntrustedData: trueLiteral,
     noRealFinanceDataOrPublicDemoSourcePacks: trueLiteral,
+    localPreviewRouteExists: trueLiteral,
+    routeMetadataNoIndexBoundaryVerified: trueLiteral,
     localPreviewRouteRemainsLocalNoindexOnly: trueLiteral,
+    requiredEvidenceRefusalReasonsVerified: trueLiteral,
+    publicSecurityNoOpenAiApiSourceScanVerified: trueLiteral,
     v2gDescriptorEnvelopeAllowlistReadOnly: trueLiteral,
     fp0100BoundaryVerified: trueLiteral,
     fp0101Absent: trueLiteral,
@@ -80,7 +85,10 @@ export function buildPublicAppSecurityProof(
     noModelCalls: boolean;
     noPublicAssets: boolean;
     noListingCopy: boolean;
+    localPreviewRouteExists: boolean;
+    routeMetadataNoIndexBoundaryVerified: boolean;
     localPreviewRouteRemainsLocalNoindexOnly: boolean;
+    publicSecurityNoOpenAiApiSourceScanVerified: boolean;
     fp0100BoundaryVerified: boolean;
     fp0101Absent: boolean;
   }> = {},
@@ -96,6 +104,14 @@ export function buildPublicAppSecurityProof(
   const privacy = contracts.privacyNoRealFinanceDataBoundary;
   const evidenceRefusal =
     contracts.unsupportedStaleConflictingEvidenceRefusalBoundary;
+  const localPreviewRouteExists = input.localPreviewRouteExists ?? true;
+  const routeMetadataNoIndexBoundaryVerified =
+    input.routeMetadataNoIndexBoundaryVerified ?? true;
+  const requiredEvidenceRefusalReasonsVerified =
+    JSON.stringify(evidenceRefusal.requiredRefusalReasons) ===
+    JSON.stringify(PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS);
+  const publicSecurityNoOpenAiApiSourceScanVerified =
+    input.publicSecurityNoOpenAiApiSourceScanVerified ?? true;
 
   return PublicAppSecurityProofSchema.parse({
     allowedTools: [...MCP_TOOL_ALLOWLIST],
@@ -118,8 +134,11 @@ export function buildPublicAppSecurityProof(
       !contracts.endpointDeferredBoundary.implemented,
     fp0100BoundaryVerified: input.fp0100BoundaryVerified ?? true,
     fp0101Absent: input.fp0101Absent ?? true,
+    localPreviewRouteExists,
+    routeMetadataNoIndexBoundaryVerified,
     localPreviewRouteRemainsLocalNoindexOnly:
-      input.localPreviewRouteRemainsLocalNoindexOnly ?? true,
+      input.localPreviewRouteRemainsLocalNoindexOnly ??
+      (localPreviewRouteExists && routeMetadataNoIndexBoundaryVerified),
     localProofOnly: contracts.securityThreatModelContract.localProofOnly,
     mcpDescriptorDriftBoundaryVerified:
       descriptorDrift.descriptorUse === "local_proof_contract_only" &&
@@ -134,6 +153,7 @@ export function buildPublicAppSecurityProof(
     noOauth: platform.noOauth,
     noOpenAiApiCalls: input.noOpenAiApiCalls ?? true,
     noPublicAssets: input.noPublicAssets ?? true,
+    publicSecurityNoOpenAiApiSourceScanVerified,
     noRealFinanceDataOrPublicDemoSourcePacks:
       privacy.noRealFinanceData && privacy.noPublicDemoSourcePacks,
     noRemoteMcpDeployment: platform.noRemoteMcpDeployment,
@@ -167,6 +187,7 @@ export function buildPublicAppSecurityProof(
       dataExfiltration.failClosed && rawDump.failClosed,
     rawDumpRefusalBoundaryVerified:
       rawDump.failClosed && !rawDump.rawFullFileDumpsAllowed,
+    requiredEvidenceRefusalReasonsVerified,
     remoteMcpDeferredBoundaryVerified:
       contracts.remoteMcpDeferredBoundary.deferred &&
       !contracts.remoteMcpDeferredBoundary.implemented,
@@ -182,7 +203,8 @@ export function buildPublicAppSecurityProof(
       evidenceRefusal.failClosed &&
       evidenceRefusal.unsupportedEvidenceRefuses &&
       evidenceRefusal.staleEvidenceRefuses &&
-      evidenceRefusal.conflictingEvidenceRefuses,
+      evidenceRefusal.conflictingEvidenceRefuses &&
+      requiredEvidenceRefusalReasonsVerified,
     v2gDescriptorEnvelopeAllowlistReadOnly:
       descriptorDrift.descriptorAllowlistMustMatchToolAllowlist,
     writeActionImpossibleBoundaryVerified:

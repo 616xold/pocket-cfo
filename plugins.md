@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0100 local/proof-only public-app security boundary contracts foundation and same-branch QA slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0100 local/proof-only public-app security boundary contracts foundation and targeted post-merge hardening slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0100 same-branch public-app security boundary contracts foundation and QA slice:
+  - Skills invoked for this FP-0100 targeted post-merge public-app security proof-contract hardening slice:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

@@ -51,12 +51,16 @@ Replay and evidence-bundle implications: this slice creates no mission state tra
 - [x] 2026-05-10T20:43:00Z - Refreshed directly stale active docs, security docs, demo policy docs, roadmap docs, and `plugins.md` to name FP-0100 as shipped local proof-only security boundary contracts while keeping public-app/runtime work future-only.
 - [x] 2026-05-10T22:04:00Z - Ran focused validation, strict same-branch QA, and full validation; all required commands passed before this closeout edit.
 - [x] 2026-05-10T22:04:00Z - Closed FP-0100 as shipped local/proof-only/read-only public ChatGPT App/MCP security boundary contracts. Commit, push, and PR creation remain pending until the required post-closeout validation rerun passes.
+- [x] 2026-05-10T22:38:10Z - Ran targeted post-merge hardening on PR #263 / shipped FP-0100 from `origin/main` on branch `codex/v2t-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-postmerge-hardening-local-v1`.
+- [x] 2026-05-10T22:38:10Z - Hardened the FP-0100 direct proof so the local preview route must exist, static noindex/nofollow/noarchive metadata is proven explicitly, required evidence-refusal reasons are exact current enum values, and the no-OpenAI/API/model/key source scan covers the FP-0100 security contract and proof surfaces.
+- [x] 2026-05-10T22:38:10Z - Added focused proof/spec checks for the preview-route fields, exact evidence-refusal reason tuple, and public security source-scan boolean. Final validation and single commit/push/PR remain pending for this post-merge correction.
 
 ## Surprises & Discoveries
 
 - Baseline V2F/V2G proof gates intentionally still prove `fp0100Absent: true` after shipped FP-0099. That is correct pre-edit behavior. This slice must replace hard FP-0100 absence with an exact local proof-only public-app security boundary contracts allowance while preserving FP-0101 absence.
 - No new official web/plugin research was used for FP-0100. FP-0099 already recorded official OpenAI platform/security context for planning; this slice implements local domain contracts against repo truth without OpenAI API/model calls.
 - The proof-gate bridge had to replace hard `fp0100Absent` assertions with an exact `fp0100AbsentOrLocalSecurityBoundaryContractsVerified` allowance. This keeps pre-FP-0100 absence valid and admits only the named FP-0100 local proof-only contract successor.
+- Post-merge hardening found three proof-contract weaknesses after PR #263 shipped: the direct proof treated a missing local preview route as success, the unsupported/stale/conflicting evidence boundary proved only a non-empty refusal-reason list, and the direct no-OpenAI/API/model/key scan covered only public-security domain files. The correction stays inside FP-0100 contracts, specs, proof tooling, and this shipped plan note.
 
 ## Decision Log
 
@@ -86,6 +90,9 @@ Rationale: V2G envelope contracts already require bounded excerpts, citations, n
 
 Decision: no replay event is added.
 Rationale: this slice adds pure contracts, specs, a direct proof command, proof-gate bridge fields, and docs freshness only. It does not change mission state, source state, report state, approvals, evidence artifacts, finance writes, or runtime product behavior.
+
+Decision: the post-merge hardening is a proof-contract correction, not a public app implementation step.
+Rationale: the correction proves shipped FP-0100 boundaries more tightly by requiring the existing local preview route, exact current refusal reasons, and a wider source scan. It does not add routes, endpoints, OAuth, remote MCP, Apps SDK resources, app submission assets, OpenAI API/model calls, source mutation, finance writes, or runtime behavior.
 
 ## Context and Orientation
 
@@ -224,6 +231,15 @@ Proof bridge fields:
 - `noSourceMutationFinanceWriteFromFp0100`
 - `noPublicAssetsSubmissionArtifactsFromFp0100`
 
+Post-merge hardening fields added to the direct FP-0100 proof:
+
+- `localPreviewRouteExists`
+- `routeMetadataNoIndexBoundaryVerified`
+- `requiredEvidenceRefusalReasonsVerified`
+- `publicSecurityNoOpenAiApiSourceScanVerified`
+
+The direct proof must fail if `apps/web/app/read-only-app-mcp-preview/page.tsx` is missing, if its exported static metadata lacks a title or `robots.index=false`, `robots.follow=false`, and `robots.noarchive=true`, if the route uses `generateMetadata`, `fetch(`, or `process.env`, if the required refusal reasons do not match the current `missing_citation`, `unsupported_evidence`, `stale_evidence`, and `conflicting_evidence` enum values, or if FP-0100 security contract/proof surfaces contain code-level OpenAI client/API/model/key integration patterns.
+
 ## Validation and Acceptance
 
 Baseline proof gates run before edits:
@@ -360,6 +376,8 @@ No environment variables are added or changed. `OPENAI_API_KEY` is not used even
 ## Outcomes & Retrospective
 
 FP-0100 shipped the first local/proof-only/read-only public ChatGPT App/MCP security boundary contract foundation after FP-0099. It added pure domain contracts and a direct proof tool for prompt injection, data exfiltration, raw dump refusal, write-action impossibility, tool allowlist drift, MCP descriptor drift, endpoint deferral, remote MCP deferral, OAuth deferral, Apps SDK resource deferral, app submission deferral, public visibility deferral, consent/RBAC open questions, audit logging open questions, no-real-finance-data privacy posture, and unsupported/stale/conflicting evidence refusal.
+
+Post-merge hardening for PR #263 tightened the shipped proof contract without widening scope. The direct proof now exposes and requires `localPreviewRouteExists`, `routeMetadataNoIndexBoundaryVerified`, `requiredEvidenceRefusalReasonsVerified`, and `publicSecurityNoOpenAiApiSourceScanVerified`, and the focused spec proves those fields fail closed when falsified.
 
 The V2F/V2G proof bridge now accepts exactly this FP-0100 local proof-only contract successor while preserving FP-0101 absence and keeping FP-0099, FP-0098, FP-0097, FP-0096/0094, and FP-0087 boundaries intact.
 

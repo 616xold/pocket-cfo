@@ -1,6 +1,5 @@
 import { z } from "zod";
 import {
-  APP_REFUSAL_REASONS,
   MCP_FORBIDDEN_TOOL_NAMES,
   McpForbiddenToolSchema,
   McpToolAllowlistSchema,
@@ -9,8 +8,7 @@ import {
 const trueLiteral = z.literal(true);
 const falseLiteral = z.literal(false);
 
-export const PUBLIC_APP_SECURITY_SCHEMA_VERSION =
-  "v2t.public-app-security.v1";
+export const PUBLIC_APP_SECURITY_SCHEMA_VERSION = "v2t.public-app-security.v1";
 
 export const PublicAppSecurityContractKindSchema = z.enum([
   "PublicAppSecurityThreatModelContract",
@@ -55,6 +53,13 @@ export const PUBLIC_APP_AUDIT_LOGGING_QUESTIONS = [
   "Which logs must avoid raw source text, credentials, OAuth material, and private finance data?",
   "How are prompt-injection, exfiltration, stale, unsupported, and conflicting-evidence refusals reviewable?",
   "Which future plan accepts retention, access, replay, and privacy controls?",
+] as const;
+
+export const PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS = [
+  "missing_citation",
+  "unsupported_evidence",
+  "stale_evidence",
+  "conflicting_evidence",
 ] as const;
 
 export const PublicAppSecurityThreatModelContractSchema =
@@ -260,7 +265,12 @@ export const PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundarySchema =
     conflictingEvidenceRefuses: trueLiteral,
     generatedFinanceAdviceAllowed: falseLiteral,
     requiresFreshnessLimitations: trueLiteral,
-    requiredRefusalReasons: z.array(z.enum(APP_REFUSAL_REASONS)).min(1),
+    requiredRefusalReasons: z.tuple([
+      z.literal(PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS[0]),
+      z.literal(PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS[1]),
+      z.literal(PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS[2]),
+      z.literal(PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS[3]),
+    ]),
   }).strict();
 
 function sameList(left: readonly unknown[], right: readonly unknown[]) {
