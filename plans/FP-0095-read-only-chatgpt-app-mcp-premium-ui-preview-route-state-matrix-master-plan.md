@@ -6,7 +6,7 @@ Target phase: `V2O`.
 
 Exact slice: `V2O-read-only-chatgpt-app-mcp-premium-ui-preview-route-state-matrix-master-plan-local-v1`.
 
-Status: validated docs-and-plan plus proof-gate compatibility slice, ready for PR review as of 2026-05-10.
+Status: shipped docs-and-plan plus proof-gate compatibility slice, created and closed 2026-05-10.
 
 FP-0095 is not implementation. FP-0095 is docs-and-plan plus proof-gate compatibility only. FP-0095 is a local preview route state-matrix and premium visual QA master-plan only.
 
