@@ -53,6 +53,8 @@ Replay and evidence-bundle implications: this slice creates no mission state tra
 - [x] 2026-05-10T00:47:00Z - Ran final validation before closeout through `git diff --check`, all seven proof tools, full web vitest, web typecheck, focused V2F/V2G domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 - [x] 2026-05-10T00:47:00Z - Refreshed only directly stale active docs and `plugins.md` so FP-0094 is recorded as shipped local preview route foundation while public ChatGPT App/MCP submission and runtime expansion remain future-only.
 - [x] 2026-05-10T01:00:52Z - Ran post-closeout validation through `git diff --check`, all seven proof tools, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
+- [x] 2026-05-10T00:38:22Z - Ran post-merge QA on the shipped FP-0094 route foundation from `origin/main`; found the route lacked explicit local-preview robots metadata and patched only `page.tsx`, `page.spec.tsx`, and this plan record.
+- [x] 2026-05-10T00:44:17Z - Reran strict post-merge QA validation after the robots-metadata correction through `git diff --check`, all seven proof tools, full web vitest, web typecheck, focused V2F/V2G domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed.
 
 ## Surprises & Discoveries
 
@@ -63,6 +65,8 @@ The default path `apps/web/app/read-only-app-mcp-preview/page.tsx` does not conf
 No real finance data, public sample pack, eval dataset, fixture, sample data, source-pack mutation, write tools, OAuth implementation, app submission, remote endpoint implementation, OpenAI API/model calls, provider/certification/deployment/external communications work, package-scope rename, GitHub module deletion, engineering-twin module deletion, finance write, or source mutation is required.
 
 Initial focused validation found that the route spec needed an explicit React import for server rendering, and the older FP-0091/FP-0092 proof scans treated `apps/web/app/read-only-app-mcp-preview/**` as though it were an unauthorized earlier route. The fix was narrow: add the route page React import and make FP-0094 the exact owner of the preview-route exception while FP-0091 and FP-0092 continue to reject their own route expansion.
+
+Post-merge QA found one route-boundary hardening gap: the shipped preview page rendered only local synthetic read-only props, but it did not declare route-level `robots` metadata. The correction adds static `metadata` with local-preview title plus `index: false`, `follow: false`, and `noarchive: true`; it does not add runtime behavior.
 
 ## Decision Log
 
@@ -77,6 +81,9 @@ Rationale: FP-0091 and FP-0092 already own the component/composition foundation.
 
 Decision: route tests must assert forbidden runtime and action posture directly.
 Rationale: this is the first route implementation after docs-only route readiness, so the test must prove no forms, buttons, submit controls, POST, fetch, server actions, uploads, raw/private fields, advice-like CTA copy, OpenAI API/model calls, API route, backend route, OAuth, app submission, screenshot/image assets, or public app assets were added.
+
+Decision: the local preview route must export static robots metadata.
+Rationale: FP-0094 is local/proof-only and not a public app surface. A static route-level `metadata` export with noindex, nofollow, and noarchive posture makes that boundary explicit without adding transport, data fetching, or product runtime behavior.
 
 Decision: no replay event is added.
 Rationale: this slice changes a local read-only preview page, tests, docs, and proof-gate validation only. It does not change product runtime finance state, mission state, source state, reports, approvals, or evidence artifacts.
@@ -293,8 +300,8 @@ The route has no environment variables, no package scripts, no DB dependency, no
 
 ## Outcomes & Retrospective
 
-Outcome: shipped exactly one local/proof-only/read-only premium UI preview route foundation at `apps/web/app/read-only-app-mcp-preview/page.tsx`, backed by focused route tests and the FP-0094 proof-gate bridge.
+Outcome: shipped exactly one local/proof-only/read-only premium UI preview route foundation at `apps/web/app/read-only-app-mcp-preview/page.tsx`, backed by focused route tests and the FP-0094 proof-gate bridge. Post-merge QA added one narrow route hardening correction: static route metadata now declares local-preview title plus noindex, nofollow, and noarchive posture.
 
-Validation outcome: pre-closeout validation passed through `git diff --check`, all seven proof tools, full web vitest, web typecheck, focused V2F/V2G domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Post-closeout validation passed through `git diff --check`, all seven proof tools, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+Validation outcome: pre-closeout validation passed through `git diff --check`, all seven proof tools, full web vitest, web typecheck, focused V2F/V2G domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Post-closeout validation passed through `git diff --check`, all seven proof tools, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Post-merge QA correction validation passed through `git diff --check`, all seven proof tools, full web vitest, web typecheck, focused V2F/V2G domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
 Scope outcome remained: one local/proof-only/read-only preview route foundation only; no web API routes, backend routes, endpoints, remote MCP server, Apps SDK iframe/UI resource registration, OAuth, app submission, schema, migration, package script, smoke alias, eval dataset, fixture, sample data, public demo data, source pack, OpenAI API/model call, vector/file-search, OCR, PageIndex, provider/certification/delivery/deployment, external communication, source mutation, finance write, generated product prose, runtime-Codex finance output, autonomous action, FP-0095, screenshots, generated images, public assets, or public app implementation.
