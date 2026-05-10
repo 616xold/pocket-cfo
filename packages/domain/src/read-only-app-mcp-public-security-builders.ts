@@ -7,6 +7,7 @@ import type { PublicAppSecurityContractKindSchema } from "./read-only-app-mcp-pu
 import {
   PUBLIC_APP_AUDIT_LOGGING_QUESTIONS,
   PUBLIC_APP_CONSENT_RBAC_QUESTIONS,
+  PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS,
   PUBLIC_APP_SECURITY_SCHEMA_VERSION,
   PublicAppAppsSdkResourceDeferredBoundarySchema,
   PublicAppAuditLoggingQuestionsSchema,
@@ -31,9 +32,9 @@ import {
 export function buildPublicAppSecurityContracts() {
   return {
     appsSdkResourceDeferredBoundary:
-      PublicAppAppsSdkResourceDeferredBoundarySchema.parse(baseDeferred(
-        "PublicAppAppsSdkResourceDeferredBoundary",
-      )),
+      PublicAppAppsSdkResourceDeferredBoundarySchema.parse(
+        baseDeferred("PublicAppAppsSdkResourceDeferredBoundary"),
+      ),
     auditLoggingQuestions: PublicAppAuditLoggingQuestionsSchema.parse({
       ...base("PublicAppAuditLoggingQuestions"),
       implementationStarted: false,
@@ -59,15 +60,16 @@ export function buildPublicAppSecurityContracts() {
     endpointDeferredBoundary: PublicAppEndpointDeferredBoundarySchema.parse(
       baseDeferred("PublicAppEndpointDeferredBoundary"),
     ),
-    mcpDescriptorDriftBoundary:
-      PublicAppMcpDescriptorDriftBoundarySchema.parse({
+    mcpDescriptorDriftBoundary: PublicAppMcpDescriptorDriftBoundarySchema.parse(
+      {
         ...base("PublicAppMcpDescriptorDriftBoundary"),
         descriptorAllowlistMustMatchToolAllowlist: true,
         descriptorDriftFailsClosed: true,
         descriptorInputOutputMustRemainStrict: true,
         descriptorUse: "local_proof_contract_only",
         liveServerDescriptorAllowed: false,
-      }),
+      },
+    ),
     oauthDeferredBoundary: PublicAppOAuthDeferredBoundarySchema.parse(
       baseDeferred("PublicAppOAuthDeferredBoundary"),
     ),
@@ -135,10 +137,9 @@ export function buildPublicAppSecurityContracts() {
       refusesSourcePackDumpRequests: true,
       requiresCitations: true,
     }),
-    remoteMcpDeferredBoundary:
-      PublicAppRemoteMcpDeferredBoundarySchema.parse(
-        baseDeferred("PublicAppRemoteMcpDeferredBoundary"),
-      ),
+    remoteMcpDeferredBoundary: PublicAppRemoteMcpDeferredBoundarySchema.parse(
+      baseDeferred("PublicAppRemoteMcpDeferredBoundary"),
+    ),
     securityThreatModelContract:
       PublicAppSecurityThreatModelContractSchema.parse({
         ...base("PublicAppSecurityThreatModelContract"),
@@ -153,27 +154,24 @@ export function buildPublicAppSecurityContracts() {
     submissionDeferredBoundary: PublicAppSubmissionDeferredBoundarySchema.parse(
       baseDeferred("PublicAppSubmissionDeferredBoundary"),
     ),
-    toolAllowlistDriftBoundary:
-      PublicAppToolAllowlistDriftBoundarySchema.parse({
+    toolAllowlistDriftBoundary: PublicAppToolAllowlistDriftBoundarySchema.parse(
+      {
         ...base("PublicAppToolAllowlistDriftBoundary"),
         allowedTools: [...MCP_TOOL_ALLOWLIST],
         allowlistExpansionRequiresFuturePlan: true,
         dynamicToolsAllowed: false,
         renamedWriteToolsRejected: true,
         toolAllowlistDriftFailsClosed: true,
-      }),
+      },
+    ),
     unsupportedStaleConflictingEvidenceRefusalBoundary:
       PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundarySchema.parse({
-        ...base(
-          "PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundary",
-        ),
+        ...base("PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundary"),
         conflictingEvidenceRefuses: true,
         failClosed: true,
         generatedFinanceAdviceAllowed: false,
         requiredRefusalReasons: [
-          "unsupported_evidence",
-          "stale_evidence",
-          "conflicting_evidence",
+          ...PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS,
         ],
         requiresFreshnessLimitations: true,
         staleEvidenceRefuses: true,
@@ -192,7 +190,9 @@ export function buildPublicAppSecurityContracts() {
   };
 }
 
-function base(contractKind: z.infer<typeof PublicAppSecurityContractKindSchema>) {
+function base(
+  contractKind: z.infer<typeof PublicAppSecurityContractKindSchema>,
+) {
   return {
     contractKind,
     localProofOnly: true,

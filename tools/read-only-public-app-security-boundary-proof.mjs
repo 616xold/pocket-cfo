@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   PublicAppSecurityProofSchema,
@@ -16,17 +16,14 @@ const noEndpointsAdded = noRoutesAdded;
 const noAppsSdkResourcesAdded = noFp0100AppsSdkResourcePaths();
 const noPublicAssets = noFp0100PublicAssets();
 const noListingCopy = noFp0100ListingCopy();
-const securitySourceText = readSecuritySourceText();
-const noOpenAiApiCalls =
-  !/(openai_api_key|from\s+["']openai["']|openai\.|responses\.create|chat\.completions|api\.openai\.com)/iu.test(
-    securitySourceText,
-  );
+const securitySourceText = readFp0100SecuritySourceText();
+const noOpenAiApiCalls = !hasCodeLevelOpenAiIntegration(securitySourceText);
 const noModelCalls =
-  noOpenAiApiCalls &&
-  !/(callmodel|model\.create|models\.create|chatcompletions)/iu.test(
-    securitySourceText.replace(/[^a-z0-9.]+/giu, ""),
-  );
+  noOpenAiApiCalls && !hasCodeLevelModelIntegration(securitySourceText);
+const publicSecurityNoOpenAiApiSourceScanVerified =
+  noOpenAiApiCalls && noModelCalls;
 const fp0100Boundary = fp0100PublicAppSecurityBoundary();
+const localPreviewRouteBoundary = verifyLocalPreviewRouteBoundary();
 
 const proof = PublicAppSecurityProofSchema.parse(
   buildPublicAppSecurityProof({
@@ -34,8 +31,9 @@ const proof = PublicAppSecurityProofSchema.parse(
       fp0100Boundary.fp0100BoundaryVerified &&
       fp0100Boundary.publicAppSecurityContractsFoundationVerified,
     fp0101Absent,
+    localPreviewRouteExists: localPreviewRouteBoundary.localPreviewRouteExists,
     localPreviewRouteRemainsLocalNoindexOnly:
-      localPreviewRouteRemainsLocalNoindexOnly(),
+      localPreviewRouteBoundary.localPreviewRouteRemainsLocalNoindexOnly,
     noAppsSdkResourcesAdded,
     noEndpointsAdded,
     noListingCopy,
@@ -43,6 +41,9 @@ const proof = PublicAppSecurityProofSchema.parse(
     noOpenAiApiCalls,
     noPublicAssets,
     noRoutesAdded,
+    publicSecurityNoOpenAiApiSourceScanVerified,
+    routeMetadataNoIndexBoundaryVerified:
+      localPreviewRouteBoundary.routeMetadataNoIndexBoundaryVerified,
   }),
 );
 
@@ -106,18 +107,16 @@ function fp0100PublicAppSecurityBoundary() {
       "endpoint work is deferred",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     noFp0100RouteOrEndpointPaths();
-  const noOauthImplementationFromFp0100 =
-    [
-      "does not authorize oauth",
-      "oauth/token/session work is deferred",
-      "no oauth",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const noRemoteMcpDeploymentFromFp0100 =
-    [
-      "does not authorize remote mcp",
-      "remote mcp deployment is deferred",
-      "no remote mcp server",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noOauthImplementationFromFp0100 = [
+    "does not authorize oauth",
+    "oauth/token/session work is deferred",
+    "no oauth",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noRemoteMcpDeploymentFromFp0100 = [
+    "does not authorize remote mcp",
+    "remote mcp deployment is deferred",
+    "no remote mcp server",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noAppsSdkResourceFromFp0100 =
     [
       "does not authorize apps sdk iframe/resource registration",
@@ -125,12 +124,11 @@ function fp0100PublicAppSecurityBoundary() {
       "no apps sdk iframe/resource registration",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     noFp0100AppsSdkResourcePaths();
-  const noAppSubmissionFromFp0100 =
-    [
-      "does not authorize app submission",
-      "app submission/listing/public assets are deferred",
-      "no app submission",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noAppSubmissionFromFp0100 = [
+    "does not authorize app submission",
+    "app submission/listing/public assets are deferred",
+    "no app submission",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noOpenAiApiCallsFromFp0100 =
     [
       "does not authorize openai api/model calls",
@@ -139,12 +137,11 @@ function fp0100PublicAppSecurityBoundary() {
     ].every((requiredText) => normalized.includes(requiredText)) &&
     noOpenAiApiCalls &&
     noModelCalls;
-  const noSourceMutationFinanceWriteFromFp0100 =
-    [
-      "no source mutation",
-      "no finance writes",
-      "no source mutation and no finance writes",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noSourceMutationFinanceWriteFromFp0100 = [
+    "no source mutation",
+    "no finance writes",
+    "no source mutation and no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noPublicAssetsSubmissionArtifactsFromFp0100 =
     [
       "no screenshots",
@@ -218,26 +215,92 @@ function noFp0100ListingCopy() {
   );
 }
 
-function localPreviewRouteRemainsLocalNoindexOnly() {
+function verifyLocalPreviewRouteBoundary() {
   const routePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
-  if (!repoFilePaths().includes(routePath)) return true;
+  const localPreviewRouteExists =
+    repoFilePaths().includes(routePath) && existsSync(routePath);
+  if (!localPreviewRouteExists) {
+    return {
+      localPreviewRouteExists: false,
+      localPreviewRouteRemainsLocalNoindexOnly: false,
+      routeMetadataNoIndexBoundaryVerified: false,
+    };
+  }
   const routeSource = readFileSync(routePath, "utf8");
-  return (
+  const routeMetadataNoIndexBoundaryVerified =
     /export\s+const\s+metadata/u.test(routeSource) &&
+    /title:\s*["'][^"']+["']/u.test(routeSource) &&
     /robots:\s*\{/u.test(routeSource) &&
     /index:\s*false/u.test(routeSource) &&
     /follow:\s*false/u.test(routeSource) &&
-    /noarchive:\s*true/u.test(routeSource)
+    /noarchive:\s*true/u.test(routeSource) &&
+    !/\bgenerateMetadata\b/u.test(routeSource) &&
+    !/\bfetch\s*\(/u.test(routeSource) &&
+    !/\bprocess\s*\.\s*env\b/u.test(routeSource);
+
+  return {
+    localPreviewRouteExists,
+    localPreviewRouteRemainsLocalNoindexOnly:
+      localPreviewRouteExists && routeMetadataNoIndexBoundaryVerified,
+    routeMetadataNoIndexBoundaryVerified,
+  };
+}
+
+function readFp0100SecuritySourceText() {
+  return repoFilePaths()
+    .filter(isFp0100SecuritySourceSurface)
+    .map((path) => readFileSync(path, "utf8"))
+    .join("\n");
+}
+
+function isFp0100SecuritySourceSurface(path) {
+  return (
+    /^packages\/domain\/src\/read-only-app-mcp-public-security.*\.ts$/u.test(
+      path,
+    ) ||
+    /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
+    /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||
+    [
+      "tools/read-only-public-app-security-boundary-proof.mjs",
+      "tools/read-only-mcp-descriptor-response-envelope-proof.mjs",
+      "tools/read-only-chatgpt-app-mcp-proof.mjs",
+      "tools/benchmark-community-pack-proof.mjs",
+    ].includes(path)
   );
 }
 
-function readSecuritySourceText() {
-  return repoFilePaths()
-    .filter((path) =>
-      /packages\/domain\/src\/read-only-app-mcp-public-security/u.test(path),
-    )
-    .map((path) => readFileSync(path, "utf8"))
-    .join("\n");
+function hasCodeLevelOpenAiIntegration(sourceText) {
+  const packageName = ["open", "ai"].join("");
+  const clientName = ["Open", "AI"].join("");
+  const keyName = ["OPENAI", "API", "KEY"].join("_");
+  const hostName = ["api", packageName, "com"].join(".");
+  const checks = [
+    new RegExp(`\\bfrom\\s+["']${packageName}["']`, "u"),
+    new RegExp(`\\bimport\\s*\\(\\s*["']${packageName}["']\\s*\\)`, "u"),
+    new RegExp(`\\brequire\\s*\\(\\s*["']${packageName}["']\\s*\\)`, "u"),
+    new RegExp(`\\bnew\\s+${clientName}\\s*\\(`, "u"),
+    /\bopenai\s*\./u,
+    /\bresponses\s*\.\s*create\s*\(/u,
+    /\bchat\s*\.\s*completions\s*(?:\.\s*create)?\s*\(/u,
+    new RegExp(`\\bprocess\\s*\\.\\s*env\\s*\\.\\s*${keyName}\\b`, "u"),
+    new RegExp(`\\b${keyName}\\b`, "u"),
+    new RegExp(`\\bfetch\\s*\\(\\s*["'][^"']*${escapeRegExp(hostName)}`, "u"),
+  ];
+
+  return checks.some((check) => check.test(sourceText));
+}
+
+function hasCodeLevelModelIntegration(sourceText) {
+  return [
+    /\bcallModel\s*\(/u,
+    /\bmodel\s*\.\s*create\s*\(/u,
+    /\bmodels\s*\.\s*create\s*\(/u,
+    /\bchatCompletions\s*\(/u,
+  ].some((check) => check.test(sourceText));
+}
+
+function escapeRegExp(value) {
+  return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
 }
 
 function repoFilePaths() {

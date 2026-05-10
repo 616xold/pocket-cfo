@@ -6,6 +6,7 @@ import {
 import {
   PUBLIC_APP_AUDIT_LOGGING_QUESTIONS,
   PUBLIC_APP_CONSENT_RBAC_QUESTIONS,
+  PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS,
   PublicAppAppsSdkResourceDeferredBoundarySchema,
   PublicAppDataExfiltrationBoundarySchema,
   PublicAppEndpointDeferredBoundarySchema,
@@ -57,9 +58,9 @@ describe("FP-0100 public app security boundary contracts", () => {
     expect(contracts.platformBoundary.endpointWorkDeferred).toBe(true);
     expect(contracts.platformBoundary.oauthTokenSessionWorkDeferred).toBe(true);
     expect(contracts.platformBoundary.remoteMcpDeploymentDeferred).toBe(true);
-    expect(contracts.platformBoundary.appsSdkResourceImplementationDeferred).toBe(
-      true,
-    );
+    expect(
+      contracts.platformBoundary.appsSdkResourceImplementationDeferred,
+    ).toBe(true);
     expect(contracts.platformBoundary.publicAppImplementationDeferred).toBe(
       true,
     );
@@ -69,7 +70,10 @@ describe("FP-0100 public app security boundary contracts", () => {
     expect(contracts.platformBoundary.noEndpointsAdded).toBe(true);
 
     for (const boundary of [
-      [PublicAppEndpointDeferredBoundarySchema, contracts.endpointDeferredBoundary],
+      [
+        PublicAppEndpointDeferredBoundarySchema,
+        contracts.endpointDeferredBoundary,
+      ],
       [
         PublicAppRemoteMcpDeferredBoundarySchema,
         contracts.remoteMcpDeferredBoundary,
@@ -174,10 +178,26 @@ describe("FP-0100 public app security boundary contracts", () => {
       PUBLIC_APP_AUDIT_LOGGING_QUESTIONS.length,
     );
     expect(
-      PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundarySchema
-        .safeParse(contracts.unsupportedStaleConflictingEvidenceRefusalBoundary)
-        .success,
+      PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundarySchema.safeParse(
+        contracts.unsupportedStaleConflictingEvidenceRefusalBoundary,
+      ).success,
     ).toBe(true);
+    expect(
+      contracts.unsupportedStaleConflictingEvidenceRefusalBoundary
+        .requiredRefusalReasons,
+    ).toEqual([...PUBLIC_APP_REQUIRED_EVIDENCE_REFUSAL_REASONS]);
+    expect(
+      PublicAppUnsupportedStaleConflictingEvidenceRefusalBoundarySchema.safeParse(
+        {
+          ...contracts.unsupportedStaleConflictingEvidenceRefusalBoundary,
+          requiredRefusalReasons: [
+            "unsupported_evidence",
+            "stale_evidence",
+            "conflicting_evidence",
+          ],
+        },
+      ).success,
+    ).toBe(false);
   });
 
   it("builds a machine-readable FP-0100 security proof", () => {
@@ -201,12 +221,35 @@ describe("FP-0100 public app security boundary contracts", () => {
     expect(proof.noEndpointsAdded).toBe(true);
     expect(proof.noSourceMutation).toBe(true);
     expect(proof.noFinanceWrite).toBe(true);
+    expect(proof.localPreviewRouteExists).toBe(true);
+    expect(proof.routeMetadataNoIndexBoundaryVerified).toBe(true);
+    expect(proof.localPreviewRouteRemainsLocalNoindexOnly).toBe(true);
+    expect(proof.requiredEvidenceRefusalReasonsVerified).toBe(true);
+    expect(proof.publicSecurityNoOpenAiApiSourceScanVerified).toBe(true);
     expect(proof.fp0100BoundaryVerified).toBe(true);
     expect(proof.fp0101Absent).toBe(true);
     expect(
       PublicAppSecurityProofSchema.safeParse({
         ...proof,
         fp0101Absent: false,
+      }).success,
+    ).toBe(false);
+    expect(
+      PublicAppSecurityProofSchema.safeParse({
+        ...proof,
+        localPreviewRouteExists: false,
+      }).success,
+    ).toBe(false);
+    expect(
+      PublicAppSecurityProofSchema.safeParse({
+        ...proof,
+        routeMetadataNoIndexBoundaryVerified: false,
+      }).success,
+    ).toBe(false);
+    expect(
+      PublicAppSecurityProofSchema.safeParse({
+        ...proof,
+        publicSecurityNoOpenAiApiSourceScanVerified: false,
       }).success,
     ).toBe(false);
   });
