@@ -49,6 +49,7 @@ Replay and evidence-bundle implications: this slice creates no mission state tra
 - [x] 2026-05-10T14:18:00Z - Ran strict same-branch QA confirming exactly one preview route, no adjacent API/backend route, no forms/buttons/POST/fetch/server actions/uploads/action controls/raw-dump content panels/advice CTAs/screenshots/images/public assets/OpenAI API/model calls/OAuth/app submission, and no FP-0098.
 - [x] 2026-05-10T14:23:00Z - Ran final validation through `git diff --check`, all seven proof tools, web vitest/typecheck, focused domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed before closeout.
 - [x] 2026-05-10T14:23:00Z - Closed FP-0097 as shipped and refreshed only directly stale active docs/plugin notes from active to shipped wording.
+- [x] 2026-05-10T17:40:37Z - Ran post-merge QA on the shipped FP-0097 route visual QA foundation from `origin/main`; found one active-doc freshness gap in `docs/V2_BOUNDARY.md` acceptance criteria still stopping at FP-0096, and patched only that doc plus this plan record.
 
 ## Surprises & Discoveries
 
@@ -57,6 +58,8 @@ Baseline V2F/V2G gates still prove FP-0097 absence after shipped FP-0096. That i
 The domain V2G proof posture already records `conflicting_evidence` as fail-closed, while the route-facing UI component reason union inherited from FP-0091/FP-0092 did not expose a first-class conflicting-evidence refusal reason. FP-0097 may add that local read-only component-contract hardening if it stays inside the existing component/route boundary and does not add runtime behavior.
 
 During strict QA, the visible raw-dump refusal title was softened to a source-export refusal label. The internal `raw_full_file_dump_request` contract remains fail-closed, but the rendered local route no longer presents a raw-dump-looking panel.
+
+Post-merge QA found no route, runtime, proof-gate, screenshot asset, public asset, source, finance-write, OpenAI API/model, OAuth, app-submission, endpoint, or public app behavior defect. The only correction was a stale active-doc acceptance-criteria line in `docs/V2_BOUNDARY.md` that still ended at FP-0096 after FP-0097 shipped.
 
 Official web/plugin research used in this slice:
 
@@ -82,6 +85,9 @@ Rationale: this slice changes a local read-only preview page, tests, docs, and p
 
 Decision: expose conflicting evidence and source-export refusals as visible text labels.
 Rationale: state status must not rely on color alone. The internal contract can keep exact refusal reasons while the route uses operator-safe labels that do not imply raw source dumps or runtime action.
+
+Decision: patch the stale V2 boundary acceptance criteria in the same post-merge QA branch.
+Rationale: `docs/V2_BOUNDARY.md` already recorded FP-0097 in the shipped V2 sequence and distribution notes, but its transition acceptance criteria still ended at FP-0096. Updating that line keeps active docs truthful without widening runtime or creating FP-0098.
 
 ## Context and Orientation
 
