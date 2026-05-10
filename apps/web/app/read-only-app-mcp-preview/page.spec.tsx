@@ -22,6 +22,19 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
     expect(html).not.toContain("not checked-in sample company data");
   });
 
+  it("declares local-preview robots metadata without runtime behavior", async () => {
+    const mod = await import("./page");
+
+    expect(mod.metadata).toEqual({
+      title: "Pocket CFO local read-only app/MCP preview",
+      robots: {
+        follow: false,
+        index: false,
+        noarchive: true,
+      },
+    });
+  });
+
   it("keeps the route free of controls, POST transport, server actions, and fetches", async () => {
     const html = await renderPreviewPage();
     const source = readRouteSource();

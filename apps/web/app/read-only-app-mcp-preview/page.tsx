@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import React from "react";
 import {
   ReadOnlyAppMcpEnvelopePreview,
@@ -9,6 +10,15 @@ import {
   type ReadOnlyAppMcpPermittedNextAction,
   type ReadOnlyAppMcpSourceAnchor,
 } from "../../components/read-only-app-mcp";
+
+export const metadata: Metadata = {
+  title: "Pocket CFO local read-only app/MCP preview",
+  robots: {
+    follow: false,
+    index: false,
+    noarchive: true,
+  },
+};
 
 const previewFreshness: ReadOnlyAppMcpFreshness = {
   checkedAt: "2026-05-09T23:32:41.000Z",
