@@ -46,6 +46,8 @@ const FP0094_PLAN_FILE =
   "FP-0094-read-only-chatgpt-app-mcp-premium-ui-preview-route-foundation.md";
 const FP0095_PLAN_FILE =
   "FP-0095-read-only-chatgpt-app-mcp-premium-ui-preview-route-state-matrix-master-plan.md";
+const FP0096_PLAN_FILE =
+  "FP-0096-read-only-chatgpt-app-mcp-premium-ui-preview-route-state-matrix-foundation.md";
 
 function safeDemoDataPolicy() {
   return {
@@ -358,7 +360,10 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
       fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified:
         fp0095LocalPreviewRouteStateMatrixBoundary()
           .absentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified,
-      fp0096Absent: fp0096Absent(),
+      fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .absentOrLocalPreviewRouteStateMatrixBoundaryVerified,
+      fp0097Absent: fp0097Absent(),
       premiumUiSecurityPlanBoundaryVerified:
         fp0088DocsOnlyBoundary().premiumUiSecurityPlanBoundaryVerified,
       premiumUiDesignSystemPlanBoundaryVerified:
@@ -378,6 +383,9 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
       localPreviewRouteStateMatrixPlanBoundaryVerified:
         fp0095LocalPreviewRouteStateMatrixBoundary()
           .localPreviewRouteStateMatrixPlanBoundaryVerified,
+      localPreviewRouteStateMatrixFoundationVerified:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .localPreviewRouteStateMatrixFoundationVerified,
       noUiImplementationFromFp0088:
         fp0088DocsOnlyBoundary().noUiImplementationFromFp0088,
       noUiImplementationFromFp0089:
@@ -496,6 +504,37 @@ function fp0087AbsentOrDocsOnlyBoundaryVerified() {
           .noGeneratedProductProseRuntimeCodexFromFp0095,
       noPublicAssetsFromFp0095:
         fp0095LocalPreviewRouteStateMatrixBoundary().noPublicAssetsFromFp0095,
+      noAdditionalRoutesFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noAdditionalRoutesFromFp0096,
+      noApiRoutesFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noApiRoutesFromFp0096,
+      noAppsSdkIframeFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noAppsSdkIframeFromFp0096,
+      noBackendRoutesFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noBackendRoutesFromFp0096,
+      noEndpointsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noEndpointsFromFp0096,
+      noOauthSubmissionFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noOauthSubmissionFromFp0096,
+      noOpenAiApiCallsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noOpenAiApiCallsFromFp0096,
+      noPublicAppImplementationFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noPublicAppImplementationFromFp0096,
+      noPublicAssetsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noPublicAssetsFromFp0096,
+      noScreenshotAssetsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noScreenshotAssetsFromFp0096,
+      noSourceMutationFinanceWriteFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noSourceMutationFinanceWriteFromFp0096,
+      routeMetadataNoIndexBoundaryVerified:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .routeMetadataNoIndexBoundaryVerified,
     }),
   );
 
@@ -1208,10 +1247,10 @@ function fp0094LocalPreviewRouteBoundary() {
       "no finance writes",
     ].every((requiredText) => lowerPlanText.includes(requiredText)) &&
     [
-      "readonlyappmcpenvelopepreview",
+      "readonlyappmcpexperienceframe",
       "previewfreshness",
       "syntheticcontractshapedexamplesonly",
-      "nodatafetchapicallorpost",
+      "nodatafetchapicallormutationtransport",
       "noformbuttonfileinputcontrolorserveraction",
     ].every((requiredText) =>
       routeAndSpecNormalized.includes(requiredText),
@@ -1347,10 +1386,6 @@ function fp0095LocalPreviewRouteStateMatrixBoundary() {
     "utf8",
   ).toLowerCase();
   const normalized = lowerPlanText.replace(/[`_*]+/gu, "");
-  const routeStateMatrixImplemented =
-    /state[-\s]?matrix|missing citation refusal|unsupported evidence refusal|conflicting evidence refusal|privacy\/no-runtime boundary state/iu.test(
-      routeAndSpecSource,
-    );
   const apiRouteExists = repoFilePaths().some(
     (path) =>
       path.startsWith("apps/web/app/api/read-only-app-mcp") ||
@@ -1438,8 +1473,7 @@ function fp0095LocalPreviewRouteStateMatrixBoundary() {
       "no route code",
       "no app route",
     ].every((requiredText) => normalized.includes(requiredText)) &&
-    allowedRouteFilesOnly &&
-    !routeStateMatrixImplemented;
+    allowedRouteFilesOnly;
   const noEndpointOauthSubmissionFromFp0095 =
     [
       "does not authorize endpoint implementation",
@@ -1538,9 +1572,244 @@ function fp0095LocalPreviewRouteStateMatrixBoundary() {
   };
 }
 
-function fp0096Absent() {
+function fp0096LocalPreviewRouteStateMatrixBoundary() {
   const plansPath = existsSync("plans") ? "plans" : "../../plans";
-  return !readdirSync(plansPath).some((name) => /^FP-0096/u.test(name));
+  const repoRoot = existsSync("plans") ? "." : "../..";
+  const fp0096Files = readdirSync(plansPath).filter((name) =>
+    /^FP-0096/u.test(name),
+  );
+  const routePaths = repoFilePaths().filter((path) =>
+    path.startsWith("apps/web/app/read-only-app-mcp-preview/"),
+  );
+  const routePagePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
+  const routeSpecPath =
+    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
+  const routeSource = routePaths.includes(routePagePath)
+    ? readFileSync(`${repoRoot}/${routePagePath}`, "utf8")
+    : "";
+  const routeSpecSource = routePaths.includes(routeSpecPath)
+    ? readFileSync(`${repoRoot}/${routeSpecPath}`, "utf8")
+    : "";
+  const routeAndSpecSource = `${routeSource}\n${routeSpecSource}`;
+  const normalizedRouteAndSpec = routeAndSpecSource.toLowerCase();
+  const allowedRouteFilesOnly =
+    routePaths.length === 2 &&
+    routePaths.includes(routePagePath) &&
+    routePaths.includes(routeSpecPath);
+  const absentBoundary = {
+    absentOrLocalPreviewRouteStateMatrixBoundaryVerified: true,
+    localPreviewRouteStateMatrixFoundationVerified: true,
+    noAdditionalRoutesFromFp0096: true,
+    noApiRoutesFromFp0096: true,
+    noAppsSdkIframeFromFp0096: true,
+    noBackendRoutesFromFp0096: true,
+    noEndpointsFromFp0096: true,
+    noOauthSubmissionFromFp0096: true,
+    noOpenAiApiCallsFromFp0096: true,
+    noPublicAppImplementationFromFp0096: true,
+    noPublicAssetsFromFp0096: true,
+    noScreenshotAssetsFromFp0096: true,
+    noSourceMutationFinanceWriteFromFp0096: true,
+    routeMetadataNoIndexBoundaryVerified: true,
+  };
+  const failedBoundary = {
+    absentOrLocalPreviewRouteStateMatrixBoundaryVerified: false,
+    localPreviewRouteStateMatrixFoundationVerified: false,
+    noAdditionalRoutesFromFp0096: false,
+    noApiRoutesFromFp0096: false,
+    noAppsSdkIframeFromFp0096: false,
+    noBackendRoutesFromFp0096: false,
+    noEndpointsFromFp0096: false,
+    noOauthSubmissionFromFp0096: false,
+    noOpenAiApiCallsFromFp0096: false,
+    noPublicAppImplementationFromFp0096: false,
+    noPublicAssetsFromFp0096: false,
+    noScreenshotAssetsFromFp0096: false,
+    noSourceMutationFinanceWriteFromFp0096: false,
+    routeMetadataNoIndexBoundaryVerified: false,
+  };
+
+  if (fp0096Files.length === 0) return absentBoundary;
+  if (fp0096Files.length !== 1 || fp0096Files[0] !== FP0096_PLAN_FILE) {
+    return failedBoundary;
+  }
+
+  const lower = readFileSync(
+    `${plansPath}/${FP0096_PLAN_FILE}`,
+    "utf8",
+  ).toLowerCase();
+  const normalized = lower.replace(/[`_*]+/gu, "");
+  const routeMetadataNoIndexBoundaryVerified =
+    /export\s+const\s+metadata/u.test(routeSource) &&
+    /title:\s*["']pocket cfo local read-only app\/mcp preview["']/iu.test(
+      routeSource,
+    ) &&
+    /robots:\s*\{/u.test(routeSource) &&
+    /index:\s*false/u.test(routeSource) &&
+    /follow:\s*false/u.test(routeSource) &&
+    /noarchive:\s*true/u.test(routeSource);
+  const apiRouteExists = repoFilePaths().some(
+    (path) =>
+      path.startsWith("apps/web/app/api/read-only-app-mcp") ||
+      path.startsWith("apps/web/app/read-only-app-mcp-preview/route."),
+  );
+  const backendRouteExists = repoFilePaths().some(
+    (path) =>
+      path.startsWith("apps/control-plane/") &&
+      /read-only-app-mcp-preview|state-matrix|fp-0096|fp0096/u.test(path),
+  );
+  const endpointImplementationExists =
+    apiRouteExists ||
+    backendRouteExists ||
+    /export\s+async\s+function\s+(get|post|put|patch|delete)|nextresponse|fastify\./iu.test(
+      routeSource,
+    );
+  const screenshotAssetPaths = repoFilePaths().filter(
+    (path) =>
+      /(fp-0096|fp0096|state-matrix|read-only-app-mcp-preview)/iu.test(path) &&
+      /\.(png|jpe?g|webp|gif|svg|avif)$/iu.test(path),
+  );
+  const publicAssetPaths = repoFilePaths().filter(
+    (path) =>
+      /(^|\/)public\//u.test(path) &&
+      /(fp-0096|fp0096|state-matrix|read-only-app-mcp-preview|app-submission|submission-assets|public-listing|store-listing)/iu.test(
+        path,
+      ),
+  );
+  const appSubmissionAssetPaths = repoFilePaths().filter(
+    (path) =>
+      /(app-submission|submission-assets|public-listing|store-listing)/iu.test(
+        path,
+      ) &&
+      /(fp-0096|fp0096|state-matrix|read-only-app-mcp-preview)/iu.test(path),
+  );
+  const localPreviewRouteStateMatrixFoundationVerified =
+    [
+      "fp-0096",
+      "local/proof-only/read-only",
+      "existing local read-only preview route",
+      "one route extension",
+      "in-memory synthetic contract-shaped examples only",
+      "answer state",
+      "missing citation refusal",
+      "unsupported evidence refusal",
+      "stale evidence refusal",
+      "prompt-injection",
+      "raw full-file dump",
+      "unsafe action",
+      "empty evidence",
+      "loading evidence",
+      "error/unsupported",
+      "privacy/no-runtime",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    [
+      "preview route state matrix",
+      "answer state: read-only evidence hierarchy",
+      "missing citation refusal",
+      "unsupported evidence refusal",
+      "stale evidence refusal",
+      "prompt-injection warning state",
+      "raw full-file dump refusal state",
+      "unsafe action refusal state",
+      "empty evidence state",
+      "loading evidence state",
+      "error and unsupported evidence",
+      "conflicting evidence refusal boundary",
+      "privacy boundary",
+      "no-runtime boundary",
+    ].every((requiredText) =>
+      normalizedRouteAndSpec.includes(requiredText),
+    ) &&
+    allowedRouteFilesOnly &&
+    routeMetadataNoIndexBoundaryVerified;
+  const noAdditionalRoutesFromFp0096 =
+    allowedRouteFilesOnly &&
+    repoFilePaths().filter((path) =>
+      path.startsWith("apps/web/app/read-only-app-mcp-preview/"),
+    ).length === 2;
+  const noApiRoutesFromFp0096 =
+    ["no web api routes", "no api endpoints"].every((requiredText) =>
+      normalized.includes(requiredText),
+    ) && !apiRouteExists;
+  const noBackendRoutesFromFp0096 =
+    ["no backend/control-plane routes", "no backend route"].every(
+      (requiredText) => normalized.includes(requiredText),
+    ) && !backendRouteExists;
+  const noEndpointsFromFp0096 =
+    ["no endpoints", "no endpoint"].every((requiredText) =>
+      normalized.includes(requiredText),
+    ) && !endpointImplementationExists;
+  const noAppsSdkIframeFromFp0096 =
+    [
+      "does not implement apps sdk iframe/ui resources",
+      "no apps sdk iframe/ui resource registration",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    !/(iframe|postmessage|registerresource|apps-sdk)/iu.test(routeSource);
+  const noOauthSubmissionFromFp0096 =
+    ["does not add oauth", "does not add app submission"].every(
+      (requiredText) => normalized.includes(requiredText),
+    ) && appSubmissionAssetPaths.length === 0;
+  const noPublicAppImplementationFromFp0096 = [
+    "does not implement a public chatgpt app",
+    "no public app implementation",
+    "public app implementation",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noOpenAiApiCallsFromFp0096 =
+    ["does not add openai api/model calls", "no openai api/model call"].every(
+      (requiredText) => normalized.includes(requiredText),
+    ) &&
+    !/(openai_api_key|process\.env|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
+      routeSource,
+    );
+  const noSourceMutationFinanceWriteFromFp0096 =
+    ["no source mutation", "no finance writes"].every((requiredText) =>
+      normalized.includes(requiredText),
+    );
+  const noScreenshotAssetsFromFp0096 =
+    ["no screenshot", "no generated images"].every((requiredText) =>
+      normalized.includes(requiredText),
+    ) && screenshotAssetPaths.length === 0;
+  const noPublicAssetsFromFp0096 =
+    ["no public assets", "no app-submission assets"].every((requiredText) =>
+      normalized.includes(requiredText),
+    ) &&
+    publicAssetPaths.length === 0 &&
+    appSubmissionAssetPaths.length === 0;
+
+  return {
+    absentOrLocalPreviewRouteStateMatrixBoundaryVerified:
+      localPreviewRouteStateMatrixFoundationVerified &&
+      noAdditionalRoutesFromFp0096 &&
+      noApiRoutesFromFp0096 &&
+      noBackendRoutesFromFp0096 &&
+      noEndpointsFromFp0096 &&
+      noAppsSdkIframeFromFp0096 &&
+      noOauthSubmissionFromFp0096 &&
+      noPublicAppImplementationFromFp0096 &&
+      noOpenAiApiCallsFromFp0096 &&
+      noSourceMutationFinanceWriteFromFp0096 &&
+      noScreenshotAssetsFromFp0096 &&
+      noPublicAssetsFromFp0096 &&
+      routeMetadataNoIndexBoundaryVerified,
+    localPreviewRouteStateMatrixFoundationVerified,
+    noAdditionalRoutesFromFp0096,
+    noApiRoutesFromFp0096,
+    noAppsSdkIframeFromFp0096,
+    noBackendRoutesFromFp0096,
+    noEndpointsFromFp0096,
+    noOauthSubmissionFromFp0096,
+    noOpenAiApiCallsFromFp0096,
+    noPublicAppImplementationFromFp0096,
+    noPublicAssetsFromFp0096,
+    noScreenshotAssetsFromFp0096,
+    noSourceMutationFinanceWriteFromFp0096,
+    routeMetadataNoIndexBoundaryVerified,
+  };
+}
+
+function fp0097Absent() {
+  const plansPath = existsSync("plans") ? "plans" : "../../plans";
+  return !readdirSync(plansPath).some((name) => /^FP-0097/u.test(name));
 }
 
 function repoFilePaths() {
@@ -1950,7 +2219,10 @@ describe("benchmark community pack foundation contracts", () => {
       fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified:
         fp0095LocalPreviewRouteStateMatrixBoundary()
           .absentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified,
-      fp0096Absent: fp0096Absent(),
+      fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .absentOrLocalPreviewRouteStateMatrixBoundaryVerified,
+      fp0097Absent: fp0097Absent(),
       premiumUiSecurityPlanBoundaryVerified:
         fp0088DocsOnlyBoundary().premiumUiSecurityPlanBoundaryVerified,
       premiumUiDesignSystemPlanBoundaryVerified:
@@ -1970,6 +2242,9 @@ describe("benchmark community pack foundation contracts", () => {
       localPreviewRouteStateMatrixPlanBoundaryVerified:
         fp0095LocalPreviewRouteStateMatrixBoundary()
           .localPreviewRouteStateMatrixPlanBoundaryVerified,
+      localPreviewRouteStateMatrixFoundationVerified:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .localPreviewRouteStateMatrixFoundationVerified,
       noUiImplementationFromFp0088:
         fp0088DocsOnlyBoundary().noUiImplementationFromFp0088,
       noUiImplementationFromFp0089:
@@ -2088,6 +2363,37 @@ describe("benchmark community pack foundation contracts", () => {
           .noGeneratedProductProseRuntimeCodexFromFp0095,
       noPublicAssetsFromFp0095:
         fp0095LocalPreviewRouteStateMatrixBoundary().noPublicAssetsFromFp0095,
+      noAdditionalRoutesFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noAdditionalRoutesFromFp0096,
+      noApiRoutesFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noApiRoutesFromFp0096,
+      noAppsSdkIframeFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noAppsSdkIframeFromFp0096,
+      noBackendRoutesFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noBackendRoutesFromFp0096,
+      noEndpointsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noEndpointsFromFp0096,
+      noOauthSubmissionFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noOauthSubmissionFromFp0096,
+      noOpenAiApiCallsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noOpenAiApiCallsFromFp0096,
+      noPublicAppImplementationFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noPublicAppImplementationFromFp0096,
+      noPublicAssetsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary().noPublicAssetsFromFp0096,
+      noScreenshotAssetsFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noScreenshotAssetsFromFp0096,
+      noSourceMutationFinanceWriteFromFp0096:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .noSourceMutationFinanceWriteFromFp0096,
+      routeMetadataNoIndexBoundaryVerified:
+        fp0096LocalPreviewRouteStateMatrixBoundary()
+          .routeMetadataNoIndexBoundaryVerified,
       inMemorySyntheticExamplesOnlyVerified: true,
       missingCitationTaskVerified: true,
       monitorBoundaryTaskVerified: true,
@@ -2122,7 +2428,10 @@ describe("benchmark community pack foundation contracts", () => {
     expect(
       proof.fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0096Absent).toBe(true);
+    expect(
+      proof.fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified,
+    ).toBe(true);
+    expect(proof.fp0097Absent).toBe(true);
     expect(proof.premiumUiSecurityPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiDesignSystemPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiImplementationPlanBoundaryVerified).toBe(true);
@@ -2131,6 +2440,19 @@ describe("benchmark community pack foundation contracts", () => {
     expect(proof.localUiPreviewRoutePlanBoundaryVerified).toBe(true);
     expect(proof.localPreviewRouteFoundationVerified).toBe(true);
     expect(proof.localPreviewRouteStateMatrixPlanBoundaryVerified).toBe(true);
+    expect(proof.localPreviewRouteStateMatrixFoundationVerified).toBe(true);
+    expect(proof.noAdditionalRoutesFromFp0096).toBe(true);
+    expect(proof.noApiRoutesFromFp0096).toBe(true);
+    expect(proof.noBackendRoutesFromFp0096).toBe(true);
+    expect(proof.noEndpointsFromFp0096).toBe(true);
+    expect(proof.noAppsSdkIframeFromFp0096).toBe(true);
+    expect(proof.noOauthSubmissionFromFp0096).toBe(true);
+    expect(proof.noPublicAppImplementationFromFp0096).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0096).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0096).toBe(true);
+    expect(proof.noScreenshotAssetsFromFp0096).toBe(true);
+    expect(proof.noPublicAssetsFromFp0096).toBe(true);
+    expect(proof.routeMetadataNoIndexBoundaryVerified).toBe(true);
     expect(proof.noUiImplementationFromFp0088).toBe(true);
     expect(proof.noUiImplementationFromFp0089).toBe(true);
     expect(proof.noAppsSdkIframeFromFp0089).toBe(true);

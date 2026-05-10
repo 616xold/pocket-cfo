@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0095 local UI preview-route state-matrix master-plan and proof-gate compatibility slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0096 local/proof-only/read-only preview route state-matrix implementation slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0095 same-branch docs-and-plan-only premium UI preview-route state-matrix and visual QA planning slice:
+  - Skills invoked for this FP-0096 same-branch local preview route state-matrix foundation slice:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

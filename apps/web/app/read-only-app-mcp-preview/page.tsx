@@ -1,15 +1,30 @@
 import type { Metadata } from "next";
 import React from "react";
 import {
-  ReadOnlyAppMcpEnvelopePreview,
+  AppShell,
+  EmptyEvidenceState,
+  ErrorAndUnsupportedState,
+  LoadingEvidenceState,
+  NoRuntimeBoundaryPanel,
+  PrivacyBoundaryPanel,
+  ReadOnlyAppMcpExperienceFrame,
+  RefusalPanel,
   type ReadOnlyAppMcpCitation,
   type ReadOnlyAppMcpEvidenceCard,
   type ReadOnlyAppMcpForbiddenAction,
   type ReadOnlyAppMcpFreshness,
   type ReadOnlyAppMcpLimitation,
   type ReadOnlyAppMcpPermittedNextAction,
+  type ReadOnlyAppMcpRefusal,
   type ReadOnlyAppMcpSourceAnchor,
 } from "../../components/read-only-app-mcp";
+import {
+  bodyStyle,
+  colors,
+  stackStyle,
+  twoColumnGridStyle,
+} from "../../components/read-only-app-mcp/styles";
+import { SectionHeading } from "../../components/read-only-app-mcp/ui";
 
 export const metadata: Metadata = {
   title: "Pocket CFO local read-only app/MCP preview",
@@ -117,7 +132,7 @@ const previewPrivacyBoundary = {
 
 const previewNoRuntimeBoundary = {
   items: [
-    "No data fetch, API call, or POST.",
+    "No data fetch, API call, or mutation transport.",
     "No form, button, file-input control, or server action.",
     "No web API route, backend route, endpoint, or remote MCP server.",
     "No Apps SDK resource, OAuth, app submission asset, OpenAI API call, or model call.",
@@ -127,34 +142,183 @@ const previewNoRuntimeBoundary = {
   title: "No-runtime boundary",
 };
 
+const stalePreviewFreshness: ReadOnlyAppMcpFreshness = {
+  checkedAt: "2026-05-09T23:32:41.000Z",
+  failClosedIfStale: true,
+  state: "stale",
+  summary:
+    "Synthetic stale posture; a supported answer would fail closed until evidence freshness is restored.",
+};
+
+const unsupportedPreviewFreshness: ReadOnlyAppMcpFreshness = {
+  checkedAt: "2026-05-09T23:32:41.000Z",
+  failClosedIfStale: true,
+  state: "unsupported",
+  summary:
+    "Synthetic unsupported posture; no generated answer is rendered from unsupported evidence.",
+};
+
+const missingPreviewFreshness: ReadOnlyAppMcpFreshness = {
+  checkedAt: "2026-05-09T23:32:41.000Z",
+  failClosedIfStale: true,
+  state: "missing",
+  summary:
+    "Synthetic missing posture; source anchors and bounded citations are required before an answer is supported.",
+};
+
+const stateMatrixRefusals: ReadOnlyAppMcpRefusal[] = [
+  {
+    freshness: missingPreviewFreshness,
+    reason: "missing_citation",
+    summary:
+      "The route fails closed when an answer cannot point to a bounded citation and source anchor.",
+    title: "Missing citation refusal",
+  },
+  {
+    freshness: unsupportedPreviewFreshness,
+    reason: "unsupported_evidence",
+    summary:
+      "Unsupported evidence stays visible as a limitation rather than becoming an answer.",
+    title: "Unsupported evidence refusal",
+  },
+  {
+    freshness: stalePreviewFreshness,
+    reason: "stale_evidence",
+    summary:
+      "Stale evidence blocks an answer until a future host re-establishes freshness.",
+    title: "Stale evidence refusal",
+  },
+  {
+    freshness: previewFreshness,
+    reason: "prompt_injection",
+    summary:
+      "Instructions found in source text stay inert and cannot widen tool or action scope.",
+    title: "Prompt-injection warning state",
+  },
+  {
+    freshness: previewFreshness,
+    reason: "raw_full_file_dump_request",
+    summary:
+      "Full-file or page-dump requests are refused; the route shows bounded citation posture only.",
+    title: "Raw full-file dump refusal state",
+  },
+  {
+    freshness: previewFreshness,
+    reason: "unsafe_action",
+    summary:
+      "Mutation, external release, provider, filing, payment, and customer-contact requests are refused.",
+    title: "Unsafe action refusal state",
+  },
+];
+
 export default function ReadOnlyAppMcpPreviewPage() {
   return (
-    <ReadOnlyAppMcpEnvelopePreview
-      citations={previewCitations}
-      evidenceCards={previewEvidenceCards}
-      forbiddenActions={previewForbiddenActions}
-      freshness={previewFreshness}
-      limitations={previewLimitations}
-      noRuntimeBoundary={previewNoRuntimeBoundary}
-      permittedNextActions={previewPermittedNextActions}
-      privacyBoundary={previewPrivacyBoundary}
-      scopeId="local-preview-route"
-      shellSubtitle="Local proof-only route preview for the shipped read-only app/MCP UI composition."
-      shellTitle="Pocket CFO read-only app/MCP preview"
-      sourceAnchors={previewSourceAnchors}
-      status={{
-        answer: {
-          evidenceCount: previewEvidenceCards.length,
-          freshness: previewFreshness,
-          statusLabel: "Evidence-backed preview",
-          summary:
-            "Synthetic evidence, citations, freshness, limitations, and boundaries are visible before any public app work.",
-          title: "Read-only preview status",
-        },
-        kind: "answer",
-      }}
-      summary="One local page renders the shipped FP-0091 and FP-0092 component composition without transport or mutation behavior."
-      title="Local read-only premium UI preview"
-    />
+    <AppShell
+      subtitle="Local proof-only route preview for the shipped read-only app/MCP UI composition and state matrix."
+      title="Pocket CFO read-only app/MCP preview"
+    >
+      <ReadOnlyAppMcpExperienceFrame
+        citations={previewCitations}
+        evidenceCards={previewEvidenceCards}
+        forbiddenActions={previewForbiddenActions}
+        freshness={previewFreshness}
+        limitations={previewLimitations}
+        noRuntimeBoundary={previewNoRuntimeBoundary}
+        permittedNextActions={previewPermittedNextActions}
+        privacyBoundary={previewPrivacyBoundary}
+        scopeId="local-preview-answer-state"
+        sourceAnchors={previewSourceAnchors}
+        status={{
+          answer: {
+            evidenceCount: previewEvidenceCards.length,
+            freshness: previewFreshness,
+            statusLabel: "Evidence-backed preview",
+            summary:
+              "Synthetic evidence, citations, freshness, limitations, and boundaries are visible before any public app work.",
+            title: "Answer state: read-only evidence hierarchy",
+          },
+          kind: "answer",
+        }}
+        summary="One local page renders the shipped FP-0091 and FP-0092 component composition without transport or mutation behavior."
+        title="Answer state matrix foundation"
+      />
+      <section
+        aria-labelledby="local-preview-state-matrix-title"
+        data-layout="read-only-app-mcp-state-matrix"
+        data-responsive="narrow-wide"
+        style={stackStyle}
+      >
+        <SectionHeading
+          eyebrow="Local state matrix"
+          headingLevel={2}
+          id="local-preview-state-matrix-title"
+          summary="Synthetic local-only states prove refusal, empty, loading, error, privacy, and no-runtime posture without fetching data or creating actions."
+          title="Preview route state matrix"
+        />
+        <div style={twoColumnGridStyle}>
+          {stateMatrixRefusals.map((refusal) => (
+            <RefusalPanel
+              headingLevel={3}
+              key={refusal.reason}
+              refusal={refusal}
+              sectionIdScope={`local-preview-${refusal.reason}`}
+            />
+          ))}
+          <EmptyEvidenceState
+            headingLevel={3}
+            sectionIdScope="local-preview-empty-evidence"
+            summary="No synthetic evidence cards, citations, or source anchors are available for this matrix state."
+          />
+          <LoadingEvidenceState
+            headingLevel={3}
+            sectionIdScope="local-preview-loading-evidence"
+            summary="A future host may render loading posture, but this route starts no request."
+          />
+          <ErrorAndUnsupportedState
+            headingLevel={3}
+            sectionIdScope="local-preview-error-unsupported"
+            summary="Unsupported, malformed, or conflicting evidence fails closed. The current FP-0091/FP-0092 component reason union does not expose a separate conflicting-evidence refusal panel."
+          />
+        </div>
+        <section
+          aria-labelledby="local-preview-conflicting-evidence-note-title"
+          style={{
+            background: colors.warningSoft,
+            border: `1px solid ${colors.warning}`,
+            borderRadius: 8,
+            padding: 14,
+          }}
+        >
+          <SectionHeading
+            eyebrow="Conflict support boundary"
+            headingLevel={3}
+            id="local-preview-conflicting-evidence-note-title"
+            summary="V2G proof posture records conflicting evidence as fail-closed, while the current renderable component contract exposes unsupported/stale/missing refusal reasons."
+            title="Conflicting evidence refusal boundary"
+          />
+          <p style={bodyStyle}>
+            FP-0096 does not invent a new response-envelope reason in the route.
+            Conflicting evidence remains represented as an unsupported or error
+            boundary until a later component contract explicitly adds it.
+          </p>
+        </section>
+        <div
+          data-layout="read-only-app-mcp-state-boundary-grid"
+          data-responsive="narrow-wide"
+          style={twoColumnGridStyle}
+        >
+          <PrivacyBoundaryPanel
+            boundary={previewPrivacyBoundary}
+            headingLevel={3}
+            sectionIdScope="local-preview-state-privacy"
+          />
+          <NoRuntimeBoundaryPanel
+            boundary={previewNoRuntimeBoundary}
+            headingLevel={3}
+            sectionIdScope="local-preview-state-no-runtime"
+          />
+        </div>
+      </section>
+    </AppShell>
   );
 }

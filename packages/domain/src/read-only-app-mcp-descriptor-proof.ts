@@ -125,7 +125,8 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified: trueLiteral,
     fp0094AbsentOrLocalPreviewRouteBoundaryVerified: trueLiteral,
     fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified: trueLiteral,
-    fp0096Absent: trueLiteral,
+    fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified: trueLiteral,
+    fp0097Absent: trueLiteral,
     premiumUiSecurityPlanBoundaryVerified: trueLiteral,
     premiumUiDesignSystemPlanBoundaryVerified: trueLiteral,
     premiumUiImplementationPlanBoundaryVerified: trueLiteral,
@@ -134,6 +135,7 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     localUiPreviewRoutePlanBoundaryVerified: trueLiteral,
     localPreviewRouteFoundationVerified: trueLiteral,
     localPreviewRouteStateMatrixPlanBoundaryVerified: trueLiteral,
+    localPreviewRouteStateMatrixFoundationVerified: trueLiteral,
     noUiImplementationFromFp0088: trueLiteral,
     noUiImplementationFromFp0089: trueLiteral,
     noAppsSdkIframeFromFp0089: trueLiteral,
@@ -183,6 +185,18 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     noSourceMutationFinanceWriteFromFp0095: trueLiteral,
     noGeneratedProductProseRuntimeCodexFromFp0095: trueLiteral,
     noPublicAssetsFromFp0095: trueLiteral,
+    noAdditionalRoutesFromFp0096: trueLiteral,
+    noApiRoutesFromFp0096: trueLiteral,
+    noAppsSdkIframeFromFp0096: trueLiteral,
+    noBackendRoutesFromFp0096: trueLiteral,
+    noEndpointsFromFp0096: trueLiteral,
+    noOauthSubmissionFromFp0096: trueLiteral,
+    noOpenAiApiCallsFromFp0096: trueLiteral,
+    noPublicAppImplementationFromFp0096: trueLiteral,
+    noPublicAssetsFromFp0096: trueLiteral,
+    noScreenshotAssetsFromFp0096: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0096: trueLiteral,
+    routeMetadataNoIndexBoundaryVerified: trueLiteral,
     descriptorsVerified: z.array(z.string()).length(MCP_TOOL_ALLOWLIST.length),
     responseEnvelopeRequiredFields: z.array(z.string()).min(1),
   })
@@ -198,7 +212,8 @@ export function buildAppMcpDescriptorEnvelopeProof(
     fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified: boolean;
     fp0094AbsentOrLocalPreviewRouteBoundaryVerified: boolean;
     fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified: boolean;
-    fp0096Absent: boolean;
+    fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified: boolean;
+    fp0097Absent: boolean;
     premiumUiSecurityPlanBoundaryVerified: boolean;
     premiumUiDesignSystemPlanBoundaryVerified: boolean;
     premiumUiImplementationPlanBoundaryVerified: boolean;
@@ -207,6 +222,7 @@ export function buildAppMcpDescriptorEnvelopeProof(
     localUiPreviewRoutePlanBoundaryVerified: boolean;
     localPreviewRouteFoundationVerified: boolean;
     localPreviewRouteStateMatrixPlanBoundaryVerified: boolean;
+    localPreviewRouteStateMatrixFoundationVerified: boolean;
     noUiImplementationFromFp0088: boolean;
     noUiImplementationFromFp0089: boolean;
     noAppsSdkIframeFromFp0089: boolean;
@@ -256,6 +272,18 @@ export function buildAppMcpDescriptorEnvelopeProof(
     noSourceMutationFinanceWriteFromFp0095: boolean;
     noGeneratedProductProseRuntimeCodexFromFp0095: boolean;
     noPublicAssetsFromFp0095: boolean;
+    noAdditionalRoutesFromFp0096: boolean;
+    noApiRoutesFromFp0096: boolean;
+    noAppsSdkIframeFromFp0096: boolean;
+    noBackendRoutesFromFp0096: boolean;
+    noEndpointsFromFp0096: boolean;
+    noOauthSubmissionFromFp0096: boolean;
+    noOpenAiApiCallsFromFp0096: boolean;
+    noPublicAppImplementationFromFp0096: boolean;
+    noPublicAssetsFromFp0096: boolean;
+    noScreenshotAssetsFromFp0096: boolean;
+    noSourceMutationFinanceWriteFromFp0096: boolean;
+    routeMetadataNoIndexBoundaryVerified: boolean;
     noPackageScriptsAdded: boolean;
     noSmokeAliasesAdded: boolean;
   }> = {},
@@ -368,7 +396,9 @@ export function buildAppMcpDescriptorEnvelopeProof(
     fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified:
       input.fp0095AbsentOrDocsOnlyPreviewRouteStateMatrixBoundaryVerified ??
       true,
-    fp0096Absent: input.fp0096Absent ?? true,
+    fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified:
+      input.fp0096AbsentOrLocalPreviewRouteStateMatrixBoundaryVerified ?? true,
+    fp0097Absent: input.fp0097Absent ?? true,
     premiumUiSecurityPlanBoundaryVerified:
       input.premiumUiSecurityPlanBoundaryVerified ?? true,
     premiumUiDesignSystemPlanBoundaryVerified:
@@ -385,6 +415,8 @@ export function buildAppMcpDescriptorEnvelopeProof(
       input.localPreviewRouteFoundationVerified ?? true,
     localPreviewRouteStateMatrixPlanBoundaryVerified:
       input.localPreviewRouteStateMatrixPlanBoundaryVerified ?? true,
+    localPreviewRouteStateMatrixFoundationVerified:
+      input.localPreviewRouteStateMatrixFoundationVerified ?? true,
     noUiImplementationFromFp0088: input.noUiImplementationFromFp0088 ?? true,
     noUiImplementationFromFp0089: input.noUiImplementationFromFp0089 ?? true,
     noAppsSdkIframeFromFp0089: input.noAppsSdkIframeFromFp0089 ?? true,
@@ -461,6 +493,26 @@ export function buildAppMcpDescriptorEnvelopeProof(
     noGeneratedProductProseRuntimeCodexFromFp0095:
       input.noGeneratedProductProseRuntimeCodexFromFp0095 ?? true,
     noPublicAssetsFromFp0095: input.noPublicAssetsFromFp0095 ?? true,
+    noAdditionalRoutesFromFp0096:
+      input.noAdditionalRoutesFromFp0096 ?? true,
+    noApiRoutesFromFp0096: input.noApiRoutesFromFp0096 ?? true,
+    noAppsSdkIframeFromFp0096:
+      input.noAppsSdkIframeFromFp0096 ?? true,
+    noBackendRoutesFromFp0096: input.noBackendRoutesFromFp0096 ?? true,
+    noEndpointsFromFp0096: input.noEndpointsFromFp0096 ?? true,
+    noOauthSubmissionFromFp0096:
+      input.noOauthSubmissionFromFp0096 ?? true,
+    noOpenAiApiCallsFromFp0096:
+      input.noOpenAiApiCallsFromFp0096 ?? true,
+    noPublicAppImplementationFromFp0096:
+      input.noPublicAppImplementationFromFp0096 ?? true,
+    noPublicAssetsFromFp0096: input.noPublicAssetsFromFp0096 ?? true,
+    noScreenshotAssetsFromFp0096:
+      input.noScreenshotAssetsFromFp0096 ?? true,
+    noSourceMutationFinanceWriteFromFp0096:
+      input.noSourceMutationFinanceWriteFromFp0096 ?? true,
+    routeMetadataNoIndexBoundaryVerified:
+      input.routeMetadataNoIndexBoundaryVerified ?? true,
     localProofOnly: noRuntimeBoundary.localProofOnly,
     missingCitationEnvelopeVerified:
       AppMcpMissingCitationEnvelopeSchema.safeParse(missingCitation).success &&
