@@ -363,13 +363,15 @@ describe("V2G read-only MCP descriptors and app/MCP envelopes", () => {
       proof.fp0092AbsentOrLocalUiCompositionAccessibilityBoundaryVerified,
     ).toBe(true);
     expect(proof.fp0093AbsentOrDocsOnlyPreviewRouteBoundaryVerified).toBe(true);
-    expect(proof.fp0094Absent).toBe(true);
+    expect(proof.fp0094AbsentOrLocalPreviewRouteBoundaryVerified).toBe(true);
+    expect(proof.fp0095Absent).toBe(true);
     expect(proof.premiumUiSecurityPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiDesignSystemPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiImplementationPlanBoundaryVerified).toBe(true);
     expect(proof.premiumUiComponentFoundationVerified).toBe(true);
     expect(proof.premiumUiCompositionAccessibilityFoundationVerified).toBe(true);
     expect(proof.localUiPreviewRoutePlanBoundaryVerified).toBe(true);
+    expect(proof.localPreviewRouteFoundationVerified).toBe(true);
     expect(proof.noUiImplementationFromFp0088).toBe(true);
     expect(proof.noUiImplementationFromFp0089).toBe(true);
     expect(proof.noAppsSdkIframeFromFp0089).toBe(true);
@@ -400,6 +402,14 @@ describe("V2G read-only MCP descriptors and app/MCP envelopes", () => {
     expect(proof.noOpenAiApiModelCallsFromFp0093).toBe(true);
     expect(proof.noSourceMutationFinanceWriteFromFp0093).toBe(true);
     expect(proof.noGeneratedProductProseRuntimeCodexFromFp0093).toBe(true);
+    expect(proof.noApiRoutesFromFp0094).toBe(true);
+    expect(proof.noBackendRoutesFromFp0094).toBe(true);
+    expect(proof.noEndpointsFromFp0094).toBe(true);
+    expect(proof.noAppsSdkIframeFromFp0094).toBe(true);
+    expect(proof.noOauthSubmissionFromFp0094).toBe(true);
+    expect(proof.noPublicAppImplementationFromFp0094).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0094).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0094).toBe(true);
 
     for (const candidate of APP_FORBIDDEN_TOOL_PROOF_CANDIDATES) {
       expect(classifyMcpToolCandidate(candidate).forbidden).toBe(true);

@@ -6,7 +6,7 @@ Target phase: `V2M`.
 
 Exact slice: `V2M-read-only-chatgpt-app-mcp-premium-ui-preview-route-master-plan-local-v1`.
 
-Status: active docs-and-plan plus proof-gate compatibility slice, created 2026-05-09.
+Status: shipped docs-and-plan plus proof-gate compatibility slice, created and closed 2026-05-09.
 
 FP-0093 is not implementation. FP-0093 is docs-and-plan plus proof-gate compatibility. FP-0093 is a local UI preview route master-plan only. It defines the future local preview route boundary after shipped FP-0092, but it does not add the route.
 
@@ -19,6 +19,8 @@ This plan creates no product code, no route code, no app route, no API route, no
 The user-visible purpose is to make the next local UI step precise before any route code exists. A future route implementation slice may add one local read-only web page only if it remains local, proof-only, read-only, and bound to existing FP-0091 and FP-0092 components only. That future route should likely be one explicit local-only path such as `apps/web/app/read-only-app-mcp-preview/page.tsx`, or a similarly explicit local-only path named by a later Finance Plan.
 
 If a future slice writes route code, the operator must tell the user clearly before edits that it is real route work. Public ChatGPT App implementation must still wait. Public app implementation remains future-only. Public app submission must still wait.
+
+FP-0094 is the later shipped local/proof-only/read-only preview route foundation that implements the single local preview route authorized by its own Finance Plan. FP-0093 remains the shipped route-readiness record and does not authorize any broader route, endpoint, public app, Apps SDK, OAuth, submission, or remote MCP behavior.
 
 Authority model remains unchanged:
 
