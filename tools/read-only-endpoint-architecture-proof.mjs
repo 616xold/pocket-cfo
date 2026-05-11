@@ -370,19 +370,22 @@ function endpointImplementationReadinessPlanBoundary() {
 }
 
 function routeRuntimeChangedFilesBoundary() {
-  const forbiddenChangedPaths = changedPaths.filter((path) =>
-    [
-      /^apps\/web\/app\//u,
-      /^apps\/web\/pages\//u,
-      /^apps\/web\/api\//u,
-      /^apps\/control-plane\//u,
-      /^packages\/api\//u,
-      /^packages\/server\//u,
-      /^packages\/backend\//u,
-      /^packages\/db\//u,
-    ].some((pattern) => pattern.test(path)),
-  );
+  const forbiddenChangedPaths = changedPaths
+    .filter((path) => !isAllowedFp0107LocalRouteAdapterPath(path))
+    .filter((path) =>
+      [
+        /^apps\/web\/app\//u,
+        /^apps\/web\/pages\//u,
+        /^apps\/web\/api\//u,
+        /^apps\/control-plane\//u,
+        /^packages\/api\//u,
+        /^packages\/server\//u,
+        /^packages\/backend\//u,
+        /^packages\/db\//u,
+      ].some((pattern) => pattern.test(path)),
+    );
   const forbiddenRuntimeMarkers = changedPaths.filter((path) => {
+    if (isAllowedFp0107LocalRouteAdapterPath(path)) return false;
     if (!isRuntimeCandidate(path)) return false;
     const source = readFileSync(path, "utf8");
     return routeRuntimeMarkerPatterns().some((pattern) =>
@@ -400,10 +403,12 @@ function routeRuntimeChangedFilesBoundary() {
       allClear && !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
     noBackendControlPlaneRoutesAdded:
       allClear &&
-      !changedPaths.some((path) =>
-        /^(apps\/control-plane|packages\/backend|packages\/server)\//u.test(
-          path,
-        ),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedFp0107LocalRouteAdapterPath(path) &&
+          /^(apps\/control-plane|packages\/backend|packages\/server)\//u.test(
+            path,
+          ),
       ),
     noEndpointImplementation:
       allClear &&
@@ -420,7 +425,12 @@ function routeRuntimeChangedFilesBoundary() {
       allClear &&
       !changedPaths.some((path) => /remote-mcp|deploy|deployment/iu.test(path)),
     noRouteImplementation:
-      allClear && !changedPaths.some((path) => /(^|\/)route\.ts$/u.test(path)),
+      allClear &&
+      !changedPaths.some(
+        (path) =>
+          !isAllowedFp0107LocalRouteAdapterPath(path) &&
+          /(^|\/)route\.ts$/u.test(path),
+      ),
     noWebApiRoutesAdded:
       allClear && !changedPaths.some((path) => /^apps\/web\/api\//u.test(path)),
   };
@@ -509,7 +519,25 @@ function fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified() {
 }
 
 function fp0107Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0107/u.test(path));
+  const fp0107Hits = repoPaths.filter((path) => /(^|\/)FP-0107/u.test(path));
+  return (
+    fp0107Hits.length === 0 ||
+    (fp0107Hits.length === 1 &&
+      fp0107Hits[0] ===
+        "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md")
+  );
+}
+
+function isAllowedFp0107LocalRouteAdapterPath(path) {
+  return (
+    path ===
+      "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md" ||
+    path === "apps/control-plane/src/app.ts" ||
+    path === "tools/read-only-mcp-route-adapter-proof.mjs" ||
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service)(?:\.spec)?\.ts$/u.test(
+      path,
+    )
+  );
 }
 
 function endpointRuntimeRepositoryInventory() {
@@ -631,6 +659,7 @@ function endpointRuntimePath(path) {
 
 function isAllowedEndpointProofPlanPath(path) {
   return (
+    isAllowedFp0107LocalRouteAdapterPath(path) ||
     path === FP0103_PLAN ||
     path === FP0104_PLAN ||
     path === FP0105_PLAN ||
