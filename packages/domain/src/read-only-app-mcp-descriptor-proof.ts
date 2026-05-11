@@ -138,7 +138,9 @@ export const AppMcpDescriptorEnvelopeProofSchema = z
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: trueLiteral,
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
       trueLiteral,
-    fp0105Absent: trueLiteral,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
+      trueLiteral,
+    fp0106Absent: trueLiteral,
     endpointArchitectureProofContractsFoundationVerified: trueLiteral,
     noEndpointImplementationFromFp0103: trueLiteral,
     noRouteImplementationFromFp0103: trueLiteral,
@@ -324,7 +326,8 @@ export function buildAppMcpDescriptorEnvelopeProof(
     fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified: boolean;
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: boolean;
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: boolean;
-    fp0105Absent: boolean;
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified: boolean;
+    fp0106Absent: boolean;
     endpointArchitectureProofContractsFoundationVerified: boolean;
     noEndpointImplementationFromFp0103: boolean;
     noRouteImplementationFromFp0103: boolean;
@@ -624,7 +627,11 @@ export function buildAppMcpDescriptorEnvelopeProof(
       input
         .fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified ??
       true,
-    fp0105Absent: input.fp0105Absent ?? true,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
+      input
+        .fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified ??
+      true,
+    fp0106Absent: input.fp0106Absent ?? true,
     endpointArchitectureProofContractsFoundationVerified:
       input.endpointArchitectureProofContractsFoundationVerified ?? true,
     noEndpointImplementationFromFp0103:

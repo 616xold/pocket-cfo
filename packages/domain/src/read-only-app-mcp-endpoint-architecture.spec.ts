@@ -180,7 +180,7 @@ describe("FP-0103 endpoint architecture proof contracts", () => {
     expect(
       proof.fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0105Absent).toBe(true);
+    expect(proof.fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified).toBe(true);
     expect(proof.endpointRuntimeChangedFilesVerified).toBe(true);
     expect(proof.endpointRuntimeRepositoryInventoryVerified).toBe(true);
     expect(
@@ -219,7 +219,7 @@ describe("FP-0103 endpoint architecture proof contracts", () => {
     expect(
       EndpointArchitectureProofSchema.safeParse({
         ...proof,
-        fp0105Absent: false,
+        fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified: false,
       }).success,
     ).toBe(false);
   });

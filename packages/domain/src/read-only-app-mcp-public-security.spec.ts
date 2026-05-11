@@ -241,7 +241,7 @@ describe("FP-0100 public app security boundary contracts", () => {
     expect(
       proof.fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0105Absent).toBe(true);
+    expect(proof.fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified).toBe(true);
     expect(proof.endpointArchitectureProofContractsFoundationVerified).toBe(
       true,
     );

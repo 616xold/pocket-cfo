@@ -64,7 +64,9 @@ export const EndpointArchitectureProofSchema = z
     exactlyOneFp0103PlanVerified: trueLiteral,
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
       trueLiteral,
-    fp0105Absent: trueLiteral,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
+      trueLiteral,
+    fp0106Absent: trueLiteral,
     endpointImplementationReadinessPlanBoundaryVerified: trueLiteral,
     exactFutureEndpointInventoryReadinessVerified: trueLiteral,
     noEndpointImplementationFromFp0104: trueLiteral,
@@ -159,7 +161,8 @@ export function buildEndpointArchitectureProof(
     endpointArchitectureProofPlanAccepted: boolean;
     exactlyOneFp0103PlanVerified: boolean;
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: boolean;
-    fp0105Absent: boolean;
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified: boolean;
+    fp0106Absent: boolean;
     endpointImplementationReadinessPlanBoundaryVerified: boolean;
     exactFutureEndpointInventoryReadinessVerified: boolean;
     noEndpointImplementationFromFp0104: boolean;
@@ -264,7 +267,11 @@ export function buildEndpointArchitectureProof(
       input
         .fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified ??
       true,
-    fp0105Absent: input.fp0105Absent ?? true,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
+      input
+        .fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified ??
+      true,
+    fp0106Absent: input.fp0106Absent ?? true,
     localProofOnly: proofContract.localProofOnly,
     noAppSubmission: input.noAppSubmission ?? true,
     noAppRoutesAdded: input.noAppRoutesAdded ?? true,

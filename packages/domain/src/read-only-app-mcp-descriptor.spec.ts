@@ -396,7 +396,7 @@ describe("V2G read-only MCP descriptors and app/MCP envelopes", () => {
     expect(
       proof.fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0105Absent).toBe(true);
+    expect(proof.fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified).toBe(true);
     expect(proof.endpointArchitectureProofContractsFoundationVerified).toBe(
       true,
     );

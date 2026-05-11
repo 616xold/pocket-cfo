@@ -9,6 +9,8 @@ import {
 
 const FP0104_PLAN =
   "plans/FP-0104-read-only-chatgpt-app-mcp-endpoint-implementation-readiness-and-inventory-master-plan.md";
+const FP0105_PLAN =
+  "plans/FP-0105-read-only-chatgpt-app-mcp-endpoint-route-ownership-transport-adapter-proof-contracts.md";
 const FP0103_PLAN =
   "plans/FP-0103-read-only-chatgpt-app-mcp-endpoint-architecture-proof-contracts-foundation.md";
 const FP0102_PLAN =
@@ -28,9 +30,9 @@ const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
 const fp0103Plan = endpointArchitectureProofPlanBoundary();
 const fp0104Plan = endpointImplementationReadinessPlanBoundary();
-const noRuntime = noRuntimeOrEndpointPathsFromFp0103();
+const noRuntime = routeRuntimeChangedFilesBoundary();
 const endpointRuntimeInventory = endpointRuntimeRepositoryInventory();
-const noAssets = noPublicAssetsListingOrSubmissionArtifactsFromFp0103();
+const noAssets = publicAssetsSubmissionChangedFilesBoundary();
 const sourceText = readPublicAppProofGateSourceText();
 const noOpenAiApiCalls = !hasCodeLevelOpenAiIntegration(sourceText);
 const noModelCalls = !hasCodeLevelModelIntegration(sourceText);
@@ -79,7 +81,9 @@ const proof = EndpointArchitectureProofSchema.parse(
       endpointRuntimeInventory.endpointRuntimeRepositoryInventoryVerified,
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
       fp0104Plan.absentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
-    fp0105Absent: fp0105Absent(),
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
+      fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified(),
+    fp0106Absent: fp0106Absent(),
     endpointImplementationReadinessPlanBoundaryVerified:
       fp0104Plan.endpointImplementationReadinessPlanBoundaryVerified,
     exactFutureEndpointInventoryReadinessVerified:
@@ -182,8 +186,8 @@ function endpointArchitectureProofPlanBoundary() {
       "no raw full-file dump is allowed",
       "no write/modify/action tools are allowed",
     ].every((requiredText) => normalized.includes(requiredText)) &&
-    noRuntimeOrEndpointPathsFromFp0103().allClear &&
-    noPublicAssetsListingOrSubmissionArtifactsFromFp0103().allClear;
+    routeRuntimeChangedFilesBoundary().allClear &&
+    publicAssetsSubmissionChangedFilesBoundary().allClear;
 
   return {
     accepted,
@@ -289,11 +293,11 @@ function endpointImplementationReadinessPlanBoundary() {
   const noEndpointImplementationFromFp0104 =
     normalized.includes("fp-0104 does not authorize endpoint implementation") &&
     normalized.includes("no endpoints") &&
-    noRuntimeOrEndpointPathsFromFp0103().allClear;
+    routeRuntimeChangedFilesBoundary().allClear;
   const noRouteImplementationFromFp0104 =
     normalized.includes("fp-0104 does not authorize route implementation") &&
     normalized.includes("no route code") &&
-    noRuntimeOrEndpointPathsFromFp0103().allClear;
+    routeRuntimeChangedFilesBoundary().allClear;
   const noApiBackendRoutesFromFp0104 =
     normalized.includes(
       "fp-0104 does not authorize web api/backend/control-plane route implementation",
@@ -330,7 +334,7 @@ function endpointImplementationReadinessPlanBoundary() {
     normalized.includes("no public assets") &&
     normalized.includes("no listing copy") &&
     normalized.includes("no app-submission artifacts") &&
-    noPublicAssetsListingOrSubmissionArtifactsFromFp0103().allClear;
+    publicAssetsSubmissionChangedFilesBoundary().allClear;
 
   return {
     absentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
@@ -361,7 +365,7 @@ function endpointImplementationReadinessPlanBoundary() {
   };
 }
 
-function noRuntimeOrEndpointPathsFromFp0103() {
+function routeRuntimeChangedFilesBoundary() {
   const forbiddenChangedPaths = changedPaths.filter((path) =>
     [
       /^apps\/web\/app\//u,
@@ -401,7 +405,7 @@ function noRuntimeOrEndpointPathsFromFp0103() {
       allClear &&
       !changedPaths.some(
         (path) =>
-          !isAllowedFp0103ProofContractPath(path) && endpointRuntimePath(path),
+          !isAllowedEndpointProofPlanPath(path) && endpointRuntimePath(path),
       ),
     noMcpServerRuntime:
       allClear &&
@@ -418,7 +422,7 @@ function noRuntimeOrEndpointPathsFromFp0103() {
   };
 }
 
-function noPublicAssetsListingOrSubmissionArtifactsFromFp0103() {
+function publicAssetsSubmissionChangedFilesBoundary() {
   const publicAssetPattern =
     /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu;
   const forbidden = changedPaths.filter(
@@ -459,8 +463,26 @@ function fp0087DescriptorEnvelopeBoundary() {
   );
 }
 
-function fp0105Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0105/u.test(path));
+function fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified() {
+  const fp0105Hits = repoPaths.filter((path) => /(^|\/)FP-0105/u.test(path));
+  if (fp0105Hits.length === 0) return true;
+  if (fp0105Hits.length !== 1 || fp0105Hits[0] !== FP0105_PLAN) {
+    return false;
+  }
+
+  const normalized = normalize(readFileSync(FP0105_PLAN, "utf8"));
+  return [
+    "fp-0105 is local/proof-only/read-only endpoint route ownership and transport-adapter contract work",
+    "fp-0105 does not authorize endpoint implementation",
+    "fp-0105 does not authorize route implementation",
+    "future /mcp route owner family is exactly apps/control-plane fastify route family",
+    "future transport adapter remains documentation/proof-only",
+    "fp-0105 keeps fp-0106 absent",
+  ].every((requiredText) => normalized.includes(requiredText));
+}
+
+function fp0106Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0106/u.test(path));
 }
 
 function endpointRuntimeRepositoryInventory() {
@@ -580,12 +602,17 @@ function endpointRuntimePath(path) {
   );
 }
 
-function isAllowedFp0103ProofContractPath(path) {
+function isAllowedEndpointProofPlanPath(path) {
   return (
     path === FP0103_PLAN ||
     path === FP0104_PLAN ||
+    path === FP0105_PLAN ||
     path === "tools/read-only-endpoint-architecture-proof.mjs" ||
+    path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp-endpoint-architecture.*\.ts$/u.test(
+      path,
+    ) ||
+    /^packages\/domain\/src\/read-only-app-mcp-endpoint-route-ownership.*\.ts$/u.test(
       path,
     )
   );
