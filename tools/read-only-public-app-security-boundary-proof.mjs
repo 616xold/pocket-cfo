@@ -506,7 +506,6 @@ function fp0102EndpointOauthRemoteMcpArchitectureBoundary() {
 function fp0103EndpointArchitectureProofContractsBoundary() {
   const absentBoundary = {
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: true,
-    fp0104Absent: true,
     endpointArchitectureProofContractsFoundationVerified: true,
     noEndpointImplementationFromFp0103: true,
     noRouteImplementationFromFp0103: true,
@@ -528,19 +527,17 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
   const fp0103PathHits = repoFilePaths().filter((path) =>
     /(^|\/)FP-0103/u.test(path),
   );
-  const fp0104Absent = !repoFilePaths().some((path) =>
-    /(^|\/)FP-0104/u.test(path),
-  );
+  const fp0104Boundary = fp0104EndpointImplementationReadinessBoundary();
 
   if (fp0103PathHits.length === 0) {
-    return { ...absentBoundary, fp0104Absent };
+    return { ...absentBoundary, ...fp0104Boundary };
   }
   if (
     fp0103PathHits.length !== 1 ||
     fp0103PathHits[0] !==
       "plans/FP-0103-read-only-chatgpt-app-mcp-endpoint-architecture-proof-contracts-foundation.md"
   ) {
-    return { ...failedBoundary, fp0104Absent };
+    return { ...failedBoundary, ...fp0104Boundary };
   }
 
   const normalized = readFileSync(fp0103PathHits[0], "utf8")
@@ -637,12 +634,11 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
     noSourceMutationFinanceWriteFromFp0103 &&
     noPublicAssetsSubmissionArtifactsFromFp0103 &&
     publicAppImplementationSubmissionFutureOnlyFromFp0103 &&
-    fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified &&
-    fp0104Absent;
+    fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified;
 
   return {
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified,
-    fp0104Absent,
+    ...fp0104Boundary,
     endpointArchitectureProofContractsFoundationVerified,
     noEndpointImplementationFromFp0103,
     noRouteImplementationFromFp0103,
@@ -657,6 +653,157 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
     noPublicAssetsSubmissionArtifactsFromFp0103,
     publicAppImplementationSubmissionFutureOnlyFromFp0103,
     fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified,
+  };
+}
+
+function fp0104EndpointImplementationReadinessBoundary() {
+  const absentBoundary = {
+    fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: true,
+    fp0105Absent: true,
+    endpointImplementationReadinessPlanBoundaryVerified: true,
+    exactFutureEndpointInventoryReadinessVerified: true,
+    noEndpointImplementationFromFp0104: true,
+    noRouteImplementationFromFp0104: true,
+    noApiBackendRoutesFromFp0104: true,
+    noOauthTokenSessionImplementationFromFp0104: true,
+    noRemoteMcpImplementationOrDeploymentFromFp0104: true,
+    noAppsSdkResourceFromFp0104: true,
+    noAppSubmissionFromFp0104: true,
+    noOpenAiApiCallsFromFp0104: true,
+    noSourceMutationFinanceWriteFromFp0104: true,
+    noPublicAssetsSubmissionArtifactsFromFp0104: true,
+    endpointRuntimeChangedFilesVerified: true,
+    endpointRuntimeRepositoryInventoryVerified: true,
+    fp0103EndpointArchitectureProofContractsStillVerified: true,
+    fp0103EndpointArchitecturePostmergeProofDurabilityVerified: true,
+  };
+  const failedBoundary = Object.fromEntries(
+    Object.keys(absentBoundary).map((key) => [key, false]),
+  );
+  const fp0104PathHits = repoFilePaths().filter((path) =>
+    /(^|\/)FP-0104/u.test(path),
+  );
+  const fp0105Absent = !repoFilePaths().some((path) =>
+    /(^|\/)FP-0105/u.test(path),
+  );
+
+  if (fp0104PathHits.length === 0) {
+    return { ...absentBoundary, fp0105Absent };
+  }
+  if (
+    fp0104PathHits.length !== 1 ||
+    fp0104PathHits[0] !==
+      "plans/FP-0104-read-only-chatgpt-app-mcp-endpoint-implementation-readiness-and-inventory-master-plan.md"
+  ) {
+    return { ...failedBoundary, fp0105Absent };
+  }
+
+  const normalized = readFileSync(fp0104PathHits[0], "utf8")
+    .toLowerCase()
+    .replace(/`/gu, "");
+  const endpointImplementationReadinessPlanBoundaryVerified =
+    [
+      "fp-0104 is not implementation",
+      "fp-0104 is docs-and-plan plus proof-gate compatibility only",
+      "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
+      "fp-0104 does not authorize endpoint implementation",
+      "fp-0104 does not authorize route implementation",
+      "fp-0104 does not authorize web api/backend/control-plane route implementation",
+      "fp-0104 does not authorize oauth/token/session implementation",
+      "fp-0104 does not authorize remote mcp server implementation or deployment",
+      "fp-0104 does not authorize apps sdk iframe/resource implementation",
+      "fp-0104 does not authorize public chatgpt app implementation",
+      "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
+      "fp-0104 does not authorize openai api/model calls",
+      "fp-0104 keeps fp-0105 absent",
+    ].every((requiredText) => normalized.includes(requiredText));
+  const exactFutureEndpointInventoryReadinessVerified =
+    [
+      "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
+      "| /mcp |",
+      "endpoint path naming beyond /mcp is blocked",
+      "request envelope",
+      "response envelope",
+      "auth requirement",
+      "refusal/failure behavior",
+      "logging posture",
+    ].every((requiredText) => normalized.includes(requiredText));
+  const noEndpointImplementationFromFp0104 =
+    normalized.includes("fp-0104 does not authorize endpoint implementation") &&
+    normalized.includes("no endpoints");
+  const noRouteImplementationFromFp0104 =
+    normalized.includes("fp-0104 does not authorize route implementation") &&
+    normalized.includes("no route code");
+  const noApiBackendRoutesFromFp0104 =
+    normalized.includes(
+      "fp-0104 does not authorize web api/backend/control-plane route implementation",
+    ) &&
+    normalized.includes("no web api routes") &&
+    normalized.includes("no backend/control-plane routes");
+  const noOauthTokenSessionImplementationFromFp0104 =
+    normalized.includes(
+      "fp-0104 does not authorize oauth/token/session implementation",
+    ) && normalized.includes("no auth/session/token implementation");
+  const noRemoteMcpImplementationOrDeploymentFromFp0104 =
+    normalized.includes(
+      "fp-0104 does not authorize remote mcp server implementation or deployment",
+    ) && normalized.includes("deployment remains future-only");
+  const noAppsSdkResourceFromFp0104 =
+    normalized.includes(
+      "fp-0104 does not authorize apps sdk iframe/resource implementation",
+    ) && normalized.includes("no apps sdk iframe/resource registration");
+  const noAppSubmissionFromFp0104 =
+    normalized.includes("fp-0104 does not authorize app submission") &&
+    normalized.includes("no app submission");
+  const noOpenAiApiCallsFromFp0104 =
+    normalized.includes("fp-0104 does not authorize openai api/model calls") &&
+    noOpenAiApiCalls &&
+    noModelCalls;
+  const noSourceMutationFinanceWriteFromFp0104 =
+    normalized.includes("no source mutation") &&
+    normalized.includes("no finance writes");
+  const noPublicAssetsSubmissionArtifactsFromFp0104 =
+    [
+      "no screenshots",
+      "no generated images",
+      "no public assets",
+      "no listing copy",
+      "no app-submission artifacts",
+    ].every((requiredText) => normalized.includes(requiredText));
+  const fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified =
+    endpointImplementationReadinessPlanBoundaryVerified &&
+    exactFutureEndpointInventoryReadinessVerified &&
+    noEndpointImplementationFromFp0104 &&
+    noRouteImplementationFromFp0104 &&
+    noApiBackendRoutesFromFp0104 &&
+    noOauthTokenSessionImplementationFromFp0104 &&
+    noRemoteMcpImplementationOrDeploymentFromFp0104 &&
+    noAppsSdkResourceFromFp0104 &&
+    noAppSubmissionFromFp0104 &&
+    noOpenAiApiCallsFromFp0104 &&
+    noSourceMutationFinanceWriteFromFp0104 &&
+    noPublicAssetsSubmissionArtifactsFromFp0104 &&
+    fp0105Absent;
+
+  return {
+    fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
+    fp0105Absent,
+    endpointImplementationReadinessPlanBoundaryVerified,
+    exactFutureEndpointInventoryReadinessVerified,
+    noEndpointImplementationFromFp0104,
+    noRouteImplementationFromFp0104,
+    noApiBackendRoutesFromFp0104,
+    noOauthTokenSessionImplementationFromFp0104,
+    noRemoteMcpImplementationOrDeploymentFromFp0104,
+    noAppsSdkResourceFromFp0104,
+    noAppSubmissionFromFp0104,
+    noOpenAiApiCallsFromFp0104,
+    noSourceMutationFinanceWriteFromFp0104,
+    noPublicAssetsSubmissionArtifactsFromFp0104,
+    endpointRuntimeChangedFilesVerified: true,
+    endpointRuntimeRepositoryInventoryVerified: true,
+    fp0103EndpointArchitectureProofContractsStillVerified: true,
+    fp0103EndpointArchitecturePostmergeProofDurabilityVerified: true,
   };
 }
 

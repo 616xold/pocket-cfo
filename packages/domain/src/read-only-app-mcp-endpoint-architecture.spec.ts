@@ -17,6 +17,7 @@ import {
   EndpointRequestResponseEnvelopeBoundarySchema,
   buildEndpointArchitectureContracts,
   buildEndpointArchitectureProof,
+  inspectEndpointRuntimeRepositoryInventory,
 } from "./read-only-app-mcp-endpoint-architecture";
 
 describe("FP-0103 endpoint architecture proof contracts", () => {
@@ -158,7 +159,7 @@ describe("FP-0103 endpoint architecture proof contracts", () => {
     ).toBe(false);
   });
 
-  it("builds a machine-readable proof with FP-0104 absent", () => {
+  it("builds a machine-readable proof with FP-0104 docs-only readiness and FP-0105 absent", () => {
     const proof = buildEndpointArchitectureProof();
 
     expect(EndpointArchitectureProofSchema.safeParse(proof).success).toBe(true);
@@ -176,7 +177,15 @@ describe("FP-0103 endpoint architecture proof contracts", () => {
     expect(proof.fp0102ArchitectureBoundaryStillVerified).toBe(true);
     expect(proof.fp0100PublicSecurityBoundaryStillVerified).toBe(true);
     expect(proof.exactlyOneFp0103PlanVerified).toBe(true);
-    expect(proof.fp0104Absent).toBe(true);
+    expect(
+      proof.fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
+    ).toBe(true);
+    expect(proof.fp0105Absent).toBe(true);
+    expect(proof.endpointRuntimeChangedFilesVerified).toBe(true);
+    expect(proof.endpointRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(
+      proof.fp0103EndpointArchitecturePostmergeProofDurabilityVerified,
+    ).toBe(true);
   });
 
   it("rejects false endpoint architecture proof booleans", () => {
@@ -203,8 +212,64 @@ describe("FP-0103 endpoint architecture proof contracts", () => {
     expect(
       EndpointArchitectureProofSchema.safeParse({
         ...proof,
-        fp0104Absent: false,
+        fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
+          false,
       }).success,
     ).toBe(false);
+    expect(
+      EndpointArchitectureProofSchema.safeParse({
+        ...proof,
+        fp0105Absent: false,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects simulated public-app endpoint runtime inventory", () => {
+    const inventory = inspectEndpointRuntimeRepositoryInventory([
+      {
+        path: "apps/web/app/read-only-app-mcp/route.ts",
+        source:
+          "export async function POST() { return NextResponse.json({ publicApp: 'read-only-app-mcp' }); }",
+      },
+    ]);
+
+    expect(inventory.endpointRuntimeRepositoryInventoryVerified).toBe(false);
+    expect(inventory.violations).toEqual([
+      "apps/web/app/read-only-app-mcp/route.ts",
+    ]);
+  });
+
+  it("does not reject the shipped local preview route inventory", () => {
+    const inventory = inspectEndpointRuntimeRepositoryInventory([
+      {
+        path: "apps/web/app/read-only-app-mcp-preview/page.tsx",
+        source:
+          "export default function ReadOnlyAppMcpPreviewPage() { return null; }",
+      },
+    ]);
+
+    expect(inventory.endpointRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(inventory.violations).toEqual([]);
+  });
+
+  it("rejects simulated OAuth and Apps SDK resource runtime inventory", () => {
+    const inventory = inspectEndpointRuntimeRepositoryInventory([
+      {
+        path: "apps/control-plane/src/modules/read-only-app-mcp/oauth-callback.ts",
+        source:
+          "export function tokenExchange() { return 'read-only-app-mcp OAuth callback'; }",
+      },
+      {
+        path: "apps/control-plane/src/modules/read-only-app-mcp/resource.ts",
+        source:
+          "server.registerResource('ui://read-only-app-mcp/widget.html', {});",
+      },
+    ]);
+
+    expect(inventory.endpointRuntimeRepositoryInventoryVerified).toBe(false);
+    expect(inventory.violations).toEqual([
+      "apps/control-plane/src/modules/read-only-app-mcp/oauth-callback.ts",
+      "apps/control-plane/src/modules/read-only-app-mcp/resource.ts",
+    ]);
   });
 });

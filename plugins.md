@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0103 local/proof-only/read-only public ChatGPT App/MCP endpoint architecture proof-contract foundation.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0104 docs-and-plan plus proof-gate compatibility endpoint implementation readiness and exact future endpoint inventory master plan.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0103 endpoint architecture proof-contract and proof-gate compatibility slice:
+  - Skills invoked for this FP-0104 endpoint implementation readiness, endpoint inventory planning, proof-durability, and proof-gate compatibility slice:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

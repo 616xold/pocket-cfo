@@ -259,7 +259,7 @@ Implemented outcomes:
 
 - Added pure domain contracts for endpoint inventory deferral, future endpoint path preconditions, endpoint trust model, transport choice, TLS/HTTPS future requirement, request/response envelope preservation, evidence/freshness/limitations posture, refusal/failure behavior, read-only allowlist preservation, and no-runtime/no-route/no-endpoint/OAuth/token/session/remote-MCP/Apps-SDK/submission/OpenAI/source-mutation/finance-write/write-action boundaries.
 - Added `tools/read-only-endpoint-architecture-proof.mjs`, which emits machine-readable JSON and fails if any required endpoint architecture proof boolean is false.
-- Bridged existing public-app proof gates so exactly this FP-0103 local/proof-only endpoint architecture contract foundation is accepted while FP-0104, endpoint implementation, route/API/backend/control-plane implementation, OAuth/token/session, remote MCP implementation/deployment, Apps SDK resource implementation, public app implementation, app submission, public assets/listing copy, source mutation, finance writes, and OpenAI API/model usage remain rejected.
+- Bridged existing public-app proof gates so exactly this FP-0103 local/proof-only endpoint architecture contract foundation was accepted while the then-future FP-0104 successor, endpoint implementation, route/API/backend/control-plane implementation, OAuth/token/session, remote MCP implementation/deployment, Apps SDK resource implementation, public app implementation, app submission, public assets/listing copy, source mutation, finance writes, and OpenAI API/model usage remained rejected.
 - Applied proof-source hardening and naming polish across touched public-app proof surfaces, including the public-app proof-gate source scan and executable OpenAI/API/model/key pattern rejection.
 - Refreshed directly stale active docs and `plugins.md` so the latest public-app endpoint architecture state points to FP-0103 as shipped local/proof-only contracts while endpoint implementation and public app submission remain future-only.
 
@@ -268,10 +268,10 @@ Validation completed:
 - Baseline pre-edit proof gates passed and proved FP-0103 absence as the expected starting state.
 - Focused proof gates passed: `tools/read-only-endpoint-architecture-proof.mjs`, `tools/read-only-public-app-security-boundary-proof.mjs`, `tools/read-only-mcp-descriptor-response-envelope-proof.mjs`, `tools/read-only-chatgpt-app-mcp-proof.mjs`, `tools/benchmark-community-pack-proof.mjs`, `tools/bounded-llm-orchestration-proof.mjs`, `tools/read-only-evidence-app-proof.mjs`, `tools/document-precision-foundation-proof.mjs`, and `tools/evidence-index-foundation-proof.mjs`.
 - Focused domain specs passed for benchmark community, read-only app/MCP, descriptor/envelope, public security, and endpoint architecture contracts.
-- Strict same-branch QA confirmed changed files stayed in docs/proof-gate/domain-contract/direct-proof scope, no app/control-plane/backend/API/DB route/runtime files were changed, exactly one FP-0103 plan exists, and FP-0104 remains absent.
+- Strict same-branch QA confirmed changed files stayed in docs/proof-gate/domain-contract/direct-proof scope, no app/control-plane/backend/API/DB route/runtime files were changed, exactly one FP-0103 plan exists, and FP-0104 remained absent at FP-0103 closeout.
 - Final validation passed with `git diff --check`, all proof tools, focused domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and isolated `pnpm ci:repro:current`.
 
 Remaining work:
 
 - No further FP-0103 local proof-contract work remains in this branch.
-- Do not start endpoint implementation from FP-0103 alone. The next safe slice is a narrow endpoint implementation readiness/implementation plan that consumes these contracts and reopens route, endpoint, auth, deployment, and public-app questions explicitly. Public ChatGPT App submission must wait.
+- Do not start endpoint implementation from FP-0103 alone. FP-0104 supersedes the original FP-0104 absence gate only as a docs-only endpoint implementation readiness and exact future endpoint inventory plan; endpoint implementation, route ownership, auth, deployment, and public-app questions still require a later named implementation plan. Public ChatGPT App submission must wait.

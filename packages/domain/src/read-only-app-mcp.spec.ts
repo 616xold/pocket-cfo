@@ -360,7 +360,10 @@ describe("V2G read-only ChatGPT App/MCP contracts", () => {
     expect(
       proof.fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified,
     ).toBe(true);
-    expect(proof.fp0104Absent).toBe(true);
+    expect(
+      proof.fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
+    ).toBe(true);
+    expect(proof.fp0105Absent).toBe(true);
     expect(proof.endpointArchitectureProofContractsFoundationVerified).toBe(
       true,
     );
