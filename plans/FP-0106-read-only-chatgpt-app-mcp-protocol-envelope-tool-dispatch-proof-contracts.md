@@ -14,7 +14,7 @@ No endpoint implementation is required. No route implementation is required. No 
 
 ## Purpose
 
-FP-0104 named `/mcp` as the only future public ChatGPT-facing endpoint path. FP-0105 named `apps/control-plane` Fastify as the documentation-only future route owner for `/mcp` while keeping route implementation blocked. FP-0106 closes the next proof gap before any actual Fastify route file can be created: it defines local proof contracts for the future protocol envelope, accepted MCP/JSON-RPC method families, fail-closed method rejection, exact read-only tool dispatch, structured evidence response envelope, refusal/error envelope, auth deferral, logging redaction, and no-runtime/no-route posture.
+FP-0104 named `/mcp` as the only future public ChatGPT-facing endpoint path. FP-0105 named `apps/control-plane` Fastify as the documentation-only future route owner for `/mcp` while keeping route implementation blocked. FP-0106 closes the next proof gap before any actual Fastify route file can be created: it defines local proof contracts for the future protocol envelope, required future MCP/JSON-RPC method families, the `ping` liveness utility boundary, fail-closed method rejection, exact read-only tool dispatch, structured evidence response envelope, refusal/error envelope, auth deferral, logging redaction, and no-runtime/no-route posture.
 
 Replay and evidence-bundle implications: this slice creates no mission state transition, ingest action, report action, approval, durable product finance output, source mutation, Finance Twin write, CFO Wiki write, EvidenceIndex mutation, evidence bundle, provider job, certification record, delivery record, endpoint, backend route, remote MCP server, Apps SDK resource, app submission, or app/MCP runtime behavior. No replay event is added because this is local/proof-only contract and proof-gate work only.
 
@@ -30,8 +30,15 @@ Replay and evidence-bundle implications: this slice creates no mission state tra
 - [x] 2026-05-11 - Refreshed directly stale README, CODEX, START, ACTIVE_DOCS, PROJECT_STATE, V2_BOUNDARY, ROADMAP, and plugin metadata for the FP-0106 boundary. Security/demo docs did not need wording changes from latest-state scans.
 - [x] 2026-05-11 - Split the protocol-envelope contract surface into small constants, schema, type, builder, proof, and barrel modules to preserve modular code boundaries.
 - [x] 2026-05-11 - Ran focused validation, strict same-branch QA, final validation, and closeout. Validation passed after one lint-only type-import correction in the new protocol-envelope type module.
+- [x] 2026-05-11T15:40:03Z - Opened targeted post-merge FP-0106 hardening on branch `codex/v2z-read-only-chatgpt-app-mcp-protocol-envelope-ping-compatibility-hardening-local-v1`; preflight passed from shipped PR #270/main, FP-0106 exists and is shipped, FP-0107 is absent, required proof tools exist, Docker services and GitHub auth are available, and baseline proof gates passed before edits. The baseline protocol proof intentionally exposed the correction target: `ping` was still listed under rejected methods.
+- [x] 2026-05-11T16:08:53Z - Completed the post-merge `ping` compatibility correction, directly stale docs/plugin refresh, and strict same-branch validation. The first `pnpm ci:repro:current` attempt exposed an unrelated timing edge in the large benchmark-community proof spec; the proof test now has an explicit timeout, and the full validation ladder passed before this closeout note. A minimum post-closeout gate rerun is required before commit because this plan was updated after validation.
 
-## Official OpenAI Sources
+## Official MCP And OpenAI Sources
+
+Official Model Context Protocol sources used for this post-merge hardening:
+
+- Model Context Protocol draft Ping utility page, `https://modelcontextprotocol.io/specification/draft/basic/utilities/ping`: used to correct the FP-0106 contract so `ping` is treated as an MCP-level liveness request that either party may send on an established connection, with a prompt empty JSON-RPC result required in a later route implementation, instead of a rejected method.
+- Model Context Protocol draft Base Protocol overview, `https://modelcontextprotocol.io/specification/draft/basic`: used to keep the FP-0106 method boundary aligned with MCP JSON-RPC request/response/notification semantics while preserving local proof-only/no-route posture.
 
 Official OpenAI sources used as current read-only platform/security context:
 
@@ -56,8 +63,11 @@ OpenAI Developer Docs MCP tools were not exposed as callable read-only docs tool
 - `GET /mcp` remains future-only and blocked unless later required by official protocol docs.
 - No route file may be created in FP-0106.
 - No local or remote MCP server runtime may be added in FP-0106.
-- Accepted future MCP/JSON-RPC message families are exactly `initialize`, `notifications/initialized` if protocol docs require it, `tools/list`, and `tools/call`. A health/metadata method remains future-only and may only be added by a later implementation plan if explicitly documented.
-- All other methods must fail closed in the future route adapter.
+- Required future MCP/JSON-RPC message families are exactly `initialize`, `notifications/initialized` if protocol docs require it, `tools/list`, and `tools/call`. A health/metadata method remains future-only and may only be added by a later implementation plan if explicitly documented.
+- The liveness utility method is `ping`. Per the official Model Context Protocol Ping utility spec, `ping` is a future protocol liveness request, not a rejected method and not a write/action/tool-dispatch method.
+- A later route implementation must respond to a valid `ping` request on an established MCP session with an empty JSON-RPC result. `ping` remains unimplemented in this correction because no `/mcp` route exists and route implementation remains blocked.
+- `ping` must not dispatch to tools, must not dispatch to evidence services, must not dispatch to Finance Twin, must not dispatch to CFO Wiki, must not trigger provider calls, must not create source mutation, must not create a finance write, must make no OpenAI API/model calls, and must create no external communications.
+- All other methods must fail closed in the future route adapter, with `ping` handled only by the explicit liveness utility boundary. Unknown non-ping methods still fail closed.
 
 ## Tool Dispatch Decisions
 
@@ -93,6 +103,8 @@ FP-0106 adds pure domain contracts and proof schemas for:
 - `McpProtocolPathBoundary`
 - `McpProtocolTransportBoundary`
 - `McpProtocolAcceptedMethodsBoundary`
+- `McpProtocolPingBoundary`
+- `McpProtocolMethodCompatibilityWithOfficialSpecBoundary`
 - `McpProtocolRejectedMethodsBoundary`
 - `McpProtocolInitializeBoundary`
 - `McpProtocolToolsListBoundary`
@@ -117,7 +129,13 @@ The contracts must prove:
 - No route file exists from FP-0106.
 - No runtime endpoint was added from FP-0106.
 - Accepted methods are exact and future-only.
+- `ping` is an explicit future liveness utility method aligned with the official Model Context Protocol Ping utility spec.
+- `ping` is not a rejected method.
+- `ping` must require an empty JSON-RPC result in a later route implementation on an established MCP session.
+- `ping` must not dispatch to tools, evidence services, Finance Twin, CFO Wiki, provider calls, source mutation, finance writes, OpenAI API/model calls, or external communications.
+- `ping` remains unimplemented in this correction because no route exists.
 - Rejected methods fail closed.
+- Unknown non-ping methods still fail closed.
 - Exact V2G read-only tool allowlist is preserved.
 - Dynamic tools are forbidden.
 - Invalid tool names fail closed.
@@ -160,6 +178,8 @@ Machine-readable proof fields should include:
 - `fp0107Absent`
 - `mcpProtocolEnvelopeProofContractsFoundationVerified`
 - `mcpProtocolAcceptedMethodsVerified`
+- `mcpProtocolPingBoundaryVerified`
+- `mcpProtocolMethodCompatibilityWithOfficialSpecVerified`
 - `mcpProtocolReadOnlyToolDispatchVerified`
 - `mcpProtocolEvidenceEnvelopeVerified`
 - `mcpProtocolRefusalEnvelopeVerified`
@@ -184,7 +204,7 @@ Machine-readable proof fields should include:
 
 Add `tools/read-only-mcp-protocol-envelope-proof.mjs`.
 
-It must print machine-readable JSON and fail if any boolean is false. The JSON must include at least the direct protocol proof booleans for local proof-only posture, path, transport, accepted/rejected methods, initialize, tools/list, tools/call, allowlist, schemas, structured content, evidence envelope, refusal envelope, argument validation, invalid-tool fail-closed behavior, auth deferral, logging redaction, no endpoint/route/web API/backend/control-plane route/runtime, no remote MCP, no OAuth/token/session, no Apps SDK resource, no public app, no submission/public assets/listing copy, no OpenAI API/model/client/key usage, no source mutation, no finance write, no write-action tools, endpoint runtime inventory, proof-source scan, FP-0106 boundary, FP-0107 absence, and FP-0105/0104/0103/0100 boundary preservation.
+It must print machine-readable JSON and fail if any boolean is false. The JSON must include at least the direct protocol proof booleans for local proof-only posture, path, transport, required future methods, `ping` liveness boundary, official-spec method compatibility, rejected methods, initialize, tools/list, tools/call, allowlist, schemas, structured content, evidence envelope, refusal envelope, argument validation, invalid-tool fail-closed behavior, auth deferral, logging redaction, no endpoint/route/web API/backend/control-plane route/runtime, no remote MCP, no OAuth/token/session, no Apps SDK resource, no public app, no submission/public assets/listing copy, no OpenAI API/model/client/key usage, no source mutation, no finance write, no write-action tools, endpoint runtime inventory, proof-source scan, FP-0106 boundary, FP-0107 absence, and FP-0105/0104/0103/0100 boundary preservation.
 
 ## Validation Ladder
 
@@ -201,6 +221,7 @@ It must print machine-readable JSON and fail if any boolean is false. The JSON m
 - Focused domain specs passed: `src/benchmark-community.spec.ts`, `src/read-only-app-mcp.spec.ts`, `src/read-only-app-mcp-descriptor.spec.ts`, `src/read-only-app-mcp-public-security.spec.ts`, `src/read-only-app-mcp-endpoint-architecture.spec.ts`, `src/read-only-app-mcp-endpoint-route-ownership.spec.ts`, and `src/read-only-app-mcp-protocol-envelope.spec.ts`.
 - `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed.
 - Strict same-branch QA confirmed changed files are docs/proof-gate/domain-contract only, FP-0107 is absent, and no endpoint, route, OAuth/token/session, remote MCP, Apps SDK resource, public-app implementation, app-submission artifact, OpenAI API/model/key usage, source mutation, finance write, or public asset was added.
+- Post-merge `ping` hardening validation reran the requested proof ladder after the timing fix: `git diff --check`, all eleven requested proof tools, focused domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed before this closeout note.
 
 ## Decision Log
 
@@ -210,11 +231,14 @@ It must print machine-readable JSON and fail if any boolean is false. The JSON m
 - 2026-05-11 - The exact V2G read-only tool allowlist remains the only permitted future public tool surface. Dynamic tools and tool drift remain forbidden.
 - 2026-05-11 - The FP-0106 proof surface was split across constants, schema, type, builder, proof, and barrel modules to keep the protocol contracts auditable and modular.
 - 2026-05-11 - Proof-source hardening was added to the endpoint route ownership proof so executable OpenAI/API/model/key patterns are scanned across proof surfaces, not only changed paths.
+- 2026-05-11T15:40:03Z - Post-merge MCP compatibility hardening corrects `ping` from rejected-method posture to explicit future liveness utility posture. `ping` remains no-route/no-runtime in FP-0106, must not dispatch to tools or mutate state, and a later route implementation must answer a valid `ping` request on an established MCP session with an empty JSON-RPC result.
+- 2026-05-11T16:08:53Z - The benchmark-community proof spec now has an explicit timeout for its large cross-plan proof posture test because repro validation showed the default 5s Vitest timeout could fail despite the proof remaining valid.
 
 ## Surprises And Scope Notes
 
 - The first lint pass caught type-only imports in the new protocol-envelope type module. That was corrected without widening scope, and validation was rerun.
-- Security and demo policy docs did not need text changes because latest-state scans found no direct FP-0106-stale language there.
+- The first post-merge `pnpm ci:repro:current` run failed on a default-timeout edge in `src/benchmark-community.spec.ts`; the narrow timeout correction stayed inside the allowed proof-gate spec scope and full validation was rerun.
+- Security and demo policy docs were refreshed only where directly stale for the shipped FP-0106 protocol envelope, `ping` liveness boundary, and proof-gate posture.
 - No replay event was added because this slice creates no mission state change, ingest action, report action, endpoint, runtime, source mutation, finance write, approval, or durable finance output.
 
 ## Remaining Work

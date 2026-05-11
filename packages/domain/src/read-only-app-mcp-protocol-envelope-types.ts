@@ -3,7 +3,9 @@ import type {
   McpProtocolAcceptedMethodsBoundarySchema,
   McpProtocolEnvelopeProofContractSchema,
   McpProtocolInitializeBoundarySchema,
+  McpProtocolMethodCompatibilityWithOfficialSpecBoundarySchema,
   McpProtocolPathBoundarySchema,
+  McpProtocolPingBoundarySchema,
   McpProtocolReadOnlyToolAllowlistBoundarySchema,
   McpProtocolRejectedMethodsBoundarySchema,
   McpProtocolToolsCallBoundarySchema,
@@ -35,6 +37,12 @@ export type McpProtocolTransportBoundary = z.infer<
 >;
 export type McpProtocolAcceptedMethodsBoundary = z.infer<
   typeof McpProtocolAcceptedMethodsBoundarySchema
+>;
+export type McpProtocolPingBoundary = z.infer<
+  typeof McpProtocolPingBoundarySchema
+>;
+export type McpProtocolMethodCompatibilityWithOfficialSpecBoundary = z.infer<
+  typeof McpProtocolMethodCompatibilityWithOfficialSpecBoundarySchema
 >;
 export type McpProtocolRejectedMethodsBoundary = z.infer<
   typeof McpProtocolRejectedMethodsBoundarySchema

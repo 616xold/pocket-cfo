@@ -4322,7 +4322,7 @@ describe("benchmark community pack foundation contracts", () => {
         rawFullText: "synthetic but forbidden proof field",
       }),
     ).toThrow();
-  });
+  }, 15_000);
 
   it("rejects FP-0100 through FP-0103 code-level OpenAI API and model patterns", () => {
     const packageName = ["open", "ai"].join("");

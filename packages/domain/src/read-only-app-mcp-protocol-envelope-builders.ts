@@ -6,6 +6,8 @@ import {
 import {
   MCP_PROTOCOL_ACCEPTED_METHODS,
   MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION,
+  MCP_PROTOCOL_LIVENESS_METHOD,
+  MCP_PROTOCOL_LIVENESS_METHODS,
   MCP_PROTOCOL_LOGGING_REDACTION_FIELDS,
   MCP_PROTOCOL_PUBLIC_PATH,
   MCP_PROTOCOL_REJECTED_METHODS,
@@ -19,10 +21,12 @@ import {
   McpProtocolInitializeBoundarySchema,
   McpProtocolInvalidToolFailClosedBoundarySchema,
   McpProtocolLoggingRedactionBoundarySchema,
+  McpProtocolMethodCompatibilityWithOfficialSpecBoundarySchema,
   McpProtocolNoOpenAiApiModelCallsBoundarySchema,
   McpProtocolNoRouteImplementationBoundarySchema,
   McpProtocolNoRuntimeImplementationBoundarySchema,
   McpProtocolPathBoundarySchema,
+  McpProtocolPingBoundarySchema,
   McpProtocolReadOnlyToolAllowlistBoundarySchema,
   McpProtocolRefusalEnvelopeBoundarySchema,
   McpProtocolRejectedMethodsBoundarySchema,
@@ -86,7 +90,47 @@ export function buildMcpProtocolAcceptedMethodsBoundary() {
     contractKind: "McpProtocolAcceptedMethodsBoundary",
     dynamicMethodsAllowed: false,
     healthMetadataMethodFutureOnly: true,
+    livenessUtilityMethods: [...MCP_PROTOCOL_LIVENESS_METHODS],
+    requiredFutureMethods: [...MCP_PROTOCOL_ACCEPTED_METHODS],
     schemaVersion: MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION,
+  });
+}
+
+export function buildMcpProtocolPingBoundary() {
+  return McpProtocolPingBoundarySchema.parse({
+    contractKind: "McpProtocolPingBoundary",
+    dispatchesToCfoWiki: false,
+    dispatchesToEvidenceServices: false,
+    dispatchesToFinanceTwin: false,
+    dispatchesToTools: false,
+    emptyJsonRpcResultRequiredForFutureRoute: true,
+    establishedSessionRequestOnlyFuture: true,
+    externalCommunicationsAllowed: false,
+    financeWritesAllowed: false,
+    futureProtocolLivenessRequest: true,
+    implementedInFp0106: false,
+    methodName: MCP_PROTOCOL_LIVENESS_METHOD,
+    openAiApiModelCallsAllowed: false,
+    providerCallsAllowed: false,
+    routeImplementationExists: false,
+    schemaVersion: MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION,
+    sourceMutationAllowed: false,
+  });
+}
+
+export function buildMcpProtocolMethodCompatibilityWithOfficialSpecBoundary() {
+  return McpProtocolMethodCompatibilityWithOfficialSpecBoundarySchema.parse({
+    contractKind: "McpProtocolMethodCompatibilityWithOfficialSpecBoundary",
+    livenessUtilityMethod: MCP_PROTOCOL_LIVENESS_METHOD,
+    officialMcpPingEmptyResultRequiredFutureRoute: true,
+    officialMcpPingLivenessSemanticsRecorded: true,
+    pingExcludedFromRejectedMethods: true,
+    pingExcludedFromToolDispatchMethods: true,
+    rejectedMethods: [...MCP_PROTOCOL_REJECTED_METHODS],
+    requiredFutureMethods: [...MCP_PROTOCOL_ACCEPTED_METHODS],
+    routeImplementationStillBlocked: true,
+    schemaVersion: MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION,
+    unknownNonPingMethodsFailClosed: true,
   });
 }
 
@@ -172,7 +216,9 @@ export function buildMcpProtocolStructuredContentBoundary() {
   return McpProtocolStructuredContentBoundarySchema.parse({
     contractKind: "McpProtocolStructuredContentBoundary",
     freeformFinanceProseCanBeSourceTruth: false,
-    requiredStructuredContentFields: [...MCP_PROTOCOL_STRUCTURED_CONTENT_FIELDS],
+    requiredStructuredContentFields: [
+      ...MCP_PROTOCOL_STRUCTURED_CONTENT_FIELDS,
+    ],
     schemaVersion: MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION,
     structuredContentRequiredForToolResults: true,
   });
@@ -298,6 +344,8 @@ export function buildMcpProtocolEnvelopeContracts() {
     invalidToolFailClosedBoundary:
       buildMcpProtocolInvalidToolFailClosedBoundary(),
     loggingRedactionBoundary: buildMcpProtocolLoggingRedactionBoundary(),
+    methodCompatibilityWithOfficialSpecBoundary:
+      buildMcpProtocolMethodCompatibilityWithOfficialSpecBoundary(),
     noOpenAiApiModelCallsBoundary:
       buildMcpProtocolNoOpenAiApiModelCallsBoundary(),
     noRouteImplementationBoundary:
@@ -305,6 +353,7 @@ export function buildMcpProtocolEnvelopeContracts() {
     noRuntimeImplementationBoundary:
       buildMcpProtocolNoRuntimeImplementationBoundary(),
     pathBoundary: buildMcpProtocolPathBoundary(),
+    pingBoundary: buildMcpProtocolPingBoundary(),
     readOnlyToolAllowlistBoundary:
       buildMcpProtocolReadOnlyToolAllowlistBoundary(),
     refusalEnvelopeBoundary: buildMcpProtocolRefusalEnvelopeBoundary(),
