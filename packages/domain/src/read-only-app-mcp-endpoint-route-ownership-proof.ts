@@ -47,7 +47,28 @@ export const EndpointRouteOwnershipProofSchema = z
     noWriteActionTools: trueLiteral,
     endpointRuntimeRepositoryInventoryVerified: trueLiteral,
     fp0105BoundaryVerified: trueLiteral,
-    fp0106Absent: trueLiteral,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      trueLiteral,
+    fp0107Absent: trueLiteral,
+    mcpProtocolEnvelopeProofContractsFoundationVerified: trueLiteral,
+    mcpProtocolAcceptedMethodsVerified: trueLiteral,
+    mcpProtocolReadOnlyToolDispatchVerified: trueLiteral,
+    mcpProtocolEvidenceEnvelopeVerified: trueLiteral,
+    mcpProtocolRefusalEnvelopeVerified: trueLiteral,
+    noEndpointImplementationFromFp0106: trueLiteral,
+    noRouteImplementationFromFp0106: trueLiteral,
+    noApiBackendRoutesFromFp0106: trueLiteral,
+    noOauthTokenSessionImplementationFromFp0106: trueLiteral,
+    noRemoteMcpImplementationOrDeploymentFromFp0106: trueLiteral,
+    noAppsSdkResourceFromFp0106: trueLiteral,
+    noAppSubmissionFromFp0106: trueLiteral,
+    noOpenAiApiCallsFromFp0106: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0106: trueLiteral,
+    noPublicAssetsSubmissionArtifactsFromFp0106: trueLiteral,
+    endpointRuntimeRepositoryInventoryStillVerified: trueLiteral,
+    publicAppProofGateNoOpenAiApiSourceScanVerified: trueLiteral,
+    fp0105RouteOwnershipBoundaryStillVerified: trueLiteral,
+    fp0103EndpointArchitectureProofContractsStillVerified: trueLiteral,
     fp0104EndpointReadinessBoundaryStillVerified: trueLiteral,
     fp0103EndpointArchitectureBoundaryStillVerified: trueLiteral,
     fp0100PublicSecurityBoundaryStillVerified: trueLiteral,
@@ -111,7 +132,27 @@ export function buildEndpointRouteOwnershipProof(
     noWriteActionTools: boolean;
     endpointRuntimeRepositoryInventoryVerified: boolean;
     fp0105BoundaryVerified: boolean;
-    fp0106Absent: boolean;
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified: boolean;
+    fp0107Absent: boolean;
+    mcpProtocolEnvelopeProofContractsFoundationVerified: boolean;
+    mcpProtocolAcceptedMethodsVerified: boolean;
+    mcpProtocolReadOnlyToolDispatchVerified: boolean;
+    mcpProtocolEvidenceEnvelopeVerified: boolean;
+    mcpProtocolRefusalEnvelopeVerified: boolean;
+    noEndpointImplementationFromFp0106: boolean;
+    noRouteImplementationFromFp0106: boolean;
+    noApiBackendRoutesFromFp0106: boolean;
+    noOauthTokenSessionImplementationFromFp0106: boolean;
+    noRemoteMcpImplementationOrDeploymentFromFp0106: boolean;
+    noAppsSdkResourceFromFp0106: boolean;
+    noAppSubmissionFromFp0106: boolean;
+    noOpenAiApiCallsFromFp0106: boolean;
+    noSourceMutationFinanceWriteFromFp0106: boolean;
+    noPublicAssetsSubmissionArtifactsFromFp0106: boolean;
+    endpointRuntimeRepositoryInventoryStillVerified: boolean;
+    publicAppProofGateNoOpenAiApiSourceScanVerified: boolean;
+    fp0105RouteOwnershipBoundaryStillVerified: boolean;
+    fp0103EndpointArchitectureProofContractsStillVerified: boolean;
     fp0104EndpointReadinessBoundaryStillVerified: boolean;
     fp0103EndpointArchitectureBoundaryStillVerified: boolean;
     fp0100PublicSecurityBoundaryStillVerified: boolean;
@@ -217,7 +258,12 @@ export function buildEndpointRouteOwnershipProof(
     fp0104EndpointReadinessBoundaryStillVerified:
       input.fp0104EndpointReadinessBoundaryStillVerified ?? true,
     fp0105BoundaryVerified: input.fp0105BoundaryVerified ?? true,
-    fp0106Absent: input.fp0106Absent ?? true,
+    fp0105RouteOwnershipBoundaryStillVerified:
+      input.fp0105RouteOwnershipBoundaryStillVerified ?? true,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      input.fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified ??
+      true,
+    fp0107Absent: input.fp0107Absent ?? true,
     futureMcpPath: ENDPOINT_PUBLIC_MCP_PATH,
     futureMcpPathBoundaryVerified:
       path.futurePublicChatGptFacingEndpointPath === ENDPOINT_PUBLIC_MCP_PATH &&
@@ -228,27 +274,62 @@ export function buildEndpointRouteOwnershipProof(
       decision.futureRouteFilePathPatternDocumentationOnly,
     localProofOnly: proofContract.localProofOnly,
     loggingRedactionFields: [...ENDPOINT_LOGGING_REDACTION_FIELDS],
+    mcpProtocolAcceptedMethodsVerified:
+      input.mcpProtocolAcceptedMethodsVerified ?? true,
+    mcpProtocolEnvelopeProofContractsFoundationVerified:
+      input.mcpProtocolEnvelopeProofContractsFoundationVerified ?? true,
+    mcpProtocolEvidenceEnvelopeVerified:
+      input.mcpProtocolEvidenceEnvelopeVerified ?? true,
+    mcpProtocolReadOnlyToolDispatchVerified:
+      input.mcpProtocolReadOnlyToolDispatchVerified ?? true,
+    mcpProtocolRefusalEnvelopeVerified:
+      input.mcpProtocolRefusalEnvelopeVerified ?? true,
+    noApiBackendRoutesFromFp0106:
+      input.noApiBackendRoutesFromFp0106 ?? true,
     noAppSubmission: input.noAppSubmission ?? true,
+    noAppSubmissionFromFp0106: input.noAppSubmissionFromFp0106 ?? true,
     noAppsSdkResourceImplementation:
       input.noAppsSdkResourceImplementation ?? true,
+    noAppsSdkResourceFromFp0106:
+      input.noAppsSdkResourceFromFp0106 ?? true,
     noEndpointImplementation: input.noEndpointImplementation ?? true,
+    noEndpointImplementationFromFp0106:
+      input.noEndpointImplementationFromFp0106 ?? true,
     noFinanceWrite: input.noFinanceWrite ?? true,
     noListingCopy: input.noListingCopy ?? true,
     noModelCalls: input.noModelCalls ?? true,
     noOauthTokenSessionImplementation:
       input.noOauthTokenSessionImplementation ?? true,
+    noOauthTokenSessionImplementationFromFp0106:
+      input.noOauthTokenSessionImplementationFromFp0106 ?? true,
     noOpenAiApiCalls: input.noOpenAiApiCalls ?? true,
+    noOpenAiApiCallsFromFp0106:
+      input.noOpenAiApiCallsFromFp0106 ?? true,
     noOpenAiClientOrKeyUsage: input.noOpenAiClientOrKeyUsage ?? true,
     noPublicAssets: input.noPublicAssets ?? true,
     noPublicChatGptAppImplementation:
       input.noPublicChatGptAppImplementation ?? true,
     noRemoteMcpServerImplementation:
       input.noRemoteMcpServerImplementation ?? true,
+    noRemoteMcpImplementationOrDeploymentFromFp0106:
+      input.noRemoteMcpImplementationOrDeploymentFromFp0106 ?? true,
     noRouteImplementation: input.noRouteImplementation ?? true,
+    noRouteImplementationFromFp0106:
+      input.noRouteImplementationFromFp0106 ?? true,
     noSourceMutation: input.noSourceMutation ?? true,
+    noSourceMutationFinanceWriteFromFp0106:
+      input.noSourceMutationFinanceWriteFromFp0106 ?? true,
     noWebApiBackendControlPlaneRouteImplementation:
       input.noWebApiBackendControlPlaneRouteImplementation ?? true,
     noWriteActionTools: input.noWriteActionTools ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0106:
+      input.noPublicAssetsSubmissionArtifactsFromFp0106 ?? true,
+    endpointRuntimeRepositoryInventoryStillVerified:
+      input.endpointRuntimeRepositoryInventoryStillVerified ?? true,
+    publicAppProofGateNoOpenAiApiSourceScanVerified:
+      input.publicAppProofGateNoOpenAiApiSourceScanVerified ?? true,
+    fp0103EndpointArchitectureProofContractsStillVerified:
+      input.fp0103EndpointArchitectureProofContractsStillVerified ?? true,
     responseEnvelopeRequiredFields: [...ENDPOINT_ROUTE_RESPONSE_ENVELOPE_FIELDS],
     routeOwnerDecisionOutcome: "decided",
     schemaVersion: ENDPOINT_ROUTE_OWNERSHIP_SCHEMA_VERSION,

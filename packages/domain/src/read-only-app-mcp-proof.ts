@@ -70,7 +70,8 @@ export function buildReadOnlyChatGptAppMcpProof(
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: boolean;
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: boolean;
     fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified: boolean;
-    fp0106Absent: boolean;
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified: boolean;
+    fp0107Absent: boolean;
     endpointArchitectureProofContractsFoundationVerified: boolean;
     noEndpointImplementationFromFp0103: boolean;
     noRouteImplementationFromFp0103: boolean;
@@ -575,7 +576,10 @@ export function buildReadOnlyChatGptAppMcpProof(
       input
         .fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified ??
       true,
-    fp0106Absent: input.fp0106Absent ?? true,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      input.fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified ??
+      true,
+    fp0107Absent: input.fp0107Absent ?? true,
     endpointArchitectureProofContractsFoundationVerified:
       input.endpointArchitectureProofContractsFoundationVerified ?? true,
     noEndpointImplementationFromFp0103:

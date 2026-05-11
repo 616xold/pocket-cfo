@@ -11,6 +11,8 @@ const FP0104_PLAN =
   "plans/FP-0104-read-only-chatgpt-app-mcp-endpoint-implementation-readiness-and-inventory-master-plan.md";
 const FP0105_PLAN =
   "plans/FP-0105-read-only-chatgpt-app-mcp-endpoint-route-ownership-transport-adapter-proof-contracts.md";
+const FP0106_PLAN =
+  "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
 const FP0103_PLAN =
   "plans/FP-0103-read-only-chatgpt-app-mcp-endpoint-architecture-proof-contracts-foundation.md";
 const FP0102_PLAN =
@@ -83,7 +85,9 @@ const proof = EndpointArchitectureProofSchema.parse(
       fp0104Plan.absentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
     fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
       fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified(),
-    fp0106Absent: fp0106Absent(),
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified(),
+    fp0107Absent: fp0107Absent(),
     endpointImplementationReadinessPlanBoundaryVerified:
       fp0104Plan.endpointImplementationReadinessPlanBoundaryVerified,
     exactFutureEndpointInventoryReadinessVerified:
@@ -481,8 +485,31 @@ function fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerif
   ].every((requiredText) => normalized.includes(requiredText));
 }
 
-function fp0106Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0106/u.test(path));
+function fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified() {
+  const fp0106Hits = repoPaths.filter((path) => /(^|\/)FP-0106/u.test(path));
+  if (fp0106Hits.length === 0) return true;
+  if (fp0106Hits.length !== 1 || fp0106Hits[0] !== FP0106_PLAN) {
+    return false;
+  }
+
+  const normalized = normalize(readFileSync(FP0106_PLAN, "utf8"));
+  return [
+    "fp-0106 is local/proof-only/read-only mcp protocol envelope and tool-dispatch contract work",
+    "fp-0106 does not authorize endpoint implementation",
+    "fp-0106 does not authorize route implementation",
+    "fp-0106 defines future mcp protocol envelope and read-only tool-dispatch proof contracts only",
+    "fp-0106 keeps fp-0107 absent",
+    "mcpprotocolenvelopeproofcontract",
+    "mcpprotocolacceptedmethodsboundary",
+    "mcpprotocoltoolslistboundary",
+    "mcpprotocoltoolscallboundary",
+    "mcpprotocolevidenceenvelopeboundary",
+    "mcpprotocolrefusalenvelopeboundary",
+  ].every((requiredText) => normalized.includes(requiredText));
+}
+
+function fp0107Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0107/u.test(path));
 }
 
 function endpointRuntimeRepositoryInventory() {

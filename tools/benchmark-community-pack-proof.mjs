@@ -3509,7 +3509,8 @@ function fp0104EndpointImplementationReadinessBoundary() {
   const absentBoundary = {
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: true,
     fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified: true,
-    fp0106Absent: true,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified: true,
+    fp0107Absent: true,
     endpointImplementationReadinessPlanBoundaryVerified: true,
     exactFutureEndpointInventoryReadinessVerified: true,
     noEndpointImplementationFromFp0104: true,
@@ -3535,13 +3536,17 @@ function fp0104EndpointImplementationReadinessBoundary() {
   );
   const fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified =
     fp0105EndpointRouteOwnershipBoundary();
-  const fp0106AbsentVerified = fp0106Absent();
+  const fp0106BoundaryVerified =
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified();
+  const fp0107AbsentVerified = fp0107Absent();
 
   if (fp0104PathHits.length === 0) {
     return {
       ...absentBoundary,
       fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified,
-      fp0106Absent: fp0106AbsentVerified,
+      fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+        fp0106BoundaryVerified,
+      fp0107Absent: fp0107AbsentVerified,
     };
   }
   if (
@@ -3552,7 +3557,9 @@ function fp0104EndpointImplementationReadinessBoundary() {
     return {
       ...failedBoundary,
       fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified,
-      fp0106Absent: fp0106AbsentVerified,
+      fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+        fp0106BoundaryVerified,
+      fp0107Absent: fp0107AbsentVerified,
     };
   }
 
@@ -3648,7 +3655,9 @@ function fp0104EndpointImplementationReadinessBoundary() {
   return {
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
     fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified,
-    fp0106Absent: fp0106AbsentVerified,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      fp0106BoundaryVerified,
+    fp0107Absent: fp0107AbsentVerified,
     endpointImplementationReadinessPlanBoundaryVerified,
     exactFutureEndpointInventoryReadinessVerified,
     noEndpointImplementationFromFp0104,
@@ -3693,8 +3702,34 @@ function fp0105EndpointRouteOwnershipBoundary() {
   ].every((requiredText) => normalized.includes(requiredText));
 }
 
-function fp0106Absent() {
-  return !repoFilePaths().some((path) => /(^|\/)FP-0106/u.test(path));
+function fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified() {
+  const fp0106Path =
+    "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
+  const fp0106PathHits = repoFilePaths().filter((path) =>
+    /(^|\/)FP-0106/u.test(path),
+  );
+
+  if (fp0106PathHits.length === 0) return true;
+  if (fp0106PathHits.length !== 1 || fp0106PathHits[0] !== fp0106Path) {
+    return false;
+  }
+
+  const normalized = readFileSync(fp0106Path, "utf8")
+    .toLowerCase()
+    .replace(/`/gu, "");
+  return [
+    "fp-0106 is local/proof-only/read-only mcp protocol envelope and tool-dispatch contract work",
+    "fp-0106 does not authorize endpoint implementation",
+    "fp-0106 does not authorize route implementation",
+    "fp-0106 does not authorize oauth/token/session implementation",
+    "fp-0106 defines future mcp protocol envelope and read-only tool-dispatch proof contracts only",
+    "fp-0106 keeps fp-0107 absent",
+    "mcpprotocolproof",
+  ].every((requiredText) => normalized.includes(requiredText));
+}
+
+function fp0107Absent() {
+  return !repoFilePaths().some((path) => /(^|\/)FP-0107/u.test(path));
 }
 
 function noFp0100RouteOrEndpointPaths() {

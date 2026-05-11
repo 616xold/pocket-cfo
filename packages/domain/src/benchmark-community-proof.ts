@@ -100,7 +100,9 @@ export const BenchmarkProofSchema = z
       trueLiteral,
     fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
       trueLiteral,
-    fp0106Absent: trueLiteral,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      trueLiteral,
+    fp0107Absent: trueLiteral,
     endpointArchitectureProofContractsFoundationVerified: trueLiteral,
     noEndpointImplementationFromFp0103: trueLiteral,
     noRouteImplementationFromFp0103: trueLiteral,
