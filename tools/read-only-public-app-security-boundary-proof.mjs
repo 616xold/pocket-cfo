@@ -257,6 +257,7 @@ function fp0101PublicAppImplementationSequencingBoundary() {
     .replace(/`/gu, "");
   const implementationRouteOrEndpointPaths = repoFilePaths().filter(
     (path) =>
+      !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web\/app|apps\/control-plane)\//u.test(path) &&
       /fp-?0101|implementation-sequencing|public-app-implementation|endpoint|oauth|remote-mcp/u.test(
         path.toLowerCase(),
@@ -386,6 +387,7 @@ function fp0102EndpointOauthRemoteMcpArchitectureBoundary() {
     .replace(/`/gu, "");
   const implementationRouteOrEndpointPaths = repoFilePaths().filter(
     (path) =>
+      !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web\/app|apps\/control-plane)\//u.test(path) &&
       /fp-?0102|endpoint|oauth|remote-mcp|remote-mcp-server|apps-sdk|appssdk/u.test(
         path.toLowerCase(),
@@ -545,6 +547,7 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
     .replace(/`/gu, "");
   const noFp0103RuntimePaths = !repoFilePaths().some(
     (path) =>
+      !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web\/app|apps\/web\/pages|apps\/web\/api|apps\/control-plane|packages\/api|packages\/server|packages\/backend|packages\/db)\//u.test(
         path,
       ) && /fp-?0103|endpoint|oauth|remote-mcp|apps-sdk/u.test(path),
@@ -877,12 +880,21 @@ function fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified() {
 }
 
 function fp0107Absent() {
-  return !repoFilePaths().some((path) => /(^|\/)FP-0107/u.test(path));
+  const fp0107Hits = repoFilePaths().filter((path) =>
+    /(^|\/)FP-0107/u.test(path),
+  );
+  return (
+    fp0107Hits.length === 0 ||
+    (fp0107Hits.length === 1 &&
+      fp0107Hits[0] ===
+        "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md")
+  );
 }
 
 function noFp0100RouteOrEndpointPaths() {
   return !repoFilePaths().some(
     (path) =>
+      !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web\/app|apps\/control-plane)\//u.test(path) &&
       /fp-?0100|public-app-security|public-security|security-boundary|endpoint|oauth|remote-mcp/u.test(
         path.toLowerCase(),
@@ -893,10 +905,23 @@ function noFp0100RouteOrEndpointPaths() {
 function noFp0100AppsSdkResourcePaths() {
   return !repoFilePaths().some(
     (path) =>
+      !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web|apps\/control-plane)\//u.test(path) &&
       /fp-?0100|apps-sdk|appssdk|register-resource|registerresource|iframe/u.test(
         path.toLowerCase(),
       ),
+  );
+}
+
+function isAllowedFp0107LocalRouteAdapterPath(path) {
+  return (
+    path ===
+      "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md" ||
+    path === "apps/control-plane/src/app.ts" ||
+    path === "tools/read-only-mcp-route-adapter-proof.mjs" ||
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service)(?:\.spec)?\.ts$/u.test(
+      path,
+    )
   );
 }
 

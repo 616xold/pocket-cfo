@@ -24,7 +24,7 @@ import {
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0105 endpoint route ownership proof contracts", () => {
-  it("accepts exactly one FP-0105 and one FP-0106 plan path while keeping FP-0107 absent", () => {
+  it("accepts exactly one FP-0105, FP-0106, and FP-0107 local route adapter plan path", () => {
     const fp0105Hits = repoFilePaths().filter((path) =>
       /(^|\/)FP-0105/u.test(path),
     );
@@ -39,7 +39,9 @@ describe("FP-0105 endpoint route ownership proof contracts", () => {
     expect(fp0106Hits).toEqual([
       "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md",
     ]);
-    expect(fp0107Hits).toEqual([]);
+    expect(fp0107Hits).toEqual([
+      "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md",
+    ]);
   });
 
   it("builds route ownership contracts as local proof-only and read-only", () => {

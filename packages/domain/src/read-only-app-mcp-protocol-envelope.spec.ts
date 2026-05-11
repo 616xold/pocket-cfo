@@ -29,13 +29,15 @@ import { inspectEndpointRuntimeRepositoryInventory } from "./read-only-app-mcp-e
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0106 MCP protocol envelope and tool-dispatch proof contracts", () => {
-  it("accepts exactly one FP-0106 path and keeps FP-0107 absent", () => {
+  it("accepts exactly one FP-0106 path and at most the exact FP-0107 route adapter plan", () => {
     const paths = repoFilePaths();
     const fp0106Hits = paths.filter((path) => /(^|\/)FP-0106/u.test(path));
     const fp0107Hits = paths.filter((path) => /(^|\/)FP-0107/u.test(path));
 
     expect(fp0106Hits).toEqual([FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH]);
-    expect(fp0107Hits).toEqual([]);
+    expect(fp0107Hits).toEqual([
+      "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md",
+    ]);
   });
 
   it("requires local/proof-only protocol envelope and tool-dispatch wording", () => {

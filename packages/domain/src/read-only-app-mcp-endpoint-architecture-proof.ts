@@ -398,6 +398,7 @@ function endpointRuntimeRepositoryViolation(
 ): boolean {
   if (isAllowedEndpointArchitectureProofSurface(file.path)) return false;
   if (isAllowedHistoricalLocalPreviewSurface(file.path)) return false;
+  if (isAllowedFp0107LocalRouteAdapterSurface(file)) return false;
   if (isAllowedShippedNonPublicRouteSurface(file.path)) return false;
   if (isAllowedHistoricalConnectorSurface(file.path)) return false;
 
@@ -406,6 +407,48 @@ function endpointRuntimeRepositoryViolation(
     looksLikePublicAppEndpointRuntimePath(file.path) ||
     looksLikePublicAppEndpointRuntimeSource(source)
   );
+}
+
+function isAllowedFp0107LocalRouteAdapterSurface(
+  file: EndpointRuntimeRepositoryInventoryFile,
+): boolean {
+  const routeModule =
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service)(?:\.spec)?\.ts$/u.test(
+      file.path,
+    );
+  const planOrProof =
+    file.path ===
+      "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md" ||
+    file.path === "tools/read-only-mcp-route-adapter-proof.mjs";
+
+  const source = file.source ?? "";
+  if (routeModule && file.path.endsWith(".spec.ts")) {
+    return true;
+  }
+
+  if (routeModule && file.path.endsWith("/routes.ts")) {
+    return (
+      source.includes("registerReadOnlyAppMcpEndpointRoutes") &&
+      source.includes('app.post("/mcp"') &&
+      !forbiddenFp0107RouteAdapterRuntimeSource(source)
+    );
+  }
+
+  if (!routeModule && !planOrProof) return false;
+
+  return !forbiddenFp0107RouteAdapterRuntimeSource(source);
+}
+
+function forbiddenFp0107RouteAdapterRuntimeSource(source: string): boolean {
+  return [
+    /publicApp/iu,
+    /OAuth callback|token exchange\s*\(|session handler|Set-Cookie/iu,
+    /registerResource|ui:\/\//iu,
+    /listen\s*\(|remote-mcp|mcp-server/iu,
+    /\bremoteMcp(?:Server|Deployment)?Implemented\s*:\s*true\b/iu,
+    /\bappsSdkResources?Implemented\s*:\s*true\b/iu,
+    /create_mission|upload_source|update_ledger|send_report|provider_connect|certify_close|contact_customer/iu,
+  ].some((pattern) => pattern.test(source));
 }
 
 function isAllowedEndpointArchitectureProofSurface(path: string): boolean {
