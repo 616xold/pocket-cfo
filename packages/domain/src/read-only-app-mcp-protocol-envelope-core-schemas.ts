@@ -8,8 +8,11 @@ import {
 import {
   MCP_PROTOCOL_ACCEPTED_METHODS,
   MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION,
+  MCP_PROTOCOL_LIVENESS_METHOD,
+  MCP_PROTOCOL_LIVENESS_METHODS,
   MCP_PROTOCOL_PUBLIC_PATH,
   MCP_PROTOCOL_REJECTED_METHODS,
+  LivenessMethodSchema,
   RejectedMethodSchema,
   sameMcpProtocolList,
 } from "./read-only-app-mcp-protocol-envelope-constants";
@@ -72,11 +75,100 @@ export const McpProtocolAcceptedMethodsBoundarySchema = z
       z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[2]),
       z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[3]),
     ]),
+    requiredFutureMethods: z.tuple([
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[0]),
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[1]),
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[2]),
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[3]),
+    ]),
+    livenessUtilityMethods: z.tuple([
+      z.literal(MCP_PROTOCOL_LIVENESS_METHODS[0]),
+    ]),
     acceptedMethodsFutureOnly: trueLiteral,
     healthMetadataMethodFutureOnly: trueLiteral,
     dynamicMethodsAllowed: falseLiteral,
   })
   .strict();
+
+export const McpProtocolPingBoundarySchema = z
+  .object({
+    schemaVersion: z.literal(MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION),
+    contractKind: z.literal("McpProtocolPingBoundary"),
+    methodName: LivenessMethodSchema,
+    futureProtocolLivenessRequest: trueLiteral,
+    establishedSessionRequestOnlyFuture: trueLiteral,
+    emptyJsonRpcResultRequiredForFutureRoute: trueLiteral,
+    implementedInFp0106: falseLiteral,
+    routeImplementationExists: falseLiteral,
+    dispatchesToTools: falseLiteral,
+    dispatchesToEvidenceServices: falseLiteral,
+    dispatchesToFinanceTwin: falseLiteral,
+    dispatchesToCfoWiki: falseLiteral,
+    providerCallsAllowed: falseLiteral,
+    sourceMutationAllowed: falseLiteral,
+    financeWritesAllowed: falseLiteral,
+    openAiApiModelCallsAllowed: falseLiteral,
+    externalCommunicationsAllowed: falseLiteral,
+  })
+  .strict();
+
+export const McpProtocolMethodCompatibilityWithOfficialSpecBoundarySchema = z
+  .object({
+    schemaVersion: z.literal(MCP_PROTOCOL_ENVELOPE_SCHEMA_VERSION),
+    contractKind: z.literal(
+      "McpProtocolMethodCompatibilityWithOfficialSpecBoundary",
+    ),
+    requiredFutureMethods: z.tuple([
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[0]),
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[1]),
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[2]),
+      z.literal(MCP_PROTOCOL_ACCEPTED_METHODS[3]),
+    ]),
+    livenessUtilityMethod: z.literal(MCP_PROTOCOL_LIVENESS_METHOD),
+    rejectedMethods: z.array(RejectedMethodSchema).min(1),
+    pingExcludedFromRejectedMethods: trueLiteral,
+    pingExcludedFromToolDispatchMethods: trueLiteral,
+    officialMcpPingLivenessSemanticsRecorded: trueLiteral,
+    officialMcpPingEmptyResultRequiredFutureRoute: trueLiteral,
+    routeImplementationStillBlocked: trueLiteral,
+    unknownNonPingMethodsFailClosed: trueLiteral,
+  })
+  .strict()
+  .superRefine((value, ctx) => {
+    if (
+      !sameMcpProtocolList(
+        value.requiredFutureMethods,
+        MCP_PROTOCOL_ACCEPTED_METHODS,
+      )
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message:
+          "Required future MCP methods must match the protocol contract.",
+        path: ["requiredFutureMethods"],
+      });
+    }
+    if (
+      !sameMcpProtocolList(value.rejectedMethods, MCP_PROTOCOL_REJECTED_METHODS)
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Rejected MCP methods must match the fail-closed contract.",
+        path: ["rejectedMethods"],
+      });
+    }
+    if (
+      (value.rejectedMethods as readonly string[]).includes(
+        MCP_PROTOCOL_LIVENESS_METHOD,
+      )
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "The MCP ping liveness method must not be rejected.",
+        path: ["rejectedMethods"],
+      });
+    }
+  });
 
 export const McpProtocolRejectedMethodsBoundarySchema = z
   .object({
@@ -88,10 +180,23 @@ export const McpProtocolRejectedMethodsBoundarySchema = z
   })
   .strict()
   .superRefine((value, ctx) => {
-    if (!sameMcpProtocolList(value.rejectedMethods, MCP_PROTOCOL_REJECTED_METHODS)) {
+    if (
+      !sameMcpProtocolList(value.rejectedMethods, MCP_PROTOCOL_REJECTED_METHODS)
+    ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Rejected MCP methods must match the fail-closed contract.",
+        path: ["rejectedMethods"],
+      });
+    }
+    if (
+      (value.rejectedMethods as readonly string[]).includes(
+        MCP_PROTOCOL_LIVENESS_METHOD,
+      )
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "The MCP ping liveness method must not be rejected.",
         path: ["rejectedMethods"],
       });
     }

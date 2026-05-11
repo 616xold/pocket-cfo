@@ -104,6 +104,8 @@ function fp0106ProtocolEnvelopeBoundary() {
     mcpProtocolAcceptedMethodsVerified: false,
     mcpProtocolEnvelopeProofContractsFoundationVerified: false,
     mcpProtocolEvidenceEnvelopeVerified: false,
+    mcpProtocolMethodCompatibilityWithOfficialSpecVerified: false,
+    mcpProtocolPingBoundaryVerified: false,
     mcpProtocolReadOnlyToolDispatchVerified: false,
     mcpProtocolRefusalEnvelopeVerified: false,
     noApiBackendRoutesFromFp0106: false,
@@ -143,6 +145,8 @@ function fp0106ProtocolEnvelopeBoundary() {
     "mcpprotocolpathboundary",
     "mcpprotocoltransportboundary",
     "mcpprotocolacceptedmethodsboundary",
+    "mcpprotocolpingboundary",
+    "mcpprotocolmethodcompatibilitywithofficialspecboundary",
     "mcpprotocolrejectedmethodsboundary",
     "mcpprotocolinitializeboundary",
     "mcpprotocoltoolslistboundary",
@@ -166,7 +170,30 @@ function fp0106ProtocolEnvelopeBoundary() {
     "notifications/initialized",
     "tools/list",
     "tools/call",
+    "liveness utility method",
+    "ping",
     "all other methods must fail closed",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const mcpProtocolPingBoundaryVerified = [
+    "ping",
+    "future protocol liveness request",
+    "established mcp session",
+    "empty json-rpc result",
+    "must not dispatch to tools",
+    "must not dispatch to evidence services",
+    "must not dispatch to finance twin",
+    "must not dispatch to cfo wiki",
+    "no source mutation",
+    "no finance write",
+    "no openai api/model calls",
+    "no external communications",
+    "remains unimplemented in this correction",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const mcpProtocolMethodCompatibilityWithOfficialSpecVerified = [
+    "official model context protocol",
+    "ping",
+    "not a rejected method",
+    "unknown non-ping methods still fail closed",
   ].every((requiredText) => normalized.includes(requiredText));
   const mcpProtocolReadOnlyToolDispatchVerified = [
     "search_evidence",
@@ -245,6 +272,8 @@ function fp0106ProtocolEnvelopeBoundary() {
     fp0106BoundaryVerified:
       mcpProtocolEnvelopeProofContractsFoundationVerified &&
       mcpProtocolAcceptedMethodsVerified &&
+      mcpProtocolPingBoundaryVerified &&
+      mcpProtocolMethodCompatibilityWithOfficialSpecVerified &&
       mcpProtocolReadOnlyToolDispatchVerified &&
       mcpProtocolEvidenceEnvelopeVerified &&
       mcpProtocolRefusalEnvelopeVerified &&
@@ -263,6 +292,8 @@ function fp0106ProtocolEnvelopeBoundary() {
     mcpProtocolAcceptedMethodsVerified,
     mcpProtocolEnvelopeProofContractsFoundationVerified,
     mcpProtocolEvidenceEnvelopeVerified,
+    mcpProtocolMethodCompatibilityWithOfficialSpecVerified,
+    mcpProtocolPingBoundaryVerified,
     mcpProtocolReadOnlyToolDispatchVerified,
     mcpProtocolRefusalEnvelopeVerified,
     noApiBackendRoutesFromFp0106,
@@ -298,7 +329,8 @@ function changedRuntimeSurfaceBoundary() {
   return {
     allClear,
     noAppsSdkResourceImplementation:
-      allClear && !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
+      allClear &&
+      !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
     noEndpointImplementation:
       allClear &&
       !changedPaths.some(
@@ -306,10 +338,13 @@ function changedRuntimeSurfaceBoundary() {
           !isAllowedMcpProtocolProofPath(path) && endpointRuntimePath(path),
       ),
     noOauthTokenSessionImplementation:
-      allClear && !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
+      allClear &&
+      !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
     noRemoteMcpServerImplementation:
       allClear &&
-      !changedPaths.some((path) => /remote-mcp|mcp-server|deploy|deployment/iu.test(path)),
+      !changedPaths.some((path) =>
+        /remote-mcp|mcp-server|deploy|deployment/iu.test(path),
+      ),
     noRouteImplementation:
       allClear && !changedPaths.some((path) => /(^|\/)route\.ts$/u.test(path)),
     noWebApiBackendControlPlaneRouteImplementation: allClear,
@@ -371,7 +406,9 @@ function publicAssetSubmissionBoundary() {
 function docsOnlyPlanBoundary(path, requiredTexts) {
   if (!repoPaths.includes(path) || !existsSync(path)) return false;
   const normalized = normalize(readFileSync(path, "utf8"));
-  return requiredTexts.every((requiredText) => normalized.includes(requiredText));
+  return requiredTexts.every((requiredText) =>
+    normalized.includes(requiredText),
+  );
 }
 
 function fp0107Absent() {

@@ -9,11 +9,20 @@ export const FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH =
 
 export const MCP_PROTOCOL_PUBLIC_PATH = "/mcp";
 
-export const MCP_PROTOCOL_ACCEPTED_METHODS = [
+export const MCP_PROTOCOL_REQUIRED_FUTURE_METHODS = [
   "initialize",
   "notifications/initialized",
   "tools/list",
   "tools/call",
+] as const;
+
+export const MCP_PROTOCOL_ACCEPTED_METHODS =
+  MCP_PROTOCOL_REQUIRED_FUTURE_METHODS;
+
+export const MCP_PROTOCOL_LIVENESS_METHOD = "ping";
+
+export const MCP_PROTOCOL_LIVENESS_METHODS = [
+  MCP_PROTOCOL_LIVENESS_METHOD,
 ] as const;
 
 export const MCP_PROTOCOL_REJECTED_METHODS = [
@@ -25,7 +34,6 @@ export const MCP_PROTOCOL_REJECTED_METHODS = [
   "sampling/createMessage",
   "roots/list",
   "completion/complete",
-  "ping",
   "create_mission",
   "upload_source",
   "update_ledger",
@@ -73,6 +81,7 @@ export const MCP_PROTOCOL_LOGGING_REDACTION_FIELDS = [
   "apiKeys",
 ] as const;
 
+export const LivenessMethodSchema = z.enum(MCP_PROTOCOL_LIVENESS_METHODS);
 export const RejectedMethodSchema = z.enum(MCP_PROTOCOL_REJECTED_METHODS);
 export const ResponseEnvelopeFieldSchema = z.enum(
   MCP_PROTOCOL_RESPONSE_ENVELOPE_FIELDS,
