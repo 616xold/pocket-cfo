@@ -68,7 +68,8 @@ export function buildReadOnlyChatGptAppMcpProof(
     fp0101AbsentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified: boolean;
     fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified: boolean;
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: boolean;
-    fp0104Absent: boolean;
+    fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: boolean;
+    fp0105Absent: boolean;
     endpointArchitectureProofContractsFoundationVerified: boolean;
     noEndpointImplementationFromFp0103: boolean;
     noRouteImplementationFromFp0103: boolean;
@@ -82,6 +83,22 @@ export function buildReadOnlyChatGptAppMcpProof(
     noSourceMutationFinanceWriteFromFp0103: boolean;
     noPublicAssetsSubmissionArtifactsFromFp0103: boolean;
     publicAppImplementationSubmissionFutureOnlyFromFp0103: boolean;
+    endpointImplementationReadinessPlanBoundaryVerified: boolean;
+    exactFutureEndpointInventoryReadinessVerified: boolean;
+    noEndpointImplementationFromFp0104: boolean;
+    noRouteImplementationFromFp0104: boolean;
+    noApiBackendRoutesFromFp0104: boolean;
+    noOauthTokenSessionImplementationFromFp0104: boolean;
+    noRemoteMcpImplementationOrDeploymentFromFp0104: boolean;
+    noAppsSdkResourceFromFp0104: boolean;
+    noAppSubmissionFromFp0104: boolean;
+    noOpenAiApiCallsFromFp0104: boolean;
+    noSourceMutationFinanceWriteFromFp0104: boolean;
+    noPublicAssetsSubmissionArtifactsFromFp0104: boolean;
+    endpointRuntimeChangedFilesVerified: boolean;
+    endpointRuntimeRepositoryInventoryVerified: boolean;
+    fp0103EndpointArchitectureProofContractsStillVerified: boolean;
+    fp0103EndpointArchitecturePostmergeProofDurabilityVerified: boolean;
     fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified: boolean;
     endpointOauthRemoteMcpArchitecturePlanBoundaryVerified: boolean;
     noEndpointImplementationFromFp0102: boolean;
@@ -549,7 +566,11 @@ export function buildReadOnlyChatGptAppMcpProof(
       input
         .fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified ??
       true,
-    fp0104Absent: input.fp0104Absent ?? true,
+    fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
+      input
+        .fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified ??
+      true,
+    fp0105Absent: input.fp0105Absent ?? true,
     endpointArchitectureProofContractsFoundationVerified:
       input.endpointArchitectureProofContractsFoundationVerified ?? true,
     noEndpointImplementationFromFp0103:
@@ -575,6 +596,37 @@ export function buildReadOnlyChatGptAppMcpProof(
       input.noPublicAssetsSubmissionArtifactsFromFp0103 ?? true,
     publicAppImplementationSubmissionFutureOnlyFromFp0103:
       input.publicAppImplementationSubmissionFutureOnlyFromFp0103 ?? true,
+    endpointImplementationReadinessPlanBoundaryVerified:
+      input.endpointImplementationReadinessPlanBoundaryVerified ?? true,
+    exactFutureEndpointInventoryReadinessVerified:
+      input.exactFutureEndpointInventoryReadinessVerified ?? true,
+    noEndpointImplementationFromFp0104:
+      input.noEndpointImplementationFromFp0104 ?? true,
+    noRouteImplementationFromFp0104:
+      input.noRouteImplementationFromFp0104 ?? true,
+    noApiBackendRoutesFromFp0104:
+      input.noApiBackendRoutesFromFp0104 ?? true,
+    noOauthTokenSessionImplementationFromFp0104:
+      input.noOauthTokenSessionImplementationFromFp0104 ?? true,
+    noRemoteMcpImplementationOrDeploymentFromFp0104:
+      input.noRemoteMcpImplementationOrDeploymentFromFp0104 ?? true,
+    noAppsSdkResourceFromFp0104:
+      input.noAppsSdkResourceFromFp0104 ?? true,
+    noAppSubmissionFromFp0104: input.noAppSubmissionFromFp0104 ?? true,
+    noOpenAiApiCallsFromFp0104:
+      input.noOpenAiApiCallsFromFp0104 ?? true,
+    noSourceMutationFinanceWriteFromFp0104:
+      input.noSourceMutationFinanceWriteFromFp0104 ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0104:
+      input.noPublicAssetsSubmissionArtifactsFromFp0104 ?? true,
+    endpointRuntimeChangedFilesVerified:
+      input.endpointRuntimeChangedFilesVerified ?? true,
+    endpointRuntimeRepositoryInventoryVerified:
+      input.endpointRuntimeRepositoryInventoryVerified ?? true,
+    fp0103EndpointArchitectureProofContractsStillVerified:
+      input.fp0103EndpointArchitectureProofContractsStillVerified ?? true,
+    fp0103EndpointArchitecturePostmergeProofDurabilityVerified:
+      input.fp0103EndpointArchitecturePostmergeProofDurabilityVerified ?? true,
     fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified:
       input
         .fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified ??
