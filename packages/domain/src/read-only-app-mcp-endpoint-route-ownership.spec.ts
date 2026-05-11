@@ -24,16 +24,22 @@ import {
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0105 endpoint route ownership proof contracts", () => {
-  it("accepts exactly one FP-0105 plan path and keeps FP-0106 absent", () => {
+  it("accepts exactly one FP-0105 and one FP-0106 plan path while keeping FP-0107 absent", () => {
     const fp0105Hits = repoFilePaths().filter((path) =>
       /(^|\/)FP-0105/u.test(path),
     );
     const fp0106Hits = repoFilePaths().filter((path) =>
       /(^|\/)FP-0106/u.test(path),
     );
+    const fp0107Hits = repoFilePaths().filter((path) =>
+      /(^|\/)FP-0107/u.test(path),
+    );
 
     expect(fp0105Hits).toEqual([FP0105_ENDPOINT_ROUTE_OWNERSHIP_PLAN_PATH]);
-    expect(fp0106Hits).toEqual([]);
+    expect(fp0106Hits).toEqual([
+      "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md",
+    ]);
+    expect(fp0107Hits).toEqual([]);
   });
 
   it("builds route ownership contracts as local proof-only and read-only", () => {
@@ -240,7 +246,10 @@ describe("FP-0105 endpoint route ownership proof contracts", () => {
     );
     expect(proof.noEndpointImplementation).toBe(true);
     expect(proof.noRouteImplementation).toBe(true);
-    expect(proof.fp0106Absent).toBe(true);
+    expect(
+      proof.fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified,
+    ).toBe(true);
+    expect(proof.fp0107Absent).toBe(true);
     expect(
       EndpointRouteOwnershipProofSchema.safeParse({
         ...proof,

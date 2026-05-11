@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0105 local/proof-only/read-only endpoint route ownership and transport-adapter proof-contract slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0106 local/proof-only/read-only MCP protocol envelope and tool-dispatch proof-contract slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0105 endpoint route ownership, transport-adapter contract, proof-gate bridge, doc-refresh, and handoff slice:
+  - Skills invoked for this FP-0106 MCP protocol envelope, read-only tool-dispatch contract, proof-gate bridge, doc-refresh, and handoff slice:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   EndpointRouteOwnershipProofSchema,
+  FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH,
   FP0105_ENDPOINT_ROUTE_OWNERSHIP_PLAN_PATH,
   buildEndpointRouteOwnershipProof,
   inspectEndpointRouteOwnershipRepositoryInventory,
@@ -19,12 +20,24 @@ const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
 const changedRuntime = changedRuntimeSurfaceBoundary();
 const publicAssets = publicAssetSubmissionBoundary();
-const sourceText = readChangedCodeSourceText();
-const noOpenAiApiCalls = !hasCodeLevelOpenAiIntegration(sourceText);
-const noModelCalls = !hasCodeLevelModelIntegration(sourceText);
+const changedSourceText = readChangedCodeSourceText();
+const proofSourceText = readPublicAppProofGateSourceText();
+const noOpenAiApiCalls =
+  !hasCodeLevelOpenAiIntegration(changedSourceText) &&
+  !hasCodeLevelOpenAiIntegration(proofSourceText);
+const noModelCalls =
+  !hasCodeLevelModelIntegration(changedSourceText) &&
+  !hasCodeLevelModelIntegration(proofSourceText);
 const noOpenAiClientOrKeyUsage =
-  noOpenAiApiCalls && !hasCodeLevelOpenAiClientOrKeyUsage(sourceText);
+  noOpenAiApiCalls &&
+  !hasCodeLevelOpenAiClientOrKeyUsage(changedSourceText) &&
+  !hasCodeLevelOpenAiClientOrKeyUsage(proofSourceText);
+const publicAppProofGateNoOpenAiApiSourceScanVerified =
+  !hasCodeLevelOpenAiIntegration(proofSourceText) &&
+  !hasCodeLevelModelIntegration(proofSourceText) &&
+  !hasCodeLevelOpenAiClientOrKeyUsage(proofSourceText);
 const fp0105 = fp0105RouteOwnershipBoundary();
+const fp0106 = fp0106ProtocolEnvelopeBoundary();
 const endpointRuntimeInventory = endpointRuntimeRepositoryInventory();
 
 const proof = EndpointRouteOwnershipProofSchema.parse(
@@ -56,28 +69,65 @@ const proof = EndpointRouteOwnershipProofSchema.parse(
       ],
     ),
     fp0105BoundaryVerified: fp0105.fp0105BoundaryVerified,
-    fp0106Absent: fp0106Absent(),
+    fp0105RouteOwnershipBoundaryStillVerified: fp0105.fp0105BoundaryVerified,
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      fp0106.fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified,
+    fp0107Absent: fp0107Absent(),
+    mcpProtocolAcceptedMethodsVerified:
+      fp0106.mcpProtocolAcceptedMethodsVerified,
+    mcpProtocolEnvelopeProofContractsFoundationVerified:
+      fp0106.mcpProtocolEnvelopeProofContractsFoundationVerified,
+    mcpProtocolEvidenceEnvelopeVerified:
+      fp0106.mcpProtocolEvidenceEnvelopeVerified,
+    mcpProtocolReadOnlyToolDispatchVerified:
+      fp0106.mcpProtocolReadOnlyToolDispatchVerified,
+    mcpProtocolRefusalEnvelopeVerified:
+      fp0106.mcpProtocolRefusalEnvelopeVerified,
+    noApiBackendRoutesFromFp0106: fp0106.noApiBackendRoutesFromFp0106,
     noAppSubmission: publicAssets.noAppSubmission,
+    noAppSubmissionFromFp0106: fp0106.noAppSubmissionFromFp0106,
     noAppsSdkResourceImplementation:
       changedRuntime.noAppsSdkResourceImplementation,
+    noAppsSdkResourceFromFp0106: fp0106.noAppsSdkResourceFromFp0106,
     noEndpointImplementation: changedRuntime.noEndpointImplementation,
+    noEndpointImplementationFromFp0106:
+      fp0106.noEndpointImplementationFromFp0106,
     noFinanceWrite: fp0105.noSourceMutationFinanceWriteFromFp0105,
     noListingCopy: publicAssets.noListingCopy,
     noModelCalls,
     noOauthTokenSessionImplementation:
       changedRuntime.noOauthTokenSessionImplementation,
+    noOauthTokenSessionImplementationFromFp0106:
+      fp0106.noOauthTokenSessionImplementationFromFp0106,
     noOpenAiApiCalls,
+    noOpenAiApiCallsFromFp0106: fp0106.noOpenAiApiCallsFromFp0106,
     noOpenAiClientOrKeyUsage,
     noPublicAssets: publicAssets.noPublicAssets,
+    noPublicAssetsSubmissionArtifactsFromFp0106:
+      fp0106.noPublicAssetsSubmissionArtifactsFromFp0106,
     noPublicChatGptAppImplementation:
       fp0105.noPublicAppImplementationFromFp0105,
     noRemoteMcpServerImplementation:
       changedRuntime.noRemoteMcpServerImplementation,
+    noRemoteMcpImplementationOrDeploymentFromFp0106:
+      fp0106.noRemoteMcpImplementationOrDeploymentFromFp0106,
     noRouteImplementation: changedRuntime.noRouteImplementation,
+    noRouteImplementationFromFp0106: fp0106.noRouteImplementationFromFp0106,
     noSourceMutation: fp0105.noSourceMutationFinanceWriteFromFp0105,
+    noSourceMutationFinanceWriteFromFp0106:
+      fp0106.noSourceMutationFinanceWriteFromFp0106,
     noWebApiBackendControlPlaneRouteImplementation:
       changedRuntime.noWebApiBackendControlPlaneRouteImplementation,
     noWriteActionTools: fp0105.noWriteActionToolsFromFp0105,
+    endpointRuntimeRepositoryInventoryStillVerified:
+      endpointRuntimeInventory.endpointRuntimeRepositoryInventoryVerified,
+    publicAppProofGateNoOpenAiApiSourceScanVerified,
+    fp0103EndpointArchitectureProofContractsStillVerified:
+      docsOnlyPlanBoundary(FP0103_PLAN, [
+        "endpoint architecture proof contracts",
+        "local/proof-only",
+        "does not authorize endpoint implementation",
+      ]),
   }),
 );
 
@@ -351,8 +401,163 @@ function docsOnlyPlanBoundary(path, requiredTexts) {
   return requiredTexts.every((requiredText) => normalized.includes(requiredText));
 }
 
-function fp0106Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0106/u.test(path));
+function fp0106ProtocolEnvelopeBoundary() {
+  const absentBoundary = {
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified: true,
+    mcpProtocolAcceptedMethodsVerified: true,
+    mcpProtocolEnvelopeProofContractsFoundationVerified: true,
+    mcpProtocolEvidenceEnvelopeVerified: true,
+    mcpProtocolReadOnlyToolDispatchVerified: true,
+    mcpProtocolRefusalEnvelopeVerified: true,
+    noApiBackendRoutesFromFp0106: true,
+    noAppSubmissionFromFp0106: true,
+    noAppsSdkResourceFromFp0106: true,
+    noEndpointImplementationFromFp0106: true,
+    noOpenAiApiCallsFromFp0106: true,
+    noOauthTokenSessionImplementationFromFp0106: true,
+    noPublicAssetsSubmissionArtifactsFromFp0106: true,
+    noRemoteMcpImplementationOrDeploymentFromFp0106: true,
+    noRouteImplementationFromFp0106: true,
+    noSourceMutationFinanceWriteFromFp0106: true,
+  };
+  const failedBoundary = Object.fromEntries(
+    Object.keys(absentBoundary).map((key) => [key, false]),
+  );
+  const fp0106Hits = repoPaths.filter((path) => /(^|\/)FP-0106/u.test(path));
+
+  if (fp0106Hits.length === 0) return absentBoundary;
+  if (
+    fp0106Hits.length !== 1 ||
+    fp0106Hits[0] !== FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH ||
+    !existsSync(FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH)
+  ) {
+    return failedBoundary;
+  }
+
+  const normalized = normalize(
+    readFileSync(FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH, "utf8"),
+  );
+  const changedRuntimeClear = changedRuntimeSurfaceBoundary();
+  const publicAssetsClear = publicAssetSubmissionBoundary();
+  const sourceScanClear = publicAppProofGateNoOpenAiApiSourceScanVerified;
+  const mcpProtocolEnvelopeProofContractsFoundationVerified = [
+    "fp-0106 is not implementation",
+    "local/proof-only/read-only mcp protocol envelope and tool-dispatch contract work",
+    "fp-0106 defines future mcp protocol envelope and read-only tool-dispatch proof contracts only",
+    "mcpprotocolenvelopeproofcontract",
+    "mcpprotocolpathboundary",
+    "mcpprotocoltransportboundary",
+    "mcpprotocolacceptedmethodsboundary",
+    "mcpprotocolrejectedmethodsboundary",
+    "mcpprotocolreadonlytoolallowlistboundary",
+    "mcpprotocolrefusalenvelopeboundary",
+    "mcpprotocolloggingredactionboundary",
+    "mcpprotocolproof",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const mcpProtocolAcceptedMethodsVerified = [
+    "initialize",
+    "notifications/initialized",
+    "tools/list",
+    "tools/call",
+    "all other methods must fail closed",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const mcpProtocolReadOnlyToolDispatchVerified = [
+    "search_evidence",
+    "fetch_evidence_card",
+    "fetch_source_anchor",
+    "fetch_document_map",
+    "fetch_source_coverage",
+    "fetch_company_posture",
+    "fetch_capability_boundaries",
+    "dynamic tools and tool drift remain forbidden",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const mcpProtocolEvidenceEnvelopeVerified = [
+    "evidence",
+    "source anchors",
+    "freshness",
+    "limitations",
+    "permitted next actions",
+    "capability boundary",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const mcpProtocolRefusalEnvelopeVerified =
+    normalized.includes("refusal reason") &&
+    normalized.includes("must not leak raw source files");
+  const noEndpointImplementationFromFp0106 =
+    normalized.includes("fp-0106 does not authorize endpoint implementation") &&
+    changedRuntimeClear.noEndpointImplementation;
+  const noRouteImplementationFromFp0106 =
+    normalized.includes("fp-0106 does not authorize route implementation") &&
+    changedRuntimeClear.noRouteImplementation;
+  const noApiBackendRoutesFromFp0106 =
+    normalized.includes(
+      "fp-0106 does not authorize web api/backend/control-plane route implementation",
+    ) && changedRuntimeClear.noWebApiBackendControlPlaneRouteImplementation;
+  const noOauthTokenSessionImplementationFromFp0106 =
+    normalized.includes(
+      "fp-0106 does not authorize oauth/token/session implementation",
+    ) && changedRuntimeClear.noOauthTokenSessionImplementation;
+  const noRemoteMcpImplementationOrDeploymentFromFp0106 =
+    normalized.includes(
+      "fp-0106 does not authorize remote mcp server implementation or deployment",
+    ) && changedRuntimeClear.noRemoteMcpServerImplementation;
+  const noAppsSdkResourceFromFp0106 =
+    normalized.includes(
+      "fp-0106 does not authorize apps sdk iframe/resource implementation",
+    ) && changedRuntimeClear.noAppsSdkResourceImplementation;
+  const noAppSubmissionFromFp0106 =
+    normalized.includes("fp-0106 does not authorize app submission") &&
+    publicAssetsClear.noAppSubmission;
+  const noOpenAiApiCallsFromFp0106 =
+    normalized.includes("fp-0106 does not authorize openai api/model calls") &&
+    sourceScanClear;
+  const noSourceMutationFinanceWriteFromFp0106 =
+    normalized.includes("no source mutation") &&
+    normalized.includes("no finance write");
+  const noPublicAssetsSubmissionArtifactsFromFp0106 =
+    normalized.includes("no screenshots") &&
+    normalized.includes("no generated images") &&
+    normalized.includes("no public assets") &&
+    normalized.includes("no listing copy") &&
+    normalized.includes("no app-submission artifacts") &&
+    publicAssetsClear.allClear;
+
+  return {
+    fp0106AbsentOrLocalMcpProtocolEnvelopeToolDispatchContractsVerified:
+      mcpProtocolEnvelopeProofContractsFoundationVerified &&
+      mcpProtocolAcceptedMethodsVerified &&
+      mcpProtocolReadOnlyToolDispatchVerified &&
+      mcpProtocolEvidenceEnvelopeVerified &&
+      mcpProtocolRefusalEnvelopeVerified &&
+      noEndpointImplementationFromFp0106 &&
+      noRouteImplementationFromFp0106 &&
+      noApiBackendRoutesFromFp0106 &&
+      noOauthTokenSessionImplementationFromFp0106 &&
+      noRemoteMcpImplementationOrDeploymentFromFp0106 &&
+      noAppsSdkResourceFromFp0106 &&
+      noAppSubmissionFromFp0106 &&
+      noOpenAiApiCallsFromFp0106 &&
+      noSourceMutationFinanceWriteFromFp0106 &&
+      noPublicAssetsSubmissionArtifactsFromFp0106,
+    mcpProtocolAcceptedMethodsVerified,
+    mcpProtocolEnvelopeProofContractsFoundationVerified,
+    mcpProtocolEvidenceEnvelopeVerified,
+    mcpProtocolReadOnlyToolDispatchVerified,
+    mcpProtocolRefusalEnvelopeVerified,
+    noApiBackendRoutesFromFp0106,
+    noAppSubmissionFromFp0106,
+    noAppsSdkResourceFromFp0106,
+    noEndpointImplementationFromFp0106,
+    noOpenAiApiCallsFromFp0106,
+    noOauthTokenSessionImplementationFromFp0106,
+    noPublicAssetsSubmissionArtifactsFromFp0106,
+    noRemoteMcpImplementationOrDeploymentFromFp0106,
+    noRouteImplementationFromFp0106,
+    noSourceMutationFinanceWriteFromFp0106,
+  };
+}
+
+function fp0107Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0107/u.test(path));
 }
 
 function endpointRuntimeRepositoryInventory() {
@@ -375,6 +580,21 @@ function readChangedCodeSourceText() {
     .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
     .map((path) => safeRead(path))
     .join("\n");
+}
+
+function readPublicAppProofGateSourceText() {
+  return repoPaths
+    .filter(isPublicAppProofGateSourceSurface)
+    .map((path) => safeRead(path))
+    .join("\n");
+}
+
+function isPublicAppProofGateSourceSurface(path) {
+  return (
+    /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
+    /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||
+    /^tools\/(?:read-only|benchmark-community).*\.mjs$/u.test(path)
+  );
 }
 
 function hasCodeLevelOpenAiIntegration(sourceText) {
