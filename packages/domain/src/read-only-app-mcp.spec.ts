@@ -357,7 +357,30 @@ describe("V2G read-only ChatGPT App/MCP contracts", () => {
       proof
         .fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0103Absent).toBe(true);
+    expect(
+      proof.fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified,
+    ).toBe(true);
+    expect(proof.fp0104Absent).toBe(true);
+    expect(proof.endpointArchitectureProofContractsFoundationVerified).toBe(
+      true,
+    );
+    expect(proof.noEndpointImplementationFromFp0103).toBe(true);
+    expect(proof.noRouteImplementationFromFp0103).toBe(true);
+    expect(proof.noApiBackendRoutesFromFp0103).toBe(true);
+    expect(proof.noOauthTokenSessionImplementationFromFp0103).toBe(true);
+    expect(proof.noRemoteMcpImplementationOrDeploymentFromFp0103).toBe(true);
+    expect(proof.noAppsSdkResourceFromFp0103).toBe(true);
+    expect(proof.noPublicAppImplementationFromFp0103).toBe(true);
+    expect(proof.noAppSubmissionFromFp0103).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0103).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0103).toBe(true);
+    expect(proof.noPublicAssetsSubmissionArtifactsFromFp0103).toBe(true);
+    expect(
+      proof.publicAppImplementationSubmissionFutureOnlyFromFp0103,
+    ).toBe(true);
+    expect(
+      proof.fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified,
+    ).toBe(true);
     expect(
       proof.endpointOauthRemoteMcpArchitecturePlanBoundaryVerified,
     ).toBe(true);

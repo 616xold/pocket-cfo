@@ -67,7 +67,22 @@ export function buildReadOnlyChatGptAppMcpProof(
     fp0100AbsentOrLocalSecurityBoundaryContractsVerified: boolean;
     fp0101AbsentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified: boolean;
     fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified: boolean;
-    fp0103Absent: boolean;
+    fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: boolean;
+    fp0104Absent: boolean;
+    endpointArchitectureProofContractsFoundationVerified: boolean;
+    noEndpointImplementationFromFp0103: boolean;
+    noRouteImplementationFromFp0103: boolean;
+    noApiBackendRoutesFromFp0103: boolean;
+    noOauthTokenSessionImplementationFromFp0103: boolean;
+    noRemoteMcpImplementationOrDeploymentFromFp0103: boolean;
+    noAppsSdkResourceFromFp0103: boolean;
+    noPublicAppImplementationFromFp0103: boolean;
+    noAppSubmissionFromFp0103: boolean;
+    noOpenAiApiCallsFromFp0103: boolean;
+    noSourceMutationFinanceWriteFromFp0103: boolean;
+    noPublicAssetsSubmissionArtifactsFromFp0103: boolean;
+    publicAppImplementationSubmissionFutureOnlyFromFp0103: boolean;
+    fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified: boolean;
     endpointOauthRemoteMcpArchitecturePlanBoundaryVerified: boolean;
     noEndpointImplementationFromFp0102: boolean;
     noOauthTokenSessionImplementationFromFp0102: boolean;
@@ -530,7 +545,40 @@ export function buildReadOnlyChatGptAppMcpProof(
       input
         .fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified ??
       true,
-    fp0103Absent: input.fp0103Absent ?? true,
+    fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified:
+      input
+        .fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified ??
+      true,
+    fp0104Absent: input.fp0104Absent ?? true,
+    endpointArchitectureProofContractsFoundationVerified:
+      input.endpointArchitectureProofContractsFoundationVerified ?? true,
+    noEndpointImplementationFromFp0103:
+      input.noEndpointImplementationFromFp0103 ?? true,
+    noRouteImplementationFromFp0103:
+      input.noRouteImplementationFromFp0103 ?? true,
+    noApiBackendRoutesFromFp0103:
+      input.noApiBackendRoutesFromFp0103 ?? true,
+    noOauthTokenSessionImplementationFromFp0103:
+      input.noOauthTokenSessionImplementationFromFp0103 ?? true,
+    noRemoteMcpImplementationOrDeploymentFromFp0103:
+      input.noRemoteMcpImplementationOrDeploymentFromFp0103 ?? true,
+    noAppsSdkResourceFromFp0103:
+      input.noAppsSdkResourceFromFp0103 ?? true,
+    noPublicAppImplementationFromFp0103:
+      input.noPublicAppImplementationFromFp0103 ?? true,
+    noAppSubmissionFromFp0103: input.noAppSubmissionFromFp0103 ?? true,
+    noOpenAiApiCallsFromFp0103:
+      input.noOpenAiApiCallsFromFp0103 ?? true,
+    noSourceMutationFinanceWriteFromFp0103:
+      input.noSourceMutationFinanceWriteFromFp0103 ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0103:
+      input.noPublicAssetsSubmissionArtifactsFromFp0103 ?? true,
+    publicAppImplementationSubmissionFutureOnlyFromFp0103:
+      input.publicAppImplementationSubmissionFutureOnlyFromFp0103 ?? true,
+    fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified:
+      input
+        .fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified ??
+      true,
     endpointOauthRemoteMcpArchitecturePlanBoundaryVerified:
       input.endpointOauthRemoteMcpArchitecturePlanBoundaryVerified ?? true,
     noEndpointImplementationFromFp0102:
