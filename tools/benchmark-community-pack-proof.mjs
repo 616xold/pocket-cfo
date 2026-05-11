@@ -3508,7 +3508,8 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
 function fp0104EndpointImplementationReadinessBoundary() {
   const absentBoundary = {
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified: true,
-    fp0105Absent: true,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified: true,
+    fp0106Absent: true,
     endpointImplementationReadinessPlanBoundaryVerified: true,
     exactFutureEndpointInventoryReadinessVerified: true,
     noEndpointImplementationFromFp0104: true,
@@ -3532,19 +3533,27 @@ function fp0104EndpointImplementationReadinessBoundary() {
   const fp0104PathHits = repoFilePaths().filter((path) =>
     /(^|\/)FP-0104/u.test(path),
   );
-  const fp0105Absent = !repoFilePaths().some((path) =>
-    /(^|\/)FP-0105/u.test(path),
-  );
+  const fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified =
+    fp0105EndpointRouteOwnershipBoundary();
+  const fp0106AbsentVerified = fp0106Absent();
 
   if (fp0104PathHits.length === 0) {
-    return { ...absentBoundary, fp0105Absent };
+    return {
+      ...absentBoundary,
+      fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified,
+      fp0106Absent: fp0106AbsentVerified,
+    };
   }
   if (
     fp0104PathHits.length !== 1 ||
     fp0104PathHits[0] !==
       "plans/FP-0104-read-only-chatgpt-app-mcp-endpoint-implementation-readiness-and-inventory-master-plan.md"
   ) {
-    return { ...failedBoundary, fp0105Absent };
+    return {
+      ...failedBoundary,
+      fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified,
+      fp0106Absent: fp0106AbsentVerified,
+    };
   }
 
   const normalized = readFileSync(fp0104PathHits[0], "utf8")
@@ -3634,12 +3643,12 @@ function fp0104EndpointImplementationReadinessBoundary() {
     noAppSubmissionFromFp0104 &&
     noOpenAiApiCallsFromFp0104 &&
     noSourceMutationFinanceWriteFromFp0104 &&
-    noPublicAssetsSubmissionArtifactsFromFp0104 &&
-    fp0105Absent;
+    noPublicAssetsSubmissionArtifactsFromFp0104;
 
   return {
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified,
-    fp0105Absent,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified,
+    fp0106Absent: fp0106AbsentVerified,
     endpointImplementationReadinessPlanBoundaryVerified,
     exactFutureEndpointInventoryReadinessVerified,
     noEndpointImplementationFromFp0104,
@@ -3657,6 +3666,35 @@ function fp0104EndpointImplementationReadinessBoundary() {
     fp0103EndpointArchitectureProofContractsStillVerified: true,
     fp0103EndpointArchitecturePostmergeProofDurabilityVerified: true,
   };
+}
+
+function fp0105EndpointRouteOwnershipBoundary() {
+  const fp0105Path =
+    "plans/FP-0105-read-only-chatgpt-app-mcp-endpoint-route-ownership-transport-adapter-proof-contracts.md";
+  const fp0105PathHits = repoFilePaths().filter((path) =>
+    /(^|\/)FP-0105/u.test(path),
+  );
+
+  if (fp0105PathHits.length === 0) return true;
+  if (fp0105PathHits.length !== 1 || fp0105PathHits[0] !== fp0105Path) {
+    return false;
+  }
+
+  const normalized = readFileSync(fp0105Path, "utf8")
+    .toLowerCase()
+    .replace(/`/gu, "");
+  return [
+    "fp-0105 is local/proof-only/read-only endpoint route ownership and transport-adapter contract work",
+    "fp-0105 does not authorize endpoint implementation",
+    "fp-0105 does not authorize route implementation",
+    "future /mcp route owner family is exactly apps/control-plane fastify route family",
+    "future transport adapter remains documentation/proof-only",
+    "fp-0105 keeps fp-0106 absent",
+  ].every((requiredText) => normalized.includes(requiredText));
+}
+
+function fp0106Absent() {
+  return !repoFilePaths().some((path) => /(^|\/)FP-0106/u.test(path));
 }
 
 function noFp0100RouteOrEndpointPaths() {

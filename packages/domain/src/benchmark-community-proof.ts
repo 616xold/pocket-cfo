@@ -98,7 +98,9 @@ export const BenchmarkProofSchema = z
     fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified: trueLiteral,
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
       trueLiteral,
-    fp0105Absent: trueLiteral,
+    fp0105AbsentOrLocalEndpointRouteOwnershipTransportAdapterContractsVerified:
+      trueLiteral,
+    fp0106Absent: trueLiteral,
     endpointArchitectureProofContractsFoundationVerified: trueLiteral,
     noEndpointImplementationFromFp0103: trueLiteral,
     noRouteImplementationFromFp0103: trueLiteral,

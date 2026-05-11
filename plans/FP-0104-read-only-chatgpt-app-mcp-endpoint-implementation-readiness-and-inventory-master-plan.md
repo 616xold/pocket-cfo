@@ -361,7 +361,7 @@ This slice creates one planning artifact: `plans/FP-0104-read-only-chatgpt-app-m
 
 Official OpenAI sources used as current read-only platform/security context:
 
-- OpenAI Developer Mode / MCP apps in ChatGPT help, `https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta.svgz`: used to frame Developer Mode, MCP app creation, endpoint metadata, auth mechanism selection, write-action confirmation risk, admin controls, and safety responsibilities as future-only readiness gates.
+- OpenAI Developer Mode / MCP apps in ChatGPT help, `https://help.openai.com/en/articles/12584461-developer-mode-apps-and-full-mcp-connectors-in-chatgpt-beta`: used to frame Developer Mode, MCP app creation, endpoint metadata, auth mechanism selection, write-action confirmation risk, admin controls, and safety responsibilities as future-only readiness gates.
 - OpenAI Apps SDK docs, `https://developers.openai.com/apps-sdk/`: used to confirm Apps SDK is the ChatGPT apps framework and to anchor Apps SDK/MCP as platform context only.
 - OpenAI Apps SDK MCP server docs, `https://developers.openai.com/apps-sdk/concepts/mcp-server`: used to frame MCP list-tools, call-tools, structured content, component/resource metadata, Streamable HTTP/SSE transport families, and OAuth extensibility as future endpoint architecture inputs.
 - OpenAI Apps SDK Authentication docs, `https://developers.openai.com/apps-sdk/build/auth`: used to frame future OAuth protected-resource metadata, `WWW-Authenticate` challenges, discovery documents, authorization-code PKCE flow, scope/audience enforcement, token refusal, and tool-level auth readiness only.
