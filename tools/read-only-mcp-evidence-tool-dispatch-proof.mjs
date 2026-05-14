@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   EvidenceToolDispatchProofSchema,
   FP0108_EVIDENCE_TOOL_DISPATCH_PLAN_PATH,
+  FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   buildEvidenceToolDispatchProof,
 } from "../packages/domain/src/index.ts";
@@ -34,7 +35,8 @@ const proof = EvidenceToolDispatchProofSchema.parse(
     fp0107RouteAdapterBoundaryStillVerified:
       fp0107RouteAdapterBoundaryStillVerified(),
     fp0108BoundaryVerified: fp0108BoundaryVerified(),
-    fp0109Absent: fp0109Absent(),
+    fp0109BoundaryVerified: fp0109BoundaryVerified(),
+    fp0110Absent: fp0110Absent(),
     noDispatchRuntimeImplemented: noDispatchRuntimeImplemented(),
     noModelCalls: sourceScan.noModelCalls,
     noOpenAiApiCalls: sourceScan.noOpenAiApiCalls,
@@ -89,15 +91,44 @@ function fp0108BoundaryVerified() {
     "no route behavior",
     "no db query",
     "no openai api/model call",
-    "no source mutation",
+    "source mutation",
     "no finance write",
     "no generated finance advice",
-    "no autonomous action",
+    "autonomous action",
   ].every((requiredText) => normalized.includes(requiredText));
 }
 
-function fp0109Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0109/u.test(path));
+function fp0109BoundaryVerified() {
+  const fp0109Hits = repoPaths.filter((path) => /(^|\/)FP-0109/u.test(path));
+  if (
+    fp0109Hits.length !== 1 ||
+    fp0109Hits[0] !== FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH ||
+    !existsSync(FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH)
+  ) {
+    return false;
+  }
+
+  const normalized = normalize(
+    readFileSync(FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH, "utf8"),
+  );
+  return [
+    "local-only",
+    "read-only",
+    "dependency-injected",
+    "evidence/source-envelope implementation",
+    "default fail-closed",
+    "does not add route paths",
+    "db query",
+    "openai api/model",
+    "source mutation",
+    "finance write",
+    "no generated finance advice",
+    "autonomous action",
+  ].every((requiredText) => normalized.includes(requiredText));
+}
+
+function fp0110Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0110/u.test(path));
 }
 
 function fp0107RouteAdapterBoundaryStillVerified() {

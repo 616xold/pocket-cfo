@@ -46,7 +46,8 @@ export const EvidenceToolDispatchProofSchema = z
     fetchCompanyPostureDispatchContractVerified: trueLiteral,
     fetchCapabilityBoundariesDispatchContractVerified: trueLiteral,
     fp0108BoundaryVerified: trueLiteral,
-    fp0109Absent: trueLiteral,
+    fp0109BoundaryVerified: trueLiteral,
+    fp0110Absent: trueLiteral,
     fp0107RouteAdapterBoundaryStillVerified: trueLiteral,
     fp0106ProtocolEnvelopeBoundaryStillVerified: trueLiteral,
     fp0100PublicSecurityBoundaryStillVerified: trueLiteral,
@@ -80,7 +81,8 @@ export type EvidenceToolDispatchProof = z.infer<
 export function buildEvidenceToolDispatchProof(
   input: Partial<{
     fp0108BoundaryVerified: boolean;
-    fp0109Absent: boolean;
+    fp0109BoundaryVerified: boolean;
+    fp0110Absent: boolean;
     fp0107RouteAdapterBoundaryStillVerified: boolean;
     fp0106ProtocolEnvelopeBoundaryStillVerified: boolean;
     fp0100PublicSecurityBoundaryStillVerified: boolean;
@@ -133,7 +135,8 @@ export function buildEvidenceToolDispatchProof(
     fp0107RouteAdapterBoundaryStillVerified:
       input.fp0107RouteAdapterBoundaryStillVerified ?? true,
     fp0108BoundaryVerified: input.fp0108BoundaryVerified ?? true,
-    fp0109Absent: input.fp0109Absent ?? true,
+    fp0109BoundaryVerified: input.fp0109BoundaryVerified ?? true,
+    fp0110Absent: input.fp0110Absent ?? true,
     freshnessBoundaryVerified: contracts.every(
       (contract) =>
         contract.freshnessBoundary.missingEvidenceFailsClosed &&

@@ -17,6 +17,8 @@ const FP0107_PLAN =
   "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md";
 const FP0108_PLAN =
   "plans/FP-0108-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-contracts.md";
+const FP0109_PLAN =
+  "plans/FP-0109-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-adapter-implementation.md";
 const FP0106_PLAN =
   "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
 const FP0105_PLAN =
@@ -31,10 +33,14 @@ const FORMATTER_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/formatter.ts";
 const SCHEMA_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/schema.ts";
+const EVIDENCE_DISPATCHER_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.ts";
 const ROUTE_SPEC_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts";
 const SERVICE_SPEC_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/service.spec.ts";
+const EVIDENCE_DISPATCHER_SPEC_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.spec.ts";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -43,11 +49,19 @@ const routeAdapterFiles = [
   SERVICE_PATH,
   FORMATTER_PATH,
   SCHEMA_PATH,
+  EVIDENCE_DISPATCHER_PATH,
   ROUTE_SPEC_PATH,
   SERVICE_SPEC_PATH,
+  EVIDENCE_DISPATCHER_SPEC_PATH,
 ];
 const routeSource = safeRead(ROUTE_PATH);
-const runtimeSource = [ROUTE_PATH, SERVICE_PATH, FORMATTER_PATH, SCHEMA_PATH]
+const runtimeSource = [
+  ROUTE_PATH,
+  SERVICE_PATH,
+  FORMATTER_PATH,
+  SCHEMA_PATH,
+  EVIDENCE_DISPATCHER_PATH,
+]
   .map(safeRead)
   .join("\n");
 const app = Fastify();
@@ -311,7 +325,8 @@ const proof = {
   fp0107BoundaryVerified: fp0107BoundaryVerified() && changedFileBoundary,
   fp0108EvidenceToolDispatchContractBoundaryVerified:
     fp0108EvidenceToolDispatchContractBoundaryVerified(),
-  fp0109Absent: !repoPaths.some((path) => /(^|\/)FP-0109/u.test(path)),
+  fp0109BoundaryVerified: fp0109BoundaryVerified(),
+  fp0110Absent: !repoPaths.some((path) => /(^|\/)FP-0110/u.test(path)),
   fp0106ProtocolEnvelopeBoundaryStillVerified: fp0106BoundaryStillVerified(),
   fp0105RouteOwnershipBoundaryStillVerified: fp0105BoundaryStillVerified(),
   fp0100PublicSecurityBoundaryStillVerified: fp0100BoundaryStillVerified(),
@@ -438,11 +453,37 @@ function fp0108EvidenceToolDispatchContractBoundaryVerified() {
     "no route behavior change",
     "no db query",
     "no openai api/model call",
-    "no source mutation",
+    "source mutation",
     "no finance write",
     "no autonomous action",
     "public app implementation remains future-only",
     "public app submission remains future-only",
+  ].every((text) => normalized.includes(text));
+}
+
+function fp0109BoundaryVerified() {
+  const fp0109Hits = repoPaths.filter((path) => /(^|\/)FP-0109/u.test(path));
+  if (
+    fp0109Hits.length !== 1 ||
+    fp0109Hits[0] !== FP0109_PLAN ||
+    !existsSync(FP0109_PLAN)
+  ) {
+    return false;
+  }
+
+  const normalized = normalize(safeRead(FP0109_PLAN));
+  return [
+    "local-only",
+    "read-only",
+    "dependency-injected",
+    "evidence/source-envelope implementation",
+    "default fail-closed",
+    "does not add route paths",
+    "db query",
+    "openai api/model",
+    "source mutation",
+    "finance write",
+    "public app implementation and public app submission remain future-only",
   ].every((text) => normalized.includes(text));
 }
 
@@ -483,13 +524,17 @@ function changedFilesAreAllowed() {
   const allowed = new Set([
     FP0107_PLAN,
     FP0108_PLAN,
+    FP0109_PLAN,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
     SCHEMA_PATH,
+    EVIDENCE_DISPATCHER_PATH,
     ROUTE_SPEC_PATH,
     SERVICE_SPEC_PATH,
+    EVIDENCE_DISPATCHER_SPEC_PATH,
     "apps/control-plane/src/app.ts",
+    "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
     "tools/read-only-mcp-route-adapter-proof.mjs",
     "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
     "tools/read-only-mcp-protocol-envelope-proof.mjs",
@@ -594,6 +639,7 @@ function noApiModelClientKeyUsage() {
     /\bmodel\s*\.\s*create\b/u,
     /\bmodels\s*\.\s*create\b/u,
     /\bchat\s*\.\s*completions\b/u,
+    /\bresponses\s*\.\s*create\b/u,
   ].some((pattern) => pattern.test(sourceText));
   const noOpenAiClientOrKeyUsage =
     noOpenAiApiCalls &&

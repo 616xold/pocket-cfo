@@ -7,6 +7,7 @@ import {
   EVIDENCE_TOOL_DISPATCH_REFUSAL_REASONS,
   EVIDENCE_TOOL_DISPATCH_RESPONSE_REQUIRED_FIELDS,
   FP0108_EVIDENCE_TOOL_DISPATCH_PLAN_PATH,
+  FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   EvidenceToolDispatchAllowlistBoundarySchema,
   EvidenceToolDispatchProofSchema,
@@ -215,26 +216,33 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
     expect(serviceSource).not.toContain("ReadOnlyEvidenceToolService");
   });
 
-  it("accepts exactly FP-0108 and still rejects FP-0109", () => {
+  it("accepts exactly FP-0108 and the FP-0109 adapter bridge while rejecting FP-0110", () => {
     const repoPaths = repoFilePaths();
     const fp0108Hits = repoPaths.filter((path) => /(^|\/)FP-0108/u.test(path));
     const fp0109Hits = repoPaths.filter((path) => /(^|\/)FP-0109/u.test(path));
+    const fp0110Hits = repoPaths.filter((path) => /(^|\/)FP-0110/u.test(path));
     const proof = buildEvidenceToolDispatchProof({
       fp0108BoundaryVerified:
         fp0108Hits.length === 1 &&
         fp0108Hits[0] === FP0108_EVIDENCE_TOOL_DISPATCH_PLAN_PATH &&
         existsSync(join(repoRoot, FP0108_EVIDENCE_TOOL_DISPATCH_PLAN_PATH)),
-      fp0109Absent: fp0109Hits.length === 0,
+      fp0109BoundaryVerified:
+        fp0109Hits.length === 1 &&
+        fp0109Hits[0] === FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH &&
+        existsSync(join(repoRoot, FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH)),
+      fp0110Absent: fp0110Hits.length === 0,
     });
 
     expect(fp0108Hits).toEqual([FP0108_EVIDENCE_TOOL_DISPATCH_PLAN_PATH]);
-    expect(fp0109Hits).toEqual([]);
+    expect(fp0109Hits).toEqual([FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH]);
+    expect(fp0110Hits).toEqual([]);
     expect(proof.fp0108BoundaryVerified).toBe(true);
-    expect(proof.fp0109Absent).toBe(true);
+    expect(proof.fp0109BoundaryVerified).toBe(true);
+    expect(proof.fp0110Absent).toBe(true);
     expect(
       EvidenceToolDispatchProofSchema.safeParse({
         ...proof,
-        fp0109Absent: false,
+        fp0110Absent: false,
       }).success,
     ).toBe(false);
   });

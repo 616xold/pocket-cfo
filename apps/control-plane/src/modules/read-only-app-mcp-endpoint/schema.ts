@@ -1,5 +1,8 @@
 import { z } from "zod";
-import { McpToolNameSchema } from "@pocket-cto/domain";
+import {
+  EVIDENCE_TOOL_DISPATCH_ARGUMENT_SCHEMAS_BY_TOOL,
+  McpToolNameSchema,
+} from "@pocket-cto/domain";
 import type { MCP_TOOL_ALLOWLIST } from "@pocket-cto/domain";
 
 export const jsonRpcIdSchema = z.union([z.string(), z.number().int()]);
@@ -33,56 +36,11 @@ export const toolsListParamsSchema = z
   .strict()
   .optional();
 
-const companyKeySchema = z.string().min(1);
-const optionalPeriodKeySchema = z.string().min(1).optional();
-
-export const toolArgumentSchemas = {
-  fetch_capability_boundaries: z
-    .object({
-      companyKey: companyKeySchema,
-    })
-    .strict(),
-  fetch_company_posture: z
-    .object({
-      companyKey: companyKeySchema,
-      periodKey: optionalPeriodKeySchema,
-    })
-    .strict(),
-  fetch_document_map: z
-    .object({
-      companyKey: companyKeySchema,
-      documentMapId: z.string().min(1),
-    })
-    .strict(),
-  fetch_evidence_card: z
-    .object({
-      companyKey: companyKeySchema,
-      evidenceCardId: z.string().min(1),
-    })
-    .strict(),
-  fetch_source_anchor: z
-    .object({
-      companyKey: companyKeySchema,
-      sourceAnchorId: z.string().min(1),
-    })
-    .strict(),
-  fetch_source_coverage: z
-    .object({
-      companyKey: companyKeySchema,
-      sourceId: z.string().min(1),
-    })
-    .strict(),
-  search_evidence: z
-    .object({
-      companyKey: companyKeySchema,
-      limit: z.number().int().positive().max(25).optional(),
-      query: z.string().min(1),
-    })
-    .strict(),
-} as const satisfies Record<
-  (typeof MCP_TOOL_ALLOWLIST)[number],
-  z.ZodType<Record<string, unknown>>
->;
+export const toolArgumentSchemas =
+  EVIDENCE_TOOL_DISPATCH_ARGUMENT_SCHEMAS_BY_TOOL satisfies Record<
+    (typeof MCP_TOOL_ALLOWLIST)[number],
+    z.ZodType<Record<string, unknown>>
+  >;
 
 export const toolsCallParamsSchema = z
   .object({

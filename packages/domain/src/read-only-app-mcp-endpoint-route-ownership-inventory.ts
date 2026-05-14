@@ -37,7 +37,7 @@ function isAllowedFp0107LocalRouteAdapterSurface(
   file: EndpointRouteOwnershipRepositoryInventoryFile,
 ): boolean {
   const routeModule =
-    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service)(?:\.spec)?\.ts$/u.test(
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service|evidence-dispatcher)(?:\.spec)?\.ts$/u.test(
       file.path,
     );
   const planOrProof =
