@@ -20,7 +20,7 @@ This is local-only, read-only, dependency-injected evidence/source-envelope impl
 - [x] 2026-05-14T19:43:59Z - Applied the minimum proof-gate bridge so exact FP-0109 is accepted, FP-0110 remains absent, and the older public-app/descriptor/benchmark inventory gates recognize the new dispatcher file as part of the existing local `/mcp` adapter family rather than a new endpoint.
 - [x] 2026-05-14T19:43:59Z - Refreshed directly stale active docs, threat/demo policy docs, roadmap, and `plugins.md` to record FP-0109 as shipped local injected adapter work while keeping default/public/remote evidence dispatch enablement future-only.
 - [x] 2026-05-14T19:43:59Z - Ran same-branch QA and final validation through `git diff --check`, all required proof tools, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed before this closeout edit.
-- [ ] Commit once, push the requested branch, and create the PR after the required post-closeout validation rerun.
+- [x] 2026-05-14T19:52:38Z - Completed the required post-closeout validation rerun, committed `d2c4faa01f369b8793d1c604a3890a0640a7a94a`, pushed the requested branch, and opened PR #275.
 
 ## Surprises & Discoveries
 
@@ -147,7 +147,7 @@ FP-0109 shipped the first narrow local read-only evidence dispatch adapter for t
 
 Default `ReadOnlyAppMcpEndpointService` behavior remains FP-0107 fail-closed when no dispatcher is injected. Route registration remains thin and safe; no new route path, GET `/mcp` behavior change, DB query, schema/migration, package script, fixture/data/source-pack/public asset, OAuth/token/session, remote MCP deployment, Apps SDK resource, public app behavior, app submission, provider/external/OpenAI/model call, source mutation, finance write, generated finance advice, or autonomous action was added.
 
-Validation before this closeout edit passed:
+Final implementation validation passed before the FP-0109 implementation commit:
 
 - `git diff --check`
 - `pnpm exec tsx tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs`
@@ -171,4 +171,4 @@ Validation before this closeout edit passed:
 - `pnpm test`
 - `pnpm ci:repro:current`
 
-Post-closeout validation must rerun `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` before the single commit.
+Post-closeout validation reran `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` before the single implementation commit. PR #275 was opened from `d2c4faa01f369b8793d1c604a3890a0640a7a94a` on the requested branch. Same-branch QA may patch only defects inside the FP-0109 slice and must keep FP-0110 absent.
