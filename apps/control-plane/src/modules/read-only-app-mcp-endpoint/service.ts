@@ -18,10 +18,21 @@ import {
   type JsonRpcId,
   type ToolName,
 } from "./schema";
+import type { ReadOnlyEvidenceToolDispatcher } from "./evidence-dispatcher";
 
 export type ReadOnlyAppMcpEndpointResult = JsonRpcResponse | null;
 
+export type ReadOnlyAppMcpEndpointServiceInput = {
+  evidenceToolDispatcher?: ReadOnlyEvidenceToolDispatcher;
+};
+
 export class ReadOnlyAppMcpEndpointService {
+  private readonly evidenceToolDispatcher?: ReadOnlyEvidenceToolDispatcher;
+
+  constructor(input: ReadOnlyAppMcpEndpointServiceInput = {}) {
+    this.evidenceToolDispatcher = input.evidenceToolDispatcher;
+  }
+
   handle(input: unknown): ReadOnlyAppMcpEndpointResult {
     const parsed = jsonRpcEnvelopeSchema.safeParse(input);
     if (!parsed.success) {
@@ -103,6 +114,16 @@ export class ReadOnlyAppMcpEndpointService {
     const parsedArguments = argumentSchema.safeParse(parsed.data.arguments ?? {});
     if (!parsedArguments.success) {
       return invalidParams(id, "Invalid read-only tool arguments");
+    }
+
+    if (this.evidenceToolDispatcher) {
+      return formatJsonRpcResult(
+        id,
+        this.evidenceToolDispatcher.dispatchTool({
+          arguments: parsedArguments.data,
+          toolName,
+        }),
+      );
     }
 
     return formatJsonRpcResult(

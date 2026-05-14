@@ -2959,7 +2959,7 @@ function isAllowedFp0107LocalRouteAdapterPath(path) {
       "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md" ||
     path === "apps/control-plane/src/app.ts" ||
     path === "tools/read-only-mcp-route-adapter-proof.mjs" ||
-    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service)(?:\.spec)?\.ts$/u.test(
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service|evidence-dispatcher)(?:\.spec)?\.ts$/u.test(
       path,
     )
   );

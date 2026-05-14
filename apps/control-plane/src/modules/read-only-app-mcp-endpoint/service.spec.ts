@@ -5,6 +5,7 @@ import {
 } from "@pocket-cto/domain";
 import { ReadOnlyAppMcpEndpointService } from "./service";
 import type { JsonRpcErrorResponse, JsonRpcSuccessResponse } from "./formatter";
+import type { ReadOnlyEvidenceToolDispatcher } from "./evidence-dispatcher";
 import type { ToolName } from "./schema";
 
 describe("read-only app MCP endpoint service", () => {
@@ -103,6 +104,72 @@ describe("read-only app MCP endpoint service", () => {
         },
       });
     }
+  });
+
+  it("uses an injected dispatcher after tool-name and argument validation", () => {
+    const dispatcher: ReadOnlyEvidenceToolDispatcher = {
+      dispatchTool: (input) => ({
+        content: [{ text: "Injected read-only dispatch.", type: "text" }],
+        isError: false,
+        structuredContent: {
+          capabilityBoundary: {
+            appsSdkResourcesImplemented: false,
+            appSubmissionImplemented: false,
+            authorityBoundary:
+              "raw_sources_finance_twin_and_cfo_wiki_remain_source_of_truth",
+            externalCommunicationsEmitted: false,
+            financeWritePerformed: false,
+            generatedFinanceAdviceEmitted: false,
+            localDispatchAdapterOnly: true,
+            modelCallsMade: false,
+            modelOutputCanBecomeSourceTruth: false,
+            openAiApiCallsMade: false,
+            openAiClientOrKeyUsed: false,
+            providerCallsMade: false,
+            publicAssetsCreated: false,
+            readOnly: true,
+            remoteMcpDeploymentImplemented: false,
+            routeExpansionImplemented: false,
+            sourceMutationPerformed: false,
+            toolDispatchImplemented: true,
+          },
+          evidence: [],
+          freshness: {
+            checkedAt: "2026-05-14T00:00:00.000Z",
+            compiledAt: null,
+            extractedAt: null,
+            sourceCapturedAt: null,
+            state: "fresh",
+            summary: "Injected test dispatch freshness.",
+          },
+          limitations: [],
+          refusalReason: null,
+          sourceAnchors: [],
+          toolName: input.toolName,
+        },
+      }),
+    };
+    const service = new ReadOnlyAppMcpEndpointService({
+      evidenceToolDispatcher: dispatcher,
+    });
+
+    const response = service.handle({
+      id: "call-search",
+      jsonrpc: "2.0",
+      method: "tools/call",
+      params: {
+        arguments: validArgumentsFor("search_evidence"),
+        name: "search_evidence",
+      },
+    }) as JsonRpcSuccessResponse;
+
+    expect(response.result).toMatchObject({
+      isError: false,
+      structuredContent: {
+        refusalReason: null,
+        toolName: "search_evidence",
+      },
+    });
   });
 
   it("rejects invalid JSON-RPC, unknown methods, invalid tools, and invalid arguments", () => {
