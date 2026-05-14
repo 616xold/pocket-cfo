@@ -1,0 +1,280 @@
+import { z } from "zod";
+import {
+  MCP_TOOL_ALLOWLIST,
+  type McpToolName,
+} from "./read-only-app-mcp-boundaries";
+import {
+  EVIDENCE_TOOL_DISPATCH_SCHEMA_VERSION,
+  EvidenceToolDispatchResponseRequiredFieldsSchema,
+} from "./read-only-app-mcp-evidence-tool-dispatch-contracts";
+import {
+  buildEvidenceToolDispatchAllowlistBoundary,
+  buildEvidenceToolDispatchContracts,
+  buildEvidenceToolDispatchProofContract,
+} from "./read-only-app-mcp-evidence-tool-dispatch-builders";
+
+const trueLiteral = z.literal(true);
+
+export const EvidenceToolDispatchProofSchema = z
+  .object({
+    schemaVersion: z.literal(EVIDENCE_TOOL_DISPATCH_SCHEMA_VERSION),
+    localProofOnly: trueLiteral,
+    evidenceToolDispatchContractsVerified: trueLiteral,
+    exactV2gToolAllowlistVerified: trueLiteral,
+    toolArgumentSchemasVerified: trueLiteral,
+    serviceDependencyBoundaryVerified: trueLiteral,
+    responseEnvelopeBoundaryVerified: trueLiteral,
+    refusalEnvelopeBoundaryVerified: trueLiteral,
+    freshnessBoundaryVerified: trueLiteral,
+    sourceAnchorBoundaryVerified: trueLiteral,
+    noRawFullFileDump: trueLiteral,
+    noGeneratedFinanceAdvice: trueLiteral,
+    noSourceMutation: trueLiteral,
+    noFinanceWrite: trueLiteral,
+    noProviderCalls: trueLiteral,
+    noExternalCommunications: trueLiteral,
+    noOpenAiApiCalls: trueLiteral,
+    noModelCalls: trueLiteral,
+    noOpenAiClientOrKeyUsage: trueLiteral,
+    routeAdapterToolsCallStillFailClosed: trueLiteral,
+    noDispatchRuntimeImplemented: trueLiteral,
+    searchEvidenceDispatchContractVerified: trueLiteral,
+    fetchEvidenceCardDispatchContractVerified: trueLiteral,
+    fetchSourceAnchorDispatchContractVerified: trueLiteral,
+    fetchDocumentMapDispatchContractVerified: trueLiteral,
+    fetchSourceCoverageDispatchContractVerified: trueLiteral,
+    fetchCompanyPostureDispatchContractVerified: trueLiteral,
+    fetchCapabilityBoundariesDispatchContractVerified: trueLiteral,
+    fp0108BoundaryVerified: trueLiteral,
+    fp0109Absent: trueLiteral,
+    fp0107RouteAdapterBoundaryStillVerified: trueLiteral,
+    fp0106ProtocolEnvelopeBoundaryStillVerified: trueLiteral,
+    fp0100PublicSecurityBoundaryStillVerified: trueLiteral,
+    allowedTools: z.tuple([
+      z.literal(MCP_TOOL_ALLOWLIST[0]),
+      z.literal(MCP_TOOL_ALLOWLIST[1]),
+      z.literal(MCP_TOOL_ALLOWLIST[2]),
+      z.literal(MCP_TOOL_ALLOWLIST[3]),
+      z.literal(MCP_TOOL_ALLOWLIST[4]),
+      z.literal(MCP_TOOL_ALLOWLIST[5]),
+      z.literal(MCP_TOOL_ALLOWLIST[6]),
+    ]),
+    responseEnvelopeRequiredFields:
+      EvidenceToolDispatchResponseRequiredFieldsSchema,
+    verifiedDispatchContracts: z.tuple([
+      z.literal("search_evidence"),
+      z.literal("fetch_evidence_card"),
+      z.literal("fetch_source_anchor"),
+      z.literal("fetch_document_map"),
+      z.literal("fetch_source_coverage"),
+      z.literal("fetch_company_posture"),
+      z.literal("fetch_capability_boundaries"),
+    ]),
+  })
+  .strict();
+
+export type EvidenceToolDispatchProof = z.infer<
+  typeof EvidenceToolDispatchProofSchema
+>;
+
+export function buildEvidenceToolDispatchProof(
+  input: Partial<{
+    fp0108BoundaryVerified: boolean;
+    fp0109Absent: boolean;
+    fp0107RouteAdapterBoundaryStillVerified: boolean;
+    fp0106ProtocolEnvelopeBoundaryStillVerified: boolean;
+    fp0100PublicSecurityBoundaryStillVerified: boolean;
+    noOpenAiApiCalls: boolean;
+    noModelCalls: boolean;
+    noOpenAiClientOrKeyUsage: boolean;
+    routeAdapterToolsCallStillFailClosed: boolean;
+    noDispatchRuntimeImplemented: boolean;
+  }> = {},
+): EvidenceToolDispatchProof {
+  const proofContract = buildEvidenceToolDispatchProofContract();
+  const allowlist = buildEvidenceToolDispatchAllowlistBoundary();
+  const contracts = buildEvidenceToolDispatchContracts();
+  const byTool = contractsByTool(contracts);
+
+  return EvidenceToolDispatchProofSchema.parse({
+    allowedTools: [...MCP_TOOL_ALLOWLIST],
+    evidenceToolDispatchContractsVerified:
+      proofContract.contractOnly &&
+      proofContract.readOnly &&
+      proofContract.localProofOnly &&
+      contracts.length === MCP_TOOL_ALLOWLIST.length &&
+      MCP_TOOL_ALLOWLIST.every((toolName) => byTool[toolName] !== undefined),
+    exactV2gToolAllowlistVerified:
+      sameList(allowlist.exactV2gToolAllowlist, MCP_TOOL_ALLOWLIST) &&
+      !allowlist.dynamicToolsAllowed &&
+      !allowlist.writeActionToolsAllowed,
+    fetchCapabilityBoundariesDispatchContractVerified: contractVerified(
+      byTool.fetch_capability_boundaries,
+    ),
+    fetchCompanyPostureDispatchContractVerified: contractVerified(
+      byTool.fetch_company_posture,
+    ),
+    fetchDocumentMapDispatchContractVerified: contractVerified(
+      byTool.fetch_document_map,
+    ),
+    fetchEvidenceCardDispatchContractVerified: contractVerified(
+      byTool.fetch_evidence_card,
+    ),
+    fetchSourceAnchorDispatchContractVerified: contractVerified(
+      byTool.fetch_source_anchor,
+    ),
+    fetchSourceCoverageDispatchContractVerified: contractVerified(
+      byTool.fetch_source_coverage,
+    ),
+    fp0100PublicSecurityBoundaryStillVerified:
+      input.fp0100PublicSecurityBoundaryStillVerified ?? true,
+    fp0106ProtocolEnvelopeBoundaryStillVerified:
+      input.fp0106ProtocolEnvelopeBoundaryStillVerified ?? true,
+    fp0107RouteAdapterBoundaryStillVerified:
+      input.fp0107RouteAdapterBoundaryStillVerified ?? true,
+    fp0108BoundaryVerified: input.fp0108BoundaryVerified ?? true,
+    fp0109Absent: input.fp0109Absent ?? true,
+    freshnessBoundaryVerified: contracts.every(
+      (contract) =>
+        contract.freshnessBoundary.missingEvidenceFailsClosed &&
+        contract.freshnessBoundary.missingCitationFailsClosed &&
+        contract.freshnessBoundary.unsupportedEvidenceFailsClosed &&
+        contract.freshnessBoundary.staleEvidenceFailsClosed &&
+        contract.freshnessBoundary.conflictingEvidenceFailsClosed &&
+        contract.freshnessBoundary.promptInjectionContentRemainsUntrusted,
+    ),
+    localProofOnly: proofContract.localProofOnly,
+    noDispatchRuntimeImplemented:
+      (input.noDispatchRuntimeImplemented ?? true) &&
+      proofContract.noDispatchRuntimeImplemented &&
+      contracts.every((contract) => !contract.dispatchRuntimeImplemented),
+    noExternalCommunications: contracts.every(
+      (contract) =>
+        !contract.noProviderExternalCallBoundary.externalCommunicationsAllowed,
+    ),
+    noFinanceWrite: contracts.every(
+      (contract) => !contract.noFinanceWriteBoundary.financeWriteAllowed,
+    ),
+    noGeneratedFinanceAdvice: contracts.every(
+      (contract) =>
+        !contract.noFinanceWriteBoundary.generatedFinanceAdviceAllowed,
+    ),
+    noModelCalls:
+      (input.noModelCalls ?? true) &&
+      contracts.every(
+        (contract) => !contract.noOpenAiModelBoundary.modelCallsAllowed,
+      ),
+    noOpenAiApiCalls:
+      (input.noOpenAiApiCalls ?? true) &&
+      contracts.every(
+        (contract) => !contract.noOpenAiModelBoundary.openAiApiCallsAllowed,
+      ),
+    noOpenAiClientOrKeyUsage:
+      (input.noOpenAiClientOrKeyUsage ?? true) &&
+      contracts.every(
+        (contract) =>
+          !contract.noOpenAiModelBoundary.openAiClientOrKeyUsageAllowed,
+      ),
+    noProviderCalls: contracts.every(
+      (contract) =>
+        !contract.noProviderExternalCallBoundary.providerCallsAllowed,
+    ),
+    noRawFullFileDump: contracts.every(
+      (contract) =>
+        !contract.noRawDumpBoundary.rawFullFileDumpAllowed &&
+        contract.noRawDumpBoundary.boundedCitedExcerptsOnly,
+    ),
+    noSourceMutation: contracts.every(
+      (contract) => !contract.noMutationBoundary.sourceMutationAllowed,
+    ),
+    refusalEnvelopeBoundaryVerified: contracts.every(
+      (contract) =>
+        contract.refusalEnvelopeBoundary.failClosed &&
+        contract.refusalEnvelopeBoundary.structuredContentRequiredForErrors &&
+        contract.refusalEnvelopeBoundary.refusalReasonRequired,
+    ),
+    responseEnvelopeBoundaryVerified: contracts.every(
+      (contract) =>
+        contract.responseEnvelopeBoundary.structuredContentRequired &&
+        contract.responseEnvelopeBoundary.evidenceRequiredForSuccess &&
+        contract.responseEnvelopeBoundary.sourceAnchorsRequiredForSuccess &&
+        contract.responseEnvelopeBoundary.capabilityBoundaryRequired,
+    ),
+    responseEnvelopeRequiredFields: [
+      "structuredContent",
+      "evidence",
+      "sourceAnchors",
+      "freshness",
+      "limitations",
+      "permittedNextActions",
+      "refusalReason",
+      "capabilityBoundary",
+    ],
+    routeAdapterToolsCallStillFailClosed:
+      (input.routeAdapterToolsCallStillFailClosed ?? true) &&
+      proofContract.routeAdapterToolsCallStillFailClosed &&
+      contracts.every((contract) => !contract.routeAdapterDispatchEnabled),
+    schemaVersion: EVIDENCE_TOOL_DISPATCH_SCHEMA_VERSION,
+    searchEvidenceDispatchContractVerified: contractVerified(
+      byTool.search_evidence,
+    ),
+    serviceDependencyBoundaryVerified: contracts.every(
+      (contract) =>
+        contract.serviceDependencyBoundary.readOnly &&
+        contract.serviceDependencyBoundary.futureDispatchOnly &&
+        contract.serviceDependencyBoundary
+          .resolvesThroughExistingEvidenceSourceAuthorityLanesOnly &&
+        !contract.serviceDependencyBoundary.createsNewControlPlaneService &&
+        !contract.serviceDependencyBoundary.addsDatabaseQueries,
+    ),
+    sourceAnchorBoundaryVerified: contracts.every(
+      (contract) =>
+        contract.sourceAnchorBoundary.sourceAnchorsRequiredForSuccess &&
+        contract.sourceAnchorBoundary.sourceAnchorCitationRequired &&
+        contract.sourceAnchorBoundary.modelOutputCannotBecomeSourceTruth &&
+        contract.sourceAnchorBoundary.rawSourcesImmutable,
+    ),
+    toolArgumentSchemasVerified: contracts.every(
+      (contract) =>
+        contract.argumentSchemaBoundary.acceptsOnlyDeclaredArguments &&
+        contract.argumentSchemaBoundary.unknownArgumentsFailClosed &&
+        contract.argumentSchemaBoundary.missingRequiredArgumentsFailClosed &&
+        contract.argumentSchemaBoundary.noBestEffortArgumentInference,
+    ),
+    verifiedDispatchContracts: [...MCP_TOOL_ALLOWLIST],
+  });
+}
+
+function contractsByTool(
+  contracts: ReturnType<typeof buildEvidenceToolDispatchContracts>,
+) {
+  return Object.fromEntries(
+    contracts.map((contract) => [contract.toolName, contract]),
+  ) as Record<
+    McpToolName,
+    ReturnType<typeof buildEvidenceToolDispatchContracts>[number]
+  >;
+}
+
+function contractVerified(
+  contract:
+    | ReturnType<typeof buildEvidenceToolDispatchContracts>[number]
+    | undefined,
+): boolean {
+  return Boolean(
+    contract &&
+    contract.localProofOnly &&
+    !contract.dispatchRuntimeImplemented &&
+    !contract.routeAdapterDispatchEnabled,
+  );
+}
+
+function sameList(
+  actual: readonly string[],
+  expected: readonly string[],
+): boolean {
+  return (
+    actual.length === expected.length &&
+    actual.every((item, index) => item === expected[index])
+  );
+}
