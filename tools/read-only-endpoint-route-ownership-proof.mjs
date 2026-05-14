@@ -122,12 +122,14 @@ const proof = EndpointRouteOwnershipProofSchema.parse(
     endpointRuntimeRepositoryInventoryStillVerified:
       endpointRuntimeInventory.endpointRuntimeRepositoryInventoryVerified,
     publicAppProofGateNoOpenAiApiSourceScanVerified,
-    fp0103EndpointArchitectureProofContractsStillVerified:
-      docsOnlyPlanBoundary(FP0103_PLAN, [
+    fp0103EndpointArchitectureProofContractsStillVerified: docsOnlyPlanBoundary(
+      FP0103_PLAN,
+      [
         "endpoint architecture proof contracts",
         "local/proof-only",
         "does not authorize endpoint implementation",
-      ]),
+      ],
+    ),
   }),
 );
 
@@ -324,7 +326,11 @@ function fp0105RouteOwnershipBoundary() {
 
 function changedRuntimeSurfaceBoundary() {
   const forbiddenChangedPaths = changedPaths
-    .filter((path) => !isAllowedFp0107LocalRouteAdapterPath(path))
+    .filter(
+      (path) =>
+        !isAllowedFp0107LocalRouteAdapterPath(path) &&
+        !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path),
+    )
     .filter((path) =>
       [
         /^apps\/web\/app\//u,
@@ -342,7 +348,8 @@ function changedRuntimeSurfaceBoundary() {
   return {
     allClear,
     noAppsSdkResourceImplementation:
-      allClear && !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
+      allClear &&
+      !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
     noEndpointImplementation:
       allClear &&
       !changedPaths.some(
@@ -351,10 +358,13 @@ function changedRuntimeSurfaceBoundary() {
           endpointRuntimePath(path),
       ),
     noOauthTokenSessionImplementation:
-      allClear && !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
+      allClear &&
+      !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
     noRemoteMcpServerImplementation:
       allClear &&
-      !changedPaths.some((path) => /remote-mcp|mcp-server|deploy|deployment/iu.test(path)),
+      !changedPaths.some((path) =>
+        /remote-mcp|mcp-server|deploy|deployment/iu.test(path),
+      ),
     noRouteImplementation:
       allClear &&
       !changedPaths.some(
@@ -369,6 +379,7 @@ function changedRuntimeSurfaceBoundary() {
 function isAllowedEndpointRouteOwnershipProofPath(path) {
   return (
     isAllowedFp0107LocalRouteAdapterPath(path) ||
+    isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     path === FP0105_ENDPOINT_ROUTE_OWNERSHIP_PLAN_PATH ||
     path === FP0104_PLAN ||
     path === FP0103_PLAN ||
@@ -380,6 +391,12 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     /^packages\/domain\/src\/read-only-app-mcp-endpoint-architecture.*\.ts$/u.test(
       path,
     )
+  );
+}
+
+function isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) {
+  return /^apps\/control-plane\/src\/modules\/evidence-index\/tools\/service(?:\.spec)?\.ts$/u.test(
+    path,
   );
 }
 
@@ -406,7 +423,9 @@ function publicAssetSubmissionBoundary() {
 function docsOnlyPlanBoundary(path, requiredTexts) {
   if (!repoPaths.includes(path) || !existsSync(path)) return false;
   const normalized = normalize(readFileSync(path, "utf8"));
-  return requiredTexts.every((requiredText) => normalized.includes(requiredText));
+  return requiredTexts.every((requiredText) =>
+    normalized.includes(requiredText),
+  );
 }
 
 function fp0106ProtocolEnvelopeBoundary() {

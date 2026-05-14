@@ -137,6 +137,8 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
         "unsupported_evidence",
         "stale_evidence",
         "conflicting_evidence",
+        "company_key_mismatch",
+        "unsupported_argument",
         "prompt_injection",
       ]),
     );

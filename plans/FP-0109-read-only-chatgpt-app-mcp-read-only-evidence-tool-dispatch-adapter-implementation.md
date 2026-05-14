@@ -12,6 +12,12 @@ This is local-only, read-only, dependency-injected evidence/source-envelope impl
 
 ## Progress
 
+- [x] 2026-05-14T21:23:23Z - Started the targeted post-merge FP-0109 hardening correction on `codex/v2ac-read-only-chatgpt-app-mcp-evidence-dispatch-adapter-context-envelope-hardening-local-v1`; re-invoked Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor. GitHub Connector Guard remained out of scope.
+- [x] 2026-05-14T21:23:23Z - Confirmed PR #275 is merged, FP-0109 exists and is shipped, FP-0110 is absent, the required adapter/service files exist, default `tools/call` remains fail-closed without an injected dispatcher, and all required baseline proof tools passed before edits.
+- [x] 2026-05-14T21:23:23Z - Hardened the local adapter so expected `companyKey` is enforced before service dispatch, mismatches fail closed before service calls, `fetch_source_coverage` passes `sourceId` into a store-only service shim, unsupported `periodKey` fails closed, and every `structuredContent` result has a bounded JSON text mirror without raw dumps or secrets.
+- [x] 2026-05-14T21:23:23Z - Updated focused dispatcher/service/domain specs and `tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs`; focused specs and the adapter proof passed with the new machine-readable hardening fields.
+- [x] 2026-05-14T21:23:23Z - Refreshed directly stale active docs and `plugins.md` to describe FP-0109 context/envelope hardening while keeping default evidence dispatch enablement, FP-0110, public app behavior, OAuth/session, remote MCP, Apps SDK resources, app submission, source mutation, and finance writes future-only.
+- [x] 2026-05-14T21:34:34Z - Tightened legacy proof-gate compatibility for the exact FP-0109 source-coverage shim, reran all required proof tools and focused domain/control-plane specs successfully, and completed same-branch QA scans confirming no FP-0110, no route expansion, no DB/schema/migration/package/data/asset changes, and no forbidden runtime API/provider/write/source-mutation surfaces.
 - [x] 2026-05-14T19:12:47Z - Invoked the repo-local Pocket CFO operator skills requested for this slice: Finance Plan Orchestrator, Modular Architecture Guard, Source Provenance Guard, CFO Wiki Maintainer, Evidence Bundle Auditor, F6 Monitoring Semantics Guard, Validation Ladder Composer, and Pocket CFO Handoff Auditor. GitHub Connector Guard was not invoked because GitHub connector product behavior is out of scope.
 - [x] 2026-05-14T19:12:47Z - Confirmed the working branch is `codex/v2ac-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-adapter-implementation-local-v1` and the worktree starts clean.
 - [x] 2026-05-14T19:12:47Z - Confirmed PR #273 and PR #274 are merged, FP-0108 exists and is shipped, FP-0109 and FP-0110 are absent, the FP-0107 `/mcp` route shell exists, and `ReadOnlyEvidenceToolService` exists under `apps/control-plane/src/modules/evidence-index/tools/service.ts`.
@@ -24,6 +30,11 @@ This is local-only, read-only, dependency-injected evidence/source-envelope impl
 
 ## Surprises & Discoveries
 
+- Post-merge hardening found three adapter-level weaknesses after PR #275 merged: `companyKey` was schema-validated but not semantically enforced, `fetch_source_coverage` validated `sourceId` but did not pass it to `ReadOnlyEvidenceToolService`, and `structuredContent` returned only a prose text block instead of a bounded JSON text mirror.
+- `fetch_company_posture.periodKey` is a declared optional argument but the existing read-only service has no period-scoped posture method. The safer FP-0109 correction is to fail closed when `periodKey` is present rather than silently ignoring it.
+- The source-coverage correction can be handled as a store-only filter in `ReadOnlyEvidenceToolService.fetchSourceCoverage({ sourceId })`; no DB query, new loading path, schema change, or migration is needed.
+- The current official Model Context Protocol Tools and Schema Reference pages explicitly keep `content`, `structuredContent`, and `isError` in the tool result shape and say structured content should also be mirrored as serialized JSON text for backwards compatibility. OpenAI Apps SDK Security & Privacy docs reinforce server-side validation and minimizing structured content without secrets.
+- One validation wrapper initially failed because it used zsh array syntax before any repo command executed. The same focused ladder was rerun under bash; focused specs passed and the adapter proof passed after removing a literal key-name string from the proof source scan.
 - No blocker was found in preflight. The repository already has the shipped FP-0107 local route shell, the FP-0107 transport/status hardening merge, and the shipped FP-0108 evidence dispatch contracts.
 - Official OpenAI Developers was present as an installed plugin family, but no separate read-only docs tool was needed. Official web docs were used as read-only protocol/security context only.
 - Older public-app, descriptor, and benchmark proof gates carried their own endpoint-path scans. They needed narrow allowlist updates for `apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.ts` and its focused spec so FP-0109 could add the injected adapter without being mistaken for route expansion.
@@ -31,6 +42,12 @@ This is local-only, read-only, dependency-injected evidence/source-envelope impl
 
 ## Decision Log
 
+- This post-merge correction remains inside FP-0109. It does not create FP-0110 and does not enable default local evidence dispatch.
+- The adapter now requires an explicit expected company context at construction. Every parsed tool `companyKey` must match that context, and mismatches fail closed before any evidence service call.
+- `fetch_source_coverage` now passes the declared `sourceId` to the read-only service. The service filters the already-loaded source coverage matrix by exact `sourceId` and returns a structured unsupported/missing response when the source id cannot be found.
+- The optional `fetch_company_posture.periodKey` argument fails closed with `unsupported_argument` until a later plan adds a service method that can semantically honor period-scoped posture.
+- MCP tool result `content[0].text` is now a bounded JSON summary mirror of `structuredContent`. It intentionally mirrors envelope counts, freshness, refusal, and capability posture rather than raw result payloads, full files, tokens, credentials, cookies, sessions, OAuth material, object-store dumps, database dumps, provider credentials, OpenAI keys, or private raw finance data.
+- Domain refusal reasons were extended only to record the new adapter fail-closed states: `company_key_mismatch` and `unsupported_argument`.
 - FP-0109 will add a local `evidence-dispatcher.ts` adapter in the existing `apps/control-plane/src/modules/read-only-app-mcp-endpoint/` bounded context rather than modifying `ReadOnlyEvidenceToolService` or adding a new route subsystem.
 - `ReadOnlyAppMcpEndpointService` will accept an optional dispatcher dependency. When absent, the FP-0107 fail-closed `tools/call` result remains the default behavior. When present, the service validates tool name and exact FP-0108 arguments first, then calls the dispatcher.
 - The adapter will return MCP tool results with `content`, `structuredContent`, and `isError`. It will preserve evidence, source anchors, freshness, limitations, permitted next actions, refusal reason, and capability boundary from the existing evidence service.
@@ -50,11 +67,11 @@ FP-0109 is the next narrow implementation slice. It keeps route registration def
 
 Official docs used as read-only context:
 
-- Model Context Protocol specification, "Tools" page, purpose: confirm `tools/list`, `tools/call`, `inputSchema`, optional output schema, structured results, and MCP tool error-handling context.
-- Model Context Protocol specification, "Schema Reference" page, purpose: confirm `CallToolRequest`, `CallToolResult`, `content`, `structuredContent`, and `isError` shape.
+- Model Context Protocol specification 2025-11-25, "Tools" page, purpose: confirm `tools/list`, `tools/call`, `inputSchema`, optional output schema, structured results, and the backwards-compatible serialized JSON TextContent mirror for `structuredContent`.
+- Model Context Protocol specification 2025-11-25, "Schema Reference" page, purpose: confirm `CallToolRequest`, `CallToolResult`, `content`, `structuredContent`, and `isError` shape, including tool-originated errors inside result objects.
 - Model Context Protocol specification, "Transports" page, purpose: confirm Streamable HTTP `/mcp` GET may return HTTP 405 when SSE is unavailable. FP-0109 does not change GET behavior.
-- OpenAI Apps SDK, "Reference" page, purpose: confirm read-only tool annotations and structured tool results as app/MCP context. FP-0109 does not add Apps SDK resources.
-- OpenAI Apps SDK, "Security & Privacy" page, purpose: confirm least privilege, explicit validation, prompt-injection assumptions, structured-content minimization, and logging redaction context. FP-0109 does not implement OAuth, public app behavior, or external calls.
+- OpenAI Apps SDK, "Reference" page, purpose: confirm ChatGPT Apps SDK tool-result UI bridge visibility for `structuredContent`, `content`, and `_meta`. FP-0109 does not add Apps SDK resources.
+- OpenAI Apps SDK, "Security & Privacy" page, purpose: confirm least privilege, explicit server-side validation, prompt-injection assumptions, structured-content minimization, secret avoidance, and logging redaction context. FP-0109 does not implement OAuth, public app behavior, or external calls.
 
 GitHub connector work is explicitly out of scope. Routine `git`, `gh pr view`, `git push`, and `gh pr create` CLI actions are repository workflow actions, not product connector behavior.
 
@@ -63,6 +80,8 @@ GitHub connector work is explicitly out of scope. Routine `git`, `gh pr view`, `
 Create a local evidence dispatch adapter that depends on a read-only service interface compatible with `ReadOnlyEvidenceToolService`. Wire it into `ReadOnlyAppMcpEndpointService` as an optional dependency only. Keep `registerReadOnlyAppMcpEndpointRoutes` thin and safe: it may continue accepting a service dependency, but it must not construct evidence data, DB connections, providers, OpenAI clients, OAuth handlers, or sessions.
 
 Add focused specs for the dispatcher, service injection, and unchanged route behavior. Add `tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs`, then update only the minimum proof-gate surfaces so exact FP-0109 is accepted while FP-0110 remains absent and FP-0108/0107/0106/0105/0104/0103/0100 boundaries remain intact.
+
+For the post-merge correction, harden only the adapter/proof/docs slice: enforce expected company context, honor or fail closed on declared arguments, add a source-coverage `sourceId` shim over the already-loaded artifact store, and mirror structured content with bounded JSON text. Do not add routes, DB queries, schemas, migrations, package scripts, OAuth/session, remote MCP, Apps SDK resources, public app behavior, app submission, public assets, source mutation, finance writes, providers, external communications, OpenAI API/model calls, or FP-0110.
 
 Refresh only directly stale active docs and `plugins.md`.
 
@@ -78,6 +97,7 @@ Refresh only directly stale active docs and `plugins.md`.
 8. Add durable no-OpenAI/API/model/key proof-source scanning over the route adapter, evidence tool service, domain dispatch/protocol contracts, and dispatch proof tools.
 9. Refresh directly stale active docs and plugin inventory if they still stop at FP-0108.
 10. Run focused validation, same-branch QA, final validation, closeout, one commit, push, and PR creation.
+11. Post-merge hardening correction: keep the same FP-0109 plan, enforce adapter `companyKey` context, pass source-coverage `sourceId` through a store-only service shim, fail closed on unsupported `periodKey`, add bounded JSON text mirrors for `structuredContent`, update focused specs/proof fields, refresh directly stale docs, rerun strict same-branch validation, and commit once.
 
 ## Validation and Acceptance
 
@@ -109,6 +129,8 @@ pnpm ci:repro:current
 
 Acceptance is observable when the new proof command prints machine-readable JSON with the FP-0109 adapter fields, default route/service `tools/call` remains fail-closed with no dispatcher, injected dispatch handles every exact V2G tool through `ReadOnlyEvidenceToolService`, invalid names/arguments fail closed, unsupported/missing/stale/conflicting evidence maps to structured refusals, structured content preserves evidence/source/freshness/limitations/permitted next actions/refusal/capability boundary, and strict QA proves no route expansion, DB query, schema/migration/package script, fixture/data/source-pack/public asset, OpenAI API/model/client/key usage, provider call, external communication, source mutation, finance write, generated finance advice, public app behavior, app submission, remote MCP, OAuth/token/session, Apps SDK resource, autonomous action, or FP-0110.
 
+Post-merge hardening acceptance additionally requires machine-readable proof fields for `companyContextBoundaryVerified`, `companyKeyMismatchFailsClosed`, `declaredToolArgumentsUsedOrFailClosed`, `sourceCoverageSourceIdHonoredOrFailsClosed`, `optionalArgumentsHonoredOrFailClosed`, `structuredContentTextMirrorVerified`, `boundedTextMirrorNoRawDumpVerified`, unchanged default fail-closed route behavior, injected dispatch enablement, FP-0109 boundary preservation, FP-0110 absence, and unchanged no-OpenAI/API/model/key posture.
+
 Replay implications: FP-0109 does not perform mission state changes, ingest actions, report actions, source mutations, or finance writes. No replay event is emitted by this slice. The adapter returns read-only evidence/source envelopes only.
 
 Evidence, provenance, freshness, and limitations: successful and refusal tool results must carry evidence/source anchors, freshness posture, limitations, permitted next actions, refusal reason when applicable, and capability boundary. Raw full-file dumps and model output as source truth remain forbidden.
@@ -130,12 +152,13 @@ Expected artifacts:
 - Minimum proof-gate bridge edits
 - Durable no-OpenAI/API/model/key proof-source hardening
 - Directly stale active-doc and `plugins.md` refreshes, if needed
+- Post-merge hardening updates for expected-company enforcement, declared-argument fail-closed behavior, source-coverage `sourceId` filtering, bounded structured-content text mirrors, and the adapter proof JSON fields named in the correction prompt
 
 No raw source files are changed. No generated finance advice, source mutation, finance write, provider call, external communication, OpenAI API/model call, public asset, screenshot, listing copy, app submission artifact, fixture, sample data, dataset, source pack, migration, DB query, package script, or autonomous action is created.
 
 ## Interfaces and Dependencies
 
-The adapter depends on the existing `ReadOnlyEvidenceToolService` method shape and the domain FP-0108 argument schemas. It returns MCP tool result objects for the existing `/mcp` service path only when explicitly injected.
+The adapter depends on the existing `ReadOnlyEvidenceToolService` method shape, an explicit expected company context, and the domain FP-0108 argument schemas. It returns MCP tool result objects for the existing `/mcp` service path only when explicitly injected. `ReadOnlyEvidenceToolService.fetchSourceCoverage({ sourceId })` remains a read-only store-filter shim over already-loaded artifacts and does not add DB queries or new loading behavior.
 
 `apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts` stays transport-only and does not construct evidence data, DB connections, providers, OAuth/session handlers, OpenAI clients, or model clients. Default app registration remains safe/local.
 

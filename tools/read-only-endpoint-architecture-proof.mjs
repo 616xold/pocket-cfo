@@ -25,8 +25,7 @@ const FP0099_PLAN =
   "plans/FP-0099-read-only-chatgpt-app-mcp-public-app-security-threat-model-master-plan.md";
 const FP0098_PLAN =
   "plans/FP-0098-read-only-chatgpt-app-mcp-public-app-readiness-master-plan.md";
-const FP0087_PLAN =
-  "plans/FP-0087-read-only-chatgpt-app-mcp-master-plan.md";
+const FP0087_PLAN = "plans/FP-0087-read-only-chatgpt-app-mcp-master-plan.md";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -47,38 +46,44 @@ const proof = EndpointArchitectureProofSchema.parse(
     exactlyOneFp0103PlanVerified: fp0103Plan.exactlyOneFp0103PlanVerified,
     fp0087DescriptorEnvelopeBoundaryStillVerified:
       fp0087DescriptorEnvelopeBoundary(),
-    fp0098PublicAppReadinessBoundaryStillVerified:
-      docsOnlyPlanBoundary(FP0098_PLAN, [
+    fp0098PublicAppReadinessBoundaryStillVerified: docsOnlyPlanBoundary(
+      FP0098_PLAN,
+      [
         "public-app readiness",
         "future-only",
         "does not authorize public chatgpt app implementation",
-      ]),
-    fp0099PublicSecurityThreatModelBoundaryStillVerified:
-      docsOnlyPlanBoundary(FP0099_PLAN, [
+      ],
+    ),
+    fp0099PublicSecurityThreatModelBoundaryStillVerified: docsOnlyPlanBoundary(
+      FP0099_PLAN,
+      [
         "public-app security",
         "threat-model",
         "does not authorize endpoint implementation",
-      ]),
-    fp0100PublicSecurityBoundaryStillVerified:
-      docsOnlyPlanBoundary(FP0100_PLAN, [
+      ],
+    ),
+    fp0100PublicSecurityBoundaryStillVerified: docsOnlyPlanBoundary(
+      FP0100_PLAN,
+      [
         "public-app security boundary contract",
         "local/proof-only",
         "no endpoints",
-      ]),
-    fp0101ImplementationSequencingBoundaryStillVerified:
-      docsOnlyPlanBoundary(FP0101_PLAN, [
+      ],
+    ),
+    fp0101ImplementationSequencingBoundaryStillVerified: docsOnlyPlanBoundary(
+      FP0101_PLAN,
+      [
         "implementation sequencing",
         "does not authorize endpoint implementation",
         "public app implementation",
-      ]),
-    fp0102ArchitectureBoundaryStillVerified:
-      docsOnlyPlanBoundary(FP0102_PLAN, [
-        "endpoint/oauth/remote-mcp architecture",
-        "docs-and-plan",
-        "does not authorize endpoint implementation",
-      ]),
-    fp0103EndpointArchitectureProofContractsStillVerified:
-      fp0103Plan.accepted,
+      ],
+    ),
+    fp0102ArchitectureBoundaryStillVerified: docsOnlyPlanBoundary(FP0102_PLAN, [
+      "endpoint/oauth/remote-mcp architecture",
+      "docs-and-plan",
+      "does not authorize endpoint implementation",
+    ]),
+    fp0103EndpointArchitectureProofContractsStillVerified: fp0103Plan.accepted,
     fp0103EndpointArchitecturePostmergeProofDurabilityVerified:
       endpointRuntimeInventory.endpointRuntimeRepositoryInventoryVerified,
     fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified:
@@ -94,16 +99,13 @@ const proof = EndpointArchitectureProofSchema.parse(
       fp0104Plan.exactFutureEndpointInventoryReadinessVerified,
     noEndpointImplementationFromFp0104:
       fp0104Plan.noEndpointImplementationFromFp0104,
-    noRouteImplementationFromFp0104:
-      fp0104Plan.noRouteImplementationFromFp0104,
-    noApiBackendRoutesFromFp0104:
-      fp0104Plan.noApiBackendRoutesFromFp0104,
+    noRouteImplementationFromFp0104: fp0104Plan.noRouteImplementationFromFp0104,
+    noApiBackendRoutesFromFp0104: fp0104Plan.noApiBackendRoutesFromFp0104,
     noOauthTokenSessionImplementationFromFp0104:
       fp0104Plan.noOauthTokenSessionImplementationFromFp0104,
     noRemoteMcpImplementationOrDeploymentFromFp0104:
       fp0104Plan.noRemoteMcpImplementationOrDeploymentFromFp0104,
-    noAppsSdkResourceFromFp0104:
-      fp0104Plan.noAppsSdkResourceFromFp0104,
+    noAppsSdkResourceFromFp0104: fp0104Plan.noAppsSdkResourceFromFp0104,
     noAppSubmissionFromFp0104: fp0104Plan.noAppSubmissionFromFp0104,
     noOpenAiApiCallsFromFp0104:
       fp0104Plan.noOpenAiApiCallsFromFp0104 && noOpenAiApiCalls,
@@ -261,39 +263,37 @@ function endpointImplementationReadinessPlanBoundary() {
   }
 
   const normalized = normalize(readFileSync(FP0104_PLAN, "utf8"));
-  const endpointImplementationReadinessPlanBoundaryVerified =
-    [
-      "fp-0104 is not implementation",
-      "fp-0104 is docs-and-plan plus proof-gate compatibility only",
-      "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
-      "fp-0104 does not authorize endpoint implementation",
-      "fp-0104 does not authorize route implementation",
-      "fp-0104 does not authorize web api/backend/control-plane route implementation",
-      "fp-0104 does not authorize oauth/token/session implementation",
-      "fp-0104 does not authorize remote mcp server implementation or deployment",
-      "fp-0104 does not authorize apps sdk iframe/resource implementation",
-      "fp-0104 does not authorize public chatgpt app implementation",
-      "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
-      "fp-0104 does not authorize openai api/model calls",
-      "fp-0104 keeps fp-0105 absent",
-      "fp-0104 preserves fp-0103, fp-0102, fp-0101, fp-0100, fp-0099, fp-0098, fp-0087, v2f, and v2g proof boundaries",
-      "fp-0104 keeps public app implementation/submission future-only",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const exactFutureEndpointInventoryReadinessVerified =
-    [
-      "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
-      "| /mcp |",
-      "post",
-      "streamable http",
-      "request envelope",
-      "response envelope",
-      "auth requirement",
-      "health path if any",
-      "refusal/failure behavior",
-      "logging posture",
-      "owner lane",
-      "endpoint path naming beyond /mcp is blocked",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const endpointImplementationReadinessPlanBoundaryVerified = [
+    "fp-0104 is not implementation",
+    "fp-0104 is docs-and-plan plus proof-gate compatibility only",
+    "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
+    "fp-0104 does not authorize endpoint implementation",
+    "fp-0104 does not authorize route implementation",
+    "fp-0104 does not authorize web api/backend/control-plane route implementation",
+    "fp-0104 does not authorize oauth/token/session implementation",
+    "fp-0104 does not authorize remote mcp server implementation or deployment",
+    "fp-0104 does not authorize apps sdk iframe/resource implementation",
+    "fp-0104 does not authorize public chatgpt app implementation",
+    "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
+    "fp-0104 does not authorize openai api/model calls",
+    "fp-0104 keeps fp-0105 absent",
+    "fp-0104 preserves fp-0103, fp-0102, fp-0101, fp-0100, fp-0099, fp-0098, fp-0087, v2f, and v2g proof boundaries",
+    "fp-0104 keeps public app implementation/submission future-only",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const exactFutureEndpointInventoryReadinessVerified = [
+    "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
+    "| /mcp |",
+    "post",
+    "streamable http",
+    "request envelope",
+    "response envelope",
+    "auth requirement",
+    "health path if any",
+    "refusal/failure behavior",
+    "logging posture",
+    "owner lane",
+    "endpoint path naming beyond /mcp is blocked",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noEndpointImplementationFromFp0104 =
     normalized.includes("fp-0104 does not authorize endpoint implementation") &&
     normalized.includes("no endpoints") &&
@@ -311,8 +311,7 @@ function endpointImplementationReadinessPlanBoundary() {
   const noOauthTokenSessionImplementationFromFp0104 =
     normalized.includes(
       "fp-0104 does not authorize oauth/token/session implementation",
-    ) &&
-    normalized.includes("no auth/session/token implementation");
+    ) && normalized.includes("no auth/session/token implementation");
   const noRemoteMcpImplementationOrDeploymentFromFp0104 =
     normalized.includes(
       "fp-0104 does not authorize remote mcp server implementation or deployment",
@@ -371,7 +370,11 @@ function endpointImplementationReadinessPlanBoundary() {
 
 function routeRuntimeChangedFilesBoundary() {
   const forbiddenChangedPaths = changedPaths
-    .filter((path) => !isAllowedFp0107LocalRouteAdapterPath(path))
+    .filter(
+      (path) =>
+        !isAllowedFp0107LocalRouteAdapterPath(path) &&
+        !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path),
+    )
     .filter((path) =>
       [
         /^apps\/web\/app\//u,
@@ -386,11 +389,10 @@ function routeRuntimeChangedFilesBoundary() {
     );
   const forbiddenRuntimeMarkers = changedPaths.filter((path) => {
     if (isAllowedFp0107LocalRouteAdapterPath(path)) return false;
+    if (isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path)) return false;
     if (!isRuntimeCandidate(path)) return false;
     const source = readFileSync(path, "utf8");
-    return routeRuntimeMarkerPatterns().some((pattern) =>
-      pattern.test(source),
-    );
+    return routeRuntimeMarkerPatterns().some((pattern) => pattern.test(source));
   });
   const allClear =
     forbiddenChangedPaths.length === 0 && forbiddenRuntimeMarkers.length === 0;
@@ -400,12 +402,14 @@ function routeRuntimeChangedFilesBoundary() {
     noAppRoutesAdded:
       allClear && !changedPaths.some((path) => /^apps\/web\/app\//u.test(path)),
     noAppsSdkResourceImplementation:
-      allClear && !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
+      allClear &&
+      !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
     noBackendControlPlaneRoutesAdded:
       allClear &&
       !changedPaths.some(
         (path) =>
           !isAllowedFp0107LocalRouteAdapterPath(path) &&
+          !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) &&
           /^(apps\/control-plane|packages\/backend|packages\/server)\//u.test(
             path,
           ),
@@ -418,9 +422,12 @@ function routeRuntimeChangedFilesBoundary() {
       ),
     noMcpServerRuntime:
       allClear &&
-      !changedPaths.some((path) => /mcp-server|remote-mcp|server\./iu.test(path)),
+      !changedPaths.some((path) =>
+        /mcp-server|remote-mcp|server\./iu.test(path),
+      ),
     noOauthTokenSessionImplementation:
-      allClear && !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
+      allClear &&
+      !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
     noRemoteMcpImplementationOrDeployment:
       allClear &&
       !changedPaths.some((path) => /remote-mcp|deploy|deployment/iu.test(path)),
@@ -660,6 +667,7 @@ function endpointRuntimePath(path) {
 function isAllowedEndpointProofPlanPath(path) {
   return (
     isAllowedFp0107LocalRouteAdapterPath(path) ||
+    isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     path === FP0103_PLAN ||
     path === FP0104_PLAN ||
     path === FP0105_PLAN ||
@@ -671,6 +679,12 @@ function isAllowedEndpointProofPlanPath(path) {
     /^packages\/domain\/src\/read-only-app-mcp-endpoint-route-ownership.*\.ts$/u.test(
       path,
     )
+  );
+}
+
+function isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) {
+  return /^apps\/control-plane\/src\/modules\/evidence-index\/tools\/service(?:\.spec)?\.ts$/u.test(
+    path,
   );
 }
 

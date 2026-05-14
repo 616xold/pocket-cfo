@@ -99,7 +99,8 @@ describe("read-only app MCP endpoint service", () => {
             localRouteAdapterOnly: true,
             toolDispatchImplemented: false,
           },
-          refusalReason: "tool_dispatch_not_implemented_until_later_finance_plan",
+          refusalReason:
+            "tool_dispatch_not_implemented_until_later_finance_plan",
           toolName,
         },
       });
@@ -112,6 +113,8 @@ describe("read-only app MCP endpoint service", () => {
         content: [{ text: "Injected read-only dispatch.", type: "text" }],
         isError: false,
         structuredContent: {
+          adapterSchemaVersion:
+            "v2ac.read-only-app-mcp-evidence-dispatch-adapter.v1",
           capabilityBoundary: {
             appsSdkResourcesImplemented: false,
             appSubmissionImplemented: false,
@@ -133,6 +136,8 @@ describe("read-only app MCP endpoint service", () => {
             sourceMutationPerformed: false,
             toolDispatchImplemented: true,
           },
+          citations: [],
+          companyKey: "acme",
           evidence: [],
           freshness: {
             checkedAt: "2026-05-14T00:00:00.000Z",
@@ -143,7 +148,10 @@ describe("read-only app MCP endpoint service", () => {
             summary: "Injected test dispatch freshness.",
           },
           limitations: [],
+          permittedNextActions: [],
+          redactions: [],
           refusalReason: null,
+          result: null,
           sourceAnchors: [],
           toolName: input.toolName,
         },

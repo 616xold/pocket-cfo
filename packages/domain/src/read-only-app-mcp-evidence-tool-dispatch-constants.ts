@@ -105,6 +105,8 @@ export const EVIDENCE_TOOL_DISPATCH_REFUSAL_REASONS = [
   "unsupported_evidence",
   "stale_evidence",
   "conflicting_evidence",
+  "company_key_mismatch",
+  "unsupported_argument",
   "prompt_injection",
   "raw_full_file_dump_request",
   "generated_finance_advice",
