@@ -8,6 +8,8 @@ import {
 } from "../packages/domain/src/index.ts";
 import {
   LocalReadOnlyEvidenceToolDispatchAdapter,
+  READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_MAX_CHARACTERS,
+  READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_SCHEMA_VERSION,
   exactEvidenceDispatchAdapterToolNames,
 } from "../apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.ts";
 import { ReadOnlyAppMcpEndpointService } from "../apps/control-plane/src/modules/read-only-app-mcp-endpoint/service.ts";
@@ -47,7 +49,10 @@ const runtimeScopeScan = runtimeForbiddenScopeScan();
 const changedScopeScan = changedFileScopeScan();
 
 const dispatcherService = trackingService();
-const adapter = new LocalReadOnlyEvidenceToolDispatchAdapter(dispatcherService);
+const adapter = new LocalReadOnlyEvidenceToolDispatchAdapter({
+  evidenceService: dispatcherService,
+  expectedCompanyKey: "acme",
+});
 const dispatchResults = Object.fromEntries(
   MCP_TOOL_ALLOWLIST.map((toolName) => [
     toolName,
@@ -78,9 +83,20 @@ const injectedResponse = new ReadOnlyAppMcpEndpointService({
   },
 });
 
-const refusalAdapter = new LocalReadOnlyEvidenceToolDispatchAdapter(
-  refusalService(),
-);
+const refusalAdapter = new LocalReadOnlyEvidenceToolDispatchAdapter({
+  evidenceService: refusalService(),
+  expectedCompanyKey: "acme",
+});
+const companyMismatchCallsBefore = dispatcherService.calls.searchEvidence;
+const companyMismatchResult = adapter.dispatchTool({
+  arguments: { companyKey: "other-company", query: "deterministic" },
+  toolName: "search_evidence",
+});
+const periodKeyCallsBefore = dispatcherService.calls.fetchCompanyPosture;
+const periodKeyResult = adapter.dispatchTool({
+  arguments: { companyKey: "acme", periodKey: "2026-04" },
+  toolName: "fetch_company_posture",
+});
 const proof = {
   schemaVersion: SCHEMA_VERSION,
   localDispatchAdapterOnly: true,
@@ -107,6 +123,34 @@ const proof = {
   injectedDispatcherToolsCallEnabled:
     injectedResponse?.result?.isError === false &&
     injectedResponse.result.structuredContent?.refusalReason === null,
+  companyContextBoundaryVerified:
+    routeRuntimeSource.includes("expectedCompanyKey") &&
+    Object.values(dispatchResults).every(
+      (result) => result.structuredContent.companyKey === "acme",
+    ),
+  companyKeyMismatchFailsClosed:
+    companyMismatchResult.isError === true &&
+    companyMismatchResult.structuredContent.refusalReason ===
+      "company_key_mismatch" &&
+    dispatcherService.calls.searchEvidence === companyMismatchCallsBefore,
+  declaredToolArgumentsUsedOrFailClosed:
+    dispatcherService.lastInputs.searchEvidence?.query === "deterministic" &&
+    dispatcherService.lastInputs.searchEvidence?.limit === 3 &&
+    dispatcherService.lastInputs.fetchSourceCoverage?.sourceId === "source-1" &&
+    periodKeyResult.isError === true &&
+    periodKeyResult.structuredContent.refusalReason ===
+      "unsupported_argument" &&
+    dispatcherService.calls.fetchCompanyPosture === periodKeyCallsBefore,
+  sourceCoverageSourceIdHonoredOrFailsClosed:
+    dispatcherService.lastInputs.fetchSourceCoverage?.sourceId === "source-1" &&
+    safeRead(DISPATCHER_PATH).includes("fetchSourceCoverage({") &&
+    safeRead(
+      "apps/control-plane/src/modules/evidence-index/tools/service.ts",
+    ).includes("entry.sourceId === input.sourceId"),
+  optionalArgumentsHonoredOrFailClosed:
+    dispatcherService.lastInputs.searchEvidence?.limit === 3 &&
+    periodKeyResult.isError === true &&
+    periodKeyResult.structuredContent.refusalReason === "unsupported_argument",
   searchEvidenceDispatchAdapterVerified:
     dispatcherService.calls.searchEvidence === 2 &&
     dispatchResults.search_evidence.isError === false,
@@ -142,6 +186,42 @@ const proof = {
       Object.hasOwn(result.structuredContent, "capabilityBoundary") &&
       typeof result.isError === "boolean",
   ),
+  structuredContentTextMirrorVerified: Object.values(dispatchResults).every(
+    (result) => {
+      const text = result.content[0]?.text;
+      if (typeof text !== "string") return false;
+      const mirror = safeJson(text);
+
+      return (
+        mirror?.schemaVersion ===
+          READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_SCHEMA_VERSION &&
+        mirror.toolName === result.structuredContent.toolName &&
+        mirror.companyKey === result.structuredContent.companyKey &&
+        mirror.isError === result.isError &&
+        mirror.refusalReason === result.structuredContent.refusalReason
+      );
+    },
+  ),
+  boundedTextMirrorNoRawDumpVerified: [
+    ...Object.values(dispatchResults),
+    companyMismatchResult,
+    periodKeyResult,
+  ].every((result) => {
+    const text = result.content[0]?.text ?? "";
+
+    return (
+      text.length <= READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_MAX_CHARACTERS &&
+      safeJson(text) !== null &&
+      !new RegExp(
+        `rawFullText|rawFileText|fullFileText|fileContents|sk-test-secret|pk_live_secret|tok_live_secret|${[
+          "OPENAI",
+          "API",
+          "KEY",
+        ].join("_")}`,
+        "u",
+      ).test(text)
+    );
+  }),
   evidenceFreshnessLimitationsVerified: Object.values(dispatchResults).every(
     (result) =>
       result.structuredContent.evidence.length > 0 &&
@@ -249,35 +329,50 @@ function trackingService() {
     fetchSourceCoverage: 0,
     searchEvidence: 0,
   };
+  const lastInputs = {
+    fetchCapabilityBoundaries: null,
+    fetchDocumentMap: null,
+    fetchEvidenceCard: null,
+    fetchSourceAnchor: null,
+    fetchSourceCoverage: null,
+    searchEvidence: null,
+  };
 
   return {
     calls,
-    fetchCapabilityBoundaries() {
+    lastInputs,
+    fetchCapabilityBoundaries(input) {
       calls.fetchCapabilityBoundaries += 1;
+      lastInputs.fetchCapabilityBoundaries = input;
       return responseFor("fetch_capability_boundaries");
     },
     fetchCompanyPosture() {
       calls.fetchCompanyPosture += 1;
       return responseFor("fetch_company_posture");
     },
-    fetchDocumentMap() {
+    fetchDocumentMap(input) {
       calls.fetchDocumentMap += 1;
+      lastInputs.fetchDocumentMap = input;
       return responseFor("fetch_document_map");
     },
-    fetchEvidenceCard() {
+    fetchEvidenceCard(input) {
       calls.fetchEvidenceCard += 1;
+      lastInputs.fetchEvidenceCard = input;
       return responseFor("fetch_evidence_card");
     },
-    fetchSourceAnchor() {
+    fetchSourceAnchor(input) {
       calls.fetchSourceAnchor += 1;
+      lastInputs.fetchSourceAnchor = input;
       return responseFor("fetch_source_anchor");
     },
-    fetchSourceCoverage() {
+    fetchSourceCoverage(input) {
       calls.fetchSourceCoverage += 1;
+      lastInputs.fetchSourceCoverage = input;
       return responseFor("fetch_source_coverage");
     },
-    searchEvidence() {
+    searchEvidence(input) {
       calls.searchEvidence += 1;
+      lastInputs.searchEvidence = input;
       return responseFor("search_evidence");
     },
   };
@@ -413,7 +508,7 @@ function validArgumentsFor(toolName) {
     case "fetch_source_coverage":
       return { companyKey: "acme", sourceId: "source-1" };
     case "fetch_company_posture":
-      return { companyKey: "acme", periodKey: "2026-04" };
+      return { companyKey: "acme" };
     case "fetch_capability_boundaries":
       return { companyKey: "acme" };
   }
@@ -455,8 +550,7 @@ function fp0107BoundaryVerified() {
       "local-only fastify",
       "tools/call",
       "fail-closed",
-    ]) &&
-    defaultFailClosedResponse?.result?.isError === true
+    ]) && defaultFailClosedResponse?.result?.isError === true
   );
 }
 
@@ -480,6 +574,8 @@ function changedFileScopeScan() {
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/service.spec.ts",
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.spec.ts",
+    "apps/control-plane/src/modules/evidence-index/tools/service.ts",
+    "apps/control-plane/src/modules/evidence-index/tools/service.spec.ts",
     "packages/domain/src/read-only-app-mcp-evidence-tool-dispatch-constants.ts",
     "packages/domain/src/read-only-app-mcp-evidence-tool-dispatch-proof.ts",
     "packages/domain/src/read-only-app-mcp-evidence-tool-dispatch.spec.ts",
@@ -687,6 +783,14 @@ function countMatches(source, pattern) {
 
 function sameList(left, right) {
   return JSON.stringify(left) === JSON.stringify(right);
+}
+
+function safeJson(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return null;
+  }
 }
 
 function escapeRegExp(value) {

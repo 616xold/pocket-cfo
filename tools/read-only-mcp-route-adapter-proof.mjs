@@ -41,6 +41,10 @@ const SERVICE_SPEC_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/service.spec.ts";
 const EVIDENCE_DISPATCHER_SPEC_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.spec.ts";
+const EVIDENCE_TOOL_SERVICE_PATH =
+  "apps/control-plane/src/modules/evidence-index/tools/service.ts";
+const EVIDENCE_TOOL_SERVICE_SPEC_PATH =
+  "apps/control-plane/src/modules/evidence-index/tools/service.spec.ts";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -533,6 +537,8 @@ function changedFilesAreAllowed() {
     ROUTE_SPEC_PATH,
     SERVICE_SPEC_PATH,
     EVIDENCE_DISPATCHER_SPEC_PATH,
+    EVIDENCE_TOOL_SERVICE_PATH,
+    EVIDENCE_TOOL_SERVICE_SPEC_PATH,
     "apps/control-plane/src/app.ts",
     "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
     "tools/read-only-mcp-route-adapter-proof.mjs",

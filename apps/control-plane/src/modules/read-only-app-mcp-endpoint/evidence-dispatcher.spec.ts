@@ -12,6 +12,8 @@ import { ReadOnlyEvidenceToolService } from "../evidence-index/tools/service";
 import type { EvidenceIndexBoundSourceInput } from "../evidence-index/types";
 import {
   LocalReadOnlyEvidenceToolDispatchAdapter,
+  READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_MAX_CHARACTERS,
+  READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_SCHEMA_VERSION,
   exactEvidenceDispatchAdapterToolNames,
   type ReadOnlyEvidenceToolServicePort,
 } from "./evidence-dispatcher";
@@ -38,7 +40,7 @@ describe("local read-only evidence tool dispatch adapter", () => {
       fetchSourceCoverage: vi.spyOn(service, "fetchSourceCoverage"),
       searchEvidence: vi.spyOn(service, "searchEvidence"),
     };
-    const adapter = new LocalReadOnlyEvidenceToolDispatchAdapter(service);
+    const adapter = buildAdapter(service);
 
     for (const toolName of MCP_TOOL_ALLOWLIST) {
       const result = adapter.dispatchTool({
@@ -82,14 +84,40 @@ describe("local read-only evidence tool dispatch adapter", () => {
     expect(spies.fetchDocumentMap).toHaveBeenCalledWith({
       documentMapId: args.fetch_document_map.documentMapId,
     });
-    expect(spies.fetchSourceCoverage).toHaveBeenCalledWith();
+    expect(spies.fetchSourceCoverage).toHaveBeenCalledWith({ sourceId });
     expect(spies.fetchCompanyPosture).toHaveBeenCalledWith();
     expect(spies.fetchCapabilityBoundaries).toHaveBeenCalledWith({});
   });
 
+  it("requires expected companyKey and fails closed before service calls on mismatch", () => {
+    const service = stubService(
+      buildService().searchEvidence({ query: "deterministic" }),
+    );
+    const adapter = buildAdapter(service);
+    const result = adapter.dispatchTool({
+      arguments: {
+        companyKey: "other-company",
+        query: "deterministic",
+      },
+      toolName: "search_evidence",
+    });
+
+    expect(result).toMatchObject({
+      isError: true,
+      structuredContent: {
+        evidence: [],
+        refusalReason: "company_key_mismatch",
+        sourceAnchors: [],
+      },
+    });
+    expect(service.searchEvidence).not.toHaveBeenCalled();
+  });
+
   it("fails closed for invalid tool names and invalid arguments", () => {
-    const service = stubService(buildService().searchEvidence({ query: "deterministic" }));
-    const adapter = new LocalReadOnlyEvidenceToolDispatchAdapter(service);
+    const service = stubService(
+      buildService().searchEvidence({ query: "deterministic" }),
+    );
+    const adapter = buildAdapter(service);
 
     expect(
       adapter.dispatchTool({
@@ -120,9 +148,31 @@ describe("local read-only evidence tool dispatch adapter", () => {
     expect(service.searchEvidence).not.toHaveBeenCalled();
   });
 
+  it("fails closed for optional declared arguments that cannot be honored", () => {
+    const service = stubService(buildService().fetchCompanyPosture());
+    const adapter = buildAdapter(service);
+    const result = adapter.dispatchTool({
+      arguments: {
+        companyKey,
+        periodKey: "2026-04",
+      },
+      toolName: "fetch_company_posture",
+    });
+
+    expect(result).toMatchObject({
+      isError: true,
+      structuredContent: {
+        evidence: [],
+        refusalReason: "unsupported_argument",
+        sourceAnchors: [],
+      },
+    });
+    expect(service.fetchCompanyPosture).not.toHaveBeenCalled();
+  });
+
   it("maps unsupported and missing evidence responses into structured refusals", () => {
     const service = buildService();
-    const adapter = new LocalReadOnlyEvidenceToolDispatchAdapter(service);
+    const adapter = buildAdapter(service);
     const result = adapter.dispatchTool({
       arguments: {
         companyKey,
@@ -156,9 +206,9 @@ describe("local read-only evidence tool dispatch adapter", () => {
     const conflicting = cloneResponse(base);
     conflicting.freshness = { ...conflicting.freshness, state: "mixed" };
 
-    expect(dispatchSearch(missingCitation).structuredContent.refusalReason).toBe(
-      "missing_citation",
-    );
+    expect(
+      dispatchSearch(missingCitation).structuredContent.refusalReason,
+    ).toBe("missing_citation");
     expect(dispatchSearch(stale).structuredContent.refusalReason).toBe(
       "stale_evidence",
     );
@@ -170,7 +220,7 @@ describe("local read-only evidence tool dispatch adapter", () => {
   it("returns bounded structured content without raw dumps or generated finance advice", () => {
     const service = buildService();
     const args = validArgumentsFromService(service);
-    const adapter = new LocalReadOnlyEvidenceToolDispatchAdapter(service);
+    const adapter = buildAdapter(service);
     const result = adapter.dispatchTool({
       arguments: args.fetch_document_map,
       toolName: "fetch_document_map",
@@ -194,6 +244,35 @@ describe("local read-only evidence tool dispatch adapter", () => {
     });
   });
 
+  it("mirrors structured content as bounded JSON text without raw dumps or secrets", () => {
+    const service = buildService();
+    const args = validArgumentsFromService(service);
+    const adapter = buildAdapter(service);
+    const result = adapter.dispatchTool({
+      arguments: args.fetch_source_coverage,
+      toolName: "fetch_source_coverage",
+    });
+    const textMirror = result.content[0]?.text ?? "";
+    const parsedMirror = JSON.parse(textMirror) as Record<string, unknown>;
+
+    expect(result.structuredContent).toBeDefined();
+    expect(textMirror.length).toBeLessThanOrEqual(
+      READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_MAX_CHARACTERS,
+    );
+    expect(parsedMirror).toMatchObject({
+      schemaVersion: READ_ONLY_EVIDENCE_DISPATCH_TEXT_MIRROR_SCHEMA_VERSION,
+      companyKey,
+      isError: false,
+      refusalReason: null,
+      toolName: "fetch_source_coverage",
+    });
+    expect(textMirror).not.toContain("sk-test-secret123");
+    expect(textMirror).not.toContain("pk_live_secret123");
+    expect(textMirror).not.toContain("tok_live_secret789");
+    expect(textMirror).not.toContain("123456789");
+    expect(textMirror).not.toMatch(/rawFullText|rawFileText|fullFileText/u);
+  });
+
   it("does not add forbidden runtime, DB, package, data, or asset scope", () => {
     const source = [
       "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.ts",
@@ -206,23 +285,32 @@ describe("local read-only evidence tool dispatch adapter", () => {
     const keyName = ["OPENAI", "API", "KEY"].join("_");
     const packageName = ["open", "ai"].join("");
 
-    expect(source).not.toMatch(new RegExp(`\\bfrom\\s+["']${packageName}["']`, "u"));
+    expect(source).not.toMatch(
+      new RegExp(`\\bfrom\\s+["']${packageName}["']`, "u"),
+    );
     expect(source).not.toMatch(new RegExp(`\\b${keyName}\\b`, "u"));
     expect(source).not.toMatch(/\b(?:db|sql|drizzle)\s*\./u);
-    expect(source).not.toMatch(/\b(?:uploadSource|mutateSource|updateLedger)\s*\(/u);
+    expect(source).not.toMatch(
+      /\b(?:uploadSource|mutateSource|updateLedger)\s*\(/u,
+    );
     expect(source).not.toMatch(/\b(?:providerConnect|sendReport|fetch)\s*\(/u);
   });
 });
 
 function dispatchSearch(response: EvidenceToolResponse<unknown>) {
-  return new LocalReadOnlyEvidenceToolDispatchAdapter(
-    stubService(response),
-  ).dispatchTool({
+  return buildAdapter(stubService(response)).dispatchTool({
     arguments: {
       companyKey,
       query: "deterministic",
     },
     toolName: "search_evidence",
+  });
+}
+
+function buildAdapter(service: ReadOnlyEvidenceToolServicePort) {
+  return new LocalReadOnlyEvidenceToolDispatchAdapter({
+    evidenceService: service,
+    expectedCompanyKey: companyKey,
   });
 }
 
@@ -233,7 +321,7 @@ function stubService(response: EvidenceToolResponse<unknown>) {
     fetchDocumentMap: vi.fn(() => response),
     fetchEvidenceCard: vi.fn(() => response),
     fetchSourceAnchor: vi.fn(() => response),
-    fetchSourceCoverage: vi.fn(() => response),
+    fetchSourceCoverage: vi.fn((_input: { sourceId: string }) => response),
     searchEvidence: vi.fn(() => response),
   } satisfies ReadOnlyEvidenceToolServicePort;
 }
@@ -251,7 +339,7 @@ function validArgumentsFromService(service: ReadOnlyEvidenceToolService) {
 
   return {
     fetch_capability_boundaries: { companyKey },
-    fetch_company_posture: { companyKey, periodKey: "2026-04" },
+    fetch_company_posture: { companyKey },
     fetch_document_map: { companyKey, documentMapId: mapId },
     fetch_evidence_card: { companyKey, evidenceCardId: cardId },
     fetch_source_anchor: { companyKey, sourceAnchorId: anchorId },

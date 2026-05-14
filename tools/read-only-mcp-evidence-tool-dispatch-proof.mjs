@@ -169,6 +169,10 @@ function routeAdapterToolsCallStillFailClosed() {
 }
 
 function noDispatchRuntimeImplemented() {
+  const fp0109SourceCoverageShimPaths = new Set([
+    "apps/control-plane/src/modules/evidence-index/tools/service.ts",
+    "apps/control-plane/src/modules/evidence-index/tools/service.spec.ts",
+  ]);
   const runtimeSource = [
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/service.ts",
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts",
@@ -182,8 +186,11 @@ function noDispatchRuntimeImplemented() {
     !runtimeSource.includes("ReadOnlyEvidenceToolService") &&
     !runtimeSource.includes("buildEvidenceToolDispatch") &&
     !runtimeSource.includes("evidence-index/tools/service") &&
-    !changedPaths.some((path) =>
-      /^apps\/control-plane\/src\/modules\/evidence-index\/tools\//u.test(path),
+    !changedPaths.some(
+      (path) =>
+        /^apps\/control-plane\/src\/modules\/evidence-index\/tools\//u.test(
+          path,
+        ) && !fp0109SourceCoverageShimPaths.has(path),
     )
   );
 }

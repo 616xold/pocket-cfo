@@ -313,7 +313,11 @@ function fp0106ProtocolEnvelopeBoundary() {
 
 function changedRuntimeSurfaceBoundary() {
   const forbiddenChangedPaths = changedPaths
-    .filter((path) => !isAllowedFp0107LocalRouteAdapterPath(path))
+    .filter(
+      (path) =>
+        !isAllowedFp0107LocalRouteAdapterPath(path) &&
+        !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path),
+    )
     .filter((path) =>
       [
         /^apps\/web\/app\//u,
@@ -361,6 +365,7 @@ function changedRuntimeSurfaceBoundary() {
 function isAllowedMcpProtocolProofPath(path) {
   return (
     isAllowedFp0107LocalRouteAdapterPath(path) ||
+    isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     path === FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH ||
     path === "tools/read-only-mcp-protocol-envelope-proof.mjs" ||
     path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
@@ -372,6 +377,12 @@ function isAllowedMcpProtocolProofPath(path) {
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||
     isAllowedStaleDocRefreshPath(path)
+  );
+}
+
+function isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) {
+  return /^apps\/control-plane\/src\/modules\/evidence-index\/tools\/service(?:\.spec)?\.ts$/u.test(
+    path,
   );
 }
 

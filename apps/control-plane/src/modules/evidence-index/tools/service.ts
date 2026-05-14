@@ -86,7 +86,8 @@ export class ReadOnlyEvidenceToolService {
         permittedNextActions: [
           {
             action: "request_human_review",
-            label: "Provide a specific source-backed search query before using this tool.",
+            label:
+              "Provide a specific source-backed search query before using this tool.",
             targetId: this.companyKey,
           },
         ],
@@ -142,7 +143,8 @@ export class ReadOnlyEvidenceToolService {
     const card = this.store.evidenceCards.find(
       (candidate) => candidate.id === input.evidenceCardId,
     );
-    if (!card) return this.unsupported("fetch_evidence_card", input.evidenceCardId);
+    if (!card)
+      return this.unsupported("fetch_evidence_card", input.evidenceCardId);
 
     return buildFetchResponse(this.context(), {
       artifact: card,
@@ -160,7 +162,8 @@ export class ReadOnlyEvidenceToolService {
     sourceAnchorId: string;
   }): EvidenceToolResponse<SourceAnchorFetch> {
     const anchor = findAnchor(this.store, input.sourceAnchorId);
-    if (!anchor) return this.unsupported("fetch_source_anchor", input.sourceAnchorId);
+    if (!anchor)
+      return this.unsupported("fetch_source_anchor", input.sourceAnchorId);
 
     const safeExcerpt = safeExcerptsForAnchor(this.store, anchor)[0] ?? null;
     const result = SourceAnchorFetchSchema.parse({
@@ -201,9 +204,13 @@ export class ReadOnlyEvidenceToolService {
     const safeExcerpts = map.sourceSections
       .map((section) => {
         const anchor = findAnchor(this.store, section.anchorId);
-        return anchor ? buildSafeExcerpt({ anchor, text: section.excerpt }) : null;
+        return anchor
+          ? buildSafeExcerpt({ anchor, text: section.excerpt })
+          : null;
       })
-      .filter((excerpt): excerpt is NonNullable<typeof excerpt> => excerpt !== null);
+      .filter(
+        (excerpt): excerpt is NonNullable<typeof excerpt> => excerpt !== null,
+      );
     const result = DocumentMapFetchSchema.parse({
       citations: citationsForAnchors(map.sourceAnchors),
       documentMap: sanitizeDocumentMapForFetch(this.store, map),
@@ -226,12 +233,31 @@ export class ReadOnlyEvidenceToolService {
     });
   }
 
-  fetchSourceCoverage(): EvidenceToolResponse<SourceCoverageFetch> {
+  fetchSourceCoverage(
+    input: {
+      sourceId?: string;
+    } = {},
+  ): EvidenceToolResponse<SourceCoverageFetch> {
     const matrix = this.store.sourceCoverageMatrices[0];
-    if (!matrix) return this.unsupported("fetch_source_coverage", this.companyKey);
+    if (!matrix)
+      return this.unsupported("fetch_source_coverage", this.companyKey);
+    const entries =
+      input.sourceId === undefined
+        ? matrix.entries
+        : matrix.entries.filter((entry) => entry.sourceId === input.sourceId);
+    if (entries.length === 0) {
+      return this.unsupported(
+        "fetch_source_coverage",
+        input.sourceId ?? this.companyKey,
+      );
+    }
+    const filteredMatrix = {
+      ...matrix,
+      entries,
+    };
 
     const result = SourceCoverageFetchSchema.parse({
-      citations: matrix.entries.map((entry) =>
+      citations: filteredMatrix.entries.map((entry) =>
         buildCitation({
           citationType: "source_coverage",
           id: entry.sourceId,
@@ -239,14 +265,14 @@ export class ReadOnlyEvidenceToolService {
           summary: `Coverage status is ${entry.coverageStatus}.`,
         }),
       ),
-      sourceCoverageMatrix: matrix,
+      sourceCoverageMatrix: filteredMatrix,
     });
 
     return this.response({
-      artifactIds: matrix.entries.map((entry) => entry.sourceId),
-      capabilityBoundaries: matrix.capabilityBoundaries,
+      artifactIds: filteredMatrix.entries.map((entry) => entry.sourceId),
+      capabilityBoundaries: filteredMatrix.capabilityBoundaries,
       citations: result.citations,
-      limitations: matrix.entries.flatMap((entry) => entry.limitations),
+      limitations: filteredMatrix.entries.flatMap((entry) => entry.limitations),
       ok: true,
       permittedNextActions: [],
       result,

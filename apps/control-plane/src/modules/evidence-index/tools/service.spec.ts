@@ -10,6 +10,9 @@ const companyKey = "acme";
 const sourceId = "11111111-1111-4111-8111-111111111111";
 const snapshotId = "22222222-2222-4222-8222-222222222222";
 const sourceFileId = "33333333-3333-4333-8333-333333333333";
+const secondSourceId = "66666666-6666-4666-8666-666666666666";
+const secondSnapshotId = "77777777-7777-4777-8777-777777777777";
+const secondSourceFileId = "88888888-8888-4888-8888-888888888888";
 const checksum = "a".repeat(64);
 
 describe("ReadOnlyEvidenceToolService", () => {
@@ -42,13 +45,17 @@ describe("ReadOnlyEvidenceToolService", () => {
     const anchorId = card.result?.artifact.sourceAnchors.find((anchor) =>
       anchor.id.includes("section-"),
     )?.id;
-    const anchor = service.fetchSourceAnchor({ sourceAnchorId: anchorId ?? "" });
+    const anchor = service.fetchSourceAnchor({
+      sourceAnchorId: anchorId ?? "",
+    });
     expect(anchor.ok).toBe(true);
     expect(anchor.result?.safeExcerpt?.characterCount).toBeLessThanOrEqual(240);
 
     const documentMap = service.fetchDocumentMap({ sourceId });
     expect(documentMap.ok).toBe(true);
-    expect(documentMap.result?.documentMap.sourceDocument.sourceId).toBe(sourceId);
+    expect(documentMap.result?.documentMap.sourceDocument.sourceId).toBe(
+      sourceId,
+    );
     const documentMapExcerpt =
       documentMap.result?.documentMap.sourceSections[0]?.excerpt ?? "";
     expect(documentMapExcerpt.length).toBeLessThanOrEqual(240);
@@ -72,9 +79,39 @@ describe("ReadOnlyEvidenceToolService", () => {
     const manifest = buildReadOnlyToolManifest();
 
     expect(coverage.ok).toBe(true);
-    expect(coverage.result?.sourceCoverageMatrix.entries[0]?.coverageStatus).toBe(
-      "supported",
-    );
+    expect(
+      coverage.result?.sourceCoverageMatrix.entries[0]?.coverageStatus,
+    ).toBe("supported");
+    const scopedCoverage = service.fetchSourceCoverage({ sourceId });
+    expect(scopedCoverage.ok).toBe(true);
+    expect(
+      scopedCoverage.result?.sourceCoverageMatrix.entries.map(
+        (entry) => entry.sourceId,
+      ),
+    ).toEqual([sourceId]);
+    const multiSourceCoverage = buildService({
+      sources: [
+        sourceInput(),
+        sourceInput({
+          bindingId: "99999999-9999-4999-8999-999999999999",
+          extractId: "12121212-1212-4212-8212-121212121212",
+          snapshotId: secondSnapshotId,
+          sourceFileId: secondSourceFileId,
+          sourceId: secondSourceId,
+          sourceName: "Second synthetic policy source",
+        }),
+      ],
+    }).fetchSourceCoverage({ sourceId: secondSourceId });
+    expect(
+      multiSourceCoverage.result?.sourceCoverageMatrix.entries.map(
+        (entry) => entry.sourceId,
+      ),
+    ).toEqual([secondSourceId]);
+    const missingCoverage = service.fetchSourceCoverage({
+      sourceId: "99999999-9999-4999-8999-999999999998",
+    });
+    expect(missingCoverage.ok).toBe(false);
+    expect(missingCoverage.unsupportedReason).toMatch(/not available/u);
     expect(posture.result?.financeTwinRefs[0]?.readOnly).toBe(true);
     expect(posture.result?.cfoWikiRefs[0]?.readOnly).toBe(true);
     expect(posture.result?.proofBundleRefs[0]?.readOnly).toBe(true);
@@ -102,15 +139,21 @@ describe("ReadOnlyEvidenceToolService", () => {
     expect(blankSearch.audit.excerptCharacterCount).toBe(0);
     expect(blankSearch.unsupportedReason).toMatch(/Empty or whitespace-only/u);
     expect(manifest.tools.every((tool) => tool.readOnly)).toBe(true);
-    expect(manifest.tools.map((tool) => tool.name)).not.toContain("send_report");
+    expect(manifest.tools.map((tool) => tool.name)).not.toContain(
+      "send_report",
+    );
   });
 });
 
-function buildService() {
+function buildService(
+  input: {
+    sources?: EvidenceIndexBoundSourceInput[];
+  } = {},
+) {
   const foundation = buildEvidenceIndexFoundation({
     companyKey,
     generatedAt,
-    sources: [sourceInput()],
+    sources: input.sources ?? [sourceInput()],
   });
 
   return new ReadOnlyEvidenceToolService({
@@ -148,16 +191,29 @@ function buildService() {
   });
 }
 
-function sourceInput(): EvidenceIndexBoundSourceInput {
+function sourceInput(
+  input: {
+    bindingId?: string;
+    extractId?: string;
+    snapshotId?: string;
+    sourceFileId?: string;
+    sourceId?: string;
+    sourceName?: string;
+  } = {},
+): EvidenceIndexBoundSourceInput {
+  const resolvedSourceId = input.sourceId ?? sourceId;
+  const resolvedSnapshotId = input.snapshotId ?? snapshotId;
+  const resolvedSourceFileId = input.sourceFileId ?? sourceFileId;
+
   return {
     binding: {
       boundBy: "operator",
       companyId,
       createdAt: generatedAt,
       documentRole: "policy_document",
-      id: "44444444-4444-4444-8444-444444444444",
+      id: input.bindingId ?? "44444444-4444-4444-8444-444444444444",
       includeInCompile: true,
-      sourceId,
+      sourceId: resolvedSourceId,
       updatedAt: generatedAt,
     },
     latestExtract: {
@@ -176,13 +232,13 @@ function sourceInput(): EvidenceIndexBoundSourceInput {
       ].join("\n"),
       extractStatus: "extracted",
       headingOutline: [{ depth: 1, text: "Policy" }],
-      id: "55555555-5555-4555-8555-555555555555",
+      id: input.extractId ?? "55555555-5555-4555-8555-555555555555",
       inputChecksumSha256: checksum,
       parserVersion: "f3b-document-extract-v1",
       renderedMarkdown: null,
-      sourceFileId,
-      sourceId,
-      sourceSnapshotId: snapshotId,
+      sourceFileId: resolvedSourceFileId,
+      sourceId: resolvedSourceId,
+      sourceSnapshotId: resolvedSnapshotId,
       title: "Policy",
       updatedAt: generatedAt,
       warnings: [],
@@ -191,13 +247,13 @@ function sourceInput(): EvidenceIndexBoundSourceInput {
       capturedAt: generatedAt,
       checksumSha256: checksum,
       createdAt: generatedAt,
-      id: snapshotId,
+      id: resolvedSnapshotId,
       ingestErrorSummary: null,
       ingestStatus: "ready",
       mediaType: "text/markdown",
       originalFileName: "policy.md",
       sizeBytes: 120,
-      sourceId,
+      sourceId: resolvedSourceId,
       storageKind: "object_store",
       storageRef: "s3://bucket/policy.md",
       updatedAt: generatedAt,
@@ -208,12 +264,12 @@ function sourceInput(): EvidenceIndexBoundSourceInput {
       checksumSha256: checksum,
       createdAt: generatedAt,
       createdBy: "operator",
-      id: sourceFileId,
+      id: resolvedSourceFileId,
       mediaType: "text/markdown",
       originalFileName: "policy.md",
       sizeBytes: 120,
-      sourceId,
-      sourceSnapshotId: snapshotId,
+      sourceId: resolvedSourceId,
+      sourceSnapshotId: resolvedSnapshotId,
       storageKind: "object_store",
       storageRef: "s3://bucket/policy.md",
     },
@@ -222,15 +278,15 @@ function sourceInput(): EvidenceIndexBoundSourceInput {
       createdAt: generatedAt,
       createdBy: "operator",
       description: null,
-      id: sourceId,
+      id: resolvedSourceId,
       kind: "document",
-      name: "Synthetic policy source",
+      name: input.sourceName ?? "Synthetic policy source",
       originKind: "manual",
       updatedAt: generatedAt,
     },
     wikiRefs: [
       {
-        pageKey: "sources/11111111-1111-4111-8111-111111111111/snapshots/1",
+        pageKey: `sources/${resolvedSourceId}/snapshots/1`,
         refKind: "source_excerpt",
         summary: "Derived source digest page.",
       },
