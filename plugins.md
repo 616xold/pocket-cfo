@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0107 local-only Fastify `/mcp` route-adapter shell and transport-hardening correction.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0108 local/proof-only/read-only evidence tool dispatch contract slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0107 local route-adapter shell, transport-hardening proof-gate bridge, doc-refresh, validation, and handoff slice:
+  - Skills invoked for this FP-0108 evidence tool dispatch contract, proof-gate bridge, doc-refresh, validation, and handoff slice:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard
@@ -39,5 +39,5 @@ This file records the plugins available in this Codex local thread and the repo-
 ## Notes
 
 - Routine `git` and `gh` CLI operations were used for repository and PR metadata.
-- OpenAI Developers was available only as an installed plugin family; no callable read-only docs tool was exposed for this slice. It was not used to create API keys, call OpenAI APIs, call models, or widen app/runtime scope. Official OpenAI web docs were used as read-only platform context for Apps SDK MCP servers, ChatGPT connector endpoint setup, and security posture. Official Model Context Protocol web docs were used as read-only protocol context for Streamable HTTP POST/GET behavior, HTTP 202 notification handling, Origin validation, JSON-RPC base behavior, `ping` liveness, and tools/list/tools/call shape.
+- OpenAI Developers was available only as an installed plugin family; no callable read-only docs tool was exposed for this slice. It was not used to create API keys, call OpenAI APIs, call models, or widen app/runtime scope. Official OpenAI web docs were used as read-only platform context for Apps SDK tool definitions, MCP server boundaries, ChatGPT connector endpoint setup, and security posture. Official Model Context Protocol web docs were used as read-only protocol context for `tools/call`, `inputSchema`, optional `outputSchema`, `structuredContent`, tool results, and tool annotations.
 - No Figma, app-submission, design-generation, OpenAI API/model-call, artifact-upload, dependency-installation, or public-asset generation plugin workflow was used for this slice.

@@ -15,6 +15,8 @@ const Fastify = requireFromControlPlane("fastify");
 const SCHEMA_VERSION = "v2aa.read-only-app-mcp-local-route-adapter.v1";
 const FP0107_PLAN =
   "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md";
+const FP0108_PLAN =
+  "plans/FP-0108-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-contracts.md";
 const FP0106_PLAN =
   "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
 const FP0105_PLAN =
@@ -307,7 +309,9 @@ const proof = {
   noAppSubmission: publicAssetBoundary.noAppSubmission,
   noPublicAssets: publicAssetBoundary.noPublicAssets,
   fp0107BoundaryVerified: fp0107BoundaryVerified() && changedFileBoundary,
-  fp0108Absent: !repoPaths.some((path) => /(^|\/)FP-0108/u.test(path)),
+  fp0108EvidenceToolDispatchContractBoundaryVerified:
+    fp0108EvidenceToolDispatchContractBoundaryVerified(),
+  fp0109Absent: !repoPaths.some((path) => /(^|\/)FP-0109/u.test(path)),
   fp0106ProtocolEnvelopeBoundaryStillVerified: fp0106BoundaryStillVerified(),
   fp0105RouteOwnershipBoundaryStillVerified: fp0105BoundaryStillVerified(),
   fp0100PublicSecurityBoundaryStillVerified: fp0100BoundaryStillVerified(),
@@ -412,6 +416,36 @@ function fp0107BoundaryVerified() {
   ].every((text) => normalized.includes(text));
 }
 
+function fp0108EvidenceToolDispatchContractBoundaryVerified() {
+  const fp0108Hits = repoPaths.filter((path) => /(^|\/)FP-0108/u.test(path));
+  if (fp0108Hits.length === 0) return true;
+  if (
+    fp0108Hits.length !== 1 ||
+    fp0108Hits[0] !== FP0108_PLAN ||
+    !existsSync(FP0108_PLAN)
+  ) {
+    return false;
+  }
+
+  const normalized = normalize(safeRead(FP0108_PLAN));
+  return [
+    "local/proof-only/read-only",
+    "evidence tool dispatch contracts",
+    "does not change route behavior",
+    "does not implement tools/call dispatch",
+    "tools/call remains fail-closed",
+    "no dispatch runtime",
+    "no route behavior change",
+    "no db query",
+    "no openai api/model call",
+    "no source mutation",
+    "no finance write",
+    "no autonomous action",
+    "public app implementation remains future-only",
+    "public app submission remains future-only",
+  ].every((text) => normalized.includes(text));
+}
+
 function fp0106BoundaryStillVerified() {
   if (!existsSync(FP0106_PLAN)) return false;
   const normalized = normalize(safeRead(FP0106_PLAN));
@@ -448,6 +482,7 @@ function fp0100BoundaryStillVerified() {
 function changedFilesAreAllowed() {
   const allowed = new Set([
     FP0107_PLAN,
+    FP0108_PLAN,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
@@ -456,6 +491,7 @@ function changedFilesAreAllowed() {
     SERVICE_SPEC_PATH,
     "apps/control-plane/src/app.ts",
     "tools/read-only-mcp-route-adapter-proof.mjs",
+    "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
     "tools/read-only-mcp-protocol-envelope-proof.mjs",
     "tools/read-only-endpoint-route-ownership-proof.mjs",
     "tools/read-only-endpoint-architecture-proof.mjs",
