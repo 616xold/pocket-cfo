@@ -27,8 +27,13 @@ import {
   verifyFp0117OauthImplementationSequencingRepositoryInventory,
   verifyFp0117OauthSequencingNoOpenAiApiSourceScan,
   verifyFp0117PlanningTextRequiredTopics,
-  verifyFp0118Absent,
 } from "./read-only-app-mcp-remote-host-resource";
+import {
+  FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
+  verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts,
+  verifyFp0118ProtectedResourceMetadataPlanBoundary,
+  verifyFp0119Absent,
+} from "./read-only-app-mcp-protected-resource-metadata";
 import { verifyMcpRemoteHostReadinessRepositoryInventory } from "./read-only-app-mcp-remote-host-readiness";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -66,9 +71,10 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     ).toBe(false);
   });
 
-  it("accepts exactly one FP-0117 docs-and-plan OAuth implementation sequencing bridge while FP-0118 remains absent", () => {
+  it("accepts exactly one FP-0117 docs-and-plan bridge and exact FP-0118 local protected-resource metadata contracts while FP-0119 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
+    const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
     const topics = verifyFp0117PlanningTextRequiredTopics(planText);
     const proof = buildMcpOauthImplementationSequencingProof({
       ...topics,
@@ -77,10 +83,20 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
           planText,
           repoPaths,
         }),
-      fp0118Absent: verifyFp0118Absent(repoPaths),
+      fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified:
+        verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts({
+          planText: fp0118PlanText,
+          repoPaths,
+        }),
+      fp0119Absent: verifyFp0119Absent(repoPaths),
       oauthImplementationSequencingPlanBoundaryVerified:
         verifyFp0117OauthImplementationSequencingPlanBoundary({
           planText,
+          repoPaths,
+        }),
+      protectedResourceMetadataContractsFoundationVerified:
+        verifyFp0118ProtectedResourceMetadataPlanBoundary({
+          planText: fp0118PlanText,
           repoPaths,
         }),
     });
@@ -88,11 +104,20 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(repoPaths.filter((path) => /(^|\/)FP-0117/u.test(path))).toEqual([
       FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
     ]);
-    expect(repoPaths.filter((path) => /(^|\/)FP-0118/u.test(path))).toEqual([]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0118/u.test(path))).toEqual([
+      FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0119/u.test(path))).toEqual([]);
     expect(
       proof.fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified,
     ).toBe(true);
-    expect(proof.fp0118Absent).toBe(true);
+    expect(
+      proof.fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified,
+    ).toBe(true);
+    expect(proof.protectedResourceMetadataContractsFoundationVerified).toBe(
+      true,
+    );
+    expect(proof.fp0119Absent).toBe(true);
     expect(proof.noRouteBehaviorChangeFromFp0117).toBe(true);
     expect(proof.noNewRoutePathFromFp0117).toBe(true);
     expect(proof.noProtectedResourceMetadataRouteFromFp0117).toBe(true);
@@ -123,6 +148,25 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(proof.noSourceMutationFinanceWriteFromFp0117).toBe(true);
     expect(proof.noPublicAssetsSubmissionArtifactsFromFp0117).toBe(true);
     expect(proof.noListingCopyGeneratedPublicProseFromFp0117).toBe(true);
+    expect(proof.noRouteBehaviorChangeFromFp0118).toBe(true);
+    expect(proof.noNewRoutePathFromFp0118).toBe(true);
+    expect(proof.noProtectedResourceMetadataRouteFromFp0118).toBe(true);
+    expect(proof.noWwwAuthenticateRouteBehaviorFromFp0118).toBe(true);
+    expect(proof.noOauthImplementationFromFp0118).toBe(true);
+    expect(proof.noTokenSessionImplementationFromFp0118).toBe(true);
+    expect(proof.noAuthMiddlewareImplementationFromFp0118).toBe(true);
+    expect(proof.noRemoteMcpDeploymentFromFp0118).toBe(true);
+    expect(proof.noDeploymentConfigFromFp0118).toBe(true);
+    expect(proof.noAppsSdkResourceFromFp0118).toBe(true);
+    expect(proof.noAppSubmissionFromFp0118).toBe(true);
+    expect(proof.noDbQueriesFromFp0118).toBe(true);
+    expect(proof.noSchemaMigrationsFromFp0118).toBe(true);
+    expect(proof.noPackageScriptsFromFp0118).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0118).toBe(true);
+    expect(proof.noProviderExternalCallsFromFp0118).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0118).toBe(true);
+    expect(proof.noPublicAssetsSubmissionArtifactsFromFp0118).toBe(true);
+    expect(proof.noListingCopyGeneratedPublicProseFromFp0118).toBe(true);
     expect(proof.planningTextIncludesProtectedResourceMetadata).toBe(true);
     expect(proof.planningTextIncludesWwwAuthenticateResourceMetadata).toBe(
       true,

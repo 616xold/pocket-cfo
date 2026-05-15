@@ -26,6 +26,7 @@ export * from "./read-only-app-mcp";
 export * from "./read-only-app-mcp-endpoint-architecture";
 export * from "./read-only-app-mcp-endpoint-route-ownership";
 export * from "./read-only-app-mcp-oauth-security";
+export * from "./read-only-app-mcp-protected-resource-metadata";
 export * from "./read-only-app-mcp-protocol-envelope";
 export * from "./read-only-app-mcp-public-security";
 export * from "./read-only-app-mcp-remote-host-resource";

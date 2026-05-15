@@ -3,17 +3,17 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
-  McpOauthImplementationSequencingProofSchema,
-  buildMcpOauthImplementationSequencingProof,
-  isFp0117OauthSequencingNoOpenAiProofSourcePath,
+  McpProtectedResourceMetadataProofSchema,
+  buildMcpProtectedResourceMetadataProof,
+  isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath,
+  textHasProtectedResourceTokenLeakage,
   verifyFp0117AbsentOrDocsOnlyOauthImplementationSequencingPlan,
   verifyFp0117OauthImplementationSequencingPlanBoundary,
-  verifyFp0117OauthImplementationSequencingRepositoryInventory,
-  verifyFp0117OauthSequencingNoOpenAiApiSourceScan,
-  verifyFp0117PlanningTextRequiredTopics,
   verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
   verifyFp0119Absent,
+  verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan,
+  verifyMcpProtectedResourceMetadataRepositoryInventory,
 } from "../packages/domain/src/index.ts";
 
 const FP0116_PLAN =
@@ -30,8 +30,6 @@ const FP0111_PLAN =
   "plans/FP-0111-read-only-chatgpt-app-mcp-default-local-evidence-dispatch-wiring.md";
 const FP0109_PLAN =
   "plans/FP-0109-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-adapter-implementation.md";
-const FP0108_PLAN =
-  "plans/FP-0108-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-contracts.md";
 const FP0107_PLAN =
   "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md";
 const FP0106_PLAN =
@@ -43,27 +41,29 @@ const ROUTE_PATH =
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
-const planText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
+const fp0117PlanText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
 const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
   readChangedExecutableSource(),
 );
 const repositoryInventory =
-  verifyFp0117OauthImplementationSequencingRepositoryInventory({
+  verifyMcpProtectedResourceMetadataRepositoryInventory({
     repoPaths,
     routeSourceText: safeRead(ROUTE_PATH),
   });
-const durableSourceScan = verifyFp0117OauthSequencingNoOpenAiApiSourceScan({
-  sourceText: readOauthSequencingProofSourceText(),
-});
-const planningTopics = verifyFp0117PlanningTextRequiredTopics(planText);
+const durableSourceScan = verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan(
+  {
+    sourceText: readProtectedResourceMetadataProofSourceText(),
+  },
+);
 
-const proof = McpOauthImplementationSequencingProofSchema.parse(
-  buildMcpOauthImplementationSequencingProof({
-    ...planningTopics,
+const proof = McpProtectedResourceMetadataProofSchema.parse(
+  buildMcpProtectedResourceMetadataProof({
+    authMiddlewareRepositoryInventoryVerified:
+      repositoryInventory.authMiddlewareRepositoryInventoryVerified,
     fp0100PublicSecurityBoundaryStillVerified: docsBoundary(FP0100_PLAN, [
-      "public-app security boundary contract",
+      "public-app security boundary",
       "local/proof-only",
       "no endpoints",
     ]),
@@ -73,12 +73,8 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
       "no openai api/model calls",
     ]),
     fp0107RouteAdapterBoundaryStillVerified:
-      docsBoundary(FP0107_PLAN, ["local-only fastify", "post /mcp"]) &&
+      docsBoundary(FP0107_PLAN, ["local/control-plane", "post /mcp"]) &&
       localRouteShapeStillVerified(),
-    fp0108DispatchContractsStillVerified: docsBoundary(FP0108_PLAN, [
-      "evidence tool dispatch contracts",
-      "does not change route behavior",
-    ]),
     fp0109AdapterBoundaryStillVerified: docsBoundary(FP0109_PLAN, [
       "local-only",
       "dependency-injected",
@@ -86,7 +82,7 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
     ]),
     fp0111DefaultLocalDispatchWiringStillVerified: docsBoundary(FP0111_PLAN, [
       "explicit app construction",
-      "default buildapp() remains fail-closed",
+      "default fail-closed",
     ]),
     fp0112RemotePublicOauthReadinessBoundaryStillVerified: docsBoundary(
       FP0112_PLAN,
@@ -96,12 +92,12 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
       ],
     ),
     fp0113OauthSecurityBoundaryStillVerified: docsBoundary(FP0113_PLAN, [
-      "local/proof-only/read-only oauth, token/session",
+      "oauth/token/session security",
       "token passthrough is forbidden",
-      "public exposure remains blocked",
+      "companykey",
     ]),
     fp0114RemoteHostReadinessBoundaryStillVerified: docsBoundary(FP0114_PLAN, [
-      "local/proof-only/read-only remote mcp host readiness",
+      "remote mcp host readiness",
       "canonical mcp resource uri",
       "current local /mcp route must not be exposed remotely as-is",
     ]),
@@ -114,13 +110,17 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
       ],
     ),
     fp0116RemoteHostResourceBoundaryStillVerified: docsBoundary(FP0116_PLAN, [
-      "local/proof-only/read-only contract slice",
+      "remote host owner",
+      "canonical resource uri",
       "protected-resource metadata",
-      "fp-0117 remains absent",
     ]),
-    fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified:
+    fp0117OauthImplementationSequencingBoundaryStillVerified:
       verifyFp0117AbsentOrDocsOnlyOauthImplementationSequencingPlan({
-        planText,
+        planText: fp0117PlanText,
+        repoPaths,
+      }) &&
+      verifyFp0117OauthImplementationSequencingPlanBoundary({
+        planText: fp0117PlanText,
         repoPaths,
       }),
     fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified:
@@ -128,132 +128,90 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
         planText: fp0118PlanText,
         repoPaths,
       }),
+    fp0118BoundaryVerified: verifyFp0118ProtectedResourceMetadataPlanBoundary({
+      planText: fp0118PlanText,
+      repoPaths,
+    }),
     fp0119Absent: verifyFp0119Absent(repoPaths),
-    noAppSubmissionFromFp0117: scopeScan.noAppSubmission,
-    noAppsSdkResourceFromFp0117: scopeScan.noAppsSdkResource,
-    noAuthMiddlewareImplementationFromFp0117:
+    fp0118PostmergeProofDurabilityVerified:
+      repositoryInventory.fp0118PostmergeProofDurabilityVerified &&
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    noAppSubmission: scopeScan.noAppSubmission,
+    noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
+    noAuthMiddlewareImplementation:
       scopeScan.noAuthMiddlewareImplementation &&
       repositoryInventory.authMiddlewareRepositoryInventoryVerified,
-    noDbQueriesFromFp0117: scopeScan.noDbQueries,
-    noDeploymentConfigFromFp0117: scopeScan.noDeploymentConfig,
-    noListingCopyGeneratedPublicProseFromFp0117:
-      scopeScan.noListingCopyGeneratedPublicProse,
-    noAppSubmissionFromFp0118: scopeScan.noAppSubmission,
-    noAppsSdkResourceFromFp0118: scopeScan.noAppsSdkResource,
-    noAuthMiddlewareImplementationFromFp0118:
-      scopeScan.noAuthMiddlewareImplementation &&
-      repositoryInventory.authMiddlewareRepositoryInventoryVerified,
-    noDbQueriesFromFp0118: scopeScan.noDbQueries,
-    noDeploymentConfigFromFp0118: scopeScan.noDeploymentConfig,
-    noListingCopyGeneratedPublicProseFromFp0118:
-      scopeScan.noListingCopyGeneratedPublicProse,
-    noNewRoutePathFromFp0118:
-      scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
-    noOauthImplementationFromFp0118:
-      scopeScan.noOauthImplementation &&
-      repositoryInventory.oauthImplementationRepositoryInventoryVerified,
-    noOpenAiApiCallsFromFp0118:
-      changedSourceScan.noOpenAiApiCalls &&
+    noDbQueriesAdded: scopeScan.noDbQueries,
+    noDeploymentConfig: scopeScan.noDeploymentConfig,
+    noExternalCommunications: scopeScan.noExternalCommunications,
+    noFinanceWrite: scopeScan.noFinanceWrite,
+    noGeneratedPublicProse: scopeScan.noGeneratedPublicProse,
+    noListingCopy: scopeScan.noListingCopy,
+    noModelCalls:
       changedSourceScan.noModelCalls &&
-      durableSourceScan.oauthSequencingNoOpenAiApiSourceScanVerified,
-    noPackageScriptsFromFp0118: scopeScan.noPackageScripts,
-    noProtectedResourceMetadataRouteFromFp0118:
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    noNewRoutePath: scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
+    noOauthImplementation:
+      scopeScan.noOauthImplementation &&
+      repositoryInventory.oauthRuntimeRepositoryInventoryVerified,
+    noOpenAiApiCalls:
+      changedSourceScan.noOpenAiApiCalls &&
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    noOpenAiClientOrKeyUsage:
+      changedSourceScan.noOpenAiClientOrKeyUsage &&
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    noPackageScriptsAdded: scopeScan.noPackageScripts,
+    noProtectedResourceMetadataRouteImplementation:
       scopeScan.noProtectedResourceMetadataRoute &&
-      repositoryInventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
-    noProviderExternalCallsFromFp0118:
-      scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
-    noPublicAssetsSubmissionArtifactsFromFp0118:
-      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
-    noRemoteMcpDeploymentFromFp0118: scopeScan.noRemoteMcpDeployment,
-    noRouteBehaviorChangeFromFp0118:
+      repositoryInventory.protectedResourceRouteRepositoryInventoryVerified,
+    noProviderCalls: scopeScan.noProviderCalls,
+    noPublicAssets: scopeScan.noPublicAssets,
+    noRemoteMcpDeployment:
+      scopeScan.noRemoteMcpDeployment &&
+      repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified,
+    noRouteBehaviorChange:
       scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
-    noSchemaMigrationsFromFp0118: scopeScan.noSchemaMigrations,
-    noSourceMutationFinanceWriteFromFp0118:
-      scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
-    noTokenSessionImplementationFromFp0118:
+    noSchemaMigrationsAdded: scopeScan.noSchemaMigrations,
+    noSourceMutation: scopeScan.noSourceMutation,
+    noTokenSessionImplementation:
       scopeScan.noTokenSessionImplementation &&
       repositoryInventory.tokenSessionRepositoryInventoryVerified,
-    noWwwAuthenticateRouteBehaviorFromFp0118:
+    noWwwAuthenticateRouteBehaviorImplementation:
       scopeScan.noWwwAuthenticateRouteBehavior &&
-      repositoryInventory.wwwAuthenticateRouteBehaviorRepositoryInventoryVerified,
-    noNewRoutePathFromFp0117:
-      scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
-    noOauthImplementationFromFp0117:
-      scopeScan.noOauthImplementation &&
-      repositoryInventory.oauthImplementationRepositoryInventoryVerified,
-    noOpenAiApiCallsFromFp0117:
-      changedSourceScan.noOpenAiApiCalls &&
-      changedSourceScan.noModelCalls &&
-      durableSourceScan.oauthSequencingNoOpenAiApiSourceScanVerified,
-    noPackageScriptsFromFp0117: scopeScan.noPackageScripts,
-    noProtectedResourceMetadataRouteFromFp0117:
-      scopeScan.noProtectedResourceMetadataRoute &&
-      repositoryInventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
-    noProviderExternalCallsFromFp0117:
-      scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
-    noPublicAssetsSubmissionArtifactsFromFp0117:
-      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
-    noRemoteMcpDeploymentFromFp0117: scopeScan.noRemoteMcpDeployment,
-    noRouteBehaviorChangeFromFp0117:
-      scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
-    noSchemaMigrationsFromFp0117: scopeScan.noSchemaMigrations,
-    noSourceMutationFinanceWriteFromFp0117:
-      scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
-    noTokenSessionImplementationFromFp0117:
-      scopeScan.noTokenSessionImplementation &&
-      repositoryInventory.tokenSessionRepositoryInventoryVerified,
-    noWwwAuthenticateRouteBehaviorFromFp0117:
-      scopeScan.noWwwAuthenticateRouteBehavior &&
-      repositoryInventory.wwwAuthenticateRouteBehaviorRepositoryInventoryVerified,
-    authMiddlewareRepositoryInventoryVerified:
-      repositoryInventory.authMiddlewareRepositoryInventoryVerified,
-    fp0117PostmergeProofDurabilityVerified:
-      repositoryInventory.fp0117PostmergeProofDurabilityVerified &&
-      durableSourceScan.oauthSequencingNoOpenAiApiSourceScanVerified,
-    oauthImplementationRepositoryInventoryVerified:
-      repositoryInventory.oauthImplementationRepositoryInventoryVerified,
-    oauthSequencingNoOpenAiApiSourceScanVerified:
-      durableSourceScan.oauthSequencingNoOpenAiApiSourceScanVerified,
-    oauthImplementationSequencingPlanBoundaryVerified:
-      verifyFp0117OauthImplementationSequencingPlanBoundary({
-        planText,
-        repoPaths,
-      }),
-    protectedResourceMetadataContractsFoundationVerified:
-      verifyFp0118ProtectedResourceMetadataPlanBoundary({
-        planText: fp0118PlanText,
-        repoPaths,
-      }),
-    publicAppImplementationFutureOnly: docsBoundary(
-      FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
-      ["public app behavior remains future-only"],
-    ),
-    publicAppSubmissionFutureOnly: docsBoundary(
-      FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
-      ["public app submission remains future-only"],
-    ),
-    protectedResourceMetadataRouteRepositoryInventoryVerified:
-      repositoryInventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
+      repositoryInventory.wwwAuthenticateRouteRepositoryInventoryVerified,
+    oauthRuntimeRepositoryInventoryVerified:
+      repositoryInventory.oauthRuntimeRepositoryInventoryVerified,
+    protectedResourceMetadataNoOpenAiApiSourceScanVerified:
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    protectedResourceRouteRepositoryInventoryVerified:
+      repositoryInventory.protectedResourceRouteRepositoryInventoryVerified,
+    remoteMcpDeploymentRepositoryInventoryVerified:
+      repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified,
     tokenSessionRepositoryInventoryVerified:
       repositoryInventory.tokenSessionRepositoryInventoryVerified,
-    wwwAuthenticateRouteBehaviorRepositoryInventoryVerified:
-      repositoryInventory.wwwAuthenticateRouteBehaviorRepositoryInventoryVerified,
+    wwwAuthenticateRouteRepositoryInventoryVerified:
+      repositoryInventory.wwwAuthenticateRouteRepositoryInventoryVerified,
   }),
 );
+
+const proofJson = JSON.stringify(proof, null, 2);
+if (textHasProtectedResourceTokenLeakage(proofJson)) {
+  throw new Error("FP-0118 proof output contains token-like material");
+}
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0117 OAuth implementation sequencing proof failed: ${key}`,
+      `FP-0118 protected-resource metadata proof failed: ${key}`,
     );
   }
 }
 
-console.log(JSON.stringify(proof, null, 2));
+console.log(proofJson);
 
-function readOauthSequencingProofSourceText() {
+function readProtectedResourceMetadataProofSourceText() {
   return repoPaths
-    .filter(isFp0117OauthSequencingNoOpenAiProofSourcePath)
+    .filter(isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath)
     .map((path) => `// ${path}\n${safeRead(path)}`)
     .join("\n");
 }
@@ -308,10 +266,11 @@ function changedScopeScan() {
       !/\b(?:writeFinanceTwin|updateLedger|financeWrite|postLedger|createJournalEntry)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noListingCopyGeneratedPublicProse: !changedPaths.some((path) =>
-      /(?:listing-copy|generated-public-prose|public-listing|store-listing)/iu.test(
-        path,
-      ),
+    noGeneratedPublicProse: !changedPaths.some((path) =>
+      /(?:generated-public-prose|public-listing|store-listing)/iu.test(path),
+    ),
+    noListingCopy: !changedPaths.some((path) =>
+      /(?:listing-copy|public-listing|store-listing)/iu.test(path),
     ),
     noNewRoutePath: !changedPaths.some((path) => routePathPattern.test(path)),
     noOauthImplementation:
@@ -368,7 +327,10 @@ function localRouteShapeStillVerified() {
   return (
     countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
     countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1 &&
-    !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(routeSource)
+    !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(routeSource) &&
+    !/resource_metadata|oauth-protected-resource|www-authenticate/iu.test(
+      routeSource,
+    )
   );
 }
 
@@ -403,6 +365,10 @@ function noExecutableApiModelKeyUsage(sourceText) {
       !/\b(?:openai\s*\(|new openai|responses\.create|chat\.completions|client\.responses)\b/u.test(
         source,
       ),
+    noOpenAiClientOrKeyUsage:
+      !/\b(?:new openai|openai_api_key|process\.env\.openai_api_key|api\.openai\.com)\b/u.test(
+        source,
+      ),
   };
 }
 
@@ -410,9 +376,7 @@ function changedFilePaths() {
   const status = execFileSync(
     "git",
     ["status", "--short", "--untracked-files=all"],
-    {
-      encoding: "utf8",
-    },
+    { encoding: "utf8" },
   );
   return status
     .split("\n")
@@ -438,11 +402,8 @@ function repoFilePaths() {
       if (entry.isDirectory() && skippedDirectories.has(entry.name)) continue;
       const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
       const absolutePath = `${directory}/${entry.name}`;
-      if (entry.isDirectory()) {
-        walk(absolutePath, relativePath);
-      } else {
-        results.push(relativePath);
-      }
+      if (entry.isDirectory()) walk(absolutePath, relativePath);
+      else results.push(relativePath);
     }
   }
 
