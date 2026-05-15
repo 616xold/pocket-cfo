@@ -412,7 +412,6 @@ function isForbiddenDeploymentConfigPath(path: string) {
 
 function isForbiddenRemoteMcpRuntimePath(path: string) {
   const lower = path.toLowerCase();
-  if (isAllowedProofOrPlanningPath(lower)) return false;
 
   const runtimeSurface =
     lower.startsWith("apps/") ||
@@ -421,18 +420,22 @@ function isForbiddenRemoteMcpRuntimePath(path: string) {
     lower.startsWith("public/");
   if (!runtimeSurface) return false;
 
+  const publicSubmissionOrAssetSurface =
+    /(?:^|\/)(?:app-submission|submission-assets|public-listing|listing-copy|screenshots|public-assets)(?:\/|$)/u.test(
+      lower,
+    ) ||
+    /(?:^|\/)public\/.*\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf|md|mdx|txt)$/u.test(
+      lower,
+    );
+  if (publicSubmissionOrAssetSurface) return true;
+  if (isAllowedProofOrPlanningPath(lower)) return false;
+
   return (
     /(?:^|\/)(?:remote-mcp|public-mcp|mcp-remote-host|mcp-public-host|mcp-host|mcp-server)(?:\/|\.|-|$)/u.test(
       lower,
     ) ||
-    /(?:^|\/)(?:app-submission|submission-assets|public-listing|listing-copy|screenshots|public-assets)(?:\/|$)/u.test(
-      lower,
-    ) ||
     /(?:^|\/)apps-sdk(?:\/|$)/u.test(lower) ||
     /(?:^|\/)(?:oauth|auth|session|token)[^/]*(?:runtime|middleware|callback|store|server)(?:\/|\.|-|$)/u.test(
-      lower,
-    ) ||
-    /(?:^|\/)public\/.*\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/u.test(
       lower,
     )
   );

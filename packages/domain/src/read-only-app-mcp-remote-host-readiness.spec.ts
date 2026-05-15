@@ -303,6 +303,11 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
         repoPaths: ["apps/web/public/mcp-submission/screenshot.png"],
       }).fp0114RemoteHostReadinessPostmergeProofDurabilityVerified,
     ).toBe(false);
+    expect(
+      verifyMcpRemoteHostReadinessRepositoryInventory({
+        repoPaths: ["apps/web/public/listing-copy/generated-public-prose.md"],
+      }).remoteMcpRuntimeRepositoryInventoryStillVerified,
+    ).toBe(false);
   });
 
   it("proves prior FP-0113, FP-0112, FP-0111, FP-0109, FP-0107, FP-0106, and FP-0100 boundaries remain intact", () => {

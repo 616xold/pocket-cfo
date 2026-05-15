@@ -16,12 +16,14 @@ Public app submission remains future-only. FP-0116 remains absent.
 - [x] 2026-05-15T17:28:24Z: Created FP-0115 as the single docs-only remote MCP host implementation sequencing plan and added proof-gate compatibility for exactly this path while keeping FP-0116 absent.
 - [x] 2026-05-15T17:28:24Z: Added same-branch FP-0114 proof-durability polish through a durable repository-inventory scan for remote runtime/deployment-config/public-surface absence.
 - [x] 2026-05-15T17:57:04Z: Ran focused validation, strict same-branch QA, full validation, and `pnpm ci:repro:current`; all passed before this closeout update. Because this closeout edits the plan, the required post-closeout validation rerun will be performed before the single commit, push, and PR.
+- [x] 2026-05-15T18:06:48Z: Same-branch QA found and corrected one proof-durability gap so simulated public listing/app-submission markdown paths now fail the repository-inventory scan before any general markdown allowance. No route, runtime, deployment, OAuth/session/auth, Apps SDK, app-submission, DB, package-script, public-asset, provider, OpenAI/model, source, or finance behavior changed.
 
 ## Surprises / Discoveries
 
 - OpenAI Developers read-only docs tooling was not exposed as a usable documentation connector in this thread, so official web docs were used for OpenAI Apps SDK context.
 - Vercel documentation search was available and used only for future host/provider comparison context. No Vercel project, deployment, environment, or account tools were used.
 - FP-0114 proof durability needed a repository-inventory scan because branch-diff-only checks are not enough after merge.
+- Same-branch QA showed the durable scan needed to reject public listing/app-submission markdown paths before allowing general markdown documentation paths.
 
 ## Decision Log
 
