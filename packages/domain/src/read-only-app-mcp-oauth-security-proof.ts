@@ -27,7 +27,9 @@ export function buildMcpOauthSecurityProof(
     fp0113BoundaryVerified: boolean;
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified: boolean;
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified: boolean;
-    fp0116Absent: boolean;
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified: boolean;
+    fp0117Absent: boolean;
+    remoteHostResourceContractsFoundationVerified: boolean;
     fp0112RemotePublicOauthReadinessBoundaryStillVerified: boolean;
     fp0111DefaultLocalDispatchWiringStillVerified: boolean;
     fp0110DefaultDispatchPlanBoundaryStillVerified: boolean;
@@ -96,10 +98,13 @@ export function buildMcpOauthSecurityProof(
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified:
       input.fp0114AbsentOrLocalRemoteHostReadinessContractsVerified ?? true,
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
-      input
-        .fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified ??
+      input.fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified ??
       true,
-    fp0116Absent: input.fp0116Absent ?? true,
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+      input.fp0116AbsentOrLocalRemoteHostResourceContractsVerified ?? true,
+    fp0117Absent: input.fp0117Absent ?? true,
+    remoteHostResourceContractsFoundationVerified:
+      input.remoteHostResourceContractsFoundationVerified ?? true,
     localProofOnly: proof.localProofOnly,
     noAppSubmission: (input.noAppSubmission ?? true) && proof.noAppSubmission,
     noAppsSdkResourceImplementation:

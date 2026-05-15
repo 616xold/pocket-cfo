@@ -20,15 +20,21 @@ import {
   buildMcpRemoteHostReadinessProof,
   verifyMcpRemoteHostReadinessRepositoryInventory,
 } from "./read-only-app-mcp-remote-host-readiness";
+import {
+  FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
+  verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
+  verifyFp0117Absent,
+} from "./read-only-app-mcp-remote-host-resource";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => {
-  it("accepts exact FP-0114 and docs-only FP-0115 plan paths while keeping FP-0116 absent", () => {
+  it("accepts exact FP-0114, docs-only FP-0115, and local/proof-only FP-0116 paths while keeping FP-0117 absent", () => {
     const repoPaths = repoFilePaths();
     const fp0114Hits = repoPaths.filter((path) => /(^|\/)FP-0114/u.test(path));
     const fp0115Hits = repoPaths.filter((path) => /(^|\/)FP-0115/u.test(path));
     const fp0116Hits = repoPaths.filter((path) => /(^|\/)FP-0116/u.test(path));
+    const fp0117Hits = repoPaths.filter((path) => /(^|\/)FP-0117/u.test(path));
     const proof = buildMcpRemoteHostReadinessProof({
       fp0114BoundaryVerified:
         fp0114Hits.length === 1 &&
@@ -39,7 +45,16 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
         fp0115Hits[0] ===
           FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
         fp0115PlanBoundaryVerified(),
-      fp0116Absent: fp0116Hits.length === 0,
+      fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+        verifyFp0116AbsentOrLocalRemoteHostResourceContracts({
+          planText: readFileSync(
+            join(repoRoot, FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH),
+            "utf8",
+          ),
+          repoPaths,
+        }),
+      fp0117Absent: verifyFp0117Absent(repoPaths),
+      remoteHostResourceContractsFoundationVerified: fp0116Hits.length === 1,
       remoteHostImplementationSequencingPlanBoundaryVerified:
         fp0115PlanBoundaryVerified(),
     });
@@ -48,17 +63,21 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
     expect(fp0115Hits).toEqual([
       FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
     ]);
-    expect(fp0116Hits).toEqual([]);
+    expect(fp0116Hits).toEqual([FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH]);
+    expect(fp0117Hits).toEqual([]);
     expect(proof.fp0114BoundaryVerified).toBe(true);
     expect(
       proof.fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified,
     ).toBe(true);
-    expect(proof.fp0116Absent).toBe(true);
+    expect(proof.fp0116AbsentOrLocalRemoteHostResourceContractsVerified).toBe(
+      true,
+    );
+    expect(proof.fp0117Absent).toBe(true);
+    expect(proof.remoteHostResourceContractsFoundationVerified).toBe(true);
     expect(
       McpRemoteHostReadinessProofSchema.safeParse({
         ...proof,
-        fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
-          false,
+        fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified: false,
       }).success,
     ).toBe(false);
   });
@@ -88,9 +107,9 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
     const contracts = buildMcpRemoteHostReadinessContracts();
     const proof = buildMcpRemoteHostReadinessProof();
 
-    expect(contracts.remoteMcpPathBoundary.onlyFuturePublicMcpEndpointPath).toBe(
-      MCP_REMOTE_HOST_CANONICAL_PATH,
-    );
+    expect(
+      contracts.remoteMcpPathBoundary.onlyFuturePublicMcpEndpointPath,
+    ).toBe(MCP_REMOTE_HOST_CANONICAL_PATH);
     expect(contracts.remoteMcpPathBoundary.routePathAdded).toBe(false);
     expect(contracts.remoteMcpPathBoundary.getMcpBehaviorChangeAllowed).toBe(
       false,
@@ -114,7 +133,8 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
 
     expect(contracts.httpsTlsFutureRequirementBoundary.tlsRequired).toBe(true);
     expect(
-      contracts.httpsTlsFutureRequirementBoundary.plainHttpRemoteExposureAllowed,
+      contracts.httpsTlsFutureRequirementBoundary
+        .plainHttpRemoteExposureAllowed,
     ).toBe(false);
     expect(
       contracts.canonicalResourceUriBoundary.exactCanonicalResourceUriRequired,
@@ -135,9 +155,9 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
         wildcardOriginAllowed: true,
       }).success,
     ).toBe(false);
-    expect(contracts.cspResourcePolicyBoundary.frameAncestorsPolicyRequired).toBe(
-      true,
-    );
+    expect(
+      contracts.cspResourcePolicyBoundary.frameAncestorsPolicyRequired,
+    ).toBe(true);
     expect(
       contracts.rateLimitAbuseControlBoundary
         .rateLimitsRequiredBeforeRemoteExposure,
@@ -157,11 +177,12 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
         .streamableHttpCompatibilityRequired,
     ).toBe(true);
     expect(
-      contracts.streamableHttpTransportBoundary.postJsonRpcCompatibilityRequired,
+      contracts.streamableHttpTransportBoundary
+        .postJsonRpcCompatibilityRequired,
     ).toBe(true);
-    expect(contracts.streamableHttpTransportBoundary.getCompatibilityRequired).toBe(
-      true,
-    );
+    expect(
+      contracts.streamableHttpTransportBoundary.getCompatibilityRequired,
+    ).toBe(true);
     expect(contracts.getSseDeferredBoundary.getSseStreamingImplemented).toBe(
       false,
     );
@@ -171,9 +192,9 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
         getSseStreamingImplemented: true,
       }).success,
     ).toBe(false);
-    expect(contracts.healthReadinessDeferredBoundary.healthReadinessRouteAdded).toBe(
-      false,
-    );
+    expect(
+      contracts.healthReadinessDeferredBoundary.healthReadinessRouteAdded,
+    ).toBe(false);
     expect(proof.getSseDeferredBoundaryVerified).toBe(true);
     expect(proof.healthReadinessDeferredBoundaryVerified).toBe(true);
   });
@@ -270,15 +291,15 @@ describe("FP-0114/FP-0115 read-only MCP remote host readiness contracts", () => 
       ...inventoryProof,
     });
 
-    expect(inventoryProof.remoteDeploymentRepositoryInventoryStillVerified).toBe(
-      true,
-    );
+    expect(
+      inventoryProof.remoteDeploymentRepositoryInventoryStillVerified,
+    ).toBe(true);
     expect(inventoryProof.noDeploymentConfigRepositoryInventoryVerified).toBe(
       true,
     );
-    expect(inventoryProof.remoteMcpRuntimeRepositoryInventoryStillVerified).toBe(
-      true,
-    );
+    expect(
+      inventoryProof.remoteMcpRuntimeRepositoryInventoryStillVerified,
+    ).toBe(true);
     expect(
       inventoryProof.fp0114RemoteHostReadinessPostmergeProofDurabilityVerified,
     ).toBe(true);

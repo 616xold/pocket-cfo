@@ -56,8 +56,10 @@ export const EvidenceToolDispatchProofSchema = z
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified: trueLiteral,
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
       trueLiteral,
-    fp0116Absent: trueLiteral,
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified: trueLiteral,
+    fp0117Absent: trueLiteral,
     remoteHostReadinessContractsFoundationVerified: trueLiteral,
+    remoteHostResourceContractsFoundationVerified: trueLiteral,
     noRouteBehaviorChangeFromFp0114: trueLiteral,
     noNewRoutePathFromFp0114: trueLiteral,
     noRemoteMcpDeploymentFromFp0114: trueLiteral,
@@ -152,8 +154,10 @@ export function buildEvidenceToolDispatchProof(
     fp0113AbsentOrLocalOauthSecurityContractsVerified: boolean;
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified: boolean;
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified: boolean;
-    fp0116Absent: boolean;
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified: boolean;
+    fp0117Absent: boolean;
     remoteHostReadinessContractsFoundationVerified: boolean;
+    remoteHostResourceContractsFoundationVerified: boolean;
     noRouteBehaviorChangeFromFp0114: boolean;
     noNewRoutePathFromFp0114: boolean;
     noRemoteMcpDeploymentFromFp0114: boolean;
@@ -280,12 +284,15 @@ export function buildEvidenceToolDispatchProof(
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified:
       input.fp0114AbsentOrLocalRemoteHostReadinessContractsVerified ?? true,
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
-      input
-        .fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified ??
+      input.fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified ??
       true,
-    fp0116Absent: input.fp0116Absent ?? true,
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+      input.fp0116AbsentOrLocalRemoteHostResourceContractsVerified ?? true,
+    fp0117Absent: input.fp0117Absent ?? true,
     remoteHostReadinessContractsFoundationVerified:
       input.remoteHostReadinessContractsFoundationVerified ?? true,
+    remoteHostResourceContractsFoundationVerified:
+      input.remoteHostResourceContractsFoundationVerified ?? true,
     oauthSecurityContractsFoundationVerified:
       input.oauthSecurityContractsFoundationVerified ?? true,
     freshnessBoundaryVerified: contracts.every(
@@ -344,8 +351,7 @@ export function buildEvidenceToolDispatchProof(
     noDbQueriesFromFp0114: input.noDbQueriesFromFp0114 ?? true,
     noDefaultDispatchRuntimeFromFp0110:
       input.noDefaultDispatchRuntimeFromFp0110 ?? true,
-    noDeploymentConfigFromFp0114:
-      input.noDeploymentConfigFromFp0114 ?? true,
+    noDeploymentConfigFromFp0114: input.noDeploymentConfigFromFp0114 ?? true,
     noOauthTokenSessionFromFp0110: input.noOauthTokenSessionFromFp0110 ?? true,
     noOauthTokenSessionFromFp0112: input.noOauthTokenSessionFromFp0112 ?? true,
     noTokenSessionImplementationFromFp0113:
@@ -392,8 +398,7 @@ export function buildEvidenceToolDispatchProof(
     noSchemaMigrationsFromFp0110: input.noSchemaMigrationsFromFp0110 ?? true,
     noSchemaMigrationsFromFp0112: input.noSchemaMigrationsFromFp0112 ?? true,
     noSchemaMigrationsFromFp0113: input.noSchemaMigrationsFromFp0113 ?? true,
-    noSchemaMigrationsFromFp0114:
-      input.noSchemaMigrationsFromFp0114 ?? true,
+    noSchemaMigrationsFromFp0114: input.noSchemaMigrationsFromFp0114 ?? true,
     noSourceMutation: contracts.every(
       (contract) => !contract.noMutationBoundary.sourceMutationAllowed,
     ),
