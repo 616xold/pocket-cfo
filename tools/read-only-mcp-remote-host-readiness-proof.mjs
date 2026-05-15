@@ -7,6 +7,11 @@ import {
   buildMcpRemoteHostReadinessProof,
   verifyMcpRemoteHostReadinessRepositoryInventory,
 } from "../packages/domain/src/read-only-app-mcp-remote-host-readiness.ts";
+import {
+  FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
+  verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
+  verifyFp0117Absent,
+} from "../packages/domain/src/read-only-app-mcp-remote-host-resource.ts";
 
 const FP0113_PLAN =
   "plans/FP-0113-read-only-chatgpt-app-mcp-oauth-token-session-security-contracts-foundation.md";
@@ -34,10 +39,12 @@ const changedPaths = changedFilePaths();
 const proofSourceText = readProofSourceText();
 const sourceScan = noExecutableApiModelKeyUsage(proofSourceText);
 const scopeScan = changedScopeScan();
-const repositoryInventoryScan = verifyMcpRemoteHostReadinessRepositoryInventory({
-  proofSourceText,
-  repoPaths,
-});
+const repositoryInventoryScan = verifyMcpRemoteHostReadinessRepositoryInventory(
+  {
+    proofSourceText,
+    repoPaths,
+  },
+);
 const fp0115PlanBoundary =
   fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified();
 
@@ -93,49 +100,77 @@ const proof = McpRemoteHostReadinessProofSchema.parse(
     fp0114RemoteHostReadinessBoundaryStillVerified: fp0114BoundaryVerified(),
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
       fp0115PlanBoundary,
-    fp0116Absent: fp0116Absent(),
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+      fp0116AbsentOrLocalRemoteHostResourceContractsVerified(),
+    fp0117Absent: verifyFp0117Absent(repoPaths),
+    remoteHostResourceContractsFoundationVerified:
+      fp0116AbsentOrLocalRemoteHostResourceContractsVerified(),
     remoteHostImplementationSequencingPlanBoundaryVerified: fp0115PlanBoundary,
     noAppSubmission: scopeScan.noAppSubmission,
     noAppSubmissionFromFp0115: scopeScan.noAppSubmission,
+    noAppSubmissionFromFp0116: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResourceImplementation,
     noAppsSdkResourceFromFp0115: scopeScan.noAppsSdkResourceImplementation,
+    noAppsSdkResourceFromFp0116: scopeScan.noAppsSdkResourceImplementation,
     noAuthMiddlewareImplementation: scopeScan.noAuthMiddlewareImplementation,
     noAuthMiddlewareImplementationFromFp0115:
       scopeScan.noAuthMiddlewareImplementation,
+    noAuthMiddlewareImplementationFromFp0116:
+      scopeScan.noAuthMiddlewareImplementation,
     noDbQueriesAdded: scopeScan.noDbQueriesAdded,
     noDbQueriesFromFp0115: scopeScan.noDbQueriesAdded,
+    noDbQueriesFromFp0116: scopeScan.noDbQueriesAdded,
     noDeploymentConfigFromFp0115: scopeScan.noRemoteMcpDeployment,
+    noDeploymentConfigFromFp0116: scopeScan.noRemoteMcpDeployment,
     noExternalCommunications: scopeScan.noExternalCommunications,
     noFinanceWrite: scopeScan.noFinanceWrite,
     noModelCalls: sourceScan.noModelCalls,
     noNewRoutePath: scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
     noNewRoutePathFromFp0115:
       scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
+    noNewRoutePathFromFp0116:
+      scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
     noOauthImplementation: scopeScan.noOauthImplementation,
     noOauthImplementationFromFp0115: scopeScan.noOauthImplementation,
+    noOauthImplementationFromFp0116: scopeScan.noOauthImplementation,
     noOpenAiApiCalls: sourceScan.noOpenAiApiCalls,
     noOpenAiApiCallsFromFp0115: sourceScan.noOpenAiApiCalls,
+    noOpenAiApiCallsFromFp0116: sourceScan.noOpenAiApiCalls,
     noOpenAiClientOrKeyUsage: sourceScan.noOpenAiClientOrKeyUsage,
     noPackageScriptsAdded: scopeScan.noPackageScriptsAdded,
     noPackageScriptsFromFp0115: scopeScan.noPackageScriptsAdded,
+    noPackageScriptsFromFp0116: scopeScan.noPackageScriptsAdded,
     noProviderCalls: scopeScan.noProviderCalls,
     noProviderExternalCallsFromFp0115:
+      scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
+    noProviderExternalCallsFromFp0116:
       scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
     noPublicAssets: scopeScan.noPublicAssets,
     noPublicAssetsSubmissionArtifactsFromFp0115:
       scopeScan.noPublicAssets && scopeScan.noAppSubmission,
+    noPublicAssetsSubmissionArtifactsFromFp0116:
+      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
     noRemoteMcpDeployment: scopeScan.noRemoteMcpDeployment,
     noRemoteMcpDeploymentFromFp0115: scopeScan.noRemoteMcpDeployment,
+    noRemoteMcpDeploymentFromFp0116: scopeScan.noRemoteMcpDeployment,
     noRouteBehaviorChange: scopeScan.noRouteBehaviorChange,
     noRouteBehaviorChangeFromFp0115: scopeScan.noRouteBehaviorChange,
+    noRouteBehaviorChangeFromFp0116: scopeScan.noRouteBehaviorChange,
     noSchemaMigrationsAdded: scopeScan.noSchemaMigrationsAdded,
     noSchemaMigrationsFromFp0115: scopeScan.noSchemaMigrationsAdded,
+    noSchemaMigrationsFromFp0116: scopeScan.noSchemaMigrationsAdded,
     noSourceMutation: scopeScan.noSourceMutation,
     noSourceMutationFinanceWriteFromFp0115:
+      scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
+    noSourceMutationFinanceWriteFromFp0116:
       scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
     noTokenSessionImplementation: scopeScan.noTokenSessionImplementation,
     noTokenSessionImplementationFromFp0115:
       scopeScan.noTokenSessionImplementation,
+    noTokenSessionImplementationFromFp0116:
+      scopeScan.noTokenSessionImplementation,
+    noListingCopyGeneratedPublicProseFromFp0116:
+      scopeScan.noListingCopyGeneratedPublicProse,
   }),
 );
 
@@ -157,7 +192,9 @@ function fp0114BoundaryVerified() {
     return false;
   }
 
-  const normalized = normalize(safeRead(FP0114_REMOTE_HOST_READINESS_PLAN_PATH));
+  const normalized = normalize(
+    safeRead(FP0114_REMOTE_HOST_READINESS_PLAN_PATH),
+  );
   return [
     "local/proof-only/read-only remote mcp host readiness",
     "not remote mcp deployment",
@@ -188,8 +225,7 @@ function fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified() 
   if (fp0115Hits.length === 0) return true;
   return (
     fp0115Hits.length === 1 &&
-    fp0115Hits[0] ===
-      FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
+    fp0115Hits[0] === FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
     fp0115PlanBoundaryVerified()
   );
 }
@@ -222,8 +258,11 @@ function fp0115PlanBoundaryVerified() {
   ].every((text) => normalized.includes(text));
 }
 
-function fp0116Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0116/u.test(path));
+function fp0116AbsentOrLocalRemoteHostResourceContractsVerified() {
+  return verifyFp0116AbsentOrLocalRemoteHostResourceContracts({
+    planText: safeRead(FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH),
+    repoPaths,
+  });
 }
 
 function localRouteShapeStillVerified() {
@@ -279,6 +318,11 @@ function changedScopeScan() {
       !/\b(?:writeFinanceTwin|updateLedger|financeWrite|postLedger|createJournalEntry)\s*\(/u.test(
         changedExecutableSource,
       ),
+    noListingCopyGeneratedPublicProse: !changedPaths.some((path) =>
+      /(?:^|\/)(?:listing-copy|generated-public-prose)(?:\/|\.|-|$)/iu.test(
+        path,
+      ),
+    ),
     noNewRoutePath: !changedPaths.some((path) =>
       /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
         path,
@@ -340,6 +384,9 @@ function readProofSourceText() {
           path,
         ) ||
         /^packages\/domain\/src\/read-only-app-mcp-remote-host-readiness.*\.ts$/u.test(
+          path,
+        ) ||
+        /^packages\/domain\/src\/read-only-app-mcp-remote-host-resource.*\.ts$/u.test(
           path,
         ) ||
         /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(

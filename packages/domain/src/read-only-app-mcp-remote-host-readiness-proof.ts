@@ -68,7 +68,9 @@ export function buildMcpRemoteHostReadinessProof(
     fp0114BoundaryVerified: boolean;
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified: boolean;
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified: boolean;
-    fp0116Absent: boolean;
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified: boolean;
+    fp0117Absent: boolean;
+    remoteHostResourceContractsFoundationVerified: boolean;
     remoteHostImplementationSequencingPlanBoundaryVerified: boolean;
     fp0114RemoteHostReadinessBoundaryStillVerified: boolean;
     fp0114RemoteHostReadinessPostmergeProofDurabilityVerified: boolean;
@@ -91,6 +93,23 @@ export function buildMcpRemoteHostReadinessProof(
     noProviderExternalCallsFromFp0115: boolean;
     noSourceMutationFinanceWriteFromFp0115: boolean;
     noPublicAssetsSubmissionArtifactsFromFp0115: boolean;
+    noRouteBehaviorChangeFromFp0116: boolean;
+    noNewRoutePathFromFp0116: boolean;
+    noRemoteMcpDeploymentFromFp0116: boolean;
+    noDeploymentConfigFromFp0116: boolean;
+    noOauthImplementationFromFp0116: boolean;
+    noTokenSessionImplementationFromFp0116: boolean;
+    noAuthMiddlewareImplementationFromFp0116: boolean;
+    noAppsSdkResourceFromFp0116: boolean;
+    noAppSubmissionFromFp0116: boolean;
+    noDbQueriesFromFp0116: boolean;
+    noSchemaMigrationsFromFp0116: boolean;
+    noPackageScriptsFromFp0116: boolean;
+    noOpenAiApiCallsFromFp0116: boolean;
+    noProviderExternalCallsFromFp0116: boolean;
+    noSourceMutationFinanceWriteFromFp0116: boolean;
+    noPublicAssetsSubmissionArtifactsFromFp0116: boolean;
+    noListingCopyGeneratedPublicProseFromFp0116: boolean;
     fp0113OauthSecurityBoundaryStillVerified: boolean;
     fp0112RemotePublicOauthReadinessBoundaryStillVerified: boolean;
     fp0111DefaultLocalDispatchWiringStillVerified: boolean;
@@ -147,23 +166,19 @@ export function buildMcpRemoteHostReadinessProof(
     (input.noSchemaMigrationsAdded ?? true) && proof.noSchemaMigrationsAdded;
   const noPackageScriptsAdded =
     (input.noPackageScriptsAdded ?? true) && proof.noPackageScriptsAdded;
-  const noPublicAssets =
-    (input.noPublicAssets ?? true) && proof.noPublicAssets;
+  const noPublicAssets = (input.noPublicAssets ?? true) && proof.noPublicAssets;
   const noOpenAiApiCalls =
     (input.noOpenAiApiCalls ?? true) && proof.noOpenAiApiCalls;
   const noModelCalls = (input.noModelCalls ?? true) && proof.noModelCalls;
   const noOpenAiClientOrKeyUsage =
-    (input.noOpenAiClientOrKeyUsage ?? true) &&
-    proof.noOpenAiClientOrKeyUsage;
+    (input.noOpenAiClientOrKeyUsage ?? true) && proof.noOpenAiClientOrKeyUsage;
   const noProviderCalls =
     (input.noProviderCalls ?? true) && proof.noProviderCalls;
   const noExternalCommunications =
-    (input.noExternalCommunications ?? true) &&
-    proof.noExternalCommunications;
+    (input.noExternalCommunications ?? true) && proof.noExternalCommunications;
   const noSourceMutation =
     (input.noSourceMutation ?? true) && proof.noSourceMutation;
-  const noFinanceWrite =
-    (input.noFinanceWrite ?? true) && proof.noFinanceWrite;
+  const noFinanceWrite = (input.noFinanceWrite ?? true) && proof.noFinanceWrite;
 
   return McpRemoteHostReadinessProofSchema.parse({
     canonicalResourceUriBoundaryVerified:
@@ -213,10 +228,11 @@ export function buildMcpRemoteHostReadinessProof(
     fp0114RemoteHostReadinessPostmergeProofDurabilityVerified:
       input.fp0114RemoteHostReadinessPostmergeProofDurabilityVerified ?? true,
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
-      input
-        .fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified ??
+      input.fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified ??
       true,
-    fp0116Absent: input.fp0116Absent ?? true,
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+      input.fp0116AbsentOrLocalRemoteHostResourceContractsVerified ?? true,
+    fp0117Absent: input.fp0117Absent ?? true,
     getSseDeferredBoundaryVerified:
       sse.deferred &&
       !sse.getSseStreamingImplemented &&
@@ -266,8 +282,7 @@ export function buildMcpRemoteHostReadinessProof(
     noModelCalls,
     noNewRoutePath,
     noNewRoutePathFromFp0114: noNewRoutePath,
-    noNewRoutePathFromFp0115:
-      input.noNewRoutePathFromFp0115 ?? noNewRoutePath,
+    noNewRoutePathFromFp0115: input.noNewRoutePathFromFp0115 ?? noNewRoutePath,
     noOauthImplementation,
     noOauthImplementationFromFp0114: noOauthImplementation,
     noOauthImplementationFromFp0115:
@@ -293,6 +308,37 @@ export function buildMcpRemoteHostReadinessProof(
     noPublicAssetsSubmissionArtifactsFromFp0115:
       input.noPublicAssetsSubmissionArtifactsFromFp0115 ??
       (noPublicAssets && noAppSubmission),
+    noAppSubmissionFromFp0116:
+      input.noAppSubmissionFromFp0116 ?? noAppSubmission,
+    noAppsSdkResourceFromFp0116:
+      input.noAppsSdkResourceFromFp0116 ?? noAppsSdkResourceImplementation,
+    noAuthMiddlewareImplementationFromFp0116:
+      input.noAuthMiddlewareImplementationFromFp0116 ??
+      noAuthMiddlewareImplementation,
+    noDbQueriesFromFp0116: input.noDbQueriesFromFp0116 ?? noDbQueriesAdded,
+    noDeploymentConfigFromFp0116:
+      input.noDeploymentConfigFromFp0116 ?? runtime.noDeploymentConfig,
+    noListingCopyGeneratedPublicProseFromFp0116:
+      input.noListingCopyGeneratedPublicProseFromFp0116 ?? true,
+    noNewRoutePathFromFp0116: input.noNewRoutePathFromFp0116 ?? noNewRoutePath,
+    noOauthImplementationFromFp0116:
+      input.noOauthImplementationFromFp0116 ?? noOauthImplementation,
+    noOpenAiApiCallsFromFp0116:
+      input.noOpenAiApiCallsFromFp0116 ?? noOpenAiApiCalls,
+    noPackageScriptsFromFp0116:
+      input.noPackageScriptsFromFp0116 ?? noPackageScriptsAdded,
+    noProviderExternalCallsFromFp0116:
+      input.noProviderExternalCallsFromFp0116 ??
+      (noProviderCalls && noExternalCommunications),
+    noPublicAssetsSubmissionArtifactsFromFp0116:
+      input.noPublicAssetsSubmissionArtifactsFromFp0116 ??
+      (noPublicAssets && noAppSubmission),
+    noRemoteMcpDeploymentFromFp0116:
+      input.noRemoteMcpDeploymentFromFp0116 ?? noRemoteMcpDeployment,
+    noRouteBehaviorChangeFromFp0116:
+      input.noRouteBehaviorChangeFromFp0116 ?? noRouteBehaviorChange,
+    noSchemaMigrationsFromFp0116:
+      input.noSchemaMigrationsFromFp0116 ?? noSchemaMigrationsAdded,
     noRealFinanceDataPublicDemoBoundaryVerified:
       financeData.noRealFinanceData &&
       financeData.noPublicDemoData &&
@@ -321,15 +367,20 @@ export function buildMcpRemoteHostReadinessProof(
     noSchemaMigrationsFromFp0115:
       input.noSchemaMigrationsFromFp0115 ?? noSchemaMigrationsAdded,
     noSourceMutation,
-    noSourceMutationFinanceWriteFromFp0114:
-      noSourceMutation && noFinanceWrite,
+    noSourceMutationFinanceWriteFromFp0114: noSourceMutation && noFinanceWrite,
     noSourceMutationFinanceWriteFromFp0115:
       input.noSourceMutationFinanceWriteFromFp0115 ??
+      (noSourceMutation && noFinanceWrite),
+    noSourceMutationFinanceWriteFromFp0116:
+      input.noSourceMutationFinanceWriteFromFp0116 ??
       (noSourceMutation && noFinanceWrite),
     noTokenSessionImplementation,
     noTokenSessionImplementationFromFp0114: noTokenSessionImplementation,
     noTokenSessionImplementationFromFp0115:
       input.noTokenSessionImplementationFromFp0115 ??
+      noTokenSessionImplementation,
+    noTokenSessionImplementationFromFp0116:
+      input.noTokenSessionImplementationFromFp0116 ??
       noTokenSessionImplementation,
     observabilityAuditCorrelationBoundaryVerified:
       observability.auditCorrelationRequired &&
@@ -367,6 +418,8 @@ export function buildMcpRemoteHostReadinessProof(
       input.remoteHostImplementationSequencingPlanBoundaryVerified ?? true,
     remoteHostReadinessContractsFoundationVerified:
       proof.contractOnly && proof.readOnly && !proof.fp0115Created,
+    remoteHostResourceContractsFoundationVerified:
+      input.remoteHostResourceContractsFoundationVerified ?? true,
     remoteHostReadinessContractsVerified:
       proof.contractOnly && proof.readOnly && !proof.fp0115Created,
     remoteMcpRuntimeRepositoryInventoryStillVerified:
@@ -444,18 +497,25 @@ function isForbiddenRemoteMcpRuntimePath(path: string) {
 function isForbiddenPublicHostConfigPath(path: string) {
   const lower = path.toLowerCase();
   if (isAllowedProofOrPlanningPath(lower)) return false;
-  return /(?:^|\/)(?:public-host|remote-host|host-config|origin-config|cors-config|csp-config)(?:\/|\.|-|$)/u.test(
+  return /(?:^|\/)(?:public-host|remote-host|host-config|origin-config|cors-config|csp-config|app-submission|submission-assets|public-listing|listing-copy|generated-public-prose|screenshots|public-assets)(?:\/|\.|-|$)/u.test(
     lower,
   );
 }
 
 function isAllowedProofOrPlanningPath(path: string) {
+  const allowedRootDocs = new Set([
+    "README.md",
+    "CODEX_README.md",
+    "START_HERE.md",
+    "plugins.md",
+    "CHANGELOG.md",
+  ]);
+
   return (
     path.startsWith("plans/") ||
     path.startsWith("docs/") ||
-    path.startsWith("plugins/") ||
-    path === "plugins.md" ||
-    path.endsWith(".md") ||
+    path.startsWith("plugins/pocket-cfo-codex-operator/") ||
+    allowedRootDocs.has(path) ||
     /^packages\/domain\/src\/read-only-app-mcp-/u.test(path) ||
     /^tools\/read-only-mcp-/u.test(path) ||
     /^tools\/read-only-endpoint-/u.test(path) ||

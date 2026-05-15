@@ -9,6 +9,11 @@ import {
   FP0114_REMOTE_HOST_READINESS_PLAN_PATH,
   FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
 } from "../packages/domain/src/read-only-app-mcp-remote-host-readiness.ts";
+import {
+  FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
+  verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
+  verifyFp0117Absent,
+} from "../packages/domain/src/read-only-app-mcp-remote-host-resource.ts";
 
 const FP0112_PLAN =
   "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
@@ -78,7 +83,11 @@ const proof = McpOauthSecurityProofSchema.parse(
       fp0114AbsentOrLocalRemoteHostReadinessContractsVerified(),
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
       fp0115PlanBoundary,
-    fp0116Absent: fp0116Absent(),
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+      fp0116AbsentOrLocalRemoteHostResourceContractsVerified(),
+    fp0117Absent: verifyFp0117Absent(repoPaths),
+    remoteHostResourceContractsFoundationVerified:
+      fp0116AbsentOrLocalRemoteHostResourceContractsVerified(),
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResourceImplementation,
     noAuthMiddlewareImplementation: scopeScan.noAuthMiddlewareImplementation,
@@ -141,7 +150,9 @@ function fp0114AbsentOrLocalRemoteHostReadinessContractsVerified() {
 }
 
 function fp0114BoundaryVerified() {
-  const normalized = normalize(safeRead(FP0114_REMOTE_HOST_READINESS_PLAN_PATH));
+  const normalized = normalize(
+    safeRead(FP0114_REMOTE_HOST_READINESS_PLAN_PATH),
+  );
   return [
     "local/proof-only/read-only remote mcp host readiness",
     "not remote mcp deployment",
@@ -159,8 +170,7 @@ function fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified() 
   if (fp0115Hits.length === 0) return true;
   return (
     fp0115Hits.length === 1 &&
-    fp0115Hits[0] ===
-      FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
+    fp0115Hits[0] === FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
     fp0115PlanBoundaryVerified()
   );
 }
@@ -182,8 +192,11 @@ function fp0115PlanBoundaryVerified() {
   ].every((requiredText) => normalized.includes(requiredText));
 }
 
-function fp0116Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0116/u.test(path));
+function fp0116AbsentOrLocalRemoteHostResourceContractsVerified() {
+  return verifyFp0116AbsentOrLocalRemoteHostResourceContracts({
+    planText: safeRead(FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH),
+    repoPaths,
+  });
 }
 
 function localRouteShapeStillVerified() {

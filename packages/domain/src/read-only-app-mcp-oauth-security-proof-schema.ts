@@ -52,7 +52,9 @@ export const McpOauthSecurityProofSchema = z
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified: trueLiteral,
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
       trueLiteral,
-    fp0116Absent: trueLiteral,
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified: trueLiteral,
+    fp0117Absent: trueLiteral,
+    remoteHostResourceContractsFoundationVerified: trueLiteral,
     fp0112RemotePublicOauthReadinessBoundaryStillVerified: trueLiteral,
     fp0111DefaultLocalDispatchWiringStillVerified: trueLiteral,
     fp0110DefaultDispatchPlanBoundaryStillVerified: trueLiteral,

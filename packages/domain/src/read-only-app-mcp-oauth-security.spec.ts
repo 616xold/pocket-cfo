@@ -20,6 +20,11 @@ import {
   buildMcpOauthSecurityProof,
 } from "./read-only-app-mcp-oauth-security";
 import {
+  FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
+  verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
+  verifyFp0117Absent,
+} from "./read-only-app-mcp-remote-host-resource";
+import {
   FP0114_REMOTE_HOST_READINESS_PLAN_PATH,
   FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
 } from "./read-only-app-mcp-remote-host-readiness";
@@ -27,12 +32,13 @@ import {
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0113 read-only MCP OAuth security contracts", () => {
-  it("accepts exact FP-0113, FP-0114, and docs-only FP-0115 paths while keeping FP-0116 absent", () => {
+  it("accepts exact FP-0113, FP-0114, docs-only FP-0115, and local/proof-only FP-0116 paths while keeping FP-0117 absent", () => {
     const repoPaths = repoFilePaths();
     const fp0113Hits = repoPaths.filter((path) => /(^|\/)FP-0113/u.test(path));
     const fp0114Hits = repoPaths.filter((path) => /(^|\/)FP-0114/u.test(path));
     const fp0115Hits = repoPaths.filter((path) => /(^|\/)FP-0115/u.test(path));
     const fp0116Hits = repoPaths.filter((path) => /(^|\/)FP-0116/u.test(path));
+    const fp0117Hits = repoPaths.filter((path) => /(^|\/)FP-0117/u.test(path));
     const proof = buildMcpOauthSecurityProof({
       fp0113BoundaryVerified:
         fp0113Hits.length === 1 &&
@@ -46,7 +52,16 @@ describe("FP-0113 read-only MCP OAuth security contracts", () => {
         fp0115Hits[0] ===
           FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
         fp0115PlanBoundaryVerified(),
-      fp0116Absent: fp0116Hits.length === 0,
+      fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+        verifyFp0116AbsentOrLocalRemoteHostResourceContracts({
+          planText: readFileSync(
+            join(repoRoot, FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH),
+            "utf8",
+          ),
+          repoPaths,
+        }),
+      fp0117Absent: verifyFp0117Absent(repoPaths),
+      remoteHostResourceContractsFoundationVerified: fp0116Hits.length === 1,
     });
 
     expect(fp0113Hits).toEqual([FP0113_OAUTH_SECURITY_PLAN_PATH]);
@@ -54,7 +69,8 @@ describe("FP-0113 read-only MCP OAuth security contracts", () => {
     expect(fp0115Hits).toEqual([
       FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
     ]);
-    expect(fp0116Hits).toEqual([]);
+    expect(fp0116Hits).toEqual([FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH]);
+    expect(fp0117Hits).toEqual([]);
     expect(proof.fp0113BoundaryVerified).toBe(true);
     expect(proof.fp0114AbsentOrLocalRemoteHostReadinessContractsVerified).toBe(
       true,
@@ -62,12 +78,15 @@ describe("FP-0113 read-only MCP OAuth security contracts", () => {
     expect(
       proof.fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified,
     ).toBe(true);
-    expect(proof.fp0116Absent).toBe(true);
+    expect(proof.fp0116AbsentOrLocalRemoteHostResourceContractsVerified).toBe(
+      true,
+    );
+    expect(proof.fp0117Absent).toBe(true);
+    expect(proof.remoteHostResourceContractsFoundationVerified).toBe(true);
     expect(
       McpOauthSecurityProofSchema.safeParse({
         ...proof,
-        fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
-          false,
+        fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified: false,
       }).success,
     ).toBe(false);
   });

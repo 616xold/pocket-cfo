@@ -1,8 +1,11 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
+  FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
   FP0113_OAUTH_SECURITY_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
+  verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
+  verifyFp0117Absent,
 } from "../packages/domain/src/index.ts";
 import {
   FP0114_REMOTE_HOST_READINESS_PLAN_PATH,
@@ -249,11 +252,15 @@ const proof = {
     fp0114AbsentOrLocalRemoteHostReadinessContractsVerified(),
   fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified:
     fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified(),
-  fp0116Absent: fp0116Absent(),
+  fp0116AbsentOrLocalRemoteHostResourceContractsVerified:
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified(),
+  fp0117Absent: verifyFp0117Absent(repoPaths),
   oauthSecurityContractsFoundationVerified:
     oauthSecurityContractsFoundationVerified(),
   remoteHostReadinessContractsFoundationVerified:
     remoteHostReadinessContractsFoundationVerified(),
+  remoteHostResourceContractsFoundationVerified:
+    fp0116AbsentOrLocalRemoteHostResourceContractsVerified(),
   remotePublicMcpOauthReadinessPlanBoundaryVerified:
     remotePublicMcpOauthReadinessPlanBoundaryVerified(),
   noRouteBehaviorChangeFromFp0112: fp0112ScopeScan.noRouteBehaviorChange,
@@ -300,8 +307,7 @@ const proof = {
   noSchemaMigrationsFromFp0114: changedScopeScan.noSchemaMigrationsAdded,
   noPackageScriptsFromFp0114: changedScopeScan.noPackageScriptsAdded,
   noOpenAiApiCallsFromFp0114: proofSourceScan.noOpenAiApiCalls,
-  noProviderExternalCallsFromFp0114:
-    fp0113ScopeScan.noProviderExternalCalls,
+  noProviderExternalCallsFromFp0114: fp0113ScopeScan.noProviderExternalCalls,
   noSourceMutationFinanceWriteFromFp0114:
     fp0113ScopeScan.noSourceMutationFinanceWrite,
   noPublicAssetsSubmissionArtifactsFromFp0114: changedScopeScan.noPublicAssets,
@@ -580,8 +586,7 @@ function fp0115AbsentOrDocsOnlyRemoteHostImplementationSequencingPlanVerified() 
   if (fp0115Hits.length === 0) return true;
   return (
     fp0115Hits.length === 1 &&
-    fp0115Hits[0] ===
-      FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
+    fp0115Hits[0] === FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH &&
     fp0115PlanBoundaryVerified()
   );
 }
@@ -602,8 +607,11 @@ function fp0115PlanBoundaryVerified() {
   ].every((text) => normalized.includes(text));
 }
 
-function fp0116Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0116/u.test(path));
+function fp0116AbsentOrLocalRemoteHostResourceContractsVerified() {
+  return verifyFp0116AbsentOrLocalRemoteHostResourceContracts({
+    planText: safeRead(FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH),
+    repoPaths,
+  });
 }
 
 function oauthSecurityContractsFoundationVerified() {
@@ -624,7 +632,9 @@ function oauthSecurityContractsFoundationVerified() {
 
 function remoteHostReadinessContractsFoundationVerified() {
   if (!existsSync(FP0114_REMOTE_HOST_READINESS_PLAN_PATH)) return false;
-  const normalized = normalize(safeRead(FP0114_REMOTE_HOST_READINESS_PLAN_PATH));
+  const normalized = normalize(
+    safeRead(FP0114_REMOTE_HOST_READINESS_PLAN_PATH),
+  );
   return [
     "local/proof-only/read-only remote mcp host readiness",
     "not remote mcp deployment",
@@ -771,7 +781,9 @@ function fp0112ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) => /apps-sdk|resource|iframe/iu.test(path)) &&
+      !changedPaths.some((path) =>
+        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
+      ) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -801,7 +813,9 @@ function fp0113ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) => /apps-sdk|resource|iframe/iu.test(path)) &&
+      !changedPaths.some((path) =>
+        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
+      ) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),

@@ -356,7 +356,7 @@ function changedRuntimeSurfaceBoundary() {
       !changedPaths.some(
         (path) =>
           !isAllowedEndpointRouteOwnershipProofPath(path) &&
-          /apps-sdk|resource/iu.test(path),
+          /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
       ),
     noEndpointImplementation:
       allClear &&
