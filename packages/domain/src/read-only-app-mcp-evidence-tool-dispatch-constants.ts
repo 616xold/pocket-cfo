@@ -15,6 +15,9 @@ export const FP0110_DEFAULT_LOCAL_EVIDENCE_DISPATCH_ENABLEMENT_PLAN_PATH =
 export const FP0111_DEFAULT_LOCAL_EVIDENCE_DISPATCH_WIRING_PLAN_PATH =
   "plans/FP-0111-read-only-chatgpt-app-mcp-default-local-evidence-dispatch-wiring.md";
 
+export const FP0112_REMOTE_PUBLIC_MCP_OAUTH_READINESS_PLAN_PATH =
+  "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
+
 export const EVIDENCE_TOOL_DISPATCH_RESPONSE_REQUIRED_FIELDS = [
   "structuredContent",
   "evidence",
