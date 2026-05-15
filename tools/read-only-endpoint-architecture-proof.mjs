@@ -21,6 +21,8 @@ const FP0101_PLAN =
   "plans/FP-0101-read-only-chatgpt-app-mcp-public-app-implementation-sequencing-master-plan.md";
 const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
+const FP0112_PLAN =
+  "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
 const FP0099_PLAN =
   "plans/FP-0099-read-only-chatgpt-app-mcp-public-app-security-threat-model-master-plan.md";
 const FP0098_PLAN =
@@ -403,7 +405,11 @@ function routeRuntimeChangedFilesBoundary() {
       allClear && !changedPaths.some((path) => /^apps\/web\/app\//u.test(path)),
     noAppsSdkResourceImplementation:
       allClear &&
-      !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedEndpointProofPlanPath(path) &&
+          /apps-sdk|resource/iu.test(path),
+      ),
     noBackendControlPlaneRoutesAdded:
       allClear &&
       !changedPaths.some(
@@ -422,15 +428,25 @@ function routeRuntimeChangedFilesBoundary() {
       ),
     noMcpServerRuntime:
       allClear &&
-      !changedPaths.some((path) =>
-        /mcp-server|remote-mcp|server\./iu.test(path),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedEndpointProofPlanPath(path) &&
+          /mcp-server|remote-mcp|server\./iu.test(path),
       ),
     noOauthTokenSessionImplementation:
       allClear &&
-      !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedEndpointProofPlanPath(path) &&
+          /oauth|token|session/iu.test(path),
+      ),
     noRemoteMcpImplementationOrDeployment:
       allClear &&
-      !changedPaths.some((path) => /remote-mcp|deploy|deployment/iu.test(path)),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedEndpointProofPlanPath(path) &&
+          /remote-mcp|deploy|deployment/iu.test(path),
+      ),
     noRouteImplementation:
       allClear &&
       !changedPaths.some(
@@ -676,6 +692,7 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0103_PLAN ||
     path === FP0104_PLAN ||
     path === FP0105_PLAN ||
+    path === FP0112_PLAN ||
     path === "tools/read-only-endpoint-architecture-proof.mjs" ||
     path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp-endpoint-architecture.*\.ts$/u.test(

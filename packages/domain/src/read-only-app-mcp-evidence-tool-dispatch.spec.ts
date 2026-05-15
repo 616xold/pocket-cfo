@@ -10,6 +10,7 @@ import {
   FP0109_EVIDENCE_DISPATCH_ADAPTER_PLAN_PATH,
   FP0110_DEFAULT_LOCAL_EVIDENCE_DISPATCH_ENABLEMENT_PLAN_PATH,
   FP0111_DEFAULT_LOCAL_EVIDENCE_DISPATCH_WIRING_PLAN_PATH,
+  FP0112_REMOTE_PUBLIC_MCP_OAUTH_READINESS_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   EvidenceToolDispatchAllowlistBoundarySchema,
   EvidenceToolDispatchProofSchema,
@@ -220,13 +221,14 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
     expect(serviceSource).not.toContain("ReadOnlyEvidenceToolService");
   });
 
-  it("accepts exactly FP-0108 through FP-0111 while rejecting FP-0112", () => {
+  it("accepts exactly FP-0108 through FP-0112 while rejecting FP-0113", () => {
     const repoPaths = repoFilePaths();
     const fp0108Hits = repoPaths.filter((path) => /(^|\/)FP-0108/u.test(path));
     const fp0109Hits = repoPaths.filter((path) => /(^|\/)FP-0109/u.test(path));
     const fp0110Hits = repoPaths.filter((path) => /(^|\/)FP-0110/u.test(path));
     const fp0111Hits = repoPaths.filter((path) => /(^|\/)FP-0111/u.test(path));
     const fp0112Hits = repoPaths.filter((path) => /(^|\/)FP-0112/u.test(path));
+    const fp0113Hits = repoPaths.filter((path) => /(^|\/)FP-0113/u.test(path));
     const proof = buildEvidenceToolDispatchProof({
       fp0108BoundaryVerified:
         fp0108Hits.length === 1 &&
@@ -248,7 +250,14 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
         fp0111Hits[0] ===
           FP0111_DEFAULT_LOCAL_EVIDENCE_DISPATCH_WIRING_PLAN_PATH &&
         fp0111PlanBoundaryVerified(),
-      fp0112Absent: fp0112Hits.length === 0,
+      fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified:
+        fp0112Hits.length === 1 &&
+        fp0112Hits[0] ===
+          FP0112_REMOTE_PUBLIC_MCP_OAUTH_READINESS_PLAN_PATH &&
+        fp0112PlanBoundaryVerified(),
+      fp0113Absent: fp0113Hits.length === 0,
+      remotePublicMcpOauthReadinessPlanBoundaryVerified:
+        fp0112PlanBoundaryVerified(),
     });
 
     expect(fp0108Hits).toEqual([FP0108_EVIDENCE_TOOL_DISPATCH_PLAN_PATH]);
@@ -259,7 +268,10 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
     expect(fp0111Hits).toEqual([
       FP0111_DEFAULT_LOCAL_EVIDENCE_DISPATCH_WIRING_PLAN_PATH,
     ]);
-    expect(fp0112Hits).toEqual([]);
+    expect(fp0112Hits).toEqual([
+      FP0112_REMOTE_PUBLIC_MCP_OAUTH_READINESS_PLAN_PATH,
+    ]);
+    expect(fp0113Hits).toEqual([]);
     expect(proof.fp0108BoundaryVerified).toBe(true);
     expect(proof.fp0109BoundaryVerified).toBe(true);
     expect(
@@ -268,7 +280,11 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
     expect(
       proof.fp0111DefaultLocalEvidenceDispatchWiringBoundaryVerified,
     ).toBe(true);
-    expect(proof.fp0112Absent).toBe(true);
+    expect(
+      proof.fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0113Absent).toBe(true);
+    expect(proof.remotePublicMcpOauthReadinessPlanBoundaryVerified).toBe(true);
     expect(proof.fp0108DispatchContractsStillVerified).toBe(true);
     expect(proof.fp0109AdapterBoundaryStillVerified).toBe(true);
     expect(
@@ -286,7 +302,49 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
     expect(
       EvidenceToolDispatchProofSchema.safeParse({
         ...proof,
-        fp0112Absent: false,
+        fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified: false,
+      }).success,
+    ).toBe(false);
+    expect(
+      EvidenceToolDispatchProofSchema.safeParse({
+        ...proof,
+        fp0113Absent: false,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("proves FP-0112 is docs-only public readiness planning without implementation scope", () => {
+    const proof = buildEvidenceToolDispatchProof();
+
+    expect(
+      proof.fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0113Absent).toBe(true);
+    expect(proof.remotePublicMcpOauthReadinessPlanBoundaryVerified).toBe(true);
+    expect(proof.noRouteBehaviorChangeFromFp0112).toBe(true);
+    expect(proof.noRemoteMcpDeploymentFromFp0112).toBe(true);
+    expect(proof.noOauthTokenSessionFromFp0112).toBe(true);
+    expect(proof.noAppsSdkResourceFromFp0112).toBe(true);
+    expect(proof.noAppSubmissionFromFp0112).toBe(true);
+    expect(proof.noDbQueriesFromFp0112).toBe(true);
+    expect(proof.noSchemaMigrationsFromFp0112).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0112).toBe(true);
+    expect(proof.noProviderExternalCallsFromFp0112).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0112).toBe(true);
+    expect(proof.noPublicAssetsSubmissionArtifactsFromFp0112).toBe(true);
+    expect(proof.fp0111DefaultLocalEvidenceDispatchWiringBoundaryVerified).toBe(
+      true,
+    );
+    expect(proof.fp0109AdapterBoundaryStillVerified).toBe(true);
+    expect(proof.fp0108DispatchContractsStillVerified).toBe(true);
+    expect(proof.fp0107RouteAdapterBoundaryStillVerified).toBe(true);
+    expect(proof.fp0106ProtocolEnvelopeBoundaryStillVerified).toBe(true);
+    expect(proof.fp0100PublicSecurityBoundaryStillVerified).toBe(true);
+    expect(fp0112PlanBoundaryVerified()).toBe(true);
+    expect(
+      EvidenceToolDispatchProofSchema.safeParse({
+        ...proof,
+        noRemoteMcpDeploymentFromFp0112: false,
       }).success,
     ).toBe(false);
   });
@@ -419,5 +477,39 @@ function fp0111PlanBoundaryVerified() {
     "not autonomous action",
     "default buildapp() remains fail-closed",
     "no fp-0112",
+  ].every((text) => normalized.includes(text));
+}
+
+function fp0112PlanBoundaryVerified() {
+  const planPath = join(
+    repoRoot,
+    FP0112_REMOTE_PUBLIC_MCP_OAUTH_READINESS_PLAN_PATH,
+  );
+  if (!existsSync(planPath)) return false;
+
+  const normalized = readFileSync(planPath, "utf8")
+    .toLowerCase()
+    .replace(/`/gu, "");
+
+  return [
+    "docs-and-plan plus proof-gate compatibility",
+    "remote/public mcp deployment and oauth readiness",
+    "not remote mcp deployment",
+    "not oauth implementation",
+    "not token/session implementation",
+    "not apps sdk iframe/resource implementation",
+    "not public chatgpt app implementation",
+    "not app submission",
+    "not route expansion",
+    "not a new endpoint",
+    "not db query implementation",
+    "not schema or migration work",
+    "not openai api/model integration",
+    "not source mutation",
+    "not a finance write",
+    "fp-0113 remains absent",
+    "current local /mcp route must not be exposed remotely as-is",
+    "current default local dispatch wiring is not enough for public exposure",
+    "public app implementation and public app submission remain future-only",
   ].every((text) => normalized.includes(text));
 }

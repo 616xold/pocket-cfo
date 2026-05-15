@@ -23,6 +23,8 @@ const FP0110_PLAN =
   "plans/FP-0110-read-only-chatgpt-app-mcp-default-local-evidence-dispatch-enablement-master-plan.md";
 const FP0111_PLAN =
   "plans/FP-0111-read-only-chatgpt-app-mcp-default-local-evidence-dispatch-wiring.md";
+const FP0112_PLAN =
+  "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
 const FP0106_PLAN =
   "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
 const FP0105_PLAN =
@@ -208,6 +210,7 @@ const publicAssetBoundary = noPublicAssetsBoundary();
 const sourceScan = noApiModelClientKeyUsage();
 const runtimeForbiddenScan = runtimeForbiddenScopeScan();
 const fp0110ScopeScan = fp0110ChangedScopeScan();
+const fp0112ScopeScan = fp0112ChangedScopeScan();
 
 const proof = {
   schemaVersion: SCHEMA_VERSION,
@@ -339,7 +342,24 @@ const proof = {
     fp0110AbsentOrDocsOnlyDefaultLocalDispatchEnablementPlanVerified(),
   fp0111DefaultLocalEvidenceDispatchWiringBoundaryVerified:
     fp0111DefaultLocalEvidenceDispatchWiringBoundaryVerified(),
-  fp0112Absent: fp0112Absent(),
+  fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified:
+    fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified(),
+  fp0113Absent: fp0113Absent(),
+  remotePublicMcpOauthReadinessPlanBoundaryVerified:
+    remotePublicMcpOauthReadinessPlanBoundaryVerified(),
+  noRouteBehaviorChangeFromFp0112: fp0112ScopeScan.noRouteBehaviorChange,
+  noRemoteMcpDeploymentFromFp0112: fp0112ScopeScan.noRemoteMcp,
+  noOauthTokenSessionFromFp0112: fp0112ScopeScan.noOauthTokenSession,
+  noAppsSdkResourceFromFp0112: fp0112ScopeScan.noAppsSdkResource,
+  noAppSubmissionFromFp0112: publicAssetBoundary.noAppSubmission,
+  noDbQueriesFromFp0112: fp0112ScopeScan.noDbQueries,
+  noSchemaMigrationsFromFp0112: fp0112ScopeScan.noSchemaMigrations,
+  noOpenAiApiCallsFromFp0112: sourceScan.noOpenAiApiCalls,
+  noProviderExternalCallsFromFp0112: fp0112ScopeScan.noProviderExternalCalls,
+  noSourceMutationFinanceWriteFromFp0112:
+    fp0112ScopeScan.noSourceMutationFinanceWrite,
+  noPublicAssetsSubmissionArtifactsFromFp0112:
+    publicAssetBoundary.noPublicAssets,
   defaultLocalEvidenceDispatchEnablementPlanBoundaryVerified:
     fp0110DefaultLocalEvidenceDispatchEnablementPlanBoundaryVerified(),
   noRouteBehaviorChangeFromFp0110:
@@ -590,8 +610,49 @@ function fp0111DefaultLocalEvidenceDispatchWiringBoundaryVerified() {
   ].every((requiredText) => normalized.includes(requiredText));
 }
 
-function fp0112Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0112/u.test(path));
+function fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified() {
+  const fp0112Hits = repoPaths.filter((path) => /(^|\/)FP-0112/u.test(path));
+  if (fp0112Hits.length === 0) return true;
+  return (
+    fp0112Hits.length === 1 &&
+    fp0112Hits[0] === FP0112_PLAN &&
+    remotePublicMcpOauthReadinessPlanBoundaryVerified()
+  );
+}
+
+function fp0113Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0113/u.test(path));
+}
+
+function remotePublicMcpOauthReadinessPlanBoundaryVerified() {
+  return docsBoundary(FP0112_PLAN, [
+    "docs-and-plan plus proof-gate compatibility",
+    "remote/public mcp deployment and oauth readiness",
+    "not remote mcp deployment",
+    "not oauth implementation",
+    "not token/session implementation",
+    "not apps sdk iframe/resource implementation",
+    "not public chatgpt app implementation",
+    "not app submission",
+    "not route expansion",
+    "not a new endpoint",
+    "not db query implementation",
+    "not schema or migration work",
+    "not openai api/model integration",
+    "not source mutation",
+    "not a finance write",
+    "fp-0113 remains absent",
+    "current local /mcp route must not be exposed remotely as-is",
+    "current default local dispatch wiring is not enough for public exposure",
+  ]);
+}
+
+function docsBoundary(path, requiredTexts) {
+  if (!repoPaths.includes(path) || !existsSync(path)) return false;
+  const normalized = normalize(safeRead(path));
+  return requiredTexts.every((requiredText) =>
+    normalized.includes(requiredText),
+  );
 }
 
 function fp0106BoundaryStillVerified() {
@@ -634,6 +695,7 @@ function changedFilesAreAllowed() {
     FP0109_PLAN,
     FP0110_PLAN,
     FP0111_PLAN,
+    FP0112_PLAN,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
@@ -755,6 +817,51 @@ function isFp0110RuntimeScopePath(path) {
       path,
     )
   );
+}
+
+function fp0112ChangedScopeScan() {
+  const changedRuntimeSource = changedPaths
+    .filter(isFp0110RuntimeScopePath)
+    .map(safeRead)
+    .join("\n");
+  return {
+    noAppsSdkResource:
+      !changedPaths.some((path) => /apps-sdk|resource|iframe/iu.test(path)) &&
+      !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noDbQueries:
+      !changedPaths.some((path) => /^packages\/db\//u.test(path)) &&
+      !/\b(?:drizzle|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noOauthTokenSession:
+      !/\b(?:oauthCallback|tokenExchange|sessionHandler|setCookie|authorizationMiddleware)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noProviderExternalCalls:
+      !/\b(?:providerConnect|callProvider|createProviderJob|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
+        changedRuntimeSource,
+      ),
+    noRemoteMcp:
+      !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noRouteBehaviorChange: !changedPaths.some((path) =>
+      /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
+        path,
+      ),
+    ),
+    noSchemaMigrations: !changedPaths.some(
+      (path) =>
+        /(?:^|\/)(?:migrations?|schema)\//iu.test(path) ||
+        /(?:drizzle|migration|schema)\.(?:ts|js|mjs|sql)$/iu.test(path),
+    ),
+    noSourceMutationFinanceWrite:
+      !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource|writeFinanceTwin|updateLedger|financeWrite|generatedFinanceAdviceAllowed:\s*true)\b/u.test(
+        changedRuntimeSource,
+      ),
+  };
 }
 
 function runtimeForbiddenScopeScan() {

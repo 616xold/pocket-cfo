@@ -14,6 +14,8 @@ const SCHEMA_VERSION =
   "v2ae.read-only-mcp-default-local-evidence-dispatch-wiring-proof.v1";
 const FP0111_PLAN =
   "plans/FP-0111-read-only-chatgpt-app-mcp-default-local-evidence-dispatch-wiring.md";
+const FP0112_PLAN =
+  "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
 const FP0110_PLAN =
   "plans/FP-0110-read-only-chatgpt-app-mcp-default-local-evidence-dispatch-enablement-master-plan.md";
 const FP0109_PLAN =
@@ -53,6 +55,7 @@ const appWiringSource = [APP_PATH, TYPES_PATH].map(safeRead).join("\n");
 const proofSourceScan = durableNoApiModelKeyScan();
 const changedScopeScan = changedScopeBoundary();
 const runtimeForbiddenScan = runtimeForbiddenScopeScan();
+const fp0112ScopeScan = fp0112ChangedScopeScan();
 
 const defaultApp = await buildApp({ container: createInMemoryContainer() });
 const defaultToolCall = await injectJson(defaultApp, {
@@ -233,7 +236,24 @@ const proof = {
   noFinanceWrite: runtimeForbiddenScan.noFinanceWrite,
   noGeneratedFinanceAdvice: runtimeForbiddenScan.noGeneratedFinanceAdvice,
   fp0111BoundaryVerified: fp0111BoundaryVerified(),
-  fp0112Absent: fp0112Absent(),
+  fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified:
+    fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified(),
+  fp0113Absent: fp0113Absent(),
+  remotePublicMcpOauthReadinessPlanBoundaryVerified:
+    remotePublicMcpOauthReadinessPlanBoundaryVerified(),
+  noRouteBehaviorChangeFromFp0112: fp0112ScopeScan.noRouteBehaviorChange,
+  noRemoteMcpDeploymentFromFp0112: fp0112ScopeScan.noRemoteMcp,
+  noOauthTokenSessionFromFp0112: fp0112ScopeScan.noOauthTokenSession,
+  noAppsSdkResourceFromFp0112: fp0112ScopeScan.noAppsSdkResource,
+  noAppSubmissionFromFp0112: changedScopeScan.noAppSubmission,
+  noDbQueriesFromFp0112: changedScopeScan.noDbQueriesAdded,
+  noSchemaMigrationsFromFp0112: changedScopeScan.noSchemaMigrationsAdded,
+  noOpenAiApiCallsFromFp0112: proofSourceScan.noOpenAiApiCalls,
+  noProviderExternalCallsFromFp0112: fp0112ScopeScan.noProviderExternalCalls,
+  noSourceMutationFinanceWriteFromFp0112:
+    fp0112ScopeScan.noSourceMutationFinanceWrite,
+  noPublicAssetsSubmissionArtifactsFromFp0112:
+    changedScopeScan.noPublicAssets,
   fp0110DefaultDispatchPlanBoundaryStillVerified:
     fp0110DefaultDispatchPlanBoundaryStillVerified(),
   fp0109AdapterBoundaryStillVerified: docsBoundary(FP0109_PLAN, [
@@ -468,8 +488,41 @@ function fp0111BoundaryVerified() {
   ].every((text) => normalized.includes(text));
 }
 
-function fp0112Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0112/u.test(path));
+function fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified() {
+  const fp0112Hits = repoPaths.filter((path) => /(^|\/)FP-0112/u.test(path));
+  if (fp0112Hits.length === 0) return true;
+  return (
+    fp0112Hits.length === 1 &&
+    fp0112Hits[0] === FP0112_PLAN &&
+    remotePublicMcpOauthReadinessPlanBoundaryVerified()
+  );
+}
+
+function fp0113Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0113/u.test(path));
+}
+
+function remotePublicMcpOauthReadinessPlanBoundaryVerified() {
+  return docsBoundary(FP0112_PLAN, [
+    "docs-and-plan plus proof-gate compatibility",
+    "remote/public mcp deployment and oauth readiness",
+    "not remote mcp deployment",
+    "not oauth implementation",
+    "not token/session implementation",
+    "not apps sdk iframe/resource implementation",
+    "not public chatgpt app implementation",
+    "not app submission",
+    "not route expansion",
+    "not a new endpoint",
+    "not db query implementation",
+    "not schema or migration work",
+    "not openai api/model integration",
+    "not source mutation",
+    "not a finance write",
+    "fp-0113 remains absent",
+    "current local /mcp route must not be exposed remotely as-is",
+    "current default local dispatch wiring is not enough for public exposure",
+  ]);
 }
 
 function fp0110DefaultDispatchPlanBoundaryStillVerified() {
@@ -566,6 +619,37 @@ function runtimeForbiddenScopeScan() {
     noSourceMutation:
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource)\s*\(/u.test(
         source,
+      ),
+  };
+}
+
+function fp0112ChangedScopeScan() {
+  const changedRuntimeSource = changedPaths
+    .filter(isAppRuntimeWiringPath)
+    .map(safeRead)
+    .join("\n");
+  return {
+    noAppsSdkResource:
+      !changedPaths.some((path) => /apps-sdk|resource|iframe/iu.test(path)) &&
+      !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noOauthTokenSession:
+      !/\b(?:oauthCallback|tokenExchange|sessionHandler|setCookie|authorizationMiddleware)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noProviderExternalCalls:
+      !/\b(?:providerConnect|callProvider|createProviderJob|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
+        changedRuntimeSource,
+      ),
+    noRemoteMcp:
+      !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noRouteBehaviorChange: !changedPaths.some(isAppRuntimeWiringPath),
+    noSourceMutationFinanceWrite:
+      !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource|writeFinanceTwin|updateLedger|financeWrite|generatedFinanceAdviceAllowed:\s*true)\b/u.test(
+        changedRuntimeSource,
       ),
   };
 }

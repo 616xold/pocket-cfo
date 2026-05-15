@@ -16,6 +16,8 @@ const FP0103_PLAN =
   "plans/FP-0103-read-only-chatgpt-app-mcp-endpoint-architecture-proof-contracts-foundation.md";
 const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
+const FP0112_PLAN =
+  "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -336,7 +338,11 @@ function changedRuntimeSurfaceBoundary() {
     allClear,
     noAppsSdkResourceImplementation:
       allClear &&
-      !changedPaths.some((path) => /apps-sdk|resource/iu.test(path)),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedMcpProtocolProofPath(path) &&
+          /apps-sdk|resource/iu.test(path),
+      ),
     noEndpointImplementation:
       allClear &&
       !changedPaths.some(
@@ -345,11 +351,17 @@ function changedRuntimeSurfaceBoundary() {
       ),
     noOauthTokenSessionImplementation:
       allClear &&
-      !changedPaths.some((path) => /oauth|token|session/iu.test(path)),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedMcpProtocolProofPath(path) &&
+          /oauth|token|session/iu.test(path),
+      ),
     noRemoteMcpServerImplementation:
       allClear &&
-      !changedPaths.some((path) =>
-        /remote-mcp|mcp-server|deploy|deployment/iu.test(path),
+      !changedPaths.some(
+        (path) =>
+          !isAllowedMcpProtocolProofPath(path) &&
+          /remote-mcp|mcp-server|deploy|deployment/iu.test(path),
       ),
     noRouteImplementation:
       allClear &&
@@ -367,6 +379,7 @@ function isAllowedMcpProtocolProofPath(path) {
     isAllowedFp0107LocalRouteAdapterPath(path) ||
     isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     path === FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH ||
+    path === FP0112_PLAN ||
     path === "tools/read-only-mcp-protocol-envelope-proof.mjs" ||
     path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
     path === "tools/read-only-endpoint-architecture-proof.mjs" ||
