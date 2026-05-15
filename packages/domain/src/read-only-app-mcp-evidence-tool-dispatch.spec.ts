@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
   verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
   verifyFp0117Absent,
@@ -232,7 +233,7 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
     expect(serviceSource).not.toContain("ReadOnlyEvidenceToolService");
   });
 
-  it("accepts exactly FP-0108 through local/proof-only FP-0116 while rejecting FP-0117", () => {
+  it("accepts exactly FP-0108 through local/proof-only FP-0116 and docs-only FP-0117", () => {
     const repoPaths = repoFilePaths();
     const fp0108Hits = repoPaths.filter((path) => /(^|\/)FP-0108/u.test(path));
     const fp0109Hits = repoPaths.filter((path) => /(^|\/)FP-0109/u.test(path));
@@ -316,7 +317,9 @@ describe("FP-0108 evidence tool dispatch contracts", () => {
       FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
     ]);
     expect(fp0116Hits).toEqual([FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH]);
-    expect(fp0117Hits).toEqual([]);
+    expect(fp0117Hits).toEqual([
+      FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    ]);
     expect(proof.fp0108BoundaryVerified).toBe(true);
     expect(proof.fp0109BoundaryVerified).toBe(true);
     expect(
