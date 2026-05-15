@@ -3,6 +3,7 @@ import { createRequire } from "node:module";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
+  FP0113_OAUTH_SECURITY_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   buildMcpToolDescriptorContracts,
 } from "../packages/domain/src/index.ts";
@@ -211,6 +212,7 @@ const sourceScan = noApiModelClientKeyUsage();
 const runtimeForbiddenScan = runtimeForbiddenScopeScan();
 const fp0110ScopeScan = fp0110ChangedScopeScan();
 const fp0112ScopeScan = fp0112ChangedScopeScan();
+const fp0113ScopeScan = fp0113ChangedScopeScan();
 
 const proof = {
   schemaVersion: SCHEMA_VERSION,
@@ -344,7 +346,11 @@ const proof = {
     fp0111DefaultLocalEvidenceDispatchWiringBoundaryVerified(),
   fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified:
     fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified(),
-  fp0113Absent: fp0113Absent(),
+  fp0113AbsentOrLocalOauthSecurityContractsVerified:
+    fp0113AbsentOrLocalOauthSecurityContractsVerified(),
+  fp0114Absent: fp0114Absent(),
+  oauthSecurityContractsFoundationVerified:
+    oauthSecurityContractsFoundationVerified(),
   remotePublicMcpOauthReadinessPlanBoundaryVerified:
     remotePublicMcpOauthReadinessPlanBoundaryVerified(),
   noRouteBehaviorChangeFromFp0112: fp0112ScopeScan.noRouteBehaviorChange,
@@ -360,6 +366,23 @@ const proof = {
     fp0112ScopeScan.noSourceMutationFinanceWrite,
   noPublicAssetsSubmissionArtifactsFromFp0112:
     publicAssetBoundary.noPublicAssets,
+  noAppsSdkResourceFromFp0113: fp0113ScopeScan.noAppsSdkResource,
+  noAppSubmissionFromFp0113: publicAssetBoundary.noAppSubmission,
+  noAuthMiddlewareImplementationFromFp0113:
+    fp0113ScopeScan.noAuthMiddlewareImplementation,
+  noDbQueriesFromFp0113: fp0113ScopeScan.noDbQueries,
+  noOauthImplementationFromFp0113: fp0113ScopeScan.noOauthImplementation,
+  noOpenAiApiCallsFromFp0113: sourceScan.noOpenAiApiCalls,
+  noProviderExternalCallsFromFp0113: fp0113ScopeScan.noProviderExternalCalls,
+  noPublicAssetsSubmissionArtifactsFromFp0113:
+    publicAssetBoundary.noPublicAssets,
+  noRemoteMcpDeploymentFromFp0113: fp0113ScopeScan.noRemoteMcp,
+  noRouteBehaviorChangeFromFp0113: fp0113ScopeScan.noRouteBehaviorChange,
+  noSchemaMigrationsFromFp0113: fp0113ScopeScan.noSchemaMigrations,
+  noSourceMutationFinanceWriteFromFp0113:
+    fp0113ScopeScan.noSourceMutationFinanceWrite,
+  noTokenSessionImplementationFromFp0113:
+    fp0113ScopeScan.noTokenSessionImplementation,
   defaultLocalEvidenceDispatchEnablementPlanBoundaryVerified:
     fp0110DefaultLocalEvidenceDispatchEnablementPlanBoundaryVerified(),
   noRouteBehaviorChangeFromFp0110:
@@ -620,8 +643,34 @@ function fp0112AbsentOrDocsOnlyRemotePublicMcpOauthReadinessPlanVerified() {
   );
 }
 
-function fp0113Absent() {
-  return !repoPaths.some((path) => /(^|\/)FP-0113/u.test(path));
+function fp0113AbsentOrLocalOauthSecurityContractsVerified() {
+  const fp0113Hits = repoPaths.filter((path) => /(^|\/)FP-0113/u.test(path));
+  if (fp0113Hits.length === 0) return true;
+  return (
+    fp0113Hits.length === 1 &&
+    fp0113Hits[0] === FP0113_OAUTH_SECURITY_PLAN_PATH &&
+    oauthSecurityContractsFoundationVerified()
+  );
+}
+
+function fp0114Absent() {
+  return !repoPaths.some((path) => /(^|\/)FP-0114/u.test(path));
+}
+
+function oauthSecurityContractsFoundationVerified() {
+  if (!existsSync(FP0113_OAUTH_SECURITY_PLAN_PATH)) return false;
+  const normalized = normalize(safeRead(FP0113_OAUTH_SECURITY_PLAN_PATH));
+  return [
+    "local/proof-only/read-only oauth, token/session",
+    "not oauth implementation",
+    "not token/session implementation",
+    "not auth middleware",
+    "does not change /mcp route behavior",
+    "public exposure remains blocked",
+    "client-supplied companykey is only a requested selector",
+    "token passthrough is forbidden",
+    "fp-0114 remains absent",
+  ].every((text) => normalized.includes(text));
 }
 
 function remotePublicMcpOauthReadinessPlanBoundaryVerified() {
@@ -696,6 +745,7 @@ function changedFilesAreAllowed() {
     FP0110_PLAN,
     FP0111_PLAN,
     FP0112_PLAN,
+    FP0113_OAUTH_SECURITY_PLAN_PATH,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
@@ -719,7 +769,9 @@ function changedFilesAreAllowed() {
     "tools/read-only-public-app-security-boundary-proof.mjs",
     "tools/read-only-mcp-descriptor-response-envelope-proof.mjs",
     "tools/read-only-chatgpt-app-mcp-proof.mjs",
+    "tools/read-only-mcp-oauth-security-boundary-proof.mjs",
     "tools/benchmark-community-pack-proof.mjs",
+    "packages/domain/src/index.ts",
     "packages/domain/src/benchmark-community.spec.ts",
     "packages/domain/src/read-only-app-mcp-endpoint-architecture-proof.ts",
     "packages/domain/src/read-only-app-mcp-endpoint-architecture.spec.ts",
@@ -788,10 +840,9 @@ function fp0110ChangedScopeScan() {
       !/\b(?:oauth|tokenExchange|sessionHandler|setCookie|authorization)\b/u.test(
         changedRuntimeSource,
       ),
-    noRemoteMcp:
-      !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
-        changedRuntimeSource,
-      ),
+    noRemoteMcp: !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
+      changedRuntimeSource,
+    ),
     noRouteBehaviorChange: !changedPaths.some((path) =>
       /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
         path,
@@ -799,8 +850,8 @@ function fp0110ChangedScopeScan() {
     ),
     noSchemaMigrations: !changedPaths.some(
       (path) =>
-        /(?:^|\/)(?:migrations?|schema)\//iu.test(path) ||
-        /(?:drizzle|migration|schema)\.(?:ts|js|mjs|sql)$/iu.test(path),
+        /(?:^|\/)(?:migrations?|drizzle)\//iu.test(path) ||
+        /(?:drizzle|migration)\.(?:ts|js|mjs|sql)$/iu.test(path),
     ),
     noSourceMutationFinanceWrite:
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource|writeFinanceTwin|updateLedger|financeWrite)\b/u.test(
@@ -843,10 +894,9 @@ function fp0112ChangedScopeScan() {
       !/\b(?:providerConnect|callProvider|createProviderJob|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
         changedRuntimeSource,
       ),
-    noRemoteMcp:
-      !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
-        changedRuntimeSource,
-      ),
+    noRemoteMcp: !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
+      changedRuntimeSource,
+    ),
     noRouteBehaviorChange: !changedPaths.some((path) =>
       /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
         path,
@@ -854,11 +904,63 @@ function fp0112ChangedScopeScan() {
     ),
     noSchemaMigrations: !changedPaths.some(
       (path) =>
-        /(?:^|\/)(?:migrations?|schema)\//iu.test(path) ||
-        /(?:drizzle|migration|schema)\.(?:ts|js|mjs|sql)$/iu.test(path),
+        /(?:^|\/)(?:migrations?|drizzle)\//iu.test(path) ||
+        /(?:drizzle|migration)\.(?:ts|js|mjs|sql)$/iu.test(path),
     ),
     noSourceMutationFinanceWrite:
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource|writeFinanceTwin|updateLedger|financeWrite|generatedFinanceAdviceAllowed:\s*true)\b/u.test(
+        changedRuntimeSource,
+      ),
+  };
+}
+
+function fp0113ChangedScopeScan() {
+  const changedRuntimeSource = changedPaths
+    .filter(isFp0110RuntimeScopePath)
+    .map(safeRead)
+    .join("\n");
+  return {
+    noAppsSdkResource:
+      !changedPaths.some((path) => /apps-sdk|resource|iframe/iu.test(path)) &&
+      !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noAuthMiddlewareImplementation:
+      !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|setCookie)\s*\(/u.test(
+        changedRuntimeSource,
+      ),
+    noDbQueries:
+      !changedPaths.some((path) => /^packages\/db\//u.test(path)) &&
+      !/\b(?:drizzle|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noOauthImplementation:
+      !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
+        changedRuntimeSource,
+      ),
+    noProviderExternalCalls:
+      !/\b(?:providerConnect|callProvider|createProviderJob|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
+        changedRuntimeSource,
+      ),
+    noRemoteMcp: !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
+      changedRuntimeSource,
+    ),
+    noRouteBehaviorChange: !changedPaths.some((path) =>
+      /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
+        path,
+      ),
+    ),
+    noSchemaMigrations: !changedPaths.some(
+      (path) =>
+        /(?:^|\/)(?:migrations?|drizzle)\//iu.test(path) ||
+        /(?:drizzle|migration)\.(?:ts|js|mjs|sql)$/iu.test(path),
+    ),
+    noSourceMutationFinanceWrite:
+      !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource|writeFinanceTwin|updateLedger|financeWrite|generatedFinanceAdviceAllowed:\s*true)\b/u.test(
+        changedRuntimeSource,
+      ),
+    noTokenSessionImplementation:
+      !/\b(?:tokenStore|sessionStore|sessionHandler|refreshTokenStore|setCookie)\s*\(/u.test(
         changedRuntimeSource,
       ),
   };
