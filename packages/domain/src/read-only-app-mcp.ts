@@ -4,6 +4,7 @@ export * from "./read-only-app-mcp-descriptor";
 export * from "./read-only-app-mcp-descriptor-proof";
 export * from "./read-only-app-mcp-evidence-tool-dispatch";
 export * from "./read-only-app-mcp-envelope";
+export * from "./read-only-app-mcp-oauth-implementation-sequencing-proof";
 export * from "./read-only-app-mcp-proof";
 export * from "./read-only-app-mcp-proof-schema";
 export * from "./read-only-app-mcp-runtime";

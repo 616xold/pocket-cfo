@@ -20,6 +20,7 @@ import {
   buildMcpOauthSecurityProof,
 } from "./read-only-app-mcp-oauth-security";
 import {
+  FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
   verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
   verifyFp0117Absent,
@@ -32,7 +33,7 @@ import {
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0113 read-only MCP OAuth security contracts", () => {
-  it("accepts exact FP-0113, FP-0114, docs-only FP-0115, and local/proof-only FP-0116 paths while keeping FP-0117 absent", () => {
+  it("accepts exact FP-0113, FP-0114, docs-only FP-0115, local/proof-only FP-0116, and docs-only FP-0117 paths", () => {
     const repoPaths = repoFilePaths();
     const fp0113Hits = repoPaths.filter((path) => /(^|\/)FP-0113/u.test(path));
     const fp0114Hits = repoPaths.filter((path) => /(^|\/)FP-0114/u.test(path));
@@ -70,7 +71,9 @@ describe("FP-0113 read-only MCP OAuth security contracts", () => {
       FP0115_REMOTE_HOST_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
     ]);
     expect(fp0116Hits).toEqual([FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH]);
-    expect(fp0117Hits).toEqual([]);
+    expect(fp0117Hits).toEqual([
+      FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    ]);
     expect(proof.fp0113BoundaryVerified).toBe(true);
     expect(proof.fp0114AbsentOrLocalRemoteHostReadinessContractsVerified).toBe(
       true,

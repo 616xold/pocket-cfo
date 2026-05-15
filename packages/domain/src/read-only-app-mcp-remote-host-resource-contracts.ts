@@ -6,8 +6,14 @@ const falseLiteral = z.literal(false);
 export const MCP_REMOTE_HOST_RESOURCE_SCHEMA_VERSION =
   "v2aj.read-only-app-mcp-remote-host-resource.v1";
 
+export const MCP_OAUTH_IMPLEMENTATION_SEQUENCING_SCHEMA_VERSION =
+  "v2ak.read-only-app-mcp-oauth-implementation-sequencing.v1";
+
 export const FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH =
   "plans/FP-0116-read-only-chatgpt-app-mcp-remote-host-owner-canonical-uri-resource-metadata-contracts.md";
+
+export const FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH =
+  "plans/FP-0117-read-only-chatgpt-app-mcp-oauth-token-session-auth-implementation-sequencing-master-plan.md";
 
 export const MCP_PUBLIC_MCP_ENDPOINT_PATH = "/mcp";
 

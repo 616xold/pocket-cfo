@@ -3,10 +3,12 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
+  FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
   MCP_PUBLIC_MCP_ENDPOINT_PATH,
   MCP_REMOTE_HOST_OWNER_FAMILIES,
   MCP_REMOTE_HOST_PREFERRED_OWNER_FAMILIES,
+  McpOauthImplementationSequencingProofSchema,
   McpCanonicalResourceUriContractBoundarySchema,
   McpProtectedResourceMetadataBoundarySchema,
   McpPublicMcpEndpointPathBoundarySchema,
@@ -15,16 +17,21 @@ import {
   McpRemoteHostResourceProofSchema,
   buildMcpRemoteHostResourceContracts,
   buildMcpRemoteHostResourceProof,
+  buildMcpOauthImplementationSequencingProof,
   validateMcpCanonicalResourceUriCandidate,
   verifyFp0116RemoteHostResourcePlanBoundary,
+  verifyFp0117AbsentOrDocsOnlyOauthImplementationSequencingPlan,
   verifyFp0117Absent,
+  verifyFp0117OauthImplementationSequencingPlanBoundary,
+  verifyFp0117PlanningTextRequiredTopics,
+  verifyFp0118Absent,
 } from "./read-only-app-mcp-remote-host-resource";
 import { verifyMcpRemoteHostReadinessRepositoryInventory } from "./read-only-app-mcp-remote-host-readiness";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
 describe("FP-0116 remote host owner and resource metadata contracts", () => {
-  it("accepts exactly one FP-0116 path and keeps FP-0117 absent", () => {
+  it("accepts exactly one FP-0116 path and the docs-only FP-0117 successor path", () => {
     const repoPaths = repoFilePaths();
     const fp0116Hits = repoPaths.filter((path) => /(^|\/)FP-0116/u.test(path));
     const fp0117Hits = repoPaths.filter((path) => /(^|\/)FP-0117/u.test(path));
@@ -40,7 +47,9 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     });
 
     expect(fp0116Hits).toEqual([FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH]);
-    expect(fp0117Hits).toEqual([]);
+    expect(fp0117Hits).toEqual([
+      FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    ]);
     expect(proof.fp0116BoundaryVerified).toBe(true);
     expect(proof.fp0116AbsentOrLocalRemoteHostResourceContractsVerified).toBe(
       true,
@@ -50,6 +59,72 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
       McpRemoteHostResourceProofSchema.safeParse({
         ...proof,
         fp0117Absent: false,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("accepts exactly one FP-0117 docs-and-plan OAuth implementation sequencing bridge while FP-0118 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
+    const topics = verifyFp0117PlanningTextRequiredTopics(planText);
+    const proof = buildMcpOauthImplementationSequencingProof({
+      ...topics,
+      fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified:
+        verifyFp0117AbsentOrDocsOnlyOauthImplementationSequencingPlan({
+          planText,
+          repoPaths,
+        }),
+      fp0118Absent: verifyFp0118Absent(repoPaths),
+      oauthImplementationSequencingPlanBoundaryVerified:
+        verifyFp0117OauthImplementationSequencingPlanBoundary({
+          planText,
+          repoPaths,
+        }),
+    });
+
+    expect(
+      repoPaths.filter((path) => /(^|\/)FP-0117/u.test(path)),
+    ).toEqual([FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0118/u.test(path))).toEqual(
+      [],
+    );
+    expect(
+      proof.fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0118Absent).toBe(true);
+    expect(proof.noRouteBehaviorChangeFromFp0117).toBe(true);
+    expect(proof.noNewRoutePathFromFp0117).toBe(true);
+    expect(proof.noProtectedResourceMetadataRouteFromFp0117).toBe(true);
+    expect(proof.noWwwAuthenticateRouteBehaviorFromFp0117).toBe(true);
+    expect(proof.noOauthImplementationFromFp0117).toBe(true);
+    expect(proof.noTokenSessionImplementationFromFp0117).toBe(true);
+    expect(proof.noAuthMiddlewareImplementationFromFp0117).toBe(true);
+    expect(proof.noRemoteMcpDeploymentFromFp0117).toBe(true);
+    expect(proof.noDeploymentConfigFromFp0117).toBe(true);
+    expect(proof.noAppsSdkResourceFromFp0117).toBe(true);
+    expect(proof.noAppSubmissionFromFp0117).toBe(true);
+    expect(proof.noDbQueriesFromFp0117).toBe(true);
+    expect(proof.noSchemaMigrationsFromFp0117).toBe(true);
+    expect(proof.noPackageScriptsFromFp0117).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0117).toBe(true);
+    expect(proof.noProviderExternalCallsFromFp0117).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0117).toBe(true);
+    expect(proof.noPublicAssetsSubmissionArtifactsFromFp0117).toBe(true);
+    expect(proof.noListingCopyGeneratedPublicProseFromFp0117).toBe(true);
+    expect(proof.planningTextIncludesProtectedResourceMetadata).toBe(true);
+    expect(proof.planningTextIncludesWwwAuthenticateResourceMetadata).toBe(
+      true,
+    );
+    expect(proof.planningTextIncludesAuthorizationServerDiscovery).toBe(true);
+    expect(proof.planningTextIncludesScopeChallenge).toBe(true);
+    expect(proof.planningTextIncludesAudienceResourceValidation).toBe(true);
+    expect(proof.planningTextIncludesTokenFailureModes).toBe(true);
+    expect(proof.planningTextIncludesNoTokenPassthrough).toBe(true);
+    expect(proof.planningTextIncludesAuthenticatedCompanyBinding).toBe(true);
+    expect(
+      McpOauthImplementationSequencingProofSchema.safeParse({
+        ...proof,
+        noOauthImplementationFromFp0117: false,
       }).success,
     ).toBe(false);
   });

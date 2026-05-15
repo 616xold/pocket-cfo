@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
   MCP_CANONICAL_RESOURCE_URI_REJECTED_SELECTOR_TOKENS,
   MCP_PUBLIC_MCP_ENDPOINT_PATH,
@@ -573,7 +574,12 @@ export function verifyFp0116AbsentOrLocalRemoteHostResourceContracts(input: {
 }
 
 export function verifyFp0117Absent(repoPaths: readonly string[]) {
-  return !repoPaths.some((path) => /(^|\/)FP-0117/u.test(path));
+  const fp0117Hits = repoPaths.filter((path) => /(^|\/)FP-0117/u.test(path));
+  return (
+    fp0117Hits.length === 0 ||
+    (fp0117Hits.length === 1 &&
+      fp0117Hits[0] === FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH)
+  );
 }
 
 function base(

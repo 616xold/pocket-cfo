@@ -401,6 +401,8 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === FP0113_PLAN ||
     path ===
       "plans/FP-0114-read-only-chatgpt-app-mcp-remote-host-readiness-security-contracts-foundation.md" ||
+    path ===
+      "plans/FP-0117-read-only-chatgpt-app-mcp-oauth-token-session-auth-implementation-sequencing-master-plan.md" ||
     path === "packages/domain/src/index.ts" ||
     path === "tools/read-only-mcp-oauth-security-boundary-proof.mjs" ||
     path === "tools/read-only-mcp-remote-host-readiness-proof.mjs" ||
@@ -411,6 +413,7 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === "tools/read-only-mcp-route-adapter-proof.mjs" ||
     path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
     path === "tools/read-only-endpoint-architecture-proof.mjs" ||
+    path === "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||
@@ -424,6 +427,9 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
       path,
     ) ||
     /^packages\/domain\/src\/read-only-app-mcp-endpoint-architecture.*\.ts$/u.test(
+      path,
+    ) ||
+    /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(
       path,
     )
   );
