@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
   McpProtectedResourceMetadataProofSchema,
   buildMcpProtectedResourceMetadataProof,
   isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath,
@@ -11,7 +12,9 @@ import {
   verifyFp0117OauthImplementationSequencingPlanBoundary,
   verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
-  verifyFp0119Absent,
+  verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan,
+  verifyFp0119ProtectedResourceMetadataRouteSequencingPlanBoundary,
+  verifyFp0120Absent,
   verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan,
   verifyMcpProtectedResourceMetadataRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -43,12 +46,16 @@ const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
 const fp0117PlanText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
 const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
+const fp0119PlanText = safeRead(
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
+);
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
   readChangedExecutableSource(),
 );
 const repositoryInventory =
   verifyMcpProtectedResourceMetadataRepositoryInventory({
+    changedPaths,
     repoPaths,
     routeSourceText: safeRead(ROUTE_PATH),
   });
@@ -132,10 +139,17 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
       planText: fp0118PlanText,
       repoPaths,
     }),
-    fp0119Absent: verifyFp0119Absent(repoPaths),
+    fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
+      verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan({
+        planText: fp0119PlanText,
+        repoPaths,
+      }),
+    fp0120Absent: verifyFp0120Absent(repoPaths),
     fp0118PostmergeProofDurabilityVerified:
       repositoryInventory.fp0118PostmergeProofDurabilityVerified &&
       durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    fp0118RouteInventoryDurabilityVerified:
+      repositoryInventory.fp0118RouteInventoryDurabilityVerified,
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
     noAuthMiddlewareImplementation:
@@ -150,7 +164,10 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
     noModelCalls:
       changedSourceScan.noModelCalls &&
       durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
-    noNewRoutePath: scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
+    noNewRoutePath:
+      scopeScan.noNewRoutePath &&
+      repositoryInventory.noNewRoutePathRepositoryInventoryVerified &&
+      localRouteShapeStillVerified(),
     noOauthImplementation:
       scopeScan.noOauthImplementation &&
       repositoryInventory.oauthRuntimeRepositoryInventoryVerified,
@@ -160,31 +177,79 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
     noOpenAiClientOrKeyUsage:
       changedSourceScan.noOpenAiClientOrKeyUsage &&
       durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    noAppSubmissionFromFp0119: scopeScan.noAppSubmission,
+    noAppsSdkResourceFromFp0119: scopeScan.noAppsSdkResource,
+    noAuthMiddlewareImplementationFromFp0119:
+      scopeScan.noAuthMiddlewareImplementation &&
+      repositoryInventory.authMiddlewareRepositoryInventoryVerified,
+    noDbQueriesFromFp0119: scopeScan.noDbQueries,
+    noDeploymentConfigFromFp0119: scopeScan.noDeploymentConfig,
+    noListingCopyGeneratedPublicProseFromFp0119:
+      scopeScan.noListingCopy && scopeScan.noGeneratedPublicProse,
+    noNewRoutePathFromFp0119:
+      scopeScan.noNewRoutePath &&
+      repositoryInventory.noNewRoutePathRepositoryInventoryVerified &&
+      localRouteShapeStillVerified(),
+    noOauthImplementationFromFp0119:
+      scopeScan.noOauthImplementation &&
+      repositoryInventory.oauthRuntimeRepositoryInventoryVerified,
+    noOpenAiApiCallsFromFp0119:
+      changedSourceScan.noOpenAiApiCalls &&
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
     noPackageScriptsAdded: scopeScan.noPackageScripts,
+    noPackageScriptsFromFp0119: scopeScan.noPackageScripts,
     noProtectedResourceMetadataRouteImplementation:
       scopeScan.noProtectedResourceMetadataRoute &&
       repositoryInventory.protectedResourceRouteRepositoryInventoryVerified,
+    noProtectedResourceMetadataRouteFromFp0119:
+      scopeScan.noProtectedResourceMetadataRoute &&
+      repositoryInventory.protectedResourceRouteRepositoryInventoryVerified,
     noProviderCalls: scopeScan.noProviderCalls,
+    noProviderExternalCallsFromFp0119:
+      scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
     noPublicAssets: scopeScan.noPublicAssets,
+    noPublicAssetsSubmissionArtifactsFromFp0119:
+      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
     noRemoteMcpDeployment:
+      scopeScan.noRemoteMcpDeployment &&
+      repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified,
+    noRemoteMcpDeploymentFromFp0119:
       scopeScan.noRemoteMcpDeployment &&
       repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified,
     noRouteBehaviorChange:
       scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
+    noRouteBehaviorChangeFromFp0119:
+      scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
     noSchemaMigrationsAdded: scopeScan.noSchemaMigrations,
+    noSchemaMigrationsFromFp0119: scopeScan.noSchemaMigrations,
     noSourceMutation: scopeScan.noSourceMutation,
+    noSourceMutationFinanceWriteFromFp0119:
+      scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
     noTokenSessionImplementation:
+      scopeScan.noTokenSessionImplementation &&
+      repositoryInventory.tokenSessionRepositoryInventoryVerified,
+    noTokenSessionImplementationFromFp0119:
       scopeScan.noTokenSessionImplementation &&
       repositoryInventory.tokenSessionRepositoryInventoryVerified,
     noWwwAuthenticateRouteBehaviorImplementation:
       scopeScan.noWwwAuthenticateRouteBehavior &&
       repositoryInventory.wwwAuthenticateRouteRepositoryInventoryVerified,
+    noWwwAuthenticateRouteBehaviorFromFp0119:
+      scopeScan.noWwwAuthenticateRouteBehavior &&
+      repositoryInventory.wwwAuthenticateRouteRepositoryInventoryVerified,
+    noNewRoutePathRepositoryInventoryVerified:
+      repositoryInventory.noNewRoutePathRepositoryInventoryVerified,
     oauthRuntimeRepositoryInventoryVerified:
       repositoryInventory.oauthRuntimeRepositoryInventoryVerified,
     protectedResourceMetadataNoOpenAiApiSourceScanVerified:
       durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
     protectedResourceRouteRepositoryInventoryVerified:
       repositoryInventory.protectedResourceRouteRepositoryInventoryVerified,
+    protectedResourceMetadataRouteSequencingPlanBoundaryVerified:
+      verifyFp0119ProtectedResourceMetadataRouteSequencingPlanBoundary({
+        planText: fp0119PlanText,
+        repoPaths,
+      }),
     remoteMcpDeploymentRepositoryInventoryVerified:
       repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified,
     tokenSessionRepositoryInventoryVerified:
@@ -228,9 +293,6 @@ function changedScopeScan() {
     .join("\n");
   const publicAssetPattern =
     /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu;
-  const routePathPattern =
-    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u;
-
   return {
     noAppSubmission: !changedPaths.some((path) =>
       /(?:app-submission|submission-assets|public-listing|store-listing|listing-copy|screenshots)/iu.test(
@@ -272,7 +334,7 @@ function changedScopeScan() {
     noListingCopy: !changedPaths.some((path) =>
       /(?:listing-copy|public-listing|store-listing)/iu.test(path),
     ),
-    noNewRoutePath: !changedPaths.some((path) => routePathPattern.test(path)),
+    noNewRoutePath: !changedPaths.some(isRouteLikeRuntimePath),
     noOauthImplementation:
       !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
         changedExecutableSource,
@@ -281,7 +343,7 @@ function changedScopeScan() {
       !changedPaths.includes("package.json") &&
       !changedPaths.some((path) => /\/package\.json$/u.test(path)),
     noProtectedResourceMetadataRoute:
-      !changedPaths.some((path) => routePathPattern.test(path)) &&
+      !changedPaths.some(isProtectedResourceMetadataRouteLikePath) &&
       !/protected-resource|oauth-protected-resource|resource_metadata/iu.test(
         changedRouteSource,
       ),
@@ -299,9 +361,7 @@ function changedScopeScan() {
       !/\b(?:remoteMcpRuntime|mcpServerRuntime|startRemoteMcp|listen\s*\(|deploy\s*\()\b/u.test(
         changedExecutableSource,
       ),
-    noRouteBehaviorChange: !changedPaths.some((path) =>
-      routePathPattern.test(path),
-    ),
+    noRouteBehaviorChange: !changedPaths.some(isRouteLikeRuntimePath),
     noSchemaMigrations: !changedPaths.some(
       (path) =>
         /^packages\/db\//u.test(path) ||
@@ -317,9 +377,36 @@ function changedScopeScan() {
         changedExecutableSource,
       ),
     noWwwAuthenticateRouteBehavior:
-      !changedPaths.some((path) => routePathPattern.test(path)) &&
+      !changedPaths.some(isWwwAuthenticateRouteLikePath) &&
       !/www-authenticate|resource_metadata/iu.test(changedRouteSource),
   };
+}
+
+function isRouteLikeRuntimePath(path) {
+  return (
+    /^apps\/web\/app\/.*\/route\.ts$/u.test(path) ||
+    path.startsWith("apps/web/pages/api/") ||
+    /^apps\/control-plane\/src\/.*\/routes\.ts$/u.test(path) ||
+    /^apps\/control-plane\/src\/.*(?:route|router|controller)\.ts$/u.test(path)
+  );
+}
+
+function isProtectedResourceMetadataRouteLikePath(path) {
+  return (
+    isRouteLikeRuntimePath(path) &&
+    /(?:\.well-known\/oauth-protected-resource|oauth-protected-resource|protected-resource-metadata|resource-metadata|resource_metadata)/iu.test(
+      path,
+    )
+  );
+}
+
+function isWwwAuthenticateRouteLikePath(path) {
+  return (
+    isRouteLikeRuntimePath(path) &&
+    /(?:www-authenticate|resource-metadata-challenge|auth-challenge|resource_metadata)/iu.test(
+      path,
+    )
+  );
 }
 
 function localRouteShapeStillVerified() {

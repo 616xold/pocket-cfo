@@ -4,6 +4,7 @@ const trueLiteral = z.literal(true);
 
 export const McpProtectedResourceMetadataInventoryProofSchema = z
   .object({
+    noNewRoutePathRepositoryInventoryVerified: trueLiteral,
     protectedResourceRouteRepositoryInventoryVerified: trueLiteral,
     wwwAuthenticateRouteRepositoryInventoryVerified: trueLiteral,
     oauthRuntimeRepositoryInventoryVerified: trueLiteral,
@@ -12,6 +13,7 @@ export const McpProtectedResourceMetadataInventoryProofSchema = z
     remoteMcpDeploymentRepositoryInventoryVerified: trueLiteral,
     protectedResourceMetadataNoOpenAiApiSourceScanVerified: trueLiteral,
     fp0118PostmergeProofDurabilityVerified: trueLiteral,
+    fp0118RouteInventoryDurabilityVerified: trueLiteral,
   })
   .strict();
 
@@ -35,6 +37,8 @@ export type McpProtectedResourceMetadataRepositoryInventoryResult = Omit<
 export function buildMcpProtectedResourceMetadataInventoryProof(
   input: McpProtectedResourceMetadataInventoryProofInput = {},
 ): McpProtectedResourceMetadataInventoryProof {
+  const noNewRoutePathRepositoryInventoryVerified =
+    input.noNewRoutePathRepositoryInventoryVerified ?? true;
   const protectedResourceRouteRepositoryInventoryVerified =
     input.protectedResourceRouteRepositoryInventoryVerified ?? true;
   const wwwAuthenticateRouteRepositoryInventoryVerified =
@@ -54,6 +58,7 @@ export function buildMcpProtectedResourceMetadataInventoryProof(
     authMiddlewareRepositoryInventoryVerified,
     fp0118PostmergeProofDurabilityVerified:
       (input.fp0118PostmergeProofDurabilityVerified ?? true) &&
+      noNewRoutePathRepositoryInventoryVerified &&
       protectedResourceRouteRepositoryInventoryVerified &&
       wwwAuthenticateRouteRepositoryInventoryVerified &&
       oauthRuntimeRepositoryInventoryVerified &&
@@ -61,6 +66,12 @@ export function buildMcpProtectedResourceMetadataInventoryProof(
       authMiddlewareRepositoryInventoryVerified &&
       remoteMcpDeploymentRepositoryInventoryVerified &&
       protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    fp0118RouteInventoryDurabilityVerified:
+      (input.fp0118RouteInventoryDurabilityVerified ?? true) &&
+      noNewRoutePathRepositoryInventoryVerified &&
+      protectedResourceRouteRepositoryInventoryVerified &&
+      wwwAuthenticateRouteRepositoryInventoryVerified,
+    noNewRoutePathRepositoryInventoryVerified,
     oauthRuntimeRepositoryInventoryVerified,
     protectedResourceMetadataNoOpenAiApiSourceScanVerified,
     protectedResourceRouteRepositoryInventoryVerified,
@@ -72,10 +83,18 @@ export function buildMcpProtectedResourceMetadataInventoryProof(
 
 export function verifyMcpProtectedResourceMetadataRepositoryInventory(input: {
   repoPaths: readonly string[];
+  changedPaths?: readonly string[];
   routeSourceText?: string;
 }): McpProtectedResourceMetadataRepositoryInventoryResult {
   const runtimePaths = input.repoPaths.map(normalizePath).filter(isRuntimePath);
+  const changedRouteLikePaths = (input.changedPaths ?? [])
+    .map(normalizePath)
+    .filter(isRouteLikeRuntimePath);
   const routeSourceText = input.routeSourceText ?? "";
+  const noNewRoutePathRepositoryInventoryVerified =
+    changedRouteLikePaths.length === 0 &&
+    !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText) &&
+    !routeSourceHasWwwAuthenticateBehavior(routeSourceText);
   const protectedResourceRouteRepositoryInventoryVerified =
     !runtimePaths.some(isProtectedResourceMetadataRoutePath) &&
     !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText);
@@ -98,12 +117,18 @@ export function verifyMcpProtectedResourceMetadataRepositoryInventory(input: {
   return {
     authMiddlewareRepositoryInventoryVerified,
     fp0118PostmergeProofDurabilityVerified:
+      noNewRoutePathRepositoryInventoryVerified &&
       protectedResourceRouteRepositoryInventoryVerified &&
       wwwAuthenticateRouteRepositoryInventoryVerified &&
       oauthRuntimeRepositoryInventoryVerified &&
       tokenSessionRepositoryInventoryVerified &&
       authMiddlewareRepositoryInventoryVerified &&
       remoteMcpDeploymentRepositoryInventoryVerified,
+    fp0118RouteInventoryDurabilityVerified:
+      noNewRoutePathRepositoryInventoryVerified &&
+      protectedResourceRouteRepositoryInventoryVerified &&
+      wwwAuthenticateRouteRepositoryInventoryVerified,
+    noNewRoutePathRepositoryInventoryVerified,
     oauthRuntimeRepositoryInventoryVerified,
     protectedResourceRouteRepositoryInventoryVerified,
     remoteMcpDeploymentRepositoryInventoryVerified,
@@ -228,8 +253,18 @@ function isSafeDocsOrProofAbsenceText(line: string) {
 function isRuntimePath(path: string) {
   return (
     path.startsWith("apps/control-plane/src/") ||
+    /^apps\/web\/app\/.*\/route\.ts$/u.test(path) ||
     path.startsWith("apps/web/app/api/") ||
     path.startsWith("apps/web/pages/api/")
+  );
+}
+
+function isRouteLikeRuntimePath(path: string) {
+  return (
+    /^apps\/web\/app\/.*\/route\.ts$/u.test(path) ||
+    path.startsWith("apps/web/pages/api/") ||
+    /^apps\/control-plane\/src\/.*\/routes\.ts$/u.test(path) ||
+    /^apps\/control-plane\/src\/.*(?:route|router|controller)\.ts$/u.test(path)
   );
 }
 

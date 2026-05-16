@@ -4,6 +4,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import {
   FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
   FP0113_OAUTH_SECURITY_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   buildMcpToolDescriptorContracts,
@@ -850,6 +851,7 @@ function changedFilesAreAllowed() {
     FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
     "plans/FP-0117-read-only-chatgpt-app-mcp-oauth-token-session-auth-implementation-sequencing-master-plan.md",
     "plans/FP-0118-read-only-chatgpt-app-mcp-protected-resource-metadata-auth-challenge-readiness-contracts.md",
+    FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,

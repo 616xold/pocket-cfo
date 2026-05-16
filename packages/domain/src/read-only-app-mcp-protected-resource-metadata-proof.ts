@@ -1,6 +1,7 @@
 import { z } from "zod";
 import {
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
   MCP_PROTECTED_RESOURCE_METADATA_BEARER_METHODS,
   MCP_PROTECTED_RESOURCE_METADATA_FORBIDDEN_BEARER_METHODS,
   MCP_PROTECTED_RESOURCE_METADATA_SCHEMA_VERSION,
@@ -81,7 +82,29 @@ export const McpProtectedResourceMetadataProofSchema = z
     noFinanceWrite: trueLiteral,
     fp0118BoundaryVerified: trueLiteral,
     fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified: trueLiteral,
-    fp0119Absent: trueLiteral,
+    fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
+      trueLiteral,
+    fp0120Absent: trueLiteral,
+    protectedResourceMetadataRouteSequencingPlanBoundaryVerified: trueLiteral,
+    noRouteBehaviorChangeFromFp0119: trueLiteral,
+    noNewRoutePathFromFp0119: trueLiteral,
+    noProtectedResourceMetadataRouteFromFp0119: trueLiteral,
+    noWwwAuthenticateRouteBehaviorFromFp0119: trueLiteral,
+    noOauthImplementationFromFp0119: trueLiteral,
+    noTokenSessionImplementationFromFp0119: trueLiteral,
+    noAuthMiddlewareImplementationFromFp0119: trueLiteral,
+    noRemoteMcpDeploymentFromFp0119: trueLiteral,
+    noDeploymentConfigFromFp0119: trueLiteral,
+    noAppsSdkResourceFromFp0119: trueLiteral,
+    noAppSubmissionFromFp0119: trueLiteral,
+    noDbQueriesFromFp0119: trueLiteral,
+    noSchemaMigrationsFromFp0119: trueLiteral,
+    noPackageScriptsFromFp0119: trueLiteral,
+    noOpenAiApiCallsFromFp0119: trueLiteral,
+    noProviderExternalCallsFromFp0119: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0119: trueLiteral,
+    noPublicAssetsSubmissionArtifactsFromFp0119: trueLiteral,
+    noListingCopyGeneratedPublicProseFromFp0119: trueLiteral,
     fp0117OauthImplementationSequencingBoundaryStillVerified: trueLiteral,
     fp0116RemoteHostResourceBoundaryStillVerified: trueLiteral,
     fp0115RemoteHostImplementationSequencingBoundaryStillVerified:
@@ -300,7 +323,10 @@ export function buildMcpProtectedResourceMetadataProof(
       input.fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified ??
       true,
     fp0118BoundaryVerified: input.fp0118BoundaryVerified ?? true,
-    fp0119Absent: input.fp0119Absent ?? true,
+    fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
+      input.fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified ??
+      true,
+    fp0120Absent: input.fp0120Absent ?? true,
     localProofOnly: true,
     noAppSubmission: input.noAppSubmission ?? true,
     noAppsSdkResourceImplementation:
@@ -318,19 +344,53 @@ export function buildMcpProtectedResourceMetadataProof(
     noOauthImplementation: input.noOauthImplementation ?? true,
     noOpenAiApiCalls: input.noOpenAiApiCalls ?? true,
     noOpenAiClientOrKeyUsage: input.noOpenAiClientOrKeyUsage ?? true,
+    noAppSubmissionFromFp0119: input.noAppSubmissionFromFp0119 ?? true,
+    noAppsSdkResourceFromFp0119:
+      input.noAppsSdkResourceFromFp0119 ?? true,
+    noAuthMiddlewareImplementationFromFp0119:
+      input.noAuthMiddlewareImplementationFromFp0119 ?? true,
+    noDbQueriesFromFp0119: input.noDbQueriesFromFp0119 ?? true,
+    noDeploymentConfigFromFp0119:
+      input.noDeploymentConfigFromFp0119 ?? true,
+    noListingCopyGeneratedPublicProseFromFp0119:
+      input.noListingCopyGeneratedPublicProseFromFp0119 ?? true,
+    noNewRoutePathFromFp0119: input.noNewRoutePathFromFp0119 ?? true,
+    noOauthImplementationFromFp0119:
+      input.noOauthImplementationFromFp0119 ?? true,
+    noOpenAiApiCallsFromFp0119: input.noOpenAiApiCallsFromFp0119 ?? true,
     noPackageScriptsAdded: input.noPackageScriptsAdded ?? true,
+    noPackageScriptsFromFp0119:
+      input.noPackageScriptsFromFp0119 ?? true,
     noProtectedResourceMetadataRouteImplementation:
       input.noProtectedResourceMetadataRouteImplementation ?? true,
+    noProtectedResourceMetadataRouteFromFp0119:
+      input.noProtectedResourceMetadataRouteFromFp0119 ?? true,
     noProviderCalls: input.noProviderCalls ?? true,
+    noProviderExternalCallsFromFp0119:
+      input.noProviderExternalCallsFromFp0119 ?? true,
     noPublicAssets: input.noPublicAssets ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0119:
+      input.noPublicAssetsSubmissionArtifactsFromFp0119 ?? true,
     noRemoteMcpDeployment: input.noRemoteMcpDeployment ?? true,
+    noRemoteMcpDeploymentFromFp0119:
+      input.noRemoteMcpDeploymentFromFp0119 ?? true,
     noRouteBehaviorChange: input.noRouteBehaviorChange ?? true,
+    noRouteBehaviorChangeFromFp0119:
+      input.noRouteBehaviorChangeFromFp0119 ?? true,
     noSchemaMigrationsAdded: input.noSchemaMigrationsAdded ?? true,
+    noSchemaMigrationsFromFp0119:
+      input.noSchemaMigrationsFromFp0119 ?? true,
     noSourceMutation: input.noSourceMutation ?? true,
+    noSourceMutationFinanceWriteFromFp0119:
+      input.noSourceMutationFinanceWriteFromFp0119 ?? true,
     noTokenSessionImplementation:
       input.noTokenSessionImplementation ?? true,
+    noTokenSessionImplementationFromFp0119:
+      input.noTokenSessionImplementationFromFp0119 ?? true,
     noWwwAuthenticateRouteBehaviorImplementation:
       input.noWwwAuthenticateRouteBehaviorImplementation ?? true,
+    noWwwAuthenticateRouteBehaviorFromFp0119:
+      input.noWwwAuthenticateRouteBehaviorFromFp0119 ?? true,
     protectedResourceAuthorizationServersBoundaryVerified:
       input.protectedResourceAuthorizationServersBoundaryVerified ??
       McpProtectedResourceAuthorizationServersBoundarySchema.safeParse(
@@ -349,6 +409,9 @@ export function buildMcpProtectedResourceMetadataProof(
     protectedResourceMetadataContractsVerified:
       input.protectedResourceMetadataContractsVerified ??
       allContractsParse(contracts),
+    protectedResourceMetadataRouteSequencingPlanBoundaryVerified:
+      input.protectedResourceMetadataRouteSequencingPlanBoundaryVerified ??
+      true,
     protectedResourceMetadataDocumentBoundaryVerified:
       input.protectedResourceMetadataDocumentBoundaryVerified ??
       McpProtectedResourceMetadataDocumentBoundarySchema.safeParse(
@@ -527,8 +590,68 @@ export function verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts(inpu
   );
 }
 
-export function verifyFp0119Absent(repoPaths: readonly string[]) {
-  return !repoPaths.some((path) => /(^|\/)FP-0119/u.test(path));
+export function verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan(input: {
+  repoPaths: readonly string[];
+  planText?: string;
+}) {
+  const fp0119Hits = input.repoPaths.filter((path) =>
+    /(^|\/)FP-0119/u.test(path),
+  );
+  if (fp0119Hits.length === 0) return true;
+  return (
+    fp0119Hits.length === 1 &&
+    fp0119Hits[0] ===
+      FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH &&
+    fp0119PlanTextBoundaryVerified(input.planText ?? "")
+  );
+}
+
+export function verifyFp0119ProtectedResourceMetadataRouteSequencingPlanBoundary(input: {
+  repoPaths: readonly string[];
+  planText: string;
+}) {
+  const fp0119Hits = input.repoPaths.filter((path) =>
+    /(^|\/)FP-0119/u.test(path),
+  );
+  return (
+    fp0119Hits.length === 1 &&
+    fp0119Hits[0] ===
+      FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH &&
+    fp0119PlanTextBoundaryVerified(input.planText)
+  );
+}
+
+export function verifyFp0120Absent(repoPaths: readonly string[]) {
+  return !repoPaths.some((path) => /(^|\/)FP-0120/u.test(path));
+}
+
+export function verifyFp0119PlanningTextRequiredTopics(planText: string) {
+  const normalized = normalize(planText);
+  return {
+    planningTextIncludesAuthenticatedCompanyBinding: normalized.includes(
+      "authenticated company binding",
+    ),
+    planningTextIncludesCanonicalUriPrerequisite:
+      normalized.includes("canonical public resource uri") ||
+      normalized.includes("canonical resource uri prerequisite"),
+    planningTextIncludesFp0120Absence: normalized.includes(
+      "fp-0120 remains absent",
+    ),
+    planningTextIncludesMetadataDocumentTests: normalized.includes(
+      "metadata document tests",
+    ),
+    planningTextIncludesNoTokenLeakage: normalized.includes(
+      "no token leakage",
+    ),
+    planningTextIncludesProtectedResourceMetadataRouteSequencing:
+      normalized.includes(
+        "protected-resource metadata route implementation sequencing",
+      ),
+    planningTextIncludesRouteTests: normalized.includes("route tests"),
+    planningTextIncludesWwwAuthenticateSequencing:
+      normalized.includes("www-authenticate") &&
+      normalized.includes("challenge sequencing"),
+  };
 }
 
 export function textHasProtectedResourceTokenLeakage(value: string) {
@@ -666,6 +789,42 @@ function fp0118PlanTextBoundaryVerified(planText: string) {
     "no new route path",
     "fp-0119 remains absent",
   ].every((requiredText) => normalized.includes(requiredText));
+}
+
+function fp0119PlanTextBoundaryVerified(planText: string) {
+  const normalized = normalize(planText);
+  const topics = verifyFp0119PlanningTextRequiredTopics(planText);
+  return (
+    [
+      "docs-and-plan plus proof-gate compatibility",
+      "protected-resource metadata route implementation sequencing",
+      "www-authenticate resource_metadata challenge sequencing",
+      "does not implement protected-resource metadata routes",
+      "does not implement www-authenticate challenge behavior",
+      "does not implement oauth",
+      "does not implement token/session",
+      "does not implement auth middleware",
+      "does not change /mcp route behavior",
+      "does not add route paths",
+      "does not deploy remote mcp",
+      "does not add deployment config",
+      "does not add apps sdk resources",
+      "public app submission remains future-only",
+      "fp-0120 remains absent",
+      "canonical public resource uri",
+      "authorization_servers",
+      "scopes_supported",
+      "bearer_methods_supported",
+      ".well-known/oauth-protected-resource",
+      "route tests",
+      "metadata document tests",
+      "no token leakage",
+      "authenticated company binding",
+      "token passthrough",
+      "public /mcp",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    Object.values(topics).every(Boolean)
+  );
 }
 
 function normalize(value: string) {

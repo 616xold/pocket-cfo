@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
   McpOauthImplementationSequencingProofSchema,
   buildMcpOauthImplementationSequencingProof,
   isFp0117OauthSequencingNoOpenAiProofSourcePath,
@@ -13,7 +14,8 @@ import {
   verifyFp0117PlanningTextRequiredTopics,
   verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
-  verifyFp0119Absent,
+  verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan,
+  verifyFp0120Absent,
 } from "../packages/domain/src/index.ts";
 
 const FP0116_PLAN =
@@ -45,6 +47,9 @@ const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
 const planText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
 const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
+const fp0119PlanText = safeRead(
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
+);
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
   readChangedExecutableSource(),
@@ -128,7 +133,12 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
         planText: fp0118PlanText,
         repoPaths,
       }),
-    fp0119Absent: verifyFp0119Absent(repoPaths),
+    fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
+      verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan({
+        planText: fp0119PlanText,
+        repoPaths,
+      }),
+    fp0120Absent: verifyFp0120Absent(repoPaths),
     noAppSubmissionFromFp0117: scopeScan.noAppSubmission,
     noAppsSdkResourceFromFp0117: scopeScan.noAppsSdkResource,
     noAuthMiddlewareImplementationFromFp0117:
