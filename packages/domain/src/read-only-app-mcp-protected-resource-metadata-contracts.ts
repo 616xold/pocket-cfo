@@ -13,6 +13,9 @@ export const MCP_PROTECTED_RESOURCE_METADATA_SCHEMA_VERSION =
 export const FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH =
   "plans/FP-0118-read-only-chatgpt-app-mcp-protected-resource-metadata-auth-challenge-readiness-contracts.md";
 
+export const FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH =
+  "plans/FP-0119-read-only-chatgpt-app-mcp-protected-resource-metadata-route-implementation-sequencing-master-plan.md";
+
 export const MCP_PROTECTED_RESOURCE_METADATA_BEARER_METHODS = [
   "header",
 ] as const;

@@ -30,9 +30,11 @@ import {
 } from "./read-only-app-mcp-remote-host-resource";
 import {
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
+  FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
   verifyFp0118AbsentOrLocalProtectedResourceMetadataContracts,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
-  verifyFp0119Absent,
+  verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan,
+  verifyFp0120Absent,
 } from "./read-only-app-mcp-protected-resource-metadata";
 import { verifyMcpRemoteHostReadinessRepositoryInventory } from "./read-only-app-mcp-remote-host-readiness";
 
@@ -71,10 +73,13 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     ).toBe(false);
   });
 
-  it("accepts exactly one FP-0117 docs-and-plan bridge and exact FP-0118 local protected-resource metadata contracts while FP-0119 remains absent", () => {
+  it("accepts exact FP-0117, FP-0118, and FP-0119 planning bridge while FP-0120 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
     const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
+    const fp0119PlanText = safeRead(
+      FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
+    );
     const topics = verifyFp0117PlanningTextRequiredTopics(planText);
     const proof = buildMcpOauthImplementationSequencingProof({
       ...topics,
@@ -88,7 +93,14 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
           planText: fp0118PlanText,
           repoPaths,
         }),
-      fp0119Absent: verifyFp0119Absent(repoPaths),
+      fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
+        verifyFp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlan(
+          {
+            planText: fp0119PlanText,
+            repoPaths,
+          },
+        ),
+      fp0120Absent: verifyFp0120Absent(repoPaths),
       oauthImplementationSequencingPlanBoundaryVerified:
         verifyFp0117OauthImplementationSequencingPlanBoundary({
           planText,
@@ -107,7 +119,10 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(repoPaths.filter((path) => /(^|\/)FP-0118/u.test(path))).toEqual([
       FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
     ]);
-    expect(repoPaths.filter((path) => /(^|\/)FP-0119/u.test(path))).toEqual([]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0119/u.test(path))).toEqual([
+      FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0120/u.test(path))).toEqual([]);
     expect(
       proof.fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified,
     ).toBe(true);
@@ -117,7 +132,11 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(proof.protectedResourceMetadataContractsFoundationVerified).toBe(
       true,
     );
-    expect(proof.fp0119Absent).toBe(true);
+    expect(
+      proof
+        .fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0120Absent).toBe(true);
     expect(proof.noRouteBehaviorChangeFromFp0117).toBe(true);
     expect(proof.noNewRoutePathFromFp0117).toBe(true);
     expect(proof.noProtectedResourceMetadataRouteFromFp0117).toBe(true);
