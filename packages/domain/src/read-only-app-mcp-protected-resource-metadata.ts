@@ -4,3 +4,6 @@ export * from "./read-only-app-mcp-protected-resource-metadata-builder-contracts
 export * from "./read-only-app-mcp-protected-resource-metadata-builder-proof";
 export * from "./read-only-app-mcp-protected-resource-metadata-inventory";
 export * from "./read-only-app-mcp-protected-resource-metadata-proof";
+export * from "./read-only-app-mcp-protected-resource-metadata-route-input";
+export * from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
+export * from "./read-only-app-mcp-protected-resource-metadata-route-input-proof";

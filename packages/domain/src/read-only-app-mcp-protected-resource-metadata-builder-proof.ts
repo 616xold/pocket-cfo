@@ -16,6 +16,10 @@ import {
   type McpProtectedResourceMetadataBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata-builder-contracts";
 import {
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PLAN_PREFIX,
+} from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
+import {
   buildProtectedResourceMetadataDocument,
   deriveProtectedResourceMetadataRouteResponseContract,
   validateProtectedResourceMetadataBuilderInput,
@@ -70,7 +74,9 @@ export const McpProtectedResourceMetadataBuilderProofSchema = z
     noSourceMutation: trueLiteral,
     noFinanceWrite: trueLiteral,
     fp0122BoundaryVerified: trueLiteral,
-    fp0123Absent: trueLiteral,
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+      trueLiteral,
+    fp0124Absent: trueLiteral,
     fp0121ProtectedResourceMetadataRoutePlanningBoundaryStillVerified:
       trueLiteral,
     fp0120CanonicalResourceAuthServerBoundaryStillVerified: trueLiteral,
@@ -328,7 +334,10 @@ export function buildMcpProtectedResourceMetadataBuilderProof(
       input.fp0121ProtectedResourceMetadataRoutePlanningBoundaryStillVerified ??
       true,
     fp0122BoundaryVerified: input.fp0122BoundaryVerified ?? true,
-    fp0123Absent: input.fp0123Absent ?? true,
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+      input.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified ??
+      true,
+    fp0124Absent: input.fp0124Absent ?? true,
     localProofOnly: true,
     noAppSubmission: input.noAppSubmission ?? true,
     noAppsSdkResourceImplementation:
@@ -393,6 +402,71 @@ export function verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary(in
 
 export function verifyFp0123Absent(repoPaths: readonly string[]) {
   return !repoPaths.some((path) => path.includes(FP0123_PLAN_PREFIX));
+}
+
+export function verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts(input: {
+  repoPaths: readonly string[];
+  planText?: string;
+}) {
+  const hits = fp0123Hits(input.repoPaths);
+  if (hits.length === 0) return true;
+  return (
+    hits.length === 1 &&
+    hits[0] === FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH &&
+    fp0123PlanTextBoundaryVerified(input.planText ?? "")
+  );
+}
+
+export function verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary(input: {
+  repoPaths: readonly string[];
+  planText: string;
+}) {
+  const hits = fp0123Hits(input.repoPaths);
+  return (
+    hits.length === 1 &&
+    hits[0] === FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH &&
+    fp0123PlanTextBoundaryVerified(input.planText)
+  );
+}
+
+export function verifyFp0124Absent(repoPaths: readonly string[]) {
+  return !repoPaths.some((path) => path.includes(FP0124_PLAN_PREFIX));
+}
+
+export function verifyFp0123PlanningTextRequiredTopics(planText: string) {
+  const normalized = normalize(planText);
+  return {
+    planningTextIncludesAuthenticatedCompanyBinding:
+      normalized.includes("authenticated company binding") &&
+      normalized.includes("prerequisite"),
+    planningTextIncludesAuthorizationServersEvidence:
+      normalized.includes("authorization-server evidence") ||
+      normalized.includes("authorization_servers"),
+    planningTextIncludesBuilderOutput:
+      normalized.includes("fp-0122 builder") &&
+      (normalized.includes("builder output") ||
+        normalized.includes("builder-valid input")),
+    planningTextIncludesCanonicalUriEvidence:
+      normalized.includes("canonical uri") &&
+      normalized.includes("evidence"),
+    planningTextIncludesFp0124Absent:
+      normalized.includes("does not create fp-0124") ||
+      normalized.includes("fp-0124 absent"),
+    planningTextIncludesLocalProofOnly:
+      normalized.includes("local/proof-only/read-only") &&
+      normalized.includes("contract"),
+    planningTextIncludesMcpUnchanged:
+      normalized.includes("/mcp") && normalized.includes("unchanged"),
+    planningTextIncludesNoRuntime:
+      normalized.includes("does not implement oauth") &&
+      normalized.includes("does not add a route"),
+    planningTextIncludesNoTokenLeakage: normalized.includes(
+      "no-token-leakage",
+    ),
+    planningTextIncludesRoutePathDecision:
+      normalized.includes("route-path decision") &&
+      normalized.includes(".well-known/oauth-protected-resource/mcp"),
+  };
 }
 
 export function verifyFp0122PlanningTextRequiredTopics(planText: string) {
@@ -499,6 +573,10 @@ function fp0122Hits(repoPaths: readonly string[]) {
   return repoPaths.filter((path) => /(^|\/)FP-0122/u.test(path));
 }
 
+function fp0123Hits(repoPaths: readonly string[]) {
+  return repoPaths.filter((path) => /(^|\/)FP-0123/u.test(path));
+}
+
 function fp0122PlanTextBoundaryVerified(planText: string) {
   const normalized = normalize(planText);
   return (
@@ -524,6 +602,38 @@ function fp0122PlanTextBoundaryVerified(planText: string) {
       "does not change /mcp behavior",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     Object.values(verifyFp0122PlanningTextRequiredTopics(planText)).every(
+      Boolean,
+    )
+  );
+}
+
+function fp0123PlanTextBoundaryVerified(planText: string) {
+  const normalized = normalize(planText);
+  return (
+    [
+      "local/proof-only/read-only",
+      "route-input evidence",
+      "route-path decision",
+      "does not add a route",
+      "does not register a protected-resource metadata endpoint",
+      "does not implement www-authenticate route behavior",
+      "does not implement oauth",
+      "does not implement token/session",
+      "does not implement auth middleware",
+      "does not deploy remote mcp",
+      "does not add deployment config",
+      "does not add apps sdk resources",
+      "does not create fp-0124",
+      "accepted canonical public mcp resource uri",
+      "authorization_servers",
+      "fp-0122 builder",
+      "no-token-leakage",
+      "authenticated company binding",
+      "/mcp unchanged",
+      "route implementation deferred",
+      "www-authenticate behavior deferred",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    Object.values(verifyFp0123PlanningTextRequiredTopics(planText)).every(
       Boolean,
     )
   );

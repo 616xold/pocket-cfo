@@ -97,7 +97,9 @@ export const McpProtectedResourceMetadataProofSchema = z
       trueLiteral,
     fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified:
       trueLiteral,
-    fp0123Absent: trueLiteral,
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+      trueLiteral,
+    fp0124Absent: trueLiteral,
     protectedResourceMetadataBuilderContractsFoundationVerified: trueLiteral,
     noRouteBehaviorChangeFromFp0122: trueLiteral,
     noNewRoutePathFromFp0122: trueLiteral,
@@ -415,7 +417,10 @@ export function buildMcpProtectedResourceMetadataProof(
     fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified:
       input.fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified ??
       true,
-    fp0123Absent: input.fp0123Absent ?? true,
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+      input.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified ??
+      true,
+    fp0124Absent: input.fp0124Absent ?? true,
     protectedResourceMetadataBuilderContractsFoundationVerified:
       input.protectedResourceMetadataBuilderContractsFoundationVerified ??
       buildMcpProtectedResourceMetadataBuilderContracts().proofContract

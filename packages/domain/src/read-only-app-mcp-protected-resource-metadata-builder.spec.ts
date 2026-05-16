@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   McpProtectedResourceMetadataBuilderDocumentSchema,
   McpProtectedResourceMetadataBuilderProofSchema,
   McpProtectedResourceMetadataRouteResponseContractSchema,
@@ -15,7 +16,9 @@ import {
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122PlanningTextRequiredTopics,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
+  verifyFp0124Absent,
   type McpProtectedResourceMetadataBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata";
 
@@ -29,15 +32,22 @@ const validInput = {
 } satisfies McpProtectedResourceMetadataBuilderInput;
 
 describe("FP-0122 protected-resource metadata document-builder contracts", () => {
-  it("accepts exactly one FP-0122 path while FP-0123 remains absent", () => {
+  it("accepts exactly one FP-0122 path and exactly one FP-0123 route-input path while FP-0124 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
     );
+    const fp0123PlanText = safeRead(
+      FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+    );
     const fp0122Hits = repoPaths.filter((path) => /(^|\/)FP-0122/u.test(path));
+    const fp0123Hits = repoPaths.filter((path) => /(^|\/)FP-0123/u.test(path));
 
     expect(fp0122Hits).toEqual([
       FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+    ]);
+    expect(fp0123Hits).toEqual([
+      FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     ]);
     expect(
       verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts({
@@ -56,7 +66,19 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
         Boolean,
       ),
     ).toBe(true);
-    expect(verifyFp0123Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
+        planText: fp0123PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
+        planText: fp0123PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0124Absent(repoPaths)).toBe(true);
   });
 
   it("builds a bounded metadata document only from accepted inputs", () => {
@@ -365,7 +387,10 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
     expect(proof.noProviderCalls).toBe(true);
     expect(proof.noSourceMutation).toBe(true);
     expect(proof.noFinanceWrite).toBe(true);
-    expect(proof.fp0123Absent).toBe(true);
+    expect(
+      proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
+    ).toBe(true);
+    expect(proof.fp0124Absent).toBe(true);
     expect(
       proof.fp0121ProtectedResourceMetadataRoutePlanningBoundaryStillVerified,
     ).toBe(true);

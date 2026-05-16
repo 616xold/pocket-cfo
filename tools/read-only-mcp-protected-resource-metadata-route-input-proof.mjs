@@ -7,8 +7,8 @@ import {
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
-  McpProtectedResourceMetadataBuilderProofSchema,
-  buildMcpProtectedResourceMetadataBuilderProof,
+  McpProtectedResourceMetadataRouteInputProofSchema,
+  buildMcpProtectedResourceMetadataRouteInputProof,
   textHasProtectedResourceMetadataBuilderTokenLeakage,
   verifyFp0117OauthImplementationSequencingPlanBoundary,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
@@ -16,7 +16,7 @@ import {
   verifyFp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanning,
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0124Absent,
 } from "../packages/domain/src/index.ts";
 
@@ -30,32 +30,27 @@ const ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 
 const allowedChangedPaths = new Set([
-  FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder-contracts.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder-proof.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.spec.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-contracts.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.spec.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder-proof.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.spec.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-proof.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata.spec.ts",
   "packages/domain/src/read-only-app-mcp-canonical-resource-proof.ts",
   "packages/domain/src/read-only-app-mcp-canonical-resource-proof-schema.ts",
   "packages/domain/src/read-only-app-mcp-canonical-resource-proof.spec.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-proof.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata.spec.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-proof.ts",
   "packages/domain/src/read-only-app-mcp-remote-host-resource.spec.ts",
-  "packages/domain/src/index.ts",
-  "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
   "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+  "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
   "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
   "tools/read-only-mcp-protected-resource-metadata-proof.mjs",
   "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
-  "tools/read-only-mcp-route-adapter-proof.mjs",
   "README.md",
   "CODEX_README.md",
   "START_HERE.md",
@@ -71,20 +66,19 @@ const allowedChangedPaths = new Set([
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
-const changedSource = readChangedExecutableSource();
-const fp0122PlanText = safeRead(
-  FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
-);
+const routeSource = safeRead(ROUTE_PATH);
+const scopeScan = changedScopeScan();
 const fp0123PlanText = safeRead(
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+);
+const fp0122PlanText = safeRead(
+  FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
 );
 const fp0121PlanText = safeRead(
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
 );
-const routeSource = safeRead(ROUTE_PATH);
-const scopeScan = changedScopeScan(changedSource, routeSource);
-const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
-  buildMcpProtectedResourceMetadataBuilderProof({
+const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
+  buildMcpProtectedResourceMetadataRouteInputProof({
     fp0100PublicSecurityBoundaryStillVerified: docsBoundary(FP0100_PLAN, [
       "public-app security boundary",
       "local/proof-only",
@@ -124,25 +118,26 @@ const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
         planText: fp0121PlanText,
         repoPaths,
       }),
-    fp0122BoundaryVerified:
+    fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
         planText: fp0122PlanText,
         repoPaths,
       }),
-    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
-      verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
+    fp0123BoundaryVerified:
+      verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
         planText: fp0123PlanText,
         repoPaths,
       }),
     fp0124Absent: verifyFp0124Absent(repoPaths),
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
-    noAuthMiddlewareImplementation:
-      scopeScan.noAuthMiddlewareImplementation,
+    noAuthMiddlewareImplementation: scopeScan.noAuthMiddlewareImplementation,
+    noAutonomousAction: scopeScan.noAutonomousAction,
     noDbQueriesAdded: scopeScan.noDbQueries,
     noDeploymentConfig: scopeScan.noDeploymentConfig,
     noExternalCommunications: scopeScan.noExternalCommunications,
     noFinanceWrite: scopeScan.noFinanceWrite,
+    noGeneratedFinanceAdvice: scopeScan.noGeneratedFinanceAdvice,
     noGeneratedPublicProse: scopeScan.noGeneratedPublicProse,
     noListingCopy: scopeScan.noListingCopy,
     noModelCalls: scopeScan.noModelCalls,
@@ -160,44 +155,47 @@ const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
     noRemoteMcpDeployment: scopeScan.noRemoteMcpDeployment,
     noRouteBehaviorChange:
       scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
+    noRuntimeCodexFinanceOutput: scopeScan.noRuntimeCodexFinanceOutput,
     noSchemaMigrationsAdded: scopeScan.noSchemaMigrations,
     noSourceMutation: scopeScan.noSourceMutation,
     noTokenSessionImplementation: scopeScan.noTokenSessionImplementation,
     noWwwAuthenticateRouteBehaviorImplementation:
-      scopeScan.noWwwAuthenticateRouteBehavior && localRouteShapeStillVerified(),
+      scopeScan.noWwwAuthenticateRouteBehavior &&
+      localRouteShapeStillVerified(),
   }),
 );
 
 if (textHasProtectedResourceMetadataBuilderTokenLeakage(JSON.stringify(proof))) {
-  throw new Error("FP-0122 builder proof output leaked token-like material");
+  throw new Error("FP-0123 route-input proof output leaked token-like material");
 }
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
-    throw new Error(
-      `FP-0122 protected-resource metadata builder proof failed: ${key}`,
-    );
+    throw new Error(`FP-0123 route-input proof failed: ${key}`);
   }
 }
 
 console.log(JSON.stringify(proof, null, 2));
 
-function changedScopeScan(changedExecutableSource, currentRouteSource) {
-  const publicAssetPattern =
-    /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu;
-  const routeRuntimePattern =
-    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u;
+function changedScopeScan() {
+  const changedExecutableSource = readChangedExecutableSource();
+  const openAiEnvKey = ["OPENAI", "API", "KEY"].join("_");
+  const openAiEnvPrefix = ["OPENAI", "API"].join("_");
   const changedFilesAllowed = changedPaths.every(
     (path) =>
       allowedChangedPaths.has(path) ||
-      /^packages\/domain\/src\/read-only-app-mcp-protected-resource-metadata-builder.*\.ts$/u.test(
+      /^packages\/domain\/src\/read-only-app-mcp-protected-resource-metadata.*\.ts$/u.test(
         path,
       ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-(?:canonical-resource|protected-resource-metadata|oauth-implementation-sequencing|remote-host-resource|oauth-security|remote-host-readiness|evidence-tool-dispatch|protocol-envelope|endpoint-route-ownership|endpoint-architecture|public-security).*\.ts$/u.test(
+      /^packages\/domain\/src\/read-only-app-mcp-(?:canonical-resource|oauth-implementation-sequencing|remote-host-resource|oauth-security|remote-host-readiness|evidence-tool-dispatch|protocol-envelope|endpoint-route-ownership|endpoint-architecture|public-security).*\.ts$/u.test(
         path,
       ) ||
       /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path),
   );
+  const publicAssetPattern =
+    /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu;
+  const routeRuntimePattern =
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u;
 
   return {
     noAppSubmission:
@@ -220,16 +218,21 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|setCookie)\s*\(/u.test(
         changedExecutableSource,
       ),
+    noAutonomousAction:
+      changedFilesAllowed &&
+      !/\b(?:autonomousAction|autoApprove|autoRelease|autoSubmit|autoFile)\s*\(/u.test(
+        changedExecutableSource,
+      ),
     noDbQueries:
       changedFilesAllowed &&
       !changedPaths.some((path) => /^packages\/db\//u.test(path)) &&
-      !/\b(?:drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
+      !/\b(?:from\s+["']drizzle|drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
         changedExecutableSource,
       ),
     noDeploymentConfig:
       changedFilesAllowed &&
       !changedPaths.some((path) =>
-        /(?:^|\/)(?:vercel\.json|netlify\.toml|render\.ya?ml|fly\.toml|railway\.json|railway\.toml|wrangler\.toml|Dockerfile|docker-compose\.ya?ml|\.github\/workflows\/.*\.ya?ml)$/iu.test(
+        /(?:^|\/)(?:vercel\.json|netlify\.toml|render\.ya?ml|fly\.toml|railway\.json|railway\.toml|wrangler\.toml|apphosting\.ya?ml|Dockerfile|docker-compose\.ya?ml|\.github\/workflows\/.*\.ya?ml)$/iu.test(
           path,
         ),
       ),
@@ -243,12 +246,15 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       !/\b(?:writeFinanceTwin|updateLedger|financeWrite|postLedger|createJournalEntry)\s*\(/u.test(
         changedExecutableSource,
       ),
+    noGeneratedFinanceAdvice:
+      changedFilesAllowed &&
+      !/\b(?:generateFinanceAdvice|draftAdvice|adviceOutput)\s*\(/u.test(
+        changedExecutableSource,
+      ),
     noGeneratedPublicProse:
       changedFilesAllowed &&
       !changedPaths.some((path) =>
-        /(?:generated-public-prose|public-listing|store-listing|listing-copy)/iu.test(
-          path,
-        ),
+        /(?:generated-public-prose|public-listing|store-listing)/iu.test(path),
       ),
     noListingCopy:
       changedFilesAllowed &&
@@ -270,17 +276,13 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       ),
     noOpenAiApiCalls:
       changedFilesAllowed &&
-      !new RegExp(
-        `\\b(?:openai\\s*\\(|${["new", "openai"].join(" ")}|responses\\.create|chat\\.completions|client\\.responses)\\b`,
-        "iu",
-      ).test(changedExecutableSource),
+      !/\b(?:openai\s*\(|new\s+OpenAI|responses\.create|chat\.completions|client\.responses)\b/iu.test(
+        changedExecutableSource,
+      ),
     noOpenAiClientOrKeyUsage:
       changedFilesAllowed &&
       !new RegExp(
-        `\\b(?:${["OPENAI", "API", "KEY"].join("_")}|${[
-          "new",
-          "OpenAI",
-        ].join(" ")}|process\\.env\\.${["OPENAI", "API"].join("_")})\\b`,
+        `\\b(?:${openAiEnvKey}|new\\s+OpenAI|process\\.env\\.${openAiEnvPrefix})\\b`,
         "u",
       ).test(changedExecutableSource),
     noPackageScripts:
@@ -291,7 +293,7 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       changedFilesAllowed &&
       !changedPaths.some((path) => routeRuntimePattern.test(path)) &&
       !/oauth-protected-resource|resource_metadata|protectedResourceMetadataRoute/iu.test(
-        currentRouteSource,
+        routeSource,
       ),
     noProviderCalls:
       changedFilesAllowed &&
@@ -314,6 +316,11 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
     noRouteBehaviorChange:
       changedFilesAllowed &&
       !changedPaths.some((path) => routeRuntimePattern.test(path)),
+    noRuntimeCodexFinanceOutput:
+      changedFilesAllowed &&
+      !/\b(?:runtimeCodexFinanceOutput|codexFinanceOutput)\s*\(/u.test(
+        changedExecutableSource,
+      ),
     noSchemaMigrations:
       changedFilesAllowed &&
       !changedPaths.some(
@@ -335,16 +342,18 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
     noWwwAuthenticateRouteBehavior:
       changedFilesAllowed &&
       !changedPaths.some((path) => routeRuntimePattern.test(path)) &&
-      !/www-authenticate|resource_metadata/iu.test(currentRouteSource),
+      !/www-authenticate|resource_metadata/iu.test(routeSource),
   };
 }
 
 function localRouteShapeStillVerified() {
-  const source = safeRead(ROUTE_PATH);
   return (
-    countMatches(source, /app\.post\("\/mcp"/gu) === 1 &&
-    countMatches(source, /app\.get\("\/mcp"/gu) === 1 &&
-    !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(source)
+    countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
+    countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1 &&
+    !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(routeSource) &&
+    !/resource_metadata|oauth-protected-resource|www-authenticate/iu.test(
+      routeSource,
+    )
   );
 }
 
