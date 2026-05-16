@@ -39,12 +39,15 @@ import {
   FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   verifyFp0120AbsentOrLocalCanonicalResourceAuthServerContracts,
   verifyFp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanning,
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
+  verifyFp0124Absent,
 } from "./read-only-app-mcp-canonical-resource";
 import { verifyMcpRemoteHostReadinessRepositoryInventory } from "./read-only-app-mcp-remote-host-readiness";
 
@@ -83,7 +86,7 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     ).toBe(false);
   });
 
-  it("accepts exact FP-0117 through FP-0122 builder bridge while FP-0123 remains absent", () => {
+  it("accepts exact FP-0117 through FP-0123 route-input bridge while FP-0124 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
     const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
@@ -98,6 +101,9 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     );
     const fp0122PlanText = safeRead(
       FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+    );
+    const fp0123PlanText = safeRead(
+      FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     );
     const topics = verifyFp0117PlanningTextRequiredTopics(planText);
     const proof = buildMcpOauthImplementationSequencingProof({
@@ -136,7 +142,12 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
           planText: fp0122PlanText,
           repoPaths,
         }),
-      fp0123Absent: verifyFp0123Absent(repoPaths),
+      fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+        verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
+          planText: fp0123PlanText,
+          repoPaths,
+        }),
+      fp0124Absent: verifyFp0124Absent(repoPaths),
       protectedResourceMetadataBuilderContractsFoundationVerified:
         verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
           planText: fp0122PlanText,
@@ -179,7 +190,9 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(repoPaths.filter((path) => /(^|\/)FP-0122/u.test(path))).toEqual([
       FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
     ]);
-    expect(repoPaths.filter((path) => /(^|\/)FP-0123/u.test(path))).toEqual([]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0123/u.test(path))).toEqual([
+      FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+    ]);
     expect(
       proof.fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified,
     ).toBe(true);
@@ -203,7 +216,16 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(
       proof.fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified,
     ).toBe(true);
-    expect(proof.fp0123Absent).toBe(true);
+    expect(
+      proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
+    ).toBe(true);
+    expect(proof.fp0124Absent).toBe(true);
+    expect(
+      verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
+        planText: fp0123PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
     expect(
       proof.protectedResourceMetadataBuilderContractsFoundationVerified,
     ).toBe(true);

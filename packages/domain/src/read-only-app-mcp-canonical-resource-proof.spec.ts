@@ -13,6 +13,7 @@ import {
   buildMcpCanonicalResourceAuthServerProof,
   isFp0120CanonicalResourceAuthServerProofSourcePath,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   verifyFp0120AbsentOrLocalCanonicalResourceAuthServerContracts,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
   verifyFp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanning,
@@ -20,7 +21,9 @@ import {
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
+  verifyFp0124Absent,
   verifyMcpCanonicalResourceAuthServerNoOpenAiApiSourceScan,
   verifyMcpCanonicalResourceAuthServerRepositoryInventory,
 } from "./read-only-app-mcp-canonical-resource";
@@ -45,7 +48,7 @@ function verified(value: boolean): true {
 }
 
 describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
-  it("accepts exact FP-0120, FP-0121, and FP-0122 builder paths while FP-0123 remains absent", () => {
+  it("accepts exact FP-0120 through FP-0123 route-input paths while FP-0124 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH);
     const fp0121PlanText = safeRead(
@@ -53,6 +56,9 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     );
     const fp0122PlanText = safeRead(
       FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+    );
+    const fp0123PlanText = safeRead(
+      FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     );
     const fp0120Hits = repoPaths.filter((path) => /(^|\/)FP-0120/u.test(path));
     const fp0121Hits = repoPaths.filter((path) => /(^|\/)FP-0121/u.test(path));
@@ -88,7 +94,14 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
             repoPaths,
           }),
         ),
-      fp0123Absent: verified(verifyFp0123Absent(repoPaths)),
+      fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+        verified(
+          verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
+            planText: fp0123PlanText,
+            repoPaths,
+          }),
+        ),
+      fp0124Absent: verified(verifyFp0124Absent(repoPaths)),
       protectedResourceMetadataBuilderContractsFoundationVerified:
         verified(
           verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
@@ -114,7 +127,9 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     expect(fp0122Hits).toEqual([
       FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
     ]);
-    expect(fp0123Hits).toEqual([]);
+    expect(fp0123Hits).toEqual([
+      FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+    ]);
     expect(proof.fp0120BoundaryVerified).toBe(true);
     expect(
       proof.fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified,
@@ -126,7 +141,16 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     expect(
       proof.fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified,
     ).toBe(true);
-    expect(proof.fp0123Absent).toBe(true);
+    expect(
+      proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
+    ).toBe(true);
+    expect(proof.fp0124Absent).toBe(true);
+    expect(
+      verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
+        planText: fp0123PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
     expect(
       proof.protectedResourceMetadataBuilderContractsFoundationVerified,
     ).toBe(true);
@@ -141,7 +165,7 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     expect(
       McpCanonicalResourceAuthServerProofSchema.safeParse({
         ...proof,
-        fp0123Absent: false,
+        fp0124Absent: false,
       }).success,
     ).toBe(false);
   });

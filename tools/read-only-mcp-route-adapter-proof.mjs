@@ -18,6 +18,7 @@ import {
 import {
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
 } from "../packages/domain/src/read-only-app-mcp-canonical-resource-proof.ts";
 import { registerReadOnlyAppMcpEndpointRoutes } from "../apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 
@@ -859,6 +860,7 @@ function changedFilesAreAllowed() {
     "plans/FP-0120-read-only-chatgpt-app-mcp-canonical-resource-auth-server-readiness-contracts.md",
     FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
     FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+    FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
@@ -889,6 +891,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-protected-resource-metadata-proof.mjs",
     "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
     "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
+    "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
     "tools/benchmark-community-pack-proof.mjs",
     "packages/domain/src/index.ts",
     "packages/domain/src/benchmark-community.spec.ts",

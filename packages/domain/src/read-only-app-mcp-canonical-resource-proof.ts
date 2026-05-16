@@ -38,8 +38,12 @@ import {
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
+  verifyFp0124Absent,
 } from "./read-only-app-mcp-protected-resource-metadata-builder-proof";
 import { FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH } from "./read-only-app-mcp-protected-resource-metadata-builder-contracts";
+import { FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH } from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
 
 type ProofInput = Partial<
   Omit<
@@ -78,7 +82,8 @@ const defaultTrueKeys = [
   "fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified",
   "fp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanningVerified",
   "fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified",
-  "fp0123Absent",
+  "fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified",
+  "fp0124Absent",
   "protectedResourceMetadataBuilderContractsFoundationVerified",
   "noRouteBehaviorChangeFromFp0122",
   "noNewRoutePathFromFp0122",
@@ -354,9 +359,13 @@ export function verifyFp0122Absent(repoPaths: readonly string[]) {
 
 export {
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
+  verifyFp0124Absent,
 };
 
 export function verifyFp0121PlanningTextRequiredTopics(planText: string) {

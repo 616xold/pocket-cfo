@@ -7,6 +7,7 @@ import {
   FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   McpProtectedResourceMetadataProofSchema,
   buildMcpProtectedResourceMetadataProof,
   isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath,
@@ -23,7 +24,8 @@ import {
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0124Absent,
   verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan,
   verifyMcpProtectedResourceMetadataRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -64,6 +66,9 @@ const fp0121PlanText = safeRead(
 );
 const fp0122PlanText = safeRead(
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+);
+const fp0123PlanText = safeRead(
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
 );
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
@@ -182,7 +187,12 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
         planText: fp0122PlanText,
         repoPaths,
       }),
-    fp0123Absent: verifyFp0123Absent(repoPaths),
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+      verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
+        planText: fp0123PlanText,
+        repoPaths,
+      }),
+    fp0124Absent: verifyFp0124Absent(repoPaths),
     protectedResourceMetadataBuilderContractsFoundationVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
         planText: fp0122PlanText,

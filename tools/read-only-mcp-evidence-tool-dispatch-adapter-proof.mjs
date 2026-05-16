@@ -21,11 +21,13 @@ import {
 import {
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   verifyFp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanning,
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123Absent,
+  verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
+  verifyFp0124Absent,
 } from "../packages/domain/src/read-only-app-mcp-canonical-resource-proof.ts";
 import {
   LocalReadOnlyEvidenceToolDispatchAdapter,
@@ -61,6 +63,9 @@ const fp0121PlanText = safeRead(
 );
 const fp0122PlanText = safeRead(
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+);
+const fp0123PlanText = safeRead(
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
 );
 const routeRuntimeSource = [
   ROUTE_PATH,
@@ -345,7 +350,12 @@ const proof = {
       planText: fp0122PlanText,
       repoPaths,
     }),
-  fp0123Absent: verifyFp0123Absent(repoPaths),
+  fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+    verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
+      planText: fp0123PlanText,
+      repoPaths,
+    }),
+  fp0124Absent: verifyFp0124Absent(repoPaths),
   protectedResourceMetadataBuilderContractsFoundationVerified:
     verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
       planText: fp0122PlanText,
@@ -1006,11 +1016,13 @@ function changedFileScopeScan() {
     "tools/read-only-mcp-protected-resource-metadata-proof.mjs",
     "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
     "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
+    "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
     "tools/benchmark-community-pack-proof.mjs",
     "plans/FP-0118-read-only-chatgpt-app-mcp-protected-resource-metadata-auth-challenge-readiness-contracts.md",
     "plans/FP-0120-read-only-chatgpt-app-mcp-canonical-resource-auth-server-readiness-contracts.md",
     FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
     FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+    FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     "README.md",
     "CODEX_README.md",
     "START_HERE.md",

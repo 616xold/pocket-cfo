@@ -54,7 +54,9 @@ export const McpCanonicalResourceAuthServerProofSchema = z
       trueLiteral,
     fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified:
       trueLiteral,
-    fp0123Absent: trueLiteral,
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
+      trueLiteral,
+    fp0124Absent: trueLiteral,
     protectedResourceMetadataBuilderContractsFoundationVerified: trueLiteral,
     noRouteBehaviorChangeFromFp0122: trueLiteral,
     noNewRoutePathFromFp0122: trueLiteral,
