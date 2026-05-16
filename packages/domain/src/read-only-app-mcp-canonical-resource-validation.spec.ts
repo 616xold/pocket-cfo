@@ -1,7 +1,10 @@
 import { describe, expect, it } from "vitest";
 import {
+  MCP_CANONICAL_RESOURCE_INVALID_METADATA_DERIVATION_CANDIDATES,
   MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH,
   deriveMcpProtectedResourceMetadataUrl,
+  invalidCanonicalUriCandidatesFailClosedBeforeDerivation,
+  tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri,
   validateMcpCanonicalPublicResourceUriCandidate,
   validateMcpWwwAuthenticateResourceMetadataUrl,
 } from "./read-only-app-mcp-canonical-resource";
@@ -81,26 +84,31 @@ describe("FP-0120 canonical public resource URI validation", () => {
 
   it("derives RFC 9728 protected-resource metadata route paths", () => {
     expect(
-      deriveMcpProtectedResourceMetadataUrl("https://mcp.example.com/mcp"),
+      deriveMcpProtectedResourceMetadataUrl(
+        "https://mcp.canonical-finance-host.com/mcp",
+      ),
     ).toEqual({
-      canonicalResourceUri: "https://mcp.example.com/mcp",
+      canonicalResourceUri: "https://mcp.canonical-finance-host.com/mcp",
       metadataRoutePath: "/.well-known/oauth-protected-resource/mcp",
       metadataUrl:
-        "https://mcp.example.com/.well-known/oauth-protected-resource/mcp",
+        "https://mcp.canonical-finance-host.com/.well-known/oauth-protected-resource/mcp",
       rfc9728WellKnownPath: MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH,
     });
     expect(
-      deriveMcpProtectedResourceMetadataUrl("https://mcp.example.com"),
+      deriveMcpProtectedResourceMetadataUrl(
+        "https://mcp.canonical-finance-host.com",
+      ),
     ).toMatchObject({
       metadataRoutePath: "/.well-known/oauth-protected-resource",
-      metadataUrl: "https://mcp.example.com/.well-known/oauth-protected-resource",
+      metadataUrl:
+        "https://mcp.canonical-finance-host.com/.well-known/oauth-protected-resource",
     });
   });
 
   it("requires WWW-Authenticate resource_metadata URL to match the derived URL", () => {
-    const canonicalResourceUri = "https://mcp.example.com/mcp";
+    const canonicalResourceUri = "https://mcp.canonical-finance-host.com/mcp";
     const derived =
-      "https://mcp.example.com/.well-known/oauth-protected-resource/mcp";
+      "https://mcp.canonical-finance-host.com/.well-known/oauth-protected-resource/mcp";
 
     expect(
       validateMcpWwwAuthenticateResourceMetadataUrl({
@@ -112,8 +120,45 @@ describe("FP-0120 canonical public resource URI validation", () => {
       validateMcpWwwAuthenticateResourceMetadataUrl({
         canonicalResourceUri,
         resourceMetadataUrl:
-          "https://mcp.example.com/.well-known/oauth-protected-resource",
+          "https://mcp.canonical-finance-host.com/.well-known/oauth-protected-resource",
       }).resourceMetadataUrlMatchesDerived,
     ).toBe(false);
+  });
+
+  it("fails closed before derivation for invalid canonical URI candidates", () => {
+    const invalidDerivation =
+      invalidCanonicalUriCandidatesFailClosedBeforeDerivation(
+        MCP_CANONICAL_RESOURCE_INVALID_METADATA_DERIVATION_CANDIDATES,
+      );
+
+    expect(
+      tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(
+        "https://mcp.canonical-finance-host.com/mcp",
+      ),
+    ).toMatchObject({
+      derivation: {
+        metadataRoutePath: "/.well-known/oauth-protected-resource/mcp",
+        metadataUrl:
+          "https://mcp.canonical-finance-host.com/.well-known/oauth-protected-resource/mcp",
+      },
+      derived: true,
+      validation: { accepted: true },
+    });
+    expect(
+      invalidDerivation.invalidCanonicalUriMetadataDerivationFailsClosed,
+    ).toBe(true);
+
+    for (const candidate of MCP_CANONICAL_RESOURCE_INVALID_METADATA_DERIVATION_CANDIDATES) {
+      expect(
+        tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(candidate),
+      ).toMatchObject({
+        derivation: null,
+        derived: false,
+        validation: { accepted: false },
+      });
+      expect(() => deriveMcpProtectedResourceMetadataUrl(candidate)).toThrow(
+        /invalid canonical MCP resource URI/u,
+      );
+    }
   });
 });

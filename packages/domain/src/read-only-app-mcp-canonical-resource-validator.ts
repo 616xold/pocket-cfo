@@ -25,6 +25,31 @@ export type McpProtectedResourceMetadataUrlDerivation = {
   rfc9728WellKnownPath: typeof MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH;
 };
 
+export type McpProtectedResourceMetadataUrlDerivationAttempt =
+  | {
+      derived: true;
+      derivation: McpProtectedResourceMetadataUrlDerivation;
+      validation: McpCanonicalPublicResourceUriValidation & { accepted: true };
+    }
+  | {
+      derived: false;
+      derivation: null;
+      validation: McpCanonicalPublicResourceUriValidation;
+    };
+
+export const MCP_CANONICAL_RESOURCE_INVALID_METADATA_DERIVATION_CANDIDATES = [
+  "https://mcp.canonical-finance-host.com/mcp?companyKey=acme",
+  "https://mcp.canonical-finance-host.com/mcp#fragment",
+  "https://mcp.canonical-finance-host.com/companyKey/acme/mcp",
+  "https://mcp.canonical-finance-host.com/user/sohaib/mcp",
+  "https://mcp.canonical-finance-host.com/org/acme/mcp",
+  "https://mcp.canonical-finance-host.com/workspace/acme/mcp",
+  "https://mcp.canonical-finance-host.com/{tenant}/mcp",
+  "https://localhost:3000/mcp",
+  "https://pocket-cfo.ngrok-free.app/mcp",
+  "https://your-mcp.example.com/mcp",
+] as const;
+
 export function validateMcpCanonicalPublicResourceUriCandidate(
   uri: string,
 ): McpCanonicalPublicResourceUriValidation {
@@ -79,16 +104,51 @@ export function validateMcpCanonicalPublicResourceUriCandidate(
 export function deriveMcpProtectedResourceMetadataUrl(
   canonicalResourceUri: string,
 ): McpProtectedResourceMetadataUrlDerivation {
+  const derivationAttempt =
+    tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(
+      canonicalResourceUri,
+    );
+
+  if (!derivationAttempt.derived) {
+    throw new Error(
+      "Cannot derive protected-resource metadata URL from an invalid canonical MCP resource URI candidate",
+    );
+  }
+
+  return derivationAttempt.derivation;
+}
+
+export function tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(
+  canonicalResourceUri: string,
+): McpProtectedResourceMetadataUrlDerivationAttempt {
+  const validation = validateMcpCanonicalPublicResourceUriCandidate(
+    canonicalResourceUri,
+  );
+
+  if (!validation.accepted) {
+    return {
+      derivation: null,
+      derived: false,
+      validation,
+    };
+  }
+
   const parsed = new URL(canonicalResourceUri);
   const pathSuffix = parsed.pathname === "/" ? "" : parsed.pathname;
-  const metadataUrl = `${parsed.origin}${MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH}${pathSuffix}${parsed.search}`;
+  const metadataUrl = `${parsed.origin}${MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH}${pathSuffix}`;
   const metadataPath = new URL(metadataUrl).pathname;
 
   return {
-    canonicalResourceUri,
-    metadataRoutePath: metadataPath,
-    metadataUrl,
-    rfc9728WellKnownPath: MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH,
+    derivation: {
+      canonicalResourceUri,
+      metadataRoutePath: metadataPath,
+      metadataUrl,
+      rfc9728WellKnownPath: MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH,
+    },
+    derived: true,
+    validation: validation as McpCanonicalPublicResourceUriValidation & {
+      accepted: true;
+    },
   };
 }
 
@@ -96,14 +156,47 @@ export function validateMcpWwwAuthenticateResourceMetadataUrl(input: {
   canonicalResourceUri: string;
   resourceMetadataUrl: string;
 }) {
-  const derived = deriveMcpProtectedResourceMetadataUrl(
-    input.canonicalResourceUri,
-  );
+  const derivationAttempt =
+    tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(
+      input.canonicalResourceUri,
+    );
+
+  if (!derivationAttempt.derived) {
+    return {
+      canonicalResourceUriAccepted: false,
+      derivedMetadataUrl: null,
+      resourceMetadataUrlMatchesDerived: false,
+    };
+  }
+
+  const derived = derivationAttempt.derivation;
 
   return {
+    canonicalResourceUriAccepted: true,
     derivedMetadataUrl: derived.metadataUrl,
     resourceMetadataUrlMatchesDerived:
       input.resourceMetadataUrl === derived.metadataUrl,
+  };
+}
+
+export function invalidCanonicalUriCandidatesFailClosedBeforeDerivation(
+  candidates: readonly string[],
+) {
+  const results = candidates.map((candidate) => ({
+    candidate,
+    derivationAttempt:
+      tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(candidate),
+    validation: validateMcpCanonicalPublicResourceUriCandidate(candidate),
+  }));
+
+  return {
+    invalidCanonicalUriMetadataDerivationFailsClosed: results.every(
+      ({ derivationAttempt, validation }) =>
+        validation.accepted === false &&
+        derivationAttempt.derived === false &&
+        derivationAttempt.derivation === null,
+    ),
+    rejectedCandidates: results.map(({ candidate }) => candidate),
   };
 }
 

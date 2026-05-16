@@ -4,6 +4,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
+  MCP_CANONICAL_RESOURCE_AUTH_SERVER_KNOWN_SAFE_ROUTE_LIKE_PATHS,
   McpAuthorizationServersReadinessBoundarySchema,
   McpCanonicalResourceAuthServerProofSchema,
   McpNoRouteRuntimeBoundarySchema,
@@ -138,8 +139,16 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     const proof = buildMcpCanonicalResourceAuthServerProof({
       authMiddlewareRepositoryInventoryVerified:
         inventory.authMiddlewareRepositoryInventoryVerified,
+      canonicalResourceRouteInventoryDurabilityVerified:
+        inventory.canonicalResourceRouteInventoryDurabilityVerified,
+      fp0120PostmergeRouteInventoryProofVerified:
+        inventory.fp0120PostmergeRouteInventoryProofVerified,
+      knownSafeRouteInventoryVerified:
+        inventory.knownSafeRouteInventoryVerified,
       noNewRoutePathRepositoryInventoryVerified:
         inventory.noNewRoutePathRepositoryInventoryVerified,
+      noUnexpectedRouteLikeRepositoryPaths:
+        inventory.noUnexpectedRouteLikeRepositoryPaths,
       oauthRuntimeRepositoryInventoryVerified:
         inventory.oauthRuntimeRepositoryInventoryVerified,
       protectedResourceMetadataRouteRepositoryInventoryVerified:
@@ -154,7 +163,11 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
 
     expect(inventory).toMatchObject({
       authMiddlewareRepositoryInventoryVerified: true,
+      canonicalResourceRouteInventoryDurabilityVerified: true,
+      fp0120PostmergeRouteInventoryProofVerified: true,
+      knownSafeRouteInventoryVerified: true,
       noNewRoutePathRepositoryInventoryVerified: true,
+      noUnexpectedRouteLikeRepositoryPaths: true,
       oauthRuntimeRepositoryInventoryVerified: true,
       protectedResourceMetadataRouteRepositoryInventoryVerified: true,
       remoteMcpDeploymentRepositoryInventoryVerified: true,
@@ -162,19 +175,87 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
       wwwAuthenticateRouteRepositoryInventoryVerified: true,
     });
     expect(proof.noRouteRuntimeBoundaryVerified).toBe(true);
+    expect(proof.knownSafeRouteInventoryVerified).toBe(true);
+    expect(proof.noUnexpectedRouteLikeRepositoryPaths).toBe(true);
+    expect(proof.canonicalResourceRouteInventoryDurabilityVerified).toBe(true);
+    expect(proof.fp0120PostmergeRouteInventoryProofVerified).toBe(true);
+  });
+
+  it("proves current repo route inventory against known-safe shipped route files", () => {
+    const inventory = verifyMcpCanonicalResourceAuthServerRepositoryInventory({
+      changedPaths: ["docs/notes/fp-0120-safe-doc.md"],
+      repoPaths: [
+        ...MCP_CANONICAL_RESOURCE_AUTH_SERVER_KNOWN_SAFE_ROUTE_LIKE_PATHS,
+        "docs/notes/fp-0120-safe-doc.md",
+      ],
+    });
+
+    expect(inventory.routeLikeRepositoryPaths).toEqual([
+      ...MCP_CANONICAL_RESOURCE_AUTH_SERVER_KNOWN_SAFE_ROUTE_LIKE_PATHS,
+    ]);
+    expect(inventory.missingKnownSafeRouteLikeRepositoryPaths).toEqual([]);
+    expect(inventory.unexpectedRouteLikeRepositoryPaths).toEqual([]);
+    expect(inventory).toMatchObject({
+      canonicalResourceRouteInventoryDurabilityVerified: true,
+      fp0120PostmergeRouteInventoryProofVerified: true,
+      knownSafeRouteInventoryVerified: true,
+      noNewRoutePathRepositoryInventoryVerified: true,
+      noUnexpectedRouteLikeRepositoryPaths: true,
+    });
   });
 
   it("rejects simulated route/runtime expansion and provider public assets", () => {
+    const currentSafeRoutePaths = [
+      ...MCP_CANONICAL_RESOURCE_AUTH_SERVER_KNOWN_SAFE_ROUTE_LIKE_PATHS,
+    ];
+
     expect(
       verifyMcpCanonicalResourceAuthServerRepositoryInventory({
         repoPaths: [
+          ...currentSafeRoutePaths,
           "apps/web/app/.well-known/oauth-protected-resource/mcp/route.ts",
         ],
       }).protectedResourceMetadataRouteRepositoryInventoryVerified,
     ).toBe(false);
     expect(
       verifyMcpCanonicalResourceAuthServerRepositoryInventory({
-        repoPaths: [],
+        repoPaths: [
+          ...currentSafeRoutePaths,
+          "apps/web/app/.well-known/oauth-protected-resource/route.ts",
+        ],
+      }).fp0120PostmergeRouteInventoryProofVerified,
+    ).toBe(false);
+    expect(
+      verifyMcpCanonicalResourceAuthServerRepositoryInventory({
+        repoPaths: [
+          ...currentSafeRoutePaths,
+          "apps/web/app/protected-resource-metadata/route.ts",
+        ],
+      }).protectedResourceMetadataRouteRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      verifyMcpCanonicalResourceAuthServerRepositoryInventory({
+        repoPaths: [
+          ...currentSafeRoutePaths,
+          "apps/web/pages/api/oauth-protected-resource.ts",
+        ],
+      }).protectedResourceMetadataRouteRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      verifyMcpCanonicalResourceAuthServerRepositoryInventory({
+        repoPaths: [
+          ...currentSafeRoutePaths,
+          "apps/control-plane/src/modules/new-public-route/routes.ts",
+        ],
+      }),
+    ).toMatchObject({
+      knownSafeRouteInventoryVerified: false,
+      noNewRoutePathRepositoryInventoryVerified: false,
+      noUnexpectedRouteLikeRepositoryPaths: false,
+    });
+    expect(
+      verifyMcpCanonicalResourceAuthServerRepositoryInventory({
+        repoPaths: currentSafeRoutePaths,
         routeSourceText:
           'reply.header("WWW-Authenticate", "Bearer resource_metadata=...")',
       }).wwwAuthenticateRouteRepositoryInventoryVerified,
