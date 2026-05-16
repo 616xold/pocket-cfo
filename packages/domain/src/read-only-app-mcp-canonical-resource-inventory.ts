@@ -1,10 +1,22 @@
 import { z } from "zod";
+import {
+  MCP_PROTECTED_RESOURCE_METADATA_KNOWN_SAFE_ROUTE_LIKE_PATHS,
+  listMcpProtectedResourceMetadataRouteLikeRepositoryPaths,
+} from "./read-only-app-mcp-protected-resource-metadata-inventory";
 
 const trueLiteral = z.literal(true);
+
+export const MCP_CANONICAL_RESOURCE_AUTH_SERVER_KNOWN_SAFE_ROUTE_LIKE_PATHS = [
+  ...MCP_PROTECTED_RESOURCE_METADATA_KNOWN_SAFE_ROUTE_LIKE_PATHS,
+] as const;
 
 export const McpCanonicalResourceAuthServerInventoryProofSchema = z
   .object({
     noNewRoutePathRepositoryInventoryVerified: trueLiteral,
+    knownSafeRouteInventoryVerified: trueLiteral,
+    noUnexpectedRouteLikeRepositoryPaths: trueLiteral,
+    canonicalResourceRouteInventoryDurabilityVerified: trueLiteral,
+    fp0120PostmergeRouteInventoryProofVerified: trueLiteral,
     protectedResourceMetadataRouteRepositoryInventoryVerified: trueLiteral,
     wwwAuthenticateRouteRepositoryInventoryVerified: trueLiteral,
     oauthRuntimeRepositoryInventoryVerified: trueLiteral,
@@ -27,64 +39,146 @@ type InventoryBooleans = Record<
 export type McpCanonicalResourceAuthServerInventoryInput =
   Partial<InventoryBooleans>;
 
+export type McpCanonicalResourceAuthServerRepositoryInventoryResult = Omit<
+  InventoryBooleans,
+  "canonicalResourceAuthServerNoOpenAiApiSourceScanVerified"
+> & {
+  missingKnownSafeRouteLikeRepositoryPaths: readonly string[];
+  routeLikeRepositoryPaths: readonly string[];
+  unexpectedRouteLikeRepositoryPaths: readonly string[];
+};
+
 export function buildMcpCanonicalResourceAuthServerInventoryProof(
   input: McpCanonicalResourceAuthServerInventoryInput = {},
 ): McpCanonicalResourceAuthServerInventoryProof {
+  const noNewRoutePathRepositoryInventoryVerified =
+    input.noNewRoutePathRepositoryInventoryVerified ?? true;
+  const knownSafeRouteInventoryVerified =
+    input.knownSafeRouteInventoryVerified ?? true;
+  const noUnexpectedRouteLikeRepositoryPaths =
+    input.noUnexpectedRouteLikeRepositoryPaths ?? true;
+  const protectedResourceMetadataRouteRepositoryInventoryVerified =
+    input.protectedResourceMetadataRouteRepositoryInventoryVerified ?? true;
+  const wwwAuthenticateRouteRepositoryInventoryVerified =
+    input.wwwAuthenticateRouteRepositoryInventoryVerified ?? true;
+  const oauthRuntimeRepositoryInventoryVerified =
+    input.oauthRuntimeRepositoryInventoryVerified ?? true;
+  const tokenSessionRepositoryInventoryVerified =
+    input.tokenSessionRepositoryInventoryVerified ?? true;
+  const authMiddlewareRepositoryInventoryVerified =
+    input.authMiddlewareRepositoryInventoryVerified ?? true;
+  const remoteMcpDeploymentRepositoryInventoryVerified =
+    input.remoteMcpDeploymentRepositoryInventoryVerified ?? true;
+  const canonicalResourceAuthServerNoOpenAiApiSourceScanVerified =
+    input.canonicalResourceAuthServerNoOpenAiApiSourceScanVerified ?? true;
+
   return McpCanonicalResourceAuthServerInventoryProofSchema.parse({
-    authMiddlewareRepositoryInventoryVerified:
-      input.authMiddlewareRepositoryInventoryVerified ?? true,
-    canonicalResourceAuthServerNoOpenAiApiSourceScanVerified:
-      input.canonicalResourceAuthServerNoOpenAiApiSourceScanVerified ?? true,
-    noNewRoutePathRepositoryInventoryVerified:
-      input.noNewRoutePathRepositoryInventoryVerified ?? true,
-    oauthRuntimeRepositoryInventoryVerified:
-      input.oauthRuntimeRepositoryInventoryVerified ?? true,
-    protectedResourceMetadataRouteRepositoryInventoryVerified:
-      input.protectedResourceMetadataRouteRepositoryInventoryVerified ?? true,
-    remoteMcpDeploymentRepositoryInventoryVerified:
-      input.remoteMcpDeploymentRepositoryInventoryVerified ?? true,
-    tokenSessionRepositoryInventoryVerified:
-      input.tokenSessionRepositoryInventoryVerified ?? true,
-    wwwAuthenticateRouteRepositoryInventoryVerified:
-      input.wwwAuthenticateRouteRepositoryInventoryVerified ?? true,
+    authMiddlewareRepositoryInventoryVerified,
+    canonicalResourceAuthServerNoOpenAiApiSourceScanVerified,
+    canonicalResourceRouteInventoryDurabilityVerified:
+      (input.canonicalResourceRouteInventoryDurabilityVerified ?? true) &&
+      noNewRoutePathRepositoryInventoryVerified &&
+      knownSafeRouteInventoryVerified &&
+      noUnexpectedRouteLikeRepositoryPaths &&
+      protectedResourceMetadataRouteRepositoryInventoryVerified &&
+      wwwAuthenticateRouteRepositoryInventoryVerified,
+    fp0120PostmergeRouteInventoryProofVerified:
+      (input.fp0120PostmergeRouteInventoryProofVerified ?? true) &&
+      noNewRoutePathRepositoryInventoryVerified &&
+      knownSafeRouteInventoryVerified &&
+      noUnexpectedRouteLikeRepositoryPaths &&
+      protectedResourceMetadataRouteRepositoryInventoryVerified &&
+      wwwAuthenticateRouteRepositoryInventoryVerified,
+    knownSafeRouteInventoryVerified,
+    noNewRoutePathRepositoryInventoryVerified,
+    noUnexpectedRouteLikeRepositoryPaths,
+    oauthRuntimeRepositoryInventoryVerified,
+    protectedResourceMetadataRouteRepositoryInventoryVerified,
+    remoteMcpDeploymentRepositoryInventoryVerified,
+    tokenSessionRepositoryInventoryVerified,
+    wwwAuthenticateRouteRepositoryInventoryVerified,
   });
 }
 
 export function verifyMcpCanonicalResourceAuthServerRepositoryInventory(input: {
   repoPaths: readonly string[];
   changedPaths?: readonly string[];
+  knownSafeRouteLikePaths?: readonly string[];
   routeSourceText?: string;
-}) {
+}): McpCanonicalResourceAuthServerRepositoryInventoryResult {
   const repoPaths = input.repoPaths.map(normalizePath);
   const runtimePaths = repoPaths.filter(isRuntimePath);
+  const routeLikeRepositoryPaths =
+    listMcpProtectedResourceMetadataRouteLikeRepositoryPaths(repoPaths);
+  const knownSafeRouteLikePaths = sortUnique(
+    (
+      input.knownSafeRouteLikePaths ??
+      MCP_CANONICAL_RESOURCE_AUTH_SERVER_KNOWN_SAFE_ROUTE_LIKE_PATHS
+    ).map(normalizePath),
+  );
+  const unexpectedRouteLikeRepositoryPaths = routeLikeRepositoryPaths.filter(
+    (path) => !knownSafeRouteLikePaths.includes(path),
+  );
+  const missingKnownSafeRouteLikeRepositoryPaths = knownSafeRouteLikePaths.filter(
+    (path) => !routeLikeRepositoryPaths.includes(path),
+  );
+  const noUnexpectedRouteLikeRepositoryPaths =
+    unexpectedRouteLikeRepositoryPaths.length === 0;
+  const knownSafeRouteInventoryVerified =
+    noUnexpectedRouteLikeRepositoryPaths &&
+    missingKnownSafeRouteLikeRepositoryPaths.length === 0;
   const routeSourceText = input.routeSourceText ?? "";
   const changedRouteLikePaths = (input.changedPaths ?? [])
     .map(normalizePath)
     .filter(isRouteLikeRuntimePath);
   const noNewRoutePathRepositoryInventoryVerified =
     changedRouteLikePaths.length === 0 &&
+    knownSafeRouteInventoryVerified &&
     !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText) &&
     !routeSourceHasWwwAuthenticateBehavior(routeSourceText);
+  const protectedResourceMetadataRouteRepositoryInventoryVerified =
+    !runtimePaths.some(isProtectedResourceMetadataRoutePath) &&
+    !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText);
+  const wwwAuthenticateRouteRepositoryInventoryVerified =
+    !runtimePaths.some(isWwwAuthenticateRouteBehaviorPath) &&
+    !routeSourceHasWwwAuthenticateBehavior(routeSourceText);
+  const oauthRuntimeRepositoryInventoryVerified =
+    !runtimePaths.some(isOauthRuntimePath);
+  const tokenSessionRepositoryInventoryVerified = !runtimePaths.some(
+    isTokenSessionRuntimePath,
+  );
+  const authMiddlewareRepositoryInventoryVerified = !runtimePaths.some(
+    isAuthMiddlewareRuntimePath,
+  );
+  const remoteMcpDeploymentRepositoryInventoryVerified = !repoPaths.some(
+    isRemoteMcpRuntimePath,
+  );
 
   return {
-    authMiddlewareRepositoryInventoryVerified: !runtimePaths.some(
-      isAuthMiddlewareRuntimePath,
-    ),
+    authMiddlewareRepositoryInventoryVerified,
+    canonicalResourceRouteInventoryDurabilityVerified:
+      noNewRoutePathRepositoryInventoryVerified &&
+      knownSafeRouteInventoryVerified &&
+      noUnexpectedRouteLikeRepositoryPaths &&
+      protectedResourceMetadataRouteRepositoryInventoryVerified &&
+      wwwAuthenticateRouteRepositoryInventoryVerified,
+    fp0120PostmergeRouteInventoryProofVerified:
+      noNewRoutePathRepositoryInventoryVerified &&
+      knownSafeRouteInventoryVerified &&
+      noUnexpectedRouteLikeRepositoryPaths &&
+      protectedResourceMetadataRouteRepositoryInventoryVerified &&
+      wwwAuthenticateRouteRepositoryInventoryVerified,
+    knownSafeRouteInventoryVerified,
+    missingKnownSafeRouteLikeRepositoryPaths,
     noNewRoutePathRepositoryInventoryVerified,
-    oauthRuntimeRepositoryInventoryVerified:
-      !runtimePaths.some(isOauthRuntimePath),
-    protectedResourceMetadataRouteRepositoryInventoryVerified:
-      !runtimePaths.some(isProtectedResourceMetadataRoutePath) &&
-      !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText),
-    remoteMcpDeploymentRepositoryInventoryVerified: !repoPaths.some(
-      isRemoteMcpRuntimePath,
-    ),
-    tokenSessionRepositoryInventoryVerified: !runtimePaths.some(
-      isTokenSessionRuntimePath,
-    ),
-    wwwAuthenticateRouteRepositoryInventoryVerified:
-      !runtimePaths.some(isWwwAuthenticateRouteBehaviorPath) &&
-      !routeSourceHasWwwAuthenticateBehavior(routeSourceText),
+    noUnexpectedRouteLikeRepositoryPaths,
+    oauthRuntimeRepositoryInventoryVerified,
+    protectedResourceMetadataRouteRepositoryInventoryVerified,
+    routeLikeRepositoryPaths,
+    remoteMcpDeploymentRepositoryInventoryVerified,
+    tokenSessionRepositoryInventoryVerified,
+    unexpectedRouteLikeRepositoryPaths,
+    wwwAuthenticateRouteRepositoryInventoryVerified,
   };
 }
 
@@ -220,11 +314,17 @@ function routeSourceHasProtectedResourceMetadataBehavior(sourceText: string) {
 }
 
 function routeSourceHasWwwAuthenticateBehavior(sourceText: string) {
-  return /(?:www-authenticate|resource_metadata)/iu.test(sourceText);
+  return /(?:www-authenticate|resource_metadata|reply\.header\(\s*["']WWW-Authenticate["'])/iu.test(
+    sourceText,
+  );
 }
 
 function normalizePath(path: string) {
   return path.trim().replace(/^\.\/+/u, "");
+}
+
+function sortUnique(values: readonly string[]) {
+  return [...new Set(values)].sort();
 }
 
 function escapeRegExp(value: string) {

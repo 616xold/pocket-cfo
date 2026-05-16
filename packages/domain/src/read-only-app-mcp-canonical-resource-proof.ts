@@ -27,7 +27,11 @@ import {
 import { McpCanonicalResourceAuthServerProofSchema } from "./read-only-app-mcp-canonical-resource-proof-schema";
 import type { McpCanonicalResourceAuthServerProof } from "./read-only-app-mcp-canonical-resource-proof-schema";
 import {
+  MCP_CANONICAL_RESOURCE_INVALID_METADATA_DERIVATION_CANDIDATES,
   deriveMcpProtectedResourceMetadataUrl,
+  invalidCanonicalUriCandidatesFailClosedBeforeDerivation,
+  tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri,
+  validateMcpCanonicalPublicResourceUriCandidate,
   validateMcpWwwAuthenticateResourceMetadataUrl,
 } from "./read-only-app-mcp-canonical-resource-validator";
 
@@ -95,17 +99,40 @@ const defaultTrueKeys = [
   "fp0100PublicSecurityBoundaryStillVerified",
 ] as const satisfies readonly (keyof McpCanonicalResourceAuthServerProof)[];
 
+const VALID_CANONICAL_RESOURCE_URI = "https://mcp.canonical-finance-host.com/mcp";
+const VALID_PROTECTED_RESOURCE_METADATA_URL =
+  "https://mcp.canonical-finance-host.com/.well-known/oauth-protected-resource/mcp";
+
 export function buildMcpCanonicalResourceAuthServerProof(
   input: ProofInput = {},
 ): McpCanonicalResourceAuthServerProof {
   const contracts = buildMcpCanonicalResourceAuthServerContracts();
   const derived = deriveMcpProtectedResourceMetadataUrl(
-    "https://mcp.example.com/mcp",
+    VALID_CANONICAL_RESOURCE_URI,
   );
   const challenge = validateMcpWwwAuthenticateResourceMetadataUrl({
-    canonicalResourceUri: "https://mcp.example.com/mcp",
-    resourceMetadataUrl: "https://mcp.example.com/.well-known/oauth-protected-resource/mcp",
+    canonicalResourceUri: VALID_CANONICAL_RESOURCE_URI,
+    resourceMetadataUrl: VALID_PROTECTED_RESOURCE_METADATA_URL,
   });
+  const derivationAttempt =
+    tryDeriveMcpProtectedResourceMetadataUrlFromCanonicalUri(
+      VALID_CANONICAL_RESOURCE_URI,
+    );
+  const canonicalResourceValidation =
+    validateMcpCanonicalPublicResourceUriCandidate(VALID_CANONICAL_RESOURCE_URI);
+  const invalidDerivation =
+    invalidCanonicalUriCandidatesFailClosedBeforeDerivation(
+      MCP_CANONICAL_RESOURCE_INVALID_METADATA_DERIVATION_CANDIDATES,
+    );
+  const queryFragmentSelectorDerivation =
+    invalidCanonicalUriCandidatesFailClosedBeforeDerivation([
+      "https://mcp.canonical-finance-host.com/mcp?companyKey=acme",
+      "https://mcp.canonical-finance-host.com/mcp#fragment",
+      "https://mcp.canonical-finance-host.com/companyKey/acme/mcp",
+      "https://mcp.canonical-finance-host.com/user/sohaib/mcp",
+      "https://mcp.canonical-finance-host.com/org/acme/mcp",
+      "https://mcp.canonical-finance-host.com/workspace/acme/mcp",
+    ]);
 
   return McpCanonicalResourceAuthServerProofSchema.parse({
     ...buildMcpCanonicalResourceAuthServerInventoryProof(input),
@@ -152,6 +179,14 @@ export function buildMcpCanonicalResourceAuthServerProof(
         contracts.canonicalUriNoSelectorAuthorityBoundary,
       ).success,
     localProofOnly: true,
+    invalidCanonicalUriMetadataDerivationFailsClosed:
+      input.invalidCanonicalUriMetadataDerivationFailsClosed ??
+      invalidDerivation.invalidCanonicalUriMetadataDerivationFailsClosed,
+    metadataRouteDerivationRequiresAcceptedCanonicalUri:
+      input.metadataRouteDerivationRequiresAcceptedCanonicalUri ??
+      (canonicalResourceValidation.accepted &&
+        derivationAttempt.derived &&
+        derivationAttempt.validation.accepted),
     noLocalTunnelAuthorityBoundaryVerified:
       input.noLocalTunnelAuthorityBoundaryVerified ??
       McpNoLocalTunnelAuthorityBoundarySchema.safeParse(
@@ -169,6 +204,9 @@ export function buildMcpCanonicalResourceAuthServerProof(
       ).success &&
         derived.metadataRoutePath ===
           `${MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH}/mcp`),
+    queryFragmentSelectorCanonicalUriCannotDeriveMetadataUrl:
+      input.queryFragmentSelectorCanonicalUriCannotDeriveMetadataUrl ??
+      queryFragmentSelectorDerivation.invalidCanonicalUriMetadataDerivationFailsClosed,
     resourceIndicatorBoundaryVerified:
       input.resourceIndicatorBoundaryVerified ??
       McpResourceIndicatorBoundarySchema.safeParse(
@@ -179,7 +217,9 @@ export function buildMcpCanonicalResourceAuthServerProof(
       input.wwwAuthenticateMetadataUrlBoundaryVerified ??
       (McpWwwAuthenticateMetadataUrlBoundarySchema.safeParse(
         contracts.wwwAuthenticateMetadataUrlBoundary,
-      ).success && challenge.resourceMetadataUrlMatchesDerived),
+      ).success &&
+        challenge.canonicalResourceUriAccepted &&
+        challenge.resourceMetadataUrlMatchesDerived),
   });
 }
 

@@ -52,6 +52,8 @@ const proof = McpCanonicalResourceAuthServerProofSchema.parse(
   buildMcpCanonicalResourceAuthServerProof({
     authMiddlewareRepositoryInventoryVerified:
       inventory.authMiddlewareRepositoryInventoryVerified,
+    canonicalResourceRouteInventoryDurabilityVerified:
+      inventory.canonicalResourceRouteInventoryDurabilityVerified,
     canonicalResourceAuthServerNoOpenAiApiSourceScanVerified:
       durableSourceScan.canonicalResourceAuthServerNoOpenAiApiSourceScanVerified,
     canonicalResourceAuthServerContractsFoundationVerified:
@@ -108,7 +110,11 @@ const proof = McpCanonicalResourceAuthServerProofSchema.parse(
       planText: fp0120PlanText,
       repoPaths,
     }),
+    fp0120PostmergeRouteInventoryProofVerified:
+      inventory.fp0120PostmergeRouteInventoryProofVerified,
     fp0121Absent: verifyFp0121Absent(repoPaths),
+    knownSafeRouteInventoryVerified:
+      inventory.knownSafeRouteInventoryVerified,
     noAppSubmission: scopeScan.noAppSubmission,
     noAppSubmissionFromFp0120: scopeScan.noAppSubmission,
     noAppsSdkResourceFromFp0120: scopeScan.noAppsSdkResource,
@@ -192,6 +198,10 @@ const proof = McpCanonicalResourceAuthServerProofSchema.parse(
     noWwwAuthenticateRouteBehaviorImplementation:
       scopeScan.noWwwAuthenticateRouteBehavior &&
       inventory.wwwAuthenticateRouteRepositoryInventoryVerified,
+    noNewRoutePathRepositoryInventoryVerified:
+      inventory.noNewRoutePathRepositoryInventoryVerified,
+    noUnexpectedRouteLikeRepositoryPaths:
+      inventory.noUnexpectedRouteLikeRepositoryPaths,
     oauthRuntimeRepositoryInventoryVerified:
       inventory.oauthRuntimeRepositoryInventoryVerified,
     protectedResourceMetadataRouteRepositoryInventoryVerified:

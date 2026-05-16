@@ -17,11 +17,15 @@ FP-0120 does not choose a production host/provider or authorization server. It d
 - [x] 2026-05-16T17:24:08Z: Applied the minimum proof-gate bridge so FP-0118/FP-0117-era gates accept exactly this FP-0120 local canonical resource/auth-server contract foundation while FP-0121 remains absent and FP-0119/0118/0117/0116/0113/0107/0106/0100 boundaries remain verified.
 - [x] 2026-05-16T17:24:08Z: Refreshed directly stale README/CODEX/START/ACTIVE_DOCS/PROJECT_STATE/V2_BOUNDARY/ROADMAP/security/demo/plugin docs to mark FP-0119 shipped, FP-0120 active, FP-0121 absent, and protected-resource route/OAuth/remote/public-app/submission work blocked until later plan gates.
 - [x] 2026-05-16T17:24:08Z: Ran the full requested validation ladder before closeout. `git diff --check`, the new FP-0120 proof, all existing proof tools, focused domain specs, focused control-plane route/service/dispatcher/app-wiring specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed.
+- [x] 2026-05-16T14:39:01Z: Started targeted post-merge hardening correction on `codex/v2an-read-only-chatgpt-app-mcp-canonical-resource-auth-server-proof-hardening-local-v1` after confirming PR #289 and PR #288 are merged to `main`, the worktree was clean, local Postgres and MinIO were available, FP-0120 exists, FP-0121 is absent, and the requested baseline proof ladder passed before edits.
+- [x] 2026-05-16T14:39:01Z: Hardened FP-0120 canonical-resource proofing so branch-diff plus dirty-worktree route-like changed-path scanning is preserved and the current repository route-like inventory is also compared against the shipped known-safe route inventory. Added `knownSafeRouteInventoryVerified`, `noUnexpectedRouteLikeRepositoryPaths`, `canonicalResourceRouteInventoryDurabilityVerified`, and `fp0120PostmergeRouteInventoryProofVerified` to the FP-0120 proof output.
+- [x] 2026-05-16T14:39:01Z: Hardened metadata URL derivation so invalid canonical URI candidates fail closed before derivation. The proof now includes `metadataRouteDerivationRequiresAcceptedCanonicalUri`, `invalidCanonicalUriMetadataDerivationFailsClosed`, and `queryFragmentSelectorCanonicalUriCannotDeriveMetadataUrl`.
+- [x] 2026-05-16T14:39:01Z: Refreshed directly stale active docs and `plugins.md` from FP-0120 active wording to shipped wording while keeping FP-0121 absent and route/auth/remote/public-app/submission work future-plan-only.
 
 ## Surprises & Discoveries
 
 - OpenAI Developers exposed only OpenAI Platform API-key setup tools in this thread, not read-only docs search. Per slice policy, official web documentation is used instead. No OpenAI Platform key setup, OpenAI API, model call, provider call, upload, app submission, deployment, or screenshot workflow is used.
-- Current active docs still describe FP-0119 as active and FP-0120 as absent. Because PR #287 is merged and FP-0120 is now the requested successor, those docs are directly stale and must be refreshed in this same branch without widening runtime scope.
+- At original implementation start, active docs described FP-0119 as active and FP-0120 as absent. Those docs were refreshed during FP-0120, and the post-merge hardening correction now marks FP-0120 shipped while keeping FP-0121 absent.
 
 ## Decision Log
 
@@ -32,6 +36,8 @@ FP-0120 does not choose a production host/provider or authorization server. It d
 - Decision: `WWW-Authenticate` `resource_metadata` must point at the derived protected-resource metadata URL, but FP-0120 does not add `WWW-Authenticate` route behavior.
 - Decision: FP-0121 remains absent. Protected-resource metadata route implementation planning should wait for FP-0120 proof results and should not start if this slice uncovers a route/runtime gap.
 - Decision: FP-0120 validation found no route/runtime gap. The next safe step is protected-resource metadata route implementation planning only if it stays narrow and starts from these contracts; public ChatGPT App submission must still wait.
+- Decision: FP-0120 post-merge proof durability must not depend only on branch-diff or dirty-worktree paths. The canonical-resource proof now treats the current repository route-like inventory as durable evidence by comparing it to the shipped known-safe route inventory and failing on any unexpected route-like path, including on a clean post-merge worktree.
+- Decision: Metadata URL derivation must be validation-gated. Invalid canonical URI candidates with query strings, fragments, `companyKey`, user/org/workspace selectors, localhost, local tunnels, placeholder, example, or `your-mcp` values fail closed before any protected-resource metadata URL is derived.
 
 ## Context and Orientation
 
@@ -57,7 +63,7 @@ Add `tools/read-only-mcp-canonical-resource-auth-server-proof.mjs` to emit machi
 
 Bridge only the minimum existing proof gates that still required FP-0120 absence, so they accept exactly this local/proof-only/read-only FP-0120 plan while FP-0121 remains absent.
 
-Refresh directly stale active docs and `plugins.md` so FP-0119 is shipped, FP-0120 is the active local/proof-only canonical resource/auth-server readiness contract slice, and public app submission remains future-only.
+Refresh directly stale active docs and `plugins.md` so FP-0119 and FP-0120 are shipped, FP-0121 remains absent, and public app submission remains future-only.
 
 ## Concrete Steps
 
@@ -130,6 +136,8 @@ GitHub connector product behavior is out of scope. Routine `git`, push, and PR p
 ## Outcomes & Retrospective
 
 FP-0120 is implemented as a local/proof-only/read-only contract and proof foundation. It establishes canonical public MCP resource URI requirements, deferred host/provider decision posture, `authorization_servers` readiness, provider neutrality, RFC 9728 route path derivation, `WWW-Authenticate` `resource_metadata` URL matching, no-local-tunnel authority, and no-route-runtime posture.
+
+The post-merge hardening correction keeps FP-0120 shipped and proof-only while closing two proof gaps: the canonical-resource proof now compares the full current route-like repository inventory against the shipped known-safe route inventory, and metadata URL derivation now requires an accepted canonical public resource URI before derivation. No route file, endpoint, protected-resource metadata behavior, `WWW-Authenticate` behavior, OAuth/token/session/auth middleware, remote deployment/config, Apps SDK resource, DB/schema/package-script, source artifact, provider/OpenAI call, public asset, source mutation, finance write, autonomous action, or FP-0121 was added.
 
 Validation passed before closeout:
 
