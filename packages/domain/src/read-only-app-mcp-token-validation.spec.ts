@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -28,9 +28,11 @@ import {
   MCP_TOKEN_VALIDATION_READ_ONLY_SCOPES,
   buildTokenValidationReadinessContract,
   deriveTokenFailureChallengeReadiness,
+  isMcpTokenValidationSourceInventoryPath,
   scanTokenValidationNoLeakage,
   validateTokenFailureModeContract,
   validateTokenScopeChallenge,
+  verifyMcpTokenValidationReadinessDurabilityScan,
 } from "./read-only-app-mcp-token-validation";
 import {
   McpTokenValidationReadinessProofSchema,
@@ -59,7 +61,9 @@ const appPath = "apps/control-plane/src/app.ts";
 describe("FP-0128 token-validation failure readiness contracts", () => {
   it("accepts exactly one FP-0128 local proof plan while FP-0129 remains absent", () => {
     const repoPaths = repoFilePaths();
-    const planText = safeRead(FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH);
+    const planText = safeRead(
+      FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+    );
     const fp0128Hits = repoPaths.filter((path) => /(^|\/)FP-0128/u.test(path));
 
     expect(fp0128Hits).toEqual([
@@ -98,8 +102,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         ],
       }),
     ).toBe(false);
-    expect(verifyFp0129Absent([...repoPaths, "plans/FP-0129-runtime-auth.md"]))
-      .toBe(false);
+    expect(
+      verifyFp0129Absent([...repoPaths, "plans/FP-0129-runtime-auth.md"]),
+    ).toBe(false);
   });
 
   it("models all required failure modes as proof-only contracts", () => {
@@ -122,9 +127,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     expect(MCP_TOKEN_VALIDATION_FAILURE_MODES).toEqual(contract.failureModes);
     expect(verifyTokenValidationFailureModeContracts()).toBe(true);
     expect(proof.tokenFailureTaxonomyBoundaryVerified).toBe(true);
-    expect(McpTokenValidationReadinessProofSchema.safeParse(proof).success).toBe(
-      true,
-    );
+    expect(
+      McpTokenValidationReadinessProofSchema.safeParse(proof).success,
+    ).toBe(true);
     expect(
       McpTokenValidationReadinessProofSchema.safeParse({
         ...proof,
@@ -168,7 +173,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
   });
 
   it("keeps scope challenge read-only, least-privilege, and non-widening", () => {
-    const accepted = validateTokenScopeChallenge(MCP_TOKEN_VALIDATION_READ_ONLY_SCOPES);
+    const accepted = validateTokenScopeChallenge(
+      MCP_TOKEN_VALIDATION_READ_ONLY_SCOPES,
+    );
     const forbiddenScopes = [
       "finance:write",
       "admin.read",
@@ -226,11 +233,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
       ["x-api-key", ":", "synthetic-key-material"].join(" "),
       [keyName, "=", "synthetic-key-material"].join(""),
       ["sk", "-synthetic-key-material"].join(""),
-      [
-        "eyJsyntheticHeader",
-        "eyJsyntheticPayload",
-        "syntheticSignature",
-      ].join("."),
+      ["eyJsyntheticHeader", "eyJsyntheticPayload", "syntheticSignature"].join(
+        ".",
+      ),
       "raw finance data",
       "raw source dump",
       "provider credential",
@@ -287,13 +292,17 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
 
     expect(
       verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary({
-        planText: safeRead(FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH),
+        planText: safeRead(
+          FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
     expect(
       verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary({
-        planText: safeRead(FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH),
+        planText: safeRead(
+          FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
@@ -333,6 +342,175 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
       ),
     ).toContain("local/proof-only");
   });
+
+  it("passes the current durable repository inventory truth", () => {
+    const repoPaths = repoFilePaths();
+    const scan = verifyMcpTokenValidationReadinessDurabilityScan({
+      repoPaths,
+      sourceTextByPath: currentInventorySourceTextByPath(repoPaths),
+    });
+
+    expect(scan.combinedChangedPaths).toEqual([]);
+    expect(scan.tokenValidationBranchDiffScopeVerified).toBe(true);
+    expect(scan.tokenValidationRepositoryInventoryVerified).toBe(true);
+    expect(scan.tokenValidationNoRouteRuntimeRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(scan.tokenValidationNoCurrentRouteImportsVerified).toBe(true);
+    expect(
+      scan.tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(scan.tokenValidationNoAuthRuntimeRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(
+      scan.tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(scan.tokenValidationNoOpenAiSourceScanVerified).toBe(true);
+    expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(true);
+  });
+
+  it("fails simulated committed route imports of token-validation helpers", () => {
+    const scan = simulatedCommittedRouteScan(
+      `import { validateToken } from "./read-only-app-mcp-token-validation";`,
+    );
+
+    expect(scan.tokenValidationNoCurrentRouteImportsVerified).toBe(false);
+    expect(scan.tokenValidationRepositoryInventoryVerified).toBe(false);
+    expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("fails simulated committed token-validation helper usage in route source", () => {
+    const forbiddenHelpers = [
+      "validateToken",
+      "verifyToken",
+      "jwtVerify",
+      "verifyBearer",
+      "authMiddleware",
+    ];
+
+    for (const helper of forbiddenHelpers) {
+      const scan = simulatedCommittedRouteScan(`const runtime = ${helper};`);
+
+      expect(
+        scan.tokenValidationNoRouteRuntimeRepositoryInventoryVerified,
+      ).toBe(false);
+      expect(scan.tokenValidationRepositoryInventoryVerified).toBe(false);
+    }
+  });
+
+  it("fails simulated committed token/session/cookie storage helpers", () => {
+    for (const helper of ["tokenStore", "sessionStore", "setCookie"]) {
+      const scan = simulatedCommittedRouteScan(`const runtime = ${helper};`);
+
+      expect(scan.tokenValidationNoAuthRuntimeRepositoryInventoryVerified).toBe(
+        false,
+      );
+      expect(scan.tokenValidationRepositoryInventoryVerified).toBe(false);
+    }
+  });
+
+  it("fails simulated committed WWW-Authenticate route behavior", () => {
+    const scan = simulatedCommittedRouteScan(
+      `reply.header("WWW-Authenticate", "Bearer resource_metadata=\\"/.well-known/oauth-protected-resource/mcp\\"");`,
+    );
+
+    expect(
+      scan.tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(scan.tokenValidationRepositoryInventoryVerified).toBe(false);
+  });
+
+  it("fails simulated committed OAuth callback and token-exchange runtime paths", () => {
+    const oauthPath =
+      "apps/control-plane/src/modules/read-only-app-mcp-endpoint/oauth-callback.ts";
+    const repoPaths = [...repoFilePaths(), oauthPath];
+    const scan = verifyMcpTokenValidationReadinessDurabilityScan({
+      branchDiffPaths: [oauthPath],
+      repoPaths,
+      sourceTextByPath: {
+        ...currentInventorySourceTextByPath(repoPaths),
+        [oauthPath]: "export const callback = tokenExchange;",
+      },
+    });
+
+    expect(scan.tokenValidationNoAuthRuntimeRepositoryInventoryVerified).toBe(
+      false,
+    );
+    expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("fails simulated committed deployment config paths", () => {
+    const scan = simulatedCommittedPathScan("vercel.json");
+
+    expect(scan.tokenValidationBranchDiffScopeVerified).toBe(false);
+    expect(
+      scan.tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("fails simulated committed public asset, listing, and submission paths", () => {
+    const forbiddenPaths = [
+      "public/app-icon.png",
+      "app-submission/listing-copy.md",
+      "submission-assets/screenshot.png",
+    ];
+
+    for (const path of forbiddenPaths) {
+      const scan = simulatedCommittedPathScan(path);
+
+      expect(scan.tokenValidationBranchDiffScopeVerified).toBe(false);
+      expect(
+        scan.tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified,
+      ).toBe(false);
+      expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(false);
+    }
+  });
+
+  it("fails simulated committed package script changes", () => {
+    const scan = simulatedCommittedPathScan("package.json");
+
+    expect(scan.noPackageScriptsAdded).toBe(false);
+    expect(scan.tokenValidationBranchDiffScopeVerified).toBe(false);
+    expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("fails simulated executable OpenAI import, API, model, and key usage", () => {
+    const scan = simulatedCommittedRouteScan(
+      [
+        `import OpenAI from "openai";`,
+        `const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });`,
+        `client.responses.create({ model: "gpt-test" });`,
+      ].join("\n"),
+    );
+
+    expect(scan.tokenValidationNoOpenAiSourceScanVerified).toBe(false);
+    expect(scan.forbiddenOpenAiSourceMatches.length).toBeGreaterThan(0);
+    expect(scan.tokenValidationRepositoryInventoryVerified).toBe(false);
+  });
+
+  it("allows safe docs/proof absence language while preserving FP-0129 absence", () => {
+    const repoPaths = repoFilePaths();
+    const proofPath =
+      "tools/read-only-mcp-token-validation-readiness-proof.mjs";
+    const scan = verifyMcpTokenValidationReadinessDurabilityScan({
+      branchDiffPaths: [proofPath],
+      repoPaths,
+      sourceTextByPath: {
+        ...currentInventorySourceTextByPath(repoPaths),
+        [proofPath]:
+          "// No OpenAI API/model calls, keys, provider calls, source mutation, finance writes, or app submission assets are used.",
+      },
+    });
+
+    expect(scan.tokenValidationNoOpenAiSourceScanVerified).toBe(true);
+    expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(true);
+    expect(verifyFp0129Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0129Absent([...repoPaths, "plans/FP-0129-runtime-auth.md"]),
+    ).toBe(false);
+  });
 });
 
 function safeRead(path: string) {
@@ -351,4 +529,34 @@ function repoFilePaths(dir = repoRoot, prefix = ""): string[] {
 
 function countMatches(value: string, pattern: RegExp) {
   return value.match(pattern)?.length ?? 0;
+}
+
+function currentInventorySourceTextByPath(repoPaths: readonly string[]) {
+  return Object.fromEntries(
+    repoPaths
+      .filter(isMcpTokenValidationSourceInventoryPath)
+      .filter((path) => existsSync(join(repoRoot, path)))
+      .map((path) => [path, safeRead(path)]),
+  );
+}
+
+function simulatedCommittedRouteScan(routeSource: string) {
+  const repoPaths = repoFilePaths();
+  return verifyMcpTokenValidationReadinessDurabilityScan({
+    branchDiffPaths: [mcpRoutePath],
+    repoPaths,
+    sourceTextByPath: {
+      ...currentInventorySourceTextByPath(repoPaths),
+      [mcpRoutePath]: routeSource,
+    },
+  });
+}
+
+function simulatedCommittedPathScan(path: string) {
+  const repoPaths = [...repoFilePaths(), path];
+  return verifyMcpTokenValidationReadinessDurabilityScan({
+    branchDiffPaths: [path],
+    repoPaths,
+    sourceTextByPath: currentInventorySourceTextByPath(repoPaths),
+  });
 }

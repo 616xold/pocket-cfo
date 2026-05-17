@@ -21,6 +21,10 @@ The target phase is V2AV read-only ChatGPT App/MCP token-validation failure read
 - [x] 2026-05-17T20:57:43Z: Bridged existing proof gates so exact FP-0128 local/proof-only token-validation readiness contracts are accepted while FP-0129 remains absent.
 - [x] 2026-05-17T20:57:43Z: Refreshed directly stale active docs and `plugins.md` that still described FP-0128 as absent or future-only.
 - [x] 2026-05-17T21:36:38Z: Ran strict same-branch QA and final validation. Changed files are limited to domain contracts/specs/proof helpers, proof tools, FP-0128, and directly stale docs; no route behavior, package/schema/data/source/finance-write, deployment, OpenAI/provider, public app, or FP-0129 work was added.
+- [x] 2026-05-17T22:17:06Z: Started targeted post-merge proof-durability hardening on `codex/v2av-read-only-chatgpt-app-mcp-token-validation-readiness-proof-durability-hardening-local-v1` after confirming PR #302 is merged to `main`, the branch starts from shipped `origin/main`, local Postgres/MinIO are running, GitHub auth is valid, FP-0128 exists, FP-0129 is absent, required proof tools exist, and the baseline proof ladder passed.
+- [x] 2026-05-17T22:17:06Z: Hardened the FP-0128 proof path to combine `origin/main...HEAD`, `HEAD`, and dirty-worktree paths and to run a durable repository inventory scan across route/runtime/auth/deployment/public asset/package/DB/OpenAI/provider/source/finance guardrails without adding token validation runtime, route behavior, OAuth, storage, deployment, app-submission, source, or finance-write scope.
+- [x] 2026-05-17T22:28:29Z: Focused validation passed for the hardened FP-0128 proof, FP-0127 WWW-Authenticate proof, FP-0125 local-route proof, focused domain specs, and focused control-plane `/mcp`/metadata/app specs. Focused log: `/tmp/fp0128-durability-focused-1779056492.log`.
+- [x] 2026-05-17T22:28:29Z: Final validation passed through `git diff --check`, all 19 requested proof tools, focused domain/control-plane Vitest ladders, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Final log: `/tmp/fp0128-durability-final-1779056526.log`. Because this entry is a post-validation closeout edit, the required post-closeout rerun set is `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` before commit.
 - [ ] Commit exactly once, push, and publish the PR.
 
 ## Surprises & Discoveries
@@ -30,6 +34,7 @@ The target phase is V2AV read-only ChatGPT App/MCP token-validation failure read
 - MCP Security Best Practices explicitly treats token passthrough as a forbidden authorization anti-pattern. FP-0128 therefore makes no-passthrough a contract boundary, not a runtime forwarding path.
 - OpenAI Apps SDK Authentication expects authenticated MCP servers to verify access tokens on each request and to provide protected-resource metadata or advertise it through auth challenges. FP-0128 does not implement that verification or challenge behavior.
 - Existing older proof gates were intentionally narrow about future FP files. FP-0128 needed proof-gate bridge updates so those gates accept exactly the new token-validation readiness plan, contracts, specs, and proof command while still rejecting FP-0129 and runtime auth expansion.
+- The shipped FP-0128 proof was green but depended too heavily on clean-worktree changed files for forbidden-scope absence. A merged branch can hide committed drift unless the proof also checks `origin/main...HEAD` and current repository inventory.
 
 ## Decision Log
 
@@ -50,6 +55,7 @@ The target phase is V2AV read-only ChatGPT App/MCP token-validation failure read
 - Decision: FP-0127 auth-challenge contracts, FP-0126 sequencing, FP-0125 metadata route and evidence coherence, `/mcp`, and prior FP-0123/0122/0120/0118/0117/0107/0106/0100 boundaries must remain proven.
 - Decision: FP-0129 remains absent.
 - Decision: Existing proof gates may be updated only to recognize the exact FP-0128 plan path, token-validation domain/proof files, and direct proof command. They must not permit route behavior, protected-resource metadata behavior changes, WWW-Authenticate runtime behavior, OAuth, token/session runtime, deployment, public app, DB/schema/package/source/finance writes, or FP-0129.
+- Decision: The post-merge correction keeps FP-0128 as the active plan record and adds no FP-0129. Proof durability must combine committed branch diff, head diff, and dirty paths while also scanning current route/runtime inventory for token-validation imports, token/session/auth helpers, WWW-Authenticate behavior, OAuth exchange helpers, deployment/public-asset/app-submission paths, package/DB changes, OpenAI executable usage, provider/external calls, source mutation, and finance writes.
 
 ## Context and Orientation
 
@@ -171,6 +177,10 @@ The only implementation interface introduced is pure domain/proof TypeScript and
 FP-0128 has implemented the local/proof-only/read-only token-validation readiness contract foundation. It adds token-validation deferral, token parsing deferral, token/session storage deferral, auth middleware deferral, token failure taxonomy, audience/resource validation prerequisites, scope validation prerequisites, authenticated company binding, client `companyKey` selector-only posture, token passthrough prohibition, no-token-leakage, and no-runtime proof contracts.
 
 The proof-gate bridge recognizes exactly this FP-0128 plan path, token-validation domain/proof files, focused specs, directly stale docs, and direct proof command. It keeps FP-0129 absent and keeps FP-0127, FP-0126, FP-0125, FP-0123, FP-0122, FP-0120, FP-0118, FP-0117, FP-0107, FP-0106, and FP-0100 boundaries in force.
+
+The targeted post-merge proof-durability correction keeps FP-0128 local/proof-only/read-only while hardening the direct proof against both uncommitted and committed forbidden-scope drift. The proof now computes dirty paths, `origin/main...HEAD` branch-diff paths, `HEAD` diff paths, and combined changed paths; it also scans durable current repository inventory for route/runtime token-validation imports, route/runtime auth helpers, WWW-Authenticate behavior, OAuth/token/session/auth middleware surfaces, remote deployment/config, Apps SDK/submission/public asset paths, package script and DB/schema/migration changes, OpenAI executable usage, provider/external calls, source mutation, and finance writes.
+
+Focused specs now prove current repo truth passes durable inventory, simulated committed route imports and route helpers fail, token/session/cookie helpers fail, WWW-Authenticate behavior fails, OAuth callback/token-exchange paths fail, deployment config fails, public asset/listing/submission paths fail, package script changes fail, OpenAI executable import/API/model/key usage fails, safe absence language still passes, and FP-0129 remains absent.
 
 Docs refreshed in this slice: `plugins.md`, `README.md`, `CODEX_README.md`, `START_HERE.md`, `docs/ACTIVE_DOCS.md`, `docs/PROJECT_STATE.md`, `docs/V2_BOUNDARY.md`, `docs/security/read-only-agent-threat-model.md`, `docs/security/finance-data-threat-model.md`, `docs/demo/demo-data-policy.md`, and `plans/ROADMAP.md`.
 

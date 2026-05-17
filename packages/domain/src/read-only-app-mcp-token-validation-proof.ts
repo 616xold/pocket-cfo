@@ -86,6 +86,17 @@ export const McpTokenValidationReadinessProofSchema = z
     noCurrentRouteImportsTokenValidationHelpers: trueLiteral,
     noRealTokenExamplesCommitted: trueLiteral,
     safeAbsenceWordingAllowed: trueLiteral,
+    tokenValidationBranchDiffScopeVerified: trueLiteral,
+    tokenValidationRepositoryInventoryVerified: trueLiteral,
+    tokenValidationNoRouteRuntimeRepositoryInventoryVerified: trueLiteral,
+    tokenValidationNoCurrentRouteImportsVerified: trueLiteral,
+    tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified:
+      trueLiteral,
+    tokenValidationNoAuthRuntimeRepositoryInventoryVerified: trueLiteral,
+    tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified:
+      trueLiteral,
+    tokenValidationNoOpenAiSourceScanVerified: trueLiteral,
+    fp0128PostmergeProofDurabilityVerified: trueLiteral,
   })
   .strict();
 
@@ -139,10 +150,12 @@ export function buildMcpTokenValidationReadinessProof(
       contracts.tokenScopeValidationBoundary.readOnlyScopesOnly,
     authenticatedCompanyBindingBoundaryVerified:
       input.authenticatedCompanyBindingBoundaryVerified ??
-      contracts.authenticatedCompanyBindingBoundary.authenticatedCompanyRequired,
+      contracts.authenticatedCompanyBindingBoundary
+        .authenticatedCompanyRequired,
     clientCompanyKeySelectorOnlyBoundaryVerified:
       input.clientCompanyKeySelectorOnlyBoundaryVerified ??
-      contracts.clientCompanyKeySelectorOnlyBoundary.clientCompanyKeySelectorOnly,
+      contracts.clientCompanyKeySelectorOnlyBoundary
+        .clientCompanyKeySelectorOnly,
     tokenPassthroughForbiddenBoundaryVerified:
       input.tokenPassthroughForbiddenBoundaryVerified ??
       contracts.passthroughForbiddenBoundary.tokenPassthroughForbidden,
@@ -224,13 +237,34 @@ export function buildMcpTokenValidationReadinessProof(
       input.scopeChallengeCannotWidenScopesVerified ?? true,
     authenticatedCompanyBindingPrerequisiteVerified:
       input.authenticatedCompanyBindingPrerequisiteVerified ?? true,
-    companyKeySelectorOnlyVerified: input.companyKeySelectorOnlyVerified ?? true,
+    companyKeySelectorOnlyVerified:
+      input.companyKeySelectorOnlyVerified ?? true,
     tokenPassthroughAttemptFailsClosedVerified:
       input.tokenPassthroughAttemptFailsClosedVerified ?? true,
     noCurrentRouteImportsTokenValidationHelpers:
       input.noCurrentRouteImportsTokenValidationHelpers ?? true,
     noRealTokenExamplesCommitted: input.noRealTokenExamplesCommitted ?? true,
     safeAbsenceWordingAllowed: input.safeAbsenceWordingAllowed ?? true,
+    tokenValidationBranchDiffScopeVerified:
+      input.tokenValidationBranchDiffScopeVerified ?? true,
+    tokenValidationRepositoryInventoryVerified:
+      input.tokenValidationRepositoryInventoryVerified ?? true,
+    tokenValidationNoRouteRuntimeRepositoryInventoryVerified:
+      input.tokenValidationNoRouteRuntimeRepositoryInventoryVerified ?? true,
+    tokenValidationNoCurrentRouteImportsVerified:
+      input.tokenValidationNoCurrentRouteImportsVerified ?? true,
+    tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified:
+      input.tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified ??
+      true,
+    tokenValidationNoAuthRuntimeRepositoryInventoryVerified:
+      input.tokenValidationNoAuthRuntimeRepositoryInventoryVerified ?? true,
+    tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified:
+      input.tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified ??
+      true,
+    tokenValidationNoOpenAiSourceScanVerified:
+      input.tokenValidationNoOpenAiSourceScanVerified ?? true,
+    fp0128PostmergeProofDurabilityVerified:
+      input.fp0128PostmergeProofDurabilityVerified ?? true,
   });
 }
 
@@ -316,20 +350,17 @@ export function verifyFp0128PlanningTextRequiredTopics(planText: string) {
 
 export function verifyTokenValidationFailureModeContracts() {
   return MCP_TOKEN_VALIDATION_FAILURE_MODES.every(
-    (failureMode) =>
-      validateTokenFailureModeContract({ failureMode }).accepted,
+    (failureMode) => validateTokenFailureModeContract({ failureMode }).accepted,
   );
 }
 
 export function verifyTokenValidationChallengeReadinessContracts() {
-  const wrongAudience =
-    deriveTokenFailureChallengeReadiness({
-      failureMode: "wrong_audience",
-    });
-  const wrongResource =
-    deriveTokenFailureChallengeReadiness({
-      failureMode: "wrong_resource",
-    });
+  const wrongAudience = deriveTokenFailureChallengeReadiness({
+    failureMode: "wrong_audience",
+  });
+  const wrongResource = deriveTokenFailureChallengeReadiness({
+    failureMode: "wrong_resource",
+  });
   const wrongScope = deriveTokenFailureChallengeReadiness({
     failureMode: "wrong_scope",
     requestedScopes: ["mcp:read", "evidence:read"],
@@ -372,11 +403,9 @@ export function verifyTokenValidationNoLeakageExamples() {
     ["x-api-key", ":", "synthetic-key-material"].join(" "),
     [keyName, "=", "synthetic-key-material"].join(""),
     ["sk", "-synthetic-key-material"].join(""),
-    [
-      "eyJsyntheticHeader",
-      "eyJsyntheticPayload",
-      "syntheticSignature",
-    ].join("."),
+    ["eyJsyntheticHeader", "eyJsyntheticPayload", "syntheticSignature"].join(
+      ".",
+    ),
     "raw finance data",
     "raw source dump",
     "provider credential",
