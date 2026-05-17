@@ -7,6 +7,7 @@ import {
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   McpProtectedResourceMetadataBuilderProofSchema,
   buildMcpProtectedResourceMetadataBuilderProof,
   textHasProtectedResourceMetadataBuilderTokenLeakage,
@@ -17,7 +18,7 @@ import {
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
 } from "../packages/domain/src/index.ts";
 
 const FP0107_PLAN =
@@ -32,6 +33,7 @@ const ROUTE_PATH =
 const allowedChangedPaths = new Set([
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder-contracts.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder-proof.ts",
@@ -89,6 +91,9 @@ const fp0122PlanText = safeRead(
 const fp0123PlanText = safeRead(
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
 );
+const fp0124PlanText = safeRead(
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
+);
 const fp0121PlanText = safeRead(
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
 );
@@ -145,7 +150,13 @@ const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
         planText: fp0123PlanText,
         repoPaths,
       }),
-    fp0124Absent: verifyFp0124Absent(repoPaths),
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+      verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
+        {
+          planText: fp0124PlanText,
+          repoPaths,
+        },
+      ),
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
     noAuthMiddlewareImplementation: scopeScan.noAuthMiddlewareImplementation,

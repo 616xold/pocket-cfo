@@ -14,7 +14,12 @@ export const MCP_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_SCHEMA_VERSION =
 export const FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH =
   "plans/FP-0123-read-only-chatgpt-app-mcp-protected-resource-metadata-route-input-evidence-contracts.md";
 
+export const FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH =
+  "plans/FP-0124-read-only-chatgpt-app-mcp-protected-resource-metadata-route-implementation-master-plan.md";
+
 export const FP0124_PLAN_PREFIX = "FP-0124";
+
+export const FP0125_PLAN_PREFIX = "FP-0125";
 
 export const MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH =
   `${MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH}/mcp`;

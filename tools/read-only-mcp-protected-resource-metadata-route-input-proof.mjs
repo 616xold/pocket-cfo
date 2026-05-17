@@ -7,6 +7,7 @@ import {
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   McpProtectedResourceMetadataRouteInputProofSchema,
   buildMcpProtectedResourceMetadataRouteInputProof,
   textHasProtectedResourceMetadataBuilderTokenLeakage,
@@ -17,7 +18,8 @@ import {
   verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
+  verifyFp0125Absent,
   verifyMcpProtectedResourceMetadataRouteInputDurabilityScan,
 } from "../packages/domain/src/index.ts";
 
@@ -58,6 +60,9 @@ const fp0122PlanText = safeRead(
 );
 const fp0121PlanText = safeRead(
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+);
+const fp0124PlanText = safeRead(
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
 );
 const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
   buildMcpProtectedResourceMetadataRouteInputProof({
@@ -112,7 +117,14 @@ const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
       }),
     fp0123PostmergeProofDurabilityVerified:
       durabilityScan.fp0123PostmergeProofDurabilityVerified,
-    fp0124Absent: verifyFp0124Absent(repoPaths),
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+      verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
+        {
+          planText: fp0124PlanText,
+          repoPaths,
+        },
+      ),
+    fp0125Absent: verifyFp0125Absent(repoPaths),
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
     noAuthMiddlewareImplementation: scopeScan.noAuthMiddlewareImplementation,
@@ -145,6 +157,37 @@ const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
     noWwwAuthenticateRouteBehaviorImplementation:
       scopeScan.noWwwAuthenticateRouteBehavior &&
       localRouteShapeStillVerified(),
+    noAppSubmissionFromFp0124: scopeScan.noAppSubmission,
+    noAppsSdkResourceFromFp0124: scopeScan.noAppsSdkResource,
+    noAuthMiddlewareImplementationFromFp0124:
+      scopeScan.noAuthMiddlewareImplementation,
+    noDbQueriesFromFp0124: scopeScan.noDbQueries,
+    noDeploymentConfigFromFp0124: scopeScan.noDeploymentConfig,
+    noListingCopyGeneratedPublicProseFromFp0124:
+      scopeScan.noListingCopy && scopeScan.noGeneratedPublicProse,
+    noNewRoutePathFromFp0124:
+      scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
+    noOauthImplementationFromFp0124: scopeScan.noOauthImplementation,
+    noOpenAiApiCallsFromFp0124: scopeScan.noOpenAiApiCalls,
+    noPackageScriptsFromFp0124: scopeScan.noPackageScripts,
+    noProtectedResourceMetadataRouteFromFp0124:
+      scopeScan.noProtectedResourceMetadataRoute &&
+      localRouteShapeStillVerified(),
+    noProviderExternalCallsFromFp0124: scopeScan.noProviderCalls,
+    noPublicAssetsSubmissionArtifactsFromFp0124:
+      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
+    noRemoteMcpDeploymentFromFp0124: scopeScan.noRemoteMcpDeployment,
+    noRouteBehaviorChangeFromFp0124:
+      scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
+    noSchemaMigrationsFromFp0124: scopeScan.noSchemaMigrations,
+    noSourceMutationFinanceWriteFromFp0124:
+      scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
+    noTokenSessionImplementationFromFp0124:
+      scopeScan.noTokenSessionImplementation,
+    noWwwAuthenticateRouteBehaviorFromFp0124:
+      scopeScan.noWwwAuthenticateRouteBehavior &&
+      localRouteShapeStillVerified(),
+    protectedResourceMetadataRouteImplementationPlanBoundaryVerified: true,
     routeInputBranchDiffScopeVerified:
       durabilityScan.routeInputBranchDiffScopeVerified,
     routeInputNoAuthRuntimeRepositoryInventoryVerified:

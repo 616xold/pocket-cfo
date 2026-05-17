@@ -23,7 +23,7 @@ import {
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
   verifyMcpCanonicalResourceAuthServerNoOpenAiApiSourceScan,
   verifyMcpCanonicalResourceAuthServerRepositoryInventory,
 } from "./read-only-app-mcp-canonical-resource";
@@ -106,7 +106,7 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
             },
           ),
         ),
-      fp0124Absent: verified(verifyFp0124Absent(repoPaths)),
+      fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: verified(verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(repoPaths)),
       protectedResourceMetadataBuilderContractsFoundationVerified: verified(
         verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
           planText: fp0122PlanText,
@@ -149,7 +149,7 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     expect(
       proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
     ).toBe(true);
-    expect(proof.fp0124Absent).toBe(true);
+    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
     expect(
       verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
         planText: fp0123PlanText,
@@ -170,7 +170,7 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     expect(
       McpCanonicalResourceAuthServerProofSchema.safeParse({
         ...proof,
-        fp0124Absent: false,
+        fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: false,
       }).success,
     ).toBe(false);
   });

@@ -1,7 +1,11 @@
-import { FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH } from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
+import {
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
+} from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
 
 export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-contracts.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
@@ -25,6 +29,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
+  "tools/read-only-mcp-route-adapter-proof.mjs",
   "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-endpoint-route-ownership-proof.mjs",
   "tools/read-only-endpoint-architecture-proof.mjs",

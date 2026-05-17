@@ -47,7 +47,7 @@ import {
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
 } from "./read-only-app-mcp-canonical-resource";
 import { verifyMcpRemoteHostReadinessRepositoryInventory } from "./read-only-app-mcp-remote-host-readiness";
 
@@ -147,7 +147,7 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
           planText: fp0123PlanText,
           repoPaths,
         }),
-      fp0124Absent: verifyFp0124Absent(repoPaths),
+      fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(repoPaths),
       protectedResourceMetadataBuilderContractsFoundationVerified:
         verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
           planText: fp0122PlanText,
@@ -219,7 +219,7 @@ describe("FP-0116 remote host owner and resource metadata contracts", () => {
     expect(
       proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
     ).toBe(true);
-    expect(proof.fp0124Absent).toBe(true);
+    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
     expect(
       verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
         planText: fp0123PlanText,

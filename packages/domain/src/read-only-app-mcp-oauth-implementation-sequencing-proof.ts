@@ -34,7 +34,8 @@ export const McpOauthImplementationSequencingProofSchema = z
       trueLiteral,
     fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
       trueLiteral,
-    fp0124Absent: trueLiteral,
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: trueLiteral,
+    fp0125Absent: trueLiteral,
     protectedResourceMetadataBuilderContractsFoundationVerified: trueLiteral,
     protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:
       trueLiteral,
@@ -181,7 +182,8 @@ export function buildMcpOauthImplementationSequencingProof(
       boolean;
     fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
       boolean;
-    fp0124Absent: boolean;
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: boolean;
+    fp0125Absent: boolean;
     protectedResourceMetadataBuilderContractsFoundationVerified: boolean;
     protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:
       boolean;
@@ -359,7 +361,10 @@ export function buildMcpOauthImplementationSequencingProof(
     fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
       input.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified ??
       true,
-    fp0124Absent: input.fp0124Absent ?? true,
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+      input.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified ??
+      true,
+    fp0125Absent: input.fp0125Absent ?? true,
     protectedResourceMetadataBuilderContractsFoundationVerified:
       input.protectedResourceMetadataBuilderContractsFoundationVerified ?? true,
     protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:

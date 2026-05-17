@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH,
   McpProtectedResourceMetadataRouteInputEvidenceBundleSchema,
   McpProtectedResourceMetadataRouteInputProofSchema,
@@ -16,7 +17,10 @@ import {
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123PlanningTextRequiredTopics,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
+  verifyFp0124PlanningTextRequiredTopics,
+  verifyFp0124ProtectedResourceMetadataRouteImplementationPlanBoundary,
+  verifyFp0125Absent,
   verifyMcpProtectedResourceMetadataRouteInputDurabilityScan,
   type McpProtectedResourceMetadataRouteInputBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata";
@@ -43,12 +47,16 @@ const validRouteInput = {
 } satisfies McpProtectedResourceMetadataRouteInputBuilderInput;
 
 describe("FP-0123 protected-resource metadata route-input evidence contracts", () => {
-  it("accepts exactly one FP-0123 path, remains local/proof-only, and keeps FP-0124 absent", () => {
+  it("accepts exactly one FP-0124 docs-only route implementation plan while FP-0125 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     );
+    const fp0124PlanText = safeRead(
+      FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
+    );
     const fp0123Hits = repoPaths.filter((path) => /(^|\/)FP-0123/u.test(path));
+    const fp0124Hits = repoPaths.filter((path) => /(^|\/)FP-0124/u.test(path));
     const proof = buildMcpProtectedResourceMetadataRouteInputProof({
       fp0123BoundaryVerified: verified(
         verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
@@ -56,11 +64,30 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
           repoPaths,
         }),
       ),
-      fp0124Absent: verified(verifyFp0124Absent(repoPaths)),
+      fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+        verified(
+          verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
+            {
+              planText: fp0124PlanText,
+              repoPaths,
+            },
+          ),
+        ),
+      fp0125Absent: verified(verifyFp0125Absent(repoPaths)),
+      protectedResourceMetadataRouteImplementationPlanBoundaryVerified:
+        verified(
+          verifyFp0124ProtectedResourceMetadataRouteImplementationPlanBoundary({
+            planText: fp0124PlanText,
+            repoPaths,
+          }),
+        ),
     });
 
     expect(fp0123Hits).toEqual([
       FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+    ]);
+    expect(fp0124Hits).toEqual([
+      FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
     ]);
     expect(
       verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
@@ -73,10 +100,55 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
         Boolean,
       ),
     ).toBe(true);
+    expect(
+      Object.values(
+        verifyFp0124PlanningTextRequiredTopics(fp0124PlanText),
+      ).every(Boolean),
+    ).toBe(true);
     expect(proof.localProofOnly).toBe(true);
     expect(proof.routeInputEvidenceContractsVerified).toBe(true);
     expect(proof.fp0123BoundaryVerified).toBe(true);
-    expect(proof.fp0124Absent).toBe(true);
+    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
+    expect(proof.fp0125Absent).toBe(true);
+  });
+
+  it("keeps FP-0124 docs-and-plan/proof-gate only with no route, auth, deployment, public, data, provider, source, or finance scope", () => {
+    const planText = safeRead(
+      FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
+    ).toLowerCase();
+    const proof = buildMcpProtectedResourceMetadataRouteInputProof();
+
+    expect(planText).toContain("docs-and-plan plus proof-gate compatibility");
+    expect(planText).toContain("does not implement the route");
+    expect(planText).toContain("does not add route paths");
+    expect(planText).toContain("does not register a protected-resource metadata endpoint");
+    expect(planText).toContain("route-input evidence bundle");
+    expect(planText).toContain("canonical uri evidence");
+    expect(planText).toContain("authorization server evidence");
+    expect(planText).toContain("builder output");
+    expect(planText).toContain("no-token-leakage");
+    expect(planText).toContain("authenticated company binding");
+    expect(planText).toContain("/mcp unchanged");
+    expect(planText).toContain("www-authenticate");
+    expect(proof.noRouteBehaviorChangeFromFp0124).toBe(true);
+    expect(proof.noNewRoutePathFromFp0124).toBe(true);
+    expect(proof.noProtectedResourceMetadataRouteFromFp0124).toBe(true);
+    expect(proof.noWwwAuthenticateRouteBehaviorFromFp0124).toBe(true);
+    expect(proof.noOauthImplementationFromFp0124).toBe(true);
+    expect(proof.noTokenSessionImplementationFromFp0124).toBe(true);
+    expect(proof.noAuthMiddlewareImplementationFromFp0124).toBe(true);
+    expect(proof.noRemoteMcpDeploymentFromFp0124).toBe(true);
+    expect(proof.noDeploymentConfigFromFp0124).toBe(true);
+    expect(proof.noAppsSdkResourceFromFp0124).toBe(true);
+    expect(proof.noAppSubmissionFromFp0124).toBe(true);
+    expect(proof.noDbQueriesFromFp0124).toBe(true);
+    expect(proof.noSchemaMigrationsFromFp0124).toBe(true);
+    expect(proof.noPackageScriptsFromFp0124).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0124).toBe(true);
+    expect(proof.noProviderExternalCallsFromFp0124).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0124).toBe(true);
+    expect(proof.noPublicAssetsSubmissionArtifactsFromFp0124).toBe(true);
+    expect(proof.noListingCopyGeneratedPublicProseFromFp0124).toBe(true);
   });
 
   it("builds a route-input bundle only from accepted canonical URI, auth-server, and FP-0122 builder evidence", () => {
@@ -445,7 +517,7 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
     expect(
       McpProtectedResourceMetadataRouteInputProofSchema.safeParse({
         ...proof,
-        fp0124Absent: false,
+        fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: false,
       }).success,
     ).toBe(false);
   });
