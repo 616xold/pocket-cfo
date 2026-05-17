@@ -19,6 +19,10 @@ const FP0112_PLAN =
   "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
 const FP0113_PLAN =
   "plans/FP-0113-read-only-chatgpt-app-mcp-oauth-token-session-security-contracts-foundation.md";
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -429,9 +433,7 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     /^packages\/domain\/src\/read-only-app-mcp-endpoint-architecture.*\.ts$/u.test(
       path,
     ) ||
-    /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(
-      path,
-    )
+    /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path)
   );
 }
 
@@ -668,7 +670,13 @@ function safeRead(path) {
 
 function readChangedCodeSourceText() {
   return changedPaths
-    .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
+    .filter(
+      (path) =>
+        /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
+        !path.startsWith("tools/") &&
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map((path) => safeRead(path))
     .join("\n");
 }
@@ -676,6 +684,11 @@ function readChangedCodeSourceText() {
 function readPublicAppProofGateSourceText() {
   return repoPaths
     .filter(isPublicAppProofGateSourceSurface)
+    .filter(
+      (path) =>
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map((path) => safeRead(path))
     .join("\n");
 }

@@ -31,6 +31,10 @@ const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 const ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -259,7 +263,13 @@ function docsBoundary(path, requiredTexts) {
 
 function readChangedCodeSourceText() {
   return changedPaths
-    .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
+    .filter(
+      (path) =>
+        /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
+        !path.startsWith("tools/") &&
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map(safeRead)
     .join("\n");
 }

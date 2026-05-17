@@ -45,6 +45,10 @@ const FP0101_PLAN =
   "plans/FP-0101-read-only-chatgpt-app-mcp-public-app-implementation-sequencing-master-plan.md";
 const FP0102_PLAN =
   "plans/FP-0102-read-only-chatgpt-app-mcp-endpoint-oauth-remote-mcp-architecture-master-plan.md";
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 const fp0088Boundary = fp0088DocsOnlyBoundary();
 const fp0089Boundary = fp0089DocsOnlyBoundary();
 const fp0090Boundary = fp0090DocsOnlyBoundary();
@@ -59,8 +63,7 @@ const fp0098Boundary = fp0098PublicAppReadinessBoundary();
 const fp0099Boundary = fp0099PublicAppSecurityThreatModelBoundary();
 const fp0100Boundary = fp0100PublicAppSecurityBoundary();
 const fp0101Boundary = fp0101PublicAppImplementationSequencingBoundary();
-const fp0102Boundary =
-  fp0102EndpointOauthRemoteMcpArchitectureBoundary();
+const fp0102Boundary = fp0102EndpointOauthRemoteMcpArchitectureBoundary();
 const fp0103Boundary = fp0103EndpointArchitectureProofContractsBoundary();
 
 const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
@@ -92,11 +95,9 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
     fp0100AbsentOrLocalSecurityBoundaryContractsVerified:
       fp0100Boundary.absentOrLocalSecurityBoundaryContractsVerified,
     fp0101AbsentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified:
-      fp0101Boundary
-        .absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified,
+      fp0101Boundary.absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified,
     fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified:
-      fp0102Boundary
-        .absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified,
+      fp0102Boundary.absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified,
     ...fp0103Boundary,
     endpointOauthRemoteMcpArchitecturePlanBoundaryVerified:
       fp0102Boundary.endpointOauthRemoteMcpArchitecturePlanBoundaryVerified,
@@ -106,12 +107,9 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
       fp0102Boundary.noOauthTokenSessionImplementationFromFp0102,
     noRemoteMcpImplementationOrDeploymentFromFp0102:
       fp0102Boundary.noRemoteMcpImplementationOrDeploymentFromFp0102,
-    noAppsSdkResourceFromFp0102:
-      fp0102Boundary.noAppsSdkResourceFromFp0102,
-    noAppSubmissionFromFp0102:
-      fp0102Boundary.noAppSubmissionFromFp0102,
-    noOpenAiApiCallsFromFp0102:
-      fp0102Boundary.noOpenAiApiCallsFromFp0102,
+    noAppsSdkResourceFromFp0102: fp0102Boundary.noAppsSdkResourceFromFp0102,
+    noAppSubmissionFromFp0102: fp0102Boundary.noAppSubmissionFromFp0102,
+    noOpenAiApiCallsFromFp0102: fp0102Boundary.noOpenAiApiCallsFromFp0102,
     noSourceMutationFinanceWriteFromFp0102:
       fp0102Boundary.noSourceMutationFinanceWriteFromFp0102,
     noPublicAssetsSubmissionArtifactsFromFp0102:
@@ -128,12 +126,9 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
       fp0101Boundary.noOauthImplementationFromFp0101,
     noRemoteMcpDeploymentFromFp0101:
       fp0101Boundary.noRemoteMcpDeploymentFromFp0101,
-    noAppsSdkResourceFromFp0101:
-      fp0101Boundary.noAppsSdkResourceFromFp0101,
-    noAppSubmissionFromFp0101:
-      fp0101Boundary.noAppSubmissionFromFp0101,
-    noOpenAiApiCallsFromFp0101:
-      fp0101Boundary.noOpenAiApiCallsFromFp0101,
+    noAppsSdkResourceFromFp0101: fp0101Boundary.noAppsSdkResourceFromFp0101,
+    noAppSubmissionFromFp0101: fp0101Boundary.noAppSubmissionFromFp0101,
+    noOpenAiApiCallsFromFp0101: fp0101Boundary.noOpenAiApiCallsFromFp0101,
     noSourceMutationFinanceWriteFromFp0101:
       fp0101Boundary.noSourceMutationFinanceWriteFromFp0101,
     noPublicAssetsSubmissionArtifactsFromFp0101:
@@ -146,12 +141,9 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
       fp0100Boundary.noOauthImplementationFromFp0100,
     noRemoteMcpDeploymentFromFp0100:
       fp0100Boundary.noRemoteMcpDeploymentFromFp0100,
-    noAppsSdkResourceFromFp0100:
-      fp0100Boundary.noAppsSdkResourceFromFp0100,
-    noAppSubmissionFromFp0100:
-      fp0100Boundary.noAppSubmissionFromFp0100,
-    noOpenAiApiCallsFromFp0100:
-      fp0100Boundary.noOpenAiApiCallsFromFp0100,
+    noAppsSdkResourceFromFp0100: fp0100Boundary.noAppsSdkResourceFromFp0100,
+    noAppSubmissionFromFp0100: fp0100Boundary.noAppSubmissionFromFp0100,
+    noOpenAiApiCallsFromFp0100: fp0100Boundary.noOpenAiApiCallsFromFp0100,
     noSourceMutationFinanceWriteFromFp0100:
       fp0100Boundary.noSourceMutationFinanceWriteFromFp0100,
     noPublicAssetsSubmissionArtifactsFromFp0100:
@@ -160,14 +152,12 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
       fp0098Boundary.publicAppReadinessPlanBoundaryVerified,
     noPublicAppImplementationFromFp0098:
       fp0098Boundary.noPublicAppImplementationFromFp0098,
-    noAppsSdkIframeFromFp0098:
-      fp0098Boundary.noAppsSdkIframeFromFp0098,
+    noAppsSdkIframeFromFp0098: fp0098Boundary.noAppsSdkIframeFromFp0098,
     noRemoteMcpDeploymentFromFp0098:
       fp0098Boundary.noRemoteMcpDeploymentFromFp0098,
     noEndpointOauthSubmissionFromFp0098:
       fp0098Boundary.noEndpointOauthSubmissionFromFp0098,
-    noOpenAiApiCallsFromFp0098:
-      fp0098Boundary.noOpenAiApiCallsFromFp0098,
+    noOpenAiApiCallsFromFp0098: fp0098Boundary.noOpenAiApiCallsFromFp0098,
     noSourceMutationFinanceWriteFromFp0098:
       fp0098Boundary.noSourceMutationFinanceWriteFromFp0098,
     noScreenshotListingSubmissionAssetsFromFp0098:
@@ -180,11 +170,9 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
       fp0099Boundary.noOauthImplementationFromFp0099,
     noRemoteMcpDeploymentFromFp0099:
       fp0099Boundary.noRemoteMcpDeploymentFromFp0099,
-    noAppsSdkResourceFromFp0099:
-      fp0099Boundary.noAppsSdkResourceFromFp0099,
+    noAppsSdkResourceFromFp0099: fp0099Boundary.noAppsSdkResourceFromFp0099,
     noAppSubmissionFromFp0099: fp0099Boundary.noAppSubmissionFromFp0099,
-    noOpenAiApiCallsFromFp0099:
-      fp0099Boundary.noOpenAiApiCallsFromFp0099,
+    noOpenAiApiCallsFromFp0099: fp0099Boundary.noOpenAiApiCallsFromFp0099,
     noSourceMutationFinanceWriteFromFp0099:
       fp0099Boundary.noSourceMutationFinanceWriteFromFp0099,
     noPublicAssetsSubmissionArtifactsFromFp0099:
@@ -209,15 +197,11 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
       fp0096Boundary.localPreviewRouteStateMatrixFoundationVerified,
     localPreviewRouteVisualQaFoundationVerified:
       fp0097Boundary.localPreviewRouteVisualQaFoundationVerified,
-    noUiImplementationFromFp0088:
-      fp0088Boundary.noUiImplementationFromFp0088,
-    noUiImplementationFromFp0089:
-      fp0089Boundary.noUiImplementationFromFp0089,
-    noAppsSdkIframeFromFp0089:
-      fp0089Boundary.noAppsSdkIframeFromFp0089,
+    noUiImplementationFromFp0088: fp0088Boundary.noUiImplementationFromFp0088,
+    noUiImplementationFromFp0089: fp0089Boundary.noUiImplementationFromFp0089,
+    noAppsSdkIframeFromFp0089: fp0089Boundary.noAppsSdkIframeFromFp0089,
     noUiCodeFromFp0090: fp0090Boundary.noUiCodeFromFp0090,
-    noAppsSdkIframeFromFp0090:
-      fp0090Boundary.noAppsSdkIframeFromFp0090,
+    noAppsSdkIframeFromFp0090: fp0090Boundary.noAppsSdkIframeFromFp0090,
     noEndpointOauthSubmissionFromFp0088:
       fp0088Boundary.noEndpointOauthSubmissionFromFp0088,
     noEndpointOauthSubmissionFromFp0089:
@@ -229,12 +213,10 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
     noRoutesFromFp0091: fp0091Boundary.noRoutesFromFp0091,
     noEndpointsFromFp0091: fp0091Boundary.noEndpointsFromFp0091,
     noAppsSdkIframeFromFp0091: fp0091Boundary.noAppsSdkIframeFromFp0091,
-    noOauthSubmissionFromFp0091:
-      fp0091Boundary.noOauthSubmissionFromFp0091,
+    noOauthSubmissionFromFp0091: fp0091Boundary.noOauthSubmissionFromFp0091,
     noPublicAppImplementationFromFp0091:
       fp0091Boundary.noPublicAppImplementationFromFp0091,
-    noOpenAiApiCallsFromFp0091:
-      fp0091Boundary.noOpenAiApiCallsFromFp0091,
+    noOpenAiApiCallsFromFp0091: fp0091Boundary.noOpenAiApiCallsFromFp0091,
     noSourceMutationFinanceWriteFromFp0091:
       fp0091Boundary.noSourceMutationFinanceWriteFromFp0091,
     noRoutesFromFp0092: fp0092Boundary.noRoutesFromFp0092,
@@ -263,24 +245,20 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
     noBackendRoutesFromFp0094: fp0094Boundary.noBackendRoutesFromFp0094,
     noEndpointsFromFp0094: fp0094Boundary.noEndpointsFromFp0094,
     noAppsSdkIframeFromFp0094: fp0094Boundary.noAppsSdkIframeFromFp0094,
-    noOauthSubmissionFromFp0094:
-      fp0094Boundary.noOauthSubmissionFromFp0094,
+    noOauthSubmissionFromFp0094: fp0094Boundary.noOauthSubmissionFromFp0094,
     noPublicAppImplementationFromFp0094:
       fp0094Boundary.noPublicAppImplementationFromFp0094,
-    noOpenAiApiCallsFromFp0094:
-      fp0094Boundary.noOpenAiApiCallsFromFp0094,
+    noOpenAiApiCallsFromFp0094: fp0094Boundary.noOpenAiApiCallsFromFp0094,
     noSourceMutationFinanceWriteFromFp0094:
       fp0094Boundary.noSourceMutationFinanceWriteFromFp0094,
     noRouteImplementationFromFp0095:
       fp0095Boundary.noRouteImplementationFromFp0095,
-    noScreenshotAssetsFromFp0095:
-      fp0095Boundary.noScreenshotAssetsFromFp0095,
+    noScreenshotAssetsFromFp0095: fp0095Boundary.noScreenshotAssetsFromFp0095,
     noEndpointOauthSubmissionFromFp0095:
       fp0095Boundary.noEndpointOauthSubmissionFromFp0095,
     noPublicAppImplementationFromFp0095:
       fp0095Boundary.noPublicAppImplementationFromFp0095,
-    noAppsSdkIframeFromFp0095:
-      fp0095Boundary.noAppsSdkIframeFromFp0095,
+    noAppsSdkIframeFromFp0095: fp0095Boundary.noAppsSdkIframeFromFp0095,
     noRemoteMcpDeploymentFromFp0095:
       fp0095Boundary.noRemoteMcpDeploymentFromFp0095,
     noOpenAiApiModelCallsFromFp0095:
@@ -292,8 +270,7 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
     noGeneratedProductProseRuntimeCodexFromFp0095:
       fp0095Boundary.noGeneratedProductProseRuntimeCodexFromFp0095,
     noPublicAssetsFromFp0095: fp0095Boundary.noPublicAssetsFromFp0095,
-    noAdditionalRoutesFromFp0096:
-      fp0096Boundary.noAdditionalRoutesFromFp0096,
+    noAdditionalRoutesFromFp0096: fp0096Boundary.noAdditionalRoutesFromFp0096,
     noApiRoutesFromFp0096: fp0096Boundary.noApiRoutesFromFp0096,
     noAppsSdkIframeFromFp0096: fp0096Boundary.noAppsSdkIframeFromFp0096,
     noBackendRoutesFromFp0096: fp0096Boundary.noBackendRoutesFromFp0096,
@@ -303,12 +280,10 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
     noPublicAppImplementationFromFp0096:
       fp0096Boundary.noPublicAppImplementationFromFp0096,
     noPublicAssetsFromFp0096: fp0096Boundary.noPublicAssetsFromFp0096,
-    noScreenshotAssetsFromFp0096:
-      fp0096Boundary.noScreenshotAssetsFromFp0096,
+    noScreenshotAssetsFromFp0096: fp0096Boundary.noScreenshotAssetsFromFp0096,
     noSourceMutationFinanceWriteFromFp0096:
       fp0096Boundary.noSourceMutationFinanceWriteFromFp0096,
-    noAdditionalRoutesFromFp0097:
-      fp0097Boundary.noAdditionalRoutesFromFp0097,
+    noAdditionalRoutesFromFp0097: fp0097Boundary.noAdditionalRoutesFromFp0097,
     noApiRoutesFromFp0097: fp0097Boundary.noApiRoutesFromFp0097,
     noAppsSdkIframeFromFp0097: fp0097Boundary.noAppsSdkIframeFromFp0097,
     noBackendRoutesFromFp0097: fp0097Boundary.noBackendRoutesFromFp0097,
@@ -318,8 +293,7 @@ const proof = AppMcpDescriptorEnvelopeProofSchema.parse(
     noPublicAppImplementationFromFp0097:
       fp0097Boundary.noPublicAppImplementationFromFp0097,
     noPublicAssetsFromFp0097: fp0097Boundary.noPublicAssetsFromFp0097,
-    noScreenshotAssetsFromFp0097:
-      fp0097Boundary.noScreenshotAssetsFromFp0097,
+    noScreenshotAssetsFromFp0097: fp0097Boundary.noScreenshotAssetsFromFp0097,
     noSourceMutationFinanceWriteFromFp0097:
       fp0097Boundary.noSourceMutationFinanceWriteFromFp0097,
     routeMetadataNoIndexBoundaryVerified:
@@ -697,20 +671,18 @@ function fp0091LocalUiComponentBoundary() {
     ["does not add oauth", "does not add app submission"].every(
       (requiredText) => lower.includes(requiredText),
     ) && !/(oauth|submitapp|appsubmission)/u.test(normalizedComponentSource);
-  const noPublicAppImplementationFromFp0091 =
-    [
-      "does not implement a public chatgpt app",
-      "no public app implementation",
-    ].every((requiredText) => lower.includes(requiredText));
+  const noPublicAppImplementationFromFp0091 = [
+    "does not implement a public chatgpt app",
+    "no public app implementation",
+  ].every((requiredText) => lower.includes(requiredText));
   const noOpenAiApiCallsFromFp0091 =
     ["does not add openai api/model calls", "no openai api/model calls"].every(
       (requiredText) => lower.includes(requiredText),
-    ) &&
-    !/(openaiapikey|fromopenai|openai\.)/u.test(normalizedComponentSource);
-  const noSourceMutationFinanceWriteFromFp0091 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      lower.includes(requiredText),
-    );
+    ) && !/(openaiapikey|fromopenai|openai\.)/u.test(normalizedComponentSource);
+  const noSourceMutationFinanceWriteFromFp0091 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => lower.includes(requiredText));
 
   return {
     absentOrLocalUiComponentBoundaryVerified:
@@ -770,10 +742,7 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
     .map((path) => readFileSync(path, "utf8"))
     .join("\n")
     .toLowerCase();
-  const normalizedComponentSource = componentSource.replace(
-    /[^a-z0-9]+/gu,
-    "",
-  );
+  const normalizedComponentSource = componentSource.replace(/[^a-z0-9]+/gu, "");
   const normalizedComponentAndTestSource = componentAndTestSource.replace(
     /[^a-z0-9]+/gu,
     "",
@@ -800,9 +769,7 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
       "scoped section ids",
       "accessibility tests",
       "contrast/token proof",
-    ].every((requiredText) =>
-      lower.replace(/`/gu, "").includes(requiredText),
-    );
+    ].every((requiredText) => lower.replace(/`/gu, "").includes(requiredText));
   const noRoutesFromFp0092 =
     ["does not add app routes", "no app routes"].every((requiredText) =>
       lower.includes(requiredText),
@@ -827,20 +794,18 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
     ["does not add oauth", "does not add app submission"].every(
       (requiredText) => lower.includes(requiredText),
     ) && !/(oauth|submitapp|appsubmission)/u.test(normalizedComponentSource);
-  const noPublicAppImplementationFromFp0092 =
-    [
-      "does not implement a public chatgpt app",
-      "no public app implementation",
-    ].every((requiredText) => lower.includes(requiredText));
+  const noPublicAppImplementationFromFp0092 = [
+    "does not implement a public chatgpt app",
+    "no public app implementation",
+  ].every((requiredText) => lower.includes(requiredText));
   const noOpenAiApiCallsFromFp0092 =
     ["does not add openai api/model calls", "no openai api/model calls"].every(
       (requiredText) => lower.includes(requiredText),
-    ) &&
-    !/(openaiapikey|fromopenai|openai\.)/u.test(normalizedComponentSource);
-  const noSourceMutationFinanceWriteFromFp0092 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      lower.includes(requiredText),
-    );
+    ) && !/(openaiapikey|fromopenai|openai\.)/u.test(normalizedComponentSource);
+  const noSourceMutationFinanceWriteFromFp0092 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => lower.includes(requiredText));
 
   return {
     absentOrLocalUiCompositionAccessibilityBoundaryVerified:
@@ -926,23 +891,21 @@ function fp0093LocalUiPreviewRouteBoundary() {
     "no raw full-file dump panels",
     "no advice-like cta copy",
   ].every((requiredText) => normalized.includes(requiredText));
-  const noRouteImplementationFromFp0093 =
-    [
-      "does not authorize route code yet",
-      "this is not route implementation",
-      "no route code",
-      "no app route",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const noEndpointOauthSubmissionFromFp0093 =
-    [
-      "does not authorize endpoint implementation",
-      "does not authorize remote mcp deployment",
-      "does not authorize oauth implementation",
-      "does not authorize app submission",
-      "no endpoint implementation",
-      "no oauth",
-      "no app submission",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noRouteImplementationFromFp0093 = [
+    "does not authorize route code yet",
+    "this is not route implementation",
+    "no route code",
+    "no app route",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noEndpointOauthSubmissionFromFp0093 = [
+    "does not authorize endpoint implementation",
+    "does not authorize remote mcp deployment",
+    "does not authorize oauth implementation",
+    "does not authorize app submission",
+    "no endpoint implementation",
+    "no oauth",
+    "no app submission",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noPublicAppImplementationFromFp0093 = [
     "does not authorize public app implementation",
     "public chatgpt app implementation must still wait",
@@ -953,20 +916,19 @@ function fp0093LocalUiPreviewRouteBoundary() {
     "no apps sdk iframe/ui resource registration",
     "apps sdk iframe/ui resource implementation",
   ].every((requiredText) => normalized.includes(requiredText));
-  const noOpenAiApiModelCallsFromFp0093 =
-    ["no openai api/model calls", "no openai api key was created or used"].every(
-      (requiredText) => normalized.includes(requiredText),
-    );
-  const noSourceMutationFinanceWriteFromFp0093 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      normalized.includes(requiredText),
-    );
-  const noGeneratedProductProseRuntimeCodexFromFp0093 =
-    [
-      "no generated product prose",
-      "no runtime-codex finance output",
-      "no mission-facing output was generated",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noOpenAiApiModelCallsFromFp0093 = [
+    "no openai api/model calls",
+    "no openai api key was created or used",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noSourceMutationFinanceWriteFromFp0093 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noGeneratedProductProseRuntimeCodexFromFp0093 = [
+    "no generated product prose",
+    "no runtime-codex finance output",
+    "no mission-facing output was generated",
+  ].every((requiredText) => normalized.includes(requiredText));
 
   return {
     absentOrDocsOnlyPreviewRouteBoundaryVerified:
@@ -998,8 +960,7 @@ function fp0094LocalPreviewRouteBoundary() {
     path.startsWith("apps/web/app/read-only-app-mcp-preview/"),
   );
   const routePagePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
-  const routeSpecPath =
-    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
+  const routeSpecPath = "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
   const routeExists = routePaths.includes(routePagePath);
   const allowedRouteFilesOnly =
     routePaths.length === 2 &&
@@ -1076,9 +1037,7 @@ function fp0094LocalPreviewRouteBoundary() {
       "syntheticcontractshapedexamplesonly",
       "nodatafetchapicallormutationtransport",
       "noformbuttonfileinputcontrolorserveraction",
-    ].every((requiredText) =>
-      routeAndSpecNormalized.includes(requiredText),
-    );
+    ].every((requiredText) => routeAndSpecNormalized.includes(requiredText));
   const noApiRoutesFromFp0094 =
     ["no web api routes", "does not add api endpoints"].every((requiredText) =>
       normalized.includes(requiredText),
@@ -1097,10 +1056,10 @@ function fp0094LocalPreviewRouteBoundary() {
       "no apps sdk iframe/ui resource registration",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     !/(iframe|postmessage|registerresource|apps-sdk)/iu.test(routeSource);
-  const noOauthSubmissionFromFp0094 =
-    ["does not add oauth", "does not add app submission"].every(
-      (requiredText) => normalized.includes(requiredText),
-    );
+  const noOauthSubmissionFromFp0094 = [
+    "does not add oauth",
+    "does not add app submission",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noPublicAppImplementationFromFp0094 = [
     "does not implement a public chatgpt app",
     "no public app implementation",
@@ -1114,10 +1073,10 @@ function fp0094LocalPreviewRouteBoundary() {
     !/(openai_api_key|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
       routeSource,
     );
-  const noSourceMutationFinanceWriteFromFp0094 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      normalized.includes(requiredText),
-    );
+  const noSourceMutationFinanceWriteFromFp0094 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
 
   return {
     absentOrLocalPreviewRouteBoundaryVerified:
@@ -1150,8 +1109,7 @@ function fp0095LocalPreviewRouteStateMatrixBoundary() {
     path.startsWith("apps/web/app/read-only-app-mcp-preview/"),
   );
   const routePagePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
-  const routeSpecPath =
-    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
+  const routeSpecPath = "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
   const routeSource = routePaths.includes(routePagePath)
     ? readFileSync(routePagePath, "utf8")
     : "";
@@ -1308,27 +1266,26 @@ function fp0095LocalPreviewRouteStateMatrixBoundary() {
     "no remote mcp server",
   ].every((requiredText) => normalized.includes(requiredText));
   const noOpenAiApiModelCallsFromFp0095 =
-    ["no openai api/model calls", "no openai api key was created or used"].every(
-      (requiredText) => normalized.includes(requiredText),
-    ) &&
+    [
+      "no openai api/model calls",
+      "no openai api key was created or used",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
     !/(openai_api_key|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
       routeSource,
     );
-  const noProviderCertificationDeploymentFromFp0095 =
-    [
-      "no provider/certification/deployment work",
-      "no provider/certification/deployment/external communications",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const noSourceMutationFinanceWriteFromFp0095 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      normalized.includes(requiredText),
-    );
-  const noGeneratedProductProseRuntimeCodexFromFp0095 =
-    [
-      "no generated product prose",
-      "no runtime-codex finance output",
-      "no mission-facing output was generated",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noProviderCertificationDeploymentFromFp0095 = [
+    "no provider/certification/deployment work",
+    "no provider/certification/deployment/external communications",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noSourceMutationFinanceWriteFromFp0095 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noGeneratedProductProseRuntimeCodexFromFp0095 = [
+    "no generated product prose",
+    "no runtime-codex finance output",
+    "no mission-facing output was generated",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noScreenshotAssetsFromFp0095 =
     [
       "do not add screenshots",
@@ -1383,8 +1340,7 @@ function fp0096LocalPreviewRouteStateMatrixBoundary() {
     path.startsWith("apps/web/app/read-only-app-mcp-preview/"),
   );
   const routePagePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
-  const routeSpecPath =
-    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
+  const routeSpecPath = "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
   const routeSource = routePaths.includes(routePagePath)
     ? readFileSync(routePagePath, "utf8")
     : "";
@@ -1502,9 +1458,7 @@ function fp0096LocalPreviewRouteStateMatrixBoundary() {
       "conflicting evidence refusal boundary",
       "privacy boundary",
       "no-runtime boundary",
-    ].every((requiredText) =>
-      normalizedRouteAndSpec.includes(requiredText),
-    ) &&
+    ].every((requiredText) => normalizedRouteAndSpec.includes(requiredText)) &&
     allowedRouteFilesOnly &&
     routeMetadataNoIndexBoundaryVerified;
   const noAdditionalRoutesFromFp0096 =
@@ -1546,10 +1500,10 @@ function fp0096LocalPreviewRouteStateMatrixBoundary() {
     !/(openai_api_key|process\.env|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
       routeSource,
     );
-  const noSourceMutationFinanceWriteFromFp0096 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      normalized.includes(requiredText),
-    );
+  const noSourceMutationFinanceWriteFromFp0096 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noScreenshotAssetsFromFp0096 =
     ["no screenshot", "no generated images"].every((requiredText) =>
       normalized.includes(requiredText),
@@ -1600,8 +1554,7 @@ function fp0097LocalPreviewRouteVisualQaBoundary() {
     path.startsWith("apps/web/app/read-only-app-mcp-preview/"),
   );
   const routePagePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
-  const routeSpecPath =
-    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
+  const routeSpecPath = "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
   const routeSource = routePaths.includes(routePagePath)
     ? readFileSync(routePagePath, "utf8")
     : "";
@@ -1694,8 +1647,7 @@ function fp0097LocalPreviewRouteVisualQaBoundary() {
     (path) =>
       /(app-submission|submission-assets|public-listing|store-listing)/iu.test(
         path,
-      ) &&
-      /(fp-0097|fp0097|visual-qa|read-only-app-mcp-preview)/iu.test(path),
+      ) && /(fp-0097|fp0097|visual-qa|read-only-app-mcp-preview)/iu.test(path),
   );
   const screenshotlessVisualQaVerified =
     [
@@ -1712,18 +1664,16 @@ function fp0097LocalPreviewRouteVisualQaBoundary() {
     ].every((requiredText) => normalized.includes(requiredText)) &&
     [
       "proves screenshotless premium visual qa",
-      "data-visual-qa=\"screenshotless\"",
-      "data-typography=\"h1-28\"",
-      "data-panel-tier=\"shell\"",
-      "data-panel-tier=\"panel\"",
-      "data-panel-hierarchy=\"state-card-grid\"",
-      "data-spacing=\"18\"",
-      "data-spacing=\"14\"",
-      "data-responsive=\"narrow-wide\"",
+      'data-visual-qa="screenshotless"',
+      'data-typography="h1-28"',
+      'data-panel-tier="shell"',
+      'data-panel-tier="panel"',
+      'data-panel-hierarchy="state-card-grid"',
+      'data-spacing="18"',
+      'data-spacing="14"',
+      'data-responsive="narrow-wide"',
       "grid-template-columns:repeat(auto-fit, minmax(240px, 1fr))",
-    ].every((requiredText) =>
-      normalizedRouteAndSpec.includes(requiredText),
-    ) &&
+    ].every((requiredText) => normalizedRouteAndSpec.includes(requiredText)) &&
     screenshotAssetPaths.length === 0;
   const accessibilityStateMatrixVerified =
     [
@@ -1738,15 +1688,13 @@ function fp0097LocalPreviewRouteVisualQaBoundary() {
     ].every((requiredText) => normalized.includes(requiredText)) &&
     [
       "proves state matrix accessibility",
-      "aria-label=\"read-only preview state matrix groups\"",
-      "aria-label=\"refusal and transient state matrix group\"",
-      "aria-label=\"privacy and no-runtime state matrix boundary group\"",
-      "aria-busy=\"true\"",
+      'aria-label="read-only preview state matrix groups"',
+      'aria-label="refusal and transient state matrix group"',
+      'aria-label="privacy and no-runtime state matrix boundary group"',
+      'aria-busy="true"',
       "refusal reason: conflicting evidence",
       "error reason: unsupported or conflicting evidence",
-    ].every((requiredText) =>
-      normalizedRouteAndSpec.includes(requiredText),
-    );
+    ].every((requiredText) => normalizedRouteAndSpec.includes(requiredText));
   const localPreviewRouteVisualQaFoundationVerified =
     [
       "fp-0097",
@@ -1802,10 +1750,10 @@ function fp0097LocalPreviewRouteVisualQaBoundary() {
     !/(openai_api_key|process\.env|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
       routeSource,
     );
-  const noSourceMutationFinanceWriteFromFp0097 =
-    ["no source mutation", "no finance writes"].every((requiredText) =>
-      normalized.includes(requiredText),
-    );
+  const noSourceMutationFinanceWriteFromFp0097 = [
+    "no source mutation",
+    "no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noScreenshotAssetsFromFp0097 =
     ["no screenshot", "no generated images"].every((requiredText) =>
       normalized.includes(requiredText),
@@ -2157,18 +2105,16 @@ function fp0100PublicAppSecurityBoundary() {
       "endpoint work is deferred",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     noFp0100RouteOrEndpointPaths();
-  const noOauthImplementationFromFp0100 =
-    [
-      "does not authorize oauth",
-      "oauth/token/session work is deferred",
-      "no oauth",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const noRemoteMcpDeploymentFromFp0100 =
-    [
-      "does not authorize remote mcp",
-      "remote mcp deployment is deferred",
-      "no remote mcp server",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noOauthImplementationFromFp0100 = [
+    "does not authorize oauth",
+    "oauth/token/session work is deferred",
+    "no oauth",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const noRemoteMcpDeploymentFromFp0100 = [
+    "does not authorize remote mcp",
+    "remote mcp deployment is deferred",
+    "no remote mcp server",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noAppsSdkResourceFromFp0100 =
     [
       "does not authorize apps sdk iframe/resource registration",
@@ -2176,12 +2122,11 @@ function fp0100PublicAppSecurityBoundary() {
       "no apps sdk iframe/resource registration",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     noFp0100AppsSdkResourcePaths();
-  const noAppSubmissionFromFp0100 =
-    [
-      "does not authorize app submission",
-      "app submission/listing/public assets are deferred",
-      "no app submission",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noAppSubmissionFromFp0100 = [
+    "does not authorize app submission",
+    "app submission/listing/public assets are deferred",
+    "no app submission",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noOpenAiApiCallsFromFp0100 =
     [
       "does not authorize openai api/model calls",
@@ -2190,12 +2135,11 @@ function fp0100PublicAppSecurityBoundary() {
     ].every((requiredText) => normalized.includes(requiredText)) &&
     noOpenAiApiCalls &&
     noModelCalls;
-  const noSourceMutationFinanceWriteFromFp0100 =
-    [
-      "no source mutation",
-      "no finance writes",
-      "no source mutation and no finance writes",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noSourceMutationFinanceWriteFromFp0100 = [
+    "no source mutation",
+    "no finance writes",
+    "no source mutation and no finance writes",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noPublicAssetsSubmissionArtifactsFromFp0100 =
     [
       "no screenshots",
@@ -2477,8 +2421,7 @@ function fp0102EndpointOauthRemoteMcpArchitectureBoundary() {
     ].every((requiredText) => normalized.includes(requiredText)) &&
     publicAssetsSubmissionArtifactPaths.length === 0;
   const fp0101ImplementationSequencingBoundaryStillVerified =
-    fp0101Boundary
-      .absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified &&
+    fp0101Boundary.absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified &&
     fp0101Boundary.publicAppImplementationSequencingPlanBoundaryVerified;
   const fp0100PublicSecurityBoundaryStillVerified =
     fp0100Boundary.absentOrLocalSecurityBoundaryContractsVerified &&
@@ -2556,7 +2499,8 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
       !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web\/app|apps\/web\/pages|apps\/web\/api|apps\/control-plane|packages\/api|packages\/server|packages\/backend|packages\/db)\//u.test(
         path,
-      ) && /fp-?0103|endpoint|oauth|remote-mcp|apps-sdk/u.test(path),
+      ) &&
+      /fp-?0103|endpoint|oauth|remote-mcp|apps-sdk/u.test(path),
   );
   const noFp0103PublicAssetPaths = !repoFilePaths().some(
     (path) =>
@@ -2594,14 +2538,12 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
     normalized.includes(
       "fp-0103 does not authorize web api/backend/control-plane route implementation",
     ) && noFp0103RuntimePaths;
-  const noOauthTokenSessionImplementationFromFp0103 =
-    normalized.includes(
-      "fp-0103 does not authorize oauth/token/session implementation",
-    );
-  const noRemoteMcpImplementationOrDeploymentFromFp0103 =
-    normalized.includes(
-      "fp-0103 does not authorize remote mcp server implementation or deployment",
-    );
+  const noOauthTokenSessionImplementationFromFp0103 = normalized.includes(
+    "fp-0103 does not authorize oauth/token/session implementation",
+  );
+  const noRemoteMcpImplementationOrDeploymentFromFp0103 = normalized.includes(
+    "fp-0103 does not authorize remote mcp server implementation or deployment",
+  );
   const noAppsSdkResourceFromFp0103 = normalized.includes(
     "fp-0103 does not authorize apps sdk iframe/resource implementation",
   );
@@ -2629,8 +2571,7 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
   const publicAppImplementationSubmissionFutureOnlyFromFp0103 =
     normalized.includes("public app implementation/submission future-only");
   const fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified =
-    fp0102Boundary
-      .absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified &&
+    fp0102Boundary.absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified &&
     fp0102Boundary.endpointOauthRemoteMcpArchitecturePlanBoundaryVerified;
   const fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified =
     endpointArchitectureProofContractsFoundationVerified &&
@@ -2729,33 +2670,31 @@ function fp0104EndpointImplementationReadinessBoundary() {
   const normalized = readFileSync(fp0104PathHits[0], "utf8")
     .toLowerCase()
     .replace(/`/gu, "");
-  const endpointImplementationReadinessPlanBoundaryVerified =
-    [
-      "fp-0104 is not implementation",
-      "fp-0104 is docs-and-plan plus proof-gate compatibility only",
-      "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
-      "fp-0104 does not authorize endpoint implementation",
-      "fp-0104 does not authorize route implementation",
-      "fp-0104 does not authorize web api/backend/control-plane route implementation",
-      "fp-0104 does not authorize oauth/token/session implementation",
-      "fp-0104 does not authorize remote mcp server implementation or deployment",
-      "fp-0104 does not authorize apps sdk iframe/resource implementation",
-      "fp-0104 does not authorize public chatgpt app implementation",
-      "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
-      "fp-0104 does not authorize openai api/model calls",
-      "fp-0104 keeps fp-0105 absent",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const exactFutureEndpointInventoryReadinessVerified =
-    [
-      "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
-      "| /mcp |",
-      "endpoint path naming beyond /mcp is blocked",
-      "request envelope",
-      "response envelope",
-      "auth requirement",
-      "refusal/failure behavior",
-      "logging posture",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const endpointImplementationReadinessPlanBoundaryVerified = [
+    "fp-0104 is not implementation",
+    "fp-0104 is docs-and-plan plus proof-gate compatibility only",
+    "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
+    "fp-0104 does not authorize endpoint implementation",
+    "fp-0104 does not authorize route implementation",
+    "fp-0104 does not authorize web api/backend/control-plane route implementation",
+    "fp-0104 does not authorize oauth/token/session implementation",
+    "fp-0104 does not authorize remote mcp server implementation or deployment",
+    "fp-0104 does not authorize apps sdk iframe/resource implementation",
+    "fp-0104 does not authorize public chatgpt app implementation",
+    "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
+    "fp-0104 does not authorize openai api/model calls",
+    "fp-0104 keeps fp-0105 absent",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const exactFutureEndpointInventoryReadinessVerified = [
+    "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
+    "| /mcp |",
+    "endpoint path naming beyond /mcp is blocked",
+    "request envelope",
+    "response envelope",
+    "auth requirement",
+    "refusal/failure behavior",
+    "logging posture",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noEndpointImplementationFromFp0104 =
     normalized.includes("fp-0104 does not authorize endpoint implementation") &&
     normalized.includes("no endpoints");
@@ -2793,14 +2732,13 @@ function fp0104EndpointImplementationReadinessBoundary() {
   const noSourceMutationFinanceWriteFromFp0104 =
     normalized.includes("no source mutation") &&
     normalized.includes("no finance writes");
-  const noPublicAssetsSubmissionArtifactsFromFp0104 =
-    [
-      "no screenshots",
-      "no generated images",
-      "no public assets",
-      "no listing copy",
-      "no app-submission artifacts",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noPublicAssetsSubmissionArtifactsFromFp0104 = [
+    "no screenshots",
+    "no generated images",
+    "no public assets",
+    "no listing copy",
+    "no app-submission artifacts",
+  ].every((requiredText) => normalized.includes(requiredText));
   const fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified =
     endpointImplementationReadinessPlanBoundaryVerified &&
     exactFutureEndpointInventoryReadinessVerified &&
@@ -2959,6 +2897,11 @@ function noFp0100ListingCopy() {
 function readPublicAppProofGateSourceText() {
   return repoFilePaths()
     .filter(isPublicAppProofGateSourceSurface)
+    .filter(
+      (path) =>
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");
 }

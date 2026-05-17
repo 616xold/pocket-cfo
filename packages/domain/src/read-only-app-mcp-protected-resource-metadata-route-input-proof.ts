@@ -39,6 +39,16 @@ export const McpProtectedResourceMetadataRouteInputProofSchema = z
     routeInputCompanyBindingPrerequisiteBoundaryVerified: trueLiteral,
     routeInputMcpUnchangedBoundaryVerified: trueLiteral,
     routeInputNoRuntimeBoundaryVerified: trueLiteral,
+    routeInputBranchDiffScopeVerified: trueLiteral,
+    routeInputRepositoryInventoryVerified: trueLiteral,
+    routeInputNoRouteRuntimeRepositoryInventoryVerified: trueLiteral,
+    routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified:
+      trueLiteral,
+    routeInputNoWwwAuthenticateRepositoryInventoryVerified: trueLiteral,
+    routeInputNoAuthRuntimeRepositoryInventoryVerified: trueLiteral,
+    routeInputNoDeploymentPublicAssetRepositoryInventoryVerified: trueLiteral,
+    routeInputNoOpenAiSourceScanVerified: trueLiteral,
+    fp0123PostmergeProofDurabilityVerified: trueLiteral,
     noRouteBehaviorChange: trueLiteral,
     noNewRoutePath: trueLiteral,
     noProtectedResourceMetadataRouteImplementation: trueLiteral,
@@ -102,9 +112,7 @@ export function buildMcpProtectedResourceMetadataRouteInputContracts() {
       ),
     builderOutputBoundary:
       McpProtectedResourceMetadataRouteInputBuilderOutputBoundarySchema.parse({
-        ...base(
-          "McpProtectedResourceMetadataRouteInputBuilderOutputBoundary",
-        ),
+        ...base("McpProtectedResourceMetadataRouteInputBuilderOutputBoundary"),
         fp0122BuilderOutputOrBuilderValidInputRequired: true,
         invalidBuilderOutputAllowed: false,
         routeRegistered: false,
@@ -139,9 +147,7 @@ export function buildMcpProtectedResourceMetadataRouteInputContracts() {
       ),
     evidenceBundleBoundary:
       McpProtectedResourceMetadataRouteInputEvidenceBundleBoundarySchema.parse({
-        ...base(
-          "McpProtectedResourceMetadataRouteInputEvidenceBundleBoundary",
-        ),
+        ...base("McpProtectedResourceMetadataRouteInputEvidenceBundleBoundary"),
         requiresAuthorizationServerEvidence: true,
         requiresBuilderOutputOrBuilderValidInput: true,
         requiresCanonicalUriEvidence: true,
@@ -175,9 +181,7 @@ export function buildMcpProtectedResourceMetadataRouteInputContracts() {
       }),
     noTokenLeakageBoundary:
       McpProtectedResourceMetadataRouteInputNoTokenLeakageBoundarySchema.parse({
-        ...base(
-          "McpProtectedResourceMetadataRouteInputNoTokenLeakageBoundary",
-        ),
+        ...base("McpProtectedResourceMetadataRouteInputNoTokenLeakageBoundary"),
         companyKeyAuthorityAllowed: false,
         cookiesSessionsSecretsCredentialsAllowed: false,
         credentialBearingUrlsAllowed: false,
@@ -233,9 +237,8 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
   const contracts = buildMcpProtectedResourceMetadataRouteInputContracts();
   const validValidation =
     validateProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
-  const bundle = buildProtectedResourceMetadataRouteInputEvidenceBundle(
-    validRouteInput,
-  );
+  const bundle =
+    buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
   const pathDecision = deriveProtectedResourceMetadataRoutePathDecision({
     canonicalResourceUri: validRouteInput.canonicalResourceUri,
   });
@@ -267,6 +270,8 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
       input.fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified ?? true,
     fp0123BoundaryVerified: input.fp0123BoundaryVerified ?? true,
     fp0124Absent: input.fp0124Absent ?? true,
+    fp0123PostmergeProofDurabilityVerified:
+      input.fp0123PostmergeProofDurabilityVerified ?? true,
     localProofOnly: true,
     noAppSubmission: input.noAppSubmission ?? true,
     noAppsSdkResourceImplementation:
@@ -293,12 +298,10 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
     noPublicAssets: input.noPublicAssets ?? true,
     noRemoteMcpDeployment: input.noRemoteMcpDeployment ?? true,
     noRouteBehaviorChange: input.noRouteBehaviorChange ?? true,
-    noRuntimeCodexFinanceOutput:
-      input.noRuntimeCodexFinanceOutput ?? true,
+    noRuntimeCodexFinanceOutput: input.noRuntimeCodexFinanceOutput ?? true,
     noSchemaMigrationsAdded: input.noSchemaMigrationsAdded ?? true,
     noSourceMutation: input.noSourceMutation ?? true,
-    noTokenSessionImplementation:
-      input.noTokenSessionImplementation ?? true,
+    noTokenSessionImplementation: input.noTokenSessionImplementation ?? true,
     noWwwAuthenticateRouteBehaviorImplementation:
       input.noWwwAuthenticateRouteBehaviorImplementation ?? true,
     routeInputAuthorizationServerEvidenceBoundaryVerified:
@@ -306,11 +309,14 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
       McpProtectedResourceMetadataRouteInputAuthorizationServerEvidenceBoundarySchema.safeParse(
         contracts.authorizationServerEvidenceBoundary,
       ).success,
+    routeInputBranchDiffScopeVerified:
+      input.routeInputBranchDiffScopeVerified ?? true,
     routeInputBuilderOutputBoundaryVerified:
       input.routeInputBuilderOutputBoundaryVerified ??
       (McpProtectedResourceMetadataRouteInputBuilderOutputBoundarySchema.safeParse(
         contracts.builderOutputBoundary,
-      ).success && bundle.builderOutput.routeResponseContractOnly),
+      ).success &&
+        bundle.builderOutput.routeResponseContractOnly),
     routeInputCanonicalUriEvidenceBoundaryVerified:
       input.routeInputCanonicalUriEvidenceBoundaryVerified ??
       McpProtectedResourceMetadataRouteInputCanonicalUriEvidenceBoundarySchema.safeParse(
@@ -342,11 +348,25 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
       McpProtectedResourceMetadataRouteInputNoRuntimeBoundarySchema.safeParse(
         contracts.noRuntimeBoundary,
       ).success,
+    routeInputNoAuthRuntimeRepositoryInventoryVerified:
+      input.routeInputNoAuthRuntimeRepositoryInventoryVerified ?? true,
+    routeInputNoDeploymentPublicAssetRepositoryInventoryVerified:
+      input.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified ??
+      true,
+    routeInputNoOpenAiSourceScanVerified:
+      input.routeInputNoOpenAiSourceScanVerified ?? true,
+    routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified:
+      input.routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified ??
+      true,
+    routeInputNoRouteRuntimeRepositoryInventoryVerified:
+      input.routeInputNoRouteRuntimeRepositoryInventoryVerified ?? true,
     routeInputNoTokenLeakageBoundaryVerified:
       input.routeInputNoTokenLeakageBoundaryVerified ??
       McpProtectedResourceMetadataRouteInputNoTokenLeakageBoundarySchema.safeParse(
         contracts.noTokenLeakageBoundary,
       ).success,
+    routeInputNoWwwAuthenticateRepositoryInventoryVerified:
+      input.routeInputNoWwwAuthenticateRepositoryInventoryVerified ?? true,
     routeInputPathDecisionBoundaryVerified:
       input.routeInputPathDecisionBoundaryVerified ??
       (McpProtectedResourceMetadataRouteInputPathDecisionBoundarySchema.safeParse(
@@ -354,6 +374,8 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
       ).success &&
         pathDecision.metadataRoutePath ===
           MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH),
+    routeInputRepositoryInventoryVerified:
+      input.routeInputRepositoryInventoryVerified ?? true,
     schemaVersion: MCP_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_SCHEMA_VERSION,
   });
 }
@@ -374,9 +396,14 @@ export const validRouteInput = {
 
 const invalidRouteInputCandidates = [
   { canonicalUriEvidenceAccepted: false },
-  { canonicalResourceUri: "https://user:pass@mcp.canonical-finance-host.com/mcp" },
+  {
+    canonicalResourceUri:
+      "https://user:pass@mcp.canonical-finance-host.com/mcp",
+  },
   { authorizationServers: [] },
-  { authorizationServers: ["https://user:pass@auth.canonical-finance-host.com"] },
+  {
+    authorizationServers: ["https://user:pass@auth.canonical-finance-host.com"],
+  },
   { scopesSupported: ["finance:write"] },
   { bearerMethodsSupported: ["query"] },
   { noTokenLeakageAccepted: false },
@@ -384,7 +411,9 @@ const invalidRouteInputCandidates = [
   { mcpUnchangedBehaviorPrerequisiteAccepted: false },
 ] as const;
 
-function base(contractKind: McpProtectedResourceMetadataRouteInputContractKind) {
+function base(
+  contractKind: McpProtectedResourceMetadataRouteInputContractKind,
+) {
   return {
     contractKind,
     implementationAdded: false,

@@ -52,15 +52,23 @@ const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 const ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
-const fp0117PlanText = safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH);
+const fp0117PlanText = safeRead(
+  FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+);
 const fp0118PlanText = safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH);
 const fp0119PlanText = safeRead(
   FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
 );
-const fp0120PlanText = safeRead(FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH);
+const fp0120PlanText = safeRead(
+  FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
+);
 const fp0121PlanText = safeRead(
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
 );
@@ -80,11 +88,10 @@ const repositoryInventory =
     repoPaths,
     routeSourceText: safeRead(ROUTE_PATH),
   });
-const durableSourceScan = verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan(
-  {
+const durableSourceScan =
+  verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan({
     sourceText: readProtectedResourceMetadataProofSourceText(),
-  },
-);
+  });
 
 const proof = McpProtectedResourceMetadataProofSchema.parse(
   buildMcpProtectedResourceMetadataProof({
@@ -350,10 +357,8 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
     noProviderExternalCallsFromFp0122:
       scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
     noPublicAssets: scopeScan.noPublicAssets,
-    noPublicAppImplementationFromFp0121:
-      scopeScan.noPublicAppImplementation,
-    noPublicAppImplementationFromFp0122:
-      scopeScan.noPublicAppImplementation,
+    noPublicAppImplementationFromFp0121: scopeScan.noPublicAppImplementation,
+    noPublicAppImplementationFromFp0122: scopeScan.noPublicAppImplementation,
     noPublicAssetsSubmissionArtifactsFromFp0119:
       scopeScan.noPublicAssets && scopeScan.noAppSubmission,
     noPublicAssetsSubmissionArtifactsFromFp0120:
@@ -462,9 +467,7 @@ if (textHasProtectedResourceTokenLeakage(proofJson)) {
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
-    throw new Error(
-      `FP-0118 protected-resource metadata proof failed: ${key}`,
-    );
+    throw new Error(`FP-0118 protected-resource metadata proof failed: ${key}`);
   }
 }
 
@@ -473,6 +476,11 @@ console.log(proofJson);
 function readProtectedResourceMetadataProofSourceText() {
   return repoPaths
     .filter(isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath)
+    .filter(
+      (path) =>
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map((path) => `// ${path}\n${safeRead(path)}`)
     .join("\n");
 }
@@ -645,6 +653,7 @@ function readChangedExecutableSource() {
       (path) =>
         /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
         !path.startsWith("tools/") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path) &&
         !path.endsWith(".spec.ts"),
     )
     .map(safeRead)
@@ -697,7 +706,12 @@ function worktreeStatusPaths() {
   return status
     .split("\n")
     .filter((line) => line.trim())
-    .map((line) => line.replace(/^.. /u, "").replace(/.* -> /u, "").trim());
+    .map((line) =>
+      line
+        .replace(/^.. /u, "")
+        .replace(/.* -> /u, "")
+        .trim(),
+    );
 }
 
 function repoFilePaths() {

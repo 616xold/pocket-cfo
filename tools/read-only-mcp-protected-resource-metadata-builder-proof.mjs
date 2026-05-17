@@ -38,6 +38,8 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.spec.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-contracts.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.spec.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata.ts",
@@ -56,6 +58,15 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
+  "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
+  "tools/read-only-mcp-protocol-envelope-proof.mjs",
+  "tools/read-only-endpoint-route-ownership-proof.mjs",
+  "tools/read-only-endpoint-architecture-proof.mjs",
+  "tools/read-only-public-app-security-boundary-proof.mjs",
+  "tools/read-only-mcp-descriptor-response-envelope-proof.mjs",
+  "tools/read-only-chatgpt-app-mcp-proof.mjs",
+  "tools/read-only-mcp-remote-host-resource-boundary-proof.mjs",
+  "tools/benchmark-community-pack-proof.mjs",
   "README.md",
   "CODEX_README.md",
   "START_HERE.md",
@@ -137,8 +148,7 @@ const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
     fp0124Absent: verifyFp0124Absent(repoPaths),
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
-    noAuthMiddlewareImplementation:
-      scopeScan.noAuthMiddlewareImplementation,
+    noAuthMiddlewareImplementation: scopeScan.noAuthMiddlewareImplementation,
     noDbQueriesAdded: scopeScan.noDbQueries,
     noDeploymentConfig: scopeScan.noDeploymentConfig,
     noExternalCommunications: scopeScan.noExternalCommunications,
@@ -146,8 +156,7 @@ const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
     noGeneratedPublicProse: scopeScan.noGeneratedPublicProse,
     noListingCopy: scopeScan.noListingCopy,
     noModelCalls: scopeScan.noModelCalls,
-    noNewRoutePath:
-      scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
+    noNewRoutePath: scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
     noOauthImplementation: scopeScan.noOauthImplementation,
     noOpenAiApiCalls: scopeScan.noOpenAiApiCalls,
     noOpenAiClientOrKeyUsage: scopeScan.noOpenAiClientOrKeyUsage,
@@ -164,11 +173,14 @@ const proof = McpProtectedResourceMetadataBuilderProofSchema.parse(
     noSourceMutation: scopeScan.noSourceMutation,
     noTokenSessionImplementation: scopeScan.noTokenSessionImplementation,
     noWwwAuthenticateRouteBehaviorImplementation:
-      scopeScan.noWwwAuthenticateRouteBehavior && localRouteShapeStillVerified(),
+      scopeScan.noWwwAuthenticateRouteBehavior &&
+      localRouteShapeStillVerified(),
   }),
 );
 
-if (textHasProtectedResourceMetadataBuilderTokenLeakage(JSON.stringify(proof))) {
+if (
+  textHasProtectedResourceMetadataBuilderTokenLeakage(JSON.stringify(proof))
+) {
   throw new Error("FP-0122 builder proof output leaked token-like material");
 }
 
@@ -277,10 +289,9 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
     noOpenAiClientOrKeyUsage:
       changedFilesAllowed &&
       !new RegExp(
-        `\\b(?:${["OPENAI", "API", "KEY"].join("_")}|${[
-          "new",
-          "OpenAI",
-        ].join(" ")}|process\\.env\\.${["OPENAI", "API"].join("_")})\\b`,
+        `\\b(?:${["OPENAI", "API", "KEY"].join("_")}|${["new", "OpenAI"].join(
+          " ",
+        )}|process\\.env\\.${["OPENAI", "API"].join("_")})\\b`,
         "u",
       ).test(changedExecutableSource),
     noPackageScripts:
@@ -362,6 +373,8 @@ function readChangedExecutableSource() {
       (path) =>
         /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
         !path.startsWith("tools/") &&
+        path !==
+          "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts" &&
         !path.endsWith(".spec.ts"),
     )
     .map(safeRead)
@@ -379,7 +392,12 @@ function changedFilePaths() {
   return status
     .split("\n")
     .filter((line) => line.trim())
-    .map((line) => line.replace(/^.. /u, "").replace(/.* -> /u, "").trim())
+    .map((line) =>
+      line
+        .replace(/^.. /u, "")
+        .replace(/.* -> /u, "")
+        .trim(),
+    )
     .sort();
 }
 

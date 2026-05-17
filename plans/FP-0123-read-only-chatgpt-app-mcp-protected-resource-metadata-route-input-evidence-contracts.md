@@ -15,12 +15,17 @@ The next safe step is still not route implementation. FP-0123 implements only pu
 - [x] 2026-05-16T22:56:00Z: Implemented pure route-input evidence bundle contracts, helpers, focused specs, direct proof tooling, and proof-gate bridge.
 - [x] 2026-05-16T22:56:00Z: Refreshed only directly stale active docs and `plugins.md` for FP-0123 shipped-state posture.
 - [x] 2026-05-16T23:01:00Z: Ran focused validation, full validation, closeout validation, and post-closeout reproducible CI through `pnpm ci:repro:current`; commit, push, and PR remain.
+- [x] 2026-05-17T00:02:52Z: Started targeted post-merge FP-0123 proof-durability hardening correction on `codex/v2aq-read-only-chatgpt-app-mcp-protected-resource-metadata-route-input-evidence-contracts-proof-hardening-local-v1` after confirming PR #294 is merged, FP-0123 exists, FP-0124 is absent, required proof tools exist, local Postgres/MinIO are available, GitHub auth is valid, and the requested baseline proof ladder passed before edits.
+- [x] 2026-05-17T00:02:52Z: Hardened `tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs` and the route-input proof contract so scope verification now combines dirty worktree paths, `origin/main...HEAD` branch-diff paths, and durable current repository inventory scans instead of relying only on dirty worktree paths.
+- [x] 2026-05-17T00:02:52Z: Added focused route-input durability tests for current repo truth, simulated committed protected-resource metadata route paths, simulated committed `WWW-Authenticate` source/path drift, OAuth/token/session/auth middleware drift, deployment/public asset/listing/submission/package-script drift, OpenAI executable usage drift, safe absence language, and FP-0124 absence.
+- [x] 2026-05-17T00:24:45Z: Completed the requested post-merge proof-durability validation ladder before closeout, including all proof commands, focused domain/control-plane Vitest slices, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
 - Existing route-adapter and evidence-dispatch proof gates still treated any FP-0123 file as absent-only planning scope. The bridge was narrowed to accept exactly the FP-0123 route-input contract plan and direct proof tool while keeping FP-0124 absent and preserving all route/no-runtime boundaries.
 - The direct proof scanner needed to avoid embedding literal OpenAI API key text in a way legacy source-scope checks would flag. The proof now constructs that environment-key marker without introducing API usage.
 - The active docs correctly marked FP-0122 as shipped and FP-0123 absent before this slice.
+- Post-merge QA found the original FP-0123 route-input proof was too dependent on dirty-worktree paths for forbidden-scope absence checks. A committed or merged branch with a clean worktree could hide route/runtime/auth/deployment/package/OpenAI/provider/source/finance drift unless the proof also used branch-diff paths and current repository inventory.
 
 ## Decision Log
 
@@ -33,6 +38,7 @@ The next safe step is still not route implementation. FP-0123 implements only pu
 - Decision: `/mcp` unchanged behavior is a prerequisite flag only. FP-0123 proves `/mcp` behavior remains unchanged and no route is registered.
 - Decision: Public ChatGPT App submission must wait. FP-0123 adds no public app behavior, app-submission artifact, listing copy, screenshot, public asset, external communication, deployment, OAuth runtime, or provider call.
 - Decision: Proof-gate compatibility is allowed only for the exact FP-0123 local/proof-only route-input contract artifacts. FP-0124 remains absent and route behavior remains unauthorized.
+- Decision: The route-input proof must be durable after commit and merge. It now verifies dirty paths, `origin/main...HEAD` branch-diff paths, their combined changed-path set, current route-like repository inventory, protected-resource metadata route absence, `WWW-Authenticate` route-behavior absence, OAuth/token/session/auth runtime absence, deployment/public-asset/submission/App SDK absence, package/DB/schema/migration absence from changed paths, OpenAI executable-source absence, provider/external-call absence, source-mutation absence, and finance-write absence.
 
 ## Context and Orientation
 
@@ -111,6 +117,8 @@ Validation commands:
 
 Acceptance requires exactly one FP-0123 file, FP-0124 absent, pure local/proof-only/read-only route-input evidence bundle contracts, accepted canonical URI evidence, credential-free authorization-server evidence, valid FP-0122 builder output or builder-valid input, derived route path decision for `/mcp`, no-token-leakage proof, authenticated company-binding prerequisite proof, `/mcp` unchanged-behavior prerequisite proof, route implementation deferred, `WWW-Authenticate` behavior deferred, no route behavior change, no new route path, no protected-resource metadata route, no OAuth/token/session/auth middleware, no remote deployment/config, no Apps SDK resource, no public app/submission/public asset/listing/generated public prose, no DB/schema/package/data/source-pack changes, no OpenAI/model/provider calls, no source mutation, no finance write, no autonomous action, and preserved prior boundaries.
 
+The post-merge proof-durability correction additionally requires `tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs` to verify `routeInputBranchDiffScopeVerified`, `routeInputRepositoryInventoryVerified`, `routeInputNoRouteRuntimeRepositoryInventoryVerified`, `routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified`, `routeInputNoWwwAuthenticateRepositoryInventoryVerified`, `routeInputNoAuthRuntimeRepositoryInventoryVerified`, `routeInputNoDeploymentPublicAssetRepositoryInventoryVerified`, `routeInputNoOpenAiSourceScanVerified`, and `fp0123PostmergeProofDurabilityVerified` from dirty paths, `origin/main...HEAD`, and current repository inventory.
+
 If a post-validation doc closeout edit is made, rerun:
 
 - `git diff --check`
@@ -143,9 +151,11 @@ No new environment variables, package scripts, route paths, schemas, migrations,
 
 Implemented FP-0123 as local/proof-only/read-only contract work. The domain layer now has pure schemas, helpers, proof schema, focused specs, and a direct proof command for route-input evidence bundles, canonical URI evidence, authorization-server evidence, derived route path decisions, FP-0122 builder dependency, no-token-leakage, authenticated company-binding prerequisite, `/mcp` unchanged prerequisite, and no-runtime posture.
 
+Post-merge proof-durability hardening now keeps the same product boundary while strengthening the direct route-input proof against clean-worktree blind spots after commit or merge. The proof continues to preserve the exact FP-0123 allowed changed-file scope, but it now verifies both committed branch-diff paths and dirty paths, plus current repository inventory/source scans for forbidden route/runtime/auth/deployment/public-asset/package/DB/OpenAI/provider/source/finance drift.
+
 Proof-gate bridge updates accept exactly one FP-0123 plan path, prove FP-0124 absent, and preserve FP-0122, FP-0121, FP-0120, FP-0118, FP-0117, FP-0107, FP-0106, and FP-0100 boundaries. No route files were changed, no protected-resource metadata route was registered, no `WWW-Authenticate` route behavior was added, and no OAuth/token/session/auth middleware, deployment config, Apps SDK resource, app submission, DB/schema/package/data/source-pack/public-asset/OpenAI/provider/source/finance-write/autonomous-action scope was introduced.
 
-Validation completed before closeout:
+Validation completed before the 2026-05-17 post-merge proof-durability closeout:
 
 - `git diff --check`
 - all requested proof commands from route-input through evidence-index foundation

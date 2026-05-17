@@ -17,6 +17,7 @@ import {
   verifyFp0123PlanningTextRequiredTopics,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0124Absent,
+  verifyMcpProtectedResourceMetadataRouteInputDurabilityScan,
   type McpProtectedResourceMetadataRouteInputBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata";
 
@@ -255,9 +256,7 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
     ).toBe(false);
     expect(
       changedPaths.some((path) =>
-        /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu.test(
-          path,
-        ),
+        /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu.test(path),
       ),
     ).toBe(false);
     expect(proof.noOpenAiApiCalls).toBe(true);
@@ -267,6 +266,159 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
     expect(proof.noSourceMutation).toBe(true);
     expect(proof.noFinanceWrite).toBe(true);
     expect(proof.noAutonomousAction).toBe(true);
+  });
+
+  it("passes durable route-input repository inventory for current repo truth", () => {
+    const scan = routeInputDurabilityScan();
+
+    expect(scan.routeInputBranchDiffScopeVerified).toBe(true);
+    expect(scan.routeInputRepositoryInventoryVerified).toBe(true);
+    expect(scan.routeInputNoRouteRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(
+      scan.routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(scan.routeInputNoWwwAuthenticateRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(scan.routeInputNoAuthRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(
+      scan.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(scan.routeInputNoOpenAiSourceScanVerified).toBe(true);
+    expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(true);
+  });
+
+  it("rejects simulated committed protected-resource metadata route path drift", () => {
+    const badPath =
+      "apps/web/app/.well-known/oauth-protected-resource/mcp/route.ts";
+    const scan = routeInputDurabilityScan({
+      branchDiffPaths: [badPath],
+      repoPaths: [...repoFilePaths(), badPath],
+    });
+
+    expect(scan.routeInputBranchDiffScopeVerified).toBe(false);
+    expect(scan.routeInputNoRouteRuntimeRepositoryInventoryVerified).toBe(
+      false,
+    );
+    expect(
+      scan.routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("rejects simulated committed WWW-Authenticate route behavior path and source drift", () => {
+    const badPath =
+      "apps/control-plane/src/modules/read-only-app-mcp-endpoint/www-authenticate/routes.ts";
+    const pathScan = routeInputDurabilityScan({
+      branchDiffPaths: [badPath],
+      repoPaths: [...repoFilePaths(), badPath],
+    });
+    const sourceScan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts",
+      ],
+      sourceTextByPath: {
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts":
+          'reply.header("WWW-Authenticate", "Bearer resource_metadata=https://example.test/.well-known/oauth-protected-resource/mcp");',
+      },
+    });
+
+    expect(
+      pathScan.routeInputNoWwwAuthenticateRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      sourceScan.routeInputNoWwwAuthenticateRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(sourceScan.fp0123PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("rejects simulated committed OAuth, token/session, and auth middleware drift", () => {
+    const scan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/oauth-callback.ts",
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/token-store.ts",
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/auth-middleware.ts",
+      ],
+      repoPaths: [
+        ...repoFilePaths(),
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/oauth-callback.ts",
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/token-store.ts",
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/auth-middleware.ts",
+      ],
+      sourceTextByPath: {
+        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/oauth-callback.ts":
+          "oauthCallback(); tokenExchange(); routeGuard(); setCookie();",
+      },
+    });
+
+    expect(scan.routeInputNoAuthRuntimeRepositoryInventoryVerified).toBe(false);
+    expect(scan.routeInputRepositoryInventoryVerified).toBe(false);
+    expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(false);
+  });
+
+  it("rejects simulated committed deployment config, public asset, listing, submission, and package script drift", () => {
+    const deploymentScan = routeInputDurabilityScan({
+      branchDiffPaths: ["vercel.json"],
+      repoPaths: [...repoFilePaths(), "vercel.json"],
+    });
+    const publicAssetScan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        "app-submission/listing-copy.md",
+        "apps/web/public/submission-screenshot.png",
+      ],
+      repoPaths: [
+        ...repoFilePaths(),
+        "app-submission/listing-copy.md",
+        "apps/web/public/submission-screenshot.png",
+      ],
+    });
+    const packageScriptScan = routeInputDurabilityScan({
+      branchDiffPaths: ["package.json"],
+      repoPaths: repoFilePaths(),
+    });
+
+    expect(
+      deploymentScan.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      publicAssetScan.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(packageScriptScan.noPackageScriptsAdded).toBe(false);
+    expect(packageScriptScan.routeInputBranchDiffScopeVerified).toBe(false);
+    expect(packageScriptScan.fp0123PostmergeProofDurabilityVerified).toBe(
+      false,
+    );
+  });
+
+  it("rejects simulated committed OpenAI import, API, model, client, and key executable drift while allowing absence language", () => {
+    const openAiSourceScan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts",
+      ],
+      sourceTextByPath: {
+        "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts":
+          "import OpenAI from 'openai'; const client = new OpenAI({ apiKey: process.env.OPENAI_API_KEY }); await client.responses.create({ model: 'gpt-4.1', input: 'x' });",
+      },
+    });
+    const absenceLanguageScan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts",
+      ],
+      sourceTextByPath: {
+        "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts":
+          "// no OpenAI API key, no model calls, no chat.completions, no api.openai.com usage",
+      },
+    });
+
+    expect(openAiSourceScan.routeInputNoOpenAiSourceScanVerified).toBe(false);
+    expect(
+      openAiSourceScan.forbiddenOpenAiSourceMatches.length,
+    ).toBeGreaterThan(0);
+    expect(openAiSourceScan.fp0123PostmergeProofDurabilityVerified).toBe(false);
+    expect(absenceLanguageScan.routeInputNoOpenAiSourceScanVerified).toBe(true);
+    expect(absenceLanguageScan.fp0123PostmergeProofDurabilityVerified).toBe(
+      true,
+    );
   });
 
   it("keeps FP-0122, FP-0121, FP-0120, FP-0118, FP-0117, FP-0107, FP-0106, and FP-0100 boundaries intact", () => {
@@ -284,9 +436,9 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
     expect(proof.fp0118ProtectedResourceMetadataBoundaryStillVerified).toBe(
       true,
     );
-    expect(
-      proof.fp0117OauthImplementationSequencingBoundaryStillVerified,
-    ).toBe(true);
+    expect(proof.fp0117OauthImplementationSequencingBoundaryStillVerified).toBe(
+      true,
+    );
     expect(proof.fp0107RouteAdapterBoundaryStillVerified).toBe(true);
     expect(proof.fp0106ProtocolEnvelopeBoundaryStillVerified).toBe(true);
     expect(proof.fp0100PublicSecurityBoundaryStillVerified).toBe(true);
@@ -335,6 +487,35 @@ function changedFilePaths() {
   })
     .split("\n")
     .filter((line) => line.trim())
-    .map((line) => line.replace(/^.. /u, "").replace(/.* -> /u, "").trim())
+    .map((line) =>
+      line
+        .replace(/^.. /u, "")
+        .replace(/.* -> /u, "")
+        .trim(),
+    )
     .sort();
+}
+
+function routeInputDurabilityScan(
+  patch: Partial<
+    Parameters<
+      typeof verifyMcpProtectedResourceMetadataRouteInputDurabilityScan
+    >[0]
+  > = {},
+) {
+  return verifyMcpProtectedResourceMetadataRouteInputDurabilityScan({
+    branchDiffPaths: [],
+    dirtyPaths: [],
+    repoPaths: repoFilePaths(),
+    routeSourceText: safeRead(
+      "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts",
+    ),
+    sourceTextByPath: {
+      "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts":
+        safeRead(
+          "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts",
+        ),
+    },
+    ...patch,
+  });
 }

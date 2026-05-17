@@ -18,6 +18,7 @@ import {
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0124Absent,
+  verifyMcpProtectedResourceMetadataRouteInputDurabilityScan,
 } from "../packages/domain/src/index.ts";
 
 const FP0107_PLAN =
@@ -29,45 +30,26 @@ const FP0100_PLAN =
 const ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 
-const allowedChangedPaths = new Set([
-  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-contracts.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-proof.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.spec.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder-proof.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.spec.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-proof.ts",
-  "packages/domain/src/read-only-app-mcp-protected-resource-metadata.spec.ts",
-  "packages/domain/src/read-only-app-mcp-canonical-resource-proof.ts",
-  "packages/domain/src/read-only-app-mcp-canonical-resource-proof-schema.ts",
-  "packages/domain/src/read-only-app-mcp-canonical-resource-proof.spec.ts",
-  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-proof.ts",
-  "packages/domain/src/read-only-app-mcp-remote-host-resource.spec.ts",
-  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
-  "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
-  "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
-  "tools/read-only-mcp-protected-resource-metadata-proof.mjs",
-  "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs",
-  "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
-  "README.md",
-  "CODEX_README.md",
-  "START_HERE.md",
-  "docs/ACTIVE_DOCS.md",
-  "docs/PROJECT_STATE.md",
-  "docs/V2_BOUNDARY.md",
-  "docs/security/read-only-agent-threat-model.md",
-  "docs/security/finance-data-threat-model.md",
-  "docs/demo/demo-data-policy.md",
-  "plans/ROADMAP.md",
-  "plugins.md",
-]);
-
 const repoPaths = repoFilePaths();
-const changedPaths = changedFilePaths();
+const dirtyPaths = dirtyFilePaths();
+const branchDiffPaths = branchDiffFilePaths();
+const changedPaths = sortUnique([...branchDiffPaths, ...dirtyPaths]);
 const routeSource = safeRead(ROUTE_PATH);
-const scopeScan = changedScopeScan();
+const durabilityScan =
+  verifyMcpProtectedResourceMetadataRouteInputDurabilityScan({
+    branchDiffPaths,
+    dirtyPaths,
+    repoPaths,
+    routeSourceText: routeSource,
+    sourceTextByPath: readSourceTextByPath(
+      sortUnique([
+        ...changedPaths,
+        ...repoPaths.filter(isRouteLikeRuntimePath),
+        ROUTE_PATH,
+      ]),
+    ),
+  });
+const scopeScan = changedScopeScan(durabilityScan);
 const fp0123PlanText = safeRead(
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
 );
@@ -128,6 +110,8 @@ const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
         planText: fp0123PlanText,
         repoPaths,
       }),
+    fp0123PostmergeProofDurabilityVerified:
+      durabilityScan.fp0123PostmergeProofDurabilityVerified,
     fp0124Absent: verifyFp0124Absent(repoPaths),
     noAppSubmission: scopeScan.noAppSubmission,
     noAppsSdkResourceImplementation: scopeScan.noAppsSdkResource,
@@ -141,8 +125,7 @@ const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
     noGeneratedPublicProse: scopeScan.noGeneratedPublicProse,
     noListingCopy: scopeScan.noListingCopy,
     noModelCalls: scopeScan.noModelCalls,
-    noNewRoutePath:
-      scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
+    noNewRoutePath: scopeScan.noNewRoutePath && localRouteShapeStillVerified(),
     noOauthImplementation: scopeScan.noOauthImplementation,
     noOpenAiApiCalls: scopeScan.noOpenAiApiCalls,
     noOpenAiClientOrKeyUsage: scopeScan.noOpenAiClientOrKeyUsage,
@@ -162,11 +145,31 @@ const proof = McpProtectedResourceMetadataRouteInputProofSchema.parse(
     noWwwAuthenticateRouteBehaviorImplementation:
       scopeScan.noWwwAuthenticateRouteBehavior &&
       localRouteShapeStillVerified(),
+    routeInputBranchDiffScopeVerified:
+      durabilityScan.routeInputBranchDiffScopeVerified,
+    routeInputNoAuthRuntimeRepositoryInventoryVerified:
+      durabilityScan.routeInputNoAuthRuntimeRepositoryInventoryVerified,
+    routeInputNoDeploymentPublicAssetRepositoryInventoryVerified:
+      durabilityScan.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified,
+    routeInputNoOpenAiSourceScanVerified:
+      durabilityScan.routeInputNoOpenAiSourceScanVerified,
+    routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified:
+      durabilityScan.routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified,
+    routeInputNoRouteRuntimeRepositoryInventoryVerified:
+      durabilityScan.routeInputNoRouteRuntimeRepositoryInventoryVerified,
+    routeInputNoWwwAuthenticateRepositoryInventoryVerified:
+      durabilityScan.routeInputNoWwwAuthenticateRepositoryInventoryVerified,
+    routeInputRepositoryInventoryVerified:
+      durabilityScan.routeInputRepositoryInventoryVerified,
   }),
 );
 
-if (textHasProtectedResourceMetadataBuilderTokenLeakage(JSON.stringify(proof))) {
-  throw new Error("FP-0123 route-input proof output leaked token-like material");
+if (
+  textHasProtectedResourceMetadataBuilderTokenLeakage(JSON.stringify(proof))
+) {
+  throw new Error(
+    "FP-0123 route-input proof output leaked token-like material",
+  );
 }
 
 for (const [key, value] of Object.entries(proof)) {
@@ -177,21 +180,11 @@ for (const [key, value] of Object.entries(proof)) {
 
 console.log(JSON.stringify(proof, null, 2));
 
-function changedScopeScan() {
+function changedScopeScan(durable) {
   const changedExecutableSource = readChangedExecutableSource();
   const openAiEnvKey = ["OPENAI", "API", "KEY"].join("_");
   const openAiEnvPrefix = ["OPENAI", "API"].join("_");
-  const changedFilesAllowed = changedPaths.every(
-    (path) =>
-      allowedChangedPaths.has(path) ||
-      /^packages\/domain\/src\/read-only-app-mcp-protected-resource-metadata.*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-(?:canonical-resource|oauth-implementation-sequencing|remote-host-resource|oauth-security|remote-host-readiness|evidence-tool-dispatch|protocol-envelope|endpoint-route-ownership|endpoint-architecture|public-security).*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path),
-  );
+  const changedFilesAllowed = durable.routeInputBranchDiffScopeVerified;
   const publicAssetPattern =
     /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu;
   const routeRuntimePattern =
@@ -210,11 +203,12 @@ function changedScopeScan() {
       !changedPaths.some((path) =>
         /(?:apps-sdk|app-submission|submission-assets)/iu.test(path),
       ) &&
-      !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\s*\(?/u.test(
+      !/(?:\b(?:registerResource|componentResource|iframe)\s*\(|ui:\/\/)/u.test(
         changedExecutableSource,
       ),
     noAuthMiddlewareImplementation:
       changedFilesAllowed &&
+      durable.routeInputNoAuthRuntimeRepositoryInventoryVerified &&
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|setCookie)\s*\(/u.test(
         changedExecutableSource,
       ),
@@ -225,12 +219,14 @@ function changedScopeScan() {
       ),
     noDbQueries:
       changedFilesAllowed &&
+      durable.noDbSchemaMigrationChangesVerified &&
       !changedPaths.some((path) => /^packages\/db\//u.test(path)) &&
       !/\b(?:from\s+["']drizzle|drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
         changedExecutableSource,
       ),
     noDeploymentConfig:
       changedFilesAllowed &&
+      durable.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified &&
       !changedPaths.some((path) =>
         /(?:^|\/)(?:vercel\.json|netlify\.toml|render\.ya?ml|fly\.toml|railway\.json|railway\.toml|wrangler\.toml|apphosting\.ya?ml|Dockerfile|docker-compose\.ya?ml|\.github\/workflows\/.*\.ya?ml)$/iu.test(
           path,
@@ -243,6 +239,7 @@ function changedScopeScan() {
       ),
     noFinanceWrite:
       changedFilesAllowed &&
+      durable.noFinanceWriteVerified &&
       !/\b(?:writeFinanceTwin|updateLedger|financeWrite|postLedger|createJournalEntry)\s*\(/u.test(
         changedExecutableSource,
       ),
@@ -263,6 +260,7 @@ function changedScopeScan() {
       ),
     noModelCalls:
       changedFilesAllowed &&
+      durable.routeInputNoOpenAiSourceScanVerified &&
       !/\b(?:responses\.create|chat\.completions|openai\.responses|openai\.chat|model\s*:)/iu.test(
         changedExecutableSource,
       ),
@@ -271,40 +269,48 @@ function changedScopeScan() {
       !changedPaths.some((path) => routeRuntimePattern.test(path)),
     noOauthImplementation:
       changedFilesAllowed &&
+      durable.routeInputNoAuthRuntimeRepositoryInventoryVerified &&
       !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
         changedExecutableSource,
       ),
     noOpenAiApiCalls:
       changedFilesAllowed &&
+      durable.routeInputNoOpenAiSourceScanVerified &&
       !/\b(?:openai\s*\(|new\s+OpenAI|responses\.create|chat\.completions|client\.responses)\b/iu.test(
         changedExecutableSource,
       ),
     noOpenAiClientOrKeyUsage:
       changedFilesAllowed &&
+      durable.routeInputNoOpenAiSourceScanVerified &&
       !new RegExp(
         `\\b(?:${openAiEnvKey}|new\\s+OpenAI|process\\.env\\.${openAiEnvPrefix})\\b`,
         "u",
       ).test(changedExecutableSource),
     noPackageScripts:
       changedFilesAllowed &&
+      durable.noPackageScriptsAdded &&
       !changedPaths.includes("package.json") &&
       !changedPaths.some((path) => /\/package\.json$/u.test(path)),
     noProtectedResourceMetadataRoute:
       changedFilesAllowed &&
+      durable.routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified &&
       !changedPaths.some((path) => routeRuntimePattern.test(path)) &&
       !/oauth-protected-resource|resource_metadata|protectedResourceMetadataRoute/iu.test(
         routeSource,
       ),
     noProviderCalls:
       changedFilesAllowed &&
+      durable.noProviderExternalSourceVerified &&
       !/\b(?:providerConnect|callProvider|createProviderJob|deploy)\s*\(/u.test(
         changedExecutableSource,
       ),
     noPublicAssets:
       changedFilesAllowed &&
+      durable.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified &&
       !changedPaths.some((path) => publicAssetPattern.test(path)),
     noRemoteMcpDeployment:
       changedFilesAllowed &&
+      durable.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified &&
       !changedPaths.some((path) =>
         /(?:^|\/)(?:apps\/remote-mcp-server|remote-mcp|public-mcp|mcp-server|vercel\.json|netlify\.toml|render\.ya?ml|fly\.toml|Dockerfile|docker-compose\.ya?ml)$/iu.test(
           path,
@@ -315,6 +321,7 @@ function changedScopeScan() {
       ),
     noRouteBehaviorChange:
       changedFilesAllowed &&
+      durable.routeInputNoRouteRuntimeRepositoryInventoryVerified &&
       !changedPaths.some((path) => routeRuntimePattern.test(path)),
     noRuntimeCodexFinanceOutput:
       changedFilesAllowed &&
@@ -323,6 +330,7 @@ function changedScopeScan() {
       ),
     noSchemaMigrations:
       changedFilesAllowed &&
+      durable.noDbSchemaMigrationChangesVerified &&
       !changedPaths.some(
         (path) =>
           /^packages\/db\//u.test(path) ||
@@ -331,16 +339,19 @@ function changedScopeScan() {
       ),
     noSourceMutation:
       changedFilesAllowed &&
+      durable.noSourceMutationVerified &&
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource)\s*\(/u.test(
         changedExecutableSource,
       ),
     noTokenSessionImplementation:
       changedFilesAllowed &&
+      durable.routeInputNoAuthRuntimeRepositoryInventoryVerified &&
       !/\b(?:tokenStore|sessionStore|sessionHandler|refreshTokenStore|setCookie)\s*\(/u.test(
         changedExecutableSource,
       ),
     noWwwAuthenticateRouteBehavior:
       changedFilesAllowed &&
+      durable.routeInputNoWwwAuthenticateRepositoryInventoryVerified &&
       !changedPaths.some((path) => routeRuntimePattern.test(path)) &&
       !/www-authenticate|resource_metadata/iu.test(routeSource),
   };
@@ -377,7 +388,7 @@ function readChangedExecutableSource() {
     .join("\n");
 }
 
-function changedFilePaths() {
+function dirtyFilePaths() {
   const status = execFileSync(
     "git",
     ["status", "--short", "--untracked-files=all"],
@@ -388,8 +399,36 @@ function changedFilePaths() {
   return status
     .split("\n")
     .filter((line) => line.trim())
-    .map((line) => line.replace(/^.. /u, "").replace(/.* -> /u, "").trim())
+    .map((line) =>
+      line
+        .replace(/^.. /u, "")
+        .replace(/.* -> /u, "")
+        .trim(),
+    )
     .sort();
+}
+
+function branchDiffFilePaths() {
+  try {
+    execFileSync("git", ["rev-parse", "--verify", "origin/main"], {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    });
+  } catch {
+    return [];
+  }
+
+  try {
+    return execFileSync("git", ["diff", "--name-only", "origin/main...HEAD"], {
+      encoding: "utf8",
+    })
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .sort();
+  } catch {
+    return [];
+  }
 }
 
 function repoFilePaths() {
@@ -421,10 +460,33 @@ function safeRead(relativePath) {
   return readFileSync(relativePath, "utf8");
 }
 
+function readSourceTextByPath(paths) {
+  return Object.fromEntries(
+    paths
+      .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
+      .filter((path) => !/\.spec\.ts$/u.test(path))
+      .filter((path) => existsSync(path))
+      .map((path) => [path, safeRead(path)]),
+  );
+}
+
+function isRouteLikeRuntimePath(path) {
+  return (
+    /^apps\/web\/app\/(?:.*\/)?route\.ts$/u.test(path) ||
+    path.startsWith("apps/web/pages/api/") ||
+    /^apps\/control-plane\/src\/.*\/routes\.ts$/u.test(path) ||
+    /^apps\/control-plane\/src\/.*(?:route|router|controller)\.ts$/u.test(path)
+  );
+}
+
 function countMatches(text, pattern) {
   return text.match(pattern)?.length ?? 0;
 }
 
 function normalize(value) {
   return value.toLowerCase().replace(/`/gu, "");
+}
+
+function sortUnique(values) {
+  return [...new Set(values)].sort();
 }

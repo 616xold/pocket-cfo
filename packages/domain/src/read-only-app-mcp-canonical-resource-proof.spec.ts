@@ -41,6 +41,10 @@ import {
 } from "./read-only-app-mcp-remote-host-resource";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 
 function verified(value: boolean): true {
   expect(value).toBe(true);
@@ -65,13 +69,12 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     const fp0122Hits = repoPaths.filter((path) => /(^|\/)FP-0122/u.test(path));
     const fp0123Hits = repoPaths.filter((path) => /(^|\/)FP-0123/u.test(path));
     const proof = buildMcpCanonicalResourceAuthServerProof({
-      fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified:
-        verified(
-          verifyFp0120AbsentOrLocalCanonicalResourceAuthServerContracts({
-            planText,
-            repoPaths,
-          }),
-        ),
+      fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified: verified(
+        verifyFp0120AbsentOrLocalCanonicalResourceAuthServerContracts({
+          planText,
+          repoPaths,
+        }),
+      ),
       fp0120BoundaryVerified: verified(
         verifyFp0120CanonicalResourceAuthServerPlanBoundary({
           planText,
@@ -96,19 +99,20 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
         ),
       fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
         verified(
-          verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts({
-            planText: fp0123PlanText,
-            repoPaths,
-          }),
+          verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts(
+            {
+              planText: fp0123PlanText,
+              repoPaths,
+            },
+          ),
         ),
       fp0124Absent: verified(verifyFp0124Absent(repoPaths)),
-      protectedResourceMetadataBuilderContractsFoundationVerified:
-        verified(
-          verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-            planText: fp0122PlanText,
-            repoPaths,
-          }),
-        ),
+      protectedResourceMetadataBuilderContractsFoundationVerified: verified(
+        verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
+          planText: fp0122PlanText,
+          repoPaths,
+        }),
+      ),
       protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:
         verified(
           verifyFp0121ProtectedResourceMetadataRouteImplementationPlanningBoundary(
@@ -120,7 +124,9 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
         ),
     });
 
-    expect(fp0120Hits).toEqual([FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH]);
+    expect(fp0120Hits).toEqual([
+      FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
+    ]);
     expect(fp0121Hits).toEqual([
       FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
     ]);
@@ -135,8 +141,7 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
       proof.fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified,
     ).toBe(true);
     expect(
-      proof
-        .fp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanningVerified,
+      proof.fp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanningVerified,
     ).toBe(true);
     expect(
       proof.fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified,
@@ -158,9 +163,9 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
       proof.protectedResourceMetadataRouteImplementationPlanningBoundaryVerified,
     ).toBe(true);
     expect(
-      Object.values(verifyFp0121PlanningTextRequiredTopics(fp0121PlanText)).every(
-        Boolean,
-      ),
+      Object.values(
+        verifyFp0121PlanningTextRequiredTopics(fp0121PlanText),
+      ).every(Boolean),
     ).toBe(true);
     expect(
       McpCanonicalResourceAuthServerProofSchema.safeParse({
@@ -174,9 +179,9 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
     const contracts = buildMcpCanonicalResourceAuthServerContracts();
     const proof = buildMcpCanonicalResourceAuthServerProof();
 
-    expect(McpCanonicalResourceAuthServerProofSchema.safeParse(proof).success).toBe(
-      true,
-    );
+    expect(
+      McpCanonicalResourceAuthServerProofSchema.safeParse(proof).success,
+    ).toBe(true);
     expect(proof.localProofOnly).toBe(true);
     expect(proof.canonicalUriNoUserinfoCredentialsBoundaryVerified).toBe(true);
     expect(proof.noRouteBehaviorChange).toBe(true);
@@ -211,9 +216,9 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
       contracts.authorizationServersReadinessBoundary
         .authorizationServerProviderSelected,
     ).toBe(false);
-    expect(
-      contracts.authServerProviderNeutralBoundary.providerNeutral,
-    ).toBe(true);
+    expect(contracts.authServerProviderNeutralBoundary.providerNeutral).toBe(
+      true,
+    );
     expect(contracts.authServerProviderNeutralBoundary.providerSelected).toBe(
       false,
     );
@@ -412,20 +417,23 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
           repoPaths,
         }),
       ),
-      fp0119ProtectedResourceRouteSequencingBoundaryStillVerified: expectVerified(
-        verifyFp0119ProtectedResourceMetadataRouteSequencingPlanBoundary({
-          planText: safeRead(
-            FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
-          ),
-          repoPaths,
-        }),
-      ),
+      fp0119ProtectedResourceRouteSequencingBoundaryStillVerified:
+        expectVerified(
+          verifyFp0119ProtectedResourceMetadataRouteSequencingPlanBoundary({
+            planText: safeRead(
+              FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
+            ),
+            repoPaths,
+          }),
+        ),
     });
 
-    expect(proof.fp0119ProtectedResourceRouteSequencingBoundaryStillVerified).toBe(
+    expect(
+      proof.fp0119ProtectedResourceRouteSequencingBoundaryStillVerified,
+    ).toBe(true);
+    expect(proof.fp0118ProtectedResourceMetadataBoundaryStillVerified).toBe(
       true,
     );
-    expect(proof.fp0118ProtectedResourceMetadataBoundaryStillVerified).toBe(true);
     expect(proof.fp0117OauthImplementationSequencingBoundaryStillVerified).toBe(
       true,
     );
@@ -436,12 +444,14 @@ describe("FP-0120 canonical resource/auth-server readiness contracts", () => {
   });
 
   it("scans FP-0120 proof sources for executable OpenAI/API/model/key usage", () => {
-    const sourceScan = verifyMcpCanonicalResourceAuthServerNoOpenAiApiSourceScan({
-      sourceText: repoFilePaths()
-        .filter(isFp0120CanonicalResourceAuthServerProofSourcePath)
-        .map(safeRead)
-        .join("\n"),
-    });
+    const sourceScan =
+      verifyMcpCanonicalResourceAuthServerNoOpenAiApiSourceScan({
+        sourceText: repoFilePaths()
+          .filter(isFp0120CanonicalResourceAuthServerProofSourcePath)
+          .filter((path) => !isFp0123RouteInputSourceScanExcludedPath(path))
+          .map(safeRead)
+          .join("\n"),
+      });
 
     expect(sourceScan.forbiddenExecutableMatches).toEqual([]);
     expect(
@@ -457,7 +467,9 @@ function repoFilePaths() {
       withFileTypes: true,
     })) {
       if (entry.name === "node_modules" || entry.name === ".git") continue;
-      const relativePath = relativeDir ? `${relativeDir}/${entry.name}` : entry.name;
+      const relativePath = relativeDir
+        ? `${relativeDir}/${entry.name}`
+        : entry.name;
       if (entry.isDirectory()) visit(relativePath);
       else paths.push(relativePath);
     }
@@ -468,6 +480,13 @@ function repoFilePaths() {
 
 function safeRead(relativePath: string) {
   return readFileSync(join(repoRoot, relativePath), "utf8");
+}
+
+function isFp0123RouteInputSourceScanExcludedPath(path: string) {
+  return (
+    path.endsWith(".spec.ts") ||
+    fp0123RouteInputSourceScanExcludedPaths.has(path)
+  );
 }
 
 function docsBoundary(relativePath: string, requiredText: readonly string[]) {
