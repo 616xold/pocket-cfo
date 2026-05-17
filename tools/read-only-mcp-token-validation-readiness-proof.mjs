@@ -24,10 +24,12 @@ import {
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128TokenValidationReadinessContractsBoundary,
   verifyFp0129Absent,
+  verifyMcpTokenValidationReadinessDurabilityScan,
   verifyTokenValidationChallengeReadinessContracts,
   verifyTokenValidationFailureModeContracts,
   verifyTokenValidationNoLeakageExamples,
   verifyTokenValidationScopeChallengeContracts,
+  isMcpTokenValidationSourceInventoryPath,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -44,7 +46,8 @@ const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
 const repoPaths = repoFilePaths();
-const changedPaths = changedFilePaths();
+const pathScope = gitPathScope();
+const changedPaths = pathScope.combinedChangedPaths;
 const fp0128PlanText = safeRead(
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
 );
@@ -53,9 +56,17 @@ const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
 const routeSource = `${mcpRouteSource}\n${metadataRouteSource}\n${safeRead(
   "apps/control-plane/src/app.ts",
 )}`;
-const durableSourceScan = noExecutableApiModelKeyUsage(
-  readTokenValidationReadinessProofSourceText(repoPaths),
+const sourceTextByPath = readTokenValidationInventorySourceTextByPath(
+  repoPaths,
+  changedPaths,
 );
+const durabilityScan = verifyMcpTokenValidationReadinessDurabilityScan({
+  branchDiffPaths: pathScope.branchDiffPaths,
+  dirtyPaths: pathScope.dirtyPaths,
+  headDiffPaths: pathScope.headDiffPaths,
+  repoPaths,
+  sourceTextByPath,
+});
 const noRouteImportsTokenValidationHelpers =
   !/read-only-app-mcp-token-validation/u.test(routeSource);
 const noTokenRuntimeSource =
@@ -68,7 +79,8 @@ const noWwwAuthenticateRuntime =
 const scopeScan = changedScopeScan();
 const noLeakageProof = sanitizedNoLeakageProof();
 const failureModeProof = verifyTokenValidationFailureModeContracts();
-const challengeReadinessProof = verifyTokenValidationChallengeReadinessContracts();
+const challengeReadinessProof =
+  verifyTokenValidationChallengeReadinessContracts();
 const scopeChallengeProof = verifyTokenValidationScopeChallengeContracts();
 
 const proof = McpTokenValidationReadinessProofSchema.parse(
@@ -105,7 +117,9 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
       }),
     fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-        planText: safeRead(FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH),
+        planText: safeRead(
+          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+        ),
         repoPaths,
       }),
     fp0123RouteInputEvidenceBoundaryStillVerified:
@@ -135,10 +149,11 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
         ),
         repoPaths,
       }),
-    fp0128BoundaryVerified: verifyFp0128TokenValidationReadinessContractsBoundary({
-      planText: fp0128PlanText,
-      repoPaths,
-    }),
+    fp0128BoundaryVerified:
+      verifyFp0128TokenValidationReadinessContractsBoundary({
+        planText: fp0128PlanText,
+        repoPaths,
+      }),
     fp0129Absent: verifyFp0129Absent(repoPaths),
     tokenFailureModesComplete: failureModeProof,
     tokenFailureChallengeReadinessContractOnly: challengeReadinessProof,
@@ -150,7 +165,26 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
     noRealTokenExamplesCommitted: noLeakageProof.verified,
     safeAbsenceWordingAllowed: noLeakageProof.safeAbsenceWordingAllowed,
     noCurrentRouteImportsTokenValidationHelpers:
-      noRouteImportsTokenValidationHelpers,
+      noRouteImportsTokenValidationHelpers &&
+      durabilityScan.tokenValidationNoCurrentRouteImportsVerified,
+    tokenValidationBranchDiffScopeVerified:
+      durabilityScan.tokenValidationBranchDiffScopeVerified,
+    tokenValidationRepositoryInventoryVerified:
+      durabilityScan.tokenValidationRepositoryInventoryVerified,
+    tokenValidationNoRouteRuntimeRepositoryInventoryVerified:
+      durabilityScan.tokenValidationNoRouteRuntimeRepositoryInventoryVerified,
+    tokenValidationNoCurrentRouteImportsVerified:
+      durabilityScan.tokenValidationNoCurrentRouteImportsVerified,
+    tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified:
+      durabilityScan.tokenValidationNoWwwAuthenticateRuntimeRepositoryInventoryVerified,
+    tokenValidationNoAuthRuntimeRepositoryInventoryVerified:
+      durabilityScan.tokenValidationNoAuthRuntimeRepositoryInventoryVerified,
+    tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified:
+      durabilityScan.tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified,
+    tokenValidationNoOpenAiSourceScanVerified:
+      durabilityScan.tokenValidationNoOpenAiSourceScanVerified,
+    fp0128PostmergeProofDurabilityVerified:
+      durabilityScan.fp0128PostmergeProofDurabilityVerified,
     noMcpRouteBehaviorChange:
       scopeScan.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
     noProtectedResourceMetadataRouteBehaviorChange:
@@ -175,13 +209,18 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
     noPublicAssets: scopeScan.noPublicAssets,
     noListingCopy: scopeScan.noListingCopy,
     noGeneratedPublicProse: scopeScan.noGeneratedPublicProse,
-    noOpenAiApiCalls: durableSourceScan.noOpenAiApiCalls,
-    noModelCalls: durableSourceScan.noModelCalls,
-    noOpenAiClientOrKeyUsage: durableSourceScan.noOpenAiClientOrKeyUsage,
-    noProviderCalls: scopeScan.noProviderCalls,
+    noOpenAiApiCalls: durabilityScan.tokenValidationNoOpenAiSourceScanVerified,
+    noModelCalls: durabilityScan.tokenValidationNoOpenAiSourceScanVerified,
+    noOpenAiClientOrKeyUsage:
+      durabilityScan.tokenValidationNoOpenAiSourceScanVerified,
+    noProviderCalls:
+      scopeScan.noProviderCalls &&
+      durabilityScan.noProviderExternalSourceVerified,
     noExternalCommunications: scopeScan.noExternalCommunications,
-    noSourceMutation: scopeScan.noSourceMutation,
-    noFinanceWrite: scopeScan.noFinanceWrite,
+    noSourceMutation:
+      scopeScan.noSourceMutation && durabilityScan.noSourceMutationVerified,
+    noFinanceWrite:
+      scopeScan.noFinanceWrite && durabilityScan.noFinanceWriteVerified,
     tokenPassthroughAttemptFailsClosedVerified:
       validateTokenFailureModeContract({
         failureMode: "token_passthrough_attempt",
@@ -200,9 +239,12 @@ console.log(
     {
       ...proof,
       proofDetails: {
+        branchDiffFiles: pathScope.branchDiffPaths,
         changedFiles: changedPaths,
+        dirtyFiles: pathScope.dirtyPaths,
+        durabilityScan,
+        headDiffFiles: pathScope.headDiffPaths,
         noLeakageProof,
-        noOpenAiSourceScan: durableSourceScan,
         routeImportProof: {
           noRouteImportsTokenValidationHelpers,
           noTokenRuntimeSource,
@@ -234,11 +276,9 @@ function sanitizedNoLeakageProof() {
     ["x-api-key", ":", "synthetic-key-material"].join(" "),
     [keyName, "=", "synthetic-key-material"].join(""),
     ["sk", "-synthetic-key-material"].join(""),
-    [
-      "eyJsyntheticHeader",
-      "eyJsyntheticPayload",
-      "syntheticSignature",
-    ].join("."),
+    ["eyJsyntheticHeader", "eyJsyntheticPayload", "syntheticSignature"].join(
+      ".",
+    ),
     "raw finance data",
     "raw source dump",
     "provider credential",
@@ -361,147 +401,6 @@ function changedScopeScan() {
   };
 }
 
-function noExecutableApiModelKeyUsage(sourceText) {
-  const envKey = ["OPENAI", "API", "KEY"].join("_");
-  const apiHost = ["api", "openai", "com"].join(".");
-  const patterns = [
-    {
-      key: "noOpenAiApiCalls",
-      name: "static-openai-import",
-      pattern: /(?:^|[^\w])import\s+(?:[^;\n]*?\s+from\s+)?["']openai["']/u,
-    },
-    {
-      key: "noOpenAiApiCalls",
-      name: "openai-require",
-      pattern: /\brequire\s*\(\s*["']openai["']\s*\)/u,
-    },
-    {
-      key: "noOpenAiApiCalls",
-      name: "dynamic-openai-import",
-      pattern: /\bimport\s*\(\s*["']openai["']\s*\)/u,
-    },
-    {
-      key: "noOpenAiApiCalls",
-      name: "new-openai-client",
-      pattern: /\bnew\s+OpenAI\b/u,
-    },
-    {
-      key: "noOpenAiApiCalls",
-      name: "openai-client-method",
-      pattern: /\bopenai\./u,
-    },
-    {
-      key: "noModelCalls",
-      name: "responses-create",
-      pattern: new RegExp(`\\b${["responses", "create"].join("\\.")}\\b`, "u"),
-    },
-    {
-      key: "noModelCalls",
-      name: "chat-completions",
-      pattern: new RegExp(
-        `\\b${["chat", "completions"].join("\\.")}\\b`,
-        "u",
-      ),
-    },
-    {
-      key: "noOpenAiClientOrKeyUsage",
-      name: "env-key",
-      pattern: new RegExp(`\\b${envKey}\\b`, "u"),
-    },
-    {
-      key: "noOpenAiClientOrKeyUsage",
-      name: "process-env-key",
-      pattern: new RegExp(`\\bprocess\\.env\\.${envKey}\\b`, "u"),
-    },
-    {
-      key: "noOpenAiApiCalls",
-      name: "api-host",
-      pattern: new RegExp(apiHost.replaceAll(".", "\\."), "u"),
-    },
-    {
-      key: "noModelCalls",
-      name: "model-create",
-      pattern: new RegExp(`\\b${["model", "create"].join("\\.")}\\b`, "u"),
-    },
-    {
-      key: "noModelCalls",
-      name: "models-create",
-      pattern: new RegExp(`\\b${["models", "create"].join("\\.")}\\b`, "u"),
-    },
-    {
-      key: "noModelCalls",
-      name: "call-model",
-      pattern: new RegExp(`\\b${["call", "Model"].join("")}\\b`, "u"),
-    },
-  ];
-  const findings = sourceText.split("\n").flatMap((line) => {
-    if (isSafeProofScannerLine(line)) return [];
-    return patterns
-      .filter(({ pattern }) => pattern.test(line))
-      .map(({ key, name }) => ({ key, name }));
-  });
-
-  return {
-    findings: findings.map(({ name }) => name),
-    noModelCalls: findings.every(({ key }) => key !== "noModelCalls"),
-    noOpenAiApiCalls: findings.every(({ key }) => key !== "noOpenAiApiCalls"),
-    noOpenAiClientOrKeyUsage: findings.every(
-      ({ key }) => key !== "noOpenAiClientOrKeyUsage",
-    ),
-  };
-}
-
-function isSafeProofScannerLine(line) {
-  const trimmed = line.trim();
-  return (
-    trimmed.startsWith("//") ||
-    trimmed.startsWith("\"") ||
-    trimmed.startsWith("'") ||
-    trimmed.startsWith("`") ||
-    trimmed.includes("pattern:") ||
-    trimmed.includes("new RegExp") ||
-    trimmed.includes("callModelName") ||
-    trimmed.includes("apiHost") ||
-    trimmed.includes("envKey")
-  );
-}
-
-function readTokenValidationReadinessProofSourceText(paths) {
-  const sourcePaths = paths.filter(
-    (path) =>
-      path === "apps/control-plane/src/app.ts" ||
-      path === "apps/control-plane/src/lib/types.ts" ||
-      path.startsWith(
-        "apps/control-plane/src/modules/read-only-app-mcp-endpoint/",
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-token-validation.*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-www-authenticate.*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-protected-resource-metadata.*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-oauth-implementation-sequencing.*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-canonical-resource.*\.ts$/u.test(
-        path,
-      ) ||
-      /^packages\/domain\/src\/read-only-app-mcp-public-security.*\.ts$/u.test(
-        path,
-      ) ||
-      /^tools\/read-only-mcp-.*\.mjs$/u.test(path) ||
-      path === "tools/benchmark-community-pack-proof.mjs",
-  );
-
-  return sourcePaths
-    .filter((path) => existsSync(path))
-    .map((path) => safeRead(path))
-    .join("\n");
-}
-
 function readChangedExecutableSource() {
   return changedPaths
     .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
@@ -555,9 +454,44 @@ function isRouteLikeRuntimePath(path) {
   );
 }
 
-function changedFilePaths() {
-  const fromDiff = readGitLines(["diff", "--name-only", "HEAD"]);
-  const fromStatus = readGitLines(["status", "--short", "--untracked-files=all"])
+function readTokenValidationInventorySourceTextByPath(paths, changedPathInput) {
+  const changedPathSet = new Set(changedPathInput);
+  return Object.fromEntries(
+    paths
+      .filter(
+        (path) =>
+          isMcpTokenValidationSourceInventoryPath(path) ||
+          (changedPathSet.has(path) &&
+            /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
+            !/\.spec\.ts$/u.test(path)),
+      )
+      .filter((path) => existsSync(path))
+      .map((path) => [path, safeRead(path)]),
+  );
+}
+
+function gitPathScope() {
+  const dirtyPaths = dirtyFilePaths();
+  const branchDiffPaths = readGitLines([
+    "diff",
+    "--name-only",
+    "origin/main...HEAD",
+  ]);
+  const headDiffPaths = readGitLines(["diff", "--name-only", "HEAD"]);
+  const combinedChangedPaths = [
+    ...new Set([...branchDiffPaths, ...headDiffPaths, ...dirtyPaths]),
+  ].sort();
+
+  return {
+    branchDiffPaths,
+    combinedChangedPaths,
+    dirtyPaths,
+    headDiffPaths,
+  };
+}
+
+function dirtyFilePaths() {
+  return readGitLines(["status", "--short", "--untracked-files=all"])
     .map((line) =>
       line
         .replace(/^[A-Z?! ]{1,2}\s+/u, "")
@@ -565,7 +499,6 @@ function changedFilePaths() {
         .trim(),
     )
     .filter(Boolean);
-  return [...new Set([...fromDiff, ...fromStatus])].sort();
 }
 
 function readGitLines(args) {

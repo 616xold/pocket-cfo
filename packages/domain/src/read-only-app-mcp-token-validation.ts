@@ -23,6 +23,7 @@ import {
 } from "./read-only-app-mcp-token-validation-contracts";
 
 export * from "./read-only-app-mcp-token-validation-contracts";
+export * from "./read-only-app-mcp-token-validation-inventory";
 
 export type McpTokenNoLeakageMatch = {
   excerpt: string;
@@ -163,8 +164,7 @@ const leakagePatterns: readonly LeakagePattern[] = [
   {
     allowSafeAbsenceWording: false,
     name: "jwt-like-material",
-    pattern:
-      /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u,
+    pattern: /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u,
   },
   {
     allowSafeAbsenceWording: true,
@@ -296,7 +296,9 @@ export function deriveTokenFailureChallengeReadiness(
     input.authenticatedCompanyBindingProofAvailable !== true
       ? "authenticated user/org/company binding proof is required"
       : "",
-    scopeChallenge.accepted ? "" : "read-only least-privilege scope proof failed",
+    scopeChallenge.accepted
+      ? ""
+      : "read-only least-privilege scope proof failed",
   ].filter(Boolean);
 
   return {
@@ -447,24 +449,22 @@ export function buildMcpTokenValidationReadinessContracts() {
         wrongAudienceContractOnly: true,
         wrongResourceContractOnly: true,
       }),
-    tokenFailureTaxonomyBoundary:
-      McpTokenFailureTaxonomyBoundarySchema.parse({
-        ...base,
-        contractKind: "McpTokenFailureTaxonomyBoundary",
-        failureModes: [...MCP_TOKEN_VALIDATION_FAILURE_MODES],
-        futureOnlyStatusMapping: true,
-        routeStatusEmittedNow: false,
-        taxonomyProofOnly: true,
-      }),
-    tokenParsingDeferredBoundary:
-      McpTokenParsingDeferredBoundarySchema.parse({
-        ...base,
-        contractKind: "McpTokenParsingDeferredBoundary",
-        realTokenParsingImplemented: false,
-        tokenDecodingAttemptAllowed: false,
-        tokenIntrospectionAttemptAllowed: false,
-        tokenParsingFutureOnly: true,
-      }),
+    tokenFailureTaxonomyBoundary: McpTokenFailureTaxonomyBoundarySchema.parse({
+      ...base,
+      contractKind: "McpTokenFailureTaxonomyBoundary",
+      failureModes: [...MCP_TOKEN_VALIDATION_FAILURE_MODES],
+      futureOnlyStatusMapping: true,
+      routeStatusEmittedNow: false,
+      taxonomyProofOnly: true,
+    }),
+    tokenParsingDeferredBoundary: McpTokenParsingDeferredBoundarySchema.parse({
+      ...base,
+      contractKind: "McpTokenParsingDeferredBoundary",
+      realTokenParsingImplemented: false,
+      tokenDecodingAttemptAllowed: false,
+      tokenIntrospectionAttemptAllowed: false,
+      tokenParsingFutureOnly: true,
+    }),
     tokenScopeValidationBoundary: McpTokenScopeValidationBoundarySchema.parse({
       ...base,
       allowedReadOnlyScopes: [...MCP_TOKEN_VALIDATION_READ_ONLY_SCOPES],
