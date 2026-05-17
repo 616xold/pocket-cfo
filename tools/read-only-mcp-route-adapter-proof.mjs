@@ -74,6 +74,8 @@ const FP0125_LOCAL_ROUTE_SPEC_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.spec.ts";
 const FP0125_LOCAL_ROUTE_PROOF_PATH =
   "tools/read-only-mcp-protected-resource-metadata-local-route-proof.mjs";
+const FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH =
+  "plans/FP-0126-read-only-chatgpt-app-mcp-www-authenticate-auth-challenge-sequencing-master-plan.md";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -872,6 +874,7 @@ function changedFilesAreAllowed() {
     FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
     FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
     FP0125_LOCAL_ROUTE_PLAN,
+    FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,

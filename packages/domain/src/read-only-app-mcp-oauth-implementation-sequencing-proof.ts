@@ -22,8 +22,7 @@ export const McpOauthImplementationSequencingProofSchema = z
     oauthImplementationSequencingPlanBoundaryVerified: trueLiteral,
     fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified:
       trueLiteral,
-    fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified:
-      trueLiteral,
+    fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified: trueLiteral,
     fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
       trueLiteral,
     fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified:
@@ -34,8 +33,31 @@ export const McpOauthImplementationSequencingProofSchema = z
       trueLiteral,
     fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
       trueLiteral,
-    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: trueLiteral,
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+      trueLiteral,
     fp0125Absent: trueLiteral,
+    fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified:
+      trueLiteral,
+    fp0127Absent: trueLiteral,
+    wwwAuthenticateAuthChallengeSequencingBoundaryVerified: trueLiteral,
+    noMcpRouteBehaviorChangeFromFp0126: trueLiteral,
+    noWwwAuthenticateBehaviorFromFp0126: trueLiteral,
+    noOauthImplementationFromFp0126: trueLiteral,
+    noTokenSessionImplementationFromFp0126: trueLiteral,
+    noAuthMiddlewareImplementationFromFp0126: trueLiteral,
+    noRemoteMcpDeploymentFromFp0126: trueLiteral,
+    noDeploymentConfigFromFp0126: trueLiteral,
+    noAppsSdkResourceFromFp0126: trueLiteral,
+    noAppSubmissionFromFp0126: trueLiteral,
+    noDbQueriesFromFp0126: trueLiteral,
+    noSchemaMigrationsFromFp0126: trueLiteral,
+    noPackageScriptsFromFp0126: trueLiteral,
+    noOpenAiApiCallsFromFp0126: trueLiteral,
+    noProviderExternalCallsFromFp0126: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0126: trueLiteral,
+    noPublicAssetsSubmissionArtifactsFromFp0126: trueLiteral,
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified: trueLiteral,
+    fp0125EvidenceCoherenceBoundaryStillVerified: trueLiteral,
     protectedResourceMetadataBuilderContractsFoundationVerified: trueLiteral,
     protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:
       trueLiteral,
@@ -173,20 +195,36 @@ export function buildMcpOauthImplementationSequencingProof(
     oauthImplementationSequencingPlanBoundaryVerified: boolean;
     fp0117AbsentOrDocsOnlyOauthImplementationSequencingPlanVerified: boolean;
     fp0118AbsentOrLocalProtectedResourceMetadataContractsVerified: boolean;
-    fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified:
-      boolean;
+    fp0119AbsentOrDocsOnlyProtectedResourceMetadataRouteSequencingPlanVerified: boolean;
     fp0120AbsentOrLocalCanonicalResourceAuthServerContractsVerified: boolean;
-    fp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanningVerified:
-      boolean;
-    fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified:
-      boolean;
-    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified:
-      boolean;
+    fp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanningVerified: boolean;
+    fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified: boolean;
+    fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified: boolean;
     fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: boolean;
     fp0125Absent: boolean;
+    fp0125EvidenceCoherenceBoundaryStillVerified: boolean;
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified: boolean;
+    fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified: boolean;
+    fp0127Absent: boolean;
+    wwwAuthenticateAuthChallengeSequencingBoundaryVerified: boolean;
+    noMcpRouteBehaviorChangeFromFp0126: boolean;
+    noWwwAuthenticateBehaviorFromFp0126: boolean;
+    noOauthImplementationFromFp0126: boolean;
+    noTokenSessionImplementationFromFp0126: boolean;
+    noAuthMiddlewareImplementationFromFp0126: boolean;
+    noRemoteMcpDeploymentFromFp0126: boolean;
+    noDeploymentConfigFromFp0126: boolean;
+    noAppsSdkResourceFromFp0126: boolean;
+    noAppSubmissionFromFp0126: boolean;
+    noDbQueriesFromFp0126: boolean;
+    noSchemaMigrationsFromFp0126: boolean;
+    noPackageScriptsFromFp0126: boolean;
+    noOpenAiApiCallsFromFp0126: boolean;
+    noProviderExternalCallsFromFp0126: boolean;
+    noSourceMutationFinanceWriteFromFp0126: boolean;
+    noPublicAssetsSubmissionArtifactsFromFp0126: boolean;
     protectedResourceMetadataBuilderContractsFoundationVerified: boolean;
-    protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:
-      boolean;
+    protectedResourceMetadataRouteImplementationPlanningBoundaryVerified: boolean;
     canonicalResourceAuthServerContractsFoundationVerified: boolean;
     protectedResourceMetadataContractsFoundationVerified: boolean;
     noRouteBehaviorChangeFromFp0121: boolean;
@@ -365,6 +403,42 @@ export function buildMcpOauthImplementationSequencingProof(
       input.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified ??
       true,
     fp0125Absent: input.fp0125Absent ?? true,
+    fp0125EvidenceCoherenceBoundaryStillVerified:
+      input.fp0125EvidenceCoherenceBoundaryStillVerified ?? true,
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
+      input.fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified ??
+      true,
+    fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified:
+      input.fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified ??
+      true,
+    fp0127Absent: input.fp0127Absent ?? true,
+    noAppSubmissionFromFp0126: input.noAppSubmissionFromFp0126 ?? true,
+    noAppsSdkResourceFromFp0126: input.noAppsSdkResourceFromFp0126 ?? true,
+    noAuthMiddlewareImplementationFromFp0126:
+      input.noAuthMiddlewareImplementationFromFp0126 ?? true,
+    noDbQueriesFromFp0126: input.noDbQueriesFromFp0126 ?? true,
+    noDeploymentConfigFromFp0126: input.noDeploymentConfigFromFp0126 ?? true,
+    noMcpRouteBehaviorChangeFromFp0126:
+      input.noMcpRouteBehaviorChangeFromFp0126 ?? true,
+    noOauthImplementationFromFp0126:
+      input.noOauthImplementationFromFp0126 ?? true,
+    noOpenAiApiCallsFromFp0126: input.noOpenAiApiCallsFromFp0126 ?? true,
+    noPackageScriptsFromFp0126: input.noPackageScriptsFromFp0126 ?? true,
+    noProviderExternalCallsFromFp0126:
+      input.noProviderExternalCallsFromFp0126 ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0126:
+      input.noPublicAssetsSubmissionArtifactsFromFp0126 ?? true,
+    noRemoteMcpDeploymentFromFp0126:
+      input.noRemoteMcpDeploymentFromFp0126 ?? true,
+    noSchemaMigrationsFromFp0126: input.noSchemaMigrationsFromFp0126 ?? true,
+    noSourceMutationFinanceWriteFromFp0126:
+      input.noSourceMutationFinanceWriteFromFp0126 ?? true,
+    noTokenSessionImplementationFromFp0126:
+      input.noTokenSessionImplementationFromFp0126 ?? true,
+    noWwwAuthenticateBehaviorFromFp0126:
+      input.noWwwAuthenticateBehaviorFromFp0126 ?? true,
+    wwwAuthenticateAuthChallengeSequencingBoundaryVerified:
+      input.wwwAuthenticateAuthChallengeSequencingBoundaryVerified ?? true,
     protectedResourceMetadataBuilderContractsFoundationVerified:
       input.protectedResourceMetadataBuilderContractsFoundationVerified ?? true,
     protectedResourceMetadataRouteImplementationPlanningBoundaryVerified:
@@ -372,13 +446,11 @@ export function buildMcpOauthImplementationSequencingProof(
       true,
     localProofOnly: true,
     noAppSubmissionFromFp0121: input.noAppSubmissionFromFp0121 ?? true,
-    noAppsSdkResourceFromFp0121:
-      input.noAppsSdkResourceFromFp0121 ?? true,
+    noAppsSdkResourceFromFp0121: input.noAppsSdkResourceFromFp0121 ?? true,
     noAuthMiddlewareImplementationFromFp0121:
       input.noAuthMiddlewareImplementationFromFp0121 ?? true,
     noDbQueriesFromFp0121: input.noDbQueriesFromFp0121 ?? true,
-    noDeploymentConfigFromFp0121:
-      input.noDeploymentConfigFromFp0121 ?? true,
+    noDeploymentConfigFromFp0121: input.noDeploymentConfigFromFp0121 ?? true,
     noFixturesSampleDataSourcePacksFromFp0121:
       input.noFixturesSampleDataSourcePacksFromFp0121 ?? true,
     noListingCopyGeneratedPublicProseFromFp0121:
@@ -398,20 +470,15 @@ export function buildMcpOauthImplementationSequencingProof(
       input.noAuthMiddlewareImplementationFromFp0122 ?? true,
     noRemoteMcpDeploymentFromFp0122:
       input.noRemoteMcpDeploymentFromFp0122 ?? true,
-    noDeploymentConfigFromFp0122:
-      input.noDeploymentConfigFromFp0122 ?? true,
-    noAppsSdkResourceFromFp0122:
-      input.noAppsSdkResourceFromFp0122 ?? true,
+    noDeploymentConfigFromFp0122: input.noDeploymentConfigFromFp0122 ?? true,
+    noAppsSdkResourceFromFp0122: input.noAppsSdkResourceFromFp0122 ?? true,
     noPublicAppImplementationFromFp0122:
       input.noPublicAppImplementationFromFp0122 ?? true,
     noAppSubmissionFromFp0122: input.noAppSubmissionFromFp0122 ?? true,
     noDbQueriesFromFp0122: input.noDbQueriesFromFp0122 ?? true,
-    noSchemaMigrationsFromFp0122:
-      input.noSchemaMigrationsFromFp0122 ?? true,
-    noPackageScriptsFromFp0122:
-      input.noPackageScriptsFromFp0122 ?? true,
-    noOpenAiApiCallsFromFp0122:
-      input.noOpenAiApiCallsFromFp0122 ?? true,
+    noSchemaMigrationsFromFp0122: input.noSchemaMigrationsFromFp0122 ?? true,
+    noPackageScriptsFromFp0122: input.noPackageScriptsFromFp0122 ?? true,
+    noOpenAiApiCallsFromFp0122: input.noOpenAiApiCallsFromFp0122 ?? true,
     noProviderExternalCallsFromFp0122:
       input.noProviderExternalCallsFromFp0122 ?? true,
     noSourceMutationFinanceWriteFromFp0122:
@@ -420,14 +487,11 @@ export function buildMcpOauthImplementationSequencingProof(
       input.noPublicAssetsSubmissionArtifactsFromFp0122 ?? true,
     noListingCopyGeneratedPublicProseFromFp0122:
       input.noListingCopyGeneratedPublicProseFromFp0122 ?? true,
-    noNewRoutePathFromFp0121:
-      input.noNewRoutePathFromFp0121 ?? true,
+    noNewRoutePathFromFp0121: input.noNewRoutePathFromFp0121 ?? true,
     noOauthImplementationFromFp0121:
       input.noOauthImplementationFromFp0121 ?? true,
-    noOpenAiApiCallsFromFp0121:
-      input.noOpenAiApiCallsFromFp0121 ?? true,
-    noPackageScriptsFromFp0121:
-      input.noPackageScriptsFromFp0121 ?? true,
+    noOpenAiApiCallsFromFp0121: input.noOpenAiApiCallsFromFp0121 ?? true,
+    noPackageScriptsFromFp0121: input.noPackageScriptsFromFp0121 ?? true,
     noProtectedResourceMetadataRouteFromFp0121:
       input.noProtectedResourceMetadataRouteFromFp0121 ?? true,
     noProviderExternalCallsFromFp0121:
@@ -440,8 +504,7 @@ export function buildMcpOauthImplementationSequencingProof(
       input.noRemoteMcpDeploymentFromFp0121 ?? true,
     noRouteBehaviorChangeFromFp0121:
       input.noRouteBehaviorChangeFromFp0121 ?? true,
-    noSchemaMigrationsFromFp0121:
-      input.noSchemaMigrationsFromFp0121 ?? true,
+    noSchemaMigrationsFromFp0121: input.noSchemaMigrationsFromFp0121 ?? true,
     noSourceMutationFinanceWriteFromFp0121:
       input.noSourceMutationFinanceWriteFromFp0121 ?? true,
     noTokenSessionImplementationFromFp0121:
@@ -459,30 +522,24 @@ export function buildMcpOauthImplementationSequencingProof(
     noListingCopyGeneratedPublicProseFromFp0117:
       input.noListingCopyGeneratedPublicProseFromFp0117 ?? true,
     noAppSubmissionFromFp0118: input.noAppSubmissionFromFp0118 ?? true,
-    noAppsSdkResourceFromFp0118:
-      input.noAppsSdkResourceFromFp0118 ?? true,
+    noAppsSdkResourceFromFp0118: input.noAppsSdkResourceFromFp0118 ?? true,
     noAuthMiddlewareImplementationFromFp0118:
       input.noAuthMiddlewareImplementationFromFp0118 ?? true,
     noDbQueriesFromFp0118: input.noDbQueriesFromFp0118 ?? true,
-    noDeploymentConfigFromFp0118:
-      input.noDeploymentConfigFromFp0118 ?? true,
+    noDeploymentConfigFromFp0118: input.noDeploymentConfigFromFp0118 ?? true,
     noListingCopyGeneratedPublicProseFromFp0118:
       input.noListingCopyGeneratedPublicProseFromFp0118 ?? true,
     noAppSubmissionFromFp0120: input.noAppSubmissionFromFp0120 ?? true,
-    noAppsSdkResourceFromFp0120:
-      input.noAppsSdkResourceFromFp0120 ?? true,
+    noAppsSdkResourceFromFp0120: input.noAppsSdkResourceFromFp0120 ?? true,
     noAuthMiddlewareImplementationFromFp0120:
       input.noAuthMiddlewareImplementationFromFp0120 ?? true,
     noDbQueriesFromFp0120: input.noDbQueriesFromFp0120 ?? true,
-    noDeploymentConfigFromFp0120:
-      input.noDeploymentConfigFromFp0120 ?? true,
+    noDeploymentConfigFromFp0120: input.noDeploymentConfigFromFp0120 ?? true,
     noNewRoutePathFromFp0120: input.noNewRoutePathFromFp0120 ?? true,
     noOauthImplementationFromFp0120:
       input.noOauthImplementationFromFp0120 ?? true,
-    noOpenAiApiCallsFromFp0120:
-      input.noOpenAiApiCallsFromFp0120 ?? true,
-    noPackageScriptsFromFp0120:
-      input.noPackageScriptsFromFp0120 ?? true,
+    noOpenAiApiCallsFromFp0120: input.noOpenAiApiCallsFromFp0120 ?? true,
+    noPackageScriptsFromFp0120: input.noPackageScriptsFromFp0120 ?? true,
     noProtectedResourceMetadataRouteFromFp0120:
       input.noProtectedResourceMetadataRouteFromFp0120 ?? true,
     noProviderExternalCallsFromFp0120:
@@ -493,8 +550,7 @@ export function buildMcpOauthImplementationSequencingProof(
       input.noRemoteMcpDeploymentFromFp0120 ?? true,
     noRouteBehaviorChangeFromFp0120:
       input.noRouteBehaviorChangeFromFp0120 ?? true,
-    noSchemaMigrationsFromFp0120:
-      input.noSchemaMigrationsFromFp0120 ?? true,
+    noSchemaMigrationsFromFp0120: input.noSchemaMigrationsFromFp0120 ?? true,
     noSourceMutationFinanceWriteFromFp0120:
       input.noSourceMutationFinanceWriteFromFp0120 ?? true,
     noTokenSessionImplementationFromFp0120:
@@ -505,8 +561,7 @@ export function buildMcpOauthImplementationSequencingProof(
     noOauthImplementationFromFp0118:
       input.noOauthImplementationFromFp0118 ?? true,
     noOpenAiApiCallsFromFp0118: input.noOpenAiApiCallsFromFp0118 ?? true,
-    noPackageScriptsFromFp0118:
-      input.noPackageScriptsFromFp0118 ?? true,
+    noPackageScriptsFromFp0118: input.noPackageScriptsFromFp0118 ?? true,
     noProtectedResourceMetadataRouteFromFp0118:
       input.noProtectedResourceMetadataRouteFromFp0118 ?? true,
     noProviderExternalCallsFromFp0118:
@@ -517,8 +572,7 @@ export function buildMcpOauthImplementationSequencingProof(
       input.noRemoteMcpDeploymentFromFp0118 ?? true,
     noRouteBehaviorChangeFromFp0118:
       input.noRouteBehaviorChangeFromFp0118 ?? true,
-    noSchemaMigrationsFromFp0118:
-      input.noSchemaMigrationsFromFp0118 ?? true,
+    noSchemaMigrationsFromFp0118: input.noSchemaMigrationsFromFp0118 ?? true,
     noSourceMutationFinanceWriteFromFp0118:
       input.noSourceMutationFinanceWriteFromFp0118 ?? true,
     noTokenSessionImplementationFromFp0118:

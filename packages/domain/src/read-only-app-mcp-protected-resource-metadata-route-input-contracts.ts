@@ -1,8 +1,6 @@
 import { z } from "zod";
 import { MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH } from "./read-only-app-mcp-canonical-resource-contracts";
-import {
-  McpProtectedResourceMetadataBuilderDocumentSchema,
-} from "./read-only-app-mcp-protected-resource-metadata-builder-contracts";
+import { McpProtectedResourceMetadataBuilderDocumentSchema } from "./read-only-app-mcp-protected-resource-metadata-builder-contracts";
 import type { McpProtectedResourceMetadataBuilderInputSchema } from "./read-only-app-mcp-protected-resource-metadata-builder-contracts";
 
 const trueLiteral = z.literal(true);
@@ -27,8 +25,14 @@ export const FP0125_PROTECTED_RESOURCE_METADATA_LOCAL_ROUTE_IMPLEMENTATION_PLAN_
 export const FP0125_PROTECTED_RESOURCE_METADATA_LOCAL_ROUTE_MODULE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
-export const MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH =
-  `${MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH}/mcp`;
+export const FP0126_PLAN_PREFIX = "FP-0126";
+
+export const FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH =
+  "plans/FP-0126-read-only-chatgpt-app-mcp-www-authenticate-auth-challenge-sequencing-master-plan.md";
+
+export const FP0127_PLAN_PREFIX = "FP-0127";
+
+export const MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH = `${MCP_PROTECTED_RESOURCE_METADATA_WELL_KNOWN_PATH}/mcp`;
 
 export const McpProtectedResourceMetadataRouteInputContractKindSchema = z.enum([
   "McpProtectedResourceMetadataRouteInputProofContract",

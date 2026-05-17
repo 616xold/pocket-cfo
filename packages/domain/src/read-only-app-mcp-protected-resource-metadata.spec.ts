@@ -7,6 +7,7 @@ import {
   FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
   MCP_PROTECTED_RESOURCE_METADATA_KNOWN_SAFE_ROUTE_LIKE_PATHS,
   MCP_PROTECTED_RESOURCE_METADATA_OPTIONAL_FP0125_ROUTE_LIKE_PATHS,
   MCP_PROTECTED_RESOURCE_METADATA_BEARER_METHODS,
@@ -43,6 +44,10 @@ import {
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
+  verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan,
+  verifyFp0126PlanningTextRequiredTopics,
+  verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary,
+  verifyFp0127Absent,
   verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan,
   verifyMcpProtectedResourceMetadataRepositoryInventory,
 } from "./read-only-app-mcp-protected-resource-metadata";
@@ -150,7 +155,12 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
             },
           ),
         ),
-      fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: verified(verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(repoPaths)),
+      fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+        verified(
+          verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
+            repoPaths,
+          ),
+        ),
       protectedResourceMetadataBuilderContractsFoundationVerified: verified(
         verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
           planText: fp0122PlanText,
@@ -209,7 +219,9 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
     expect(
       proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
     ).toBe(true);
-    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
+    expect(
+      proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified,
+    ).toBe(true);
     expect(
       verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
         planText: fp0123PlanText,
@@ -238,6 +250,82 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
     ).toBe(false);
   });
 
+  it("accepts exactly one FP-0126 docs-only WWW-Authenticate auth-challenge sequencing plan while FP-0127 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(
+      FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
+    );
+    const fp0126Hits = repoPaths.filter((path) => /(^|\/)FP-0126/u.test(path));
+    const topics = verifyFp0126PlanningTextRequiredTopics(planText);
+    const proof = buildMcpProtectedResourceMetadataProof({
+      fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified:
+        verified(
+          verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan(
+            {
+              planText,
+              repoPaths,
+            },
+          ),
+        ),
+      fp0127Absent: verified(verifyFp0127Absent(repoPaths)),
+      wwwAuthenticateAuthChallengeSequencingBoundaryVerified: verified(
+        verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary({
+          planText,
+          repoPaths,
+        }),
+      ),
+    });
+
+    expect(fp0126Hits).toEqual([
+      FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(Object.values(topics).every(Boolean)).toBe(true);
+    expect(
+      proof.fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0127Absent).toBe(true);
+    expect(proof.wwwAuthenticateAuthChallengeSequencingBoundaryVerified).toBe(
+      true,
+    );
+    expect(proof.noMcpRouteBehaviorChangeFromFp0126).toBe(true);
+    expect(proof.noWwwAuthenticateBehaviorFromFp0126).toBe(true);
+    expect(proof.noOauthImplementationFromFp0126).toBe(true);
+    expect(proof.noTokenSessionImplementationFromFp0126).toBe(true);
+    expect(proof.noAuthMiddlewareImplementationFromFp0126).toBe(true);
+    expect(proof.noRemoteMcpDeploymentFromFp0126).toBe(true);
+    expect(proof.noDeploymentConfigFromFp0126).toBe(true);
+    expect(proof.noAppsSdkResourceFromFp0126).toBe(true);
+    expect(proof.noAppSubmissionFromFp0126).toBe(true);
+    expect(proof.noDbQueriesFromFp0126).toBe(true);
+    expect(proof.noSchemaMigrationsFromFp0126).toBe(true);
+    expect(proof.noPackageScriptsFromFp0126).toBe(true);
+    expect(proof.noOpenAiApiCallsFromFp0126).toBe(true);
+    expect(proof.noProviderExternalCallsFromFp0126).toBe(true);
+    expect(proof.noSourceMutationFinanceWriteFromFp0126).toBe(true);
+    expect(proof.noPublicAssetsSubmissionArtifactsFromFp0126).toBe(true);
+    expect(
+      verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan({
+        planText,
+        repoPaths: [
+          ...repoPaths,
+          "plans/FP-0126-duplicate-auth-challenge-plan.md",
+        ],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0127Absent([
+        ...repoPaths,
+        "plans/FP-0127-read-only-chatgpt-app-mcp-www-authenticate-implementation.md",
+      ]),
+    ).toBe(false);
+    expect(
+      McpProtectedResourceMetadataProofSchema.safeParse({
+        ...proof,
+        noWwwAuthenticateBehaviorFromFp0126: false,
+      }).success,
+    ).toBe(false);
+  });
+
   it("proves FP-0121 is docs-and-plan route implementation readiness only", () => {
     const proof = buildMcpProtectedResourceMetadataProof();
 
@@ -250,7 +338,9 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
     expect(
       proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
     ).toBe(true);
-    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
+    expect(
+      proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified,
+    ).toBe(true);
     expect(
       proof.protectedResourceMetadataBuilderContractsFoundationVerified,
     ).toBe(true);
@@ -589,10 +679,12 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
     expect(inventory.protectedResourceRouteRepositoryInventoryVerified).toBe(
       true,
     );
-    expect(routeLikeRepositoryPaths).toEqual([
-      ...MCP_PROTECTED_RESOURCE_METADATA_KNOWN_SAFE_ROUTE_LIKE_PATHS,
-      ...MCP_PROTECTED_RESOURCE_METADATA_OPTIONAL_FP0125_ROUTE_LIKE_PATHS,
-    ].sort());
+    expect(routeLikeRepositoryPaths).toEqual(
+      [
+        ...MCP_PROTECTED_RESOURCE_METADATA_KNOWN_SAFE_ROUTE_LIKE_PATHS,
+        ...MCP_PROTECTED_RESOURCE_METADATA_OPTIONAL_FP0125_ROUTE_LIKE_PATHS,
+      ].sort(),
+    );
     expect(inventory.noNewRoutePathRepositoryInventoryVerified).toBe(true);
     expect(inventory.knownSafeRouteInventoryVerified).toBe(true);
     expect(inventory.noUnexpectedRouteLikeRepositoryPaths).toBe(true);

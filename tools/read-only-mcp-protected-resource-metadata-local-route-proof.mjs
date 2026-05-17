@@ -7,6 +7,7 @@ import {
   buildProtectedResourceMetadataRouteInputEvidenceBundle,
   validRouteInput,
   validateProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence,
+  FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
   verifyFp0117OauthImplementationSequencingPlanBoundary,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
@@ -15,6 +16,9 @@ import {
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
+  verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan,
+  verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary,
+  verifyFp0127Absent,
 } from "../packages/domain/src/index.ts";
 import { buildApp } from "../apps/control-plane/src/app.ts";
 import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
@@ -27,6 +31,7 @@ import { registerReadOnlyAppMcpEndpointRoutes } from "../apps/control-plane/src/
 
 const FP0125_PLAN =
   "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
+const FP0126_PLAN = FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH;
 const FP0124_PLAN =
   "plans/FP-0124-read-only-chatgpt-app-mcp-protected-resource-metadata-route-implementation-master-plan.md";
 const FP0123_PLAN =
@@ -138,11 +143,46 @@ const proof = {
   noAppSubmission: repositoryProof.noAppSubmission,
   noPackageScriptsAdded: repositoryProof.noPackageScriptsAdded,
   noSchemaMigrationsAdded: repositoryProof.noSchemaMigrationsAdded,
+  noDbQueriesFromFp0126: repositoryProof.noDbQueriesFromFp0126,
+  noSchemaMigrationsFromFp0126: repositoryProof.noSchemaMigrationsAdded,
+  noPackageScriptsFromFp0126: repositoryProof.noPackageScriptsAdded,
+  noOpenAiApiCallsFromFp0126: repositoryProof.noOpenAiApiCallsFromFp0126,
+  noProviderExternalCallsFromFp0126:
+    repositoryProof.noProviderExternalCallsFromFp0126,
+  noSourceMutationFinanceWriteFromFp0126:
+    repositoryProof.noSourceMutationFinanceWriteFromFp0126,
   noPublicAssets: repositoryProof.noPublicAssets,
+  noPublicAssetsSubmissionArtifactsFromFp0126:
+    repositoryProof.noPublicAssets &&
+    repositoryProof.noAppSubmission &&
+    repositoryProof.noGeneratedPublicProse,
   noListingCopy: repositoryProof.noListingCopy,
   noGeneratedPublicProse: repositoryProof.noGeneratedPublicProse,
   fp0125BoundaryVerified: planProof.fp0125BoundaryVerified,
-  fp0126Absent: planProof.fp0126Absent,
+  fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified:
+    planProof.fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified,
+  fp0127Absent: planProof.fp0127Absent,
+  wwwAuthenticateAuthChallengeSequencingBoundaryVerified:
+    planProof.wwwAuthenticateAuthChallengeSequencingBoundaryVerified,
+  noMcpRouteBehaviorChangeFromFp0126: appProof.mcpRouteBehaviorUnchanged,
+  noWwwAuthenticateBehaviorFromFp0126:
+    appProof.noWwwAuthenticateRouteBehaviorImplementation &&
+    sourceProof.noWwwAuthenticateRouteBehaviorImplementation,
+  noOauthImplementationFromFp0126: sourceProof.noOauthImplementation,
+  noTokenSessionImplementationFromFp0126:
+    sourceProof.noTokenSessionImplementation,
+  noAuthMiddlewareImplementationFromFp0126:
+    sourceProof.noAuthMiddlewareImplementation,
+  noRemoteMcpDeploymentFromFp0126: repositoryProof.noRemoteMcpDeployment,
+  noDeploymentConfigFromFp0126: repositoryProof.noDeploymentConfig,
+  noAppsSdkResourceFromFp0126: repositoryProof.noAppsSdkResourceImplementation,
+  noAppSubmissionFromFp0126: repositoryProof.noAppSubmission,
+  fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
+    planProof.fp0125BoundaryVerified,
+  fp0125EvidenceCoherenceBoundaryStillVerified:
+    appProof.routeInputEvidenceSemanticCoherenceVerified &&
+    appProof.mismatchedRouteInputEvidenceFailsClosedBeforeRegistration &&
+    appProof.noSchemaOnlyEvidenceAcceptance,
   fp0124RouteImplementationPlanningBoundaryStillVerified:
     planProof.fp0124RouteImplementationPlanningBoundaryStillVerified,
   fp0123RouteInputEvidenceBoundaryStillVerified:
@@ -342,8 +382,7 @@ async function verifyAppBehavior() {
         explicitApp.hasRoute({
           method: "GET",
           url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
-        }) &&
-        metadataResponse.statusCode === 200,
+        }) && metadataResponse.statusCode === 200,
       invalidEvidenceDependencyFailsClosedBeforeRouteRegistration:
         invalidDependencyRejected &&
         !invalidApp.hasRoute({
@@ -560,11 +599,10 @@ function verifySourceBoundaries() {
       !/\b(?:from\s+["']drizzle|drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
         routeSource,
       ),
-    routeDoesNotUseOpenAiApi:
-      !new RegExp(
-        `\\b(?:${["OPENAI", "API", "KEY"].join("_")}|new\\s+OpenAI|from\\s+["']openai["']|responses\\.create|chat\\.completions|client\\.responses|api\\.openai\\.com)\\b`,
-        "u",
-      ).test(routeSource),
+    routeDoesNotUseOpenAiApi: !new RegExp(
+      `\\b(?:${["OPENAI", "API", "KEY"].join("_")}|new\\s+OpenAI|from\\s+["']openai["']|responses\\.create|chat\\.completions|client\\.responses|api\\.openai\\.com)\\b`,
+      "u",
+    ).test(routeSource),
     routeDoesNotUseProviderCalls:
       !/\b(?:providerConnect|callProvider|createProviderJob|deploy|fetch)\s*\(/u.test(
         routeSource,
@@ -613,7 +651,10 @@ function verifyRepositoryBoundaries() {
         /(?:apps-sdk|appssdk|app-submission|submission-assets|iframe|component-resource)/iu.test(
           path,
         ),
-      ) && !/\b(?:registerResource|componentResource|iframe)\s*\(/u.test(routeSource),
+      ) &&
+      !/\b(?:registerResource|componentResource|iframe)\s*\(/u.test(
+        routeSource,
+      ),
     noAppSubmission: !changedPaths.some((path) =>
       /(?:app-submission|submission-assets|public-listing|store-listing|listing-copy|screenshots)/iu.test(
         path,
@@ -637,13 +678,30 @@ function verifyRepositoryBoundaries() {
     noGeneratedPublicProse: !changedPaths.some((path) =>
       /(?:generated-public-prose|public-listing|store-listing)/iu.test(path),
     ),
+    noDbQueriesFromFp0126:
+      !changedPaths.some((path) => /^packages\/db\//u.test(path)) &&
+      !/\b(?:from\s+["']drizzle|drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
+        executableChangedSource,
+      ),
+    noOpenAiApiCallsFromFp0126:
+      !/\b(?:openai\s*\(|new\s+OpenAI|responses\.create|chat\.completions|client\.responses|api\.openai\.com)\b/iu.test(
+        executableChangedSource,
+      ),
+    noProviderExternalCallsFromFp0126:
+      !/\b(?:providerConnect|callProvider|createProviderJob|deploy|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
+        executableChangedSource,
+      ),
+    noSourceMutationFinanceWriteFromFp0126:
+      !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource|writeFinanceTwin|updateLedger|financeWrite|postLedger|createJournalEntry)\s*\(/u.test(
+        executableChangedSource,
+      ),
   };
 }
 
 function verifyPlanBoundaries() {
   const fp0125Hits = repoPaths.filter((path) => path.includes("FP-0125"));
   const fp0125PlanText = safeRead(FP0125_PLAN);
-  const fp0126Absent = !repoPaths.some((path) => path.includes("FP-0126"));
+  const fp0126PlanText = safeRead(FP0126_PLAN);
   const fp0125TextBoundary =
     fp0125PlanText.includes("local-only/read-only/proof-gated") &&
     fp0125PlanText.includes("explicit FP-0123") &&
@@ -655,9 +713,18 @@ function verifyPlanBoundaries() {
     fp0125BoundaryVerified:
       fp0125Hits.length === 1 &&
       fp0125Hits[0] === FP0125_PLAN &&
-      fp0125TextBoundary &&
-      fp0126Absent,
-    fp0126Absent,
+      fp0125TextBoundary,
+    fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified:
+      verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan({
+        planText: fp0126PlanText,
+        repoPaths,
+      }),
+    fp0127Absent: verifyFp0127Absent(repoPaths),
+    wwwAuthenticateAuthChallengeSequencingBoundaryVerified:
+      verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary({
+        planText: fp0126PlanText,
+        repoPaths,
+      }),
     fp0124RouteImplementationPlanningBoundaryStillVerified:
       verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
         {
@@ -764,9 +831,13 @@ function changedFilePaths() {
 
   let branchDiff = [];
   try {
-    branchDiff = execFileSync("git", ["diff", "--name-only", "origin/main...HEAD"], {
-      encoding: "utf8",
-    })
+    branchDiff = execFileSync(
+      "git",
+      ["diff", "--name-only", "origin/main...HEAD"],
+      {
+        encoding: "utf8",
+      },
+    )
       .split("\n")
       .filter(Boolean);
   } catch {
