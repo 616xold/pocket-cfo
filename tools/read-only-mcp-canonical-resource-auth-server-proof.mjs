@@ -23,7 +23,7 @@ import {
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
   verifyMcpCanonicalResourceAuthServerNoOpenAiApiSourceScan,
   verifyMcpCanonicalResourceAuthServerRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -154,7 +154,7 @@ const proof = McpCanonicalResourceAuthServerProofSchema.parse(
         planText: fp0123PlanText,
         repoPaths,
       }),
-    fp0124Absent: verifyFp0124Absent(repoPaths),
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(repoPaths),
     protectedResourceMetadataBuilderContractsFoundationVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
         planText: fp0122PlanText,

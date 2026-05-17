@@ -77,7 +77,29 @@ export const McpProtectedResourceMetadataRouteInputProofSchema = z
     noRuntimeCodexFinanceOutput: trueLiteral,
     noAutonomousAction: trueLiteral,
     fp0123BoundaryVerified: trueLiteral,
-    fp0124Absent: trueLiteral,
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: trueLiteral,
+    fp0125Absent: trueLiteral,
+    protectedResourceMetadataRouteImplementationPlanBoundaryVerified:
+      trueLiteral,
+    noRouteBehaviorChangeFromFp0124: trueLiteral,
+    noNewRoutePathFromFp0124: trueLiteral,
+    noProtectedResourceMetadataRouteFromFp0124: trueLiteral,
+    noWwwAuthenticateRouteBehaviorFromFp0124: trueLiteral,
+    noOauthImplementationFromFp0124: trueLiteral,
+    noTokenSessionImplementationFromFp0124: trueLiteral,
+    noAuthMiddlewareImplementationFromFp0124: trueLiteral,
+    noRemoteMcpDeploymentFromFp0124: trueLiteral,
+    noDeploymentConfigFromFp0124: trueLiteral,
+    noAppsSdkResourceFromFp0124: trueLiteral,
+    noAppSubmissionFromFp0124: trueLiteral,
+    noDbQueriesFromFp0124: trueLiteral,
+    noSchemaMigrationsFromFp0124: trueLiteral,
+    noPackageScriptsFromFp0124: trueLiteral,
+    noOpenAiApiCallsFromFp0124: trueLiteral,
+    noProviderExternalCallsFromFp0124: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0124: trueLiteral,
+    noPublicAssetsSubmissionArtifactsFromFp0124: trueLiteral,
+    noListingCopyGeneratedPublicProseFromFp0124: trueLiteral,
     fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified: trueLiteral,
     fp0121ProtectedResourceMetadataRoutePlanningBoundaryStillVerified:
       trueLiteral,
@@ -269,7 +291,10 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
     fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
       input.fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified ?? true,
     fp0123BoundaryVerified: input.fp0123BoundaryVerified ?? true,
-    fp0124Absent: input.fp0124Absent ?? true,
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+      input.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified ??
+      true,
+    fp0125Absent: input.fp0125Absent ?? true,
     fp0123PostmergeProofDurabilityVerified:
       input.fp0123PostmergeProofDurabilityVerified ?? true,
     localProofOnly: true,
@@ -304,6 +329,43 @@ export function buildMcpProtectedResourceMetadataRouteInputProof(
     noTokenSessionImplementation: input.noTokenSessionImplementation ?? true,
     noWwwAuthenticateRouteBehaviorImplementation:
       input.noWwwAuthenticateRouteBehaviorImplementation ?? true,
+    noAppSubmissionFromFp0124: input.noAppSubmissionFromFp0124 ?? true,
+    noAppsSdkResourceFromFp0124:
+      input.noAppsSdkResourceFromFp0124 ?? true,
+    noAuthMiddlewareImplementationFromFp0124:
+      input.noAuthMiddlewareImplementationFromFp0124 ?? true,
+    noDbQueriesFromFp0124: input.noDbQueriesFromFp0124 ?? true,
+    noDeploymentConfigFromFp0124:
+      input.noDeploymentConfigFromFp0124 ?? true,
+    noListingCopyGeneratedPublicProseFromFp0124:
+      input.noListingCopyGeneratedPublicProseFromFp0124 ?? true,
+    noNewRoutePathFromFp0124: input.noNewRoutePathFromFp0124 ?? true,
+    noOauthImplementationFromFp0124:
+      input.noOauthImplementationFromFp0124 ?? true,
+    noOpenAiApiCallsFromFp0124: input.noOpenAiApiCallsFromFp0124 ?? true,
+    noPackageScriptsFromFp0124:
+      input.noPackageScriptsFromFp0124 ?? true,
+    noProtectedResourceMetadataRouteFromFp0124:
+      input.noProtectedResourceMetadataRouteFromFp0124 ?? true,
+    noProviderExternalCallsFromFp0124:
+      input.noProviderExternalCallsFromFp0124 ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0124:
+      input.noPublicAssetsSubmissionArtifactsFromFp0124 ?? true,
+    noRemoteMcpDeploymentFromFp0124:
+      input.noRemoteMcpDeploymentFromFp0124 ?? true,
+    noRouteBehaviorChangeFromFp0124:
+      input.noRouteBehaviorChangeFromFp0124 ?? true,
+    noSchemaMigrationsFromFp0124:
+      input.noSchemaMigrationsFromFp0124 ?? true,
+    noSourceMutationFinanceWriteFromFp0124:
+      input.noSourceMutationFinanceWriteFromFp0124 ?? true,
+    noTokenSessionImplementationFromFp0124:
+      input.noTokenSessionImplementationFromFp0124 ?? true,
+    noWwwAuthenticateRouteBehaviorFromFp0124:
+      input.noWwwAuthenticateRouteBehaviorFromFp0124 ?? true,
+    protectedResourceMetadataRouteImplementationPlanBoundaryVerified:
+      input.protectedResourceMetadataRouteImplementationPlanBoundaryVerified ??
+      true,
     routeInputAuthorizationServerEvidenceBoundaryVerified:
       input.routeInputAuthorizationServerEvidenceBoundaryVerified ??
       McpProtectedResourceMetadataRouteInputAuthorizationServerEvidenceBoundarySchema.safeParse(

@@ -18,7 +18,7 @@ import {
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
   type McpProtectedResourceMetadataBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata";
 
@@ -78,7 +78,7 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0124Absent(repoPaths)).toBe(true);
+    expect(verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(repoPaths)).toBe(true);
   });
 
   it("builds a bounded metadata document only from accepted inputs", () => {
@@ -390,7 +390,7 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
     expect(
       proof.fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified,
     ).toBe(true);
-    expect(proof.fp0124Absent).toBe(true);
+    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
     expect(
       proof.fp0121ProtectedResourceMetadataRoutePlanningBoundaryStillVerified,
     ).toBe(true);

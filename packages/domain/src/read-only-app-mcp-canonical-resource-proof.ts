@@ -40,7 +40,7 @@ import {
   verifyFp0123Absent,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
 } from "./read-only-app-mcp-protected-resource-metadata-builder-proof";
 import { FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH } from "./read-only-app-mcp-protected-resource-metadata-builder-contracts";
 import { FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH } from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
@@ -83,7 +83,8 @@ const defaultTrueKeys = [
   "fp0121AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanningVerified",
   "fp0122AbsentOrLocalProtectedResourceMetadataBuilderContractsVerified",
   "fp0123AbsentOrLocalProtectedResourceMetadataRouteInputContractsVerified",
-  "fp0124Absent",
+  "fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified",
+  "fp0125Absent",
   "protectedResourceMetadataBuilderContractsFoundationVerified",
   "noRouteBehaviorChangeFromFp0122",
   "noNewRoutePathFromFp0122",
@@ -365,7 +366,7 @@ export {
   verifyFp0123Absent,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
 };
 
 export function verifyFp0121PlanningTextRequiredTopics(planText: string) {

@@ -9,6 +9,7 @@ import {
   FP0113_OAUTH_SECURITY_PLAN_PATH,
   FP0116_REMOTE_HOST_RESOURCE_PLAN_PATH,
   FP0119_PROTECTED_RESOURCE_METADATA_ROUTE_SEQUENCING_PLAN_PATH,
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   buildEvidenceToolDispatchProof,
   verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
@@ -27,7 +28,7 @@ import {
   verifyFp0122AbsentOrLocalProtectedResourceMetadataBuilderContracts,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
-  verifyFp0124Absent,
+  verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
 } from "../packages/domain/src/read-only-app-mcp-canonical-resource-proof.ts";
 import {
   LocalReadOnlyEvidenceToolDispatchAdapter,
@@ -66,6 +67,9 @@ const fp0122PlanText = safeRead(
 );
 const fp0123PlanText = safeRead(
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+);
+const fp0124PlanText = safeRead(
+  FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
 );
 const routeRuntimeSource = [
   ROUTE_PATH,
@@ -355,7 +359,13 @@ const proof = {
       planText: fp0123PlanText,
       repoPaths,
     }),
-  fp0124Absent: verifyFp0124Absent(repoPaths),
+  fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+    verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
+      {
+        planText: fp0124PlanText,
+        repoPaths,
+      },
+    ),
   protectedResourceMetadataBuilderContractsFoundationVerified:
     verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
       planText: fp0122PlanText,
@@ -1023,6 +1033,7 @@ function changedFileScopeScan() {
     FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
     FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
     FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+    FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
     "README.md",
     "CODEX_README.md",
     "START_HERE.md",
