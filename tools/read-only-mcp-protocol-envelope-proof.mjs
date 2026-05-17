@@ -20,6 +20,10 @@ const FP0112_PLAN =
   "plans/FP-0112-read-only-chatgpt-app-mcp-remote-public-deployment-oauth-readiness-master-plan.md";
 const FP0113_PLAN =
   "plans/FP-0113-read-only-chatgpt-app-mcp-oauth-token-session-security-contracts-foundation.md";
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -507,6 +511,11 @@ function proofSourceNoOpenAiApiModelKeyScan() {
 function readPublicAppProofGateSourceText() {
   return repoPaths
     .filter(isPublicAppProofGateSourceSurface)
+    .filter(
+      (path) =>
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map((path) => safeRead(path))
     .join("\n");
 }

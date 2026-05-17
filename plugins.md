@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0123 protected-resource metadata route-input evidence contract slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0123 protected-resource metadata route-input evidence contract slice and targeted post-merge proof-durability hardening correction.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0123 local/proof-only/read-only protected-resource metadata route-input evidence bundle contract slice, accepted canonical URI evidence, credential-free `authorization_servers` evidence, FP-0122 builder dependency, derived route-path decision, no-token-leakage proof, authenticated company-binding prerequisite, `/mcp` unchanged prerequisite, FP-0124 absence, proof-gate bridge, doc-refresh, validation, and handoff slice:
+  - Skills invoked for this FP-0123 local/proof-only/read-only protected-resource metadata route-input evidence bundle contract slice and the post-merge proof-durability hardening correction covering accepted canonical URI evidence, credential-free `authorization_servers` evidence, FP-0122 builder dependency, derived route-path decision, no-token-leakage proof, authenticated company-binding prerequisite, `/mcp` unchanged prerequisite, FP-0124 absence, branch-diff plus dirty-worktree proof scope, durable repository inventory checks, proof-gate bridge, doc-refresh, validation, and handoff:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

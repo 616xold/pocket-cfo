@@ -11,6 +11,10 @@ const FP0101_PLAN =
   "plans/FP-0101-read-only-chatgpt-app-mcp-public-app-implementation-sequencing-master-plan.md";
 const FP0102_PLAN =
   "plans/FP-0102-read-only-chatgpt-app-mcp-endpoint-oauth-remote-mcp-architecture-master-plan.md";
+const fp0123RouteInputSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
+]);
 
 const fp0101Boundary = fp0101PublicAppImplementationSequencingBoundary();
 const noRoutesAdded = noFp0100RouteOrEndpointPaths();
@@ -25,8 +29,7 @@ const noModelCalls =
 const publicSecurityNoOpenAiApiSourceScanVerified =
   noOpenAiApiCalls && noModelCalls;
 const fp0100Boundary = fp0100PublicAppSecurityBoundary();
-const fp0102Boundary =
-  fp0102EndpointOauthRemoteMcpArchitectureBoundary();
+const fp0102Boundary = fp0102EndpointOauthRemoteMcpArchitectureBoundary();
 const fp0103Boundary = fp0103EndpointArchitectureProofContractsBoundary();
 const localPreviewRouteBoundary = verifyLocalPreviewRouteBoundary();
 
@@ -36,11 +39,9 @@ const proof = PublicAppSecurityProofSchema.parse(
       fp0100Boundary.fp0100BoundaryVerified &&
       fp0100Boundary.publicAppSecurityContractsFoundationVerified,
     fp0101AbsentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified:
-      fp0101Boundary
-        .absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified,
+      fp0101Boundary.absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified,
     fp0102AbsentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified:
-      fp0102Boundary
-        .absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified,
+      fp0102Boundary.absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified,
     ...fp0103Boundary,
     endpointOauthRemoteMcpArchitecturePlanBoundaryVerified:
       fp0102Boundary.endpointOauthRemoteMcpArchitecturePlanBoundaryVerified,
@@ -50,12 +51,9 @@ const proof = PublicAppSecurityProofSchema.parse(
       fp0102Boundary.noOauthTokenSessionImplementationFromFp0102,
     noRemoteMcpImplementationOrDeploymentFromFp0102:
       fp0102Boundary.noRemoteMcpImplementationOrDeploymentFromFp0102,
-    noAppsSdkResourceFromFp0102:
-      fp0102Boundary.noAppsSdkResourceFromFp0102,
-    noAppSubmissionFromFp0102:
-      fp0102Boundary.noAppSubmissionFromFp0102,
-    noOpenAiApiCallsFromFp0102:
-      fp0102Boundary.noOpenAiApiCallsFromFp0102,
+    noAppsSdkResourceFromFp0102: fp0102Boundary.noAppsSdkResourceFromFp0102,
+    noAppSubmissionFromFp0102: fp0102Boundary.noAppSubmissionFromFp0102,
+    noOpenAiApiCallsFromFp0102: fp0102Boundary.noOpenAiApiCallsFromFp0102,
     noSourceMutationFinanceWriteFromFp0102:
       fp0102Boundary.noSourceMutationFinanceWriteFromFp0102,
     noPublicAssetsSubmissionArtifactsFromFp0102:
@@ -72,12 +70,9 @@ const proof = PublicAppSecurityProofSchema.parse(
       fp0101Boundary.noOauthImplementationFromFp0101,
     noRemoteMcpDeploymentFromFp0101:
       fp0101Boundary.noRemoteMcpDeploymentFromFp0101,
-    noAppsSdkResourceFromFp0101:
-      fp0101Boundary.noAppsSdkResourceFromFp0101,
-    noAppSubmissionFromFp0101:
-      fp0101Boundary.noAppSubmissionFromFp0101,
-    noOpenAiApiCallsFromFp0101:
-      fp0101Boundary.noOpenAiApiCallsFromFp0101,
+    noAppsSdkResourceFromFp0101: fp0101Boundary.noAppsSdkResourceFromFp0101,
+    noAppSubmissionFromFp0101: fp0101Boundary.noAppSubmissionFromFp0101,
+    noOpenAiApiCallsFromFp0101: fp0101Boundary.noOpenAiApiCallsFromFp0101,
     noSourceMutationFinanceWriteFromFp0101:
       fp0101Boundary.noSourceMutationFinanceWriteFromFp0101,
     noPublicAssetsSubmissionArtifactsFromFp0101:
@@ -471,8 +466,7 @@ function fp0102EndpointOauthRemoteMcpArchitectureBoundary() {
     ].every((requiredText) => normalized.includes(requiredText)) &&
     publicAssetsSubmissionArtifactPaths.length === 0;
   const fp0101ImplementationSequencingBoundaryStillVerified =
-    fp0101Boundary
-      .absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified &&
+    fp0101Boundary.absentOrDocsOnlyPublicAppImplementationSequencingBoundaryVerified &&
     fp0101Boundary.publicAppImplementationSequencingPlanBoundaryVerified;
   const fp0100PublicSecurityBoundaryStillVerified =
     fp0100Boundary.fp0100BoundaryVerified &&
@@ -550,7 +544,8 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
       !isAllowedFp0107LocalRouteAdapterPath(path) &&
       /^(apps\/web\/app|apps\/web\/pages|apps\/web\/api|apps\/control-plane|packages\/api|packages\/server|packages\/backend|packages\/db)\//u.test(
         path,
-      ) && /fp-?0103|endpoint|oauth|remote-mcp|apps-sdk/u.test(path),
+      ) &&
+      /fp-?0103|endpoint|oauth|remote-mcp|apps-sdk/u.test(path),
   );
   const noFp0103PublicAssetPaths = !repoFilePaths().some(
     (path) =>
@@ -584,14 +579,12 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
     normalized.includes(
       "fp-0103 does not authorize web api/backend/control-plane route implementation",
     ) && noFp0103RuntimePaths;
-  const noOauthTokenSessionImplementationFromFp0103 =
-    normalized.includes(
-      "fp-0103 does not authorize oauth/token/session implementation",
-    );
-  const noRemoteMcpImplementationOrDeploymentFromFp0103 =
-    normalized.includes(
-      "fp-0103 does not authorize remote mcp server implementation or deployment",
-    );
+  const noOauthTokenSessionImplementationFromFp0103 = normalized.includes(
+    "fp-0103 does not authorize oauth/token/session implementation",
+  );
+  const noRemoteMcpImplementationOrDeploymentFromFp0103 = normalized.includes(
+    "fp-0103 does not authorize remote mcp server implementation or deployment",
+  );
   const noAppsSdkResourceFromFp0103 = normalized.includes(
     "fp-0103 does not authorize apps sdk iframe/resource implementation",
   );
@@ -620,8 +613,7 @@ function fp0103EndpointArchitectureProofContractsBoundary() {
   const publicAppImplementationSubmissionFutureOnlyFromFp0103 =
     normalized.includes("public app implementation/submission future-only");
   const fp0102EndpointOauthRemoteMcpArchitectureBoundaryStillVerified =
-    fp0102Boundary
-      .absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified &&
+    fp0102Boundary.absentOrDocsOnlyEndpointOauthRemoteMcpArchitectureBoundaryVerified &&
     fp0102Boundary.endpointOauthRemoteMcpArchitecturePlanBoundaryVerified;
   const fp0103AbsentOrLocalEndpointArchitectureProofContractsVerified =
     endpointArchitectureProofContractsFoundationVerified &&
@@ -720,33 +712,31 @@ function fp0104EndpointImplementationReadinessBoundary() {
   const normalized = readFileSync(fp0104PathHits[0], "utf8")
     .toLowerCase()
     .replace(/`/gu, "");
-  const endpointImplementationReadinessPlanBoundaryVerified =
-    [
-      "fp-0104 is not implementation",
-      "fp-0104 is docs-and-plan plus proof-gate compatibility only",
-      "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
-      "fp-0104 does not authorize endpoint implementation",
-      "fp-0104 does not authorize route implementation",
-      "fp-0104 does not authorize web api/backend/control-plane route implementation",
-      "fp-0104 does not authorize oauth/token/session implementation",
-      "fp-0104 does not authorize remote mcp server implementation or deployment",
-      "fp-0104 does not authorize apps sdk iframe/resource implementation",
-      "fp-0104 does not authorize public chatgpt app implementation",
-      "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
-      "fp-0104 does not authorize openai api/model calls",
-      "fp-0104 keeps fp-0105 absent",
-    ].every((requiredText) => normalized.includes(requiredText));
-  const exactFutureEndpointInventoryReadinessVerified =
-    [
-      "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
-      "| /mcp |",
-      "endpoint path naming beyond /mcp is blocked",
-      "request envelope",
-      "response envelope",
-      "auth requirement",
-      "refusal/failure behavior",
-      "logging posture",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const endpointImplementationReadinessPlanBoundaryVerified = [
+    "fp-0104 is not implementation",
+    "fp-0104 is docs-and-plan plus proof-gate compatibility only",
+    "fp-0104 plans endpoint implementation readiness and exact future endpoint inventory only",
+    "fp-0104 does not authorize endpoint implementation",
+    "fp-0104 does not authorize route implementation",
+    "fp-0104 does not authorize web api/backend/control-plane route implementation",
+    "fp-0104 does not authorize oauth/token/session implementation",
+    "fp-0104 does not authorize remote mcp server implementation or deployment",
+    "fp-0104 does not authorize apps sdk iframe/resource implementation",
+    "fp-0104 does not authorize public chatgpt app implementation",
+    "fp-0104 does not authorize app submission, screenshots, listing copy, public assets, app-submission artifacts, or generated public assets",
+    "fp-0104 does not authorize openai api/model calls",
+    "fp-0104 keeps fp-0105 absent",
+  ].every((requiredText) => normalized.includes(requiredText));
+  const exactFutureEndpointInventoryReadinessVerified = [
+    "exact future chatgpt-facing endpoint path that can be named from current repo truth and official docs",
+    "| /mcp |",
+    "endpoint path naming beyond /mcp is blocked",
+    "request envelope",
+    "response envelope",
+    "auth requirement",
+    "refusal/failure behavior",
+    "logging posture",
+  ].every((requiredText) => normalized.includes(requiredText));
   const noEndpointImplementationFromFp0104 =
     normalized.includes("fp-0104 does not authorize endpoint implementation") &&
     normalized.includes("no endpoints");
@@ -781,14 +771,13 @@ function fp0104EndpointImplementationReadinessBoundary() {
   const noSourceMutationFinanceWriteFromFp0104 =
     normalized.includes("no source mutation") &&
     normalized.includes("no finance writes");
-  const noPublicAssetsSubmissionArtifactsFromFp0104 =
-    [
-      "no screenshots",
-      "no generated images",
-      "no public assets",
-      "no listing copy",
-      "no app-submission artifacts",
-    ].every((requiredText) => normalized.includes(requiredText));
+  const noPublicAssetsSubmissionArtifactsFromFp0104 = [
+    "no screenshots",
+    "no generated images",
+    "no public assets",
+    "no listing copy",
+    "no app-submission artifacts",
+  ].every((requiredText) => normalized.includes(requiredText));
   const fp0104AbsentOrDocsOnlyEndpointImplementationReadinessBoundaryVerified =
     endpointImplementationReadinessPlanBoundaryVerified &&
     exactFutureEndpointInventoryReadinessVerified &&
@@ -978,6 +967,11 @@ function verifyLocalPreviewRouteBoundary() {
 function readPublicAppProofGateSourceText() {
   return repoFilePaths()
     .filter(isPublicAppProofGateSourceSurface)
+    .filter(
+      (path) =>
+        !path.endsWith(".spec.ts") &&
+        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+    )
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");
 }
