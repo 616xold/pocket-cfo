@@ -4,14 +4,13 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "./read-only-app-mcp-www-authenticate";
-import {
-  FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
-} from "./read-only-app-mcp-token-validation";
-import {
-  verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129Absent,
-} from "./read-only-app-mcp-token-validation-proof";
+import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
+import { verifyFp0128TokenValidationReadinessContractsBoundary } from "./read-only-app-mcp-token-validation-proof";
 import {
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
@@ -58,9 +57,7 @@ describe("FP-0127 WWW-Authenticate route and prior-boundary hardening", () => {
     expect(countMatches(safeRead(mcpRoutePath), /app\.post\("\/mcp"/gu)).toBe(
       1,
     );
-    expect(countMatches(safeRead(mcpRoutePath), /app\.get\("\/mcp"/gu)).toBe(
-      1,
-    );
+    expect(countMatches(safeRead(mcpRoutePath), /app\.get\("\/mcp"/gu)).toBe(1);
   });
 
   it("accepts exact FP-0128 token-readiness contracts and keeps prior plan boundaries intact", () => {
@@ -68,11 +65,31 @@ describe("FP-0127 WWW-Authenticate route and prior-boundary hardening", () => {
 
     expect(
       verifyFp0128TokenValidationReadinessContractsBoundary({
-        planText: safeRead(FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH),
+        planText: safeRead(
+          FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0129Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: safeRead(
+            FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+          ),
+          repoPaths,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: safeRead(
+          FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0130Absent(repoPaths)).toBe(true);
     expect(repoPaths.filter((path) => path.includes("FP-0127"))).toEqual([
       FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
     ]);
@@ -104,7 +121,9 @@ describe("FP-0127 WWW-Authenticate route and prior-boundary hardening", () => {
     ).toBe(true);
     expect(
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-        planText: safeRead(FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH),
+        planText: safeRead(
+          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
@@ -126,8 +145,9 @@ describe("FP-0127 WWW-Authenticate route and prior-boundary hardening", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"]))
-      .toBe(true);
+    expect(
+      docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"]),
+    ).toBe(true);
     expect(
       docsBoundary(fp0106PlanPath, [
         "mcp protocol envelope",

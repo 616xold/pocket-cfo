@@ -43,7 +43,11 @@ export const McpOauthImplementationSequencingProofSchema = z
       trueLiteral,
     fp0128AbsentOrLocalTokenValidationReadinessContractsVerified: trueLiteral,
     fp0128TokenValidationReadinessBoundaryStillVerified: trueLiteral,
-    fp0129Absent: trueLiteral,
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      trueLiteral,
+    fp0130Absent: trueLiteral,
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      trueLiteral,
     wwwAuthenticateAuthChallengeContractsFoundationVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0127: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0127: trueLiteral,
@@ -233,7 +237,9 @@ export function buildMcpOauthImplementationSequencingProof(
     fp0127AbsentOrLocalWwwAuthenticateAuthChallengeContractsVerified: boolean;
     fp0128AbsentOrLocalTokenValidationReadinessContractsVerified: boolean;
     fp0128TokenValidationReadinessBoundaryStillVerified: boolean;
-    fp0129Absent: boolean;
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified: boolean;
+    fp0130Absent: boolean;
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified: boolean;
     wwwAuthenticateAuthChallengeContractsFoundationVerified: boolean;
     noMcpRouteBehaviorChangeFromFp0127: boolean;
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0127: boolean;
@@ -467,7 +473,13 @@ export function buildMcpOauthImplementationSequencingProof(
       true,
     fp0128TokenValidationReadinessBoundaryStillVerified:
       input.fp0128TokenValidationReadinessBoundaryStillVerified ?? true,
-    fp0129Absent: input.fp0129Absent ?? true,
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      input.fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified ??
+      true,
+    fp0130Absent: input.fp0130Absent ?? true,
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      input.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified ??
+      true,
     wwwAuthenticateAuthChallengeContractsFoundationVerified:
       input.wwwAuthenticateAuthChallengeContractsFoundationVerified ??
       buildMcpWwwAuthenticateAuthChallengeContracts().proofContract

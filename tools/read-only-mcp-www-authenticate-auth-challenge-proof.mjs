@@ -9,6 +9,7 @@ import {
   FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   McpWwwAuthenticateAuthChallengeProofSchema,
   buildMcpWwwAuthenticateAuthChallengeProof,
   buildWwwAuthenticateAuthChallengeContract,
@@ -29,7 +30,9 @@ import {
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128AbsentOrLocalTokenValidationReadinessContracts,
   verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129Absent,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -54,6 +57,9 @@ const fp0127PlanText = safeRead(
 );
 const fp0128PlanText = safeRead(
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+);
+const fp0129PlanText = safeRead(
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
 );
 const mcpRouteSource = safeRead(MCP_ROUTE_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
@@ -103,12 +109,16 @@ const proof = McpWwwAuthenticateAuthChallengeProofSchema.parse(
       }),
     fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-        planText: safeRead(FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH),
+        planText: safeRead(
+          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+        ),
         repoPaths,
       }),
     fp0123RouteInputEvidenceBoundaryStillVerified:
       verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
-        planText: safeRead(FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH),
+        planText: safeRead(
+          FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+        ),
         repoPaths,
       }),
     fp0124RouteImplementationPlanningBoundaryStillVerified:
@@ -151,7 +161,19 @@ const proof = McpWwwAuthenticateAuthChallengeProofSchema.parse(
         planText: fp0128PlanText,
         repoPaths,
       }),
-    fp0129Absent: verifyFp0129Absent(repoPaths),
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: fp0129PlanText,
+          repoPaths,
+        },
+      ),
+    fp0130Absent: verifyFp0130Absent(repoPaths),
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: fp0129PlanText,
+        repoPaths,
+      }),
     fp0127PostmergeChallengeContractHardeningVerified:
       scopeChallengeHardeningProof.verified &&
       scopeChallengeHardeningProof.acceptedMeansReadOnlyLeastPrivilege &&
@@ -216,8 +238,7 @@ const proof = McpWwwAuthenticateAuthChallengeProofSchema.parse(
     noTokenSessionImplementation: scopeScan.noTokenSessionImplementation,
     noTokenSessionImplementationFromFp0127:
       scopeScan.noTokenSessionImplementation,
-    noTokenValidationImplementation:
-      scopeScan.noTokenValidationImplementation,
+    noTokenValidationImplementation: scopeScan.noTokenValidationImplementation,
     noTokenValidationImplementationFromFp0127:
       scopeScan.noTokenValidationImplementation,
     noWwwAuthenticateRouteBehaviorFromFp0127:
@@ -365,7 +386,8 @@ function verifyNoTokenLeakageHardening() {
 }
 
 function verifyPublicResourceMetadataReferenceHardening() {
-  const localReference = deriveWwwAuthenticateResourceMetadataReferenceContract();
+  const localReference =
+    deriveWwwAuthenticateResourceMetadataReferenceContract();
   const validFutureReference =
     deriveWwwAuthenticateResourceMetadataReferenceContract({
       publicCanonicalUrlProofAvailable: true,
@@ -397,7 +419,9 @@ function verifyPublicResourceMetadataReferenceHardening() {
       resourceMetadataReference: candidate,
     }),
     validation:
-      validateWwwAuthenticatePublicResourceMetadataReferenceCandidate(candidate),
+      validateWwwAuthenticatePublicResourceMetadataReferenceCandidate(
+        candidate,
+      ),
   }));
 
   return {
@@ -436,7 +460,10 @@ function changedScopeScan() {
     noAppsSdkResource:
       !changedPaths.some((path) =>
         /(?:apps-sdk|app-submission|submission-assets)/iu.test(path),
-      ) && !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(changedExecutableSource),
+      ) &&
+      !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
+        changedExecutableSource,
+      ),
     noAuthMiddlewareImplementation:
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|requireAuth|authenticateRequest|setCookie)\s*\(/u.test(
         changedExecutableSource,
@@ -534,10 +561,26 @@ function noExecutableApiModelKeyUsage(sourceText) {
       name: "dynamic-openai-import",
       pattern: /\bimport\s*\(\s*["']openai["']\s*\)/u,
     },
-    { key: "noOpenAiClientOrKeyUsage", name: "openai-client", pattern: /\bnew\s+OpenAI\b/u },
-    { key: "noOpenAiApiCalls", name: "openai-member-call", pattern: /\bopenai\s*\./iu },
-    { key: "noOpenAiApiCalls", name: "responses-create", pattern: /\bresponses\s*\.\s*create\b/u },
-    { key: "noOpenAiApiCalls", name: "chat-completions", pattern: /\bchat\s*\.\s*completions\b/u },
+    {
+      key: "noOpenAiClientOrKeyUsage",
+      name: "openai-client",
+      pattern: /\bnew\s+OpenAI\b/u,
+    },
+    {
+      key: "noOpenAiApiCalls",
+      name: "openai-member-call",
+      pattern: /\bopenai\s*\./iu,
+    },
+    {
+      key: "noOpenAiApiCalls",
+      name: "responses-create",
+      pattern: /\bresponses\s*\.\s*create\b/u,
+    },
+    {
+      key: "noOpenAiApiCalls",
+      name: "chat-completions",
+      pattern: /\bchat\s*\.\s*completions\b/u,
+    },
     {
       key: "noOpenAiClientOrKeyUsage",
       name: "openai-env-key",
@@ -551,8 +594,16 @@ function noExecutableApiModelKeyUsage(sourceText) {
       name: "openai-api-host",
       pattern: new RegExp(`\\b${escapeRegExp(apiHost)}\\b`, "u"),
     },
-    { key: "noModelCalls", name: "model-create", pattern: /\bmodel\s*\.\s*create\b/u },
-    { key: "noModelCalls", name: "models-create", pattern: /\bmodels\s*\.\s*create\b/u },
+    {
+      key: "noModelCalls",
+      name: "model-create",
+      pattern: /\bmodel\s*\.\s*create\b/u,
+    },
+    {
+      key: "noModelCalls",
+      name: "models-create",
+      pattern: /\bmodels\s*\.\s*create\b/u,
+    },
     { key: "noModelCalls", name: "call-model", pattern: /\bcall\s*Model\b/u },
   ];
   const matches = sourceText.split("\n").flatMap((line, index) => {
@@ -565,7 +616,9 @@ function noExecutableApiModelKeyUsage(sourceText) {
   return {
     matches,
     noModelCalls: !matches.some((match) => match.key === "noModelCalls"),
-    noOpenAiApiCalls: !matches.some((match) => match.key === "noOpenAiApiCalls"),
+    noOpenAiApiCalls: !matches.some(
+      (match) => match.key === "noOpenAiApiCalls",
+    ),
     noOpenAiClientOrKeyUsage: !matches.some(
       (match) => match.key === "noOpenAiClientOrKeyUsage",
     ),
@@ -628,8 +681,7 @@ function routeSourcesHaveNoWwwAuthenticateRuntime() {
   return (
     !/WWW-Authenticate|www-authenticate|resource_metadata\s*=/iu.test(
       mcpRouteSource,
-    ) &&
-    !/WWW-Authenticate|www-authenticate/iu.test(metadataRouteSource)
+    ) && !/WWW-Authenticate|www-authenticate/iu.test(metadataRouteSource)
   );
 }
 
