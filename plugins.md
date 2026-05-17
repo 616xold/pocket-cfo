@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0125 protected-resource metadata local route implementation slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0126 WWW-Authenticate auth-challenge sequencing plan/proof-gate compatibility slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0125 local-only/read-only protected-resource metadata route implementation slice and targeted post-merge evidence-coherence hardening correction covering explicit FP-0123 route-input evidence bundle dependency, semantic coherence before route registration, exact GET `/.well-known/oauth-protected-resource/mcp`, default `buildApp()` route absence, bounded metadata fields, mutating metadata-method rejection, `/mcp` unchanged behavior, deferred WWW-Authenticate behavior, FP-0126 absence, proof-gate bridge, doc-refresh, validation, and handoff:
+  - Skills invoked for this FP-0126 docs-and-plan/proof-gate compatibility slice covering future WWW-Authenticate `resource_metadata` auth-challenge sequencing, FP-0125 protected-resource metadata route preservation, FP-0125 evidence-coherence preservation, `/mcp` unchanged behavior, no WWW-Authenticate/OAuth/token/session/auth middleware implementation, no remote/public/App SDK/app-submission scope, FP-0127 absence, proof-gate bridge, doc-refresh, validation, and handoff:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

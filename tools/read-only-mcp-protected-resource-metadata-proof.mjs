@@ -8,6 +8,7 @@ import {
   FP0121_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
   McpProtectedResourceMetadataProofSchema,
   buildMcpProtectedResourceMetadataProof,
   isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath,
@@ -26,6 +27,9 @@ import {
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123AbsentOrLocalProtectedResourceMetadataRouteInputContracts,
   verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan,
+  verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan,
+  verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary,
+  verifyFp0127Absent,
   verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan,
   verifyMcpProtectedResourceMetadataRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -79,6 +83,9 @@ const fp0122PlanText = safeRead(
 );
 const fp0123PlanText = safeRead(
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+);
+const fp0126PlanText = safeRead(
+  FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
 );
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
@@ -201,7 +208,30 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
         planText: fp0123PlanText,
         repoPaths,
       }),
-    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified: verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(repoPaths),
+    fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified:
+      verifyFp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlan(
+        repoPaths,
+      ),
+    fp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlanVerified:
+      verifyFp0126AbsentOrDocsOnlyWwwAuthenticateAuthChallengeSequencingPlan({
+        planText: fp0126PlanText,
+        repoPaths,
+      }),
+    fp0127Absent: verifyFp0127Absent(repoPaths),
+    wwwAuthenticateAuthChallengeSequencingBoundaryVerified:
+      verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary({
+        planText: fp0126PlanText,
+        repoPaths,
+      }),
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
+      localRouteShapeStillVerified(),
+    fp0125EvidenceCoherenceBoundaryStillVerified: docsBoundary(
+      "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md",
+      [
+        "evidence-coherence hardening",
+        "semantic agreement between canonical uri evidence",
+      ],
+    ),
     protectedResourceMetadataBuilderContractsFoundationVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
         planText: fp0122PlanText,
@@ -257,6 +287,38 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
       scopeScan.noListingCopy && scopeScan.noGeneratedPublicProse,
     noListingCopyGeneratedPublicProseFromFp0122:
       scopeScan.noListingCopy && scopeScan.noGeneratedPublicProse,
+    noAppSubmissionFromFp0126: scopeScan.noAppSubmission,
+    noAppsSdkResourceFromFp0126: scopeScan.noAppsSdkResource,
+    noAuthMiddlewareImplementationFromFp0126:
+      scopeScan.noAuthMiddlewareImplementation &&
+      repositoryInventory.authMiddlewareRepositoryInventoryVerified,
+    noDbQueriesFromFp0126: scopeScan.noDbQueries,
+    noDeploymentConfigFromFp0126: scopeScan.noDeploymentConfig,
+    noMcpRouteBehaviorChangeFromFp0126:
+      scopeScan.noRouteBehaviorChange && localRouteShapeStillVerified(),
+    noOauthImplementationFromFp0126:
+      scopeScan.noOauthImplementation &&
+      repositoryInventory.oauthRuntimeRepositoryInventoryVerified,
+    noOpenAiApiCallsFromFp0126:
+      changedSourceScan.noOpenAiApiCalls &&
+      durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
+    noPackageScriptsFromFp0126: scopeScan.noPackageScripts,
+    noProviderExternalCallsFromFp0126:
+      scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
+    noPublicAssetsSubmissionArtifactsFromFp0126:
+      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
+    noRemoteMcpDeploymentFromFp0126:
+      scopeScan.noRemoteMcpDeployment &&
+      repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified,
+    noSchemaMigrationsFromFp0126: scopeScan.noSchemaMigrations,
+    noSourceMutationFinanceWriteFromFp0126:
+      scopeScan.noSourceMutation && scopeScan.noFinanceWrite,
+    noTokenSessionImplementationFromFp0126:
+      scopeScan.noTokenSessionImplementation &&
+      repositoryInventory.tokenSessionRepositoryInventoryVerified,
+    noWwwAuthenticateBehaviorFromFp0126:
+      scopeScan.noWwwAuthenticateRouteBehavior &&
+      repositoryInventory.wwwAuthenticateRouteRepositoryInventoryVerified,
     noModelCalls:
       changedSourceScan.noModelCalls &&
       durableSourceScan.protectedResourceMetadataNoOpenAiApiSourceScanVerified,
@@ -546,7 +608,8 @@ function changedScopeScan() {
       /(?:listing-copy|public-listing|store-listing)/iu.test(path),
     ),
     noNewRoutePath: !changedPaths.some(
-      (path) => isRouteLikeRuntimePath(path) && path !== FP0125_LOCAL_ROUTE_PATH,
+      (path) =>
+        isRouteLikeRuntimePath(path) && path !== FP0125_LOCAL_ROUTE_PATH,
     ),
     noOauthImplementation:
       !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
@@ -588,7 +651,8 @@ function changedScopeScan() {
         changedExecutableSource,
       ),
     noRouteBehaviorChange: !changedPaths.some(
-      (path) => isRouteLikeRuntimePath(path) && path !== FP0125_LOCAL_ROUTE_PATH,
+      (path) =>
+        isRouteLikeRuntimePath(path) && path !== FP0125_LOCAL_ROUTE_PATH,
     ),
     noSchemaMigrations: !changedPaths.some(
       (path) =>
