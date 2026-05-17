@@ -1,4 +1,5 @@
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-contracts";
+import { FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-www-authenticate-contracts";
 import {
   collectForbiddenOpenAiExecutableMatches,
   hasAppsSdkRuntimeSource,
@@ -21,13 +22,30 @@ import {
 
 export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   "packages/domain/src/index.ts",
   "packages/domain/src/read-only-app-mcp-token-validation.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-contracts.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-proof.ts",
   "packages/domain/src/read-only-app-mcp-token-validation.spec.ts",
+  "packages/domain/src/read-only-app-mcp-www-authenticate-boundary-hardening.spec.ts",
+  "packages/domain/src/read-only-app-mcp-www-authenticate-contracts.ts",
+  "packages/domain/src/read-only-app-mcp-www-authenticate-plan-boundary.ts",
+  "packages/domain/src/read-only-app-mcp-www-authenticate-proof.ts",
+  "packages/domain/src/read-only-app-mcp-www-authenticate.spec.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.spec.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-proof.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata.spec.ts",
+  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-proof.ts",
   "tools/read-only-mcp-token-validation-readiness-proof.mjs",
+  "tools/read-only-mcp-www-authenticate-auth-challenge-proof.mjs",
+  "tools/read-only-mcp-protected-resource-metadata-local-route-proof.mjs",
+  "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
+  "tools/read-only-mcp-protected-resource-metadata-proof.mjs",
+  "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs",
+  "tools/read-only-mcp-route-adapter-proof.mjs",
   "README.md",
   "CODEX_README.md",
   "START_HERE.md",

@@ -10,8 +10,13 @@ export const MCP_WWW_AUTHENTICATE_AUTH_CHALLENGE_SCHEMA_VERSION =
 export const FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH =
   "plans/FP-0127-read-only-chatgpt-app-mcp-www-authenticate-auth-challenge-contracts-foundation.md";
 
+export const FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH =
+  "plans/FP-0129-read-only-chatgpt-app-mcp-www-authenticate-challenge-implementation-sequencing-master-plan.md";
+
 export const MCP_WWW_AUTHENTICATE_FP0127_PLAN_PREFIX = "FP-0127";
 export const MCP_WWW_AUTHENTICATE_FP0128_PLAN_PREFIX = "FP-0128";
+export const MCP_WWW_AUTHENTICATE_FP0129_PLAN_PREFIX = "FP-0129";
+export const MCP_WWW_AUTHENTICATE_FP0130_PLAN_PREFIX = "FP-0130";
 
 export const MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME = "Bearer" as const;
 export const MCP_WWW_AUTHENTICATE_RESOURCE_METADATA_PARAMETER =

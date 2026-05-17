@@ -59,7 +59,11 @@ export const McpTokenValidationReadinessProofSchema = z
     noSourceMutation: trueLiteral,
     noFinanceWrite: trueLiteral,
     fp0128BoundaryVerified: trueLiteral,
-    fp0129Absent: trueLiteral,
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      trueLiteral,
+    fp0130Absent: trueLiteral,
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      trueLiteral,
     fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified: trueLiteral,
     fp0126WwwAuthenticateAuthChallengeSequencingBoundaryStillVerified:
       trueLiteral,
@@ -196,7 +200,13 @@ export function buildMcpTokenValidationReadinessProof(
     noSourceMutation: input.noSourceMutation ?? true,
     noFinanceWrite: input.noFinanceWrite ?? true,
     fp0128BoundaryVerified: input.fp0128BoundaryVerified ?? true,
-    fp0129Absent: input.fp0129Absent ?? true,
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      input.fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified ??
+      true,
+    fp0130Absent: input.fp0130Absent ?? true,
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      input.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified ??
+      true,
     fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified:
       input.fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified ?? true,
     fp0126WwwAuthenticateAuthChallengeSequencingBoundaryStillVerified:

@@ -21,6 +21,11 @@ import {
 import {
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129PlanningTextRequiredTopics,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "./read-only-app-mcp-www-authenticate";
 import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
@@ -40,7 +45,6 @@ import {
   verifyFp0128AbsentOrLocalTokenValidationReadinessContracts,
   verifyFp0128PlanningTextRequiredTopics,
   verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129Absent,
   verifyTokenValidationChallengeReadinessContracts,
   verifyTokenValidationFailureModeContracts,
   verifyTokenValidationNoLeakageExamples,
@@ -59,12 +63,16 @@ const metadataRoutePath =
 const appPath = "apps/control-plane/src/app.ts";
 
 describe("FP-0128 token-validation failure readiness contracts", () => {
-  it("accepts exactly one FP-0128 local proof plan while FP-0129 remains absent", () => {
+  it("accepts exactly one FP-0128 local proof plan and exact FP-0129 docs-only sequencing plan while FP-0130 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
     );
+    const fp0129PlanText = safeRead(
+      FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    );
     const fp0128Hits = repoPaths.filter((path) => /(^|\/)FP-0128/u.test(path));
+    const fp0129Hits = repoPaths.filter((path) => /(^|\/)FP-0129/u.test(path));
 
     expect(fp0128Hits).toEqual([
       FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
@@ -81,7 +89,29 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0129Absent(repoPaths)).toBe(true);
+    expect(fp0129Hits).toEqual([
+      FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: fp0129PlanText,
+          repoPaths,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: fp0129PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0130Absent(repoPaths)).toBe(true);
+    expect(
+      Object.values(
+        verifyFp0129PlanningTextRequiredTopics(fp0129PlanText),
+      ).every(Boolean),
+    ).toBe(true);
     expect(
       Object.values(verifyFp0128PlanningTextRequiredTopics(planText)).every(
         Boolean,
@@ -103,8 +133,25 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0129Absent([...repoPaths, "plans/FP-0129-runtime-auth.md"]),
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: fp0129PlanText,
+          repoPaths: [...repoPaths, "plans/FP-0129-runtime-auth.md"],
+        },
+      ),
     ).toBe(false);
+    expect(
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: fp0129PlanText,
+        repoPaths: [
+          ...repoPaths.filter((path) => !/(^|\/)FP-0129/u.test(path)),
+          "plans/FP-0129-runtime-auth.md",
+        ],
+      }),
+    ).toBe(false);
+    expect(verifyFp0130Absent([...repoPaths, "plans/FP-0130-runtime.md"])).toBe(
+      false,
+    );
   });
 
   it("models all required failure modes as proof-only contracts", () => {
@@ -506,9 +553,25 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
 
     expect(scan.tokenValidationNoOpenAiSourceScanVerified).toBe(true);
     expect(scan.fp0128PostmergeProofDurabilityVerified).toBe(true);
-    expect(verifyFp0129Absent(repoPaths)).toBe(true);
     expect(
-      verifyFp0129Absent([...repoPaths, "plans/FP-0129-runtime-auth.md"]),
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: safeRead(
+            FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+          ),
+          repoPaths,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: safeRead(
+            FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+          ),
+          repoPaths: [...repoPaths, "plans/FP-0129-runtime-auth.md"],
+        },
+      ),
     ).toBe(false);
   });
 });

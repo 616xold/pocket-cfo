@@ -11,6 +11,7 @@ import {
   FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   McpOauthImplementationSequencingProofSchema,
   buildMcpOauthImplementationSequencingProof,
   isFp0117OauthSequencingNoOpenAiProofSourcePath,
@@ -36,7 +37,9 @@ import {
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128AbsentOrLocalTokenValidationReadinessContracts,
   verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129Absent,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "../packages/domain/src/index.ts";
 
 const FP0116_PLAN =
@@ -95,6 +98,9 @@ const fp0127PlanText = safeRead(
 );
 const fp0128PlanText = safeRead(
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+);
+const fp0129PlanText = safeRead(
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
 );
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
@@ -235,7 +241,19 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
         planText: fp0128PlanText,
         repoPaths,
       }),
-    fp0129Absent: verifyFp0129Absent(repoPaths),
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: fp0129PlanText,
+          repoPaths,
+        },
+      ),
+    fp0130Absent: verifyFp0130Absent(repoPaths),
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: fp0129PlanText,
+        repoPaths,
+      }),
     wwwAuthenticateAuthChallengeContractsFoundationVerified:
       verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary({
         planText: fp0127PlanText,

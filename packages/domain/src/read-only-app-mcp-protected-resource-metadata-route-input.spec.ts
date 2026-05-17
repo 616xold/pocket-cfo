@@ -26,6 +26,7 @@ import {
   verifyMcpProtectedResourceMetadataRouteInputDurabilityScan,
   type McpProtectedResourceMetadataRouteInputBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata";
+import { FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-www-authenticate-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 
@@ -110,7 +111,9 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
     expect(proof.localProofOnly).toBe(true);
     expect(proof.routeInputEvidenceContractsVerified).toBe(true);
     expect(proof.fp0123BoundaryVerified).toBe(true);
-    expect(proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified).toBe(true);
+    expect(
+      proof.fp0124AbsentOrDocsOnlyProtectedResourceMetadataRouteImplementationPlanVerified,
+    ).toBe(true);
     expect(proof.fp0125Absent).toBe(true);
   });
 
@@ -123,7 +126,9 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
     expect(planText).toContain("docs-and-plan plus proof-gate compatibility");
     expect(planText).toContain("does not implement the route");
     expect(planText).toContain("does not add route paths");
-    expect(planText).toContain("does not register a protected-resource metadata endpoint");
+    expect(planText).toContain(
+      "does not register a protected-resource metadata endpoint",
+    );
     expect(planText).toContain("route-input evidence bundle");
     expect(planText).toContain("canonical uri evidence");
     expect(planText).toContain("authorization server evidence");
@@ -413,6 +418,22 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
       scan.routeInputNoDeploymentPublicAssetRepositoryInventoryVerified,
     ).toBe(true);
     expect(scan.routeInputNoOpenAiSourceScanVerified).toBe(true);
+    expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(true);
+  });
+
+  it("accepts the exact FP-0129 docs-only WWW-Authenticate sequencing plan as proof-gate bridge scope", () => {
+    const scan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+      ],
+    });
+
+    expect(scan.routeInputBranchDiffScopeVerified).toBe(true);
+    expect(scan.routeInputNoRouteRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(scan.routeInputNoWwwAuthenticateRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(scan.routeInputNoAuthRuntimeRepositoryInventoryVerified).toBe(true);
     expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(true);
   });
 

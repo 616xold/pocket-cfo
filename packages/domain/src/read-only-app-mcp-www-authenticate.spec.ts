@@ -15,6 +15,7 @@ import {
 } from "./read-only-app-mcp-www-authenticate";
 import {
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   MCP_WWW_AUTHENTICATE_ALLOWED_SCOPE_CHALLENGES,
   MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME,
   MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
@@ -25,14 +26,15 @@ import {
   verifyFp0127AbsentOrLocalWwwAuthenticateAuthChallengeContracts,
   verifyFp0127PlanningTextRequiredTopics,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129PlanningTextRequiredTopics,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "./read-only-app-mcp-www-authenticate";
-import {
-  FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
-} from "./read-only-app-mcp-token-validation";
+import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
 import {
   verifyFp0128AbsentOrLocalTokenValidationReadinessContracts,
   verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129Absent,
 } from "./read-only-app-mcp-token-validation-proof";
 import {
   FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
@@ -50,13 +52,16 @@ const metadataRoutePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
 describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
-  it("accepts exactly one FP-0127 local proof plan and exact FP-0128 token-readiness plan", () => {
+  it("accepts exact FP-0127/FP-0128 plans and exact FP-0129 docs-only sequencing plan while FP-0130 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
     );
     const fp0128PlanText = safeRead(
       FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+    );
+    const fp0129PlanText = safeRead(
+      FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
     );
     const fp0127Hits = repoPaths.filter((path) => /(^|\/)FP-0127/u.test(path));
 
@@ -87,7 +92,29 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0129Absent(repoPaths)).toBe(true);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0129/u.test(path))).toEqual([
+      FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: fp0129PlanText,
+          repoPaths,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: fp0129PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0130Absent(repoPaths)).toBe(true);
+    expect(
+      Object.values(
+        verifyFp0129PlanningTextRequiredTopics(fp0129PlanText),
+      ).every(Boolean),
+    ).toBe(true);
     expect(
       Object.values(verifyFp0127PlanningTextRequiredTopics(planText)).every(
         Boolean,
@@ -112,13 +139,70 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       verifyFp0128AbsentOrLocalTokenValidationReadinessContracts({
         planText: fp0128PlanText,
         repoPaths: [
-        ...repoPaths,
-        "plans/FP-0128-read-only-chatgpt-app-mcp-auth-runtime.md",
+          ...repoPaths,
+          "plans/FP-0128-read-only-chatgpt-app-mcp-auth-runtime.md",
         ],
       }),
     ).toBe(false);
-    expect(verifyFp0129Absent([...repoPaths, "plans/FP-0129-runtime.md"]))
-      .toBe(false);
+    expect(
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: fp0129PlanText,
+          repoPaths: [...repoPaths, "plans/FP-0129-runtime.md"],
+        },
+      ),
+    ).toBe(false);
+    expect(verifyFp0130Absent([...repoPaths, "plans/FP-0130-runtime.md"])).toBe(
+      false,
+    );
+  });
+
+  it("records FP-0129 challenge implementation sequencing decisions without route or token runtime scope", () => {
+    const planText = safeRead(
+      FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
+    ).toLowerCase();
+    const proof = buildMcpWwwAuthenticateAuthChallengeProof({
+      fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified: true,
+      fp0130Absent: true,
+      wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified: true,
+    });
+
+    expect(planText).toContain(
+      "missing-token challenge behavior may be the first future implementation candidate",
+    );
+    expect(planText).toContain(
+      "invalid-token challenge behavior must not implement semantic token validation",
+    );
+    for (const mode of [
+      "malformed",
+      "expired",
+      "wrong-audience",
+      "wrong-resource",
+      "wrong-scope",
+      "wrong-org",
+      "revoked",
+      "replayed",
+      "token-passthrough-attempt",
+    ]) {
+      expect(planText).toContain(mode);
+    }
+    expect(planText).toContain("later token-validation runtime lane");
+    expect(planText).toContain(
+      "public runtime challenge references are blocked",
+    );
+    expect(planText).toContain("canonical public url proof");
+    expect(planText).toContain("json-rpc refusal semantics");
+    expect(planText).toContain("separate from auth challenge emission");
+    expect(planText).toContain(
+      "protected-resource metadata route behavior remains unchanged",
+    );
+    expect(planText).toContain("route emission requires an explicit later");
+    expect(proof.noMcpRouteBehaviorChange).toBe(true);
+    expect(proof.noProtectedResourceMetadataRouteBehaviorChange).toBe(true);
+    expect(proof.noWwwAuthenticateRouteBehaviorImplementation).toBe(true);
+    expect(proof.noTokenValidationImplementation).toBe(true);
+    expect(proof.noOauthImplementation).toBe(true);
+    expect(proof.fp0130Absent).toBe(true);
   });
 
   it("builds Bearer resource_metadata contract data without runtime header behavior", () => {
@@ -127,7 +211,9 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
     const contracts = buildMcpWwwAuthenticateAuthChallengeContracts();
 
     expect(contract.headerEmitted).toBe(false);
-    expect(contract.challengeScheme).toBe(MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME);
+    expect(contract.challengeScheme).toBe(
+      MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME,
+    );
     expect(contract.resourceMetadataParameter).toBe(
       MCP_WWW_AUTHENTICATE_RESOURCE_METADATA_PARAMETER,
     );
@@ -135,11 +221,14 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
     );
     expect(contract.referenceContract.runtimeHeaderEmissionAllowed).toBe(false);
-    expect(contracts.bearerChallengeShapeBoundary.headerStringBuilt).toBe(false);
+    expect(contracts.bearerChallengeShapeBoundary.headerStringBuilt).toBe(
+      false,
+    );
     expect(proof.wwwAuthenticateNoRuntimeBoundaryVerified).toBe(true);
     expect(proof.noWwwAuthenticateRouteBehaviorImplementation).toBe(true);
-    expect(McpWwwAuthenticateAuthChallengeProofSchema.safeParse(proof).success)
-      .toBe(true);
+    expect(
+      McpWwwAuthenticateAuthChallengeProofSchema.safeParse(proof).success,
+    ).toBe(true);
     expect(
       McpWwwAuthenticateAuthChallengeProofSchema.safeParse({
         ...proof,
@@ -210,7 +299,9 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       ),
     ).toBe(true);
     expect(textHasWwwAuthenticateNoTokenLeakage("token values")).toBe(false);
-    expect(textHasWwwAuthenticateNoTokenLeakage("raw finance data")).toBe(false);
+    expect(textHasWwwAuthenticateNoTokenLeakage("raw finance data")).toBe(
+      false,
+    );
     expect(textHasWwwAuthenticateNoTokenLeakage("app submission copy")).toBe(
       false,
     );

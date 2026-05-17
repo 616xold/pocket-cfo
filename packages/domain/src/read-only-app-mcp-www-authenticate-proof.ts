@@ -1,20 +1,24 @@
 import { z } from "zod";
-import {
-  MCP_WWW_AUTHENTICATE_AUTH_CHALLENGE_SCHEMA_VERSION,
-} from "./read-only-app-mcp-www-authenticate-contracts";
+import { MCP_WWW_AUTHENTICATE_AUTH_CHALLENGE_SCHEMA_VERSION } from "./read-only-app-mcp-www-authenticate-contracts";
 import { buildMcpWwwAuthenticateAuthChallengeContracts } from "./read-only-app-mcp-www-authenticate-builders";
 export {
   verifyFp0127AbsentOrLocalWwwAuthenticateAuthChallengeContracts,
   verifyFp0127PlanningTextRequiredTopics,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128Absent,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129PlanningTextRequiredTopics,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "./read-only-app-mcp-www-authenticate-plan-boundary";
 
 const trueLiteral = z.literal(true);
 
 export const McpWwwAuthenticateAuthChallengeProofSchema = z
   .object({
-    schemaVersion: z.literal(MCP_WWW_AUTHENTICATE_AUTH_CHALLENGE_SCHEMA_VERSION),
+    schemaVersion: z.literal(
+      MCP_WWW_AUTHENTICATE_AUTH_CHALLENGE_SCHEMA_VERSION,
+    ),
     localProofOnly: trueLiteral,
     wwwAuthenticateAuthChallengeContractsVerified: trueLiteral,
     wwwAuthenticateChallengeDeferredBoundaryVerified: trueLiteral,
@@ -64,7 +68,11 @@ export const McpWwwAuthenticateAuthChallengeProofSchema = z
       trueLiteral,
     fp0128AbsentOrLocalTokenValidationReadinessContractsVerified: trueLiteral,
     fp0128TokenValidationReadinessBoundaryStillVerified: trueLiteral,
-    fp0129Absent: trueLiteral,
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      trueLiteral,
+    fp0130Absent: trueLiteral,
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      trueLiteral,
     wwwAuthenticateAuthChallengeContractsFoundationVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0127: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0127: trueLiteral,
@@ -129,7 +137,8 @@ export function buildMcpWwwAuthenticateAuthChallengeProof(
       contracts.bearerChallengeShapeBoundary.resourceMetadataParameterRequired,
     wwwAuthenticateResourceMetadataReferenceBoundaryVerified:
       input.wwwAuthenticateResourceMetadataReferenceBoundaryVerified ??
-      contracts.resourceMetadataReferenceBoundary.resourceMetadataReferenceExact,
+      contracts.resourceMetadataReferenceBoundary
+        .resourceMetadataReferenceExact,
     wwwAuthenticateLocalVsPublicResourceMetadataBoundaryVerified:
       input.wwwAuthenticateLocalVsPublicResourceMetadataBoundaryVerified ??
       contracts.localVsPublicResourceMetadataBoundary
@@ -142,7 +151,8 @@ export function buildMcpWwwAuthenticateAuthChallengeProof(
       contracts.invalidTokenChallengeBoundary.invalidTokenChallengeContractOnly,
     wwwAuthenticateTokenFailureModeBoundaryVerified:
       input.wwwAuthenticateTokenFailureModeBoundaryVerified ??
-      contracts.tokenFailureModeBoundary.tokenFailureModesFutureTokenValidationLane,
+      contracts.tokenFailureModeBoundary
+        .tokenFailureModesFutureTokenValidationLane,
     wwwAuthenticateScopeChallengeBoundaryVerified:
       input.wwwAuthenticateScopeChallengeBoundaryVerified ??
       contracts.scopeChallengeBoundary.readOnlyScopesOnly,
@@ -205,7 +215,13 @@ export function buildMcpWwwAuthenticateAuthChallengeProof(
       true,
     fp0128TokenValidationReadinessBoundaryStillVerified:
       input.fp0128TokenValidationReadinessBoundaryStillVerified ?? true,
-    fp0129Absent: input.fp0129Absent ?? true,
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      input.fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified ??
+      true,
+    fp0130Absent: input.fp0130Absent ?? true,
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      input.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified ??
+      true,
     wwwAuthenticateAuthChallengeContractsFoundationVerified:
       input.wwwAuthenticateAuthChallengeContractsFoundationVerified ?? true,
     noMcpRouteBehaviorChangeFromFp0127:
@@ -224,18 +240,13 @@ export function buildMcpWwwAuthenticateAuthChallengeProof(
       input.noAuthMiddlewareImplementationFromFp0127 ?? true,
     noRemoteMcpDeploymentFromFp0127:
       input.noRemoteMcpDeploymentFromFp0127 ?? true,
-    noDeploymentConfigFromFp0127:
-      input.noDeploymentConfigFromFp0127 ?? true,
-    noAppsSdkResourceFromFp0127:
-      input.noAppsSdkResourceFromFp0127 ?? true,
+    noDeploymentConfigFromFp0127: input.noDeploymentConfigFromFp0127 ?? true,
+    noAppsSdkResourceFromFp0127: input.noAppsSdkResourceFromFp0127 ?? true,
     noAppSubmissionFromFp0127: input.noAppSubmissionFromFp0127 ?? true,
     noDbQueriesFromFp0127: input.noDbQueriesFromFp0127 ?? true,
-    noSchemaMigrationsFromFp0127:
-      input.noSchemaMigrationsFromFp0127 ?? true,
-    noPackageScriptsFromFp0127:
-      input.noPackageScriptsFromFp0127 ?? true,
-    noOpenAiApiCallsFromFp0127:
-      input.noOpenAiApiCallsFromFp0127 ?? true,
+    noSchemaMigrationsFromFp0127: input.noSchemaMigrationsFromFp0127 ?? true,
+    noPackageScriptsFromFp0127: input.noPackageScriptsFromFp0127 ?? true,
+    noOpenAiApiCallsFromFp0127: input.noOpenAiApiCallsFromFp0127 ?? true,
     noProviderExternalCallsFromFp0127:
       input.noProviderExternalCallsFromFp0127 ?? true,
     noSourceMutationFinanceWriteFromFp0127:

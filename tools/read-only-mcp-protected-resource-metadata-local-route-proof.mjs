@@ -9,6 +9,7 @@ import {
   validateProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence,
   FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   verifyFp0117OauthImplementationSequencingPlanBoundary,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
@@ -23,7 +24,9 @@ import {
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128AbsentOrLocalTokenValidationReadinessContracts,
   verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129Absent,
+  verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
+  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
+  verifyFp0130Absent,
 } from "../packages/domain/src/index.ts";
 import { buildApp } from "../apps/control-plane/src/app.ts";
 import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
@@ -40,6 +43,8 @@ const FP0126_PLAN = FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH;
 const FP0127_PLAN =
   "plans/FP-0127-read-only-chatgpt-app-mcp-www-authenticate-auth-challenge-contracts-foundation.md";
 const FP0128_PLAN = FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH;
+const FP0129_PLAN =
+  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH;
 const FP0124_PLAN =
   "plans/FP-0124-read-only-chatgpt-app-mcp-protected-resource-metadata-route-implementation-master-plan.md";
 const FP0123_PLAN =
@@ -175,7 +180,11 @@ const proof = {
     planProof.fp0128AbsentOrLocalTokenValidationReadinessContractsVerified,
   fp0128TokenValidationReadinessBoundaryStillVerified:
     planProof.fp0128TokenValidationReadinessBoundaryStillVerified,
-  fp0129Absent: planProof.fp0129Absent,
+  fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+    planProof.fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified,
+  fp0130Absent: planProof.fp0130Absent,
+  wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+    planProof.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified,
   wwwAuthenticateAuthChallengeContractsFoundationVerified:
     planProof.wwwAuthenticateAuthChallengeContractsFoundationVerified,
   wwwAuthenticateAuthChallengeSequencingBoundaryVerified:
@@ -788,7 +797,19 @@ function verifyPlanBoundaries() {
         planText: safeRead(FP0128_PLAN),
         repoPaths,
       }),
-    fp0129Absent: verifyFp0129Absent(repoPaths),
+    fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
+      verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan(
+        {
+          planText: safeRead(FP0129_PLAN),
+          repoPaths,
+        },
+      ),
+    fp0130Absent: verifyFp0130Absent(repoPaths),
+    wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
+      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
+        planText: safeRead(FP0129_PLAN),
+        repoPaths,
+      }),
     wwwAuthenticateAuthChallengeContractsFoundationVerified:
       verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary({
         planText: fp0127PlanText,
