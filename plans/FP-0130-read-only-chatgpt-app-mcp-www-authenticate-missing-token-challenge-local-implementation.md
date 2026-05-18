@@ -21,7 +21,9 @@ This slice is local-only, read-only, proof-gated, and missing-token-only. It is 
 - [x] 2026-05-18T00:28:00Z: Added the direct missing-token challenge proof command and bridged prior proof gates so exact FP-0130 is accepted while FP-0131 remains absent.
 - [x] 2026-05-18T00:28:00Z: Refreshed directly stale active docs and `plugins.md` where they still described FP-0130 as absent/future-only after this slice.
 - [x] 2026-05-18T01:33:00Z: Strict same-branch QA found two stale proof-test/bridge assumptions from earlier no-header slices; patched them on this same branch to allow only the exact FP-0130 missing-token seam while preserving no token runtime.
-- [x] 2026-05-18T00:41:40Z: Ran strict same-branch QA and final validation; all requested proof tools, focused specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed. This closeout update is the only post-validation doc edit; the mandated post-closeout minimum rerun must pass before the single commit, push, and PR publication.
+- [x] 2026-05-18T00:41:40Z: Ran strict same-branch QA and final validation; all requested proof tools, focused specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed before the initial FP-0130 commit, push, and PR #305 publication.
+- [x] 2026-05-18T00:59:08Z: PR #305 `integration-db` failed because a route-input spec inferred the FP-0130 `/mcp` route seam from dirty local `git status`; GitHub Actions checks out a clean PR tree, so the expected changed route path was empty. Patched the spec to use an explicit simulated FP-0130 route-seam branch-diff path while still reading the committed route source and preserving the no metadata-route/token/auth runtime boundaries.
+- [x] 2026-05-18T00:59:08Z: Post-correction validation passed for `git diff --check`, the route-input proof, the focused route-input spec, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`, including the clean-checkout `ci:integration-db` reproduction.
 
 ## Surprises & Discoveries
 
@@ -30,6 +32,7 @@ This slice is local-only, read-only, proof-gated, and missing-token-only. It is 
 - MCP Authorization and RFC 9728 support a `401 Unauthorized` `WWW-Authenticate` challenge carrying a `resource_metadata` reference. They also require real token validation, audience/resource binding, and token-passthrough prohibition for actual authenticated servers. FP-0130 implements none of that runtime.
 - OpenAI Apps SDK Authentication expects authenticated MCP servers to perform full resource-server checks once ChatGPT sends a bearer token. FP-0130 deliberately fails closed when an `Authorization` header is present instead of treating it as authenticated.
 - Earlier no-header proof checks needed exact FP-0130 bridge compatibility after the route seam landed. The correction remained proof/test-only and did not broaden token-validation, OAuth, metadata-route, or public-app behavior.
+- PR #305 CI exposed that one proof spec was too coupled to a dirty local worktree. The stable fix is to simulate the exact FP-0130 route-seam branch diff inside the proof test and continue reading the committed route implementation for route-count, challenge-seam, and metadata-route drift assertions.
 
 ## Decision Log
 
@@ -176,4 +179,6 @@ The slice preserved the protected-resource metadata route posture, added no rout
 
 Same-branch FP-0129 closeout freshness polish was applied because the shipped FP-0129 record still described post-closeout publication work as pending even though PR #304 was merged.
 
-Final validation passed at this checkpoint. This closeout update is the only post-validation doc edit, so the required minimum rerun of `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` remains before the single commit, push, and PR publication.
+PR #305 initially failed `integration-db` because a route-input spec depended on dirty local `git status` to identify the FP-0130 `/mcp` route seam. The CI correction replaces that brittle dirty-worktree assertion with an explicit simulated FP-0130 route-seam branch-diff input while preserving committed route-source checks and all no-token-runtime/no-metadata-route-drift boundaries.
+
+Post-correction validation passed locally, including the clean-checkout `pnpm ci:repro:current` run that exercises `ci:integration-db`.
