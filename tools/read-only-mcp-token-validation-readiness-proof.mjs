@@ -13,6 +13,7 @@ import {
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   McpTokenValidationReadinessProofSchema,
   buildMcpTokenValidationReadinessProof,
   scanTokenValidationNoLeakage,
@@ -31,7 +32,9 @@ import {
   verifyFp0130AbsentOrLocalMissingTokenChallengeImplementation,
   verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132Absent,
+  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133Absent,
   verifyMcpTokenValidationReadinessDurabilityScan,
   verifyTokenValidationChallengeReadinessContracts,
   verifyTokenValidationFailureModeContracts,
@@ -67,6 +70,9 @@ const fp0130PlanText = safeRead(
 );
 const fp0131PlanText = safeRead(
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+);
+const fp0132PlanText = safeRead(
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
 );
 const mcpRouteSource = safeRead(MCP_ROUTE_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
@@ -190,7 +196,55 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
         planText: fp0131PlanText,
         repoPaths,
       }),
-    fp0132Absent: verifyFp0132Absent(repoPaths),
+    fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: fp0132PlanText,
+        repoPaths,
+      }),
+    fp0133Absent: verifyFp0133Absent(repoPaths),
+    tokenValidationRuntimeContractsFoundationVerified:
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: fp0132PlanText,
+        repoPaths,
+      }),
+    noMcpRouteBehaviorChangeFromFp0132:
+      scopeScan.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
+    noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
+      scopeScan.noProtectedResourceMetadataRouteBehaviorChange &&
+      metadataRouteShapeStillVerified(),
+    noMissingTokenChallengeBehaviorChangeFromFp0132:
+      !changedPaths.includes(MCP_ROUTE_PATH) &&
+      !changedPaths.includes(
+        "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts",
+      ),
+    noInvalidTokenChallengeRuntimeFromFp0132:
+      scopeScan.noWwwAuthenticateRouteBehavior,
+    noTokenParsingRuntimeFromFp0132:
+      scopeScan.noTokenParsingImplementation,
+    noTokenValidationRuntimeFromFp0132:
+      scopeScan.noTokenValidationImplementation && noTokenRuntimeSource,
+    noJwtDecodingRuntimeFromFp0132:
+      scopeScan.noTokenParsingImplementation,
+    noTokenSessionStorageFromFp0132:
+      scopeScan.noTokenSessionImplementation,
+    noOauthImplementationFromFp0132: scopeScan.noOauthImplementation,
+    noAuthMiddlewareImplementationFromFp0132:
+      scopeScan.noAuthMiddlewareImplementation && noTokenRuntimeSource,
+    noDbQueriesFromFp0132: scopeScan.noDbQueries,
+    noSchemaMigrationsFromFp0132: scopeScan.noSchemaMigrations,
+    noPackageScriptsFromFp0132: scopeScan.noPackageScripts,
+    noOpenAiApiCallsFromFp0132:
+      durabilityScan.tokenValidationNoOpenAiSourceScanVerified,
+    noProviderExternalCallsFromFp0132:
+      scopeScan.noProviderCalls &&
+      durabilityScan.noProviderExternalSourceVerified,
+    noSourceMutationFinanceWriteFromFp0132:
+      scopeScan.noSourceMutation &&
+      scopeScan.noFinanceWrite &&
+      durabilityScan.noSourceMutationVerified &&
+      durabilityScan.noFinanceWriteVerified,
+    noPublicAssetsSubmissionArtifactsFromFp0132:
+      scopeScan.noPublicAssets && scopeScan.noAppSubmission,
     tokenValidationRuntimeSequencingPlanBoundaryVerified:
       verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
         planText: fp0131PlanText,

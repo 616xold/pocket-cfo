@@ -45,8 +45,11 @@ import {
   verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
   verifyFp0131PlanningTextRequiredTopics,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132Absent,
+  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133Absent,
 } from "./read-only-app-mcp-www-authenticate";
+import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime";
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
 import {
   verifyFp0128AbsentOrLocalTokenValidationReadinessContracts,
@@ -68,7 +71,7 @@ const metadataRoutePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
 describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
-  it("accepts exact FP-0127/FP-0128/FP-0129/FP-0130 plans plus FP-0131 docs-only sequencing while FP-0132 remains absent", () => {
+  it("accepts exact FP-0127/FP-0128/FP-0129/FP-0130 plans plus FP-0131 sequencing and FP-0132 contracts while FP-0133 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
@@ -84,6 +87,9 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
     );
     const fp0131PlanText = safeRead(
       FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+    );
+    const fp0132PlanText = safeRead(
+      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
     );
     const fp0127Hits = repoPaths.filter((path) => /(^|\/)FP-0127/u.test(path));
 
@@ -162,7 +168,22 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0132Absent(repoPaths)).toBe(true);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0132/u.test(path))).toEqual([
+      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: fp0132PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: fp0132PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0133Absent(repoPaths)).toBe(true);
     expect(
       Object.values(
         verifyFp0131PlanningTextRequiredTopics(fp0131PlanText),
@@ -227,9 +248,24 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
         repoPaths: [...repoPaths, "plans/FP-0131-runtime.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0132Absent([...repoPaths, "plans/FP-0132-runtime.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: fp0132PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0132-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: fp0132PlanText,
+        repoPaths: [
+          ...repoPaths.filter((path) => !/(^|\/)FP-0132/u.test(path)),
+          "plans/FP-0132-runtime.md",
+        ],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0133Absent([...repoPaths, "plans/FP-0133-next-runtime.md"]),
+    ).toBe(false);
   });
 
   it("records FP-0129 sequencing plus FP-0130 explicit missing-token challenge boundaries without token runtime scope", () => {
@@ -241,7 +277,9 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified: true,
       fp0130LocalMissingTokenChallengeImplementationBoundaryVerified: true,
       fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified: true,
-      fp0132Absent: true,
+      fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: true,
+      fp0133Absent: true,
+      tokenValidationRuntimeContractsFoundationVerified: true,
       tokenValidationRuntimeSequencingPlanBoundaryVerified: true,
       wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified: true,
     });
@@ -290,7 +328,11 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
     expect(
       proof.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified,
     ).toBe(true);
-    expect(proof.fp0132Absent).toBe(true);
+    expect(
+      proof.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified,
+    ).toBe(true);
+    expect(proof.fp0133Absent).toBe(true);
+    expect(proof.tokenValidationRuntimeContractsFoundationVerified).toBe(true);
     expect(proof.tokenValidationRuntimeSequencingPlanBoundaryVerified).toBe(
       true,
     );

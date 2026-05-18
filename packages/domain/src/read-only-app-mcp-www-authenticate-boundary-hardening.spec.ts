@@ -13,8 +13,11 @@ import {
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132Absent,
+  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133Absent,
 } from "./read-only-app-mcp-www-authenticate";
+import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime";
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
 import { verifyFp0128TokenValidationReadinessContractsBoundary } from "./read-only-app-mcp-token-validation-proof";
 import {
@@ -117,7 +120,19 @@ describe("FP-0127 WWW-Authenticate route and prior-boundary hardening", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0132Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0133Absent(repoPaths)).toBe(true);
     expect(repoPaths.filter((path) => path.includes("FP-0127"))).toEqual([
       FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
     ]);

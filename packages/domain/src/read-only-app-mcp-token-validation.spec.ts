@@ -33,8 +33,13 @@ import {
   verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
   verifyFp0131PlanningTextRequiredTopics,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132Absent,
 } from "./read-only-app-mcp-www-authenticate";
+import {
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133Absent,
+} from "./read-only-app-mcp-token-validation-runtime";
 import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_VALIDATION_FAILURE_MODES,
@@ -71,7 +76,7 @@ const metadataRoutePath =
 const appPath = "apps/control-plane/src/app.ts";
 
 describe("FP-0128 token-validation failure readiness contracts", () => {
-  it("accepts FP-0128/FP-0129/FP-0130 plus exact FP-0131 docs-only sequencing while FP-0132 remains absent", () => {
+  it("accepts FP-0128/FP-0129/FP-0130, exact FP-0131 sequencing, and exact FP-0132 contracts while FP-0133 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
@@ -84,6 +89,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     );
     const fp0131PlanText = safeRead(
       FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+    );
+    const fp0132PlanText = safeRead(
+      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
     );
     const fp0128Hits = repoPaths.filter((path) => /(^|\/)FP-0128/u.test(path));
     const fp0129Hits = repoPaths.filter((path) => /(^|\/)FP-0129/u.test(path));
@@ -148,7 +156,22 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0132Absent(repoPaths)).toBe(true);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0132/u.test(path))).toEqual([
+      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: fp0132PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: fp0132PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0133Absent(repoPaths)).toBe(true);
     expect(
       Object.values(
         verifyFp0131PlanningTextRequiredTopics(fp0131PlanText),
@@ -208,9 +231,24 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths: [...repoPaths, "plans/FP-0131-runtime.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0132Absent([...repoPaths, "plans/FP-0132-runtime.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: fp0132PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0132-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: fp0132PlanText,
+        repoPaths: [
+          ...repoPaths.filter((path) => !/(^|\/)FP-0132/u.test(path)),
+          "plans/FP-0132-runtime.md",
+        ],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0133Absent([...repoPaths, "plans/FP-0133-next-runtime.md"]),
+    ).toBe(false);
   });
 
   it("models all required failure modes as proof-only contracts", () => {

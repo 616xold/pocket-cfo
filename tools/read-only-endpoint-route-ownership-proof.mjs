@@ -43,6 +43,10 @@ const FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH =
   "plans/FP-0131-read-only-chatgpt-app-mcp-token-validation-invalid-token-runtime-sequencing-master-plan.md";
 const FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PROOF_PATH =
   "tools/read-only-mcp-token-validation-runtime-sequencing-proof.mjs";
+const FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH =
+  "plans/FP-0132-read-only-chatgpt-app-mcp-token-validation-runtime-contracts-foundation.md";
+const FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH =
+  "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -427,6 +431,7 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === FP0128_TOKEN_VALIDATION_READINESS_PLAN ||
     path === FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH ||
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH ||
+    path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH ||
     isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) ||
     path ===
       "plans/FP-0114-read-only-chatgpt-app-mcp-remote-host-readiness-security-contracts-foundation.md" ||
@@ -446,6 +451,7 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === FP0128_TOKEN_VALIDATION_READINESS_PROOF_PATH ||
     path === FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_PROOF_PATH ||
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PROOF_PATH ||
+    path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||

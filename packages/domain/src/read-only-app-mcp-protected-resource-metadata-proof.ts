@@ -120,7 +120,26 @@ export const McpProtectedResourceMetadataProofSchema = z
       trueLiteral,
     fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
       trueLiteral,
-    fp0132Absent: trueLiteral,
+    fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: trueLiteral,
+    fp0133Absent: trueLiteral,
+    tokenValidationRuntimeContractsFoundationVerified: trueLiteral,
+    noMcpRouteBehaviorChangeFromFp0132: trueLiteral,
+    noProtectedResourceMetadataRouteBehaviorChangeFromFp0132: trueLiteral,
+    noMissingTokenChallengeBehaviorChangeFromFp0132: trueLiteral,
+    noInvalidTokenChallengeRuntimeFromFp0132: trueLiteral,
+    noTokenParsingRuntimeFromFp0132: trueLiteral,
+    noTokenValidationRuntimeFromFp0132: trueLiteral,
+    noJwtDecodingRuntimeFromFp0132: trueLiteral,
+    noTokenSessionStorageFromFp0132: trueLiteral,
+    noOauthImplementationFromFp0132: trueLiteral,
+    noAuthMiddlewareImplementationFromFp0132: trueLiteral,
+    noDbQueriesFromFp0132: trueLiteral,
+    noSchemaMigrationsFromFp0132: trueLiteral,
+    noPackageScriptsFromFp0132: trueLiteral,
+    noOpenAiApiCallsFromFp0132: trueLiteral,
+    noProviderExternalCallsFromFp0132: trueLiteral,
+    noSourceMutationFinanceWriteFromFp0132: trueLiteral,
+    noPublicAssetsSubmissionArtifactsFromFp0132: trueLiteral,
     tokenValidationRuntimeSequencingPlanBoundaryVerified: trueLiteral,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       trueLiteral,
@@ -510,7 +529,44 @@ export function buildMcpProtectedResourceMetadataProof(
     fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
       input.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified ??
       true,
-    fp0132Absent: input.fp0132Absent ?? true,
+    fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
+      input.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified ?? true,
+    fp0133Absent: input.fp0133Absent ?? true,
+    tokenValidationRuntimeContractsFoundationVerified:
+      input.tokenValidationRuntimeContractsFoundationVerified ?? true,
+    noMcpRouteBehaviorChangeFromFp0132:
+      input.noMcpRouteBehaviorChangeFromFp0132 ?? true,
+    noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
+      input.noProtectedResourceMetadataRouteBehaviorChangeFromFp0132 ?? true,
+    noMissingTokenChallengeBehaviorChangeFromFp0132:
+      input.noMissingTokenChallengeBehaviorChangeFromFp0132 ?? true,
+    noInvalidTokenChallengeRuntimeFromFp0132:
+      input.noInvalidTokenChallengeRuntimeFromFp0132 ?? true,
+    noTokenParsingRuntimeFromFp0132:
+      input.noTokenParsingRuntimeFromFp0132 ?? true,
+    noTokenValidationRuntimeFromFp0132:
+      input.noTokenValidationRuntimeFromFp0132 ?? true,
+    noJwtDecodingRuntimeFromFp0132:
+      input.noJwtDecodingRuntimeFromFp0132 ?? true,
+    noTokenSessionStorageFromFp0132:
+      input.noTokenSessionStorageFromFp0132 ?? true,
+    noOauthImplementationFromFp0132:
+      input.noOauthImplementationFromFp0132 ?? true,
+    noAuthMiddlewareImplementationFromFp0132:
+      input.noAuthMiddlewareImplementationFromFp0132 ?? true,
+    noDbQueriesFromFp0132: input.noDbQueriesFromFp0132 ?? true,
+    noSchemaMigrationsFromFp0132:
+      input.noSchemaMigrationsFromFp0132 ?? true,
+    noPackageScriptsFromFp0132:
+      input.noPackageScriptsFromFp0132 ?? true,
+    noOpenAiApiCallsFromFp0132:
+      input.noOpenAiApiCallsFromFp0132 ?? true,
+    noProviderExternalCallsFromFp0132:
+      input.noProviderExternalCallsFromFp0132 ?? true,
+    noSourceMutationFinanceWriteFromFp0132:
+      input.noSourceMutationFinanceWriteFromFp0132 ?? true,
+    noPublicAssetsSubmissionArtifactsFromFp0132:
+      input.noPublicAssetsSubmissionArtifactsFromFp0132 ?? true,
     tokenValidationRuntimeSequencingPlanBoundaryVerified:
       input.tokenValidationRuntimeSequencingPlanBoundaryVerified ?? true,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:

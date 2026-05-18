@@ -12,6 +12,7 @@ import {
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   verifyFp0117OauthImplementationSequencingPlanBoundary,
   verifyFp0118ProtectedResourceMetadataPlanBoundary,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
@@ -31,7 +32,9 @@ import {
   verifyFp0130AbsentOrLocalMissingTokenChallengeImplementation,
   verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132Absent,
+  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133Absent,
 } from "../packages/domain/src/index.ts";
 import { buildApp } from "../apps/control-plane/src/app.ts";
 import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
@@ -53,6 +56,7 @@ const FP0129_PLAN =
 const FP0130_PLAN =
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH;
 const FP0131_PLAN = FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH;
+const FP0132_PLAN = FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH;
 const FP0124_PLAN =
   "plans/FP-0124-read-only-chatgpt-app-mcp-protected-resource-metadata-route-implementation-master-plan.md";
 const FP0123_PLAN =
@@ -194,7 +198,50 @@ const proof = {
     planProof.fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified,
   fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
     planProof.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified,
-  fp0132Absent: planProof.fp0132Absent,
+  fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
+    planProof.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified,
+  fp0133Absent: planProof.fp0133Absent,
+  tokenValidationRuntimeContractsFoundationVerified:
+    planProof.tokenValidationRuntimeContractsFoundationVerified,
+  noMcpRouteBehaviorChangeFromFp0132: appProof.mcpRouteBehaviorUnchanged,
+  noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
+    appProof.metadataRouteGetOnlyVerified &&
+    appProof.metadataResponseBoundedFieldsVerified &&
+    sourceProof.noWwwAuthenticateRouteBehaviorImplementation,
+  noMissingTokenChallengeBehaviorChangeFromFp0132:
+    !changedPaths.includes(
+      "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts",
+    ) && appProof.mcpRouteBehaviorUnchanged,
+  noInvalidTokenChallengeRuntimeFromFp0132:
+    !/\b(?:invalidTokenChallenge|malformedToken|expiredToken|wrongAudience|wrongResource|wrongScope|wrongOrg|revokedToken|replayedToken)\s*\(/u.test(
+      executableChangedSource,
+    ),
+  noTokenParsingRuntimeFromFp0132:
+    !/\b(?:decodeToken|parseToken|parseJwt|decodeJwt|jwtDecode|introspectToken)\s*\(/u.test(
+      executableChangedSource,
+    ),
+  noTokenValidationRuntimeFromFp0132:
+    sourceProof.noTokenValidationImplementation,
+  noJwtDecodingRuntimeFromFp0132:
+    !/\b(?:parseJwt|decodeJwt|jwtDecode|jwtVerify|verifyJwt)\s*\(/u.test(
+      executableChangedSource,
+    ),
+  noTokenSessionStorageFromFp0132: sourceProof.noTokenSessionImplementation,
+  noOauthImplementationFromFp0132: sourceProof.noOauthImplementation,
+  noAuthMiddlewareImplementationFromFp0132:
+    sourceProof.noAuthMiddlewareImplementation,
+  noDbQueriesFromFp0132: repositoryProof.noDbQueriesFromFp0126,
+  noSchemaMigrationsFromFp0132: repositoryProof.noSchemaMigrationsAdded,
+  noPackageScriptsFromFp0132: repositoryProof.noPackageScriptsAdded,
+  noOpenAiApiCallsFromFp0132: repositoryProof.noOpenAiApiCallsFromFp0126,
+  noProviderExternalCallsFromFp0132:
+    repositoryProof.noProviderExternalCallsFromFp0126,
+  noSourceMutationFinanceWriteFromFp0132:
+    repositoryProof.noSourceMutationFinanceWriteFromFp0126,
+  noPublicAssetsSubmissionArtifactsFromFp0132:
+    repositoryProof.noPublicAssets &&
+    repositoryProof.noAppSubmission &&
+    repositoryProof.noGeneratedPublicProse,
   tokenValidationRuntimeSequencingPlanBoundaryVerified:
     planProof.tokenValidationRuntimeSequencingPlanBoundaryVerified,
   wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
@@ -832,7 +879,17 @@ function verifyPlanBoundaries() {
         planText: safeRead(FP0131_PLAN),
         repoPaths,
       }),
-    fp0132Absent: verifyFp0132Absent(repoPaths),
+    fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
+      verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+        planText: safeRead(FP0132_PLAN),
+        repoPaths,
+      }),
+    fp0133Absent: verifyFp0133Absent(repoPaths),
+    tokenValidationRuntimeContractsFoundationVerified:
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: safeRead(FP0132_PLAN),
+        repoPaths,
+      }),
     tokenValidationRuntimeSequencingPlanBoundaryVerified:
       verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
         planText: safeRead(FP0131_PLAN),
