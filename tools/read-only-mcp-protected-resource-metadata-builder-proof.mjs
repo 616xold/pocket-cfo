@@ -372,7 +372,7 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
           isProtectedResourceMetadataRouteLikePath(path) &&
           path !== FP0125_LOCAL_ROUTE_PATH,
       ) &&
-      !/oauth-protected-resource|resource_metadata|protectedResourceMetadataRoute/iu.test(
+      !routeSourceHasProtectedResourceMetadataRouteRegistration(
         currentRouteSource,
       ),
     noProviderCalls:
@@ -442,15 +442,20 @@ function isProtectedResourceMetadataRouteLikePath(path) {
 function localRouteShapeStillVerified() {
   const source = safeRead(ROUTE_PATH);
   const noWwwAuthenticateRuntime = !/www-authenticate/iu.test(source);
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      source,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      source,
+    );
   const fp0130WwwAuthenticateRuntime =
     countMatches(
       source,
       /\.header\("WWW-Authenticate", challenge\.wwwAuthenticate\)/gu,
     ) === 1 &&
     source.includes("readOnlyAppMcpLocalProofGatedMissingTokenChallenge") &&
-    source.includes(
-      "assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency",
-    );
+    challengeDependencyAccepted;
 
   return (
     countMatches(source, /app\.post\("\/mcp"/gu) === 1 &&
@@ -458,6 +463,12 @@ function localRouteShapeStillVerified() {
     !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(source) &&
     !/resource_metadata|oauth-protected-resource/iu.test(source) &&
     (noWwwAuthenticateRuntime || fp0130WwwAuthenticateRuntime)
+  );
+}
+
+function routeSourceHasProtectedResourceMetadataRouteRegistration(sourceText) {
+  return /READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH|registerReadOnlyAppMcpProtectedResourceMetadataRoute|app\.(?:get|post|put|patch|delete)\([^)]*(?:oauth-protected-resource|protected-resource-metadata|resource_metadata)/iu.test(
+    sourceText,
   );
 }
 

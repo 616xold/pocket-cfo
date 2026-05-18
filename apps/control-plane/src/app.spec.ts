@@ -119,10 +119,30 @@ describe("control-plane app", () => {
     expect(getResponse.body).toBe("");
   });
 
-  it("wires explicit local proof-gated missing-token challenge dependency through buildApp", async () => {
+  it("fails closed during buildApp when the challenge dependency lacks metadata route evidence", async () => {
+    const base = createInMemoryContainer();
+
+    await expect(
+      buildApp({
+        container: {
+          ...base,
+          readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+            buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+        },
+      }),
+    ).rejects.toThrow(
+      /requires protected-resource metadata route evidence dependency/u,
+    );
+  });
+
+  it("wires explicit local proof-gated missing-token challenge dependency through buildApp only with co-registered metadata route evidence", async () => {
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
     const app = await createStubApp(apps, {
       readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
         buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
     });
 
     const missingAuthorizationResponse = await app.inject({
@@ -145,6 +165,10 @@ describe("control-plane app", () => {
         method: "initialize",
       },
       url: "/mcp",
+    });
+    const metadataResponse = await app.inject({
+      method: "GET",
+      url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
     });
 
     expect(missingAuthorizationResponse.statusCode).toBe(401);
@@ -172,6 +196,17 @@ describe("control-plane app", () => {
       noTokenParsingRuntime: true,
       noTokenValidationRuntime: true,
     });
+    expect(
+      app.hasRoute({
+        method: "GET",
+        url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
+      }),
+    ).toBe(true);
+    expect(metadataResponse.statusCode).toBe(200);
+    expect(metadataResponse.headers["www-authenticate"]).toBeUndefined();
+    expect(metadataResponse.json()).toEqual(
+      evidenceBundle.builderOutput.document,
+    );
   });
 
   it("does not register the protected-resource metadata route by default", async () => {
@@ -192,9 +227,8 @@ describe("control-plane app", () => {
   });
 
   it("registers the protected-resource metadata route only with explicit valid route-input evidence", async () => {
-    const evidenceBundle = buildProtectedResourceMetadataRouteInputEvidenceBundle(
-      validRouteInput,
-    );
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
     const app = await createStubApp(apps, {
       readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
         evidenceBundle,
@@ -266,9 +300,8 @@ describe("control-plane app", () => {
 
   it("fails closed during buildApp before metadata route registration when explicit route-input evidence is invalid", async () => {
     const base = createInMemoryContainer();
-    const evidenceBundle = buildProtectedResourceMetadataRouteInputEvidenceBundle(
-      validRouteInput,
-    );
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
     const invalidEvidenceBundle = {
       ...evidenceBundle,
       noTokenLeakage: {
@@ -4242,7 +4275,8 @@ describe("control-plane app", () => {
                 artifactId: "55555555-5555-4555-8555-555555555555",
                 companyKey: "acme",
                 draftOnlyStatus: "draft_only",
-                freshnessSummary: "Freshness remains tied to the stored memo lineage.",
+                freshnessSummary:
+                  "Freshness remains tied to the stored memo lineage.",
                 limitationsSummary:
                   "Delivery remains out of scope for this approval slice.",
                 missionId: unknownMissionId,
@@ -4251,7 +4285,8 @@ describe("control-plane app", () => {
                   "66666666-6666-4666-8666-666666666666",
                 sourceReportingMissionId:
                   "77777777-7777-4777-8777-777777777777",
-                summary: "Approve the stored lender update for release posture.",
+                summary:
+                  "Approve the stored lender update for release posture.",
               },
               rationale: null,
               requestedBy: "finance-operator",
@@ -4274,7 +4309,8 @@ describe("control-plane app", () => {
                 artifactId: "55555555-5555-4555-8555-555555555555",
                 companyKey: "acme",
                 draftOnlyStatus: "draft_only",
-                freshnessSummary: "Freshness remains tied to the stored memo lineage.",
+                freshnessSummary:
+                  "Freshness remains tied to the stored memo lineage.",
                 limitationsSummary:
                   "Delivery remains out of scope for this approval slice.",
                 missionId: unknownMissionId,
@@ -4288,7 +4324,8 @@ describe("control-plane app", () => {
                   "66666666-6666-4666-8666-666666666666",
                 sourceReportingMissionId:
                   "77777777-7777-4777-8777-777777777777",
-                summary: "Approve the stored lender update for release posture.",
+                summary:
+                  "Approve the stored lender update for release posture.",
               },
               rationale: input.rationale ?? null,
               requestedBy: "finance-operator",
@@ -4333,7 +4370,8 @@ describe("control-plane app", () => {
           artifactId: "55555555-5555-4555-8555-555555555555",
           companyKey: "acme",
           draftOnlyStatus: "draft_only",
-          freshnessSummary: "Freshness remains tied to the stored memo lineage.",
+          freshnessSummary:
+            "Freshness remains tied to the stored memo lineage.",
           limitationsSummary:
             "Delivery remains out of scope for this approval slice.",
           missionId: unknownMissionId,
@@ -4880,7 +4918,9 @@ async function createStubApp(
       Partial<AppContainer["operatorControl"]>,
       "approvalService" | "runtimeControlService"
     > & {
-      approvalService?: Partial<AppContainer["operatorControl"]["approvalService"]>;
+      approvalService?: Partial<
+        AppContainer["operatorControl"]["approvalService"]
+      >;
       runtimeControlService?: Partial<
         AppContainer["operatorControl"]["runtimeControlService"]
       >;

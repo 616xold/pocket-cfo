@@ -4,7 +4,7 @@
 
 FP-0130 is the first narrow implementation slice after the shipped FP-0129 WWW-Authenticate challenge implementation sequencing record.
 
-The target phase is V2AX read-only ChatGPT App/MCP local missing-token challenge implementation. The user-visible proof point is that the existing local `/mcp` route can emit a bounded `401 Unauthorized` `WWW-Authenticate: Bearer` challenge with `resource_metadata` only when app construction explicitly supplies a local/proof-gated/missing-token-only dependency. Default `buildApp()` and default `/mcp` behavior remain unchanged.
+The target phase is V2AX read-only ChatGPT App/MCP local missing-token challenge implementation. The user-visible proof point is that the existing local `/mcp` route can emit a bounded `401 Unauthorized` `WWW-Authenticate: Bearer` challenge with `resource_metadata` only when app construction explicitly supplies a local/proof-gated/missing-token-only dependency and the protected-resource metadata route is co-registered from explicit app construction input using the FP-0123 route-input evidence bundle. Default `buildApp()` and default `/mcp` behavior remain unchanged.
 
 This slice is local-only, read-only, proof-gated, and missing-token-only. It is not token validation, token parsing, OAuth, token/session storage, auth middleware, remote MCP deployment, Apps SDK resource implementation, public app behavior, app submission, DB/schema/package work, source mutation, finance write, provider work, OpenAI API/model work, generated public prose, or autonomous action.
 
@@ -24,6 +24,10 @@ This slice is local-only, read-only, proof-gated, and missing-token-only. It is 
 - [x] 2026-05-18T00:41:40Z: Ran strict same-branch QA and final validation; all requested proof tools, focused specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed before the initial FP-0130 commit, push, and PR #305 publication.
 - [x] 2026-05-18T00:59:08Z: PR #305 `integration-db` failed because a route-input spec inferred the FP-0130 `/mcp` route seam from dirty local `git status`; GitHub Actions checks out a clean PR tree, so the expected changed route path was empty. Patched the spec to use an explicit simulated FP-0130 route-seam branch-diff path while still reading the committed route source and preserving the no metadata-route/token/auth runtime boundaries.
 - [x] 2026-05-18T00:59:08Z: Post-correction validation passed for `git diff --check`, the route-input proof, the focused route-input spec, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`, including the clean-checkout `ci:integration-db` reproduction.
+- [x] 2026-05-18T08:42:52Z: Ran targeted post-merge hardening preflight on `codex/v2ax-read-only-chatgpt-app-mcp-missing-token-challenge-metadata-route-coupling-hardening-local-v1`; confirmed PR #305 is merged, FP-0130 is shipped, FP-0131 is absent, required route/proof files exist, pre-edit missing-token/metadata/token-readiness/auth-challenge/route-adapter proofs pass, and focused domain/control-plane specs pass before edits.
+- [x] 2026-05-18T08:42:52Z: Hardened the explicit missing-token challenge dependency so it requires an accepted protected-resource metadata route-input evidence bundle before `/mcp` route registration can enable challenge emission. Challenge-only app construction now fails closed before serving a misleading `resource_metadata` reference, metadata-only app construction keeps `/mcp` unchanged with no challenge, and challenge-plus-metadata evidence preserves the bounded missing-token challenge plus Authorization-present no-token-validation-runtime fail-closed behavior.
+- [x] 2026-05-18T08:42:52Z: Refreshed proof-gate bridges and the FP-0130 source ledger for current/latest official MCP Authorization, Transports, Security Best Practices, Tools, RFC 9728, and OpenAI Apps SDK Authentication/Security/Deploy/Connect/Test/Submit docs. OpenAI Developers remained API-key-tool-only in this thread, so official web docs were used read-only.
+- [x] 2026-05-18T08:59:51Z: Completed post-hardening validation before closeout docs: the requested proof ladder, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed. This closeout edit records no scope expansion; the remaining gate before the one allowed commit/push/PR is the required post-closeout rerun set of `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
 ## Surprises & Discoveries
 
@@ -33,12 +37,16 @@ This slice is local-only, read-only, proof-gated, and missing-token-only. It is 
 - OpenAI Apps SDK Authentication expects authenticated MCP servers to perform full resource-server checks once ChatGPT sends a bearer token. FP-0130 deliberately fails closed when an `Authorization` header is present instead of treating it as authenticated.
 - Earlier no-header proof checks needed exact FP-0130 bridge compatibility after the route seam landed. The correction remained proof/test-only and did not broaden token-validation, OAuth, metadata-route, or public-app behavior.
 - PR #305 CI exposed that one proof spec was too coupled to a dirty local worktree. The stable fix is to simulate the exact FP-0130 route-seam branch diff inside the proof test and continue reading the committed route implementation for route-count, challenge-seam, and metadata-route drift assertions.
+- Post-merge hardening exposed that the challenge dependency was independently injectable from the metadata route evidence dependency even though the challenge advertises `/.well-known/oauth-protected-resource/mcp`. The correction stayed route-wiring/proof-only: challenge mode now proves the metadata route evidence dependency is present and accepted before the route can register challenge behavior.
+- The FP-0130 source ledger still named stale MCP 2025-06-18 pages. Current protocol context is the latest/current MCP 2025-11-25 Authorization, Transports, and Tools pages plus the current MCP Security Best Practices guide, with RFC 9728 and OpenAI Apps SDK pages as platform context only.
 
 ## Decision Log
 
 - Decision: FP-0130 may start because PR #304 is merged, FP-0129 is shipped after same-branch freshness polish, FP-0130/FP-0131 were absent, active docs support FP-0129 as a shipped sequencing record, and all required pre-edit proof gates passed.
 - Decision: The explicit app/container dependency will be named to make the local/proof-gated/missing-token-only boundary obvious. It will be absent by default and passed into the existing `/mcp` route registration only through `buildApp({ container })`.
 - Decision: Missing `Authorization` on `POST /mcp` emits a bounded `401` challenge only when the explicit dependency is present and valid. The challenge uses the shipped local metadata route reference `/.well-known/oauth-protected-resource/mcp`.
+- Decision: The explicit missing-token challenge dependency is not valid by itself. It must be co-registered with an accepted `readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle`, and route/app construction fails closed if the challenge dependency is supplied without that metadata route evidence dependency.
+- Decision: Metadata route evidence alone keeps the protected-resource metadata route available and leaves `/mcp` challenge behavior unchanged. The co-registration guard does not change protected-resource metadata response semantics or add any new route path.
 - Decision: Requests with any `Authorization` header fail closed with a bounded no-token-validation-runtime response in the explicit challenge mode. They do not authenticate, and the route does not parse, decode, validate, introspect, store, forward, or rely on the header value.
 - Decision: `GET /mcp`, default `POST /mcp` JSON-RPC handling, notifications, Origin validation, initialized/ping/tools/list/tools/call semantics, and the protected-resource metadata route behavior remain unchanged.
 - Decision: This slice may add proof-gate compatibility for exact FP-0130 and must keep FP-0131 absent. It must not broaden prior proof gates into general future-plan acceptance.
@@ -55,12 +63,13 @@ FP-0129 shipped the sequencing decision that missing-token challenge behavior ma
 
 Official read-only protocol and platform context used by this plan:
 
-- Model Context Protocol Authorization specification, 2025-06-18: protocol context for HTTP authorization, bearer token placement, token validation/audience requirements, token-passthrough prohibition, and authorization error status posture.
-- Model Context Protocol Transports specification, draft/current pages: protocol context for preserving Streamable HTTP `/mcp`, POST/GET method posture, Origin validation, and local transport boundaries.
-- Model Context Protocol Security Best Practices, 2025-06-18: security context for token passthrough prohibition, scope minimization, precise challenges, and local server protection.
+- Model Context Protocol Authorization specification, 2025-11-25: current protocol context for protected-resource metadata discovery, `WWW-Authenticate` `resource_metadata`, HTTP authorization, bearer token placement, token validation/audience requirements, token-passthrough prohibition, and authorization error status posture.
+- Model Context Protocol Transports specification, 2025-11-25: current protocol context for preserving Streamable HTTP `/mcp`, POST/GET method posture, Origin validation, and local transport boundaries.
+- Model Context Protocol Security Best Practices, current/latest docs: security context for token passthrough prohibition, session/auth separation, local server protection, and DNS rebinding/SSRF-style discovery risk.
+- Model Context Protocol Tools specification, 2025-11-25: current protocol context for tool input validation, structured outputs, tool error posture, and access-control/security expectations.
 - RFC 9728, OAuth 2.0 Protected Resource Metadata, April 2025: standards context for protected-resource metadata, `resource_metadata`, `WWW-Authenticate`, metadata route derivation, validation, and publication risk.
-- OpenAI Apps SDK Authentication: platform context for `401` challenges, `resource_metadata`, bearer token attachment, and future token verification responsibility.
-- OpenAI Apps SDK Deploy your app, Connect from ChatGPT, Test your integration, Submit and maintain your app, App submission guidelines, and Security & Privacy: platform context for why public HTTPS `/mcp`, developer-mode testing, submission prerequisites, CSP, listing/review requirements, secrets/data handling, and public app behavior remain out of scope.
+- OpenAI Apps SDK Authentication: platform context for `401` challenges, protected-resource metadata, `resource_metadata`, bearer token attachment, and future token verification responsibility.
+- OpenAI Apps SDK Deploy your app, Connect from ChatGPT, Test your integration, Submit and maintain your app, App submission guidelines, and Security & Privacy: platform context for why public HTTPS `/mcp`, developer-mode testing, testing of OAuth/custom auth flows, submission prerequisites, CSP, listing/review requirements, secrets/data handling, and public app behavior remain out of scope.
 
 GitHub connector product behavior is out of scope. Routine `git`, `gh`, push, and PR operations are repository operations, not product GitHub connector work.
 
@@ -75,8 +84,8 @@ The domain package owns the explicit dependency schema, bounded challenge header
 1. Add a pure `packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts` helper under the existing WWW-Authenticate bounded context.
 2. Export the helper through `packages/domain/src/read-only-app-mcp-www-authenticate.ts`.
 3. Add optional `readOnlyAppMcpLocalProofGatedMissingTokenChallenge` typing to `apps/control-plane/src/lib/types.ts`.
-4. Pass that dependency from `buildApp({ container })` to `registerReadOnlyAppMcpEndpointRoutes` in `apps/control-plane/src/app.ts`.
-5. Update `apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts` to validate the explicit dependency at registration and gate `POST /mcp` before dispatch only in explicit challenge mode.
+4. Pass that dependency and the existing `readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle` from `buildApp({ container })` to `registerReadOnlyAppMcpEndpointRoutes` in `apps/control-plane/src/app.ts`.
+5. Update `apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts` to validate the explicit challenge dependency and metadata-route co-registration at registration, then gate `POST /mcp` before dispatch only in explicit challenge mode.
 6. Add focused domain, route, and app specs for default behavior unchanged, explicit missing-token challenge, authorization-present fail-closed posture, no protected-resource metadata drift, no new route path, no token/OAuth/auth/storage runtime, no forbidden scope, and FP-0131 absence.
 7. Add `tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs`.
 8. Update existing proof-gate bridges only as needed so exact FP-0130 is accepted and FP-0131 remains absent.
@@ -93,6 +102,9 @@ Acceptance requires:
 - default `GET /mcp` remains `405` with `Allow: POST`
 - default `POST /mcp` initialize, ping, tools/list, tools/call, notifications, local dispatch, and Origin boundary remain unchanged
 - explicit valid dependency enables only missing-token `POST /mcp` challenge behavior
+- explicit missing-token challenge dependency without metadata route evidence fails closed before `/mcp` can serve a misleading metadata route reference
+- metadata route evidence alone registers the metadata route, keeps `/mcp` unchanged, and emits no challenge
+- explicit missing-token challenge dependency plus accepted metadata route evidence preserves the bounded missing-token challenge and keeps the metadata route available
 - missing `Authorization` returns bounded `401` with exact Bearer `resource_metadata` challenge referencing `/.well-known/oauth-protected-resource/mcp`
 - challenge body and header contain no token values, cookies, sessions, credentials, client secrets, authorization-header values, companyKey authority, user/org selectors, raw finance/source dumps, proof internals, listing/app-submission copy, generated public prose, generated finance advice, provider credentials, or OpenAI keys
 - requests with an `Authorization` header fail closed and do not authenticate
@@ -165,7 +177,7 @@ Domain boundary: pure contracts/helpers under `packages/domain/src/read-only-app
 
 Control-plane boundary: app construction typing/wiring in `apps/control-plane/src/lib/types.ts` and `apps/control-plane/src/app.ts`, plus thin route behavior in `apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts`.
 
-Runtime dependency: the route may only use the explicit `readOnlyAppMcpLocalProofGatedMissingTokenChallenge` object supplied by app construction. It must not read config/env, call DB, call providers, call OpenAI, load sources, mutate evidence, write finance state, or construct protected-resource metadata.
+Runtime dependency: the route may only use the explicit `readOnlyAppMcpLocalProofGatedMissingTokenChallenge` object and accepted `readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle` supplied by app construction. It must not read config/env, call DB, call providers, call OpenAI, load sources, mutate evidence, write finance state, or construct protected-resource metadata.
 
 Upstream proof dependencies: FP-0129, FP-0128, FP-0127, FP-0125, FP-0123, FP-0122, FP-0120, FP-0107, FP-0106, and FP-0100 must remain proven. FP-0131 must remain absent.
 
@@ -173,7 +185,7 @@ Upstream proof dependencies: FP-0129, FP-0128, FP-0127, FP-0125, FP-0123, FP-012
 
 FP-0130 implemented the local-only/read-only explicit-dependency missing-token `WWW-Authenticate` challenge seam for existing `POST /mcp`.
 
-The implementation keeps default `buildApp()` and default `/mcp` behavior unchanged. The challenge dependency is absent by default and must be supplied through explicit app construction input before any challenge can be emitted. Missing `Authorization` returns a bounded `401` Bearer `resource_metadata` challenge only in explicit challenge mode. Authorization-present requests fail closed with a bounded no-token-validation-runtime response and do not authenticate.
+The implementation keeps default `buildApp()` and default `/mcp` behavior unchanged. The challenge dependency is absent by default and must be supplied through explicit app construction input before any challenge can be emitted. Post-merge hardening now also requires the accepted protected-resource metadata route-input evidence bundle to be supplied with the challenge dependency, proving the local metadata route is co-registered before `resource_metadata="/.well-known/oauth-protected-resource/mcp"` can be advertised. Missing `Authorization` returns a bounded `401` Bearer `resource_metadata` challenge only in explicit challenge mode. Authorization-present requests fail closed with a bounded no-token-validation-runtime response and do not authenticate.
 
 The slice preserved the protected-resource metadata route posture, added no route path, and added no token parsing, token validation, token/session storage, OAuth, auth middleware, remote MCP deployment, deployment config, Apps SDK resources, app submission, DB/schema/package/data/source-pack/public-asset/OpenAI/provider/source/finance-write/autonomous-action scope, or FP-0131.
 
@@ -182,3 +194,5 @@ Same-branch FP-0129 closeout freshness polish was applied because the shipped FP
 PR #305 initially failed `integration-db` because a route-input spec depended on dirty local `git status` to identify the FP-0130 `/mcp` route seam. The CI correction replaces that brittle dirty-worktree assertion with an explicit simulated FP-0130 route-seam branch-diff input while preserving committed route-source checks and all no-token-runtime/no-metadata-route-drift boundaries.
 
 Post-correction validation passed locally, including the clean-checkout `pnpm ci:repro:current` run that exercises `ci:integration-db`.
+
+The post-merge metadata-route coupling hardening preserves FP-0130 as local-only/read-only and route-wiring/proof-only. It adds no token validation runtime, token parsing runtime, token/session storage, OAuth implementation, auth middleware, protected-resource metadata response change, new route path, remote MCP deployment, deployment config, Apps SDK resource, public app behavior, app submission, DB/schema/package work, OpenAI API/model call, provider call, source mutation, finance write, autonomous action, or FP-0131.

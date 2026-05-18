@@ -53,6 +53,23 @@ export type McpProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherenc
     rejectionReasons: readonly string[];
   };
 
+export type McpProtectedResourceMetadataRouteInputEvidenceBundleLocalRouteRegistrationValidation =
+  {
+    accepted: boolean;
+    bundle: McpProtectedResourceMetadataRouteInputEvidenceBundle | null;
+    routeInputEvidenceSemanticCoherenceVerified: boolean;
+    routeInputEvidenceSchemaVersionVerified: boolean;
+    metadataDocumentResourceMatchesCanonicalUriEvidence: boolean;
+    pathDecisionCanonicalUriMatchesEvidence: boolean;
+    pathDecisionMetadataUrlMatchesEvidence: boolean;
+    routePathMatchesPathDecision: boolean;
+    metadataDocumentAuthorizationServersMatchEvidence: boolean;
+    metadataDocumentScopesRemainReadOnly: boolean;
+    metadataDocumentBearerMethodsRemainHeaderOnly: boolean;
+    localRouteRegistrationBoundaryVerified: boolean;
+    rejectionReasons: readonly string[];
+  };
+
 export function validateProtectedResourceMetadataRouteInputEvidenceBundle(
   input: unknown,
 ): McpProtectedResourceMetadataRouteInputEvidenceBundleValidation {
@@ -127,19 +144,140 @@ export function validateProtectedResourceMetadataRouteInputEvidenceBundle(
   };
 }
 
+export function validateProtectedResourceMetadataRouteInputEvidenceBundleForLocalRouteRegistration(
+  input: unknown,
+): McpProtectedResourceMetadataRouteInputEvidenceBundleLocalRouteRegistrationValidation {
+  const parsed =
+    McpProtectedResourceMetadataRouteInputEvidenceBundleSchema.safeParse(input);
+
+  if (!parsed.success) {
+    return {
+      accepted: false,
+      bundle: null,
+      localRouteRegistrationBoundaryVerified: false,
+      metadataDocumentAuthorizationServersMatchEvidence: false,
+      metadataDocumentBearerMethodsRemainHeaderOnly: false,
+      metadataDocumentResourceMatchesCanonicalUriEvidence: false,
+      metadataDocumentScopesRemainReadOnly: false,
+      pathDecisionCanonicalUriMatchesEvidence: false,
+      pathDecisionMetadataUrlMatchesEvidence: false,
+      rejectionReasons: ["input_shape_invalid"],
+      routeInputEvidenceSchemaVersionVerified: false,
+      routeInputEvidenceSemanticCoherenceVerified: false,
+      routePathMatchesPathDecision: false,
+    };
+  }
+
+  const bundle = parsed.data;
+  const semanticCoherence =
+    validateProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence(
+      bundle,
+    );
+  const localRouteRegistrationBoundaryVerified =
+    bundle.localProofOnly &&
+    bundle.readOnly &&
+    bundle.routeInputEvidenceBundleOnly &&
+    bundle.canonicalUriEvidence.accepted &&
+    bundle.canonicalUriEvidence.credentialFree &&
+    bundle.authorizationServerEvidence.accepted &&
+    bundle.authorizationServerEvidence.credentialFree &&
+    bundle.authorizationServerEvidence.authorizationServers.length > 0 &&
+    bundle.pathDecision.metadataRoutePath ===
+      MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH &&
+    bundle.pathDecision.routePathDerivedFromCanonicalResourceUri &&
+    bundle.builderOutput.accepted &&
+    bundle.builderOutput.builderInputAccepted &&
+    bundle.builderOutput.builderOutputValid &&
+    bundle.builderOutput.routeResponseContractOnly &&
+    bundle.noTokenLeakage.accepted &&
+    !bundle.noTokenLeakage.tokenValuesDetected &&
+    !bundle.noTokenLeakage.cookiesSessionsSecretsCredentialsDetected &&
+    !bundle.noTokenLeakage.rawFinanceDataDetected &&
+    !bundle.noTokenLeakage.rawSourceDumpsDetected &&
+    !bundle.noTokenLeakage.credentialBearingUrlsDetected &&
+    !bundle.noTokenLeakage.companyKeyAuthorityDetected &&
+    bundle.companyBindingPrerequisite.accepted &&
+    bundle.companyBindingPrerequisite.authenticatedCompanyBindingRequired &&
+    !bundle.companyBindingPrerequisite.authenticatedCompanyBindingImplemented &&
+    !bundle.companyBindingPrerequisite
+      .unauthenticatedCompanyKeyAuthorityAllowed &&
+    bundle.mcpUnchanged.accepted &&
+    bundle.mcpUnchanged.localMcpRouteUnchangedRequired &&
+    !bundle.mcpUnchanged.localMcpRouteBehaviorChanged &&
+    !bundle.mcpUnchanged.protectedResourceMetadataRouteRegistered &&
+    !bundle.mcpUnchanged.wwwAuthenticateBehaviorImplemented &&
+    bundle.noRuntime.accepted &&
+    bundle.noRuntime.noOauthRuntime &&
+    bundle.noRuntime.noTokenSessionRuntime &&
+    bundle.noRuntime.noAuthMiddlewareRuntime &&
+    bundle.noRuntime.noRemoteMcpRuntime &&
+    bundle.noRuntime.noAppsSdkResourceRuntime &&
+    bundle.noRuntime.noDbRuntime;
+  const rejectionReasons = [
+    localRouteRegistrationBoundaryVerified
+      ? ""
+      : "local_route_registration_boundary_unaccepted",
+    ...semanticCoherence.rejectionReasons,
+  ].filter(Boolean);
+  const accepted =
+    localRouteRegistrationBoundaryVerified && semanticCoherence.accepted;
+
+  return {
+    accepted,
+    bundle: accepted ? bundle : null,
+    localRouteRegistrationBoundaryVerified,
+    metadataDocumentAuthorizationServersMatchEvidence:
+      semanticCoherence.metadataDocumentAuthorizationServersMatchEvidence,
+    metadataDocumentBearerMethodsRemainHeaderOnly:
+      semanticCoherence.metadataDocumentBearerMethodsRemainHeaderOnly,
+    metadataDocumentResourceMatchesCanonicalUriEvidence:
+      semanticCoherence.metadataDocumentResourceMatchesCanonicalUriEvidence,
+    metadataDocumentScopesRemainReadOnly:
+      semanticCoherence.metadataDocumentScopesRemainReadOnly,
+    pathDecisionCanonicalUriMatchesEvidence:
+      semanticCoherence.pathDecisionCanonicalUriMatchesEvidence,
+    pathDecisionMetadataUrlMatchesEvidence:
+      semanticCoherence.pathDecisionMetadataUrlMatchesEvidence,
+    rejectionReasons,
+    routeInputEvidenceSchemaVersionVerified:
+      semanticCoherence.routeInputEvidenceSchemaVersionVerified,
+    routeInputEvidenceSemanticCoherenceVerified:
+      semanticCoherence.routeInputEvidenceSemanticCoherenceVerified,
+    routePathMatchesPathDecision:
+      semanticCoherence.routePathMatchesPathDecision,
+  };
+}
+
+export function assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration(
+  input: unknown,
+): McpProtectedResourceMetadataRouteInputEvidenceBundle {
+  const validation =
+    validateProtectedResourceMetadataRouteInputEvidenceBundleForLocalRouteRegistration(
+      input,
+    );
+
+  if (!validation.accepted || validation.bundle === null) {
+    throw new Error(
+      `Protected-resource metadata route evidence dependency is invalid or not accepted: ${validation.rejectionReasons.join(
+        ", ",
+      )}`,
+    );
+  }
+
+  return validation.bundle;
+}
+
 export function validateProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence(
   bundle: McpProtectedResourceMetadataRouteInputEvidenceBundle,
 ): McpProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence {
   const document = bundle.builderOutput.document;
-  const canonicalResourceUri =
-    bundle.canonicalUriEvidence.canonicalResourceUri;
+  const canonicalResourceUri = bundle.canonicalUriEvidence.canonicalResourceUri;
   const metadataDocumentResourceMatchesCanonicalUriEvidence =
     document.resource === canonicalResourceUri;
   const pathDecisionCanonicalUriMatchesEvidence =
     bundle.pathDecision.canonicalResourceUri === canonicalResourceUri;
   const pathDecisionMetadataUrlMatchesEvidence =
-    bundle.pathDecision.metadataUrl ===
-    bundle.canonicalUriEvidence.metadataUrl;
+    bundle.pathDecision.metadataUrl === bundle.canonicalUriEvidence.metadataUrl;
   const routePathMatchesPathDecision =
     bundle.pathDecision.metadataRoutePath ===
     MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH;

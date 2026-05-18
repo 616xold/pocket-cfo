@@ -4,6 +4,8 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FP0126_WWW_AUTHENTICATE_AUTH_CHALLENGE_SEQUENCING_PLAN_PATH,
+  buildProtectedResourceMetadataRouteInputEvidenceBundle,
+  validRouteInput,
   verifyFp0126WwwAuthenticateAuthChallengeSequencingPlanBoundary,
 } from "./read-only-app-mcp-protected-resource-metadata";
 import {
@@ -28,6 +30,7 @@ import {
   buildMcpWwwAuthenticateAuthChallengeContracts,
   buildMcpWwwAuthenticateAuthChallengeProof,
   buildMcpWwwAuthenticateMissingTokenChallengeResponse,
+  assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration,
   verifyFp0127AbsentOrLocalWwwAuthenticateAuthChallengeContracts,
   verifyFp0127PlanningTextRequiredTopics,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
@@ -293,10 +296,11 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse();
 
     expect(dependency).toMatchObject({
-      authorizationHeaderBehavior:
-        "fail_closed_no_token_validation_runtime",
+      authorizationHeaderBehavior: "fail_closed_no_token_validation_runtime",
       explicitDependencyOnly: true,
       localOnly: true,
+      metadataRouteCoRegistrationRequired: true,
+      metadataRoutePath: MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
       missingTokenOnly: true,
       noAuthMiddlewareImplementation: true,
       noOauthImplementation: true,
@@ -306,6 +310,7 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       noTokenSessionStorage: true,
       noTokenValidationRuntime: true,
       proofGated: true,
+      protectedResourceMetadataRouteInputEvidenceBundleRequired: true,
       readOnly: true,
       resourceMetadataReference:
         MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
@@ -346,6 +351,45 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
         )}\n${JSON.stringify(authorizationPresentResponse.body)}`,
       ),
     ).toBe(true);
+  });
+
+  it("requires protected-resource metadata route evidence before the missing-token challenge can be used", () => {
+    const dependency =
+      buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency();
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    const coRegistration =
+      assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration({
+        missingTokenChallenge: dependency,
+        protectedResourceMetadataRouteInputEvidenceBundle: evidenceBundle,
+      });
+
+    expect(coRegistration.missingTokenChallenge).toEqual(dependency);
+    expect(
+      coRegistration.protectedResourceMetadataRouteInputEvidenceBundle,
+    ).toEqual(evidenceBundle);
+    expect(coRegistration.missingTokenChallenge.resourceMetadataReference).toBe(
+      evidenceBundle.pathDecision.metadataRoutePath,
+    );
+    expect(() =>
+      assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration({
+        missingTokenChallenge: dependency,
+      }),
+    ).toThrow(
+      /requires protected-resource metadata route evidence dependency/u,
+    );
+    expect(() =>
+      assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration({
+        missingTokenChallenge: dependency,
+        protectedResourceMetadataRouteInputEvidenceBundle: {
+          ...evidenceBundle,
+          pathDecision: {
+            ...evidenceBundle.pathDecision,
+            metadataRoutePath: "/.well-known/oauth-protected-resource/other",
+          },
+        },
+      }),
+    ).toThrow(/metadata route evidence dependency/u);
   });
 
   it("keeps local metadata reference proof-only and blocks public reference until future proof", () => {

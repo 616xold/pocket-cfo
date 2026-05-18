@@ -1,8 +1,9 @@
 import type { FastifyInstance, FastifyReply } from "fastify";
 import {
-  assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
+  assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration,
   buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse,
   buildMcpWwwAuthenticateMissingTokenChallengeResponse,
+  type McpProtectedResourceMetadataRouteInputEvidenceBundle,
   type McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
 } from "@pocket-cto/domain";
 import {
@@ -22,6 +23,7 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
       "handle"
     >;
     readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency;
+    readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle?: McpProtectedResourceMetadataRouteInputEvidenceBundle;
   } = {},
 ) {
   const service =
@@ -29,9 +31,14 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
   const missingTokenChallenge =
     deps.readOnlyAppMcpLocalProofGatedMissingTokenChallenge === undefined
       ? null
-      : assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(
-          deps.readOnlyAppMcpLocalProofGatedMissingTokenChallenge,
-        );
+      : assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration(
+          {
+            missingTokenChallenge:
+              deps.readOnlyAppMcpLocalProofGatedMissingTokenChallenge,
+            protectedResourceMetadataRouteInputEvidenceBundle:
+              deps.readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle,
+          },
+        ).missingTokenChallenge;
 
   app.get("/mcp", async (request, reply) => {
     const originValidation = validateLocalMcpOriginHeader(
@@ -54,10 +61,9 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
 
     if (missingTokenChallenge) {
       if (request.headers.authorization === undefined) {
-        const challenge =
-          buildMcpWwwAuthenticateMissingTokenChallengeResponse(
-            missingTokenChallenge,
-          );
+        const challenge = buildMcpWwwAuthenticateMissingTokenChallengeResponse(
+          missingTokenChallenge,
+        );
         return reply
           .header("WWW-Authenticate", challenge.wwwAuthenticate)
           .code(challenge.statusCode)

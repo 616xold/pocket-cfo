@@ -4,6 +4,8 @@ import {
   MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
   MCP_WWW_AUTHENTICATE_RESOURCE_METADATA_PARAMETER,
 } from "./read-only-app-mcp-www-authenticate-contracts";
+import { assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration } from "./read-only-app-mcp-protected-resource-metadata-route-input";
+import type { McpProtectedResourceMetadataRouteInputEvidenceBundle } from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
 import { scanWwwAuthenticateNoTokenLeakage } from "./read-only-app-mcp-www-authenticate-leakage-validation";
 
 const trueLiteral = z.literal(true);
@@ -14,8 +16,7 @@ export const MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_SCHEMA_VERSION =
 export const MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_AUTHORIZATION_HEADER_BEHAVIOR =
   "fail_closed_no_token_validation_runtime" as const;
 
-export const MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER =
-  `${MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME} ${MCP_WWW_AUTHENTICATE_RESOURCE_METADATA_PARAMETER}="${MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE}"`;
+export const MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER = `${MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME} ${MCP_WWW_AUTHENTICATE_RESOURCE_METADATA_PARAMETER}="${MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE}"`;
 
 export const McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependencySchema =
   z
@@ -35,6 +36,10 @@ export const McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependencySch
       noDbQueriesAdded: trueLiteral,
       noDeploymentConfig: trueLiteral,
       noFinanceWrite: trueLiteral,
+      metadataRouteCoRegistrationRequired: trueLiteral,
+      metadataRoutePath: z.literal(
+        MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
+      ),
       noNewRoutePath: trueLiteral,
       noOauthImplementation: trueLiteral,
       noOpenAiApiCalls: trueLiteral,
@@ -49,6 +54,7 @@ export const McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependencySch
       noTokenSessionStorage: trueLiteral,
       noTokenValidationRuntime: trueLiteral,
       proofGated: trueLiteral,
+      protectedResourceMetadataRouteInputEvidenceBundleRequired: trueLiteral,
       readOnly: trueLiteral,
       resourceMetadataReference: z.literal(
         MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
@@ -63,6 +69,12 @@ export type McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency =
   z.infer<
     typeof McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependencySchema
   >;
+
+export type McpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration =
+  {
+    missingTokenChallenge: McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency;
+    protectedResourceMetadataRouteInputEvidenceBundle: McpProtectedResourceMetadataRouteInputEvidenceBundle;
+  };
 
 export const McpWwwAuthenticateMissingTokenChallengeBodySchema = z
   .object({
@@ -118,6 +130,8 @@ export function buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDepen
       noDbQueriesAdded: true,
       noDeploymentConfig: true,
       noFinanceWrite: true,
+      metadataRouteCoRegistrationRequired: true,
+      metadataRoutePath: MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
       noNewRoutePath: true,
       noOauthImplementation: true,
       noOpenAiApiCalls: true,
@@ -132,6 +146,7 @@ export function buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDepen
       noTokenSessionStorage: true,
       noTokenValidationRuntime: true,
       proofGated: true,
+      protectedResourceMetadataRouteInputEvidenceBundleRequired: true,
       readOnly: true,
       resourceMetadataReference:
         MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
@@ -152,6 +167,45 @@ export function assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDepe
     buildMcpWwwAuthenticateMissingTokenChallengeBody(),
   );
   return dependency;
+}
+
+export function assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration(input: {
+  missingTokenChallenge: unknown;
+  protectedResourceMetadataRouteInputEvidenceBundle?: unknown;
+}): McpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration {
+  const missingTokenChallenge =
+    assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(
+      input.missingTokenChallenge,
+    );
+
+  if (input.protectedResourceMetadataRouteInputEvidenceBundle === undefined) {
+    throw new Error(
+      "Missing-token WWW-Authenticate challenge requires protected-resource metadata route evidence dependency",
+    );
+  }
+
+  const protectedResourceMetadataRouteInputEvidenceBundle =
+    assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration(
+      input.protectedResourceMetadataRouteInputEvidenceBundle,
+    );
+
+  if (
+    missingTokenChallenge.resourceMetadataReference !==
+      protectedResourceMetadataRouteInputEvidenceBundle.pathDecision
+        .metadataRoutePath ||
+    missingTokenChallenge.metadataRoutePath !==
+      protectedResourceMetadataRouteInputEvidenceBundle.pathDecision
+        .metadataRoutePath
+  ) {
+    throw new Error(
+      "Missing-token WWW-Authenticate challenge resource_metadata does not match the protected-resource metadata route evidence dependency",
+    );
+  }
+
+  return {
+    missingTokenChallenge,
+    protectedResourceMetadataRouteInputEvidenceBundle,
+  };
 }
 
 export function buildMcpWwwAuthenticateMissingTokenChallengeResponse(
