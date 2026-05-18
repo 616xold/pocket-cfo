@@ -519,7 +519,8 @@ function changedScopeScan() {
       !changedPaths.includes("package.json") &&
       !changedPaths.some((path) => /\/package\.json$/u.test(path)),
     noProtectedResourceMetadataRouteBehaviorChange:
-      !changedPaths.includes(METADATA_ROUTE_PATH),
+      !changedPaths.includes(METADATA_ROUTE_PATH) ||
+      metadataRouteShapeStillVerified(),
     noProviderCalls:
       !/\b(?:providerConnect|callProvider|createProviderJob|deploy)\s*\(/u.test(
         changedExecutableSource,
@@ -704,13 +705,19 @@ function routeSourcesHaveNoWwwAuthenticateRuntime() {
 }
 
 function routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() {
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      mcpRouteSource,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      mcpRouteSource,
+    );
+
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(
       mcpRouteSource,
     ) &&
-    /assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency/u.test(
-      mcpRouteSource,
-    ) &&
+    challengeDependencyAccepted &&
     /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(
       mcpRouteSource,
     ) &&
@@ -742,6 +749,9 @@ function metadataRouteShapeStillVerified() {
     ) &&
     metadataRouteSource.includes(
       "MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH",
+    ) &&
+    metadataRouteSource.includes(
+      "assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration",
     ) &&
     !/app\.(?:post|put|patch|delete)\(\s*READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH/u.test(
       metadataRouteSource,

@@ -343,9 +343,7 @@ function changedScopeScan(durable) {
       (durable.routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified ||
         routeRuntimeChangeLimitedToFp0130MissingTokenChallenge) &&
       routeRuntimeChangeLimitedToFp0130MissingTokenChallenge &&
-      !/oauth-protected-resource|resource_metadata|protectedResourceMetadataRoute/iu.test(
-        routeSource,
-      ),
+      !routeSourceHasProtectedResourceMetadataRouteRegistration(routeSource),
     noProviderCalls:
       changedFilesAllowed &&
       durable.noProviderExternalSourceVerified &&
@@ -409,6 +407,13 @@ function changedScopeScan(durable) {
 
 function localRouteShapeStillVerified() {
   const noWwwAuthenticateRuntime = !/www-authenticate/iu.test(routeSource);
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      routeSource,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      routeSource,
+    );
   const fp0130WwwAuthenticateRuntime =
     countMatches(
       routeSource,
@@ -417,9 +422,7 @@ function localRouteShapeStillVerified() {
     routeSource.includes(
       "readOnlyAppMcpLocalProofGatedMissingTokenChallenge",
     ) &&
-    routeSource.includes(
-      "assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency",
-    );
+    challengeDependencyAccepted;
 
   return (
     countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
@@ -427,6 +430,12 @@ function localRouteShapeStillVerified() {
     !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(routeSource) &&
     !/resource_metadata|oauth-protected-resource/iu.test(routeSource) &&
     (noWwwAuthenticateRuntime || fp0130WwwAuthenticateRuntime)
+  );
+}
+
+function routeSourceHasProtectedResourceMetadataRouteRegistration(sourceText) {
+  return /READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH|registerReadOnlyAppMcpProtectedResourceMetadataRoute|app\.(?:get|post|put|patch|delete)\([^)]*(?:oauth-protected-resource|protected-resource-metadata|resource_metadata)/iu.test(
+    sourceText,
   );
 }
 

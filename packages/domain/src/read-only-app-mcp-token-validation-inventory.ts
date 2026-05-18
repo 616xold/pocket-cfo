@@ -30,6 +30,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts",
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts",
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
   "packages/domain/src/index.ts",
@@ -49,6 +50,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "packages/domain/src/read-only-app-mcp-www-authenticate.spec.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-builder.spec.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input.spec.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-proof.ts",
@@ -137,13 +139,11 @@ export function verifyMcpTokenValidationReadinessDurabilityScan(
   );
   const disallowedWwwAuthenticateRuntimeMatches =
     wwwAuthenticateRuntimeMatches.filter(
-      (match) =>
-        !isAllowedFp0130MissingTokenWwwAuthenticateRouteMatch(match),
+      (match) => !isAllowedFp0130MissingTokenWwwAuthenticateRouteMatch(match),
     );
   const routeRuntimeMatchesWithoutAllowedWwwAuthenticate =
     routeRuntimeMatches.filter(
-      (match) =>
-        !isAllowedFp0130MissingTokenWwwAuthenticateRouteMatch(match),
+      (match) => !isAllowedFp0130MissingTokenWwwAuthenticateRouteMatch(match),
     );
   const authRuntimeMatches = routeRuntimeMatches.filter(
     (match) =>

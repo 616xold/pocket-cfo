@@ -114,6 +114,8 @@ export async function buildApp(options?: { container?: AppContainer }) {
     readOnlyAppMcpEndpointService: container.readOnlyAppMcpEndpointService,
     readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
       container.readOnlyAppMcpLocalProofGatedMissingTokenChallenge,
+    readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+      container.readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle,
   });
   await registerReadOnlyAppMcpProtectedResourceMetadataRoute(app, {
     routeInputEvidenceBundle:

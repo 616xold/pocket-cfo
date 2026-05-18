@@ -751,14 +751,18 @@ function changedScopeScan() {
 function routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() {
   const routeSource = safeRead(ROUTE_PATH);
   if (!/WWW-Authenticate|www-authenticate/iu.test(routeSource)) return true;
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      routeSource,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      routeSource,
+    );
+
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(routeSource) &&
-    /assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency/u.test(
-      routeSource,
-    ) &&
-    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(
-      routeSource,
-    ) &&
+    challengeDependencyAccepted &&
+    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(routeSource) &&
     /buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse/u.test(
       routeSource,
     ) &&

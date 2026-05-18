@@ -65,9 +65,10 @@ export const MCP_PROTECTED_RESOURCE_METADATA_KNOWN_SAFE_ROUTE_LIKE_PATHS = [
   "apps/control-plane/src/modules/wiki/routes.ts",
 ] as const;
 
-export const MCP_PROTECTED_RESOURCE_METADATA_OPTIONAL_FP0125_ROUTE_LIKE_PATHS = [
-  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts",
-] as const;
+export const MCP_PROTECTED_RESOURCE_METADATA_OPTIONAL_FP0125_ROUTE_LIKE_PATHS =
+  [
+    "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts",
+  ] as const;
 
 export function buildMcpProtectedResourceMetadataInventoryProof(
   input: McpProtectedResourceMetadataInventoryProofInput = {},
@@ -155,9 +156,10 @@ export function verifyMcpProtectedResourceMetadataRepositoryInventory(input: {
   const unexpectedRouteLikeRepositoryPaths = routeLikeRepositoryPaths.filter(
     (path) => !allowedRouteLikePaths.includes(path),
   );
-  const missingKnownSafeRouteLikeRepositoryPaths = knownSafeRouteLikePaths.filter(
-    (path) => !routeLikeRepositoryPaths.includes(path),
-  );
+  const missingKnownSafeRouteLikeRepositoryPaths =
+    knownSafeRouteLikePaths.filter(
+      (path) => !routeLikeRepositoryPaths.includes(path),
+    );
   const noUnexpectedRouteLikeRepositoryPaths =
     unexpectedRouteLikeRepositoryPaths.length === 0;
   const knownSafeRouteInventoryVerified =
@@ -195,9 +197,8 @@ export function verifyMcpProtectedResourceMetadataRepositoryInventory(input: {
     !runtimePaths.some(isWwwAuthenticateRouteBehaviorPath) &&
     (!routeSourceHasWwwAuthenticateBehavior(routeSourceText) ||
       routeSourceHasAllowedFp0130Behavior);
-  const oauthRuntimeRepositoryInventoryVerified = !runtimePaths.some(
-    isOauthRuntimePath,
-  );
+  const oauthRuntimeRepositoryInventoryVerified =
+    !runtimePaths.some(isOauthRuntimePath);
   const tokenSessionRepositoryInventoryVerified = !runtimePaths.some(
     isTokenSessionRuntimePath,
   );
@@ -249,7 +250,9 @@ export function verifyMcpProtectedResourceMetadataRepositoryInventory(input: {
 export function listMcpProtectedResourceMetadataRouteLikeRepositoryPaths(
   repoPaths: readonly string[],
 ) {
-  return sortUnique(repoPaths.map(normalizePath).filter(isRouteLikeRuntimePath));
+  return sortUnique(
+    repoPaths.map(normalizePath).filter(isRouteLikeRuntimePath),
+  );
 }
 
 export function verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan(input: {
@@ -384,9 +387,9 @@ function isRuntimePath(path: string) {
   return (
     !/\.spec\.ts$/u.test(path) &&
     (path.startsWith("apps/control-plane/src/") ||
-    /^apps\/web\/app\/(?:.*\/)?route\.ts$/u.test(path) ||
-    path.startsWith("apps/web/app/api/") ||
-    path.startsWith("apps/web/pages/api/"))
+      /^apps\/web\/app\/(?:.*\/)?route\.ts$/u.test(path) ||
+      path.startsWith("apps/web/app/api/") ||
+      path.startsWith("apps/web/pages/api/"))
   );
 }
 
@@ -487,14 +490,18 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
   sourceText: string,
 ) {
   if (!routeSourceHasWwwAuthenticateBehavior(sourceText)) return true;
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      sourceText,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      sourceText,
+    );
+
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(sourceText) &&
-    /assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency/u.test(
-      sourceText,
-    ) &&
-    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(
-      sourceText,
-    ) &&
+    challengeDependencyAccepted &&
+    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(sourceText) &&
     /buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse/u.test(
       sourceText,
     ) &&
@@ -504,9 +511,7 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
     !/\b(?:oauthCallback|tokenStore|sessionStore|authMiddleware|validateToken|verifyToken|verifyBearer|jwtVerify|decodeJwt|parseJwt|parseToken|introspectToken)\s*\(/u.test(
       sourceText,
     ) &&
-    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(
-      sourceText,
-    )
+    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(sourceText)
   );
 }
 

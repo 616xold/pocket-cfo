@@ -8,6 +8,8 @@ import {
   MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
   MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
   buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
+  buildProtectedResourceMetadataRouteInputEvidenceBundle,
+  validRouteInput,
 } from "@pocket-cto/domain";
 import { registerHttpErrorHandler } from "../../lib/http-errors";
 import { registerReadOnlyAppMcpEndpointRoutes } from "./routes";
@@ -376,7 +378,54 @@ describe("read-only app MCP endpoint routes", () => {
     ).toEqual([...MCP_TOOL_ALLOWLIST]);
   });
 
-  it("emits a bounded missing-token challenge only when the explicit local proof-gated dependency is present", async () => {
+  it("keeps metadata route evidence-only /mcp behavior unchanged without enabling the challenge", async () => {
+    const app = await buildTestApp(apps, {
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      payload: {
+        id: "init-metadata-only-no-challenge",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers["www-authenticate"]).toBeUndefined();
+    expect(response.json()).toMatchObject({
+      id: "init-metadata-only-no-challenge",
+      result: {
+        capabilities: {
+          tools: {
+            listChanged: false,
+          },
+        },
+      },
+    });
+  });
+
+  it("fails closed before /mcp route registration when the challenge dependency lacks metadata route evidence", async () => {
+    const app = Fastify();
+    apps.push(app);
+    registerHttpErrorHandler(app);
+
+    await expect(
+      registerReadOnlyAppMcpEndpointRoutes(app, {
+        readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+          buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      }),
+    ).rejects.toThrow(
+      /requires protected-resource metadata route evidence dependency/u,
+    );
+    expect(app.hasRoute({ method: "POST", url: "/mcp" })).toBe(false);
+    expect(app.hasRoute({ method: "GET", url: "/mcp" })).toBe(false);
+  });
+
+  it("emits a bounded missing-token challenge only when the explicit dependency is coupled to metadata route evidence", async () => {
     let serviceCalls = 0;
     const app = await buildTestApp(apps, {
       readOnlyAppMcpEndpointService: {
@@ -387,6 +436,8 @@ describe("read-only app MCP endpoint routes", () => {
       },
       readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
         buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const response = await app.inject({
@@ -440,6 +491,8 @@ describe("read-only app MCP endpoint routes", () => {
       },
       readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
         buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const response = await app.inject({
@@ -476,6 +529,8 @@ describe("read-only app MCP endpoint routes", () => {
     const app = await buildTestApp(apps, {
       readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
         buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const getResponse = await app.inject({
@@ -547,6 +602,12 @@ async function buildTestApp(
   registerHttpErrorHandler(app);
   await registerReadOnlyAppMcpEndpointRoutes(app, deps);
   return app;
+}
+
+function validEvidenceBundle() {
+  return buildProtectedResourceMetadataRouteInputEvidenceBundle(
+    validRouteInput,
+  );
 }
 
 function readRepoFile(path: string) {

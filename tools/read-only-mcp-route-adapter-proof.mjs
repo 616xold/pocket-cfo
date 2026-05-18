@@ -995,10 +995,9 @@ function fp0110ChangedScopeScan() {
         READ_ONLY_MCP_ENDPOINT_RUNTIME_PATH_PATTERN.test(path),
       ) || endpointRuntimeChangeLimitedToFp0130MissingTokenChallenge(),
     noOauthTokenSession:
-      (!/\b(?:oauth|tokenExchange|sessionHandler|setCookie|authorization)\b/u.test(
+      !/\b(?:oauth|tokenExchange|sessionHandler|setCookie|authorization)\b/u.test(
         changedRuntimeSource,
-      ) ||
-        endpointRuntimeChangeLimitedToFp0130MissingTokenChallenge()),
+      ) || endpointRuntimeChangeLimitedToFp0130MissingTokenChallenge(),
     noRemoteMcp: !/\b(?:remoteMcp|mcpServerRuntime|listen\s*\(|deploy)\b/u.test(
       changedRuntimeSource,
     ),
@@ -1041,14 +1040,18 @@ function endpointRuntimeChangeLimitedToFp0130MissingTokenChallenge() {
 
 function routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() {
   if (!/WWW-Authenticate|www-authenticate/iu.test(routeSource)) return true;
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      routeSource,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      routeSource,
+    );
+
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(routeSource) &&
-    /assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency/u.test(
-      routeSource,
-    ) &&
-    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(
-      routeSource,
-    ) &&
+    challengeDependencyAccepted &&
+    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(routeSource) &&
     /buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse/u.test(
       routeSource,
     ) &&

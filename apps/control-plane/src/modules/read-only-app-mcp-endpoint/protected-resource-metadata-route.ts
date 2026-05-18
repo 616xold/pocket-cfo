@@ -2,8 +2,7 @@ import type { FastifyInstance } from "fastify";
 import {
   MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH,
   McpProtectedResourceMetadataBuilderDocumentSchema,
-  McpProtectedResourceMetadataRouteInputEvidenceBundleSchema,
-  assertProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence,
+  assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration,
   type McpProtectedResourceMetadataBuilderDocument,
   type McpProtectedResourceMetadataRouteInputEvidenceBundle,
 } from "@pocket-cto/domain";
@@ -41,67 +40,9 @@ export async function registerReadOnlyAppMcpProtectedResourceMetadataRoute(
 function parseValidRouteInputEvidenceBundle(
   input: unknown,
 ): McpProtectedResourceMetadataRouteInputEvidenceBundle {
-  const parsed =
-    McpProtectedResourceMetadataRouteInputEvidenceBundleSchema.safeParse(input);
-
-  if (!parsed.success) {
-    throw new Error(
-      "Protected-resource metadata route evidence dependency is invalid",
-    );
-  }
-
-  const bundle = parsed.data;
-  const dependencyAccepted =
-    bundle.localProofOnly &&
-    bundle.readOnly &&
-    bundle.routeInputEvidenceBundleOnly &&
-    bundle.canonicalUriEvidence.accepted &&
-    bundle.canonicalUriEvidence.credentialFree &&
-    bundle.authorizationServerEvidence.accepted &&
-    bundle.authorizationServerEvidence.credentialFree &&
-    bundle.authorizationServerEvidence.authorizationServers.length > 0 &&
-    bundle.pathDecision.metadataRoutePath ===
-      READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH &&
-    bundle.pathDecision.routePathDerivedFromCanonicalResourceUri &&
-    bundle.builderOutput.accepted &&
-    bundle.builderOutput.builderInputAccepted &&
-    bundle.builderOutput.builderOutputValid &&
-    bundle.builderOutput.routeResponseContractOnly &&
-    bundle.noTokenLeakage.accepted &&
-    !bundle.noTokenLeakage.tokenValuesDetected &&
-    !bundle.noTokenLeakage.cookiesSessionsSecretsCredentialsDetected &&
-    !bundle.noTokenLeakage.rawFinanceDataDetected &&
-    !bundle.noTokenLeakage.rawSourceDumpsDetected &&
-    !bundle.noTokenLeakage.credentialBearingUrlsDetected &&
-    !bundle.noTokenLeakage.companyKeyAuthorityDetected &&
-    bundle.companyBindingPrerequisite.accepted &&
-    bundle.companyBindingPrerequisite.authenticatedCompanyBindingRequired &&
-    !bundle.companyBindingPrerequisite.authenticatedCompanyBindingImplemented &&
-    !bundle.companyBindingPrerequisite.unauthenticatedCompanyKeyAuthorityAllowed &&
-    bundle.mcpUnchanged.accepted &&
-    bundle.mcpUnchanged.localMcpRouteUnchangedRequired &&
-    !bundle.mcpUnchanged.localMcpRouteBehaviorChanged &&
-    !bundle.mcpUnchanged.protectedResourceMetadataRouteRegistered &&
-    !bundle.mcpUnchanged.wwwAuthenticateBehaviorImplemented &&
-    bundle.noRuntime.accepted &&
-    bundle.noRuntime.noOauthRuntime &&
-    bundle.noRuntime.noTokenSessionRuntime &&
-    bundle.noRuntime.noAuthMiddlewareRuntime &&
-    bundle.noRuntime.noRemoteMcpRuntime &&
-    bundle.noRuntime.noAppsSdkResourceRuntime &&
-    bundle.noRuntime.noDbRuntime;
-
-  if (!dependencyAccepted) {
-    throw new Error(
-      "Protected-resource metadata route evidence dependency was not accepted",
-    );
-  }
-
-  assertProtectedResourceMetadataRouteInputEvidenceBundleSemanticCoherence(
-    bundle,
+  return assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration(
+    input,
   );
-
-  return bundle;
 }
 
 function serializeBoundedMetadataDocument(

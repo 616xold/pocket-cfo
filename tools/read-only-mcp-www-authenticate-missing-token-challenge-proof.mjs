@@ -56,14 +56,26 @@ const proof = {
     "v2ax.read-only-app-mcp-www-authenticate-missing-token-challenge-proof.v1",
   localOnly: true,
   explicitDependencyOnly: true,
+  metadataRouteCoRegistrationBoundaryVerified:
+    appProof.metadataRouteCoRegistrationBoundaryVerified,
+  challengeDependencyRequiresMetadataRouteEvidenceBundle:
+    appProof.challengeDependencyRequiresMetadataRouteEvidenceBundle,
+  challengeWithoutMetadataRouteEvidenceFailsClosed:
+    appProof.challengeWithoutMetadataRouteEvidenceFailsClosed,
+  metadataOnlyDoesNotEnableChallenge:
+    appProof.metadataOnlyDoesNotEnableChallenge,
+  challengeWithMetadataRouteEvidenceStillWorks:
+    appProof.challengeWithMetadataRouteEvidenceStillWorks,
+  protectedResourceMetadataRouteBehaviorStillUnchanged:
+    appProof.protectedResourceMetadataRouteBehaviorStillUnchanged,
   missingTokenChallengeImplementationVerified:
     appProof.defaultBuildAppMcpBehaviorUnchanged &&
-    appProof.explicitDependencyEnablesMissingTokenChallenge &&
+    appProof.challengeWithMetadataRouteEvidenceStillWorks &&
     appProof.missingAuthorizationReturns401Challenge,
   defaultBuildAppMcpBehaviorUnchanged:
     appProof.defaultBuildAppMcpBehaviorUnchanged,
   explicitDependencyEnablesMissingTokenChallenge:
-    appProof.explicitDependencyEnablesMissingTokenChallenge,
+    appProof.challengeWithMetadataRouteEvidenceStillWorks,
   missingAuthorizationReturns401Challenge:
     appProof.missingAuthorizationReturns401Challenge,
   wwwAuthenticateBearerChallengeShapeVerified:
@@ -79,13 +91,12 @@ const proof = {
   noAuthMiddlewareImplementation: sourceProof.noAuthMiddlewareImplementation,
   noOauthImplementation: sourceProof.noOauthImplementation,
   noProtectedResourceMetadataRouteBehaviorChange:
-    appProof.noProtectedResourceMetadataRouteBehaviorChange &&
+    appProof.protectedResourceMetadataRouteBehaviorStillUnchanged &&
     sourceProof.noProtectedResourceMetadataRouteBehaviorChange,
   noNewRoutePath: sourceProof.noNewRoutePath,
   noRemoteMcpDeployment: sourceProof.noRemoteMcpDeployment,
   noDeploymentConfig: sourceProof.noDeploymentConfig,
-  noAppsSdkResourceImplementation:
-    sourceProof.noAppsSdkResourceImplementation,
+  noAppsSdkResourceImplementation: sourceProof.noAppsSdkResourceImplementation,
   noAppSubmission: sourceProof.noAppSubmission,
   noDbQueriesAdded: sourceProof.noDbQueriesAdded,
   noSchemaMigrationsAdded: sourceProof.noSchemaMigrationsAdded,
@@ -151,25 +162,43 @@ async function verifyAppBehavior() {
     buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency();
   const metadataEvidenceBundle =
     buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+  let challengeWithoutMetadataRouteEvidenceFailsClosed = false;
 
   try {
     const defaultApp = await buildApp({
       container: createInMemoryContainer(),
     });
-    const explicitApp = await buildApp({
-      container: {
-        ...createInMemoryContainer(),
-        readOnlyAppMcpLocalProofGatedMissingTokenChallenge: explicitDependency,
-      },
-    });
-    const metadataApp = await buildApp({
+    try {
+      const challengeOnlyApp = await buildApp({
+        container: {
+          ...createInMemoryContainer(),
+          readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+            explicitDependency,
+        },
+      });
+      apps.push(challengeOnlyApp);
+    } catch (error) {
+      challengeWithoutMetadataRouteEvidenceFailsClosed =
+        /requires protected-resource metadata route evidence dependency/u.test(
+          error instanceof Error ? error.message : String(error),
+        );
+    }
+    const metadataOnlyApp = await buildApp({
       container: {
         ...createInMemoryContainer(),
         readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
           metadataEvidenceBundle,
       },
     });
-    apps.push(defaultApp, explicitApp, metadataApp);
+    const challengeWithMetadataApp = await buildApp({
+      container: {
+        ...createInMemoryContainer(),
+        readOnlyAppMcpLocalProofGatedMissingTokenChallenge: explicitDependency,
+        readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+          metadataEvidenceBundle,
+      },
+    });
+    apps.push(defaultApp, metadataOnlyApp, challengeWithMetadataApp);
 
     const defaultGet = await defaultApp.inject({
       headers: { accept: "text/event-stream" },
@@ -219,7 +248,20 @@ async function verifyAppBehavior() {
       payload: { id: "origin", jsonrpc: "2.0", method: "initialize" },
       url: "/mcp",
     });
-    const explicitMissingAuthorization = await explicitApp.inject({
+    const metadataOnlyInitialize = await metadataOnlyApp.inject({
+      method: "POST",
+      payload: {
+        id: "metadata-only-init",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const metadataOnlyRouteResponse = await metadataOnlyApp.inject({
+      method: "GET",
+      url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
+    });
+    const explicitMissingAuthorization = await challengeWithMetadataApp.inject({
       method: "POST",
       payload: {
         id: "explicit-missing",
@@ -229,7 +271,7 @@ async function verifyAppBehavior() {
       url: "/mcp",
     });
     const explicitAuthorizationValue = "Bearer proof-token-material";
-    const explicitAuthorizationPresent = await explicitApp.inject({
+    const explicitAuthorizationPresent = await challengeWithMetadataApp.inject({
       headers: { authorization: explicitAuthorizationValue },
       method: "POST",
       payload: {
@@ -239,16 +281,16 @@ async function verifyAppBehavior() {
       },
       url: "/mcp",
     });
-    const explicitGet = await explicitApp.inject({
+    const explicitGet = await challengeWithMetadataApp.inject({
       headers: { accept: "text/event-stream" },
       method: "GET",
       url: "/mcp",
     });
-    const metadataResponse = await metadataApp.inject({
+    const metadataResponse = await challengeWithMetadataApp.inject({
       method: "GET",
       url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
     });
-    const rootMetadataResponse = await metadataApp.inject({
+    const rootMetadataResponse = await challengeWithMetadataApp.inject({
       method: "GET",
       url: "/.well-known/oauth-protected-resource",
     });
@@ -269,7 +311,9 @@ async function verifyAppBehavior() {
         explicitAuthorizationPresent.statusCode === 401 &&
         explicitAuthorizationPresent.headers["www-authenticate"] ===
           undefined &&
-        !explicitAuthorizationPresent.body.includes(explicitAuthorizationValue) &&
+        !explicitAuthorizationPresent.body.includes(
+          explicitAuthorizationValue,
+        ) &&
         !explicitAuthorizationPresent.body.includes("proof-token-material") &&
         explicitAuthorizationPresent.json().error ===
           "token_validation_runtime_not_implemented",
@@ -286,7 +330,8 @@ async function verifyAppBehavior() {
         defaultPing.headers["www-authenticate"] === undefined &&
         JSON.stringify(defaultPing.json()) ===
           JSON.stringify({ id: "default-ping", jsonrpc: "2.0", result: {} }) &&
-        JSON.stringify(defaultTools) === JSON.stringify([...MCP_TOOL_ALLOWLIST]) &&
+        JSON.stringify(defaultTools) ===
+          JSON.stringify([...MCP_TOOL_ALLOWLIST]) &&
         defaultToolsCall.statusCode === 200 &&
         defaultToolsCall.json().result.isError === true &&
         defaultToolsCall.json().result.structuredContent.refusalReason ===
@@ -294,13 +339,53 @@ async function verifyAppBehavior() {
         defaultNotification.statusCode === 202 &&
         defaultNotification.body === "" &&
         defaultOriginRejected.statusCode === 403,
+      challengeDependencyRequiresMetadataRouteEvidenceBundle:
+        challengeWithoutMetadataRouteEvidenceFailsClosed,
+      challengeWithMetadataRouteEvidenceStillWorks:
+        explicitMissingAuthorization.statusCode === 401 &&
+        explicitGet.statusCode === 405 &&
+        explicitGet.headers["www-authenticate"] === undefined,
+      challengeWithoutMetadataRouteEvidenceFailsClosed,
       explicitDependencyEnablesMissingTokenChallenge:
         explicitMissingAuthorization.statusCode === 401 &&
         explicitGet.statusCode === 405 &&
         explicitGet.headers["www-authenticate"] === undefined,
+      metadataOnlyDoesNotEnableChallenge:
+        metadataOnlyInitialize.statusCode === 200 &&
+        metadataOnlyInitialize.headers["www-authenticate"] === undefined &&
+        metadataOnlyInitialize.json().result.capabilities.tools.listChanged ===
+          false &&
+        metadataOnlyRouteResponse.statusCode === 200,
+      metadataRouteCoRegistrationBoundaryVerified:
+        challengeWithoutMetadataRouteEvidenceFailsClosed &&
+        challengeWithMetadataApp.hasRoute({
+          method: "GET",
+          url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
+        }) &&
+        metadataResponse.statusCode === 200 &&
+        explicitMissingAuthorization.json().resourceMetadata ===
+          READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
       missingAuthorizationReturns401Challenge:
         explicitMissingAuthorization.statusCode === 401,
       noProtectedResourceMetadataRouteBehaviorChange:
+        metadataResponse.statusCode === 200 &&
+        metadataResponse.headers["www-authenticate"] === undefined &&
+        JSON.stringify(Object.keys(metadataBody).sort()) ===
+          JSON.stringify([
+            "authorization_servers",
+            "bearer_methods_supported",
+            "resource",
+            "scopes_supported",
+          ]) &&
+        metadataBody.resource === expectedMetadataBody.resource &&
+        JSON.stringify(metadataBody.authorization_servers) ===
+          JSON.stringify(expectedMetadataBody.authorization_servers) &&
+        JSON.stringify(metadataBody.bearer_methods_supported) ===
+          JSON.stringify(expectedMetadataBody.bearer_methods_supported) &&
+        JSON.stringify(metadataBody.scopes_supported) ===
+          JSON.stringify(expectedMetadataBody.scopes_supported) &&
+        rootMetadataResponse.statusCode === 404,
+      protectedResourceMetadataRouteBehaviorStillUnchanged:
         metadataResponse.statusCode === 200 &&
         metadataResponse.headers["www-authenticate"] === undefined &&
         JSON.stringify(Object.keys(metadataBody).sort()) ===
@@ -492,12 +577,16 @@ function verifyPlanBoundaries() {
       }),
     fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-        planText: safeRead(FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH),
+        planText: safeRead(
+          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+        ),
         repoPaths,
       }),
     fp0123RouteInputEvidenceBoundaryStillVerified:
       verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
-        planText: safeRead(FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH),
+        planText: safeRead(
+          FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+        ),
         repoPaths,
       }),
     fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
@@ -552,14 +641,21 @@ function changedExecutableSource() {
     .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
     .filter((path) => !path.endsWith(".spec.ts"))
     .filter((path) => !path.startsWith("tools/"))
-    .filter((path) => !/^packages\/domain\/src\/.*(?:inventory|proof).*\.ts$/u.test(path))
+    .filter(
+      (path) =>
+        !/^packages\/domain\/src\/.*(?:inventory|proof).*\.ts$/u.test(path),
+    )
     .filter((path) => existsSync(path))
     .map(safeRead)
     .join("\n");
 }
 
 function changedFilePaths() {
-  const dirtyPaths = readGitLines(["status", "--short", "--untracked-files=all"])
+  const dirtyPaths = readGitLines([
+    "status",
+    "--short",
+    "--untracked-files=all",
+  ])
     .map((line) =>
       line
         .replace(/^[A-Z?! ]{1,2}\s+/u, "")
@@ -567,7 +663,11 @@ function changedFilePaths() {
         .trim(),
     )
     .filter(Boolean);
-  const branchDiffPaths = readGitLines(["diff", "--name-only", "origin/main...HEAD"]);
+  const branchDiffPaths = readGitLines([
+    "diff",
+    "--name-only",
+    "origin/main...HEAD",
+  ]);
   const headDiffPaths = readGitLines(["diff", "--name-only", "HEAD"]);
   return [...new Set([...branchDiffPaths, ...headDiffPaths, ...dirtyPaths])]
     .filter(Boolean)

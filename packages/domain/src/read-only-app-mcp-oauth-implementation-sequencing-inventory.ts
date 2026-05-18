@@ -87,8 +87,7 @@ export function verifyFp0117OauthImplementationSequencingRepositoryInventory(inp
       (path) =>
         isProtectedResourceMetadataRoutePath(path) &&
         path !== FP0125_PROTECTED_RESOURCE_METADATA_LOCAL_ROUTE_MODULE_PATH,
-    ) &&
-    !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText);
+    ) && !routeSourceHasProtectedResourceMetadataBehavior(routeSourceText);
   const wwwAuthenticateRouteBehaviorRepositoryInventoryVerified =
     !runtimePaths.some(isWwwAuthenticateRouteBehaviorPath) &&
     (!routeSourceHasWwwAuthenticateBehavior(routeSourceText) ||
@@ -242,8 +241,8 @@ function isRuntimePath(path: string) {
   return (
     !/\.spec\.ts$/u.test(path) &&
     (path.startsWith("apps/control-plane/src/") ||
-    path.startsWith("apps/web/app/api/") ||
-    path.startsWith("apps/web/pages/api/"))
+      path.startsWith("apps/web/app/api/") ||
+      path.startsWith("apps/web/pages/api/"))
   );
 }
 
@@ -293,14 +292,18 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
   sourceText: string,
 ) {
   if (!routeSourceHasWwwAuthenticateBehavior(sourceText)) return true;
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      sourceText,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      sourceText,
+    );
+
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(sourceText) &&
-    /assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency/u.test(
-      sourceText,
-    ) &&
-    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(
-      sourceText,
-    ) &&
+    challengeDependencyAccepted &&
+    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(sourceText) &&
     /buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse/u.test(
       sourceText,
     ) &&
@@ -310,9 +313,7 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
     !/\b(?:oauthCallback|tokenStore|sessionStore|authMiddleware|validateToken|verifyToken|verifyBearer|jwtVerify|decodeJwt|parseJwt|parseToken|introspectToken)\s*\(/u.test(
       sourceText,
     ) &&
-    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(
-      sourceText,
-    )
+    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(sourceText)
   );
 }
 

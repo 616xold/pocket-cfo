@@ -124,9 +124,10 @@ export function verifyMcpCanonicalResourceAuthServerRepositoryInventory(input: {
   const unexpectedRouteLikeRepositoryPaths = routeLikeRepositoryPaths.filter(
     (path) => !allowedRouteLikePaths.includes(path),
   );
-  const missingKnownSafeRouteLikeRepositoryPaths = knownSafeRouteLikePaths.filter(
-    (path) => !routeLikeRepositoryPaths.includes(path),
-  );
+  const missingKnownSafeRouteLikeRepositoryPaths =
+    knownSafeRouteLikePaths.filter(
+      (path) => !routeLikeRepositoryPaths.includes(path),
+    );
   const noUnexpectedRouteLikeRepositoryPaths =
     unexpectedRouteLikeRepositoryPaths.length === 0;
   const knownSafeRouteInventoryVerified =
@@ -218,7 +219,9 @@ export function verifyMcpCanonicalResourceAuthServerNoOpenAiApiSourceScan(input:
   };
 }
 
-export function isFp0120CanonicalResourceAuthServerProofSourcePath(path: string) {
+export function isFp0120CanonicalResourceAuthServerProofSourcePath(
+  path: string,
+) {
   const normalized = normalizePath(path);
   return (
     /^packages\/domain\/src\/read-only-app-mcp-canonical-resource.*\.ts$/u.test(
@@ -240,8 +243,14 @@ function collectForbiddenOpenAiExecutableMatches(sourceText: string) {
   const envKey = ["OPENAI", "API", "KEY"].join("_");
   const apiHost = ["api", "openai", "com"].join(".");
   const patterns = [
-    { name: "openai-import", pattern: /(?:^|[^\w])import\s+[^;\n]*["']openai["']/u },
-    { name: "openai-require", pattern: /\brequire\s*\(\s*["']openai["']\s*\)/u },
+    {
+      name: "openai-import",
+      pattern: /(?:^|[^\w])import\s+[^;\n]*["']openai["']/u,
+    },
+    {
+      name: "openai-require",
+      pattern: /\brequire\s*\(\s*["']openai["']\s*\)/u,
+    },
     { name: "openai-client", pattern: /\bnew\s+OpenAI\b/u },
     { name: "responses-create", pattern: /\bresponses\s*\.\s*create\b/u },
     { name: "chat-completions", pattern: /\bchat\s*\.\s*completions\b/u },
@@ -252,7 +261,10 @@ function collectForbiddenOpenAiExecutableMatches(sourceText: string) {
         "u",
       ),
     },
-    { name: "openai-api-host", pattern: new RegExp(`\\b${escapeRegExp(apiHost)}\\b`, "u") },
+    {
+      name: "openai-api-host",
+      pattern: new RegExp(`\\b${escapeRegExp(apiHost)}\\b`, "u"),
+    },
     { name: "model-call", pattern: /\b(?:model|models)\s*\.\s*create\b/u },
   ];
 
@@ -270,8 +282,8 @@ function isRuntimePath(path: string) {
   return (
     !/\.spec\.ts$/u.test(path) &&
     (path.startsWith("apps/") ||
-    path.startsWith("packages/") ||
-    path.startsWith("tools/"))
+      path.startsWith("packages/") ||
+      path.startsWith("tools/"))
   );
 }
 
@@ -382,14 +394,18 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
   sourceText: string,
 ) {
   if (!routeSourceHasWwwAuthenticateBehavior(sourceText)) return true;
+  const challengeDependencyAccepted =
+    /assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration/u.test(
+      sourceText,
+    ) &&
+    /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
+      sourceText,
+    );
+
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(sourceText) &&
-    /assertMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency/u.test(
-      sourceText,
-    ) &&
-    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(
-      sourceText,
-    ) &&
+    challengeDependencyAccepted &&
+    /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(sourceText) &&
     /buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse/u.test(
       sourceText,
     ) &&
@@ -399,9 +415,7 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
     !/\b(?:oauthCallback|tokenStore|sessionStore|authMiddleware|validateToken|verifyToken|verifyBearer|jwtVerify|decodeJwt|parseJwt|parseToken|introspectToken)\s*\(/u.test(
       sourceText,
     ) &&
-    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(
-      sourceText,
-    )
+    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(sourceText)
   );
 }
 
