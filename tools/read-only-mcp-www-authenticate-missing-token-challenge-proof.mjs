@@ -9,6 +9,7 @@ import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
   MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
@@ -23,7 +24,9 @@ import {
   verifyFp0128TokenValidationReadinessContractsBoundary,
   verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
-  verifyFp0131Absent,
+  verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
+  verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
+  verifyFp0132Absent,
 } from "../packages/domain/src/index.ts";
 import { buildApp } from "../apps/control-plane/src/app.ts";
 import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
@@ -111,7 +114,11 @@ const proof = {
   noSourceMutation: sourceProof.noSourceMutation,
   noFinanceWrite: sourceProof.noFinanceWrite,
   fp0130BoundaryVerified: planProof.fp0130BoundaryVerified,
-  fp0131Absent: planProof.fp0131Absent,
+  fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+    planProof.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified,
+  fp0132Absent: planProof.fp0132Absent,
+  tokenValidationRuntimeSequencingPlanBoundaryVerified:
+    planProof.tokenValidationRuntimeSequencingPlanBoundaryVerified,
   fp0129ChallengeImplementationSequencingBoundaryStillVerified:
     planProof.fp0129ChallengeImplementationSequencingBoundaryStillVerified,
   fp0128TokenValidationReadinessBoundaryStillVerified:
@@ -624,7 +631,21 @@ function verifyPlanBoundaries() {
         ),
         repoPaths,
       }),
-    fp0131Absent: verifyFp0131Absent(repoPaths),
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan({
+        planText: safeRead(
+          FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    fp0132Absent: verifyFp0132Absent(repoPaths),
+    tokenValidationRuntimeSequencingPlanBoundaryVerified:
+      verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
+        planText: safeRead(
+          FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
   };
 }
 

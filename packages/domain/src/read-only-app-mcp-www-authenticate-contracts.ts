@@ -16,11 +16,15 @@ export const FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PA
 export const FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH =
   "plans/FP-0130-read-only-chatgpt-app-mcp-www-authenticate-missing-token-challenge-local-implementation.md";
 
+export const FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH =
+  "plans/FP-0131-read-only-chatgpt-app-mcp-token-validation-invalid-token-runtime-sequencing-master-plan.md";
+
 export const MCP_WWW_AUTHENTICATE_FP0127_PLAN_PREFIX = "FP-0127";
 export const MCP_WWW_AUTHENTICATE_FP0128_PLAN_PREFIX = "FP-0128";
 export const MCP_WWW_AUTHENTICATE_FP0129_PLAN_PREFIX = "FP-0129";
 export const MCP_WWW_AUTHENTICATE_FP0130_PLAN_PREFIX = "FP-0130";
 export const MCP_WWW_AUTHENTICATE_FP0131_PLAN_PREFIX = "FP-0131";
+export const MCP_WWW_AUTHENTICATE_FP0132_PLAN_PREFIX = "FP-0132";
 
 export const MCP_WWW_AUTHENTICATE_CHALLENGE_SCHEME = "Bearer" as const;
 export const MCP_WWW_AUTHENTICATE_RESOURCE_METADATA_PARAMETER =

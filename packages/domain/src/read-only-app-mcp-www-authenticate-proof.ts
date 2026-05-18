@@ -14,6 +14,10 @@ export {
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0130PlanningTextRequiredTopics,
   verifyFp0131Absent,
+  verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
+  verifyFp0131PlanningTextRequiredTopics,
+  verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
+  verifyFp0132Absent,
 } from "./read-only-app-mcp-www-authenticate-plan-boundary";
 
 const trueLiteral = z.literal(true);
@@ -78,7 +82,10 @@ export const McpWwwAuthenticateAuthChallengeProofSchema = z
       trueLiteral,
     fp0130LocalMissingTokenChallengeImplementationBoundaryVerified:
       trueLiteral,
-    fp0131Absent: trueLiteral,
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      trueLiteral,
+    fp0132Absent: trueLiteral,
+    tokenValidationRuntimeSequencingPlanBoundaryVerified: trueLiteral,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       trueLiteral,
     wwwAuthenticateAuthChallengeContractsFoundationVerified: trueLiteral,
@@ -232,7 +239,12 @@ export function buildMcpWwwAuthenticateAuthChallengeProof(
     fp0130LocalMissingTokenChallengeImplementationBoundaryVerified:
       input.fp0130LocalMissingTokenChallengeImplementationBoundaryVerified ??
       true,
-    fp0131Absent: input.fp0131Absent ?? true,
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      input.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified ??
+      true,
+    fp0132Absent: input.fp0132Absent ?? true,
+    tokenValidationRuntimeSequencingPlanBoundaryVerified:
+      input.tokenValidationRuntimeSequencingPlanBoundaryVerified ?? true,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       input.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified ??
       true,

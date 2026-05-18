@@ -63,7 +63,10 @@ export const McpTokenValidationReadinessProofSchema = z
       trueLiteral,
     fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified:
       trueLiteral,
-    fp0131Absent: trueLiteral,
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      trueLiteral,
+    fp0132Absent: trueLiteral,
+    tokenValidationRuntimeSequencingPlanBoundaryVerified: trueLiteral,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       trueLiteral,
     fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified: trueLiteral,
@@ -210,7 +213,12 @@ export function buildMcpTokenValidationReadinessProof(
     fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified:
       input.fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified ??
       true,
-    fp0131Absent: input.fp0131Absent ?? true,
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      input.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified ??
+      true,
+    fp0132Absent: input.fp0132Absent ?? true,
+    tokenValidationRuntimeSequencingPlanBoundaryVerified:
+      input.tokenValidationRuntimeSequencingPlanBoundaryVerified ?? true,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       input.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified ??
       true,

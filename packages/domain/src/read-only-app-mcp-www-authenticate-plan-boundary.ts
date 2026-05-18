@@ -2,11 +2,13 @@ import {
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   MCP_WWW_AUTHENTICATE_FP0127_PLAN_PREFIX,
   MCP_WWW_AUTHENTICATE_FP0128_PLAN_PREFIX,
   MCP_WWW_AUTHENTICATE_FP0129_PLAN_PREFIX,
   MCP_WWW_AUTHENTICATE_FP0130_PLAN_PREFIX,
   MCP_WWW_AUTHENTICATE_FP0131_PLAN_PREFIX,
+  MCP_WWW_AUTHENTICATE_FP0132_PLAN_PREFIX,
 } from "./read-only-app-mcp-www-authenticate-contracts";
 
 type Fp0127BoundaryInput =
@@ -142,6 +144,49 @@ export function verifyFp0130LocalMissingTokenChallengeImplementationBoundary(
 export function verifyFp0131Absent(repoPaths: readonly string[]) {
   return (
     fpPlanHits(repoPaths, MCP_WWW_AUTHENTICATE_FP0131_PLAN_PREFIX).length === 0
+  );
+}
+
+export function verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan(
+  input: Fp0127BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeFp0127BoundaryInput(input);
+  const fp0131Hits = fpPlanHits(
+    repoPaths,
+    MCP_WWW_AUTHENTICATE_FP0131_PLAN_PREFIX,
+  );
+  if (fp0131Hits.length === 0) return true;
+
+  return (
+    fp0131Hits.length === 1 &&
+    fp0131Hits[0] ===
+      FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH &&
+    typeof planText === "string" &&
+    fp0131PlanTextBoundaryVerified(planText)
+  );
+}
+
+export function verifyFp0131TokenValidationRuntimeSequencingPlanBoundary(
+  input: Fp0127BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeFp0127BoundaryInput(input);
+  const fp0131Hits = fpPlanHits(
+    repoPaths,
+    MCP_WWW_AUTHENTICATE_FP0131_PLAN_PREFIX,
+  );
+
+  return (
+    fp0131Hits.length === 1 &&
+    fp0131Hits[0] ===
+      FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH &&
+    typeof planText === "string" &&
+    fp0131PlanTextBoundaryVerified(planText)
+  );
+}
+
+export function verifyFp0132Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, MCP_WWW_AUTHENTICATE_FP0132_PLAN_PREFIX).length === 0
   );
 }
 
@@ -290,6 +335,57 @@ export function verifyFp0130PlanningTextRequiredTopics(planText: string) {
   };
 }
 
+export function verifyFp0131PlanningTextRequiredTopics(planText: string) {
+  const normalized = normalize(planText);
+  return {
+    authenticatedCompanyBinding:
+      normalized.includes("authenticated company binding") &&
+      normalized.includes("companykey"),
+    failureTaxonomy:
+      normalized.includes("malformed") &&
+      normalized.includes("expired") &&
+      normalized.includes("wrong-audience") &&
+      normalized.includes("wrong-resource") &&
+      normalized.includes("wrong-scope") &&
+      normalized.includes("wrong-org") &&
+      normalized.includes("revoked") &&
+      normalized.includes("replayed"),
+    fp0132Gate:
+      normalized.includes("fp-0132 remains absent") &&
+      normalized.includes("future fp-0132"),
+    futureInterfaces:
+      normalized.includes("future runtime interfaces") &&
+      normalized.includes("tokenvalidationruntimecandidate") &&
+      normalized.includes("tokenvalidationresult"),
+    invalidTokenSequencing:
+      normalized.includes("invalid-token challenge behavior") &&
+      normalized.includes("token-validation runtime"),
+    localProofMode:
+      normalized.includes("local-only proof-mode token validation") &&
+      normalized.includes("without remote/public host"),
+    noRuntimeScope:
+      normalized.includes("does not parse tokens") &&
+      normalized.includes("does not validate tokens") &&
+      normalized.includes("does not decode jwts") &&
+      normalized.includes("does not implement invalid-token challenge behavior"),
+    noTokenLeakage:
+      normalized.includes("logs") &&
+      normalized.includes("headers") &&
+      normalized.includes("body") &&
+      normalized.includes("proof output") &&
+      normalized.includes("docs examples") &&
+      normalized.includes("structured results") &&
+      normalized.includes("ui props"),
+    noTokenPassthrough: normalized.includes("no-token-passthrough"),
+    tokenParsingSequencing:
+      normalized.includes("token parsing") &&
+      normalized.includes("issuer/audience/resource/scope validation contracts"),
+    tokenRuntimeDecision:
+      normalized.includes("token-validation runtime cannot start") ||
+      normalized.includes("token-validation runtime should not start"),
+  };
+}
+
 function fp0127PlanTextBoundaryVerified(planText: string) {
   const normalized = normalize(planText);
   return (
@@ -357,6 +453,34 @@ function fp0130PlanTextBoundaryVerified(planText: string) {
       "fp-0131 remains absent",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     Object.values(verifyFp0130PlanningTextRequiredTopics(planText)).every(
+      Boolean,
+    )
+  );
+}
+
+function fp0131PlanTextBoundaryVerified(planText: string) {
+  const normalized = normalize(planText);
+  return (
+    [
+      "docs-and-plan plus proof-gate compatibility master plan",
+      "token-validation and invalid-token runtime sequencing",
+      "this is not token validation runtime implementation",
+      "does not parse tokens",
+      "does not validate tokens",
+      "does not decode jwts",
+      "does not store tokens",
+      "does not implement oauth",
+      "does not implement sessions",
+      "does not add auth middleware",
+      "does not implement invalid-token challenge behavior",
+      "does not change `/mcp`",
+      "does not change protected-resource metadata route behavior",
+      "does not add routes",
+      "no raw sources, source snapshots",
+      "does not create mission state changes",
+      "fp-0132 remains absent",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    Object.values(verifyFp0131PlanningTextRequiredTopics(planText)).every(
       Boolean,
     )
   );

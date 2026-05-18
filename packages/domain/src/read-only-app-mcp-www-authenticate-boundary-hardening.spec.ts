@@ -6,11 +6,14 @@ import {
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
   verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
   verifyFp0130Absent,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
-  verifyFp0131Absent,
+  verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
+  verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
+  verifyFp0132Absent,
 } from "./read-only-app-mcp-www-authenticate";
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
 import { verifyFp0128TokenValidationReadinessContractsBoundary } from "./read-only-app-mcp-token-validation-proof";
@@ -102,7 +105,19 @@ describe("FP-0127 WWW-Authenticate route and prior-boundary hardening", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0131Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan({
+        planText: safeRead(FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
+        planText: safeRead(FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0132Absent(repoPaths)).toBe(true);
     expect(repoPaths.filter((path) => path.includes("FP-0127"))).toEqual([
       FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
     ]);

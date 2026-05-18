@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0130 missing-token WWW-Authenticate challenge implementation and metadata-route coupling hardening slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0131 token-validation runtime sequencing docs-and-plan/proof-gate compatibility slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for this FP-0130 local-only/read-only explicit-dependency missing-token `WWW-Authenticate` challenge slice covering existing `/mcp` route wiring, protected-resource metadata route evidence co-registration before challenge enablement, default `buildApp()` and default `/mcp` preservation, Authorization-present fail-closed no-token-validation posture, FP-0129 sequencing preservation, FP-0128 token-validation readiness preservation, FP-0127 WWW-Authenticate auth-challenge preservation, FP-0126 sequencing preservation, FP-0125 protected-resource metadata route and evidence-coherence preservation, no OAuth/token/session/auth middleware or token validation runtime, no remote/public/App SDK/app-submission scope, FP-0131 absence, proof-gate bridge, direct stale-doc refresh, validation, and handoff:
+  - Skills invoked for this FP-0131 docs-and-plan/proof-gate compatibility slice covering token-validation and invalid-token runtime sequencing, FP-0130 missing-token challenge preservation, default `buildApp()` and default `/mcp` preservation, protected-resource metadata route preservation, FP-0128 token-validation readiness preservation, FP-0127 WWW-Authenticate auth-challenge preservation, no token parsing/validation/session/OAuth/auth middleware runtime, no invalid-token runtime behavior, no remote/public/App SDK/app-submission scope, FP-0132 absence, proof-gate bridge, direct stale-doc refresh, validation, and handoff:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

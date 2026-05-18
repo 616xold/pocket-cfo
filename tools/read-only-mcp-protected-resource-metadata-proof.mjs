@@ -13,6 +13,7 @@ import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   McpProtectedResourceMetadataProofSchema,
   buildMcpProtectedResourceMetadataProof,
   isFp0118ProtectedResourceMetadataNoOpenAiProofSourcePath,
@@ -40,7 +41,9 @@ import {
   verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
   verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
   verifyFp0130AbsentOrLocalMissingTokenChallengeImplementation,
-  verifyFp0131Absent,
+  verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
+  verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
+  verifyFp0132Absent,
   verifyMcpProtectedResourceMetadataNoOpenAiApiSourceScan,
   verifyMcpProtectedResourceMetadataRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -109,6 +112,9 @@ const fp0129PlanText = safeRead(
 );
 const fp0130PlanText = safeRead(
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+);
+const fp0131PlanText = safeRead(
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
 );
 const scopeScan = changedScopeScan();
 const changedSourceScan = noExecutableApiModelKeyUsage(
@@ -267,7 +273,17 @@ const proof = McpProtectedResourceMetadataProofSchema.parse(
         planText: fp0130PlanText,
         repoPaths,
       }),
-    fp0131Absent: verifyFp0131Absent(repoPaths),
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan({
+        planText: fp0131PlanText,
+        repoPaths,
+      }),
+    fp0132Absent: verifyFp0132Absent(repoPaths),
+    tokenValidationRuntimeSequencingPlanBoundaryVerified:
+      verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
+        planText: fp0131PlanText,
+        repoPaths,
+      }),
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
         planText: fp0129PlanText,
