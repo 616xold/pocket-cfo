@@ -26,6 +26,7 @@ import {
   verifyMcpProtectedResourceMetadataRouteInputDurabilityScan,
   type McpProtectedResourceMetadataRouteInputBuilderInput,
 } from "./read-only-app-mcp-protected-resource-metadata";
+import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-contracts";
 import { FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-www-authenticate-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -436,6 +437,24 @@ describe("FP-0123 protected-resource metadata route-input evidence contracts", (
       true,
     );
     expect(scan.routeInputNoAuthRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(true);
+  });
+
+  it("accepts the exact FP-0132 token-validation runtime contract proof bridge scope", () => {
+    const scan = routeInputDurabilityScan({
+      branchDiffPaths: [
+        FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+        "packages/domain/src/read-only-app-mcp-token-validation-runtime-contracts.ts",
+        "packages/domain/src/read-only-app-mcp-token-validation-runtime.ts",
+        "packages/domain/src/read-only-app-mcp-token-validation-runtime.spec.ts",
+        "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs",
+      ],
+    });
+
+    expect(scan.routeInputBranchDiffScopeVerified).toBe(true);
+    expect(scan.routeInputNoRouteRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(scan.routeInputNoAuthRuntimeRepositoryInventoryVerified).toBe(true);
+    expect(scan.routeInputNoOpenAiSourceScanVerified).toBe(true);
     expect(scan.fp0123PostmergeProofDurabilityVerified).toBe(true);
   });
 

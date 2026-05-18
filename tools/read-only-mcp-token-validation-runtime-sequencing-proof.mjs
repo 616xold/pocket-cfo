@@ -6,6 +6,7 @@ import {
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
   FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
@@ -22,7 +23,9 @@ import {
   verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
   verifyFp0131PlanningTextRequiredTopics,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132Absent,
+  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133Absent,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -45,6 +48,9 @@ const changedPaths = changedFilePaths();
 const fp0131PlanText = safeRead(
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
 );
+const fp0132PlanText = safeRead(
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+);
 const changedExecutableSource = changedPaths
   .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
   .filter((path) => !/\.spec\.ts$/u.test(path))
@@ -64,7 +70,47 @@ const proof = {
       planText: fp0131PlanText,
       repoPaths,
     }),
-  fp0132Absent: verifyFp0132Absent(repoPaths),
+  fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
+    verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
+      planText: fp0132PlanText,
+      repoPaths,
+    }),
+  fp0133Absent: verifyFp0133Absent(repoPaths),
+  tokenValidationRuntimeContractsFoundationVerified:
+    verifyFp0132TokenValidationRuntimeContractsBoundary({
+      planText: fp0132PlanText,
+      repoPaths,
+    }),
+  noMcpRouteBehaviorChangeFromFp0132: !changedPaths.includes(MCP_ROUTE_PATH),
+  noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
+    !changedPaths.includes(METADATA_ROUTE_PATH),
+  noMissingTokenChallengeBehaviorChangeFromFp0132:
+    !changedPaths.includes(MISSING_TOKEN_HELPER_PATH) &&
+    !changedPaths.includes(MCP_ROUTE_PATH),
+  noInvalidTokenChallengeRuntimeFromFp0132:
+    sourceProof.noInvalidTokenChallengeRuntimeFromFp0131,
+  noTokenParsingRuntimeFromFp0132:
+    sourceProof.noTokenParsingRuntimeFromFp0131,
+  noTokenValidationRuntimeFromFp0132:
+    sourceProof.noTokenValidationRuntimeFromFp0131,
+  noJwtDecodingRuntimeFromFp0132:
+    sourceProof.noTokenParsingRuntimeFromFp0131,
+  noTokenSessionStorageFromFp0132:
+    sourceProof.noTokenSessionStorageFromFp0131,
+  noOauthImplementationFromFp0132:
+    sourceProof.noOauthImplementationFromFp0131,
+  noAuthMiddlewareImplementationFromFp0132:
+    sourceProof.noAuthMiddlewareImplementationFromFp0131,
+  noDbQueriesFromFp0132: sourceProof.noDbQueriesFromFp0131,
+  noSchemaMigrationsFromFp0132: sourceProof.noSchemaMigrationsFromFp0131,
+  noPackageScriptsFromFp0132: sourceProof.noPackageScriptsFromFp0131,
+  noOpenAiApiCallsFromFp0132: sourceProof.noOpenAiApiCallsFromFp0131,
+  noProviderExternalCallsFromFp0132:
+    sourceProof.noProviderExternalCallsFromFp0131,
+  noSourceMutationFinanceWriteFromFp0132:
+    sourceProof.noSourceMutationFinanceWriteFromFp0131,
+  noPublicAssetsSubmissionArtifactsFromFp0132:
+    sourceProof.noPublicAssetsSubmissionArtifactsFromFp0131,
   tokenValidationRuntimeSequencingPlanBoundaryVerified:
     verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
       planText: fp0131PlanText,
