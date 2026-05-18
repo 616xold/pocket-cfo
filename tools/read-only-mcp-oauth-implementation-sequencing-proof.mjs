@@ -890,6 +890,25 @@ function noExecutableApiModelKeyUsage(sourceText) {
 }
 
 function changedFilePaths() {
+  return [...new Set([...committedBranchDiffPaths(), ...worktreeStatusPaths()])]
+    .filter(Boolean)
+    .sort();
+}
+
+function committedBranchDiffPaths() {
+  try {
+    return execFileSync("git", ["diff", "--name-only", "origin/main...HEAD"], {
+      encoding: "utf8",
+    })
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function worktreeStatusPaths() {
   const status = execFileSync(
     "git",
     ["status", "--short", "--untracked-files=all"],
@@ -906,7 +925,7 @@ function changedFilePaths() {
         .replace(/.* -> /u, "")
         .trim(),
     )
-    .sort();
+    .filter(Boolean);
 }
 
 function repoFilePaths() {

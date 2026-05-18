@@ -19,6 +19,8 @@ This is not token validation runtime implementation. This is not token parsing r
 - [x] 2026-05-18T15:25:59Z: Refreshed directly stale active docs/plugin notes and polished the FP-0131 closeout freshness wording on this same branch.
 - [x] 2026-05-18T15:25:59Z: Ran focused bridge validation for the new direct proof, FP-0131 runtime sequencing proof, FP-0128 token-validation readiness proof, FP-0127 WWW-Authenticate auth challenge proof, FP-0130 missing-token challenge proof, FP-0125 protected-resource metadata local route proof, protected-resource metadata proof, OAuth sequencing proof, domain typecheck, and the new FP-0132 domain spec; all passed after same-branch proof-filter corrections.
 - [x] 2026-05-18T15:52:22Z: Ran the full proof replay, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed. Closing this plan before the one requested commit, push, and PR.
+- [x] 2026-05-18T16:05:15Z: Same-branch QA found and patched a proof durability gap: the direct FP-0132 proof and adjacent FP-0131/FP-0127/FP-0117 bridge tools now audit committed branch diff paths from `origin/main...HEAD` plus dirty QA target files instead of relying only on the clean worktree/HEAD diff.
+- [x] 2026-05-18T16:11:13Z: Same-branch QA validation passed after the proof durability correction: all requested proof tools, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` were green on the corrected branch.
 
 ## Surprises & Discoveries
 
@@ -28,6 +30,7 @@ This is not token validation runtime implementation. This is not token parsing r
 - Tool discovery found OpenAI Platform API-key setup tools, not read-only OpenAI Developers docs tools. Official web docs were used instead.
 - Existing post-merge inventory scans needed narrow FP-0132 bridge updates so they accepted the new contract plan and proof command as proof-only scope without treating proof regex text as OpenAI/model usage.
 - Older proof inventories also needed exact FP-0132 bridge allowances for the new contract plan and direct proof command. The fixes stayed in proof-gate compatibility paths and did not change route, metadata, missing-token, auth, OAuth, token parsing, token validation, DB, schema, package, deployment, OpenAI, provider, source, or finance-write behavior.
+- Same-branch QA found that several proof tools could pass with an empty changed-path set after the FP-0132 branch was committed because they only inspected worktree or `HEAD` diffs. The correction keeps the proof local and read-only while making committed PR changes visible to the no-route/no-runtime/no-schema/no-package/no-provider assertions.
 
 ## Decision Log
 
@@ -40,6 +43,7 @@ This is not token validation runtime implementation. This is not token parsing r
 - Decision: Token passthrough is forbidden. A future validation result must never carry a token value or allow downstream token transit.
 - Decision: Invalid-token challenge runtime remains deferred. FP-0132 does not add `WWW-Authenticate` invalid-token behavior, route status behavior, route paths, route imports, or middleware.
 - Decision: OAuth, sessions, auth middleware, remote MCP, public ChatGPT App behavior, Apps SDK resources, app submission, DB/schema/package/deployment/provider/OpenAI/source/finance-write scope, public assets, generated public prose, and FP-0133 remain blocked.
+- Decision: FP-0132 QA proof scope detection must include committed branch changes and dirty same-branch QA target files. Clean committed branches must not make scope proofs vacuously pass with an empty changed-path inventory.
 
 ## Context and Orientation
 
@@ -193,6 +197,8 @@ Final validation passed:
 - `pnpm ci:repro:current`
 
 Posture preserved: no `/mcp` behavior change, no protected-resource metadata route behavior change, no missing-token challenge behavior change, no invalid-token challenge runtime, no token parsing runtime, no token validation runtime, no JWT decoding, no token/session storage, no OAuth implementation, no auth middleware, no route expansion, no DB/schema/package/data/source-pack/OpenAI/provider/source/finance-write/public-asset/app-submission/autonomous-action scope, and no FP-0133.
+
+Same-branch QA correction: the direct FP-0132 proof command, FP-0131 runtime sequencing proof, FP-0127 WWW-Authenticate auth challenge proof, and FP-0117 OAuth implementation sequencing proof now include `origin/main...HEAD` committed branch diff paths plus dirty same-branch QA target files in their scope scans. This preserves the local/proof-only contract and prevents clean committed PR validation from bypassing no-route/no-runtime/no-schema/no-package/no-provider checks through an empty changed-path set.
 
 Remaining work: future local token-validation test-double contracts or invalid-token challenge sequencing may start only under a new narrow Finance Plan after this branch lands. Public ChatGPT App submission remains blocked until token-validation runtime, invalid-token challenge sequencing, OAuth/session/auth middleware, remote MCP deployment, Apps SDK resources, provider readiness, and human review paths are separately planned and proven.
 

@@ -382,19 +382,42 @@ function countMatches(text, pattern) {
 }
 
 function changedFilePaths() {
-  const trackedOutput = execFileSync("git", ["diff", "--name-only", "HEAD"], {
-    encoding: "utf8",
-  });
-  const untrackedOutput = execFileSync(
+  return [...new Set([...committedBranchDiffPaths(), ...worktreeStatusPaths()])]
+    .filter(Boolean)
+    .sort();
+}
+
+function committedBranchDiffPaths() {
+  try {
+    return execFileSync("git", ["diff", "--name-only", "origin/main...HEAD"], {
+      encoding: "utf8",
+    })
+      .split("\n")
+      .map((line) => line.trim())
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+function worktreeStatusPaths() {
+  const output = execFileSync(
     "git",
-    ["ls-files", "--others", "--exclude-standard"],
+    ["status", "--short", "--untracked-files=all"],
     {
       encoding: "utf8",
     },
   );
-  return [...new Set([trackedOutput, untrackedOutput].join("\n").split("\n"))]
-    .filter(Boolean)
-    .sort();
+  return output
+    .split("\n")
+    .filter((line) => line.trim())
+    .map((line) =>
+      line
+        .replace(/^[A-Z?! ]{1,2}\s+/u, "")
+        .replace(/.* -> /u, "")
+        .trim(),
+    )
+    .filter(Boolean);
 }
 
 function readChangedExecutableSource() {
