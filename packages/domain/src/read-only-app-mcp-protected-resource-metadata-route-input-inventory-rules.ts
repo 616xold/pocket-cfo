@@ -10,6 +10,7 @@ import {
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
 } from "./read-only-app-mcp-www-authenticate-contracts";
 
 export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
@@ -21,6 +22,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
@@ -65,6 +67,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-www-authenticate-auth-challenge-proof.mjs",
   "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
   "tools/read-only-mcp-token-validation-readiness-proof.mjs",
+  "tools/read-only-mcp-token-validation-runtime-sequencing-proof.mjs",
   "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",

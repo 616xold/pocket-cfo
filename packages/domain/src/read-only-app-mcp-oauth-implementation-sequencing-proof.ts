@@ -47,7 +47,10 @@ export const McpOauthImplementationSequencingProofSchema = z
       trueLiteral,
     fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified:
       trueLiteral,
-    fp0131Absent: trueLiteral,
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      trueLiteral,
+    fp0132Absent: trueLiteral,
+    tokenValidationRuntimeSequencingPlanBoundaryVerified: trueLiteral,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       trueLiteral,
     wwwAuthenticateAuthChallengeContractsFoundationVerified: trueLiteral,
@@ -240,8 +243,10 @@ export function buildMcpOauthImplementationSequencingProof(
     fp0128AbsentOrLocalTokenValidationReadinessContractsVerified: boolean;
     fp0128TokenValidationReadinessBoundaryStillVerified: boolean;
     fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified: boolean;
-  fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified: boolean;
-  fp0131Absent: boolean;
+    fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified: boolean;
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified: boolean;
+    fp0132Absent: boolean;
+    tokenValidationRuntimeSequencingPlanBoundaryVerified: boolean;
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified: boolean;
     wwwAuthenticateAuthChallengeContractsFoundationVerified: boolean;
     noMcpRouteBehaviorChangeFromFp0127: boolean;
@@ -482,7 +487,12 @@ export function buildMcpOauthImplementationSequencingProof(
     fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified:
       input.fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified ??
       true,
-    fp0131Absent: input.fp0131Absent ?? true,
+    fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
+      input.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified ??
+      true,
+    fp0132Absent: input.fp0132Absent ?? true,
+    tokenValidationRuntimeSequencingPlanBoundaryVerified:
+      input.tokenValidationRuntimeSequencingPlanBoundaryVerified ?? true,
     wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified:
       input.wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified ??
       true,

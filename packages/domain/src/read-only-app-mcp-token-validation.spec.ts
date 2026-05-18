@@ -23,13 +23,17 @@ import {
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   verifyFp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlan,
   verifyFp0129PlanningTextRequiredTopics,
   verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
   verifyFp0130Absent,
   verifyFp0130AbsentOrLocalMissingTokenChallengeImplementation,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
-  verifyFp0131Absent,
+  verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan,
+  verifyFp0131PlanningTextRequiredTopics,
+  verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
+  verifyFp0132Absent,
 } from "./read-only-app-mcp-www-authenticate";
 import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
@@ -67,7 +71,7 @@ const metadataRoutePath =
 const appPath = "apps/control-plane/src/app.ts";
 
 describe("FP-0128 token-validation failure readiness contracts", () => {
-  it("accepts FP-0128/FP-0129 plus exact FP-0130 missing-token implementation while FP-0131 remains absent", () => {
+  it("accepts FP-0128/FP-0129/FP-0130 plus exact FP-0131 docs-only sequencing while FP-0132 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
@@ -77,6 +81,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     );
     const fp0130PlanText = safeRead(
       FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+    );
+    const fp0131PlanText = safeRead(
+      FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
     );
     const fp0128Hits = repoPaths.filter((path) => /(^|\/)FP-0128/u.test(path));
     const fp0129Hits = repoPaths.filter((path) => /(^|\/)FP-0129/u.test(path));
@@ -126,7 +133,27 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0131Absent(repoPaths)).toBe(true);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0131/u.test(path))).toEqual([
+      FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan({
+        planText: fp0131PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
+        planText: fp0131PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0132Absent(repoPaths)).toBe(true);
+    expect(
+      Object.values(
+        verifyFp0131PlanningTextRequiredTopics(fp0131PlanText),
+      ).every(Boolean),
+    ).toBe(true);
     expect(
       Object.values(
         verifyFp0129PlanningTextRequiredTopics(fp0129PlanText),
@@ -175,7 +202,13 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths: [...repoPaths, "plans/FP-0130-runtime.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0131Absent([...repoPaths, "plans/FP-0131-runtime.md"])).toBe(
+    expect(
+      verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan({
+        planText: fp0131PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0131-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(verifyFp0132Absent([...repoPaths, "plans/FP-0132-runtime.md"])).toBe(
       false,
     );
   });
