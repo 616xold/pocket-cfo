@@ -29,7 +29,8 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
+  verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
+  verifyFp0134Absent,
 } from "../packages/domain/src/index.ts";
 import { buildApp } from "../apps/control-plane/src/app.ts";
 import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
@@ -121,11 +122,12 @@ const proof = {
     planProof.fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified,
   fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
     planProof.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified,
-  fp0133Absent: planProof.fp0133Absent,
+  fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+    planProof.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified,
+  fp0134Absent: planProof.fp0134Absent,
   tokenValidationRuntimeContractsFoundationVerified:
     planProof.tokenValidationRuntimeContractsFoundationVerified,
-  noMcpRouteBehaviorChangeFromFp0132:
-    sourceProof.noMcpRouteBehaviorChange,
+  noMcpRouteBehaviorChangeFromFp0132: sourceProof.noMcpRouteBehaviorChange,
   noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
     sourceProof.noProtectedResourceMetadataRouteBehaviorChange,
   noMissingTokenChallengeBehaviorChangeFromFp0132:
@@ -680,7 +682,9 @@ function verifyPlanBoundaries() {
         planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
         repoPaths,
       }),
-    fp0133Absent: verifyFp0133Absent(repoPaths),
+    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    fp0134Absent: verifyFp0134Absent(repoPaths),
     tokenValidationRuntimeContractsFoundationVerified:
       verifyFp0132TokenValidationRuntimeContractsBoundary({
         planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),

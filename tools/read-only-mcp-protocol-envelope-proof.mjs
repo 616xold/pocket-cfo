@@ -413,9 +413,12 @@ function isAllowedMcpProtocolProofPath(path) {
     path === FP0112_PLAN ||
     path === FP0113_PLAN ||
     path === FP0128_TOKEN_VALIDATION_READINESS_PLAN ||
-    path === FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH ||
+    path ===
+      FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH ||
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH ||
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH ||
+    path ===
+      "plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md" ||
     path ===
       "plans/FP-0114-read-only-chatgpt-app-mcp-remote-host-readiness-security-contracts-foundation.md" ||
     path ===
@@ -435,6 +438,8 @@ function isAllowedMcpProtocolProofPath(path) {
     path === FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_PROOF_PATH ||
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PROOF_PATH ||
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH ||
+    path ===
+      "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||

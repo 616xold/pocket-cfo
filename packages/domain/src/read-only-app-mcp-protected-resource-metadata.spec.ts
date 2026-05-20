@@ -65,8 +65,8 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
 } from "./read-only-app-mcp-www-authenticate";
+import { verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts } from "./read-only-app-mcp-token-validation-test-double";
 import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime";
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
 import {
@@ -336,13 +336,12 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
             },
           ),
         ),
-      fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified:
-        verified(
-          verifyFp0130AbsentOrLocalMissingTokenChallengeImplementation({
-            planText: fp0130PlanText,
-            repoPaths,
-          }),
-        ),
+      fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified: verified(
+        verifyFp0130AbsentOrLocalMissingTokenChallengeImplementation({
+          planText: fp0130PlanText,
+          repoPaths,
+        }),
+      ),
       fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
         verified(
           verifyFp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlan({
@@ -356,7 +355,9 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
           repoPaths,
         }),
       ),
-      fp0133Absent: verified(verifyFp0133Absent(repoPaths)),
+      fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: verified(
+        verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+      ),
       tokenValidationRuntimeContractsFoundationVerified: verified(
         verifyFp0132TokenValidationRuntimeContractsBoundary({
           planText: fp0132PlanText,
@@ -424,7 +425,9 @@ describe("FP-0118 protected-resource metadata auth challenge readiness contracts
     expect(
       proof.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified,
     ).toBe(true);
-    expect(proof.fp0133Absent).toBe(true);
+    expect(
+      proof.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified,
+    ).toBe(true);
     expect(proof.tokenValidationRuntimeContractsFoundationVerified).toBe(true);
     expect(proof.tokenValidationRuntimeSequencingPlanBoundaryVerified).toBe(
       true,

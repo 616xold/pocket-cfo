@@ -2,7 +2,6 @@ import {
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_VALIDATION_RUNTIME_FAILURE_MODES,
   MCP_TOKEN_VALIDATION_RUNTIME_FP0132_PLAN_PREFIX,
-  MCP_TOKEN_VALIDATION_RUNTIME_FP0133_PLAN_PREFIX,
   MCP_TOKEN_VALIDATION_RUNTIME_NO_LEAKAGE_SURFACES,
   MCP_TOKEN_VALIDATION_RUNTIME_READ_ONLY_SCOPES,
   MCP_TOKEN_VALIDATION_RUNTIME_REQUIRED_CHECKS,
@@ -127,7 +126,9 @@ export function buildMcpTokenValidationRuntimeContracts() {
     scopeValidationContractBoundary:
       McpScopeValidationContractBoundarySchema.parse({
         ...baseContract,
-        allowedReadOnlyScopes: [...MCP_TOKEN_VALIDATION_RUNTIME_READ_ONLY_SCOPES],
+        allowedReadOnlyScopes: [
+          ...MCP_TOKEN_VALIDATION_RUNTIME_READ_ONLY_SCOPES,
+        ],
         challengedScopesAreOperationMinimum: true,
         challengedScopesCannotWidenBeyondReadOnly: true,
         contractKind: "McpScopeValidationContractBoundary",
@@ -193,8 +194,8 @@ export function buildMcpTokenValidationRuntimeContracts() {
       tokenPassthroughForbidden: true,
       upstreamTokenReuseAllowed: false,
     }),
-    noTokenLeakageRuntimeBoundary:
-      McpNoTokenLeakageRuntimeBoundarySchema.parse({
+    noTokenLeakageRuntimeBoundary: McpNoTokenLeakageRuntimeBoundarySchema.parse(
+      {
         ...baseContract,
         contractKind: "McpNoTokenLeakageRuntimeBoundary",
         leakageSurfaces: [...MCP_TOKEN_VALIDATION_RUNTIME_NO_LEAKAGE_SURFACES],
@@ -210,7 +211,8 @@ export function buildMcpTokenValidationRuntimeContracts() {
         tokenMaterialInRouteHeaders: false,
         tokenMaterialInStructuredToolResults: false,
         tokenMaterialInUiProps: false,
-      }),
+      },
+    ),
     tokenValidationResultEnvelopeBoundary:
       McpTokenValidationResultEnvelopeBoundarySchema.parse({
         ...baseContract,
@@ -298,7 +300,8 @@ export function buildMcpTokenValidationRuntimeProof(
       contracts.authenticatedSubjectBindingBoundary.authenticatedUserRequired,
     authenticatedCompanyBindingBoundaryVerified:
       input.authenticatedCompanyBindingBoundaryVerified ??
-      contracts.authenticatedCompanyBindingBoundary.authenticatedCompanyRequired,
+      contracts.authenticatedCompanyBindingBoundary
+        .authenticatedCompanyRequired,
     tokenFailureTaxonomyBoundaryVerified:
       input.tokenFailureTaxonomyBoundaryVerified ??
       contracts.tokenFailureTaxonomyBoundary.taxonomyProofOnly,
@@ -339,7 +342,10 @@ export function buildMcpTokenValidationRuntimeProof(
     noSourceMutation: input.noSourceMutation ?? true,
     noFinanceWrite: input.noFinanceWrite ?? true,
     fp0132BoundaryVerified: input.fp0132BoundaryVerified ?? true,
-    fp0133Absent: input.fp0133Absent ?? true,
+    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+      input.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified ??
+      true,
+    fp0134Absent: input.fp0134Absent ?? true,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified:
       input.fp0131TokenValidationRuntimeSequencingBoundaryStillVerified ?? true,
     fp0130MissingTokenChallengeBoundaryStillVerified:
@@ -379,7 +385,8 @@ export function verifyMcpTokenValidationRuntimeRequiredContractBoundaries() {
     contracts.revocationReplayValidationContractBoundary
       .replayValidationRequired &&
     contracts.authenticatedSubjectBindingBoundary.authenticatedUserRequired &&
-    contracts.authenticatedCompanyBindingBoundary.clientCompanyKeySelectorOnly &&
+    contracts.authenticatedCompanyBindingBoundary
+      .clientCompanyKeySelectorOnly &&
     contracts.noTokenPassthroughBoundary.tokenPassthroughForbidden &&
     !contracts.noTokenLeakageRuntimeBoundary.realTokenExamplesAllowed &&
     !contracts.tokenValidationResultEnvelopeBoundary.envelopeCarriesRawToken &&
@@ -435,7 +442,8 @@ export function verifyMcpTokenValidationRuntimeResultEnvelopeBoundary() {
       .envelopeCarriesAuthorizationHeader &&
     !contracts.tokenValidationResultEnvelopeBoundary
       .envelopeCarriesDecodedJwtClaims &&
-    !contracts.tokenValidationResultEnvelopeBoundary.envelopeMayDriveRouteBehaviorNow
+    !contracts.tokenValidationResultEnvelopeBoundary
+      .envelopeMayDriveRouteBehaviorNow
   );
 }
 
@@ -451,8 +459,7 @@ export function verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts(
 
   return (
     fp0132Hits.length === 1 &&
-    fp0132Hits[0] ===
-      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH &&
+    fp0132Hits[0] === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH &&
     typeof planText === "string" &&
     fp0132PlanTextBoundaryVerified(planText)
   );
@@ -469,17 +476,9 @@ export function verifyFp0132TokenValidationRuntimeContractsBoundary(
 
   return (
     fp0132Hits.length === 1 &&
-    fp0132Hits[0] ===
-      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH &&
+    fp0132Hits[0] === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH &&
     typeof planText === "string" &&
     fp0132PlanTextBoundaryVerified(planText)
-  );
-}
-
-export function verifyFp0133Absent(repoPaths: readonly string[]) {
-  return (
-    fpPlanHits(repoPaths, MCP_TOKEN_VALIDATION_RUNTIME_FP0133_PLAN_PREFIX)
-      .length === 0
   );
 }
 
@@ -513,9 +512,13 @@ export function verifyFp0132PlanningTextRequiredTopics(planText: string) {
       normalized.includes("local/proof-only/read-only") &&
       normalized.includes("pure domain contracts"),
     noRuntimeScope:
-      normalized.includes("does not parse, decode, validate, introspect, store, forward, or log any real token") &&
+      normalized.includes(
+        "does not parse, decode, validate, introspect, store, forward, or log any real token",
+      ) &&
       normalized.includes("does not change `/mcp`") &&
-      normalized.includes("does not change protected-resource metadata route behavior") &&
+      normalized.includes(
+        "does not change protected-resource metadata route behavior",
+      ) &&
       normalized.includes("does not change missing-token challenge behavior"),
     noTokenLeakage:
       normalized.includes("logs") &&
