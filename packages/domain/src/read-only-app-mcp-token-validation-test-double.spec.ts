@@ -1,0 +1,381 @@
+import { readdirSync, readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fileURLToPath } from "node:url";
+import { describe, expect, it } from "vitest";
+import {
+  FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
+  FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+  FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+  FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+  FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+  MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
+  MCP_TOKEN_VALIDATION_TEST_DOUBLE_LEAKAGE_SURFACES,
+  MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
+  McpTokenValidationTestDoubleProofSchema,
+  assessMcpSyntheticNonTokenInput,
+  assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial,
+  buildMcpAcceptedValidationResultTestDoubleEnvelope,
+  buildMcpRejectedValidationResultTestDoubleEnvelope,
+  buildMcpTokenValidationTestDoubleContracts,
+  buildMcpTokenValidationTestDoubleProof,
+  scanTokenValidationNoLeakage,
+  verifyFp0120CanonicalResourceAuthServerPlanBoundary,
+  verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
+  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
+  verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
+  verifyFp0128TokenValidationReadinessContractsBoundary,
+  verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
+  verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
+  verifyFp0132TokenValidationRuntimeContractsBoundary,
+  verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
+  verifyFp0133PlanningTextRequiredTopics,
+  verifyFp0133TokenValidationTestDoubleContractsBoundary,
+  verifyFp0134Absent,
+  verifyMcpTokenValidationTestDoubleContractBoundaries,
+  verifyMcpTokenValidationTestDoubleNoTokenExamples,
+} from "./index";
+
+const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
+const mcpRoutePath =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
+const metadataRoutePath =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
+const proofCommandPath =
+  "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs";
+const fp0125PlanPath =
+  "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
+const fp0107PlanPath =
+  "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md";
+const fp0106PlanPath =
+  "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
+const fp0100PlanPath =
+  "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
+
+describe("FP-0133 token-validation test-double contract foundations", () => {
+  it("accepts exactly one FP-0133 contract plan while FP-0134 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(
+      FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+    );
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0133/u.test(path))).toEqual([
+      FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0133TokenValidationTestDoubleContractsBoundary({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      Object.values(verifyFp0133PlanningTextRequiredTopics(planText)).every(
+        Boolean,
+      ),
+    ).toBe(true);
+    expect(verifyFp0134Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0133TokenValidationTestDoubleContractsBoundary({
+        planText,
+        repoPaths: [...repoPaths, "plans/FP-0133-second-contract.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0134Absent([...repoPaths, "plans/FP-0134-next-runtime.md"]),
+    ).toBe(false);
+  });
+
+  it("builds all required proof-only contracts without runtime consumption", () => {
+    const contracts = buildMcpTokenValidationTestDoubleContracts();
+    const proof = buildMcpTokenValidationTestDoubleProof();
+
+    expect(verifyMcpTokenValidationTestDoubleContractBoundaries()).toBe(true);
+    expect(MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES).toEqual([
+      "issuer",
+      "audience_resource",
+      "scope",
+      "temporal",
+      "revocation_replay",
+      "subject_org_company",
+    ]);
+    expect(MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY).toEqual([
+      "malformed",
+      "expired",
+      "wrong-issuer",
+      "wrong-audience",
+      "wrong-resource",
+      "wrong-scope",
+      "wrong-org",
+      "wrong-company",
+      "revoked",
+      "replayed",
+      "token-passthrough-attempt",
+    ]);
+    expect(contracts.proofContract.noRuntimeImplementation).toBe(true);
+    expect(
+      contracts.noRuntimeConsumptionBoundary.noTestDoubleRuntimeImplemented,
+    ).toBe(true);
+    expect(
+      contracts.noRuntimeConsumptionBoundary.noRouteConsumesTestDoubles,
+    ).toBe(true);
+    expect(
+      contracts.selectorOnlyCompanyKeyTestDoubleBoundary
+        .clientCompanyKeySelectorOnly,
+    ).toBe(true);
+    expect(
+      contracts.selectorOnlyCompanyKeyTestDoubleBoundary
+        .clientCompanyKeyAuthorityAllowed,
+    ).toBe(false);
+    expect(
+      McpTokenValidationTestDoubleProofSchema.safeParse(proof).success,
+    ).toBe(true);
+    expect(
+      McpTokenValidationTestDoubleProofSchema.safeParse({
+        ...proof,
+        noTokenValidationRuntime: false,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects token-like inputs while accepting fixtureless non-token descriptors", () => {
+    const bearerMaterial = ["Bearer", "synthetic-token-material"].join(" ");
+    const jwtLikeString = [
+      ["jwtlikeheader"],
+      ["jwtlikepayload"],
+      ["jwtlikesig"],
+    ]
+      .map((part) => part.join("").padEnd(12, "x"))
+      .join(".");
+
+    expect(
+      assessMcpSyntheticNonTokenInput(
+        "synthetic issuer scenario descriptor with no token material",
+      ).accepted,
+    ).toBe(true);
+    expect(assessMcpSyntheticNonTokenInput(bearerMaterial).accepted).toBe(
+      false,
+    );
+    expect(assessMcpSyntheticNonTokenInput(jwtLikeString).accepted).toBe(false);
+    expect(verifyMcpTokenValidationTestDoubleNoTokenExamples()).toBe(true);
+  });
+
+  it("models accepted and rejected result envelopes without token material", () => {
+    const acceptedEnvelope =
+      buildMcpAcceptedValidationResultTestDoubleEnvelope();
+    const rejectedEnvelope =
+      buildMcpRejectedValidationResultTestDoubleEnvelope();
+
+    expect(
+      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
+        acceptedEnvelope,
+      ).accepted,
+    ).toBe(true);
+    expect(
+      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
+        rejectedEnvelope,
+      ).accepted,
+    ).toBe(true);
+    expect(
+      acceptedEnvelope.subjectOrgCompanyBinding.companyKeySelectorOnly,
+    ).toBe(true);
+    expect(rejectedEnvelope.failureMode).toBe("wrong-company");
+    expect(
+      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial({
+        ...acceptedEnvelope,
+        carriesRawToken: true,
+      }).accepted,
+    ).toBe(false);
+  });
+
+  it("proves no-token-leakage surfaces and no route/runtime expansion", () => {
+    const proof = buildMcpTokenValidationTestDoubleProof();
+    const proofText = JSON.stringify(proof);
+    const routeSource = safeRead(mcpRoutePath);
+    const metadataRouteSource = safeRead(metadataRoutePath);
+
+    expect(MCP_TOKEN_VALIDATION_TEST_DOUBLE_LEAKAGE_SURFACES).toEqual([
+      "logs",
+      "proof_output",
+      "docs_examples",
+      "headers",
+      "route_bodies",
+      "metadata_examples",
+      "evidence",
+      "structured_results",
+      "ui_props",
+      "challenge_examples",
+      "app_metadata",
+    ]);
+    expect(scanTokenValidationNoLeakage(proofText).accepted).toBe(true);
+    expect(countMatches(routeSource, /app\.post\("\/mcp"/gu)).toBe(1);
+    expect(countMatches(routeSource, /app\.get\("\/mcp"/gu)).toBe(1);
+    expect(routeSource).not.toContain(
+      "read-only-app-mcp-token-validation-test-double",
+    );
+    expect(metadataRouteSource).not.toMatch(/WWW-Authenticate/iu);
+    expect(proof.noMcpRouteBehaviorChange).toBe(true);
+    expect(proof.noProtectedResourceMetadataRouteBehaviorChange).toBe(true);
+    expect(proof.noMissingTokenChallengeBehaviorChange).toBe(true);
+    expect(proof.noInvalidTokenChallengeRuntime).toBe(true);
+    expect(proof.noTokenParsingRuntime).toBe(true);
+    expect(proof.noTokenValidationRuntime).toBe(true);
+    expect(proof.noJwtDecodingRuntime).toBe(true);
+    expect(proof.noTokenSessionStorage).toBe(true);
+    expect(proof.noOauthImplementation).toBe(true);
+    expect(proof.noAuthMiddlewareImplementation).toBe(true);
+    expect(proof.noDbQueriesAdded).toBe(true);
+    expect(proof.noSchemaMigrationsAdded).toBe(true);
+    expect(proof.noPackageScriptsAdded).toBe(true);
+    expect(proof.noPublicAssets).toBe(true);
+    expect(proof.noOpenAiApiCalls).toBe(true);
+    expect(proof.noModelCalls).toBe(true);
+    expect(proof.noProviderCalls).toBe(true);
+    expect(proof.noSourceMutation).toBe(true);
+    expect(proof.noFinanceWrite).toBe(true);
+  });
+
+  it("requires direct proof source scans over branch diff and dirty QA targets", () => {
+    const proofSource = safeRead(proofCommandPath);
+
+    expect(proofSource).toContain("origin/main...HEAD");
+    expect(proofSource).toContain("dirtyQaTargetFiles");
+    expect(proofSource).toContain("combinedChangedPaths");
+    expect(proofSource).toContain("committedBranchDiffPaths");
+  });
+
+  it("keeps FP-0132 through FP-0100 prior boundaries intact", () => {
+    const repoPaths = repoFilePaths();
+
+    expect(
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
+        planText: safeRead(
+          FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0130LocalMissingTokenChallengeImplementationBoundary({
+        planText: safeRead(
+          FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0128TokenValidationReadinessContractsBoundary({
+        planText: safeRead(
+          FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary({
+        planText: safeRead(
+          FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      docsBoundary(fp0125PlanPath, [
+        "local-only/read-only",
+        "/.well-known/oauth-protected-resource/mcp",
+      ]),
+    ).toBe(true);
+    expect(
+      verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
+        planText: safeRead(
+          FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
+        planText: safeRead(
+          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0120CanonicalResourceAuthServerPlanBoundary({
+        planText: safeRead(FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"]),
+    ).toBe(true);
+    expect(
+      docsBoundary(fp0106PlanPath, ["mcp protocol envelope", "tools/call"]),
+    ).toBe(true);
+    expect(
+      docsBoundary(fp0100PlanPath, [
+        "public-app security boundary",
+        "local/proof-only",
+      ]),
+    ).toBe(true);
+  });
+});
+
+function docsBoundary(path: string, requiredTexts: readonly string[]) {
+  const normalized = normalize(safeRead(path));
+  return requiredTexts.every((requiredText) =>
+    normalized.includes(normalize(requiredText)),
+  );
+}
+
+function countMatches(text: string, pattern: RegExp) {
+  return [...text.matchAll(pattern)].length;
+}
+
+function repoFilePaths() {
+  const results: string[] = [];
+  const skipped = new Set([
+    ".git",
+    ".next",
+    ".turbo",
+    "coverage",
+    "dist",
+    "node_modules",
+  ]);
+
+  function walk(directory: string, prefix = "") {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      if (entry.isDirectory() && skipped.has(entry.name)) continue;
+      const relativePath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      const absolutePath = join(directory, entry.name);
+      if (entry.isDirectory()) walk(absolutePath, relativePath);
+      else results.push(relativePath);
+    }
+  }
+
+  walk(repoRoot);
+  return results.sort();
+}
+
+function safeRead(path: string) {
+  return readFileSync(join(repoRoot, path), "utf8");
+}
+
+function normalize(text: string) {
+  return text.toLowerCase().replace(/\s+/gu, " ").trim();
+}

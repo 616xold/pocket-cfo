@@ -89,6 +89,7 @@ export {
   type McpTokenValidationReadinessProofContract,
 } from "./read-only-app-mcp-token-validation";
 export * from "./read-only-app-mcp-token-validation-runtime";
+export * from "./read-only-app-mcp-token-validation-test-double";
 export * from "./read-only-app-mcp-token-validation-proof";
 export * from "./read-only-app-mcp-www-authenticate";
 export * from "./replay-event";

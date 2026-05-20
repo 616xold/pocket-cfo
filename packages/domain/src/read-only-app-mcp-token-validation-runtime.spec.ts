@@ -45,11 +45,11 @@ import {
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132PlanningTextRequiredTopics,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
   verifyMcpTokenValidationRuntimeNoLeakageExamples,
   verifyMcpTokenValidationRuntimeRequiredContractBoundaries,
   verifyMcpTokenValidationRuntimeResultEnvelopeBoundary,
 } from "./read-only-app-mcp-token-validation-runtime";
+import { verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts } from "./read-only-app-mcp-token-validation-test-double";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const mcpRoutePath =
@@ -66,7 +66,9 @@ const fp0100PlanPath =
 describe("FP-0132 token-validation runtime contract foundations", () => {
   it("accepts exactly one FP-0132 contract plan while FP-0133 remains absent", () => {
     const repoPaths = repoFilePaths();
-    const planText = safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH);
+    const planText = safeRead(
+      FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+    );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0132/u.test(path))).toEqual([
       FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
@@ -88,7 +90,9 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
         Boolean,
       ),
     ).toBe(true);
-    expect(verifyFp0133Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    ).toBe(true);
     expect(
       verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
         planText,
@@ -105,7 +109,10 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0133Absent([...repoPaths, "plans/FP-0133-invalid-token.md"]),
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts([
+        ...repoPaths,
+        "plans/FP-0133-invalid-token.md",
+      ]),
     ).toBe(false);
   });
 
@@ -148,7 +155,8 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
       "token_passthrough_attempt",
     ]);
     expect(
-      contracts.authenticatedCompanyBindingBoundary.clientCompanyKeySelectorOnly,
+      contracts.authenticatedCompanyBindingBoundary
+        .clientCompanyKeySelectorOnly,
     ).toBe(true);
     expect(
       contracts.authenticatedCompanyBindingBoundary
@@ -173,9 +181,9 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
     expect(
       contracts.tokenValidationRuntimeDeferredBoundary.noOauthImplementation,
     ).toBe(true);
-    expect(
-      McpTokenValidationRuntimeProofSchema.safeParse(proof).success,
-    ).toBe(true);
+    expect(McpTokenValidationRuntimeProofSchema.safeParse(proof).success).toBe(
+      true,
+    );
     expect(
       McpTokenValidationRuntimeProofSchema.safeParse({
         ...proof,
@@ -259,7 +267,9 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
 
     expect(
       verifyFp0131TokenValidationRuntimeSequencingPlanBoundary({
-        planText: safeRead(FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH),
+        planText: safeRead(
+          FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
@@ -273,7 +283,9 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
     ).toBe(true);
     expect(
       verifyFp0128TokenValidationReadinessContractsBoundary({
-        planText: safeRead(FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH),
+        planText: safeRead(
+          FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
@@ -301,7 +313,9 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
     ).toBe(true);
     expect(
       verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-        planText: safeRead(FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH),
+        planText: safeRead(
+          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
@@ -323,12 +337,12 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"])).toBe(
-      true,
-    );
-    expect(docsBoundary(fp0106PlanPath, ["mcp protocol envelope", "tools/call"])).toBe(
-      true,
-    );
+    expect(
+      docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"]),
+    ).toBe(true);
+    expect(
+      docsBoundary(fp0106PlanPath, ["mcp protocol envelope", "tools/call"]),
+    ).toBe(true);
     expect(
       docsBoundary(fp0100PlanPath, [
         "public-app security boundary",

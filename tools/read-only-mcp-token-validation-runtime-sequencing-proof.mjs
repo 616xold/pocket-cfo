@@ -25,7 +25,8 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
+  verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
+  verifyFp0134Absent,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -75,7 +76,9 @@ const proof = {
       planText: fp0132PlanText,
       repoPaths,
     }),
-  fp0133Absent: verifyFp0133Absent(repoPaths),
+  fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+    verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+  fp0134Absent: verifyFp0134Absent(repoPaths),
   tokenValidationRuntimeContractsFoundationVerified:
     verifyFp0132TokenValidationRuntimeContractsBoundary({
       planText: fp0132PlanText,
@@ -89,16 +92,12 @@ const proof = {
     !changedPaths.includes(MCP_ROUTE_PATH),
   noInvalidTokenChallengeRuntimeFromFp0132:
     sourceProof.noInvalidTokenChallengeRuntimeFromFp0131,
-  noTokenParsingRuntimeFromFp0132:
-    sourceProof.noTokenParsingRuntimeFromFp0131,
+  noTokenParsingRuntimeFromFp0132: sourceProof.noTokenParsingRuntimeFromFp0131,
   noTokenValidationRuntimeFromFp0132:
     sourceProof.noTokenValidationRuntimeFromFp0131,
-  noJwtDecodingRuntimeFromFp0132:
-    sourceProof.noTokenParsingRuntimeFromFp0131,
-  noTokenSessionStorageFromFp0132:
-    sourceProof.noTokenSessionStorageFromFp0131,
-  noOauthImplementationFromFp0132:
-    sourceProof.noOauthImplementationFromFp0131,
+  noJwtDecodingRuntimeFromFp0132: sourceProof.noTokenParsingRuntimeFromFp0131,
+  noTokenSessionStorageFromFp0132: sourceProof.noTokenSessionStorageFromFp0131,
+  noOauthImplementationFromFp0132: sourceProof.noOauthImplementationFromFp0131,
   noAuthMiddlewareImplementationFromFp0132:
     sourceProof.noAuthMiddlewareImplementationFromFp0131,
   noDbQueriesFromFp0132: sourceProof.noDbQueriesFromFp0131,
@@ -126,12 +125,10 @@ const proof = {
     sourceProof.noMissingTokenChallengeBehaviorChangeFromFp0131,
   noInvalidTokenChallengeRuntimeFromFp0131:
     sourceProof.noInvalidTokenChallengeRuntimeFromFp0131,
-  noTokenParsingRuntimeFromFp0131:
-    sourceProof.noTokenParsingRuntimeFromFp0131,
+  noTokenParsingRuntimeFromFp0131: sourceProof.noTokenParsingRuntimeFromFp0131,
   noTokenValidationRuntimeFromFp0131:
     sourceProof.noTokenValidationRuntimeFromFp0131,
-  noTokenSessionStorageFromFp0131:
-    sourceProof.noTokenSessionStorageFromFp0131,
+  noTokenSessionStorageFromFp0131: sourceProof.noTokenSessionStorageFromFp0131,
   noOauthImplementationFromFp0131: sourceProof.noOauthImplementationFromFp0131,
   noAuthMiddlewareImplementationFromFp0131:
     sourceProof.noAuthMiddlewareImplementationFromFp0131,
@@ -173,7 +170,9 @@ const proof = {
     ]),
   fp0123ProtectedResourceMetadataRouteInputBoundaryStillVerified:
     verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
-      planText: safeRead(FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH),
+      planText: safeRead(
+        FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
+      ),
       repoPaths,
     }),
   fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
@@ -204,7 +203,8 @@ const proof = {
     "local/proof-only",
     "no endpoints",
   ]),
-  planningTextCoversInvalidTokenSequencing: planTopicProof.invalidTokenSequencing,
+  planningTextCoversInvalidTokenSequencing:
+    planTopicProof.invalidTokenSequencing,
   planningTextCoversSemanticFailureCases: planTopicProof.failureTaxonomy,
   planningTextCoversNoTokenPassthrough: planTopicProof.noTokenPassthrough,
   planningTextCoversNoTokenLeakage:
@@ -258,8 +258,9 @@ function verifySourceAndScope() {
       !/\b(?:from\s+["']drizzle|drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
         changedExecutableSource,
       ),
-    noInvalidTokenChallengeRuntimeFromFp0131:
-      !invalidTokenRuntimePattern.test(changedExecutableSource),
+    noInvalidTokenChallengeRuntimeFromFp0131: !invalidTokenRuntimePattern.test(
+      changedExecutableSource,
+    ),
     noMcpRouteBehaviorChangeFromFp0131: !changedPaths.includes(MCP_ROUTE_PATH),
     noMissingTokenChallengeBehaviorChangeFromFp0131:
       !changedPaths.includes(MISSING_TOKEN_HELPER_PATH) &&
@@ -281,12 +282,11 @@ function verifySourceAndScope() {
       !/\b(?:providerConnect|callProvider|createProviderJob|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noPublicAssetsSubmissionArtifactsFromFp0131:
-      !changedPaths.some((path) =>
-        /(?:app-submission|submission-assets|public-listing|store-listing|listing-copy|screenshots|\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$)/iu.test(
-          path,
-        ),
+    noPublicAssetsSubmissionArtifactsFromFp0131: !changedPaths.some((path) =>
+      /(?:app-submission|submission-assets|public-listing|store-listing|listing-copy|screenshots|\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$)/iu.test(
+        path,
       ),
+    ),
     noSchemaMigrationsFromFp0131: !changedPaths.some(
       (path) =>
         /^packages\/db\//u.test(path) ||
@@ -305,8 +305,9 @@ function verifySourceAndScope() {
       !/\b(?:tokenStore|sessionStore|refreshTokenStore|setCookie)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noTokenValidationRuntimeFromFp0131:
-      !forbiddenRuntimePattern.test(changedExecutableSource),
+    noTokenValidationRuntimeFromFp0131: !forbiddenRuntimePattern.test(
+      changedExecutableSource,
+    ),
     routePathsChanged,
   };
 }
@@ -332,7 +333,15 @@ function changedDocumentationAddedLines() {
       "*.mdx",
       "*.txt",
     ]),
-    readGitOutput(["diff", "--unified=0", "HEAD", "--", "*.md", "*.mdx", "*.txt"]),
+    readGitOutput([
+      "diff",
+      "--unified=0",
+      "HEAD",
+      "--",
+      "*.md",
+      "*.mdx",
+      "*.txt",
+    ]),
   ].join("\n");
   return output
     .split("\n")
@@ -347,7 +356,7 @@ function localMcpRouteShapeStillVerified() {
     countMatches(source, /app\.post\("\/mcp"/gu) === 1 &&
     countMatches(source, /app\.get\("\/mcp"/gu) === 1 &&
     source.includes("readOnlyAppMcpLocalProofGatedMissingTokenChallenge") &&
-    source.includes(".header(\"WWW-Authenticate\", challenge.wwwAuthenticate)")
+    source.includes('.header("WWW-Authenticate", challenge.wwwAuthenticate)')
   );
 }
 

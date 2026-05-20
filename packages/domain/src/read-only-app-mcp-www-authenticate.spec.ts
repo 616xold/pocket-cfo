@@ -47,8 +47,8 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
 } from "./read-only-app-mcp-www-authenticate";
+import { verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts } from "./read-only-app-mcp-token-validation-test-double";
 import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime";
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation";
 import {
@@ -183,7 +183,9 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0133Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    ).toBe(true);
     expect(
       Object.values(
         verifyFp0131PlanningTextRequiredTopics(fp0131PlanText),
@@ -264,7 +266,10 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0133Absent([...repoPaths, "plans/FP-0133-next-runtime.md"]),
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts([
+        ...repoPaths,
+        "plans/FP-0133-next-runtime.md",
+      ]),
     ).toBe(false);
   });
 
@@ -278,7 +283,7 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
       fp0130LocalMissingTokenChallengeImplementationBoundaryVerified: true,
       fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified: true,
       fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: true,
-      fp0133Absent: true,
+      fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: true,
       tokenValidationRuntimeContractsFoundationVerified: true,
       tokenValidationRuntimeSequencingPlanBoundaryVerified: true,
       wwwAuthenticateChallengeImplementationSequencingPlanBoundaryVerified: true,
@@ -331,7 +336,9 @@ describe("FP-0127 WWW-Authenticate auth-challenge contract foundations", () => {
     expect(
       proof.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified,
     ).toBe(true);
-    expect(proof.fp0133Absent).toBe(true);
+    expect(
+      proof.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified,
+    ).toBe(true);
     expect(proof.tokenValidationRuntimeContractsFoundationVerified).toBe(true);
     expect(proof.tokenValidationRuntimeSequencingPlanBoundaryVerified).toBe(
       true,

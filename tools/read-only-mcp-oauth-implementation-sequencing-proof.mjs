@@ -47,7 +47,8 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
+  verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
+  verifyFp0134Absent,
 } from "../packages/domain/src/index.ts";
 
 const FP0116_PLAN =
@@ -280,7 +281,9 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
         planText: fp0132PlanText,
         repoPaths,
       }),
-    fp0133Absent: verifyFp0133Absent(repoPaths),
+    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    fp0134Absent: verifyFp0134Absent(repoPaths),
     tokenValidationRuntimeContractsFoundationVerified:
       verifyFp0132TokenValidationRuntimeContractsBoundary({
         planText: fp0132PlanText,
@@ -304,8 +307,7 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
       !/\b(?:parseJwt|decodeJwt|jwtDecode|jwtVerify|verifyJwt)\s*\(/u.test(
         readChangedExecutableSource(),
       ),
-    noTokenSessionStorageFromFp0132:
-      scopeScan.noTokenSessionImplementation,
+    noTokenSessionStorageFromFp0132: scopeScan.noTokenSessionImplementation,
     noOauthImplementationFromFp0132: scopeScan.noOauthImplementation,
     noAuthMiddlewareImplementationFromFp0132:
       scopeScan.noAuthMiddlewareImplementation,

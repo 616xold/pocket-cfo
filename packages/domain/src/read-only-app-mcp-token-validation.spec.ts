@@ -38,8 +38,8 @@ import {
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
 } from "./read-only-app-mcp-token-validation-runtime";
+import { verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts } from "./read-only-app-mcp-token-validation-test-double";
 import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_VALIDATION_FAILURE_MODES,
@@ -171,7 +171,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0133Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    ).toBe(true);
     expect(
       Object.values(
         verifyFp0131PlanningTextRequiredTopics(fp0131PlanText),
@@ -247,7 +249,10 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0133Absent([...repoPaths, "plans/FP-0133-next-runtime.md"]),
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts([
+        ...repoPaths,
+        "plans/FP-0133-next-runtime.md",
+      ]),
     ).toBe(false);
   });
 

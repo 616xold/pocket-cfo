@@ -1,38 +1,33 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
-  FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
-  FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH,
   FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
   FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
-  FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
-  McpTokenValidationRuntimeProofSchema,
-  buildMcpTokenValidationRuntimeProof,
+  FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+  McpTokenValidationTestDoubleProofSchema,
+  buildMcpAcceptedValidationResultTestDoubleEnvelope,
+  buildMcpRejectedValidationResultTestDoubleEnvelope,
+  buildMcpTokenValidationTestDoubleProof,
   scanTokenValidationNoLeakage,
-  verifyFp0117OauthImplementationSequencingPlanBoundary,
-  verifyFp0118ProtectedResourceMetadataPlanBoundary,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128TokenValidationReadinessContractsBoundary,
-  verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
-  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
-  verifyFp0132PlanningTextRequiredTopics,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
+  verifyFp0133TokenValidationTestDoubleContractsBoundary,
   verifyFp0134Absent,
-  verifyMcpTokenValidationRuntimeNoLeakageExamples,
-  verifyMcpTokenValidationRuntimeRequiredContractBoundaries,
-  verifyMcpTokenValidationRuntimeResultEnvelopeBoundary,
+  verifyMcpTokenValidationTestDoubleContractBoundaries,
+  verifyMcpTokenValidationTestDoubleNoTokenExamples,
+  assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -51,37 +46,25 @@ const MISSING_TOKEN_HELPER_PATH =
   "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts";
 
 const repoPaths = repoFilePaths();
-const changedPaths = changedFilePaths();
-const changedExecutableSource = readChangedExecutableSource();
-const fp0132PlanText = safeRead(
-  FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+const changedPathScope = changedFilePathScope();
+const changedPaths = changedPathScope.combinedChangedPaths;
+const changedExecutableSource = readChangedExecutableSource(changedPaths);
+const fp0133PlanText = safeRead(
+  FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
 );
-const modelCallName = ["call", "Model"].join("");
-const planTopicProof = verifyFp0132PlanningTextRequiredTopics(fp0132PlanText);
 const sourceScope = verifySourceScope();
 const priorBoundaries = verifyPriorBoundaries();
 const noLeakageProof = verifyNoLeakage();
-const fp0132PlanAccepted =
-  verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts({
-    planText: fp0132PlanText,
-    repoPaths,
-  }) &&
-  verifyFp0132TokenValidationRuntimeContractsBoundary({
-    planText: fp0132PlanText,
-    repoPaths,
-  }) &&
-  Object.values(planTopicProof).every(Boolean);
+const envelopeProof = verifyResultEnvelopes();
 
-const proof = McpTokenValidationRuntimeProofSchema.parse(
-  buildMcpTokenValidationRuntimeProof({
-    authenticatedCompanyBindingBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    authenticatedSubjectBindingBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    audienceResourceValidationContractBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    canonicalResourceUriDependencyBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
+const proof = McpTokenValidationTestDoubleProofSchema.parse(
+  buildMcpTokenValidationTestDoubleProof({
+    acceptedValidationResultTestDoubleBoundaryVerified:
+      envelopeProof.acceptedEnvelopeVerified,
+    audienceResourceScenarioTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    failureTaxonomyTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
     fp0100PublicSecurityBoundaryStillVerified:
       priorBoundaries.fp0100PublicSecurityBoundaryStillVerified,
     fp0106ProtocolEnvelopeBoundaryStillVerified:
@@ -98,12 +81,16 @@ const proof = McpTokenValidationRuntimeProofSchema.parse(
       priorBoundaries.fp0130MissingTokenChallengeBoundaryStillVerified,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified:
       priorBoundaries.fp0131TokenValidationRuntimeSequencingBoundaryStillVerified,
-    fp0132BoundaryVerified: fp0132PlanAccepted,
-    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
-      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
+      priorBoundaries.fp0132TokenValidationRuntimeContractsBoundaryStillVerified,
+    fp0133BoundaryVerified:
+      verifyFp0133TokenValidationTestDoubleContractsBoundary({
+        planText: fp0133PlanText,
+        repoPaths,
+      }),
     fp0134Absent: verifyFp0134Absent(repoPaths),
-    issuerValidationContractBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
+    issuerScenarioTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
     noAuthMiddlewareImplementation: sourceScope.noAuthMiddlewareImplementation,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noExternalCommunications: sourceScope.noExternalCommunications,
@@ -123,39 +110,45 @@ const proof = McpTokenValidationRuntimeProofSchema.parse(
       metadataRouteShapeStillVerified(),
     noProviderCalls: sourceScope.noProviderCalls,
     noPublicAssets: sourceScope.noPublicAssets,
+    noRuntimeConsumptionBoundaryVerified:
+      sourceScope.noRuntimeConsumptionBoundaryVerified,
     noSchemaMigrationsAdded: sourceScope.noSchemaMigrationsAdded,
     noSourceMutation: sourceScope.noSourceMutation,
-    noTokenLeakageRuntimeBoundaryVerified: noLeakageProof.verified,
+    noTokenLeakageTestDoubleBoundaryVerified: noLeakageProof.verified,
     noTokenParsingRuntime: sourceScope.noTokenParsingRuntime,
-    noTokenPassthroughBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
+    noTokenPassthroughTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
     noTokenSessionStorage: sourceScope.noTokenSessionStorage,
     noTokenValidationRuntime: sourceScope.noTokenValidationRuntime,
-    opaqueBearerTokenCandidateBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    revocationReplayValidationContractBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    scopeValidationContractBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    tokenFailureTaxonomyBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    tokenMaterialNonRetentionBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    tokenTemporalValidationContractBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    tokenValidationResultEnvelopeBoundaryVerified:
-      verifyMcpTokenValidationRuntimeResultEnvelopeBoundary(),
-    tokenValidationRuntimeContractsVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
-    tokenValidationRuntimeDeferredBoundaryVerified:
-      verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
+    noJwtLikeExampleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
+    noRealTokenExampleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
+    rejectedValidationResultTestDoubleBoundaryVerified:
+      envelopeProof.rejectedEnvelopeVerified,
+    revocationReplayScenarioTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    scopeScenarioTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    selectorOnlyCompanyKeyTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    subjectOrgCompanyScenarioTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    syntheticNonTokenInputBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
+    syntheticValidationScenarioBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    temporalScenarioTestDoubleBoundaryVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    tokenValidationTestDoubleContractsVerified:
+      verifyMcpTokenValidationTestDoubleContractBoundaries(),
   }),
 );
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0132 token-validation runtime contract proof failed: ${key}`,
+      `FP-0133 token-validation test-double proof failed: ${key}`,
     );
   }
 }
@@ -165,9 +158,9 @@ console.log(
     {
       ...proof,
       proofDetails: {
-        changedPaths,
+        changedPathScope,
+        envelopeProof,
         noLeakageProof,
-        planTopicProof,
         priorBoundaries,
         sourceScope,
       },
@@ -178,6 +171,12 @@ console.log(
 );
 
 function verifySourceScope() {
+  const modelCallPattern = ["call", "Model"].join("");
+  const modelCallRegex = new RegExp(
+    `\\b(?:responses\\.create|chat\\.completions|model\\s*\\.\\s*create|models\\s*\\.\\s*create|${modelCallPattern})\\s*\\(`,
+    "u",
+  );
+
   return {
     noAuthMiddlewareImplementation:
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|requireAuth|authenticateRequest|setCookie)\s*\(/u.test(
@@ -208,10 +207,7 @@ function verifySourceScope() {
     noMissingTokenChallengeBehaviorChange:
       !changedPaths.includes(MCP_ROUTE_PATH) &&
       !changedPaths.includes(MISSING_TOKEN_HELPER_PATH),
-    noModelCalls: !new RegExp(
-      `\\b(?:responses\\.create|chat\\.completions|model\\s*\\.\\s*create|models\\s*\\.\\s*create|${modelCallName})\\s*\\(`,
-      "u",
-    ).test(changedExecutableSource),
+    noModelCalls: !modelCallRegex.test(changedExecutableSource),
     noOauthImplementation:
       !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
         changedExecutableSource,
@@ -234,6 +230,10 @@ function verifySourceScope() {
         path,
       ),
     ),
+    noRuntimeConsumptionBoundaryVerified:
+      !/\b(?:consumeTestDouble|runTestDouble|testDoubleRuntime|routeTestDouble)\s*\(/u.test(
+        changedExecutableSource,
+      ),
     noSchemaMigrationsAdded: !changedPaths.some(
       (path) =>
         /^packages\/db\//u.test(path) ||
@@ -274,16 +274,6 @@ function verifyPriorBoundaries() {
     fp0107RouteAdapterBoundaryStillVerified:
       docsBoundary(FP0107_PLAN, ["local/control-plane", "post /mcp"]) &&
       localMcpRouteShapeStillVerified(),
-    fp0117OauthImplementationSequencingBoundaryStillVerified:
-      verifyFp0117OauthImplementationSequencingPlanBoundary({
-        planText: safeRead(FP0117_OAUTH_IMPLEMENTATION_SEQUENCING_PLAN_PATH),
-        repoPaths,
-      }),
-    fp0118ProtectedResourceMetadataBoundaryStillVerified:
-      verifyFp0118ProtectedResourceMetadataPlanBoundary({
-        planText: safeRead(FP0118_PROTECTED_RESOURCE_METADATA_PLAN_PATH),
-        repoPaths,
-      }),
     fp0120CanonicalResourceAuthServerBoundaryStillVerified:
       verifyFp0120CanonicalResourceAuthServerPlanBoundary({
         planText: safeRead(FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH),
@@ -322,13 +312,6 @@ function verifyPriorBoundaries() {
         ),
         repoPaths,
       }),
-    fp0129WwwAuthenticateChallengeImplementationBoundaryStillVerified:
-      verifyFp0129WwwAuthenticateChallengeImplementationSequencingPlanBoundary({
-        planText: safeRead(
-          FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH,
-        ),
-        repoPaths,
-      }),
     fp0130MissingTokenChallengeBoundaryStillVerified:
       verifyFp0130LocalMissingTokenChallengeImplementationBoundary({
         planText: safeRead(
@@ -343,21 +326,40 @@ function verifyPriorBoundaries() {
         ),
         repoPaths,
       }),
+    fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
+      verifyFp0132TokenValidationRuntimeContractsBoundary({
+        planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
+        repoPaths,
+      }),
   };
 }
 
 function verifyNoLeakage() {
-  const proofText = JSON.stringify(buildMcpTokenValidationRuntimeProof());
-  const planScan = scanTokenValidationNoLeakage(fp0132PlanText);
+  const proofText = JSON.stringify(buildMcpTokenValidationTestDoubleProof());
+  const planScan = scanTokenValidationNoLeakage(fp0133PlanText);
   const proofScan = scanTokenValidationNoLeakage(proofText);
-
   return {
     planScanAccepted: planScan.accepted,
     proofScanAccepted: proofScan.accepted,
     verified:
       planScan.accepted &&
       proofScan.accepted &&
-      verifyMcpTokenValidationRuntimeNoLeakageExamples(),
+      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
+  };
+}
+
+function verifyResultEnvelopes() {
+  const acceptedEnvelope = buildMcpAcceptedValidationResultTestDoubleEnvelope();
+  const rejectedEnvelope = buildMcpRejectedValidationResultTestDoubleEnvelope();
+  return {
+    acceptedEnvelopeVerified:
+      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
+        acceptedEnvelope,
+      ).accepted,
+    rejectedEnvelopeVerified:
+      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
+        rejectedEnvelope,
+      ).accepted,
   };
 }
 
@@ -366,7 +368,7 @@ function localMcpRouteShapeStillVerified() {
   return (
     countMatches(source, /app\.post\("\/mcp"/gu) === 1 &&
     countMatches(source, /app\.get\("\/mcp"/gu) === 1 &&
-    !/read-only-app-mcp-token-validation-runtime/u.test(source)
+    !/read-only-app-mcp-token-validation-test-double/u.test(source)
   );
 }
 
@@ -389,21 +391,38 @@ function docsBoundary(path, requiredTexts) {
   );
 }
 
-function countMatches(text, pattern) {
-  return [...text.matchAll(pattern)].length;
+function changedFilePathScope() {
+  const committedBranchDiffPaths = readGitLines([
+    "diff",
+    "--name-only",
+    "origin/main...HEAD",
+  ]);
+  const dirtyQaTargetFiles = readGitLines([
+    "status",
+    "--short",
+    "--untracked-files=all",
+  ]).map((line) =>
+    line
+      .replace(/^[A-Z?! ]{1,2}\s+/u, "")
+      .replace(/.* -> /u, "")
+      .trim(),
+  );
+
+  return {
+    combinedChangedPaths: [
+      ...new Set([...committedBranchDiffPaths, ...dirtyQaTargetFiles]),
+    ]
+      .filter(Boolean)
+      .sort(),
+    committedBranchDiffBase: "origin/main...HEAD",
+    committedBranchDiffPaths,
+    dirtyQaTargetFiles: dirtyQaTargetFiles.filter(Boolean).sort(),
+  };
 }
 
-function changedFilePaths() {
-  return [...new Set([...committedBranchDiffPaths(), ...worktreeStatusPaths()])]
-    .filter(Boolean)
-    .sort();
-}
-
-function committedBranchDiffPaths() {
+function readGitLines(args) {
   try {
-    return execFileSync("git", ["diff", "--name-only", "origin/main...HEAD"], {
-      encoding: "utf8",
-    })
+    return execFileSync("git", args, { encoding: "utf8" })
       .split("\n")
       .map((line) => line.trim())
       .filter(Boolean);
@@ -412,28 +431,8 @@ function committedBranchDiffPaths() {
   }
 }
 
-function worktreeStatusPaths() {
-  const output = execFileSync(
-    "git",
-    ["status", "--short", "--untracked-files=all"],
-    {
-      encoding: "utf8",
-    },
-  );
-  return output
-    .split("\n")
-    .filter((line) => line.trim())
-    .map((line) =>
-      line
-        .replace(/^[A-Z?! ]{1,2}\s+/u, "")
-        .replace(/.* -> /u, "")
-        .trim(),
-    )
-    .filter(Boolean);
-}
-
-function readChangedExecutableSource() {
-  return changedPaths
+function readChangedExecutableSource(paths) {
+  return paths
     .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
     .filter((path) => !path.endsWith(".spec.ts"))
     .filter((path) => existsSync(path))
@@ -464,6 +463,10 @@ function repoFilePaths() {
 
   walk(process.cwd());
   return results.sort();
+}
+
+function countMatches(text, pattern) {
+  return [...text.matchAll(pattern)].length;
 }
 
 function safeRead(path) {

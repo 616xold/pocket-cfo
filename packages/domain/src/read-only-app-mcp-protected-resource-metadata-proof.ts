@@ -116,12 +116,12 @@ export const McpProtectedResourceMetadataProofSchema = z
     fp0128TokenValidationReadinessBoundaryStillVerified: trueLiteral,
     fp0129AbsentOrDocsOnlyWwwAuthenticateChallengeImplementationSequencingPlanVerified:
       trueLiteral,
-    fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified:
-      trueLiteral,
+    fp0130AbsentOrLocalMissingTokenChallengeImplementationVerified: trueLiteral,
     fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified:
       trueLiteral,
     fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: trueLiteral,
-    fp0133Absent: trueLiteral,
+    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: trueLiteral,
+    fp0134Absent: trueLiteral,
     tokenValidationRuntimeContractsFoundationVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0132: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0132: trueLiteral,
@@ -531,7 +531,10 @@ export function buildMcpProtectedResourceMetadataProof(
       true,
     fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified:
       input.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified ?? true,
-    fp0133Absent: input.fp0133Absent ?? true,
+    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+      input.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified ??
+      true,
+    fp0134Absent: input.fp0134Absent ?? true,
     tokenValidationRuntimeContractsFoundationVerified:
       input.tokenValidationRuntimeContractsFoundationVerified ?? true,
     noMcpRouteBehaviorChangeFromFp0132:
@@ -555,12 +558,9 @@ export function buildMcpProtectedResourceMetadataProof(
     noAuthMiddlewareImplementationFromFp0132:
       input.noAuthMiddlewareImplementationFromFp0132 ?? true,
     noDbQueriesFromFp0132: input.noDbQueriesFromFp0132 ?? true,
-    noSchemaMigrationsFromFp0132:
-      input.noSchemaMigrationsFromFp0132 ?? true,
-    noPackageScriptsFromFp0132:
-      input.noPackageScriptsFromFp0132 ?? true,
-    noOpenAiApiCallsFromFp0132:
-      input.noOpenAiApiCallsFromFp0132 ?? true,
+    noSchemaMigrationsFromFp0132: input.noSchemaMigrationsFromFp0132 ?? true,
+    noPackageScriptsFromFp0132: input.noPackageScriptsFromFp0132 ?? true,
+    noOpenAiApiCallsFromFp0132: input.noOpenAiApiCallsFromFp0132 ?? true,
     noProviderExternalCallsFromFp0132:
       input.noProviderExternalCallsFromFp0132 ?? true,
     noSourceMutationFinanceWriteFromFp0132:

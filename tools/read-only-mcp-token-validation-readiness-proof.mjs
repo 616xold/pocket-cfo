@@ -34,7 +34,8 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
-  verifyFp0133Absent,
+  verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
+  verifyFp0134Absent,
   verifyMcpTokenValidationReadinessDurabilityScan,
   verifyTokenValidationChallengeReadinessContracts,
   verifyTokenValidationFailureModeContracts,
@@ -201,7 +202,9 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
         planText: fp0132PlanText,
         repoPaths,
       }),
-    fp0133Absent: verifyFp0133Absent(repoPaths),
+    fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
+      verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
+    fp0134Absent: verifyFp0134Absent(repoPaths),
     tokenValidationRuntimeContractsFoundationVerified:
       verifyFp0132TokenValidationRuntimeContractsBoundary({
         planText: fp0132PlanText,
@@ -219,14 +222,11 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
       ),
     noInvalidTokenChallengeRuntimeFromFp0132:
       scopeScan.noWwwAuthenticateRouteBehavior,
-    noTokenParsingRuntimeFromFp0132:
-      scopeScan.noTokenParsingImplementation,
+    noTokenParsingRuntimeFromFp0132: scopeScan.noTokenParsingImplementation,
     noTokenValidationRuntimeFromFp0132:
       scopeScan.noTokenValidationImplementation && noTokenRuntimeSource,
-    noJwtDecodingRuntimeFromFp0132:
-      scopeScan.noTokenParsingImplementation,
-    noTokenSessionStorageFromFp0132:
-      scopeScan.noTokenSessionImplementation,
+    noJwtDecodingRuntimeFromFp0132: scopeScan.noTokenParsingImplementation,
+    noTokenSessionStorageFromFp0132: scopeScan.noTokenSessionImplementation,
     noOauthImplementationFromFp0132: scopeScan.noOauthImplementation,
     noAuthMiddlewareImplementationFromFp0132:
       scopeScan.noAuthMiddlewareImplementation && noTokenRuntimeSource,
