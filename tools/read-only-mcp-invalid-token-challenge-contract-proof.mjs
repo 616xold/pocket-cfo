@@ -52,9 +52,12 @@ const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const fp0136PlanText = safeRead(
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
 );
-const noLeakageScan = scanTokenValidationNoLeakage(
-  [fp0136PlanText, readChangedDocText(changedPaths)].join("\n"),
-);
+const docLeakageScanText = readDocLeakageScanText({
+  changedPathScope,
+  fp0136PlanText,
+});
+const docLeakageScannerContract = verifyDocLeakageScannerContract();
+const noLeakageScan = scanTokenValidationNoLeakage(docLeakageScanText.scanText);
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
 const priorBoundaries = verifyPriorBoundaries();
@@ -115,9 +118,17 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       sourceScope.noAuthMiddlewareImplementation,
     noBearerTokenMaterial:
       noLeakageScan.accepted &&
+      docLeakageScannerContract.committedBranchDiffBearerMaterialRejected &&
+      docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
+      docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
+      docLeakageScannerContract.fullFp0136PlanTextAccepted &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noBearerTokenMaterialFromFp0136:
       noLeakageScan.accepted &&
+      docLeakageScannerContract.committedBranchDiffBearerMaterialRejected &&
+      docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
+      docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
+      docLeakageScannerContract.fullFp0136PlanTextAccepted &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noDbQueriesFromFp0136: sourceScope.noDbQueriesAdded,
@@ -135,9 +146,17 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
     noJwtLikeExamples:
       noLeakageScan.accepted &&
+      docLeakageScannerContract.committedBranchDiffBearerMaterialRejected &&
+      docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
+      docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
+      docLeakageScannerContract.fullFp0136PlanTextAccepted &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noJwtLikeExamplesFromFp0136:
       noLeakageScan.accepted &&
+      docLeakageScannerContract.committedBranchDiffBearerMaterialRejected &&
+      docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
+      docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
+      docLeakageScannerContract.fullFp0136PlanTextAccepted &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noMcpRouteBehaviorChange:
       sourceScope.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
@@ -171,9 +190,17 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
     noProviderExternalCallsFromFp0136: sourceScope.noProviderExternalCalls,
     noRealTokenExamples:
       noLeakageScan.accepted &&
+      docLeakageScannerContract.committedBranchDiffBearerMaterialRejected &&
+      docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
+      docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
+      docLeakageScannerContract.fullFp0136PlanTextAccepted &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noRealTokenExamplesFromFp0136:
       noLeakageScan.accepted &&
+      docLeakageScannerContract.committedBranchDiffBearerMaterialRejected &&
+      docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
+      docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
+      docLeakageScannerContract.fullFp0136PlanTextAccepted &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noRouteConsumesTestDouble:
       sourceScope.noRouteConsumesTestDouble &&
@@ -228,6 +255,8 @@ console.log(
       ...proof,
       proofDetails: {
         changedPathScope,
+        docLeakageScanSummary: summarizeDocLeakageScanText(docLeakageScanText),
+        docLeakageScannerContract,
         noLeakageScan,
         priorBoundaries,
         repositoryInventory,
@@ -464,24 +493,99 @@ function readChangedExecutableSource(paths) {
     .join("\n");
 }
 
-function readChangedDocText(paths) {
+function readDocLeakageScanText({ changedPathScope, fp0136PlanText }) {
+  return buildDocLeakageScanText({
+    committedBranchDiffDocTexts: readCommittedBranchDiffDocText(
+      changedPathScope.committedBranchDiffPaths,
+    ),
+    dirtyQaDocTexts: readDirtyQaDocText(changedPathScope.dirtyQaTargetFiles),
+    fp0136PlanText,
+  });
+}
+
+function buildDocLeakageScanText({
+  committedBranchDiffDocTexts,
+  dirtyQaDocTexts,
+  fp0136PlanText,
+}) {
+  const sections = [
+    {
+      path: FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+      source: "required-fp0136-plan-full-text",
+      text: fp0136PlanText,
+    },
+    ...committedBranchDiffDocTexts.map((entry) => ({
+      ...entry,
+      source: "committed-branch-diff-additions",
+    })),
+    ...dirtyQaDocTexts.map((entry) => ({
+      ...entry,
+      source: "dirty-qa-additions",
+    })),
+  ];
+
+  return {
+    committedBranchDiffDocPaths: committedBranchDiffDocTexts
+      .map(({ path }) => path)
+      .sort(),
+    dirtyQaDocPaths: dirtyQaDocTexts.map(({ path }) => path).sort(),
+    scanText: sections
+      .map(({ path, source, text }) => `# ${source}: ${path}\n${text}`)
+      .join("\n"),
+    scannedFullFp0136PlanText: true,
+  };
+}
+
+function summarizeDocLeakageScanText(docLeakageScanText) {
+  const { scanText: _scanText, ...summary } = docLeakageScanText;
+  return summary;
+}
+
+function readCommittedBranchDiffDocText(paths) {
   return paths
     .filter((path) => /\.(?:md|mdx|txt)$/u.test(path))
     .filter((path) => existsSync(path))
     .map((path) => {
-      const changedText = isTracked(path)
-        ? readAddedDiffLines(path)
-        : safeRead(path);
-      return `# ${path}\n${changedText}`;
-    })
-    .join("\n");
+      const changedText = readAddedDiffLines([
+        "diff",
+        "--unified=0",
+        "origin/main...HEAD",
+        "--",
+        path,
+      ]);
+      return { path, text: changedText };
+    });
 }
 
-function readAddedDiffLines(path) {
+function readDirtyQaDocText(paths) {
+  return paths
+    .filter((path) => /\.(?:md|mdx|txt)$/u.test(path))
+    .filter((path) => existsSync(path))
+    .map((path) => {
+      if (!isTracked(path)) return { path, text: safeRead(path) };
+      const stagedText = readAddedDiffLines([
+        "diff",
+        "--cached",
+        "--unified=0",
+        "--",
+        path,
+      ]);
+      const unstagedText = readAddedDiffLines([
+        "diff",
+        "--unified=0",
+        "--",
+        path,
+      ]);
+      return {
+        path,
+        text: [stagedText, unstagedText].filter(Boolean).join("\n"),
+      };
+    });
+}
+
+function readAddedDiffLines(args) {
   try {
-    return execFileSync("git", ["diff", "--unified=0", "--", path], {
-      encoding: "utf8",
-    })
+    return execFileSync("git", args, { encoding: "utf8" })
       .split("\n")
       .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
       .map((line) => line.slice(1))
@@ -489,6 +593,58 @@ function readAddedDiffLines(path) {
   } catch {
     return "";
   }
+}
+
+function verifyDocLeakageScannerContract() {
+  const committedBearerMaterial = ["Bearer", "x".repeat(24)].join(" ");
+  const dirtyJwtLikeMaterial = [
+    ["eyJ", "dirty"].join("").padEnd(16, "x"),
+    "jwtlikepayload".padEnd(16, "x"),
+    "jwtlikesignature".padEnd(16, "x"),
+  ].join(".");
+  const safeDocsProofAbsenceText = [
+    "No token validation runtime, no token parser, no JWT decoder, no token introspection runtime, and no Bearer material examples are present.",
+    [
+      "Do not use",
+      ["OPENAI", "API", "KEY"].join("_"),
+      "from openai imports,",
+      ["responses", "create"].join("."),
+      ["chat", "completions"].join("."),
+      "or",
+      ["api", "openai", "com"].join("."),
+      "calls.",
+    ].join(" "),
+    "Proof output records absence only and does not include credential, cookie, session, Authorization, or token values.",
+  ].join("\n");
+
+  return {
+    committedBranchDiffBearerMaterialRejected: !scanTokenValidationNoLeakage(
+      buildDocLeakageScanText({
+        committedBranchDiffDocTexts: [
+          { path: "README.md", text: committedBearerMaterial },
+        ],
+        dirtyQaDocTexts: [],
+        fp0136PlanText: "",
+      }).scanText,
+    ).accepted,
+    dirtyQaJwtLikeMaterialRejected: !scanTokenValidationNoLeakage(
+      buildDocLeakageScanText({
+        committedBranchDiffDocTexts: [],
+        dirtyQaDocTexts: [
+          {
+            path: "docs/security/read-only-agent-threat-model.md",
+            text: dirtyJwtLikeMaterial,
+          },
+        ],
+        fp0136PlanText: "",
+      }).scanText,
+    ).accepted,
+    fullFp0136PlanTextAccepted:
+      scanTokenValidationNoLeakage(fp0136PlanText).accepted,
+    safeDocsProofAbsenceTextAccepted: scanTokenValidationNoLeakage(
+      safeDocsProofAbsenceText,
+    ).accepted,
+  };
 }
 
 function readProofSourceTextByPath(paths) {

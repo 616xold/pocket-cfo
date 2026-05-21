@@ -274,6 +274,15 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     expect(directProofSource).toContain(
       "verifyMcpTokenValidationTestDoubleRepositoryInventory",
     );
+    expect(directProofSource).toContain("readCommittedBranchDiffDocText");
+    expect(directProofSource).toContain("readDirtyQaDocText");
+    expect(directProofSource).toContain("buildDocLeakageScanText");
+    expect(directProofSource).toContain("docLeakageScannerContract");
+    expect(directProofSource).toContain("required-fp0136-plan-full-text");
+    expect(directProofSource).toContain("committed-branch-diff-additions");
+    expect(directProofSource).toContain("dirty-qa-additions");
+    expect(directProofSource).toContain("--cached");
+    expect(directProofSource).not.toContain("readChangedDocText(changedPaths)");
     expect(directProofSource).toContain("noMcpRouteBehaviorChangeFromFp0136");
     expect(directProofSource).toContain("fp0137Absent");
     expect(sequencingProofSource).toContain(
@@ -285,6 +294,42 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     expect(contractProofSource).toContain(
       "invalidTokenChallengeContractsFoundationVerified",
     );
+  });
+
+  it("rejects simulated committed and dirty doc leakage while accepting safe absence text", () => {
+    const planText = safeRead(
+      FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+    );
+    const committedBearerMaterial = ["Bearer", "x".repeat(24)].join(" ");
+    const dirtyJwtLikeMaterial = [
+      ["eyJ", "dirty"].join("").padEnd(16, "x"),
+      "jwtlikepayload".padEnd(16, "x"),
+      "jwtlikesignature".padEnd(16, "x"),
+    ].join(".");
+    const safeAbsenceText = [
+      "No token validation runtime, no token parser, no JWT decoder, no token introspection runtime, and no Bearer material examples are present.",
+      "Do not use OPENAI_API_KEY, from openai imports, responses.create, chat.completions, or api.openai.com calls.",
+      "Proof output records absence only and does not include credential, cookie, session, Authorization, or token values.",
+    ].join("\n");
+
+    expect(scanTokenValidationNoLeakage(planText).accepted).toBe(true);
+    expect(
+      scanTokenValidationNoLeakage(
+        `# committed-branch-diff-additions: README.md\n${committedBearerMaterial}`,
+      ),
+    ).toMatchObject({
+      accepted: false,
+      rejectionReasons: ["bearer-token-material"],
+    });
+    expect(
+      scanTokenValidationNoLeakage(
+        `# dirty-qa-additions: docs/security/read-only-agent-threat-model.md\n${dirtyJwtLikeMaterial}`,
+      ),
+    ).toMatchObject({
+      accepted: false,
+      rejectionReasons: ["jwt-like-material"],
+    });
+    expect(scanTokenValidationNoLeakage(safeAbsenceText).accepted).toBe(true);
   });
 
   it("keeps FP-0135 through FP-0100 prior boundaries intact", () => {

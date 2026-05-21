@@ -1,6 +1,6 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0136 invalid-token WWW-Authenticate challenge contract foundation slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0136 invalid-token WWW-Authenticate challenge contract foundation slice and its targeted post-merge proof-source durability correction.
 
 ## Repo-local plugin used
 
@@ -17,6 +17,7 @@ This file records the plugins available in this Codex local thread and the repo-
     - Validation Ladder Composer
     - Pocket CFO Handoff Auditor
   - GitHub Connector Guard was not invoked because GitHub connector product behavior is out of scope.
+  - Post-merge FP-0136 proof-source durability hardening on branch `codex/v2bd-read-only-chatgpt-app-mcp-invalid-token-challenge-contract-proof-doc-leakage-hardening-local-v1` used the same repo-local operator skills for a docs/proof-gate-only correction. The correction hardened committed branch-diff doc additions, dirty QA doc additions, full FP-0136 plan scanning, and focused no-leakage self-tests. It did not use OpenAI Developers docs, OpenAI Platform key setup, OpenAI APIs/models, deployment, app-submission tooling, public assets, source mutation, finance writes, or GitHub connector product behavior.
   - OpenAI Developers tooling exposed only API-key setup surfaces, not read-only docs. Official web documentation was used read-only for MCP Authorization/Security, RFC 6750, RFC 8707, RFC 9728, and OpenAI Apps SDK Authentication/Security context. No API-key setup, OpenAI API call, model call, provider call, deployment, external communication, source mutation, finance write, public asset generation, or app-submission action was used.
   - GitHub Connector Guard was not invoked because GitHub connector product behavior was out of scope.
   - Post-merge FP-0134 evaluator-taxonomy hardening on branch `codex/v2bb-read-only-chatgpt-app-mcp-token-validation-test-double-evaluator-taxonomy-hardening-local-v1` used the same repo-local operator skills for a local-only/read-only proof/spec correction. The correction did not use OpenAI Developers docs, OpenAI Platform key setup, OpenAI APIs/models, deployment, app-submission tooling, public assets, or GitHub connector product behavior.
