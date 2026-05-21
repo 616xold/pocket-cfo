@@ -73,8 +73,12 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
   buildSyntheticTokenValidationEvaluationProof({
     acceptedScenarioEvaluationVerified:
       scenarioProof.acceptedScenarioEvaluationVerified,
+    authorizationHeaderInputMapsToPassthroughAttempt:
+      scenarioProof.authorizationHeaderInputMapsToPassthroughAttempt,
     audienceResourceScenarioEvaluationVerified:
       scenarioProof.audienceResourceScenarioEvaluationVerified,
+    bearerInputMapsToPassthroughAttempt:
+      scenarioProof.bearerInputMapsToPassthroughAttempt,
     failureTaxonomyEvaluationVerified:
       scenarioProof.failureTaxonomyEvaluationVerified,
     fp0100PublicSecurityBoundaryStillVerified:
@@ -108,11 +112,14 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
     fp0135Absent: verifyFp0135Absent(repoPaths),
     issuerScenarioEvaluationVerified:
       scenarioProof.issuerScenarioEvaluationVerified,
+    jwtLikeInputMapsToPassthroughAttempt:
+      scenarioProof.jwtLikeInputMapsToPassthroughAttempt,
     localSyntheticTestDoubleOnly:
       sourceScope.localSyntheticTestDoubleOnly &&
       repositoryInventory.tokenValidationTestDoubleRepositoryInventoryVerified,
-    noAuthMiddlewareImplementation:
-      sourceScope.noAuthMiddlewareImplementation,
+    malformedNonTokenInputMapsToMalformed:
+      scenarioProof.malformedNonTokenInputMapsToMalformed,
+    noAuthMiddlewareImplementation: sourceScope.noAuthMiddlewareImplementation,
     noBearerTokenMaterial:
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
@@ -152,8 +159,7 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
     noTokenIntrospection:
       sourceScope.noTokenIntrospection &&
       repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
-    noTokenMaterialInputAccepted:
-      scenarioProof.noTokenMaterialInputAccepted,
+    noTokenMaterialInputAccepted: scenarioProof.noTokenMaterialInputAccepted,
     noTokenParser:
       sourceScope.noTokenParser &&
       repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
@@ -161,20 +167,30 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
     noTokenValidationRuntime:
       sourceScope.noTokenValidationRuntime &&
       repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
+    oauthCredentialInputMapsToPassthroughAttempt:
+      scenarioProof.oauthCredentialInputMapsToPassthroughAttempt,
+    providerCredentialInputMapsToPassthroughAttempt:
+      scenarioProof.providerCredentialInputMapsToPassthroughAttempt,
     rejectedScenarioEvaluationVerified:
       scenarioProof.rejectedScenarioEvaluationVerified,
+    rejectedInputNeverEchoesTokenMaterial:
+      scenarioProof.rejectedInputNeverEchoesTokenMaterial,
     revocationReplayScenarioEvaluationVerified:
       scenarioProof.revocationReplayScenarioEvaluationVerified,
     scopeScenarioEvaluationVerified:
       scenarioProof.scopeScenarioEvaluationVerified,
     selectorOnlyCompanyKeyPreserved:
       scenarioProof.selectorOnlyCompanyKeyPreserved,
+    sessionCookieInputMapsToPassthroughAttempt:
+      scenarioProof.sessionCookieInputMapsToPassthroughAttempt,
     subjectOrgCompanyScenarioEvaluationVerified:
       scenarioProof.subjectOrgCompanyScenarioEvaluationVerified,
     syntheticDescriptorOnlyInputVerified:
       scenarioProof.syntheticDescriptorOnlyInputVerified,
     temporalScenarioEvaluationVerified:
       scenarioProof.temporalScenarioEvaluationVerified,
+    tokenLikeInputMapsToPassthroughAttempt:
+      scenarioProof.tokenLikeInputMapsToPassthroughAttempt,
     tokenValidationTestDoubleLocalImplementationVerified:
       scenarioProof.tokenValidationTestDoubleLocalImplementationVerified,
   }),
@@ -231,7 +247,8 @@ function verifyScenarioEvaluation() {
   const evaluatedFamilies = Object.fromEntries(
     MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES.map((family) => {
       const outcome =
-        familyOutcomes[family][0] ?? SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME;
+        familyOutcomes[family][0] ??
+        SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME;
       const scenario = buildSyntheticTokenValidationScenario({
         companyKey: "synthetic-selector-company",
         family,
@@ -255,31 +272,88 @@ function verifyScenarioEvaluation() {
         syntheticScenarioId: `synthetic-failure-${failureMode}`,
       });
       const envelope = evaluateSyntheticTokenValidationScenario(scenario);
-      return envelope.accepted === false && envelope.failureMode === failureMode;
+      return (
+        envelope.accepted === false && envelope.failureMode === failureMode
+      );
     });
+  const jwtLikeInput = [
+    "jwtlikeheader".padEnd(16, "x"),
+    "jwtlikepayload".padEnd(16, "x"),
+    "jwtlikesig".padEnd(16, "x"),
+  ].join(".");
   const forbiddenInputs = [
-    ["Authorization", "Bearer synthetic-token-material"].join(": "),
-    ["Bearer", "synthetic-token-material"].join(" "),
-    [
-      "jwtlikeheader".padEnd(16, "x"),
-      "jwtlikepayload".padEnd(16, "x"),
-      "jwtlikesig".padEnd(16, "x"),
-    ].join("."),
-    ["access_token", "synthetic-token-material"].join("="),
-    ["client_secret", "synthetic-token-material"].join("="),
-    ["session", "synthetic-token-material"].join("="),
-    ["cookie", "synthetic-token-material"].join("="),
-    ["provider_credential", "synthetic-token-material"].join("="),
+    {
+      family: "authorization_header",
+      input: ["Authorization", "synthetic-header-material"].join("="),
+    },
+    {
+      family: "bearer",
+      input: ["Bearer", "synthetic-token-material"].join(" "),
+    },
+    {
+      family: "jwt_like",
+      input: jwtLikeInput,
+    },
+    {
+      family: "oauth_credential",
+      input: ["access_token", "synthetic-token-material"].join("="),
+    },
+    {
+      family: "oauth_credential",
+      input: ["refresh_token", "synthetic-token-material"].join("="),
+    },
+    {
+      family: "oauth_credential",
+      input: ["client_secret", "synthetic-token-material"].join("="),
+    },
+    {
+      family: "session_cookie",
+      input: ["session", "synthetic-token-material"].join("="),
+    },
+    {
+      family: "session_cookie",
+      input: ["cookie", "synthetic-token-material"].join("="),
+    },
+    {
+      family: "provider_credential",
+      input: ["provider_credential", "synthetic-token-material"].join("="),
+    },
   ];
-  const rejectedTokenLikeInputs = forbiddenInputs.map((input) => {
+  const malformedNonTokenInput = {
+    descriptorKind: "synthetic_non_token_descriptor",
+    note: "plain malformed descriptor shape without token material",
+    syntheticScenarioId: "synthetic-malformed-non-token-descriptor",
+  };
+  const rejectedTokenLikeInputs = forbiddenInputs.map(({ family, input }) => {
     const envelope = evaluateSyntheticTokenValidationScenario(input);
-    return envelope.accepted === false && envelope.carriesRawToken === false;
+    return {
+      family,
+      input,
+      rejectedAsTokenPassthrough: rejectedWithoutEcho(input, envelope),
+    };
   });
+  const tokenLikeInputProofByFamily = Object.fromEntries(
+    [
+      "authorization_header",
+      "bearer",
+      "jwt_like",
+      "oauth_credential",
+      "session_cookie",
+      "provider_credential",
+    ].map((family) => [
+      family,
+      rejectedTokenLikeInputs
+        .filter((proof) => proof.family === family)
+        .every((proof) => proof.rejectedAsTokenPassthrough),
+    ]),
+  );
+  const malformedNonTokenEnvelope = evaluateSyntheticTokenValidationScenario(
+    malformedNonTokenInput,
+  );
   const descriptorOnlyInput =
-    SyntheticTokenValidationScenarioDescriptorSchema.safeParse(
-      acceptedScenario,
-    ).success &&
-    forbiddenInputs.every((input) => {
+    SyntheticTokenValidationScenarioDescriptorSchema.safeParse(acceptedScenario)
+      .success &&
+    forbiddenInputs.every(({ input }) => {
       try {
         assertSyntheticScenarioContainsNoTokenMaterial(input);
         return false;
@@ -290,7 +364,10 @@ function verifyScenarioEvaluation() {
   const outputText = JSON.stringify([
     acceptedEnvelope,
     rejectedEnvelope,
-    ...forbiddenInputs.map(evaluateSyntheticTokenValidationScenario),
+    malformedNonTokenEnvelope,
+    ...forbiddenInputs.map(({ input }) =>
+      evaluateSyntheticTokenValidationScenario(input),
+    ),
   ]);
   const outputNoLeakage = scanTokenValidationNoLeakage(outputText).accepted;
 
@@ -302,27 +379,66 @@ function verifyScenarioEvaluation() {
     audienceResourceScenarioEvaluationVerified:
       evaluatedFamilies.audience_resource === true,
     failureTaxonomyEvaluationVerified: evaluatedTaxonomy.every(Boolean),
+    authorizationHeaderInputMapsToPassthroughAttempt:
+      tokenLikeInputProofByFamily.authorization_header === true,
+    bearerInputMapsToPassthroughAttempt:
+      tokenLikeInputProofByFamily.bearer === true,
     issuerScenarioEvaluationVerified: evaluatedFamilies.issuer === true,
-    noTokenMaterialInputAccepted: rejectedTokenLikeInputs.every(Boolean),
+    jwtLikeInputMapsToPassthroughAttempt:
+      tokenLikeInputProofByFamily.jwt_like === true,
+    malformedNonTokenInputMapsToMalformed:
+      malformedNonTokenEnvelope.accepted === false &&
+      malformedNonTokenEnvelope.failureMode === "malformed" &&
+      malformedNonTokenEnvelope.carriesRawToken === false &&
+      malformedNonTokenEnvelope.carriesAuthorizationHeader === false &&
+      malformedNonTokenEnvelope.carriesJwtClaims === false,
+    noTokenMaterialInputAccepted: rejectedTokenLikeInputs.every(
+      (proof) => proof.rejectedAsTokenPassthrough,
+    ),
+    oauthCredentialInputMapsToPassthroughAttempt:
+      tokenLikeInputProofByFamily.oauth_credential === true,
+    providerCredentialInputMapsToPassthroughAttempt:
+      tokenLikeInputProofByFamily.provider_credential === true,
     rejectedScenarioEvaluationVerified:
       rejectedEnvelope.accepted === false &&
       rejectedEnvelope.resultKind === "rejected_test_double" &&
       rejectedEnvelope.failureMode === "wrong-company" &&
       rejectedEnvelope.carriesRawToken === false,
+    rejectedInputNeverEchoesTokenMaterial:
+      rejectedTokenLikeInputs.every(
+        (proof) => proof.rejectedAsTokenPassthrough,
+      ) && outputNoLeakage,
     revocationReplayScenarioEvaluationVerified:
       evaluatedFamilies.revocation_replay === true,
     scopeScenarioEvaluationVerified: evaluatedFamilies.scope === true,
     selectorOnlyCompanyKeyPreserved:
       acceptedEnvelope.subjectOrgCompanyBinding.companyKeySelectorOnly ===
-        true &&
-      !outputText.includes("synthetic-selector-company"),
+        true && !outputText.includes("synthetic-selector-company"),
+    sessionCookieInputMapsToPassthroughAttempt:
+      tokenLikeInputProofByFamily.session_cookie === true,
     subjectOrgCompanyScenarioEvaluationVerified:
       evaluatedFamilies.subject_org_company === true,
     syntheticDescriptorOnlyInputVerified: descriptorOnlyInput,
     temporalScenarioEvaluationVerified: evaluatedFamilies.temporal === true,
+    tokenLikeInputMapsToPassthroughAttempt: rejectedTokenLikeInputs.every(
+      (proof) => proof.rejectedAsTokenPassthrough,
+    ),
     tokenValidationTestDoubleLocalImplementationVerified:
       outputNoLeakage && verifyMcpTokenValidationTestDoubleNoTokenExamples(),
   };
+}
+
+function rejectedWithoutEcho(input, envelope) {
+  const outputText = JSON.stringify(envelope);
+  return (
+    envelope.accepted === false &&
+    envelope.failureMode === "token-passthrough-attempt" &&
+    envelope.carriesRawToken === false &&
+    envelope.carriesAuthorizationHeader === false &&
+    envelope.carriesJwtClaims === false &&
+    !outputText.includes(input) &&
+    scanTokenValidationNoLeakage(outputText).accepted
+  );
 }
 
 function verifySourceScope() {

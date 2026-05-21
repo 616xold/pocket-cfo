@@ -288,12 +288,17 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(JSON.stringify(acceptedEnvelope)).not.toContain(
       "synthetic-selector-company",
     );
-    expect(scanTokenValidationNoLeakage(JSON.stringify(acceptedEnvelope))).toMatchObject({
+    expect(
+      scanTokenValidationNoLeakage(JSON.stringify(acceptedEnvelope)),
+    ).toMatchObject({
       accepted: true,
     });
     expect(
       SyntheticTokenValidationEvaluationProofSchema.safeParse(proof).success,
     ).toBe(true);
+    expect(proof.tokenLikeInputMapsToPassthroughAttempt).toBe(true);
+    expect(proof.malformedNonTokenInputMapsToMalformed).toBe(true);
+    expect(proof.rejectedInputNeverEchoesTokenMaterial).toBe(true);
   });
 
   it("supports every synthetic scenario family and failure taxonomy outcome", () => {
@@ -304,7 +309,8 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     );
     for (const family of MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES) {
       const outcome =
-        failuresByFamily[family][0] ?? SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME;
+        failuresByFamily[family][0] ??
+        SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME;
       const envelope = evaluateSyntheticTokenValidationScenario(
         buildSyntheticTokenValidationScenario({
           family,
@@ -339,35 +345,96 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     }
   });
 
-  it("rejects token-like strings, authorization headers, bearer values, jwt-like values, and credential/session material", () => {
+  it("maps token-material-like rejected inputs to token passthrough attempts without echoing material", () => {
     const jwtLikeString = [
       "jwtlikeheader".padEnd(16, "x"),
       "jwtlikepayload".padEnd(16, "x"),
       "jwtlikesig".padEnd(16, "x"),
     ].join(".");
     const forbiddenInputs = [
-      ["Authorization", "Bearer synthetic-token-material"].join(": "),
-      ["Bearer", "synthetic-token-material"].join(" "),
-      jwtLikeString,
-      ["access_token", "synthetic-token-material"].join("="),
-      ["client_secret", "synthetic-token-material"].join("="),
-      ["session", "synthetic-token-material"].join("="),
-      ["cookie", "synthetic-token-material"].join("="),
-      ["provider_credential", "synthetic-token-material"].join("="),
+      {
+        family: "authorization header-like input",
+        input: ["Authorization", "synthetic-header-material"].join("="),
+      },
+      {
+        family: "Bearer token-like input",
+        input: ["Bearer", "synthetic-token-material"].join(" "),
+      },
+      {
+        family: "JWT-like string",
+        input: jwtLikeString,
+      },
+      {
+        family: "OAuth access_token-like input",
+        input: ["access_token", "synthetic-token-material"].join("="),
+      },
+      {
+        family: "OAuth refresh_token-like input",
+        input: ["refresh_token", "synthetic-token-material"].join("="),
+      },
+      {
+        family: "OAuth client_secret-like input",
+        input: ["client_secret", "synthetic-token-material"].join("="),
+      },
+      {
+        family: "session-like input",
+        input: ["session", "synthetic-token-material"].join("="),
+      },
+      {
+        family: "cookie-like input",
+        input: ["cookie", "synthetic-token-material"].join("="),
+      },
+      {
+        family: "provider credential-like input",
+        input: ["provider_credential", "synthetic-token-material"].join("="),
+      },
     ];
 
-    for (const input of forbiddenInputs) {
-      expect(() => assertSyntheticScenarioContainsNoTokenMaterial(input)).toThrow();
+    for (const { family, input } of forbiddenInputs) {
+      expect(() =>
+        assertSyntheticScenarioContainsNoTokenMaterial(input),
+      ).toThrow();
       const envelope = evaluateSyntheticTokenValidationScenario(input);
       expect(envelope.accepted).toBe(false);
+      expect(envelope.failureMode, family).toBe("token-passthrough-attempt");
       expect(envelope.carriesRawToken).toBe(false);
       expect(envelope.carriesAuthorizationHeader).toBe(false);
       expect(envelope.carriesJwtClaims).toBe(false);
       expect(JSON.stringify(envelope)).not.toContain(input);
-      expect(scanTokenValidationNoLeakage(JSON.stringify(envelope))).toMatchObject({
+      expect(
+        scanTokenValidationNoLeakage(JSON.stringify(envelope)),
+      ).toMatchObject({
         accepted: true,
       });
     }
+  });
+
+  it("keeps malformed non-token descriptor failures classified as malformed", () => {
+    const malformedNonTokenInput = {
+      descriptorKind: "synthetic_non_token_descriptor",
+      note: "plain malformed descriptor shape without token material",
+      syntheticScenarioId: "synthetic-malformed-non-token-descriptor",
+    };
+    const envelope = evaluateSyntheticTokenValidationScenario(
+      malformedNonTokenInput,
+    );
+
+    expect(envelope).toMatchObject({
+      accepted: false,
+      carriesAuthorizationHeader: false,
+      carriesJwtClaims: false,
+      carriesRawToken: false,
+      failureMode: "malformed",
+      resultKind: "rejected_test_double",
+    });
+    expect(JSON.stringify(envelope)).not.toContain(
+      "synthetic-malformed-non-token-descriptor",
+    );
+    expect(
+      scanTokenValidationNoLeakage(JSON.stringify(envelope)),
+    ).toMatchObject({
+      accepted: true,
+    });
   });
 
   it("proves no-token-leakage surfaces and no route/runtime expansion", () => {
