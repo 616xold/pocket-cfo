@@ -933,6 +933,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs",
     "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
     "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
+    "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
     "tools/benchmark-community-pack-proof.mjs",
     "packages/domain/src/index.ts",
     "packages/domain/src/benchmark-community.spec.ts",
@@ -954,6 +955,7 @@ function changedFilesAreAllowed() {
     "docs/demo/demo-data-policy.md",
     "plans/ROADMAP.md",
     "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md",
+    "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md",
     "plans/FP-0114-read-only-chatgpt-app-mcp-remote-host-readiness-security-contracts-foundation.md",
     "plugins.md",
   ]);

@@ -13,6 +13,7 @@ import {
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_LEAKAGE_SURFACES,
@@ -48,6 +49,10 @@ import {
   verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
   verifyFp0134TokenValidationTestDoubleImplementationBoundary,
   verifyFp0135Absent,
+  verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan,
+  verifyFp0135InvalidTokenChallengeSequencingPlanBoundary,
+  verifyFp0135PlanningTextRequiredTopics,
+  verifyFp0136Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -62,6 +67,8 @@ const proofCommandPath =
   "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs";
 const localProofCommandPath =
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs";
+const invalidTokenChallengeSequencingProofCommandPath =
+  "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs";
 const fp0125PlanPath =
   "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
 const fp0107PlanPath =
@@ -72,13 +79,16 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0133 token-validation test-double contract foundations", () => {
-  it("accepts one FP-0133 contract plan and one FP-0134 local evaluator plan while FP-0135 remains absent", () => {
+  it("accepts one FP-0135 docs-only invalid-token challenge sequencing plan while FP-0136 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
     );
     const fp0134PlanText = safeRead(
       FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+    );
+    const fp0135PlanText = safeRead(
+      FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
     );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0133/u.test(path))).toEqual([
@@ -87,6 +97,12 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(repoPaths.filter((path) => /(^|\/)FP-0134/u.test(path))).toEqual([
       FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
     ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0135/u.test(path))).toEqual([
+      FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0136/u.test(path))).toEqual(
+      [],
+    );
     expect(
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts({
         planText,
@@ -117,7 +133,24 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0135Absent(repoPaths)).toBe(true);
+    expect(verifyFp0135Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan({
+        planText: fp0135PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0135InvalidTokenChallengeSequencingPlanBoundary({
+        planText: fp0135PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      Object.values(verifyFp0135PlanningTextRequiredTopics(fp0135PlanText))
+        .every(Boolean),
+    ).toBe(true);
+    expect(verifyFp0136Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
         planText,
@@ -136,6 +169,50 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(
       verifyFp0135Absent([...repoPaths, "plans/FP-0135-invalid-token.md"]),
     ).toBe(false);
+    expect(
+      verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan({
+        planText: fp0135PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0135-invalid-token.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0136Absent([...repoPaths, "plans/FP-0136-invalid-token.md"]),
+    ).toBe(false);
+  });
+
+  it("keeps FP-0135 planning text docs-and-plan proof-gate only", () => {
+    const planText = safeRead(
+      FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
+    );
+    const normalized = normalize(planText);
+    const routeSource = safeRead(mcpRoutePath);
+    const metadataRouteSource = safeRead(metadataRoutePath);
+
+    expect(scanTokenValidationNoLeakage(planText).accepted).toBe(true);
+    expect(normalized).toContain("401/403 mapping");
+    expect(normalized).toContain("resource_metadata");
+    expect(normalized).toContain("scope challenge");
+    expect(normalized).toContain("json-rpc refusal separation");
+    expect(normalized).toContain("future fp-0136 gate");
+    expect(normalized).toContain("fp-0136 remains absent");
+    for (const failureMode of MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY) {
+      expect(normalized).toContain(failureMode);
+    }
+    expect(normalized).toContain("no token echo");
+    expect(normalized).toContain("no route consumption of test doubles");
+    expect(normalized).toContain("does not emit invalid-token www-authenticate");
+    expect(normalized).toContain("does not implement token validation runtime");
+    expect(normalized).toContain("does not parse, decode, validate, introspect");
+    expect(normalized).toContain("does not implement oauth");
+    expect(normalized).toContain("does not add token/session storage");
+    expect(normalized).toContain("does not add auth middleware");
+    expect(routeSource).not.toContain("evaluateSyntheticTokenValidationScenario");
+    expect(metadataRouteSource).not.toContain(
+      "evaluateSyntheticTokenValidationScenario",
+    );
+    expect(countMatches(routeSource, /app\.post\("\/mcp"/gu)).toBe(1);
+    expect(countMatches(routeSource, /app\.get\("\/mcp"/gu)).toBe(1);
+    expect(metadataRouteSource).not.toMatch(/WWW-Authenticate/iu);
   });
 
   it("builds all required proof-only contracts without runtime consumption", () => {
@@ -493,6 +570,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
   it("requires direct proof source scans over branch diff and dirty QA targets", () => {
     const proofSource = safeRead(proofCommandPath);
     const localProofSource = safeRead(localProofCommandPath);
+    const sequencingProofSource = safeRead(
+      invalidTokenChallengeSequencingProofCommandPath,
+    );
 
     expect(proofSource).toContain("origin/main...HEAD");
     expect(proofSource).toContain("dirtyQaTargetFiles");
@@ -511,6 +591,14 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(localProofSource).toContain(
       "verifyMcpTokenValidationTestDoubleRepositoryInventory",
     );
+    expect(sequencingProofSource).toContain("origin/main...HEAD");
+    expect(sequencingProofSource).toContain("dirtyQaTargetFiles");
+    expect(sequencingProofSource).toContain("combinedChangedPaths");
+    expect(sequencingProofSource).toContain("committedBranchDiffPaths");
+    expect(sequencingProofSource).toContain(
+      "invalidTokenChallengeSequencingPlanBoundaryVerified",
+    );
+    expect(sequencingProofSource).toContain("fp0136Absent");
   });
 
   it("passes durable repository inventory on current repo truth", () => {
@@ -522,6 +610,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
 
     expect(inventory.proofSourceInventoryVerified).toBe(true);
     expect(inventory.proofSourcePaths).toContain(proofCommandPath);
+    expect(inventory.proofSourcePaths).toContain(
+      invalidTokenChallengeSequencingProofCommandPath,
+    );
     expect(inventory.fp0133PostmergeProofDurabilityVerified).toBe(true);
     expect(inventory.noBearerTokenMaterialRepositoryInventoryVerified).toBe(
       true,

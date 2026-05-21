@@ -444,6 +444,9 @@ function isAllowedMcpProtocolProofPath(path) {
       "tools/read-only-mcp-token-validation-test-double-local-proof.mjs" ||
     path ===
       "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md" ||
+    path ===
+      "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md" ||
+    path === "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||
