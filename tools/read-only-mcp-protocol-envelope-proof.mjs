@@ -460,6 +460,10 @@ function isAllowedMcpProtocolProofPath(path) {
       "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs" ||
     path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH ||
     path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH ||
+    path ===
+      "plans/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning.md" ||
+    path ===
+      "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||

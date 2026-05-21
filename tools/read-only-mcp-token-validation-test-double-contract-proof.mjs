@@ -12,6 +12,7 @@ import {
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+  FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   McpTokenValidationTestDoubleProofSchema,
   buildMcpAcceptedValidationResultTestDoubleEnvelope,
   buildMcpRejectedValidationResultTestDoubleEnvelope,
@@ -32,6 +33,8 @@ import {
   verifyFp0136InvalidTokenChallengeContractsBoundary,
   verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
   verifyFp0138Absent,
+  verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
+  verifyFp0139Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -119,7 +122,7 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
           repoPaths,
         },
       ),
-    fp0138Absent: verifyFp0138Absent(repoPaths),
+    fp0138Absent: verifyFp0138Compatibility(),
     invalidTokenChallengeContractsFoundationVerified:
       verifyFp0136InvalidTokenChallengeContractsBoundary({
         planText: fp0136PlanText,
@@ -342,6 +345,19 @@ function verifyRepositoryInventory() {
     repoPaths,
     sourceTextByPath: readProofSourceTextByPath(repoPaths),
   });
+}
+
+function verifyFp0138Compatibility() {
+  return (
+    verifyFp0138Absent(repoPaths) ||
+    (verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+      planText: safeReadIfExists(
+        FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+      ),
+      repoPaths,
+    }) &&
+      verifyFp0139Absent(repoPaths))
+  );
 }
 
 function verifyPriorBoundaries() {

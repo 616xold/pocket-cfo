@@ -36,12 +36,19 @@ import {
 import { verifyFp0128TokenValidationReadinessContractsBoundary } from "./read-only-app-mcp-token-validation-proof";
 import {
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+  FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   MCP_TOKEN_VALIDATION_RUNTIME_FAILURE_MODES,
   MCP_TOKEN_VALIDATION_RUNTIME_NO_LEAKAGE_SURFACES,
   MCP_TOKEN_VALIDATION_RUNTIME_REQUIRED_CHECKS,
+  McpTokenValidationRuntimeImplementationReadinessProofSchema,
   McpTokenValidationRuntimeProofSchema,
+  buildMcpTokenValidationRuntimeImplementationReadinessProof,
   buildMcpTokenValidationRuntimeContracts,
   buildMcpTokenValidationRuntimeProof,
+  verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
+  verifyFp0138PlanningTextRequiredTopics,
+  verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary,
+  verifyFp0139Absent,
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132PlanningTextRequiredTopics,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
@@ -64,6 +71,95 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0132 token-validation runtime contract foundations", () => {
+  it("accepts exactly one FP-0138 implementation planning plan while FP-0139 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
+    const topics = verifyFp0138PlanningTextRequiredTopics(planText);
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0138/u.test(path))).toEqual([
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(Object.values(topics).every(Boolean)).toBe(true);
+    expect(verifyFp0139Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+        planText,
+        repoPaths: [...repoPaths, "plans/FP-0138-token-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0139Absent([...repoPaths, "plans/FP-0139-token-runtime.md"]),
+    ).toBe(false);
+  });
+
+  it("models FP-0138 as docs-only planning with production runtime blockers and required result envelope fields", () => {
+    const proof = buildMcpTokenValidationRuntimeImplementationReadinessProof();
+    const planText = safeRead(
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
+    const normalized = normalize(planText);
+
+    expect(
+      McpTokenValidationRuntimeImplementationReadinessProofSchema.safeParse(
+        proof,
+      ).success,
+    ).toBe(true);
+    expect(proof.docsAndPlanOnly).toBe(true);
+    expect(proof.localProofOnly).toBe(true);
+    expect(
+      proof.localProofModeValidationResultEnvelopePlanningAllowed,
+    ).toBe(true);
+    expect(
+      proof.productionTokenValidationRuntimeBlockedUntilProviderTrustGates,
+    ).toBe(true);
+    expect(proof.tokenParsingBlockedUntilNoLeakNoEchoContracts).toBe(true);
+    expect(proof.jwtDecodingBlockedUntilIssuerJwksProviderTrust).toBe(true);
+    expect(
+      proof.tokenIntrospectionBlockedUntilProviderAuthServerSelection,
+    ).toBe(true);
+    expect(proof.syntheticTestDoubleRouteConsumptionBlocked).toBe(true);
+    expect(
+      proof.invalidTokenChallengeBehaviorBlockedUntilValidationResultEnvelopes,
+    ).toBe(true);
+    expect(proof.validationResultEnvelopeFieldsSpecified).toBe(true);
+    expect(proof.futureFp0139LocalProofEnvelopeRecommended).toBe(true);
+    expect(proof.fp0139Absent).toBe(true);
+    for (const requiredField of [
+      "accepted / rejected",
+      "failure taxonomy",
+      "httpstatus recommendation",
+      "wwwauthenticateerror",
+      "requiredscopes",
+      "issuer / audience / resource validation posture",
+      "subject / org / company binding posture",
+      "revocation/replay posture",
+      "no raw token / no token echo markers",
+      "evidence-free security decision boundary",
+    ]) {
+      expect(normalized).toContain(requiredField);
+    }
+    expect(
+      McpTokenValidationRuntimeImplementationReadinessProofSchema.safeParse({
+        ...proof,
+        noTokenValidationRuntimeFromFp0138: false,
+      }).success,
+    ).toBe(false);
+  });
+
   it("accepts exactly one FP-0132 contract plan while FP-0133 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(

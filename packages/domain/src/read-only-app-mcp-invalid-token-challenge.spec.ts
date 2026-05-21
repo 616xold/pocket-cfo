@@ -13,6 +13,7 @@ import {
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+  FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   MCP_INVALID_TOKEN_CHALLENGE_FAILURE_TAXONOMY,
   MCP_INVALID_TOKEN_CHALLENGE_FUTURE_400_FAILURES,
   MCP_INVALID_TOKEN_CHALLENGE_FUTURE_401_FAILURES,
@@ -40,6 +41,9 @@ import {
   verifyFp0137InvalidTokenChallengeImplementationReadinessPlanBoundary,
   verifyFp0137PlanningTextRequiredTopics,
   verifyFp0138Absent,
+  verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
+  verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary,
+  verifyFp0139Absent,
   verifyMcpInvalidTokenChallengeContractBoundaries,
 } from "./index";
 
@@ -68,7 +72,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0136 invalid-token challenge contract foundations", () => {
-  it("accepts exactly one FP-0136 contract plan and one FP-0137 readiness plan while FP-0138 remains absent", () => {
+  it("accepts exactly one FP-0136 contract plan, FP-0137 readiness plan, and FP-0138 planning plan while FP-0139 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
@@ -76,12 +80,18 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     const fp0137PlanText = safeRead(
       FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
     );
+    const fp0138PlanText = safeRead(
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0136/u.test(path))).toEqual([
       FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0137/u.test(path))).toEqual([
       FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0138/u.test(path))).toEqual([
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
     ]);
     expect(verifyFp0136Absent(repoPaths)).toBe(false);
     expect(
@@ -110,7 +120,20 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0138Absent(repoPaths)).toBe(true);
+    expect(verifyFp0138Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+        planText: fp0138PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary({
+        planText: fp0138PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0139Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts({
         planText,
@@ -127,6 +150,15 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     ).toBe(false);
     expect(
       verifyFp0138Absent([...repoPaths, "plans/FP-0138-future-runtime.md"]),
+    ).toBe(false);
+    expect(
+      verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+        planText: fp0138PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0138-future-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0139Absent([...repoPaths, "plans/FP-0139-future-runtime.md"]),
     ).toBe(false);
   });
 
@@ -368,6 +400,9 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
       "fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified",
     );
     expect(implementationReadinessProofSource).toContain("fp0138Absent");
+    expect(implementationReadinessProofSource).toContain(
+      "verifyFp0138Compatibility",
+    );
     expect(implementationReadinessProofSource).toContain(
       "invalidTokenChallengeImplementationReadinessPlanBoundaryVerified",
     );

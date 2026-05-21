@@ -16,6 +16,7 @@ import {
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+  FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_LEAKAGE_SURFACES,
@@ -60,6 +61,9 @@ import {
   verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
   verifyFp0137InvalidTokenChallengeImplementationReadinessPlanBoundary,
   verifyFp0138Absent,
+  verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
+  verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary,
+  verifyFp0139Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -86,7 +90,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0133 token-validation test-double contract foundations", () => {
-  it("accepts FP-0136 invalid-token challenge contracts and FP-0137 readiness while FP-0138 remains absent", () => {
+  it("accepts FP-0136 invalid-token challenge contracts, FP-0137 readiness, and FP-0138 planning while FP-0139 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
@@ -103,6 +107,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     const fp0137PlanText = safeRead(
       FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
     );
+    const fp0138PlanText = safeRead(
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0133/u.test(path))).toEqual([
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
@@ -118,6 +125,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0137/u.test(path))).toEqual([
       FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0138/u.test(path))).toEqual([
+      FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
     ]);
     expect(
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts({
@@ -194,7 +204,20 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0138Absent(repoPaths)).toBe(true);
+    expect(verifyFp0138Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+        planText: fp0138PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary({
+        planText: fp0138PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0139Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
         planText,
@@ -238,6 +261,15 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ).toBe(false);
     expect(
       verifyFp0138Absent([...repoPaths, "plans/FP-0138-invalid-token.md"]),
+    ).toBe(false);
+    expect(
+      verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning({
+        planText: fp0138PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0138-invalid-token.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0139Absent([...repoPaths, "plans/FP-0139-invalid-token.md"]),
     ).toBe(false);
   });
 
