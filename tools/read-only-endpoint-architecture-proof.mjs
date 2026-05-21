@@ -756,6 +756,8 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH ||
     path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH ||
     path ===
+      "plans/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning.md" ||
+    path ===
       "plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md" ||
     path ===
       "plans/FP-0114-read-only-chatgpt-app-mcp-remote-host-readiness-security-contracts-foundation.md" ||
@@ -779,6 +781,8 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PROOF_PATH ||
     path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH ||
     path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH ||
+    path ===
+      "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path ===
       "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs" ||
     path ===

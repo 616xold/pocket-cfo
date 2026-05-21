@@ -410,6 +410,9 @@ function isProofOrContractPath(path: string) {
     /^plans\/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation\.md$/u.test(
       path,
     ) ||
+    /^plans\/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning\.md$/u.test(
+      path,
+    ) ||
     /^plans\/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation\.md$/u.test(
       path,
     )
