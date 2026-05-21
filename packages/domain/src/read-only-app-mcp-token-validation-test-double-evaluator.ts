@@ -32,9 +32,7 @@ export const SyntheticTokenValidationScenarioDescriptorSchema = z
     schemaVersion: z.literal(
       MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
     ),
-    descriptorKind: z.literal(
-      "synthetic_token_validation_scenario_descriptor",
-    ),
+    descriptorKind: z.literal("synthetic_token_validation_scenario_descriptor"),
     syntheticScenarioId: z.string().min(1),
     family: z.enum(MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES),
     outcome: SyntheticScenarioOutcomeSchema,
@@ -103,7 +101,8 @@ export function buildSyntheticTokenValidationScenario(
 export function evaluateSyntheticTokenValidationScenario(input: unknown) {
   try {
     assertSyntheticScenarioContainsNoTokenMaterial(input);
-    const scenario = SyntheticTokenValidationScenarioDescriptorSchema.parse(input);
+    const scenario =
+      SyntheticTokenValidationScenarioDescriptorSchema.parse(input);
     if (scenario.outcome === SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME) {
       return buildAcceptedEnvelope(scenario);
     }
@@ -111,7 +110,7 @@ export function evaluateSyntheticTokenValidationScenario(input: unknown) {
   } catch (error) {
     const failureMode =
       error instanceof SyntheticTokenValidationScenarioError &&
-      error.rejectionReasons.some((reason) => reason.includes("credential"))
+      error.rejectionReasons.some(isTokenMaterialRejectionReason)
         ? "token-passthrough-attempt"
         : "malformed";
     return buildRejectedEnvelope(
@@ -192,17 +191,27 @@ function buildRejectedEnvelope(
 }
 
 function tokenMaterialRejectionReasons(input: unknown) {
-  const text = typeof input === "string" ? input : JSON.stringify(input) ?? "";
+  const text =
+    typeof input === "string" ? input : (JSON.stringify(input) ?? "");
   const parsedDescriptor =
     SyntheticTokenValidationScenarioDescriptorSchema.safeParse(input);
   const leakageScan = scanTokenValidationNoLeakage(text);
   const credentialLikePatterns = [
     ["authorization_header_like", /\bauthorization\s*[:=]/iu],
     ["bearer_material_like", /\bbearer\b/iu],
-    ["jwt_like_string", /\b[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u],
-    ["oauth_credential_like", /\b(?:access|refresh|client)[_-](?:token|secret)\s*[:=]/iu],
+    [
+      "jwt_like_string",
+      /\b[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u,
+    ],
+    [
+      "oauth_credential_like",
+      /\b(?:access|refresh|client)[_-](?:token|secret)\s*[:=]/iu,
+    ],
     ["session_cookie_like", /\b(?:session|cookie)\s*[:=]/iu],
-    ["provider_credential_like", /\bprovider[_-](?:credential|secret|key)\s*[:=]/iu],
+    [
+      "provider_credential_like",
+      /\bprovider[_-](?:credential|secret|key)\s*[:=]/iu,
+    ],
   ] as const;
   return [
     ...(parsedDescriptor.success ? [] : ["synthetic_descriptor_required"]),
@@ -211,6 +220,10 @@ function tokenMaterialRejectionReasons(input: unknown) {
       .filter(([, pattern]) => pattern.test(text))
       .map(([reason]) => reason),
   ];
+}
+
+function isTokenMaterialRejectionReason(reason: string) {
+  return reason !== "synthetic_descriptor_required";
 }
 
 function familyForOutcome(

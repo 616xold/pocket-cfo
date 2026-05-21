@@ -21,6 +21,10 @@ The proof point is narrow: predefined synthetic scenario descriptors can be eval
 - [x] 2026-05-21T15:00:12Z: Implemented the local synthetic descriptor evaluator, focused specs, direct proof command, and minimum proof-gate bridge.
 - [x] 2026-05-21T15:00:12Z: Refreshed directly stale active docs/plugin notes so FP-0134 is recorded as the local-only/read-only synthetic evaluator boundary while FP-0135 remains absent/future-only.
 - [x] 2026-05-21T15:00:12Z: Ran strict same-branch QA and the full requested validation ladder through `pnpm ci:repro:current`; all commands passed. Commit, push, and PR creation remain as repository operations after this closeout.
+- [x] 2026-05-21T16:01:25Z: Started the targeted post-merge hardening correction on branch `codex/v2bb-read-only-chatgpt-app-mcp-token-validation-test-double-evaluator-taxonomy-hardening-local-v1`; confirmed PR #311 merged, FP-0134 present, FP-0135 absent, correct branch, clean worktree, GitHub auth, local Postgres/MinIO availability, and required proof-tool presence.
+- [x] 2026-05-21T16:01:25Z: Ran the requested pre-edit baseline validation. The FP-0134 local proof, FP-0133 contract proof, FP-0132 runtime contract proof, FP-0131 runtime sequencing proof, FP-0130 missing-token challenge proof, FP-0128 readiness proof, focused domain spec, and focused control-plane `/mcp`/metadata/app specs passed before edits.
+- [x] 2026-05-21T16:01:25Z: Hardened evaluator classification so token-material-like rejected input maps to `token-passthrough-attempt`, while malformed non-token descriptor failures remain `malformed`; added focused family coverage, proof fields, and a focused local proof/spec rerun. Final full validation is pending.
+- [x] 2026-05-21T16:08:29Z: Ran the full requested post-correction validation ladder through `pnpm ci:repro:current`; all commands passed before this closeout edit. Because this closeout is a post-validation doc edit, the required minimum rerun set is due immediately after this note before commit.
 
 ## Surprises & Discoveries
 
@@ -29,12 +33,14 @@ The proof point is narrow: predefined synthetic scenario descriptors can be eval
 - The FP-0133 direct proof already verifies committed branch diff paths from `origin/main...HEAD`, dirty same-branch QA targets, and durable repository inventory for no test-double runtime, no token parser/JWT decoder/token validation runtime/introspection, no invalid-token runtime, no route consumption, and no token material examples.
 - Moving the FP-0134 plan-path constant into the test-double contract boundary avoided an evaluator-to-token-validation inventory import cycle while keeping the evaluator local and pure.
 - Existing proof gates needed only bridge allowlist updates and FP-0134 boundary predicates; no route, metadata route, missing-token helper, DB, schema, package script, source, provider, OpenAI, or finance-write scope was required.
+- The post-merge correction found the evaluator's non-descriptor catch path was too literal: only rejection reasons containing `credential` mapped to `token-passthrough-attempt`, so Authorization/Bearer/JWT-like rejected strings could be over-classified as generic `malformed`.
 
 ## Decision Log
 
 - Decision: FP-0134 implements a synthetic descriptor evaluator, not a token validation runtime. The evaluator accepts only explicit synthetic scenario descriptors created by the FP-0133 contract boundary.
 - Decision: The evaluator returns tokenless validation result envelopes. It does not return HTTP status, `WWW-Authenticate` headers, route bodies, JSON-RPC errors, or challenge decisions.
 - Decision: Token-like string input, authorization header-like input, `Bearer`-scheme-like input, JWT-like strings, OAuth credential-like strings, session/cookie strings, and provider credential-like strings must be rejected before any scenario evaluation.
+- Decision: Any rejection reason representing token material or token-material-like syntax maps to `token-passthrough-attempt`; only descriptor-shape rejection without token material remains `malformed`.
 - Decision: Client `companyKey` remains selector-only. For proof wording, companyKey remains selector-only. Accepted envelopes may carry synthetic subject/org/company refs, but client `companyKey` never creates authority.
 - Decision: The required rejection taxonomy is `malformed`, `expired`, `wrong-issuer`, `wrong-audience`, `wrong-resource`, `wrong-scope`, `wrong-org`, `wrong-company`, `revoked`, `replayed`, and `token-passthrough-attempt`.
 - Decision: Existing `/mcp`, missing-token challenge, invalid-token challenge, and protected-resource metadata behavior must remain unmodified and must not import or consume the evaluator.
@@ -89,6 +95,8 @@ Acceptance requires:
 - FP-0134 is local-only/read-only synthetic scenario evaluation only
 - evaluator accepts only explicit synthetic scenario descriptors
 - evaluator must reject string token input, authorization header-like input, `Bearer`-scheme-like input, JWT-like strings, OAuth credential-like strings, session/cookie strings, and provider credential-like strings
+- token-material-like rejected input must map to `token-passthrough-attempt`, while malformed non-token descriptor failures still map to `malformed`
+- proof output must include explicit booleans for authorization header, Bearer, JWT-like, OAuth credential, session/cookie, provider credential, malformed non-token descriptor, and no-echo rejection coverage
 - accepted synthetic scenario descriptors map to accepted validation result envelopes
 - rejected synthetic scenario descriptors map to rejected validation result envelopes
 - issuer, audience/resource, scope, temporal, revocation/replay, and subject/org/company binding scenario families are supported
@@ -200,3 +208,23 @@ Posture retained:
 - FP-0135 remains absent
 
 Recommendation: invalid-token challenge sequencing may start next only as a new narrow Finance Plan after this branch is merged; public ChatGPT App submission should continue to wait.
+
+Post-merge evaluator-taxonomy hardening correction closed on 2026-05-21T16:08:29Z before the required post-closeout rerun set. The correction keeps FP-0134 as a local-only/read-only synthetic descriptor evaluator and changes only evaluator classification, focused domain coverage, proof fields, the direct local proof, this plan, and the directly stale plugin usage note.
+
+Corrected:
+
+- token-material-like rejected input now maps to `token-passthrough-attempt`
+- Authorization header-like, Bearer token-like, JWT-like, OAuth access/refresh/client credential-like, session/cookie-like, and provider credential-like rejected inputs are each covered by focused tests and proof booleans
+- rejected token-material-like input is not echoed and does not carry raw token, Authorization header, or JWT claim flags
+- malformed non-token descriptor input remains classified as `malformed`
+
+Validation passed before this closeout edit:
+
+- the full requested proof ladder from `git diff --check` through `pnpm ci:repro:current`
+- the focused domain and control-plane spec ladders
+- `pnpm lint`
+- `pnpm typecheck`
+- `pnpm test`
+- `pnpm ci:repro:current`
+
+Posture retained: no route behavior change, protected-resource metadata route behavior change, missing-token behavior change, invalid-token runtime, route consumption, token parser, JWT decoder, token validation runtime, token introspection, token/session storage, OAuth implementation, auth middleware, DB/schema/package/data/source-pack drift, OpenAI API/model call, provider call, deployment, source mutation, finance write, public asset, app-submission artifact, autonomous action, or FP-0135.

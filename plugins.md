@@ -17,6 +17,7 @@ This file records the plugins available in this Codex local thread and the repo-
     - Validation Ladder Composer
     - Pocket CFO Handoff Auditor
   - GitHub Connector Guard was not invoked because GitHub connector product behavior was out of scope.
+  - Post-merge FP-0134 evaluator-taxonomy hardening on branch `codex/v2bb-read-only-chatgpt-app-mcp-token-validation-test-double-evaluator-taxonomy-hardening-local-v1` used the same repo-local operator skills for a local-only/read-only proof/spec correction. The correction did not use OpenAI Developers docs, OpenAI Platform key setup, OpenAI APIs/models, deployment, app-submission tooling, public assets, or GitHub connector product behavior.
 
 ## Installed Codex plugins available in this thread
 
