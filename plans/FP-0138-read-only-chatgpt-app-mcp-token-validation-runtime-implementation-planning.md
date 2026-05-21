@@ -18,6 +18,8 @@ The user-visible proof point is a conservative sequencing verdict: token-validat
 - [x] 2026-05-21T21:19:02Z: Refreshed directly stale README, CODEX/START, ACTIVE_DOCS, PROJECT_STATE, V2_BOUNDARY, roadmap, security/demo, and `plugins.md` wording so FP-0138 is represented as shipped docs-and-plan/proof-gate planning while FP-0139 remains absent.
 - [x] 2026-05-21T21:19:02Z: Added the minimum FP-0138 compatibility bridge to older proof gates that still treated any FP-0138 planning/proof artifact as drift, while preserving route/runtime/token/OAuth/auth/schema/package/provider/source/finance-write rejection.
 - [x] 2026-05-21T21:19:02Z: Validation passed before this closeout edit: `git diff --check`, all requested read-only MCP/proof commands including the new FP-0138 readiness proof, focused domain specs, focused control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Post-closeout rerun is required before commit.
+- [x] 2026-05-21T21:28:31Z: Same-branch QA preflight confirmed the required branch, GitHub auth, PR #317, local services, FP-0138 presence, FP-0139 absence, required proof-tool inventory, and a clean worktree. QA found one closeout freshness issue where this plan still described commit, push, and PR creation as pending after those actions had completed.
+- [x] 2026-05-21T21:34:31Z: Same-branch QA corrected only this FP-0138 plan closeout freshness issue. Validation passed for `git diff --check`, all requested FP-0138 and prior-boundary proof tools, focused domain specs, focused control-plane `/mcp` and protected-resource metadata specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; this final progress update requires the same post-closeout validation rerun before commit.
 
 ## Surprises & Discoveries
 
@@ -169,8 +171,8 @@ Upstream proof dependencies: FP-0137, FP-0136, FP-0135, FP-0134, FP-0133, FP-013
 
 ## Outcomes & Retrospective
 
-FP-0138 completed as a docs-and-plan plus proof-gate compatibility planning slice. The verdict is conservative: local proof-mode validation result envelope implementation planning may be the next narrow FP-0139 candidate, production token-validation runtime should wait, invalid-token WWW-Authenticate route behavior remains blocked until validation result envelopes exist, no FP-0138 correction is currently known, and public ChatGPT App submission should wait.
+FP-0138 completed as a docs-and-plan plus proof-gate compatibility planning slice. The verdict is conservative: local proof-mode validation result envelope implementation planning may be the next narrow FP-0139 candidate, production token-validation runtime should wait, invalid-token WWW-Authenticate route behavior remains blocked until validation result envelopes exist, no runtime or proof-gate FP-0138 correction is currently known, and public ChatGPT App submission should wait.
 
 The proof bridge accepts exactly one FP-0138 planning file and keeps FP-0139 absent. It preserves FP-0137 invalid-token implementation readiness, FP-0136 invalid-token contracts, FP-0135 sequencing, FP-0134 synthetic evaluator, FP-0133 test-double contracts, FP-0132 runtime contracts, FP-0131 sequencing, FP-0130 missing-token behavior, and the earlier FP-0128/0127/0125/0107/0106/0100 boundaries.
 
-Commit, push, and PR creation are intentionally pending until the required post-closeout validation rerun completes on this same branch.
+Initial FP-0138 commit `e55f8719`, push, and PR #317 creation were completed before strict same-branch QA. The same-branch QA correction is limited to plan closeout freshness and does not change proof, route, runtime, token, OAuth, auth, source, finance-write, or FP-0139 scope.
