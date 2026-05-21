@@ -10,6 +10,7 @@ import {
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   scanTokenValidationNoLeakage,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128TokenValidationReadinessContractsBoundary,
@@ -23,7 +24,8 @@ import {
   verifyFp0135PlanningTextRequiredTopics,
   verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
   verifyFp0136InvalidTokenChallengeContractsBoundary,
-  verifyFp0137Absent,
+  verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
+  verifyFp0138Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -53,6 +55,9 @@ const fp0135PlanText = safeRead(
 const fp0136PlanText = safeReadIfExists(
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
 );
+const fp0137PlanText = safeReadIfExists(
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+);
 const changedDocText = readChangedDocText(changedPaths);
 const scannedPlanningText = [fp0135PlanText, changedDocText].join("\n");
 const planTopics = verifyFp0135PlanningTextRequiredTopics(fp0135PlanText);
@@ -74,7 +79,14 @@ const proof = {
       planText: fp0136PlanText,
       repoPaths,
     }),
-  fp0137Absent: verifyFp0137Absent(repoPaths),
+  fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+    verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan(
+      {
+        planText: fp0137PlanText,
+        repoPaths,
+      },
+    ),
+  fp0138Absent: verifyFp0138Absent(repoPaths),
   invalidTokenChallengeContractsFoundationVerified:
     verifyFp0136InvalidTokenChallengeContractsBoundary({
       planText: fp0136PlanText,

@@ -13,6 +13,7 @@ import {
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
   SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
@@ -38,7 +39,8 @@ import {
   verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan,
   verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
   verifyFp0136InvalidTokenChallengeContractsBoundary,
-  verifyFp0137Absent,
+  verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
+  verifyFp0138Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -74,6 +76,9 @@ const fp0135PlanText = safeReadIfExists(
 );
 const fp0136PlanText = safeReadIfExists(
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+);
+const fp0137PlanText = safeReadIfExists(
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
 );
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
@@ -130,7 +135,14 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
         planText: fp0136PlanText,
         repoPaths,
       }),
-    fp0137Absent: verifyFp0137Absent(repoPaths),
+    fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+      verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan(
+        {
+          planText: fp0137PlanText,
+          repoPaths,
+        },
+      ),
+    fp0138Absent: verifyFp0138Absent(repoPaths),
     invalidTokenChallengeContractsFoundationVerified:
       verifyFp0136InvalidTokenChallengeContractsBoundary({
         planText: fp0136PlanText,

@@ -124,7 +124,10 @@ export function buildMcpTokenValidationTestDoubleProof(
     fp0134BoundaryVerified: input.fp0134BoundaryVerified ?? true,
     fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified:
       input.fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified ?? true,
-    fp0137Absent: input.fp0137Absent ?? true,
+    fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+      input.fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified ??
+      true,
+    fp0138Absent: input.fp0138Absent ?? true,
     invalidTokenChallengeContractsFoundationVerified:
       input.invalidTokenChallengeContractsFoundationVerified ?? true,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified:

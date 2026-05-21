@@ -15,6 +15,7 @@ import {
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_LEAKAGE_SURFACES,
@@ -56,7 +57,9 @@ import {
   verifyFp0136Absent,
   verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
   verifyFp0136InvalidTokenChallengeContractsBoundary,
-  verifyFp0137Absent,
+  verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
+  verifyFp0137InvalidTokenChallengeImplementationReadinessPlanBoundary,
+  verifyFp0138Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -83,7 +86,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0133 token-validation test-double contract foundations", () => {
-  it("accepts FP-0136 invalid-token challenge contracts while FP-0137 remains absent", () => {
+  it("accepts FP-0136 invalid-token challenge contracts and FP-0137 readiness while FP-0138 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
@@ -97,6 +100,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     const fp0136PlanText = safeRead(
       FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
     );
+    const fp0137PlanText = safeRead(
+      FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+    );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0133/u.test(path))).toEqual([
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
@@ -109,6 +115,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0136/u.test(path))).toEqual([
       FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0137/u.test(path))).toEqual([
+      FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
     ]);
     expect(
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts({
@@ -171,7 +180,21 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0137Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan(
+        {
+          planText: fp0137PlanText,
+          repoPaths,
+        },
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0137InvalidTokenChallengeImplementationReadinessPlanBoundary({
+        planText: fp0137PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0138Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
         planText,
@@ -206,7 +229,15 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0137Absent([...repoPaths, "plans/FP-0137-invalid-token.md"]),
+      verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan(
+        {
+          planText: fp0137PlanText,
+          repoPaths: [...repoPaths, "plans/FP-0137-invalid-token.md"],
+        },
+      ),
+    ).toBe(false);
+    expect(
+      verifyFp0138Absent([...repoPaths, "plans/FP-0138-invalid-token.md"]),
     ).toBe(false);
   });
 
@@ -637,7 +668,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(sequencingProofSource).toContain(
       "fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified",
     );
-    expect(sequencingProofSource).toContain("fp0137Absent");
+    expect(sequencingProofSource).toContain(
+      "fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified",
+    );
   });
 
   it("passes durable repository inventory on current repo truth", () => {

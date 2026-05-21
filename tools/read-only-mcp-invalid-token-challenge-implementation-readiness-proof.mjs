@@ -1,41 +1,35 @@
 import { execFileSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
-  FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH,
-  FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
-  FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
   FP0127_WWW_AUTHENTICATE_AUTH_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+  FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
-  McpTokenValidationTestDoubleProofSchema,
-  buildMcpAcceptedValidationResultTestDoubleEnvelope,
-  buildMcpRejectedValidationResultTestDoubleEnvelope,
-  buildMcpTokenValidationTestDoubleProof,
+  McpInvalidTokenChallengeImplementationReadinessProofSchema,
+  buildMcpInvalidTokenChallengeImplementationReadinessProof,
   isMcpTokenValidationTestDoubleProofSourcePath,
   scanTokenValidationNoLeakage,
-  verifyFp0120CanonicalResourceAuthServerPlanBoundary,
-  verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
-  verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128TokenValidationReadinessContractsBoundary,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
   verifyFp0133TokenValidationTestDoubleContractsBoundary,
-  verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
-  verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
+  verifyFp0134TokenValidationTestDoubleImplementationBoundary,
+  verifyFp0135InvalidTokenChallengeSequencingPlanBoundary,
   verifyFp0136InvalidTokenChallengeContractsBoundary,
   verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
+  verifyFp0137InvalidTokenChallengeImplementationReadinessPlanBoundary,
+  verifyFp0137PlanningTextRequiredTopics,
   verifyFp0138Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
-  verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
-  assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -57,29 +51,23 @@ const repoPaths = repoFilePaths();
 const changedPathScope = changedFilePathScope();
 const changedPaths = changedPathScope.combinedChangedPaths;
 const changedExecutableSource = readChangedExecutableSource(changedPaths);
-const fp0133PlanText = safeRead(
-  FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
-);
-const fp0136PlanText = safeReadIfExists(
-  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
-);
-const fp0137PlanText = safeReadIfExists(
+const fp0137PlanText = safeRead(
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
 );
+const docLeakageScanText = readDocLeakageScanText({
+  changedPathScope,
+  fp0137PlanText,
+});
+const noLeakageScan = scanTokenValidationNoLeakage(
+  docLeakageScanText.scanText,
+);
+const planTopics = verifyFp0137PlanningTextRequiredTopics(fp0137PlanText);
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
 const priorBoundaries = verifyPriorBoundaries();
-const noLeakageProof = verifyNoLeakage();
-const envelopeProof = verifyResultEnvelopes();
 
-const proof = McpTokenValidationTestDoubleProofSchema.parse(
-  buildMcpTokenValidationTestDoubleProof({
-    acceptedValidationResultTestDoubleBoundaryVerified:
-      envelopeProof.acceptedEnvelopeVerified,
-    audienceResourceScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    failureTaxonomyTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+const proof = McpInvalidTokenChallengeImplementationReadinessProofSchema.parse(
+  buildMcpInvalidTokenChallengeImplementationReadinessProof({
     fp0100PublicSecurityBoundaryStillVerified:
       priorBoundaries.fp0100PublicSecurityBoundaryStillVerified,
     fp0106ProtocolEnvelopeBoundaryStillVerified:
@@ -98,18 +86,28 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
       priorBoundaries.fp0131TokenValidationRuntimeSequencingBoundaryStillVerified,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
       priorBoundaries.fp0132TokenValidationRuntimeContractsBoundaryStillVerified,
-    fp0133BoundaryVerified:
+    fp0133TokenValidationTestDoubleContractsBoundaryStillVerified:
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
-        planText: fp0133PlanText,
+        planText: safeRead(
+          FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+        ),
+        repoPaths,
+      }) && verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    fp0134SyntheticTestDoubleEvaluatorBoundaryStillVerified:
+      verifyFp0134TokenValidationTestDoubleImplementationBoundary({
+        planText: safeRead(
+          FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+        ),
         repoPaths,
       }),
-    fp0134BoundaryVerified:
-      verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation(
+    fp0135InvalidTokenChallengeSequencingBoundaryStillVerified:
+      verifyFp0135InvalidTokenChallengeSequencingPlanBoundary({
+        planText: safeRead(FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH),
         repoPaths,
-      ),
-    fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified:
-      verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts({
-        planText: fp0136PlanText,
+      }),
+    fp0136InvalidTokenChallengeContractsBoundaryStillVerified:
+      verifyFp0136InvalidTokenChallengeContractsBoundary({
+        planText: safeRead(FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH),
         repoPaths,
       }),
     fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
@@ -120,110 +118,79 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
         },
       ),
     fp0138Absent: verifyFp0138Absent(repoPaths),
-    invalidTokenChallengeContractsFoundationVerified:
-      verifyFp0136InvalidTokenChallengeContractsBoundary({
-        planText: fp0136PlanText,
+    invalidTokenChallengeImplementationReadinessPlanBoundaryVerified:
+      verifyFp0137InvalidTokenChallengeImplementationReadinessPlanBoundary({
+        planText: fp0137PlanText,
         repoPaths,
-      }),
-    issuerScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    noAuthMiddlewareImplementation: sourceScope.noAuthMiddlewareImplementation,
-    noDbQueriesAdded: sourceScope.noDbQueriesAdded,
-    noExternalCommunications: sourceScope.noExternalCommunications,
-    noFinanceWrite: sourceScope.noFinanceWrite,
-    noInvalidTokenChallengeRuntime:
+      }) && Object.values(planTopics).every(Boolean),
+    invalidTokenChallengeImplementationBlockedUntilLaterPlan:
+      planTopics.blocksRouteBehaviorUntilRuntimeValidationResultEnvelopes &&
+      planTopics.nextRecommendation,
+    noAuthMiddlewareImplementationFromFp0137:
+      sourceScope.noAuthMiddlewareImplementation,
+    noBearerTokenMaterialFromFp0137:
+      noLeakageScan.accepted &&
+      repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
+    noDbQueriesFromFp0137: sourceScope.noDbQueriesAdded,
+    noInvalidTokenChallengeRuntimeFromFp0137:
       sourceScope.noInvalidTokenChallengeRuntime &&
       repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
-    noJwtDecodingRuntime:
+    noJwtDecodingRuntimeFromFp0137:
       sourceScope.noJwtDecodingRuntime &&
       repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
-    noMcpRouteBehaviorChange:
+    noJwtLikeExamplesFromFp0137:
+      noLeakageScan.accepted &&
+      repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
+    noMcpRouteBehaviorChangeFromFp0137:
       sourceScope.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
-    noMissingTokenChallengeBehaviorChange:
+    noMissingTokenChallengeBehaviorChangeFromFp0137:
       sourceScope.noMissingTokenChallengeBehaviorChange,
-    noModelCalls: sourceScope.noModelCalls,
-    noOauthImplementation: sourceScope.noOauthImplementation,
-    noOpenAiApiCalls:
+    noOauthImplementationFromFp0137:
+      sourceScope.noOauthImplementation &&
+      repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
+    noOpenAiApiCallsFromFp0137:
       sourceScope.noOpenAiApiCalls &&
       repositoryInventory.noOpenAiApiSourceScanVerified,
-    noPackageScriptsAdded: sourceScope.noPackageScriptsAdded,
-    noProtectedResourceMetadataRouteBehaviorChange:
+    noPackageScriptsFromFp0137: sourceScope.noPackageScriptsAdded,
+    noProtectedResourceMetadataRouteBehaviorChangeFromFp0137:
       sourceScope.noProtectedResourceMetadataRouteBehaviorChange &&
       metadataRouteShapeStillVerified(),
-    noProviderCalls: sourceScope.noProviderCalls,
-    noPublicAssets: sourceScope.noPublicAssets,
-    noRuntimeConsumptionBoundaryVerified:
-      sourceScope.noRuntimeConsumptionBoundaryVerified &&
+    noProviderExternalCallsFromFp0137: sourceScope.noProviderExternalCalls,
+    noRealTokenExamplesFromFp0137:
+      noLeakageScan.accepted &&
+      repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
+    noRouteConsumesTestDoubleFromFp0137:
+      sourceScope.noRouteConsumesTestDouble &&
       repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
-    noSchemaMigrationsAdded: sourceScope.noSchemaMigrationsAdded,
-    noSourceMutation: sourceScope.noSourceMutation,
-    noTokenLeakageTestDoubleBoundaryVerified: noLeakageProof.verified,
-    noTokenParsingRuntime:
+    noSchemaMigrationsFromFp0137: sourceScope.noSchemaMigrationsAdded,
+    noSourceMutationFinanceWriteFromFp0137:
+      sourceScope.noSourceMutation && sourceScope.noFinanceWrite,
+    noTokenIntrospectionRuntimeFromFp0137:
+      sourceScope.noTokenIntrospectionRuntime &&
+      repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
+    noTokenParsingRuntimeFromFp0137:
       sourceScope.noTokenParsingRuntime &&
       repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
-    noTokenPassthroughTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    noTokenSessionStorage: sourceScope.noTokenSessionStorage,
-    noTokenValidationRuntime:
+    noTokenSessionStorageFromFp0137:
+      sourceScope.noTokenSessionStorage &&
+      repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
+    noTokenValidationRuntimeFromFp0137:
       sourceScope.noTokenValidationRuntime &&
       repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
-    tokenValidationTestDoubleRepositoryInventoryVerified:
-      repositoryInventory.tokenValidationTestDoubleRepositoryInventoryVerified,
-    noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified,
-    noTokenParsingRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
-    noTokenValidationRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
-    noJwtDecodingRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
-    noTokenIntrospectionRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
-    noInvalidTokenChallengeRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
-    noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified:
-      repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
-    noRealTokenExampleRepositoryInventoryVerified:
-      repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
-    noJwtLikeExampleRepositoryInventoryVerified:
-      repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
-    noBearerTokenMaterialRepositoryInventoryVerified:
-      repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
-    noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
-    noOpenAiApiSourceScanVerified:
-      repositoryInventory.noOpenAiApiSourceScanVerified,
-    fp0133PostmergeProofDurabilityVerified:
-      repositoryInventory.fp0133PostmergeProofDurabilityVerified,
-    noJwtLikeExampleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-    noRealTokenExampleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-    rejectedValidationResultTestDoubleBoundaryVerified:
-      envelopeProof.rejectedEnvelopeVerified,
-    revocationReplayScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    scopeScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    selectorOnlyCompanyKeyTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    subjectOrgCompanyScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    syntheticNonTokenInputBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-    syntheticValidationScenarioBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    temporalScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    tokenValidationTestDoubleContractsVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    planningBlocksInvalidTokenRouteBehaviorUntilRuntimeValidationResultEnvelopesExist:
+      planTopics.blocksRouteBehaviorUntilRuntimeValidationResultEnvelopes,
+    publicChatGptAppSubmissionFutureOnly:
+      fp0137PlanText.toLowerCase().includes("public chatgpt app submission") &&
+      fp0137PlanText.toLowerCase().includes("future-only"),
+    tokenValidationRuntimeImplementationPlanningRecommendedNext:
+      planTopics.nextRecommendation,
   }),
 );
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0133 token-validation test-double proof failed: ${key}`,
+      `FP-0137 invalid-token challenge implementation readiness proof failed: ${key}`,
     );
   }
 }
@@ -234,8 +201,9 @@ console.log(
       ...proof,
       proofDetails: {
         changedPathScope,
-        envelopeProof,
-        noLeakageProof,
+        docLeakageScanText: summarizeDocLeakageScanText(docLeakageScanText),
+        noLeakageScan,
+        planTopics,
         priorBoundaries,
         repositoryInventory,
         sourceScope,
@@ -261,10 +229,6 @@ function verifySourceScope() {
     noDbQueriesAdded:
       !changedPaths.some((path) => /^packages\/db\//u.test(path)) &&
       !/\b(?:from\s+["']drizzle|drizzle\s*\(|select\s*\(|insert\s*\(|update\s*\(|delete\s*\(|sql`)\b/u.test(
-        changedExecutableSource,
-      ),
-    noExternalCommunications:
-      !/\b(?:sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
         changedExecutableSource,
       ),
     noFinanceWrite:
@@ -297,16 +261,11 @@ function verifySourceScope() {
       !changedPaths.some((path) => /\/package\.json$/u.test(path)),
     noProtectedResourceMetadataRouteBehaviorChange:
       !changedPaths.includes(METADATA_ROUTE_PATH),
-    noProviderCalls:
+    noProviderExternalCalls:
       !/\b(?:providerConnect|callProvider|createProviderJob|deploy|fetch)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noPublicAssets: !changedPaths.some((path) =>
-      /(?:app-submission|submission-assets|public-listing|store-listing|listing-copy|screenshots|\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$)/iu.test(
-        path,
-      ),
-    ),
-    noRuntimeConsumptionBoundaryVerified:
+    noRouteConsumesTestDouble:
       !/\b(?:consumeTestDouble|runTestDouble|testDoubleRuntime|routeTestDouble)\s*\(/u.test(
         changedExecutableSource,
       ),
@@ -320,6 +279,9 @@ function verifySourceScope() {
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource)\s*\(/u.test(
         changedExecutableSource,
       ),
+    noTokenIntrospectionRuntime: !/\bintrospectToken\s*\(/u.test(
+      changedExecutableSource,
+    ),
     noTokenParsingRuntime:
       !/\b(?:decodeToken|parseToken|parseJwt|decodeJwt|jwtDecode|introspectToken)\s*\(/u.test(
         changedExecutableSource,
@@ -359,25 +321,6 @@ function verifyPriorBoundaries() {
     fp0107RouteAdapterBoundaryStillVerified:
       docsBoundary(FP0107_PLAN, ["local/control-plane", "post /mcp"]) &&
       localMcpRouteShapeStillVerified(),
-    fp0120CanonicalResourceAuthServerBoundaryStillVerified:
-      verifyFp0120CanonicalResourceAuthServerPlanBoundary({
-        planText: safeRead(FP0120_CANONICAL_RESOURCE_AUTH_SERVER_PLAN_PATH),
-        repoPaths,
-      }),
-    fp0122ProtectedResourceMetadataBuilderBoundaryStillVerified:
-      verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary({
-        planText: safeRead(
-          FP0122_PROTECTED_RESOURCE_METADATA_BUILDER_PLAN_PATH,
-        ),
-        repoPaths,
-      }),
-    fp0123ProtectedResourceMetadataRouteInputBoundaryStillVerified:
-      verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary({
-        planText: safeRead(
-          FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
-        ),
-        repoPaths,
-      }),
     fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
       docsBoundary(FP0125_PLAN, [
         "local-only/read-only",
@@ -416,35 +359,6 @@ function verifyPriorBoundaries() {
         planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
         repoPaths,
       }),
-  };
-}
-
-function verifyNoLeakage() {
-  const proofText = JSON.stringify(buildMcpTokenValidationTestDoubleProof());
-  const planScan = scanTokenValidationNoLeakage(fp0133PlanText);
-  const proofScan = scanTokenValidationNoLeakage(proofText);
-  return {
-    planScanAccepted: planScan.accepted,
-    proofScanAccepted: proofScan.accepted,
-    verified:
-      planScan.accepted &&
-      proofScan.accepted &&
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-  };
-}
-
-function verifyResultEnvelopes() {
-  const acceptedEnvelope = buildMcpAcceptedValidationResultTestDoubleEnvelope();
-  const rejectedEnvelope = buildMcpRejectedValidationResultTestDoubleEnvelope();
-  return {
-    acceptedEnvelopeVerified:
-      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
-        acceptedEnvelope,
-      ).accepted,
-    rejectedEnvelopeVerified:
-      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
-        rejectedEnvelope,
-      ).accepted,
   };
 }
 
@@ -563,12 +477,121 @@ function countMatches(text, pattern) {
   return [...text.matchAll(pattern)].length;
 }
 
-function safeRead(path) {
-  return readFileSync(path, "utf8");
+function readDocLeakageScanText({ changedPathScope, fp0137PlanText }) {
+  return buildDocLeakageScanText({
+    committedBranchDiffDocTexts: readCommittedBranchDiffDocText(
+      changedPathScope.committedBranchDiffPaths,
+    ),
+    dirtyQaDocTexts: readDirtyQaDocText(changedPathScope.dirtyQaTargetFiles),
+    fp0137PlanText,
+  });
 }
 
-function safeReadIfExists(path) {
-  return existsSync(path) ? readFileSync(path, "utf8") : undefined;
+function buildDocLeakageScanText({
+  committedBranchDiffDocTexts,
+  dirtyQaDocTexts,
+  fp0137PlanText,
+}) {
+  const sections = [
+    {
+      path: FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
+      source: "required-fp0137-plan-full-text",
+      text: fp0137PlanText,
+    },
+    ...committedBranchDiffDocTexts.map((entry) => ({
+      ...entry,
+      source: "committed-branch-diff-additions",
+    })),
+    ...dirtyQaDocTexts.map((entry) => ({
+      ...entry,
+      source: "dirty-qa-additions",
+    })),
+  ];
+
+  return {
+    committedBranchDiffDocPaths: committedBranchDiffDocTexts
+      .map(({ path }) => path)
+      .sort(),
+    dirtyQaDocPaths: dirtyQaDocTexts.map(({ path }) => path).sort(),
+    scanText: sections
+      .map(({ path, source, text }) => `# ${source}: ${path}\n${text}`)
+      .join("\n"),
+    scannedFullFp0137PlanText: true,
+  };
+}
+
+function summarizeDocLeakageScanText(docLeakageScanText) {
+  const { scanText: _scanText, ...summary } = docLeakageScanText;
+  return summary;
+}
+
+function readCommittedBranchDiffDocText(paths) {
+  return paths
+    .filter((path) => /\.(?:md|mdx|txt)$/u.test(path))
+    .filter((path) => existsSync(path))
+    .map((path) => {
+      const changedText = readAddedDiffLines([
+        "diff",
+        "--unified=0",
+        "origin/main...HEAD",
+        "--",
+        path,
+      ]);
+      return { path, text: changedText };
+    });
+}
+
+function readDirtyQaDocText(paths) {
+  return paths
+    .filter((path) => /\.(?:md|mdx|txt)$/u.test(path))
+    .filter((path) => existsSync(path))
+    .map((path) => {
+      if (!isTracked(path)) return { path, text: safeRead(path) };
+      const stagedText = readAddedDiffLines([
+        "diff",
+        "--cached",
+        "--unified=0",
+        "--",
+        path,
+      ]);
+      const unstagedText = readAddedDiffLines([
+        "diff",
+        "--unified=0",
+        "--",
+        path,
+      ]);
+      return {
+        path,
+        text: [stagedText, unstagedText].filter(Boolean).join("\n"),
+      };
+    });
+}
+
+function readAddedDiffLines(args) {
+  try {
+    return execFileSync("git", args, { encoding: "utf8" })
+      .split("\n")
+      .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
+      .map((line) => line.slice(1))
+      .join("\n");
+  } catch {
+    return "";
+  }
+}
+
+function isTracked(path) {
+  try {
+    execFileSync("git", ["ls-files", "--error-unmatch", path], {
+      stdio: "ignore",
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function safeRead(path) {
+  return readFileSync(path, "utf8");
 }
 
 function normalize(text) {

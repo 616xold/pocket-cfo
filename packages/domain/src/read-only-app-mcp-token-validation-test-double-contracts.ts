@@ -294,7 +294,9 @@ export const McpTokenValidationTestDoubleProofSchema = z
     fp0133BoundaryVerified: trueLiteral,
     fp0134BoundaryVerified: trueLiteral,
     fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified: trueLiteral,
-    fp0137Absent: trueLiteral,
+    fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+      trueLiteral,
+    fp0138Absent: trueLiteral,
     invalidTokenChallengeContractsFoundationVerified: trueLiteral,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified: trueLiteral,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified: trueLiteral,
