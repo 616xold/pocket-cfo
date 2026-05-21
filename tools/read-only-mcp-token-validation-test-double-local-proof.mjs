@@ -11,6 +11,7 @@ import {
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
   SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
@@ -33,7 +34,8 @@ import {
   verifyFp0132TokenValidationRuntimeContractsBoundary,
   verifyFp0133TokenValidationTestDoubleContractsBoundary,
   verifyFp0134TokenValidationTestDoubleImplementationBoundary,
-  verifyFp0135Absent,
+  verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan,
+  verifyFp0136Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -63,6 +65,9 @@ const fp0133PlanText = safeRead(
 );
 const fp0134PlanText = safeRead(
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+);
+const fp0135PlanText = safeReadIfExists(
+  FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
 );
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
@@ -109,7 +114,12 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
         planText: fp0134PlanText,
         repoPaths,
       }),
-    fp0135Absent: verifyFp0135Absent(repoPaths),
+    fp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlanVerified:
+      verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan({
+        planText: fp0135PlanText,
+        repoPaths,
+      }),
+    fp0136Absent: verifyFp0136Absent(repoPaths),
     issuerScenarioEvaluationVerified:
       scenarioProof.issuerScenarioEvaluationVerified,
     jwtLikeInputMapsToPassthroughAttempt:
@@ -732,6 +742,10 @@ function countMatches(text, pattern) {
 
 function safeRead(path) {
   return readFileSync(path, "utf8");
+}
+
+function safeReadIfExists(path) {
+  return existsSync(path) ? readFileSync(path, "utf8") : undefined;
 }
 
 function normalize(text) {

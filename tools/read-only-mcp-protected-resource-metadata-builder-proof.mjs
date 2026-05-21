@@ -108,6 +108,8 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
   "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md",
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
+  "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md",
+  "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
   "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",

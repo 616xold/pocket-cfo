@@ -175,6 +175,9 @@ export function isMcpTokenValidationTestDoubleProofSourcePath(path: string) {
       normalized,
     ) ||
     /^tools\/read-only-mcp-token-validation.*\.mjs$/u.test(normalized) ||
+    /^tools\/read-only-mcp-invalid-token-challenge.*\.mjs$/u.test(
+      normalized,
+    ) ||
     /^tools\/read-only-mcp-www-authenticate.*\.mjs$/u.test(normalized) ||
     /^tools\/read-only-mcp-protected-resource-metadata.*\.mjs$/u.test(
       normalized,
@@ -395,6 +398,9 @@ function isProofOrContractPath(path: string) {
       path,
     ) ||
     /read-only-app-mcp-token-validation-test-double-validation\.ts$/u.test(
+      path,
+    ) ||
+    /^plans\/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan\.md$/u.test(
       path,
     ) ||
     /^plans\/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation\.md$/u.test(

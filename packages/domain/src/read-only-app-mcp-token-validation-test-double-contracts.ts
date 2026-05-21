@@ -10,10 +10,13 @@ export const FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH =
   "plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md";
 export const FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH =
   "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md";
+export const FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH =
+  "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md";
 
 export const MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0133_PLAN_PREFIX = "FP-0133";
 export const MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0134_PLAN_PREFIX = "FP-0134";
 export const MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0135_PLAN_PREFIX = "FP-0135";
+export const MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0136_PLAN_PREFIX = "FP-0136";
 
 export const MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES = [
   "issuer",
