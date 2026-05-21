@@ -306,7 +306,9 @@ export const McpInvalidTokenChallengeProofSchema = z
     noOpenAiApiCallsFromFp0136: trueLiteral,
     noProviderExternalCallsFromFp0136: trueLiteral,
     noSourceMutationFinanceWriteFromFp0136: trueLiteral,
-    fp0137Absent: trueLiteral,
+    fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+      trueLiteral,
+    fp0138Absent: trueLiteral,
     fp0135InvalidTokenChallengeSequencingBoundaryStillVerified: trueLiteral,
     fp0134SyntheticTestDoubleEvaluatorBoundaryStillVerified: trueLiteral,
     fp0133TokenValidationTestDoubleContractsBoundaryStillVerified: trueLiteral,

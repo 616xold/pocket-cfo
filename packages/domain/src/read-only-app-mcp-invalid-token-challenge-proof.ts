@@ -125,7 +125,10 @@ export function buildMcpInvalidTokenChallengeProof(
       input.noProviderExternalCallsFromFp0136 ?? true,
     noSourceMutationFinanceWriteFromFp0136:
       input.noSourceMutationFinanceWriteFromFp0136 ?? true,
-    fp0137Absent: input.fp0137Absent ?? true,
+    fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+      input.fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified ??
+      true,
+    fp0138Absent: input.fp0138Absent ?? true,
     fp0135InvalidTokenChallengeSequencingBoundaryStillVerified:
       input.fp0135InvalidTokenChallengeSequencingBoundaryStillVerified ?? true,
     fp0134SyntheticTestDoubleEvaluatorBoundaryStillVerified:

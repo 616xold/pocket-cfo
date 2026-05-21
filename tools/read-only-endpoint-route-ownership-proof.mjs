@@ -51,6 +51,10 @@ const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
   "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
 const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs";
+const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH =
+  "plans/FP-0137-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-readiness-master-plan.md";
+const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH =
+  "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -471,6 +475,8 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH ||
     path ===
       "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs" ||
+    path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH ||
+    path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||

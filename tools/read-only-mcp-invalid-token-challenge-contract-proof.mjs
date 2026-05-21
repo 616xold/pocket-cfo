@@ -10,6 +10,7 @@ import {
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   McpInvalidTokenChallengeProofSchema,
   buildMcpInvalidTokenChallengeProof,
   isMcpTokenValidationTestDoubleProofSourcePath,
@@ -24,7 +25,8 @@ import {
   verifyFp0135InvalidTokenChallengeSequencingPlanBoundary,
   verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
   verifyFp0136InvalidTokenChallengeContractsBoundary,
-  verifyFp0137Absent,
+  verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
+  verifyFp0138Absent,
   verifyMcpInvalidTokenChallengeContractBoundaries,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -51,6 +53,9 @@ const changedPaths = changedPathScope.combinedChangedPaths;
 const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const fp0136PlanText = safeRead(
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+);
+const fp0137PlanText = safeReadIfExists(
+  FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
 );
 const docLeakageScanText = readDocLeakageScanText({
   changedPathScope,
@@ -110,7 +115,14 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       planText: fp0136PlanText,
       repoPaths,
     }),
-    fp0137Absent: verifyFp0137Absent(repoPaths),
+    fp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlanVerified:
+      verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan(
+        {
+          planText: fp0137PlanText,
+          repoPaths,
+        },
+      ),
+    fp0138Absent: verifyFp0138Absent(repoPaths),
     invalidTokenChallengeContractsFoundationVerified:
       verifyMcpInvalidTokenChallengeContractBoundaries(),
     noAuthMiddlewareImplementation: sourceScope.noAuthMiddlewareImplementation,
@@ -687,6 +699,10 @@ function countMatches(text, pattern) {
 
 function safeRead(path) {
   return readFileSync(path, "utf8");
+}
+
+function safeReadIfExists(path) {
+  return existsSync(path) ? readFileSync(path, "utf8") : "";
 }
 
 function isTracked(path) {

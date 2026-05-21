@@ -86,6 +86,8 @@ const FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_
   "plans/FP-0130-read-only-chatgpt-app-mcp-www-authenticate-missing-token-challenge-local-implementation.md";
 const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
   "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
+const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH =
+  "plans/FP-0137-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-readiness-master-plan.md";
 const READ_ONLY_MCP_ENDPOINT_RUNTIME_PATH_PATTERN =
   /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u;
 
@@ -897,6 +899,7 @@ function changedFilesAreAllowed() {
     "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md",
     "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md",
     FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+    FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
@@ -940,6 +943,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
+    "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs",
     "tools/benchmark-community-pack-proof.mjs",
     "packages/domain/src/index.ts",
     "packages/domain/src/benchmark-community.spec.ts",
