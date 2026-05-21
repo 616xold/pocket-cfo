@@ -387,7 +387,7 @@ export const McpTokenValidationRuntimeProofSchema = z
     noFinanceWrite: trueLiteral,
     fp0132BoundaryVerified: trueLiteral,
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: trueLiteral,
-    fp0134Absent: trueLiteral,
+    fp0134BoundaryVerified: trueLiteral,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified: trueLiteral,
     fp0130MissingTokenChallengeBoundaryStillVerified: trueLiteral,
     fp0128TokenValidationReadinessBoundaryStillVerified: trueLiteral,

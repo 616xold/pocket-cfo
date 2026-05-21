@@ -35,7 +35,7 @@ import {
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
   verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
-  verifyFp0134Absent,
+  verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
 } from "../packages/domain/src/index.ts";
 import { buildApp } from "../apps/control-plane/src/app.ts";
 import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
@@ -203,7 +203,7 @@ const proof = {
     planProof.fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified,
   fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
     planProof.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified,
-  fp0134Absent: planProof.fp0134Absent,
+  fp0134BoundaryVerified: planProof.fp0134BoundaryVerified,
   tokenValidationRuntimeContractsFoundationVerified:
     planProof.tokenValidationRuntimeContractsFoundationVerified,
   noMcpRouteBehaviorChangeFromFp0132: appProof.mcpRouteBehaviorUnchanged,
@@ -889,7 +889,7 @@ function verifyPlanBoundaries() {
       }),
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
-    fp0134Absent: verifyFp0134Absent(repoPaths),
+    fp0134BoundaryVerified: verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation(repoPaths),
     tokenValidationRuntimeContractsFoundationVerified:
       verifyFp0132TokenValidationRuntimeContractsBoundary({
         planText: safeRead(FP0132_PLAN),

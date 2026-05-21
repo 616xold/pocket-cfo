@@ -29,7 +29,7 @@ import {
   verifyFp0132PlanningTextRequiredTopics,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
   verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
-  verifyFp0134Absent,
+  verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
   verifyMcpTokenValidationRuntimeNoLeakageExamples,
   verifyMcpTokenValidationRuntimeRequiredContractBoundaries,
   verifyMcpTokenValidationRuntimeResultEnvelopeBoundary,
@@ -101,7 +101,7 @@ const proof = McpTokenValidationRuntimeProofSchema.parse(
     fp0132BoundaryVerified: fp0132PlanAccepted,
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
-    fp0134Absent: verifyFp0134Absent(repoPaths),
+    fp0134BoundaryVerified: verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation(repoPaths),
     issuerValidationContractBoundaryVerified:
       verifyMcpTokenValidationRuntimeRequiredContractBoundaries(),
     noAuthMiddlewareImplementation: sourceScope.noAuthMiddlewareImplementation,

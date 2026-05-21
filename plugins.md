@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0133 token-validation test-double contract foundation slice.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0134 synthetic token-validation test-double evaluator slice.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for the FP-0133 local/proof-only/read-only token-validation test-double contract foundation slice and post-merge proof durability hardening covering synthetic non-token scenarios, no real token examples, no JWT-like examples, accepted/rejected result envelopes without token material, issuer/audience/resource/scope/temporal/revocation/replay/user/org/company scenario contracts, selector-only `companyKey`, no-token-passthrough, no-token-leakage, no runtime consumption, durable repository-inventory proof scans, FP-0132/FP-0131/FP-0130 boundary preservation, default `buildApp()` and default `/mcp` preservation, protected-resource metadata route preservation, no token parsing/validation/session/OAuth/auth middleware runtime, no invalid-token runtime behavior, no test-double runtime implementation, no remote/public/App SDK/app-submission scope, FP-0134 absence, proof-gate bridge, direct stale-doc refresh, validation, and handoff:
+  - Skills invoked for the FP-0134 local-only/read-only synthetic token-validation test-double evaluator slice covering explicit synthetic non-token scenario descriptors, accepted/rejected validation result envelopes without token material, issuer/audience/resource/scope/temporal/revocation/replay/subject/org/company scenario evaluation, selector-only `companyKey`, token-like input rejection, no real token examples, no JWT-like examples, no Bearer-scheme credential content, durable repository-inventory proof scans, FP-0133/FP-0132/FP-0131/FP-0130 boundary preservation, default `buildApp()` and default `/mcp` preservation, protected-resource metadata route preservation, no token parsing/validation/session/OAuth/auth middleware runtime, no invalid-token runtime behavior, no route consumption of test doubles, no remote/public/App SDK/app-submission scope, FP-0135 absence, proof-gate bridge, direct stale-doc refresh, validation, and handoff:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

@@ -10,12 +10,19 @@ import {
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
-  McpTokenValidationTestDoubleProofSchema,
-  buildMcpAcceptedValidationResultTestDoubleEnvelope,
-  buildMcpRejectedValidationResultTestDoubleEnvelope,
-  buildMcpTokenValidationTestDoubleProof,
+  FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
+  MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
+  SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
+  SyntheticTokenValidationEvaluationProofSchema,
+  SyntheticTokenValidationScenarioDescriptorSchema,
+  assertSyntheticScenarioContainsNoTokenMaterial,
+  buildSyntheticTokenValidationEvaluationProof,
+  buildSyntheticTokenValidationScenario,
+  evaluateSyntheticTokenValidationScenario,
   isMcpTokenValidationTestDoubleProofSourcePath,
   scanTokenValidationNoLeakage,
+  syntheticFailureModesByFamily,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
@@ -25,11 +32,11 @@ import {
   verifyFp0131TokenValidationRuntimeSequencingPlanBoundary,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
   verifyFp0133TokenValidationTestDoubleContractsBoundary,
-  verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
+  verifyFp0134TokenValidationTestDoubleImplementationBoundary,
+  verifyFp0135Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
-  assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial,
 } from "../packages/domain/src/index.ts";
 
 const FP0125_PLAN =
@@ -54,20 +61,22 @@ const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const fp0133PlanText = safeRead(
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
 );
+const fp0134PlanText = safeRead(
+  FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+);
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
+const scenarioProof = verifyScenarioEvaluation();
 const priorBoundaries = verifyPriorBoundaries();
-const noLeakageProof = verifyNoLeakage();
-const envelopeProof = verifyResultEnvelopes();
 
-const proof = McpTokenValidationTestDoubleProofSchema.parse(
-  buildMcpTokenValidationTestDoubleProof({
-    acceptedValidationResultTestDoubleBoundaryVerified:
-      envelopeProof.acceptedEnvelopeVerified,
-    audienceResourceScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    failureTaxonomyTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
+  buildSyntheticTokenValidationEvaluationProof({
+    acceptedScenarioEvaluationVerified:
+      scenarioProof.acceptedScenarioEvaluationVerified,
+    audienceResourceScenarioEvaluationVerified:
+      scenarioProof.audienceResourceScenarioEvaluationVerified,
+    failureTaxonomyEvaluationVerified:
+      scenarioProof.failureTaxonomyEvaluationVerified,
     fp0100PublicSecurityBoundaryStillVerified:
       priorBoundaries.fp0100PublicSecurityBoundaryStillVerified,
     fp0106ProtocolEnvelopeBoundaryStillVerified:
@@ -86,30 +95,45 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
       priorBoundaries.fp0131TokenValidationRuntimeSequencingBoundaryStillVerified,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
       priorBoundaries.fp0132TokenValidationRuntimeContractsBoundaryStillVerified,
-    fp0133BoundaryVerified:
+    fp0133TokenValidationTestDoubleContractsBoundaryStillVerified:
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
         planText: fp0133PlanText,
         repoPaths,
+      }) && verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    fp0134BoundaryVerified:
+      verifyFp0134TokenValidationTestDoubleImplementationBoundary({
+        planText: fp0134PlanText,
+        repoPaths,
       }),
-    fp0134BoundaryVerified: verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation(repoPaths),
-    issuerScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    noAuthMiddlewareImplementation: sourceScope.noAuthMiddlewareImplementation,
+    fp0135Absent: verifyFp0135Absent(repoPaths),
+    issuerScenarioEvaluationVerified:
+      scenarioProof.issuerScenarioEvaluationVerified,
+    localSyntheticTestDoubleOnly:
+      sourceScope.localSyntheticTestDoubleOnly &&
+      repositoryInventory.tokenValidationTestDoubleRepositoryInventoryVerified,
+    noAuthMiddlewareImplementation:
+      sourceScope.noAuthMiddlewareImplementation,
+    noBearerTokenMaterial:
+      repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noExternalCommunications: sourceScope.noExternalCommunications,
     noFinanceWrite: sourceScope.noFinanceWrite,
     noInvalidTokenChallengeRuntime:
       sourceScope.noInvalidTokenChallengeRuntime &&
       repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
-    noJwtDecodingRuntime:
-      sourceScope.noJwtDecodingRuntime &&
+    noJwtDecoder:
+      sourceScope.noJwtDecoder &&
       repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
+    noJwtLikeExamples:
+      repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noMcpRouteBehaviorChange:
       sourceScope.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
     noMissingTokenChallengeBehaviorChange:
       sourceScope.noMissingTokenChallengeBehaviorChange,
     noModelCalls: sourceScope.noModelCalls,
-    noOauthImplementation: sourceScope.noOauthImplementation,
+    noOauthImplementation:
+      sourceScope.noOauthImplementation &&
+      repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
     noOpenAiApiCalls:
       sourceScope.noOpenAiApiCalls &&
       repositoryInventory.noOpenAiApiSourceScanVerified,
@@ -118,79 +142,48 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
       sourceScope.noProtectedResourceMetadataRouteBehaviorChange &&
       metadataRouteShapeStillVerified(),
     noProviderCalls: sourceScope.noProviderCalls,
-    noPublicAssets: sourceScope.noPublicAssets,
-    noRuntimeConsumptionBoundaryVerified:
-      sourceScope.noRuntimeConsumptionBoundaryVerified &&
+    noRealTokenExamples:
+      repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
+    noRouteConsumesTestDouble:
+      sourceScope.noRouteConsumesTestDouble &&
       repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
     noSchemaMigrationsAdded: sourceScope.noSchemaMigrationsAdded,
     noSourceMutation: sourceScope.noSourceMutation,
-    noTokenLeakageTestDoubleBoundaryVerified: noLeakageProof.verified,
-    noTokenParsingRuntime:
-      sourceScope.noTokenParsingRuntime &&
+    noTokenIntrospection:
+      sourceScope.noTokenIntrospection &&
+      repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
+    noTokenMaterialInputAccepted:
+      scenarioProof.noTokenMaterialInputAccepted,
+    noTokenParser:
+      sourceScope.noTokenParser &&
       repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
-    noTokenPassthroughTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
     noTokenSessionStorage: sourceScope.noTokenSessionStorage,
     noTokenValidationRuntime:
       sourceScope.noTokenValidationRuntime &&
       repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
-    tokenValidationTestDoubleRepositoryInventoryVerified:
-      repositoryInventory.tokenValidationTestDoubleRepositoryInventoryVerified,
-    noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified,
-    noTokenParsingRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
-    noTokenValidationRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
-    noJwtDecodingRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
-    noTokenIntrospectionRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
-    noInvalidTokenChallengeRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
-    noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified:
-      repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
-    noRealTokenExampleRepositoryInventoryVerified:
-      repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
-    noJwtLikeExampleRepositoryInventoryVerified:
-      repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
-    noBearerTokenMaterialRepositoryInventoryVerified:
-      repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
-    noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified:
-      repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
-    noOpenAiApiSourceScanVerified:
-      repositoryInventory.noOpenAiApiSourceScanVerified,
-    fp0133PostmergeProofDurabilityVerified:
-      repositoryInventory.fp0133PostmergeProofDurabilityVerified,
-    noJwtLikeExampleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-    noRealTokenExampleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-    rejectedValidationResultTestDoubleBoundaryVerified:
-      envelopeProof.rejectedEnvelopeVerified,
-    revocationReplayScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    scopeScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    selectorOnlyCompanyKeyTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    subjectOrgCompanyScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    syntheticNonTokenInputBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-    syntheticValidationScenarioBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    temporalScenarioTestDoubleBoundaryVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
-    tokenValidationTestDoubleContractsVerified:
-      verifyMcpTokenValidationTestDoubleContractBoundaries(),
+    rejectedScenarioEvaluationVerified:
+      scenarioProof.rejectedScenarioEvaluationVerified,
+    revocationReplayScenarioEvaluationVerified:
+      scenarioProof.revocationReplayScenarioEvaluationVerified,
+    scopeScenarioEvaluationVerified:
+      scenarioProof.scopeScenarioEvaluationVerified,
+    selectorOnlyCompanyKeyPreserved:
+      scenarioProof.selectorOnlyCompanyKeyPreserved,
+    subjectOrgCompanyScenarioEvaluationVerified:
+      scenarioProof.subjectOrgCompanyScenarioEvaluationVerified,
+    syntheticDescriptorOnlyInputVerified:
+      scenarioProof.syntheticDescriptorOnlyInputVerified,
+    temporalScenarioEvaluationVerified:
+      scenarioProof.temporalScenarioEvaluationVerified,
+    tokenValidationTestDoubleLocalImplementationVerified:
+      scenarioProof.tokenValidationTestDoubleLocalImplementationVerified,
   }),
 );
 
 for (const [key, value] of Object.entries(proof)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0133 token-validation test-double proof failed: ${key}`,
+      `FP-0134 synthetic token-validation test-double local proof failed: ${key}`,
     );
   }
 }
@@ -201,10 +194,9 @@ console.log(
       ...proof,
       proofDetails: {
         changedPathScope,
-        envelopeProof,
-        noLeakageProof,
         priorBoundaries,
         repositoryInventory,
+        scenarioProof,
         sourceScope,
       },
     },
@@ -212,6 +204,126 @@ console.log(
     2,
   ),
 );
+
+function verifyScenarioEvaluation() {
+  const acceptedScenario = buildSyntheticTokenValidationScenario({
+    companyKey: "synthetic-selector-company",
+    family: "subject_org_company",
+    outcome: SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
+    syntheticBinding: {
+      companyRef: "synthetic-company-ref",
+      orgRef: "synthetic-org-ref",
+      subjectRef: "synthetic-subject-ref",
+    },
+    syntheticScenarioId: "synthetic-accepted-subject-org-company",
+  });
+  const rejectedScenario = buildSyntheticTokenValidationScenario({
+    companyKey: "synthetic-selector-company",
+    family: "subject_org_company",
+    outcome: "wrong-company",
+    syntheticScenarioId: "synthetic-rejected-wrong-company",
+  });
+  const acceptedEnvelope =
+    evaluateSyntheticTokenValidationScenario(acceptedScenario);
+  const rejectedEnvelope =
+    evaluateSyntheticTokenValidationScenario(rejectedScenario);
+  const familyOutcomes = syntheticFailureModesByFamily();
+  const evaluatedFamilies = Object.fromEntries(
+    MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES.map((family) => {
+      const outcome =
+        familyOutcomes[family][0] ?? SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME;
+      const scenario = buildSyntheticTokenValidationScenario({
+        companyKey: "synthetic-selector-company",
+        family,
+        outcome,
+        syntheticScenarioId: `synthetic-${family}-${outcome}`,
+      });
+      const envelope = evaluateSyntheticTokenValidationScenario(scenario);
+      return [
+        family,
+        outcome === SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME
+          ? envelope.accepted === true
+          : envelope.accepted === false && envelope.failureMode === outcome,
+      ];
+    }),
+  );
+  const evaluatedTaxonomy =
+    MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY.map((failureMode) => {
+      const scenario = buildSyntheticTokenValidationScenario({
+        companyKey: "synthetic-selector-company",
+        outcome: failureMode,
+        syntheticScenarioId: `synthetic-failure-${failureMode}`,
+      });
+      const envelope = evaluateSyntheticTokenValidationScenario(scenario);
+      return envelope.accepted === false && envelope.failureMode === failureMode;
+    });
+  const forbiddenInputs = [
+    ["Authorization", "Bearer synthetic-token-material"].join(": "),
+    ["Bearer", "synthetic-token-material"].join(" "),
+    [
+      "jwtlikeheader".padEnd(16, "x"),
+      "jwtlikepayload".padEnd(16, "x"),
+      "jwtlikesig".padEnd(16, "x"),
+    ].join("."),
+    ["access_token", "synthetic-token-material"].join("="),
+    ["client_secret", "synthetic-token-material"].join("="),
+    ["session", "synthetic-token-material"].join("="),
+    ["cookie", "synthetic-token-material"].join("="),
+    ["provider_credential", "synthetic-token-material"].join("="),
+  ];
+  const rejectedTokenLikeInputs = forbiddenInputs.map((input) => {
+    const envelope = evaluateSyntheticTokenValidationScenario(input);
+    return envelope.accepted === false && envelope.carriesRawToken === false;
+  });
+  const descriptorOnlyInput =
+    SyntheticTokenValidationScenarioDescriptorSchema.safeParse(
+      acceptedScenario,
+    ).success &&
+    forbiddenInputs.every((input) => {
+      try {
+        assertSyntheticScenarioContainsNoTokenMaterial(input);
+        return false;
+      } catch {
+        return true;
+      }
+    });
+  const outputText = JSON.stringify([
+    acceptedEnvelope,
+    rejectedEnvelope,
+    ...forbiddenInputs.map(evaluateSyntheticTokenValidationScenario),
+  ]);
+  const outputNoLeakage = scanTokenValidationNoLeakage(outputText).accepted;
+
+  return {
+    acceptedScenarioEvaluationVerified:
+      acceptedEnvelope.accepted === true &&
+      acceptedEnvelope.resultKind === "accepted_test_double" &&
+      acceptedEnvelope.carriesRawToken === false,
+    audienceResourceScenarioEvaluationVerified:
+      evaluatedFamilies.audience_resource === true,
+    failureTaxonomyEvaluationVerified: evaluatedTaxonomy.every(Boolean),
+    issuerScenarioEvaluationVerified: evaluatedFamilies.issuer === true,
+    noTokenMaterialInputAccepted: rejectedTokenLikeInputs.every(Boolean),
+    rejectedScenarioEvaluationVerified:
+      rejectedEnvelope.accepted === false &&
+      rejectedEnvelope.resultKind === "rejected_test_double" &&
+      rejectedEnvelope.failureMode === "wrong-company" &&
+      rejectedEnvelope.carriesRawToken === false,
+    revocationReplayScenarioEvaluationVerified:
+      evaluatedFamilies.revocation_replay === true,
+    scopeScenarioEvaluationVerified: evaluatedFamilies.scope === true,
+    selectorOnlyCompanyKeyPreserved:
+      acceptedEnvelope.subjectOrgCompanyBinding.companyKeySelectorOnly ===
+        true &&
+      !outputText.includes("synthetic-selector-company"),
+    subjectOrgCompanyScenarioEvaluationVerified:
+      evaluatedFamilies.subject_org_company === true,
+    syntheticDescriptorOnlyInputVerified: descriptorOnlyInput,
+    temporalScenarioEvaluationVerified: evaluatedFamilies.temporal === true,
+    tokenValidationTestDoubleLocalImplementationVerified:
+      outputNoLeakage && verifyMcpTokenValidationTestDoubleNoTokenExamples(),
+  };
+}
 
 function verifySourceScope() {
   const modelCallPattern = ["call", "Model"].join("");
@@ -221,6 +333,9 @@ function verifySourceScope() {
   );
 
   return {
+    localSyntheticTestDoubleOnly:
+      !changedPaths.includes(MCP_ROUTE_PATH) &&
+      !changedPaths.includes(METADATA_ROUTE_PATH),
     noAuthMiddlewareImplementation:
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|requireAuth|authenticateRequest|setCookie)\s*\(/u.test(
         changedExecutableSource,
@@ -242,7 +357,7 @@ function verifySourceScope() {
       !/\b(?:invalidTokenChallenge|malformedToken|expiredToken|wrongAudience|wrongResource|wrongScope|wrongOrg|wrongCompany|revokedToken|replayedToken)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noJwtDecodingRuntime:
+    noJwtDecoder:
       !/\b(?:parseJwt|decodeJwt|jwtDecode|jwtVerify|verifyJwt)\s*\(/u.test(
         changedExecutableSource,
       ),
@@ -268,12 +383,7 @@ function verifySourceScope() {
       !/\b(?:providerConnect|callProvider|createProviderJob|deploy|fetch)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noPublicAssets: !changedPaths.some((path) =>
-      /(?:app-submission|submission-assets|public-listing|store-listing|listing-copy|screenshots|\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$)/iu.test(
-        path,
-      ),
-    ),
-    noRuntimeConsumptionBoundaryVerified:
+    noRouteConsumesTestDouble:
       !/\b(?:consumeTestDouble|runTestDouble|testDoubleRuntime|routeTestDouble)\s*\(/u.test(
         changedExecutableSource,
       ),
@@ -287,7 +397,10 @@ function verifySourceScope() {
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noTokenParsingRuntime:
+    noTokenIntrospection: !/\bintrospectToken\s*\(/u.test(
+      changedExecutableSource,
+    ),
+    noTokenParser:
       !/\b(?:decodeToken|parseToken|parseJwt|decodeJwt|jwtDecode|introspectToken)\s*\(/u.test(
         changedExecutableSource,
       ),
@@ -383,35 +496,6 @@ function verifyPriorBoundaries() {
         planText: safeRead(FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH),
         repoPaths,
       }),
-  };
-}
-
-function verifyNoLeakage() {
-  const proofText = JSON.stringify(buildMcpTokenValidationTestDoubleProof());
-  const planScan = scanTokenValidationNoLeakage(fp0133PlanText);
-  const proofScan = scanTokenValidationNoLeakage(proofText);
-  return {
-    planScanAccepted: planScan.accepted,
-    proofScanAccepted: proofScan.accepted,
-    verified:
-      planScan.accepted &&
-      proofScan.accepted &&
-      verifyMcpTokenValidationTestDoubleNoTokenExamples(),
-  };
-}
-
-function verifyResultEnvelopes() {
-  const acceptedEnvelope = buildMcpAcceptedValidationResultTestDoubleEnvelope();
-  const rejectedEnvelope = buildMcpRejectedValidationResultTestDoubleEnvelope();
-  return {
-    acceptedEnvelopeVerified:
-      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
-        acceptedEnvelope,
-      ).accepted,
-    rejectedEnvelopeVerified:
-      assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial(
-        rejectedEnvelope,
-      ).accepted,
   };
 }
 

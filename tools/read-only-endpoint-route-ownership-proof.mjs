@@ -457,6 +457,10 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH ||
     path ===
       "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs" ||
+    path ===
+      "tools/read-only-mcp-token-validation-test-double-local-proof.mjs" ||
+    path ===
+      "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md" ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||

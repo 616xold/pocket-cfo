@@ -3,7 +3,9 @@ import {
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0133_PLAN_PREFIX,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0134_PLAN_PREFIX,
+  MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0135_PLAN_PREFIX,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
+  FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
 } from "./read-only-app-mcp-token-validation-test-double-contracts";
 
 type Fp0133BoundaryInput =
@@ -49,6 +51,48 @@ export function verifyFp0133TokenValidationTestDoubleContractsBoundary(
 export function verifyFp0134Absent(repoPaths: readonly string[]) {
   return (
     fpPlanHits(repoPaths, MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0134_PLAN_PREFIX)
+      .length === 0
+  );
+}
+
+export function verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation(
+  input: Fp0133BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeFp0133BoundaryInput(input);
+  const fp0134Hits = fpPlanHits(
+    repoPaths,
+    MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0134_PLAN_PREFIX,
+  );
+  if (fp0134Hits.length === 0) return true;
+
+  return (
+    fp0134Hits.length === 1 &&
+    fp0134Hits[0] ===
+      FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH &&
+    (typeof planText !== "string" || fp0134PlanTextBoundaryVerified(planText))
+  );
+}
+
+export function verifyFp0134TokenValidationTestDoubleImplementationBoundary(
+  input: Fp0133BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeFp0133BoundaryInput(input);
+  const fp0134Hits = fpPlanHits(
+    repoPaths,
+    MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0134_PLAN_PREFIX,
+  );
+  return (
+    fp0134Hits.length === 1 &&
+    fp0134Hits[0] ===
+      FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH &&
+    typeof planText === "string" &&
+    fp0134PlanTextBoundaryVerified(planText)
+  );
+}
+
+export function verifyFp0135Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, MCP_TOKEN_VALIDATION_TEST_DOUBLE_FP0135_PLAN_PREFIX)
       .length === 0
   );
 }
@@ -108,6 +152,37 @@ function fp0133PlanTextBoundaryVerified(planText: string) {
     Object.values(verifyFp0133PlanningTextRequiredTopics(planText)).every(
       Boolean,
     )
+  );
+}
+
+function fp0134PlanTextBoundaryVerified(planText: string) {
+  const normalized = normalize(planText);
+  return (
+    [
+      "first local-only, proof-backed synthetic token-validation test-double evaluator",
+      "consumes scenario descriptors, not tokens",
+      "returns validation result envelopes, not http route responses",
+      "not token validation runtime",
+      "not token parsing runtime",
+      "not jwt decoding",
+      "not oauth implementation",
+      "not token introspection",
+      "not token/session storage",
+      "not auth middleware",
+      "not invalid-token `www-authenticate` route behavior",
+      "no route consumption",
+      "no `/mcp` route behavior change",
+      "fp-0135 remains absent",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES.every((family) =>
+      normalized.includes(family.replace(/_/gu, "/")),
+    ) &&
+    MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY.every((failureMode) =>
+      normalized.includes(failureMode),
+    ) &&
+    normalized.includes("companykey remains selector-only") &&
+    normalized.includes("origin/main...head") &&
+    normalized.includes("dirty same-branch qa target")
   );
 }
 

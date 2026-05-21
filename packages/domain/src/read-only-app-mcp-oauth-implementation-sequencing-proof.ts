@@ -50,7 +50,7 @@ export const McpOauthImplementationSequencingProofSchema = z
       trueLiteral,
     fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: trueLiteral,
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: trueLiteral,
-    fp0134Absent: trueLiteral,
+    fp0134BoundaryVerified: trueLiteral,
     tokenValidationRuntimeContractsFoundationVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0132: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0132: trueLiteral,
@@ -266,7 +266,7 @@ export function buildMcpOauthImplementationSequencingProof(
     fp0131AbsentOrDocsOnlyTokenValidationRuntimeSequencingPlanVerified: boolean;
     fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: boolean;
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: boolean;
-    fp0134Absent: boolean;
+    fp0134BoundaryVerified: boolean;
     tokenValidationRuntimeContractsFoundationVerified: boolean;
     noMcpRouteBehaviorChangeFromFp0132: boolean;
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0132: boolean;
@@ -534,7 +534,7 @@ export function buildMcpOauthImplementationSequencingProof(
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
       input.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified ??
       true,
-    fp0134Absent: input.fp0134Absent ?? true,
+    fp0134BoundaryVerified: input.fp0134BoundaryVerified ?? true,
     tokenValidationRuntimeContractsFoundationVerified:
       input.tokenValidationRuntimeContractsFoundationVerified ?? true,
     noMcpRouteBehaviorChangeFromFp0132:
