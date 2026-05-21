@@ -43,7 +43,9 @@ import {
   verifyFp0138Absent,
   verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
   verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary,
-  verifyFp0139Absent,
+  verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
+  verifyFp0140Absent,
+  FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   verifyMcpInvalidTokenChallengeContractBoundaries,
 } from "./index";
 
@@ -72,7 +74,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0136 invalid-token challenge contract foundations", () => {
-  it("accepts exactly one FP-0136 contract plan, FP-0137 readiness plan, and FP-0138 planning plan while FP-0139 remains absent", () => {
+  it("accepts FP-0136 through FP-0139 result-envelope plans while FP-0140 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
@@ -92,6 +94,9 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0138/u.test(path))).toEqual([
       FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0139/u.test(path))).toEqual([
+      FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
     ]);
     expect(verifyFp0136Absent(repoPaths)).toBe(false);
     expect(
@@ -133,7 +138,12 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0139Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(verifyFp0140Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts({
         planText,
@@ -158,8 +168,14 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0139Absent([...repoPaths, "plans/FP-0139-future-runtime.md"]),
+      verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope([
+        ...repoPaths,
+        "plans/FP-0139-future-runtime.md",
+      ]),
     ).toBe(false);
+    expect(verifyFp0140Absent([...repoPaths, "plans/FP-0140-future.md"])).toBe(
+      false,
+    );
   });
 
   it("keeps FP-0137 docs-and-plan proof-gate only and blocks route behavior until runtime result envelopes exist", () => {

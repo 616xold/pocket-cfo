@@ -30,7 +30,8 @@ import {
   verifyFp0137PlanningTextRequiredTopics,
   verifyFp0138Absent,
   verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
-  verifyFp0139Absent,
+  verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
+  verifyFp0140Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -61,9 +62,7 @@ const docLeakageScanText = readDocLeakageScanText({
   changedPathScope,
   fp0137PlanText,
 });
-const noLeakageScan = scanTokenValidationNoLeakage(
-  docLeakageScanText.scanText,
-);
+const noLeakageScan = scanTokenValidationNoLeakage(docLeakageScanText.scanText);
 const planTopics = verifyFp0137PlanningTextRequiredTopics(fp0137PlanText);
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
@@ -318,7 +317,10 @@ function verifyFp0138Compatibility() {
       ),
       repoPaths,
     }) &&
-      verifyFp0139Absent(repoPaths))
+      verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope(
+        repoPaths,
+      ) &&
+      verifyFp0140Absent(repoPaths))
   );
 }
 
