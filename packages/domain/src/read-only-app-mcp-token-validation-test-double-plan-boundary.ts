@@ -111,8 +111,7 @@ export function verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan(
 
   return (
     fp0135Hits.length === 1 &&
-    fp0135Hits[0] ===
-      FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH &&
+    fp0135Hits[0] === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH &&
     (typeof planText !== "string" || fp0135PlanTextBoundaryVerified(planText))
   );
 }
@@ -127,8 +126,7 @@ export function verifyFp0135InvalidTokenChallengeSequencingPlanBoundary(
   );
   return (
     fp0135Hits.length === 1 &&
-    fp0135Hits[0] ===
-      FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH &&
+    fp0135Hits[0] === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH &&
     typeof planText === "string" &&
     fp0135PlanTextBoundaryVerified(planText)
   );

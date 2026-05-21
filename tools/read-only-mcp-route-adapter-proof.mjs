@@ -84,6 +84,8 @@ const FP0129_WWW_AUTHENTICATE_CHALLENGE_IMPLEMENTATION_SEQUENCING_PLAN_PATH =
   "plans/FP-0129-read-only-chatgpt-app-mcp-www-authenticate-challenge-implementation-sequencing-master-plan.md";
 const FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH =
   "plans/FP-0130-read-only-chatgpt-app-mcp-www-authenticate-missing-token-challenge-local-implementation.md";
+const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
+  "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
 const READ_ONLY_MCP_ENDPOINT_RUNTIME_PATH_PATTERN =
   /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u;
 
@@ -892,6 +894,9 @@ function changedFilesAreAllowed() {
     "plans/FP-0131-read-only-chatgpt-app-mcp-token-validation-invalid-token-runtime-sequencing-master-plan.md",
     "plans/FP-0132-read-only-chatgpt-app-mcp-token-validation-runtime-contracts-foundation.md",
     "plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md",
+    "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md",
+    "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md",
+    FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
     ROUTE_PATH,
     SERVICE_PATH,
     FORMATTER_PATH,
@@ -933,6 +938,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs",
     "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
     "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
+    "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
     "tools/benchmark-community-pack-proof.mjs",
     "packages/domain/src/index.ts",

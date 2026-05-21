@@ -9,6 +9,7 @@ import {
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   scanTokenValidationNoLeakage,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128TokenValidationReadinessContractsBoundary,
@@ -20,7 +21,9 @@ import {
   verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan,
   verifyFp0135InvalidTokenChallengeSequencingPlanBoundary,
   verifyFp0135PlanningTextRequiredTopics,
-  verifyFp0136Absent,
+  verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
+  verifyFp0136InvalidTokenChallengeContractsBoundary,
+  verifyFp0137Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -47,6 +50,9 @@ const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const fp0135PlanText = safeRead(
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
 );
+const fp0136PlanText = safeReadIfExists(
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+);
 const changedDocText = readChangedDocText(changedPaths);
 const scannedPlanningText = [fp0135PlanText, changedDocText].join("\n");
 const planTopics = verifyFp0135PlanningTextRequiredTopics(fp0135PlanText);
@@ -63,7 +69,17 @@ const proof = {
       planText: fp0135PlanText,
       repoPaths,
     }),
-  fp0136Absent: verifyFp0136Absent(repoPaths),
+  fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified:
+    verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts({
+      planText: fp0136PlanText,
+      repoPaths,
+    }),
+  fp0137Absent: verifyFp0137Absent(repoPaths),
+  invalidTokenChallengeContractsFoundationVerified:
+    verifyFp0136InvalidTokenChallengeContractsBoundary({
+      planText: fp0136PlanText,
+      repoPaths,
+    }),
   invalidTokenChallengeSequencingPlanBoundaryVerified:
     verifyFp0135InvalidTokenChallengeSequencingPlanBoundary({
       planText: fp0135PlanText,
@@ -132,7 +148,9 @@ const proof = {
     }),
   fp0133TokenValidationTestDoubleContractsBoundaryStillVerified:
     verifyFp0133TokenValidationTestDoubleContractsBoundary({
-      planText: safeRead(FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH),
+      planText: safeRead(
+        FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+      ),
       repoPaths,
     }) && verifyMcpTokenValidationTestDoubleContractBoundaries(),
   fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
@@ -161,6 +179,60 @@ const proof = {
   planningTextCoversFailureTaxonomy: planTopics.failureTaxonomy,
   planningTextCoversNoTokenEcho: planTopics.noTokenSamples,
   planningTextCoversFutureFp0136Gate: planTopics.futureFp0136Gate,
+  noMcpRouteBehaviorChangeFromFp0136:
+    sourceScope.noMcpRouteBehaviorChangeFromFp0135 &&
+    localMcpRouteShapeStillVerified(),
+  noProtectedResourceMetadataRouteBehaviorChangeFromFp0136:
+    sourceScope.noProtectedResourceMetadataRouteBehaviorChangeFromFp0135 &&
+    metadataRouteShapeStillVerified(),
+  noMissingTokenChallengeBehaviorChangeFromFp0136:
+    sourceScope.noMissingTokenChallengeBehaviorChangeFromFp0135,
+  noInvalidTokenChallengeRuntimeFromFp0136:
+    sourceScope.noInvalidTokenChallengeRuntimeFromFp0135 &&
+    repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
+  noTokenParsingRuntimeFromFp0136:
+    sourceScope.noTokenParsingRuntimeFromFp0135 &&
+    repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
+  noTokenValidationRuntimeFromFp0136:
+    sourceScope.noTokenValidationRuntimeFromFp0135 &&
+    repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
+  noJwtDecodingRuntimeFromFp0136:
+    sourceScope.noJwtDecodingRuntimeFromFp0135 &&
+    repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
+  noTokenIntrospectionRuntimeFromFp0136:
+    sourceScope.noTokenIntrospectionRuntimeFromFp0135 &&
+    repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
+  noRouteConsumesTestDoubleFromFp0136:
+    sourceScope.noRouteConsumesTestDoubleFromFp0135 &&
+    repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
+  noOauthImplementationFromFp0136:
+    sourceScope.noOauthImplementationFromFp0135 &&
+    repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
+  noTokenSessionStorageFromFp0136:
+    sourceScope.noTokenSessionStorageFromFp0135 &&
+    repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
+  noAuthMiddlewareImplementationFromFp0136:
+    sourceScope.noAuthMiddlewareImplementationFromFp0135,
+  noRealTokenExamplesFromFp0136:
+    noLeakageScan.accepted &&
+    repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
+  noJwtLikeExamplesFromFp0136:
+    noLeakageScan.accepted &&
+    repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
+  noBearerTokenMaterialFromFp0136:
+    noLeakageScan.accepted &&
+    repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
+  noDbQueriesFromFp0136: sourceScope.noDbQueriesFromFp0135,
+  noSchemaMigrationsFromFp0136: sourceScope.noSchemaMigrationsFromFp0135,
+  noPackageScriptsFromFp0136: sourceScope.noPackageScriptsFromFp0135,
+  noOpenAiApiCallsFromFp0136:
+    sourceScope.noOpenAiApiCallsFromFp0135 &&
+    repositoryInventory.noOpenAiApiSourceScanVerified,
+  noProviderExternalCallsFromFp0136:
+    sourceScope.noProviderExternalCallsFromFp0135,
+  noSourceMutationFinanceWriteFromFp0136:
+    sourceScope.noSourceMutationFromFp0135 &&
+    sourceScope.noFinanceWriteFromFp0135,
 };
 
 for (const [key, value] of Object.entries(proof)) {
@@ -254,8 +326,9 @@ function verifySourceScope() {
       !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noTokenIntrospectionRuntimeFromFp0135:
-      !/\bintrospectToken\s*\(/u.test(changedExecutableSource),
+    noTokenIntrospectionRuntimeFromFp0135: !/\bintrospectToken\s*\(/u.test(
+      changedExecutableSource,
+    ),
     noTokenParsingRuntimeFromFp0135:
       !/\b(?:decodeToken|parseToken|parseJwt|decodeJwt|jwtDecode|introspectToken)\s*\(/u.test(
         changedExecutableSource,
@@ -482,6 +555,10 @@ function countMatches(text, pattern) {
 
 function safeRead(path) {
   return readFileSync(path, "utf8");
+}
+
+function safeReadIfExists(path) {
+  return existsSync(path) ? readFileSync(path, "utf8") : undefined;
 }
 
 function isTracked(path) {

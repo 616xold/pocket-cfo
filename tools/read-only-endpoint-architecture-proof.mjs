@@ -62,6 +62,10 @@ const FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH =
   "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md";
 const FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs";
+const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
+  "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
+const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH =
+  "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -745,6 +749,7 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH ||
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH ||
     path === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH ||
+    path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH ||
     path ===
       "plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md" ||
     path ===
@@ -767,6 +772,7 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PROOF_PATH ||
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH ||
     path === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PROOF_PATH ||
+    path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH ||
     path ===
       "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs" ||
     path ===

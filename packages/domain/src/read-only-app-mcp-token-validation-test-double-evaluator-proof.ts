@@ -58,7 +58,9 @@ export const SyntheticTokenValidationEvaluationProofSchema = z
     fp0134BoundaryVerified: z.literal(true),
     fp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlanVerified:
       z.literal(true),
-    fp0136Absent: z.literal(true),
+    fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified: z.literal(true),
+    fp0137Absent: z.literal(true),
+    invalidTokenChallengeContractsFoundationVerified: z.literal(true),
     fp0133TokenValidationTestDoubleContractsBoundaryStillVerified:
       z.literal(true),
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified: z.literal(true),
@@ -134,7 +136,9 @@ export function buildSyntheticTokenValidationEvaluationProof(
     noFinanceWrite: true,
     fp0134BoundaryVerified: true,
     fp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlanVerified: true,
-    fp0136Absent: true,
+    fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified: true,
+    fp0137Absent: true,
+    invalidTokenChallengeContractsFoundationVerified: true,
     fp0133TokenValidationTestDoubleContractsBoundaryStillVerified: true,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified: true,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified: true,
