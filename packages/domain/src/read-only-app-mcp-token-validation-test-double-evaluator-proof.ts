@@ -1,0 +1,130 @@
+import { z } from "zod";
+
+export const MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION =
+  "v2bb.read-only-app-mcp-token-validation-test-double-local-evaluator.v1";
+
+export const SyntheticTokenValidationEvaluationProofSchema = z
+  .object({
+    schemaVersion: z.literal(
+      MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
+    ),
+    localSyntheticTestDoubleOnly: z.literal(true),
+    tokenValidationTestDoubleLocalImplementationVerified: z.literal(true),
+    syntheticDescriptorOnlyInputVerified: z.literal(true),
+    noTokenMaterialInputAccepted: z.literal(true),
+    acceptedScenarioEvaluationVerified: z.literal(true),
+    rejectedScenarioEvaluationVerified: z.literal(true),
+    issuerScenarioEvaluationVerified: z.literal(true),
+    audienceResourceScenarioEvaluationVerified: z.literal(true),
+    scopeScenarioEvaluationVerified: z.literal(true),
+    temporalScenarioEvaluationVerified: z.literal(true),
+    revocationReplayScenarioEvaluationVerified: z.literal(true),
+    subjectOrgCompanyScenarioEvaluationVerified: z.literal(true),
+    failureTaxonomyEvaluationVerified: z.literal(true),
+    selectorOnlyCompanyKeyPreserved: z.literal(true),
+    noRealTokenExamples: z.literal(true),
+    noJwtLikeExamples: z.literal(true),
+    noBearerTokenMaterial: z.literal(true),
+    noTokenParser: z.literal(true),
+    noJwtDecoder: z.literal(true),
+    noTokenValidationRuntime: z.literal(true),
+    noTokenIntrospection: z.literal(true),
+    noTokenSessionStorage: z.literal(true),
+    noOauthImplementation: z.literal(true),
+    noAuthMiddlewareImplementation: z.literal(true),
+    noInvalidTokenChallengeRuntime: z.literal(true),
+    noRouteConsumesTestDouble: z.literal(true),
+    noMcpRouteBehaviorChange: z.literal(true),
+    noProtectedResourceMetadataRouteBehaviorChange: z.literal(true),
+    noMissingTokenChallengeBehaviorChange: z.literal(true),
+    noDbQueriesAdded: z.literal(true),
+    noSchemaMigrationsAdded: z.literal(true),
+    noPackageScriptsAdded: z.literal(true),
+    noOpenAiApiCalls: z.literal(true),
+    noModelCalls: z.literal(true),
+    noProviderCalls: z.literal(true),
+    noExternalCommunications: z.literal(true),
+    noSourceMutation: z.literal(true),
+    noFinanceWrite: z.literal(true),
+    fp0134BoundaryVerified: z.literal(true),
+    fp0135Absent: z.literal(true),
+    fp0133TokenValidationTestDoubleContractsBoundaryStillVerified:
+      z.literal(true),
+    fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
+      z.literal(true),
+    fp0131TokenValidationRuntimeSequencingBoundaryStillVerified:
+      z.literal(true),
+    fp0130MissingTokenChallengeBoundaryStillVerified: z.literal(true),
+    fp0128TokenValidationReadinessBoundaryStillVerified: z.literal(true),
+    fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified: z.literal(true),
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
+      z.literal(true),
+    fp0107RouteAdapterBoundaryStillVerified: z.literal(true),
+    fp0106ProtocolEnvelopeBoundaryStillVerified: z.literal(true),
+    fp0100PublicSecurityBoundaryStillVerified: z.literal(true),
+  })
+  .strict();
+
+export type SyntheticTokenValidationEvaluationProof = z.infer<
+  typeof SyntheticTokenValidationEvaluationProofSchema
+>;
+
+export function buildSyntheticTokenValidationEvaluationProof(
+  input: Partial<SyntheticTokenValidationEvaluationProof> = {},
+): SyntheticTokenValidationEvaluationProof {
+  return SyntheticTokenValidationEvaluationProofSchema.parse({
+    schemaVersion:
+      MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
+    localSyntheticTestDoubleOnly: true,
+    tokenValidationTestDoubleLocalImplementationVerified: true,
+    syntheticDescriptorOnlyInputVerified: true,
+    noTokenMaterialInputAccepted: true,
+    acceptedScenarioEvaluationVerified: true,
+    rejectedScenarioEvaluationVerified: true,
+    issuerScenarioEvaluationVerified: true,
+    audienceResourceScenarioEvaluationVerified: true,
+    scopeScenarioEvaluationVerified: true,
+    temporalScenarioEvaluationVerified: true,
+    revocationReplayScenarioEvaluationVerified: true,
+    subjectOrgCompanyScenarioEvaluationVerified: true,
+    failureTaxonomyEvaluationVerified: true,
+    selectorOnlyCompanyKeyPreserved: true,
+    noRealTokenExamples: true,
+    noJwtLikeExamples: true,
+    noBearerTokenMaterial: true,
+    noTokenParser: true,
+    noJwtDecoder: true,
+    noTokenValidationRuntime: true,
+    noTokenIntrospection: true,
+    noTokenSessionStorage: true,
+    noOauthImplementation: true,
+    noAuthMiddlewareImplementation: true,
+    noInvalidTokenChallengeRuntime: true,
+    noRouteConsumesTestDouble: true,
+    noMcpRouteBehaviorChange: true,
+    noProtectedResourceMetadataRouteBehaviorChange: true,
+    noMissingTokenChallengeBehaviorChange: true,
+    noDbQueriesAdded: true,
+    noSchemaMigrationsAdded: true,
+    noPackageScriptsAdded: true,
+    noOpenAiApiCalls: true,
+    noModelCalls: true,
+    noProviderCalls: true,
+    noExternalCommunications: true,
+    noSourceMutation: true,
+    noFinanceWrite: true,
+    fp0134BoundaryVerified: true,
+    fp0135Absent: true,
+    fp0133TokenValidationTestDoubleContractsBoundaryStillVerified: true,
+    fp0132TokenValidationRuntimeContractsBoundaryStillVerified: true,
+    fp0131TokenValidationRuntimeSequencingBoundaryStillVerified: true,
+    fp0130MissingTokenChallengeBoundaryStillVerified: true,
+    fp0128TokenValidationReadinessBoundaryStillVerified: true,
+    fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified: true,
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified: true,
+    fp0107RouteAdapterBoundaryStillVerified: true,
+    fp0106ProtocolEnvelopeBoundaryStillVerified: true,
+    fp0100PublicSecurityBoundaryStillVerified: true,
+    ...input,
+  });
+}

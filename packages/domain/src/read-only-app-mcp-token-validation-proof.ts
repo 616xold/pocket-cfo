@@ -66,7 +66,7 @@ export const McpTokenValidationReadinessProofSchema = z
       trueLiteral,
     fp0132AbsentOrLocalTokenValidationRuntimeContractsVerified: trueLiteral,
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified: trueLiteral,
-    fp0134Absent: trueLiteral,
+    fp0134BoundaryVerified: trueLiteral,
     tokenValidationRuntimeContractsFoundationVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0132: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0132: trueLiteral,
@@ -240,7 +240,7 @@ export function buildMcpTokenValidationReadinessProof(
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
       input.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified ??
       true,
-    fp0134Absent: input.fp0134Absent ?? true,
+    fp0134BoundaryVerified: input.fp0134BoundaryVerified ?? true,
     tokenValidationRuntimeContractsFoundationVerified:
       input.tokenValidationRuntimeContractsFoundationVerified ?? true,
     noMcpRouteBehaviorChangeFromFp0132:

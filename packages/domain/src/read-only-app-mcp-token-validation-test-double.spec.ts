@@ -12,18 +12,27 @@ import {
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+  FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+  MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_LEAKAGE_SURFACES,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
   McpTokenValidationTestDoubleProofSchema,
+  SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
+  SyntheticTokenValidationEvaluationProofSchema,
   assessMcpSyntheticNonTokenInput,
   assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial,
+  assertSyntheticScenarioContainsNoTokenMaterial,
   buildMcpAcceptedValidationResultTestDoubleEnvelope,
   buildMcpRejectedValidationResultTestDoubleEnvelope,
   buildMcpTokenValidationTestDoubleContracts,
   buildMcpTokenValidationTestDoubleProof,
+  buildSyntheticTokenValidationEvaluationProof,
+  buildSyntheticTokenValidationScenario,
+  evaluateSyntheticTokenValidationScenario,
   isMcpTokenValidationTestDoubleProofSourcePath,
   scanTokenValidationNoLeakage,
+  syntheticFailureModesByFamily,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
   verifyFp0123ProtectedResourceMetadataRouteInputContractsBoundary,
@@ -36,6 +45,9 @@ import {
   verifyFp0133PlanningTextRequiredTopics,
   verifyFp0133TokenValidationTestDoubleContractsBoundary,
   verifyFp0134Absent,
+  verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
+  verifyFp0134TokenValidationTestDoubleImplementationBoundary,
+  verifyFp0135Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -48,6 +60,8 @@ const metadataRoutePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 const proofCommandPath =
   "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs";
+const localProofCommandPath =
+  "tools/read-only-mcp-token-validation-test-double-local-proof.mjs";
 const fp0125PlanPath =
   "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
 const fp0107PlanPath =
@@ -58,14 +72,20 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0133 token-validation test-double contract foundations", () => {
-  it("accepts exactly one FP-0133 contract plan while FP-0134 remains absent", () => {
+  it("accepts one FP-0133 contract plan and one FP-0134 local evaluator plan while FP-0135 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
     );
+    const fp0134PlanText = safeRead(
+      FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
+    );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0133/u.test(path))).toEqual([
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0134/u.test(path))).toEqual([
+      FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
     ]);
     expect(
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts({
@@ -84,7 +104,20 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
         Boolean,
       ),
     ).toBe(true);
-    expect(verifyFp0134Absent(repoPaths)).toBe(true);
+    expect(verifyFp0134Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation({
+        planText: fp0134PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0134TokenValidationTestDoubleImplementationBoundary({
+        planText: fp0134PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0135Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
         planText,
@@ -93,6 +126,15 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ).toBe(false);
     expect(
       verifyFp0134Absent([...repoPaths, "plans/FP-0134-next-runtime.md"]),
+    ).toBe(false);
+    expect(
+      verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation({
+        planText: fp0134PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0134-next-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0135Absent([...repoPaths, "plans/FP-0135-invalid-token.md"]),
     ).toBe(false);
   });
 
@@ -198,6 +240,136 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ).toBe(false);
   });
 
+  it("evaluates local synthetic descriptors into accepted and rejected envelopes", () => {
+    const acceptedScenario = buildSyntheticTokenValidationScenario({
+      companyKey: "synthetic-selector-company",
+      family: "subject_org_company",
+      outcome: SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
+      syntheticBinding: {
+        companyRef: "synthetic-company-ref",
+        orgRef: "synthetic-org-ref",
+        subjectRef: "synthetic-subject-ref",
+      },
+      syntheticScenarioId: "synthetic-accepted-subject-org-company",
+    });
+    const rejectedScenario = buildSyntheticTokenValidationScenario({
+      companyKey: "synthetic-selector-company",
+      family: "subject_org_company",
+      outcome: "wrong-company",
+      syntheticScenarioId: "synthetic-rejected-wrong-company",
+    });
+    const acceptedEnvelope =
+      evaluateSyntheticTokenValidationScenario(acceptedScenario);
+    const rejectedEnvelope =
+      evaluateSyntheticTokenValidationScenario(rejectedScenario);
+    const proof = buildSyntheticTokenValidationEvaluationProof();
+
+    expect(acceptedScenario.schemaVersion).toBe(
+      MCP_SYNTHETIC_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_EVALUATOR_SCHEMA_VERSION,
+    );
+    expect(acceptedEnvelope).toMatchObject({
+      accepted: true,
+      carriesAuthorizationHeader: false,
+      carriesJwtClaims: false,
+      carriesRawToken: false,
+      resultKind: "accepted_test_double",
+    });
+    expect(rejectedEnvelope).toMatchObject({
+      accepted: false,
+      carriesAuthorizationHeader: false,
+      carriesJwtClaims: false,
+      carriesRawToken: false,
+      failureMode: "wrong-company",
+      resultKind: "rejected_test_double",
+    });
+    expect(
+      acceptedEnvelope.subjectOrgCompanyBinding.companyKeySelectorOnly,
+    ).toBe(true);
+    expect(JSON.stringify(acceptedEnvelope)).not.toContain(
+      "synthetic-selector-company",
+    );
+    expect(scanTokenValidationNoLeakage(JSON.stringify(acceptedEnvelope))).toMatchObject({
+      accepted: true,
+    });
+    expect(
+      SyntheticTokenValidationEvaluationProofSchema.safeParse(proof).success,
+    ).toBe(true);
+  });
+
+  it("supports every synthetic scenario family and failure taxonomy outcome", () => {
+    const failuresByFamily = syntheticFailureModesByFamily();
+
+    expect(Object.keys(failuresByFamily).sort()).toEqual(
+      [...MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES].sort(),
+    );
+    for (const family of MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES) {
+      const outcome =
+        failuresByFamily[family][0] ?? SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME;
+      const envelope = evaluateSyntheticTokenValidationScenario(
+        buildSyntheticTokenValidationScenario({
+          family,
+          outcome,
+          syntheticScenarioId: `synthetic-${family}-${outcome}`,
+        }),
+      );
+
+      expect(envelope.accepted).toBe(
+        outcome === SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
+      );
+      if (outcome !== SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME) {
+        expect(envelope.failureMode).toBe(outcome);
+      }
+    }
+    for (const failureMode of MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY) {
+      const envelope = evaluateSyntheticTokenValidationScenario(
+        buildSyntheticTokenValidationScenario({
+          outcome: failureMode,
+          syntheticScenarioId: `synthetic-failure-${failureMode}`,
+        }),
+      );
+
+      expect(envelope).toMatchObject({
+        accepted: false,
+        carriesAuthorizationHeader: false,
+        carriesJwtClaims: false,
+        carriesRawToken: false,
+        failureMode,
+        resultKind: "rejected_test_double",
+      });
+    }
+  });
+
+  it("rejects token-like strings, authorization headers, bearer values, jwt-like values, and credential/session material", () => {
+    const jwtLikeString = [
+      "jwtlikeheader".padEnd(16, "x"),
+      "jwtlikepayload".padEnd(16, "x"),
+      "jwtlikesig".padEnd(16, "x"),
+    ].join(".");
+    const forbiddenInputs = [
+      ["Authorization", "Bearer synthetic-token-material"].join(": "),
+      ["Bearer", "synthetic-token-material"].join(" "),
+      jwtLikeString,
+      ["access_token", "synthetic-token-material"].join("="),
+      ["client_secret", "synthetic-token-material"].join("="),
+      ["session", "synthetic-token-material"].join("="),
+      ["cookie", "synthetic-token-material"].join("="),
+      ["provider_credential", "synthetic-token-material"].join("="),
+    ];
+
+    for (const input of forbiddenInputs) {
+      expect(() => assertSyntheticScenarioContainsNoTokenMaterial(input)).toThrow();
+      const envelope = evaluateSyntheticTokenValidationScenario(input);
+      expect(envelope.accepted).toBe(false);
+      expect(envelope.carriesRawToken).toBe(false);
+      expect(envelope.carriesAuthorizationHeader).toBe(false);
+      expect(envelope.carriesJwtClaims).toBe(false);
+      expect(JSON.stringify(envelope)).not.toContain(input);
+      expect(scanTokenValidationNoLeakage(JSON.stringify(envelope))).toMatchObject({
+        accepted: true,
+      });
+    }
+  });
+
   it("proves no-token-leakage surfaces and no route/runtime expansion", () => {
     const proof = buildMcpTokenValidationTestDoubleProof();
     const proofText = JSON.stringify(proof);
@@ -223,6 +395,12 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(routeSource).not.toContain(
       "read-only-app-mcp-token-validation-test-double",
     );
+    expect(routeSource).not.toContain(
+      "evaluateSyntheticTokenValidationScenario",
+    );
+    expect(metadataRouteSource).not.toContain(
+      "evaluateSyntheticTokenValidationScenario",
+    );
     expect(metadataRouteSource).not.toMatch(/WWW-Authenticate/iu);
     expect(proof.noMcpRouteBehaviorChange).toBe(true);
     expect(proof.noProtectedResourceMetadataRouteBehaviorChange).toBe(true);
@@ -247,6 +425,7 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
 
   it("requires direct proof source scans over branch diff and dirty QA targets", () => {
     const proofSource = safeRead(proofCommandPath);
+    const localProofSource = safeRead(localProofCommandPath);
 
     expect(proofSource).toContain("origin/main...HEAD");
     expect(proofSource).toContain("dirtyQaTargetFiles");
@@ -257,6 +436,13 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     );
     expect(proofSource).toContain(
       "tokenValidationTestDoubleRepositoryInventoryVerified",
+    );
+    expect(localProofSource).toContain("origin/main...HEAD");
+    expect(localProofSource).toContain("dirtyQaTargetFiles");
+    expect(localProofSource).toContain("combinedChangedPaths");
+    expect(localProofSource).toContain("committedBranchDiffPaths");
+    expect(localProofSource).toContain(
+      "verifyMcpTokenValidationTestDoubleRepositoryInventory",
     );
   });
 

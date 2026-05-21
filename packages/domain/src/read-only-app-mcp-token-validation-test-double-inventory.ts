@@ -394,7 +394,12 @@ function isProofOrContractPath(path: string) {
     /(?:proof|contract|contracts|readiness|sequencing|plan-boundary|inventory|types|builders|result-envelope|\.spec\.ts$)/u.test(
       path,
     ) ||
-    /read-only-app-mcp-token-validation-test-double-validation\.ts$/u.test(path)
+    /read-only-app-mcp-token-validation-test-double-validation\.ts$/u.test(
+      path,
+    ) ||
+    /^plans\/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation\.md$/u.test(
+      path,
+    )
   );
 }
 

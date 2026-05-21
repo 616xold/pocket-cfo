@@ -440,6 +440,10 @@ function isAllowedMcpProtocolProofPath(path) {
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH ||
     path ===
       "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs" ||
+    path ===
+      "tools/read-only-mcp-token-validation-test-double-local-proof.mjs" ||
+    path ===
+      "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||

@@ -121,7 +121,7 @@ export function buildMcpTokenValidationTestDoubleProof(
     fp0133PostmergeProofDurabilityVerified:
       input.fp0133PostmergeProofDurabilityVerified ?? true,
     fp0133BoundaryVerified: input.fp0133BoundaryVerified ?? true,
-    fp0134Absent: input.fp0134Absent ?? true,
+    fp0134BoundaryVerified: input.fp0134BoundaryVerified ?? true,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
       input.fp0132TokenValidationRuntimeContractsBoundaryStillVerified ?? true,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified:

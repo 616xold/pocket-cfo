@@ -48,7 +48,7 @@ import {
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
   verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts,
-  verifyFp0134Absent,
+  verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation,
 } from "../packages/domain/src/index.ts";
 
 const FP0116_PLAN =
@@ -283,7 +283,7 @@ const proof = McpOauthImplementationSequencingProofSchema.parse(
       }),
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts(repoPaths),
-    fp0134Absent: verifyFp0134Absent(repoPaths),
+    fp0134BoundaryVerified: verifyFp0134AbsentOrLocalTokenValidationTestDoubleImplementation(repoPaths),
     tokenValidationRuntimeContractsFoundationVerified:
       verifyFp0132TokenValidationRuntimeContractsBoundary({
         planText: fp0132PlanText,

@@ -345,7 +345,7 @@ export function buildMcpTokenValidationRuntimeProof(
     fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified:
       input.fp0133AbsentOrLocalTokenValidationTestDoubleContractsVerified ??
       true,
-    fp0134Absent: input.fp0134Absent ?? true,
+    fp0134BoundaryVerified: input.fp0134BoundaryVerified ?? true,
     fp0131TokenValidationRuntimeSequencingBoundaryStillVerified:
       input.fp0131TokenValidationRuntimeSequencingBoundaryStillVerified ?? true,
     fp0130MissingTokenChallengeBoundaryStillVerified:
