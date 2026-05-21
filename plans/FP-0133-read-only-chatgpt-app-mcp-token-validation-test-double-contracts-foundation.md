@@ -24,6 +24,11 @@ The proof point is narrow: synthetic scenario descriptors, non-token test inputs
 - [x] 2026-05-20T18:12:20Z: Refreshed directly stale active docs/plugin notes where FP-0133 shifted from future-only to this contract boundary.
 - [x] 2026-05-20T18:15:00+01:00: Ran focused FP-0133 validation after implementation. The direct proof, token-validation runtime/sequence/readiness proofs, WWW-Authenticate challenge proofs, protected-resource metadata proofs, OAuth sequencing proof, route adapter proof, public security proof, endpoint/protocol proof gates, evidence/document proof tools, focused domain specs, and focused control-plane `/mcp` plus metadata route specs passed after narrow proof-bridge compatibility patches.
 - [x] 2026-05-20T18:24:11+01:00: Ran final full validation after implementation and closeout updates. `git diff --check`, every requested proof command, focused domain specs, focused control-plane `/mcp` plus metadata route specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed.
+- [x] 2026-05-21T13:41:28Z: Ran targeted post-merge hardening preflight on branch `codex/v2ba-read-only-chatgpt-app-mcp-token-validation-test-double-proof-durability-hardening-local-v1`; confirmed PR #309 merged, FP-0133 exists as shipped local/proof-only/read-only test-double contracts, FP-0134 remains absent, active docs support the FP-0133 boundary, the worktree started clean, and all required baseline proof tools passed before edits.
+- [x] 2026-05-21T13:41:28Z: Added durable repository-inventory proof scanning on top of the existing `origin/main...HEAD` plus dirty same-branch QA target scan. The direct proof now emits machine-readable FP-0133 post-merge durability fields for no test-double runtime, no token parser/JWT decoder/token validation runtime/introspection, no invalid-token challenge runtime, no route consumption, no token material examples, no OAuth/token/session/auth runtime, no OpenAI executable/API/key source usage, and repository inventory verification.
+- [x] 2026-05-21T13:41:28Z: Added focused domain coverage for current-repo inventory success and simulated failure paths for token-validation test-double runtime files, token parser/JWT decoder/introspection files, token validation runtime files, invalid-token challenge runtime files, route consumption, real-token, JWT-like, and bearer-material examples, OpenAI import/API/model/key source patterns, safe absence wording, exactly one FP-0133 plan, and FP-0134 absence.
+- [x] 2026-05-21T13:52:58Z: Ran the full post-hardening validation ladder. `git diff --check`, every requested proof command, focused domain specs, focused control-plane `/mcp` plus protected-resource metadata route specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed. This closeout edit records the final validation and requires the minimum post-closeout rerun set before commit.
+- [x] 2026-05-21T13:59:31Z: Reran the minimum post-closeout gates after the closeout edit, plus the direct FP-0133 proof. `git diff --check`, `tools/read-only-mcp-token-validation-test-double-contract-proof.mjs`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed.
 - [ ] Create the single commit, push this branch, and open the PR.
 
 ## Surprises & Discoveries
@@ -34,6 +39,7 @@ The proof point is narrow: synthetic scenario descriptors, non-token test inputs
 - The first baseline validation wrapper failed because of a local `mktemp` suffix pattern, not product code. The ladder was rerun with a portable pattern and passed.
 - The FP-0128 readiness proof inventory needed to recognize the FP-0133 plan and direct proof command as allowed proof-gate bridge targets. The direct FP-0133 proof command also had to avoid a self-matching model-call regex literal so older no-OpenAI/model-call scanners continued proving absence rather than flagging proof code text.
 - The older metadata-builder, route-adapter, protocol-envelope, and endpoint proof tools also needed exact FP-0133 plan/proof allowlist entries so their path scanners treat this slice as proof/doc/domain contract work instead of token/session or endpoint implementation.
+- The post-merge hardening correction confirmed the direct FP-0133 proof needed durable repository-inventory checks in addition to changed-path scans. The correction stayed in proof/domain/docs scope and did not require route, runtime, package, schema, migration, data, source-pack, public-asset, OpenAI API/model, provider, source mutation, or finance-write changes.
 
 ## Decision Log
 
@@ -45,6 +51,8 @@ The proof point is narrow: synthetic scenario descriptors, non-token test inputs
 - Decision: Client `companyKey` remains selector-only. It cannot create authority without future authenticated user/org/company binding.
 - Decision: Proof source scans must include both the committed branch diff from `origin/main...HEAD` and dirty same-branch QA target files. Clean committed branches must not make no-route/no-runtime/no-schema/no-provider checks vacuous.
 - Decision: Existing bridge proofs accept exactly the FP-0133 local/proof-only contract plan or no FP-0133 plan, and separately prove FP-0134 absence.
+- Decision: The direct FP-0133 proof must keep the committed branch diff plus dirty same-branch QA target scan and must also verify repository inventory across the relevant `/mcp`, evidence-index tool, domain token-validation/WWW-Authenticate/protected-resource metadata, and proof-tool source families so clean post-merge worktrees still prove absence of runtime/token/auth/OpenAI/source/finance drift.
+- Decision: The durable proof-source scan may allow safe docs/proof absence wording and proof rejection-fixture scaffolding, but it rejects executable token parser/JWT decoder/token validation/introspection/OpenAI patterns, route consumption, and token material examples in non-fixture proof source.
 - Decision: Public ChatGPT App submission, remote MCP deployment, OAuth/token/session/auth middleware, invalid-token challenge runtime, route expansion, Apps SDK resources, OpenAI API/model calls, provider calls, source mutation, finance writes, and FP-0134 remain blocked.
 
 ## Context and Orientation
@@ -99,6 +107,7 @@ Acceptance requires:
 - `companyKey` remains selector-only
 - token passthrough remains forbidden
 - no token values or token-like examples appear in logs, proof output, docs examples, headers, route bodies, metadata examples, evidence, structured results, UI props, challenge examples, or app metadata
+- the direct proof emits `tokenValidationTestDoubleRepositoryInventoryVerified`, all no-runtime/no-token-material repository-inventory fields, `noOpenAiApiSourceScanVerified`, and `fp0133PostmergeProofDurabilityVerified`
 - no test-double runtime is implemented
 - no route consumes test doubles
 - no `/mcp` behavior, protected-resource metadata route behavior, or missing-token challenge behavior changes
@@ -157,6 +166,7 @@ Expected artifacts:
 - `plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md`
 - `packages/domain/src/read-only-app-mcp-token-validation-test-double*.ts`
 - `packages/domain/src/read-only-app-mcp-token-validation-test-double*.spec.ts`
+- `packages/domain/src/read-only-app-mcp-token-validation-test-double-inventory.ts`
 - `tools/read-only-mcp-token-validation-test-double-contract-proof.mjs`
 - proof-gate compatibility edits under existing read-only app MCP token-validation, WWW-Authenticate, OAuth, and protected-resource proof files only as needed
 - direct active-doc/plugin freshness updates only if stale after FP-0133 exists
@@ -190,9 +200,15 @@ The new proof-only interface defines:
 - `McpNoTokenLeakageTestDoubleBoundary`
 - `McpNoRuntimeConsumptionBoundary`
 - `McpTokenValidationTestDoubleProof`
+- `verifyMcpTokenValidationTestDoubleRepositoryInventory`
+- `isMcpTokenValidationTestDoubleProofSourcePath`
 
 Upstream proof dependencies: FP-0132, FP-0131, FP-0130, FP-0128, FP-0127, FP-0125, FP-0123, FP-0122, FP-0120, FP-0107, FP-0106, and FP-0100 must remain proven. FP-0134 remains absent.
 
 ## Outcomes & Retrospective
 
-Implementation, proof bridge, focused QA, and final full validation are complete. The slice remains open only for the single commit, branch push, and PR creation.
+Implementation, proof bridge, focused QA, post-merge proof durability hardening, and final full validation are complete. The FP-0133 direct proof now keeps the committed branch diff plus dirty same-branch QA target scan and adds durable repository-inventory verification for no test-double runtime, no token parser/JWT decoder/token validation runtime/introspection, no invalid-token challenge runtime, no route consumption of token-validation test doubles, no real-token/JWT-like/bearer-material examples, no OAuth/token/session/auth runtime, no OpenAI executable/API/key source usage, and no DB/schema/package/data/public-asset/provider/source/finance-write drift in this correction scope.
+
+The correction preserved FP-0133 as local/proof-only/read-only token-validation test-double contract work. It added no route behavior change, missing-token behavior change, protected-resource metadata route behavior change, token parser, token validation runtime, JWT decoder, token introspection, token/session storage, OAuth implementation, auth middleware, invalid-token route behavior, test-double runtime implementation, real token examples, JWT-like examples, bearer-material examples, DB queries, schemas, migrations, package scripts, fixtures, source packs, OpenAI API/model calls, provider calls, source mutation, finance writes, public assets, listing copy, generated public prose, autonomous action, or FP-0134.
+
+Final full validation passed before this closeout edit: `git diff --check`; all requested proof tools including `tools/read-only-mcp-token-validation-test-double-contract-proof.mjs`; focused domain specs; focused control-plane `/mcp` and protected-resource metadata route specs; `pnpm lint`; `pnpm typecheck`; `pnpm test`; and `pnpm ci:repro:current`. The slice remains open only for the minimum post-closeout rerun set, the single commit, branch push, and PR creation.

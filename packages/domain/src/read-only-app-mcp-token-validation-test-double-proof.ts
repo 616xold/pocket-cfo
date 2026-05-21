@@ -91,6 +91,35 @@ export function buildMcpTokenValidationTestDoubleProof(
     noExternalCommunications: input.noExternalCommunications ?? true,
     noSourceMutation: input.noSourceMutation ?? true,
     noFinanceWrite: input.noFinanceWrite ?? true,
+    tokenValidationTestDoubleRepositoryInventoryVerified:
+      input.tokenValidationTestDoubleRepositoryInventoryVerified ?? true,
+    noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified:
+      input.noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified ??
+      true,
+    noTokenParsingRuntimeRepositoryInventoryVerified:
+      input.noTokenParsingRuntimeRepositoryInventoryVerified ?? true,
+    noTokenValidationRuntimeRepositoryInventoryVerified:
+      input.noTokenValidationRuntimeRepositoryInventoryVerified ?? true,
+    noJwtDecodingRuntimeRepositoryInventoryVerified:
+      input.noJwtDecodingRuntimeRepositoryInventoryVerified ?? true,
+    noTokenIntrospectionRuntimeRepositoryInventoryVerified:
+      input.noTokenIntrospectionRuntimeRepositoryInventoryVerified ?? true,
+    noInvalidTokenChallengeRuntimeRepositoryInventoryVerified:
+      input.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified ?? true,
+    noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified:
+      input.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified ??
+      true,
+    noRealTokenExampleRepositoryInventoryVerified:
+      input.noRealTokenExampleRepositoryInventoryVerified ?? true,
+    noJwtLikeExampleRepositoryInventoryVerified:
+      input.noJwtLikeExampleRepositoryInventoryVerified ?? true,
+    noBearerTokenMaterialRepositoryInventoryVerified:
+      input.noBearerTokenMaterialRepositoryInventoryVerified ?? true,
+    noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified:
+      input.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified ?? true,
+    noOpenAiApiSourceScanVerified: input.noOpenAiApiSourceScanVerified ?? true,
+    fp0133PostmergeProofDurabilityVerified:
+      input.fp0133PostmergeProofDurabilityVerified ?? true,
     fp0133BoundaryVerified: input.fp0133BoundaryVerified ?? true,
     fp0134Absent: input.fp0134Absent ?? true,
     fp0132TokenValidationRuntimeContractsBoundaryStillVerified:
