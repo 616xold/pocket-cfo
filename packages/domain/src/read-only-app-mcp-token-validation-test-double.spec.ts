@@ -22,6 +22,7 @@ import {
   buildMcpRejectedValidationResultTestDoubleEnvelope,
   buildMcpTokenValidationTestDoubleContracts,
   buildMcpTokenValidationTestDoubleProof,
+  isMcpTokenValidationTestDoubleProofSourcePath,
   scanTokenValidationNoLeakage,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
@@ -37,6 +38,7 @@ import {
   verifyFp0134Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
+  verifyMcpTokenValidationTestDoubleRepositoryInventory,
 } from "./index";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -250,6 +252,211 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     expect(proofSource).toContain("dirtyQaTargetFiles");
     expect(proofSource).toContain("combinedChangedPaths");
     expect(proofSource).toContain("committedBranchDiffPaths");
+    expect(proofSource).toContain(
+      "verifyMcpTokenValidationTestDoubleRepositoryInventory",
+    );
+    expect(proofSource).toContain(
+      "tokenValidationTestDoubleRepositoryInventoryVerified",
+    );
+  });
+
+  it("passes durable repository inventory on current repo truth", () => {
+    const inventory = verifyMcpTokenValidationTestDoubleRepositoryInventory({
+      repoPaths: repoFilePaths(),
+      sourceTextByPath: proofSourceTextByPath(),
+    });
+    const proof = buildMcpTokenValidationTestDoubleProof();
+
+    expect(inventory.proofSourceInventoryVerified).toBe(true);
+    expect(inventory.proofSourcePaths).toContain(proofCommandPath);
+    expect(inventory.fp0133PostmergeProofDurabilityVerified).toBe(true);
+    expect(inventory.noBearerTokenMaterialRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(
+      inventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(inventory.noJwtDecodingRuntimeRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(inventory.noJwtLikeExampleRepositoryInventoryVerified).toBe(true);
+    expect(
+      inventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(inventory.noOpenAiApiSourceScanVerified).toBe(true);
+    expect(inventory.noRealTokenExampleRepositoryInventoryVerified).toBe(true);
+    expect(
+      inventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(
+      inventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(inventory.noTokenParsingRuntimeRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(inventory.noTokenValidationRuntimeRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(
+      inventory.noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified,
+    ).toBe(true);
+    expect(inventory.tokenValidationTestDoubleRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(proof.tokenValidationTestDoubleRepositoryInventoryVerified).toBe(
+      true,
+    );
+    expect(proof.fp0133PostmergeProofDurabilityVerified).toBe(true);
+    expect(
+      McpTokenValidationTestDoubleProofSchema.safeParse(proof).success,
+    ).toBe(true);
+  });
+
+  it("fails durable inventory for simulated runtime, parser, decoder, validation, introspection, invalid-token, route-consumption, token-material, and OpenAI drift", () => {
+    const base = {
+      repoPaths: [
+        FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+        proofCommandPath,
+      ],
+      sourceTextByPath: {
+        [proofCommandPath]:
+          "No token runtime, no token examples, and no OpenAI API calls.",
+      },
+    };
+    const bearerMaterial = ["Authorization:", "Bearer", "x".repeat(24)].join(
+      " ",
+    );
+    const jwtLikeMaterial = [
+      "eyJjwtlikeheader1".padEnd(18, "x"),
+      "jwtlikepayload2".padEnd(18, "x"),
+      "jwtlikesignature3".padEnd(18, "x"),
+    ].join(".");
+    const openAiSource = [
+      `import ${["Open", "AI"].join("")} from "openai";`,
+      `const client = new ${["Open", "AI"].join("")}();`,
+      `client.${["responses", "create"].join(".")}({ input: "x" });`,
+      `process.env.${["OPENAI", "API", "KEY"].join("_")};`,
+      ["api", "openai", "com"].join("."),
+    ].join("\n");
+
+    expect(
+      inventoryWith({
+        ...base,
+        repoPaths: [
+          ...base.repoPaths,
+          "packages/domain/src/read-only-app-mcp-token-validation-test-double-runtime.ts",
+        ],
+      }).noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      inventoryWith({
+        ...base,
+        repoPaths: [
+          ...base.repoPaths,
+          "packages/domain/src/read-only-app-mcp-token-parser.ts",
+          "packages/domain/src/read-only-app-mcp-jwt-decoder.ts",
+          "packages/domain/src/read-only-app-mcp-token-introspection.ts",
+        ],
+        sourceTextByPath: {
+          ...base.sourceTextByPath,
+          "packages/domain/src/read-only-app-mcp-token-parser.ts": `${[
+            "decode",
+            "Jwt",
+          ].join("")}(candidate);\n${["introspect", "Token"].join("")}();`,
+        },
+      }).noTokenParsingRuntimeRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      inventoryWith({
+        ...base,
+        repoPaths: [
+          ...base.repoPaths,
+          "packages/domain/src/read-only-app-mcp-token-validation-runtime-implementation.ts",
+        ],
+        sourceTextByPath: {
+          ...base.sourceTextByPath,
+          "packages/domain/src/read-only-app-mcp-token-validation-runtime-implementation.ts": `${[
+            "validate",
+            "Token",
+          ].join("")}(candidate);`,
+        },
+      }).noTokenValidationRuntimeRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      inventoryWith({
+        ...base,
+        repoPaths: [
+          ...base.repoPaths,
+          "packages/domain/src/read-only-app-mcp-invalid-token-challenge-runtime.ts",
+        ],
+        sourceTextByPath: {
+          ...base.sourceTextByPath,
+          "packages/domain/src/read-only-app-mcp-invalid-token-challenge-runtime.ts": `${[
+            "invalid",
+            "Token",
+            "Challenge",
+          ].join("")}();`,
+        },
+      }).noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      inventoryWith({
+        ...base,
+        sourceTextByPath: {
+          ...base.sourceTextByPath,
+          [mcpRoutePath]: `import { testDouble } from "${[
+            "read-only-app-mcp-token-validation",
+            "test-double",
+          ].join("-")}";`,
+        },
+      }).noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      inventoryWith({
+        ...base,
+        repoPaths: [
+          ...base.repoPaths,
+          "docs/examples/real-token-example.md",
+          "docs/examples/jwt-like-example.md",
+          "docs/examples/bearer-token-material.md",
+        ],
+        sourceTextByPath: {
+          ...base.sourceTextByPath,
+          "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs": `${bearerMaterial}\n${jwtLikeMaterial}`,
+        },
+      }).noBearerTokenMaterialRepositoryInventoryVerified,
+    ).toBe(false);
+    expect(
+      inventoryWith({
+        ...base,
+        sourceTextByPath: {
+          ...base.sourceTextByPath,
+          "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs":
+            openAiSource,
+        },
+      }).noOpenAiApiSourceScanVerified,
+    ).toBe(false);
+  });
+
+  it("allows safe docs and proof absence text in durable inventory scans", () => {
+    const safeAbsenceText = [
+      "No token validation runtime, no token parser, no JWT decoder, no introspection runtime, and no bearer token material examples are present.",
+      "Do not use OPENAI_API_KEY, from openai imports, responses.create, chat.completions, or api.openai.com calls.",
+      "WWW-Authenticate examples prohibit token material and describe absence only.",
+    ].join("\n");
+    const inventory = verifyMcpTokenValidationTestDoubleRepositoryInventory({
+      repoPaths: [
+        FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
+        proofCommandPath,
+      ],
+      sourceTextByPath: {
+        [proofCommandPath]: safeAbsenceText,
+      },
+    });
+
+    expect(inventory.tokenValidationTestDoubleRepositoryInventoryVerified).toBe(
+      true,
+    );
   });
 
   it("keeps FP-0132 through FP-0100 prior boundaries intact", () => {
@@ -370,6 +577,22 @@ function repoFilePaths() {
 
   walk(repoRoot);
   return results.sort();
+}
+
+function proofSourceTextByPath() {
+  return Object.fromEntries(
+    repoFilePaths()
+      .filter(isMcpTokenValidationTestDoubleProofSourcePath)
+      .map((path) => [path, safeRead(path)]),
+  );
+}
+
+function inventoryWith(
+  input: Parameters<
+    typeof verifyMcpTokenValidationTestDoubleRepositoryInventory
+  >[0],
+) {
+  return verifyMcpTokenValidationTestDoubleRepositoryInventory(input);
 }
 
 function safeRead(path: string) {

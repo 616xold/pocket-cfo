@@ -14,6 +14,7 @@ import {
   buildMcpAcceptedValidationResultTestDoubleEnvelope,
   buildMcpRejectedValidationResultTestDoubleEnvelope,
   buildMcpTokenValidationTestDoubleProof,
+  isMcpTokenValidationTestDoubleProofSourcePath,
   scanTokenValidationNoLeakage,
   verifyFp0120CanonicalResourceAuthServerPlanBoundary,
   verifyFp0122ProtectedResourceMetadataBuilderContractsBoundary,
@@ -27,6 +28,7 @@ import {
   verifyFp0134Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
+  verifyMcpTokenValidationTestDoubleRepositoryInventory,
   assessMcpTokenValidationTestDoubleEnvelopeNoTokenMaterial,
 } from "../packages/domain/src/index.ts";
 
@@ -53,6 +55,7 @@ const fp0133PlanText = safeRead(
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
 );
 const sourceScope = verifySourceScope();
+const repositoryInventory = verifyRepositoryInventory();
 const priorBoundaries = verifyPriorBoundaries();
 const noLeakageProof = verifyNoLeakage();
 const envelopeProof = verifyResultEnvelopes();
@@ -95,15 +98,21 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noExternalCommunications: sourceScope.noExternalCommunications,
     noFinanceWrite: sourceScope.noFinanceWrite,
-    noInvalidTokenChallengeRuntime: sourceScope.noInvalidTokenChallengeRuntime,
-    noJwtDecodingRuntime: sourceScope.noJwtDecodingRuntime,
+    noInvalidTokenChallengeRuntime:
+      sourceScope.noInvalidTokenChallengeRuntime &&
+      repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
+    noJwtDecodingRuntime:
+      sourceScope.noJwtDecodingRuntime &&
+      repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
     noMcpRouteBehaviorChange:
       sourceScope.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
     noMissingTokenChallengeBehaviorChange:
       sourceScope.noMissingTokenChallengeBehaviorChange,
     noModelCalls: sourceScope.noModelCalls,
     noOauthImplementation: sourceScope.noOauthImplementation,
-    noOpenAiApiCalls: sourceScope.noOpenAiApiCalls,
+    noOpenAiApiCalls:
+      sourceScope.noOpenAiApiCalls &&
+      repositoryInventory.noOpenAiApiSourceScanVerified,
     noPackageScriptsAdded: sourceScope.noPackageScriptsAdded,
     noProtectedResourceMetadataRouteBehaviorChange:
       sourceScope.noProtectedResourceMetadataRouteBehaviorChange &&
@@ -111,15 +120,48 @@ const proof = McpTokenValidationTestDoubleProofSchema.parse(
     noProviderCalls: sourceScope.noProviderCalls,
     noPublicAssets: sourceScope.noPublicAssets,
     noRuntimeConsumptionBoundaryVerified:
-      sourceScope.noRuntimeConsumptionBoundaryVerified,
+      sourceScope.noRuntimeConsumptionBoundaryVerified &&
+      repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
     noSchemaMigrationsAdded: sourceScope.noSchemaMigrationsAdded,
     noSourceMutation: sourceScope.noSourceMutation,
     noTokenLeakageTestDoubleBoundaryVerified: noLeakageProof.verified,
-    noTokenParsingRuntime: sourceScope.noTokenParsingRuntime,
+    noTokenParsingRuntime:
+      sourceScope.noTokenParsingRuntime &&
+      repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
     noTokenPassthroughTestDoubleBoundaryVerified:
       verifyMcpTokenValidationTestDoubleContractBoundaries(),
     noTokenSessionStorage: sourceScope.noTokenSessionStorage,
-    noTokenValidationRuntime: sourceScope.noTokenValidationRuntime,
+    noTokenValidationRuntime:
+      sourceScope.noTokenValidationRuntime &&
+      repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
+    tokenValidationTestDoubleRepositoryInventoryVerified:
+      repositoryInventory.tokenValidationTestDoubleRepositoryInventoryVerified,
+    noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noTokenValidationTestDoubleRuntimeRepositoryInventoryVerified,
+    noTokenParsingRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noTokenParsingRuntimeRepositoryInventoryVerified,
+    noTokenValidationRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
+    noJwtDecodingRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
+    noTokenIntrospectionRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noTokenIntrospectionRuntimeRepositoryInventoryVerified,
+    noInvalidTokenChallengeRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
+    noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified:
+      repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
+    noRealTokenExampleRepositoryInventoryVerified:
+      repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
+    noJwtLikeExampleRepositoryInventoryVerified:
+      repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
+    noBearerTokenMaterialRepositoryInventoryVerified:
+      repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
+    noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified:
+      repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
+    noOpenAiApiSourceScanVerified:
+      repositoryInventory.noOpenAiApiSourceScanVerified,
+    fp0133PostmergeProofDurabilityVerified:
+      repositoryInventory.fp0133PostmergeProofDurabilityVerified,
     noJwtLikeExampleBoundaryVerified:
       verifyMcpTokenValidationTestDoubleNoTokenExamples(),
     noRealTokenExampleBoundaryVerified:
@@ -162,6 +204,7 @@ console.log(
         envelopeProof,
         noLeakageProof,
         priorBoundaries,
+        repositoryInventory,
         sourceScope,
       },
     },
@@ -257,6 +300,15 @@ function verifySourceScope() {
         changedExecutableSource,
       ),
   };
+}
+
+function verifyRepositoryInventory() {
+  return verifyMcpTokenValidationTestDoubleRepositoryInventory({
+    branchDiffPaths: changedPathScope.committedBranchDiffPaths,
+    dirtyPaths: changedPathScope.dirtyQaTargetFiles,
+    repoPaths,
+    sourceTextByPath: readProofSourceTextByPath(repoPaths),
+  });
 }
 
 function verifyPriorBoundaries() {
@@ -438,6 +490,15 @@ function readChangedExecutableSource(paths) {
     .filter((path) => existsSync(path))
     .map((path) => `// ${path}\n${safeRead(path)}`)
     .join("\n");
+}
+
+function readProofSourceTextByPath(paths) {
+  return Object.fromEntries(
+    paths
+      .filter(isMcpTokenValidationTestDoubleProofSourcePath)
+      .filter((path) => existsSync(path))
+      .map((path) => [path, safeRead(path)]),
+  );
 }
 
 function repoFilePaths() {
