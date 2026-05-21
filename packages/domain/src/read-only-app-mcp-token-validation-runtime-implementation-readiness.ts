@@ -27,7 +27,9 @@ export const McpTokenValidationRuntimeImplementationReadinessProofSchema = z
     localProofOnly: trueLiteral,
     fp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanningVerified:
       trueLiteral,
-    fp0139Absent: trueLiteral,
+    fp0139AbsentOrLocalProofModeTokenValidationResultEnvelopeVerified:
+      trueLiteral,
+    fp0140Absent: trueLiteral,
     tokenValidationRuntimeImplementationPlanningBoundaryVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0138: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0138: trueLiteral,
@@ -51,8 +53,7 @@ export const McpTokenValidationRuntimeImplementationReadinessProofSchema = z
     noProviderExternalCallsFromFp0138: trueLiteral,
     noSourceMutationFinanceWriteFromFp0138: trueLiteral,
     localProofModeValidationResultEnvelopePlanningAllowed: trueLiteral,
-    productionTokenValidationRuntimeBlockedUntilProviderTrustGates:
-      trueLiteral,
+    productionTokenValidationRuntimeBlockedUntilProviderTrustGates: trueLiteral,
     tokenParsingBlockedUntilNoLeakNoEchoContracts: trueLiteral,
     jwtDecodingBlockedUntilIssuerJwksProviderTrust: trueLiteral,
     tokenIntrospectionBlockedUntilProviderAuthServerSelection: trueLiteral,
@@ -73,8 +74,7 @@ export const McpTokenValidationRuntimeImplementationReadinessProofSchema = z
     fp0130MissingTokenChallengeBoundaryStillVerified: trueLiteral,
     fp0128TokenValidationReadinessBoundaryStillVerified: trueLiteral,
     fp0127WwwAuthenticateAuthChallengeBoundaryStillVerified: trueLiteral,
-    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified:
-      trueLiteral,
+    fp0125ProtectedResourceMetadataLocalRouteBoundaryStillVerified: trueLiteral,
     fp0107RouteAdapterBoundaryStillVerified: trueLiteral,
     fp0106ProtocolEnvelopeBoundaryStillVerified: trueLiteral,
     fp0100PublicSecurityBoundaryStillVerified: trueLiteral,
@@ -104,7 +104,10 @@ export function buildMcpTokenValidationRuntimeImplementationReadinessProof(
     fp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanningVerified:
       input.fp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanningVerified ??
       true,
-    fp0139Absent: input.fp0139Absent ?? true,
+    fp0139AbsentOrLocalProofModeTokenValidationResultEnvelopeVerified:
+      input.fp0139AbsentOrLocalProofModeTokenValidationResultEnvelopeVerified ??
+      true,
+    fp0140Absent: input.fp0140Absent ?? true,
     tokenValidationRuntimeImplementationPlanningBoundaryVerified:
       input.tokenValidationRuntimeImplementationPlanningBoundaryVerified ??
       true,
@@ -132,19 +135,14 @@ export function buildMcpTokenValidationRuntimeImplementationReadinessProof(
       input.noTokenSessionStorageFromFp0138 ?? true,
     noAuthMiddlewareImplementationFromFp0138:
       input.noAuthMiddlewareImplementationFromFp0138 ?? true,
-    noRealTokenExamplesFromFp0138:
-      input.noRealTokenExamplesFromFp0138 ?? true,
-    noJwtLikeExamplesFromFp0138:
-      input.noJwtLikeExamplesFromFp0138 ?? true,
+    noRealTokenExamplesFromFp0138: input.noRealTokenExamplesFromFp0138 ?? true,
+    noJwtLikeExamplesFromFp0138: input.noJwtLikeExamplesFromFp0138 ?? true,
     noBearerTokenMaterialFromFp0138:
       input.noBearerTokenMaterialFromFp0138 ?? true,
     noDbQueriesFromFp0138: input.noDbQueriesFromFp0138 ?? true,
-    noSchemaMigrationsFromFp0138:
-      input.noSchemaMigrationsFromFp0138 ?? true,
-    noPackageScriptsFromFp0138:
-      input.noPackageScriptsFromFp0138 ?? true,
-    noOpenAiApiCallsFromFp0138:
-      input.noOpenAiApiCallsFromFp0138 ?? true,
+    noSchemaMigrationsFromFp0138: input.noSchemaMigrationsFromFp0138 ?? true,
+    noPackageScriptsFromFp0138: input.noPackageScriptsFromFp0138 ?? true,
+    noOpenAiApiCallsFromFp0138: input.noOpenAiApiCallsFromFp0138 ?? true,
     noProviderExternalCallsFromFp0138:
       input.noProviderExternalCallsFromFp0138 ?? true,
     noSourceMutationFinanceWriteFromFp0138:
@@ -257,7 +255,9 @@ export function verifyFp0138PlanningTextRequiredTopics(planText: string) {
       normalized.includes("does not decode jwts") &&
       normalized.includes("does not introspect tokens"),
     canStartOnlyLocalProofModeEnvelopePlanning:
-      normalized.includes("token-validation runtime implementation can start") &&
+      normalized.includes(
+        "token-validation runtime implementation can start",
+      ) &&
       normalized.includes(
         "only as local proof-mode validation result envelope implementation planning",
       ),
@@ -283,19 +283,18 @@ export function verifyFp0138PlanningTextRequiredTopics(planText: string) {
     invalidTokenBlockedUntilEnvelope:
       normalized.includes("invalid-token route behavior remains blocked") &&
       normalized.includes("validation result envelopes exist"),
-    requiredEnvelopeFields:
-      [
-        "accepted / rejected",
-        "failure taxonomy",
-        "httpstatus recommendation",
-        "wwwauthenticateerror",
-        "requiredscopes",
-        "issuer / audience / resource validation posture",
-        "subject / org / company binding posture",
-        "revocation/replay posture",
-        "no raw token / no token echo markers",
-        "evidence-free security decision boundary",
-      ].every((text) => normalized.includes(text)),
+    requiredEnvelopeFields: [
+      "accepted / rejected",
+      "failure taxonomy",
+      "httpstatus recommendation",
+      "wwwauthenticateerror",
+      "requiredscopes",
+      "issuer / audience / resource validation posture",
+      "subject / org / company binding posture",
+      "revocation/replay posture",
+      "no raw token / no token echo markers",
+      "evidence-free security decision boundary",
+    ].every((text) => normalized.includes(text)),
     noRuntimeAuthRouteScope:
       normalized.includes("no token parser") &&
       normalized.includes("no jwt decoder") &&
@@ -305,7 +304,9 @@ export function verifyFp0138PlanningTextRequiredTopics(planText: string) {
       (normalized.includes("no auth middleware") ||
         normalized.includes("does not add auth middleware")) &&
       normalized.includes("does not change `/mcp`") &&
-      normalized.includes("does not change protected-resource metadata route") &&
+      normalized.includes(
+        "does not change protected-resource metadata route",
+      ) &&
       normalized.includes("does not change missing-token"),
     futureFp0139Recommendation:
       normalized.includes(

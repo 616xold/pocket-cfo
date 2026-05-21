@@ -34,7 +34,8 @@ import {
   verifyFp0137AbsentOrDocsOnlyInvalidTokenChallengeImplementationReadinessPlan,
   verifyFp0138Absent,
   verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
-  verifyFp0139Absent,
+  verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
+  verifyFp0140Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -356,7 +357,10 @@ function verifyFp0138Compatibility() {
       ),
       repoPaths,
     }) &&
-      verifyFp0139Absent(repoPaths))
+      verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope(
+        repoPaths,
+      ) &&
+      verifyFp0140Absent(repoPaths))
   );
 }
 

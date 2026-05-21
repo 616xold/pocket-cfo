@@ -70,6 +70,10 @@ const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH =
   "plans/FP-0137-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-readiness-master-plan.md";
 const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs";
+const FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH =
+  "plans/FP-0139-read-only-chatgpt-app-mcp-token-validation-result-envelope-local-proof-mode-implementation.md";
+const FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PROOF_PATH =
+  "tools/read-only-mcp-token-validation-result-envelope-proof.mjs";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -754,7 +758,9 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH ||
     path === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH ||
     path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH ||
-    path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH ||
+    path ===
+      FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH ||
+    path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH ||
     path ===
       "plans/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning.md" ||
     path ===
@@ -780,7 +786,9 @@ function isAllowedEndpointProofPlanPath(path) {
     path === FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH ||
     path === FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PROOF_PATH ||
     path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH ||
-    path === FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH ||
+    path ===
+      FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH ||
+    path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PROOF_PATH ||
     path ===
       "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path ===
