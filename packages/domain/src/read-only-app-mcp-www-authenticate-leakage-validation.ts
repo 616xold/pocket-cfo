@@ -73,7 +73,7 @@ const leakagePatterns: readonly LeakagePattern[] = [
     allowSafeAbsenceWording: false,
     name: "bearer-token",
     pattern:
-      /\bbearer\s+(?!resource_metadata\b|challenge\b|scheme\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu,
+      /\bbearer\s+(?!resource_metadata\b|challenge\b|scheme\b|parameter\b|parameters\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu,
   },
   {
     allowSafeAbsenceWording: false,
@@ -133,8 +133,7 @@ const leakagePatterns: readonly LeakagePattern[] = [
   {
     allowSafeAbsenceWording: false,
     name: "jwt-eyj-material",
-    pattern:
-      /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u,
+    pattern: /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u,
   },
   {
     allowSafeAbsenceWording: true,

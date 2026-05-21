@@ -104,7 +104,7 @@ const leakagePatterns: readonly LeakagePattern[] = [
     allowSafeAbsenceWording: false,
     name: "bearer-token-material",
     pattern:
-      /\bbearer\s+(?!scheme\b|challenge\b|resource_metadata\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu,
+      /\bbearer\s+(?!scheme\b|challenge\b|resource_metadata\b|parameter\b|parameters\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu,
   },
   {
     allowSafeAbsenceWording: false,

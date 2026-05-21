@@ -12,6 +12,7 @@ import {
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_FAILURE_TAXONOMY,
   MCP_TOKEN_VALIDATION_TEST_DOUBLE_SCENARIO_FAMILIES,
   SYNTHETIC_TOKEN_VALIDATION_ACCEPTED_OUTCOME,
@@ -35,7 +36,9 @@ import {
   verifyFp0133TokenValidationTestDoubleContractsBoundary,
   verifyFp0134TokenValidationTestDoubleImplementationBoundary,
   verifyFp0135AbsentOrDocsOnlyInvalidTokenChallengeSequencingPlan,
-  verifyFp0136Absent,
+  verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts,
+  verifyFp0136InvalidTokenChallengeContractsBoundary,
+  verifyFp0137Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -68,6 +71,9 @@ const fp0134PlanText = safeRead(
 );
 const fp0135PlanText = safeReadIfExists(
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
+);
+const fp0136PlanText = safeReadIfExists(
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
 );
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
@@ -119,7 +125,17 @@ const proof = SyntheticTokenValidationEvaluationProofSchema.parse(
         planText: fp0135PlanText,
         repoPaths,
       }),
-    fp0136Absent: verifyFp0136Absent(repoPaths),
+    fp0136AbsentOrLocalInvalidTokenChallengeContractsVerified:
+      verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts({
+        planText: fp0136PlanText,
+        repoPaths,
+      }),
+    fp0137Absent: verifyFp0137Absent(repoPaths),
+    invalidTokenChallengeContractsFoundationVerified:
+      verifyFp0136InvalidTokenChallengeContractsBoundary({
+        planText: fp0136PlanText,
+        repoPaths,
+      }),
     issuerScenarioEvaluationVerified:
       scenarioProof.issuerScenarioEvaluationVerified,
     jwtLikeInputMapsToPassthroughAttempt:

@@ -5,6 +5,7 @@ import {
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
 } from "./read-only-app-mcp-www-authenticate-contracts";
 import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-contracts";
+import { FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-contracts";
 import {
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
@@ -39,6 +40,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
   FP0134_TOKEN_VALIDATION_TEST_DOUBLE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0135_INVALID_TOKEN_CHALLENGE_SEQUENCING_PLAN_PATH,
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
@@ -46,6 +48,13 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts",
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
   "packages/domain/src/index.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-builders.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-contracts.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-plan-boundary.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-proof.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-types.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge.spec.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge.ts",
   "packages/domain/src/read-only-app-mcp-token-validation.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-contracts.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
@@ -56,6 +65,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate-boundary-hardening.spec.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate-contracts.ts",
+  "packages/domain/src/read-only-app-mcp-www-authenticate-leakage-validation.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate-plan-boundary.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate-proof.ts",
@@ -73,6 +83,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-token-validation-runtime-sequencing-proof.mjs",
   "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
+  "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
   "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
   "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
@@ -268,7 +279,13 @@ export function isFp0128TokenValidationAllowedChangedPath(path: string) {
     FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS.includes(
       normalized as (typeof FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS)[number],
     ) ||
+    /^packages\/domain\/src\/read-only-app-mcp-invalid-token-challenge.*\.ts$/u.test(
+      normalized,
+    ) ||
     /^packages\/domain\/src\/read-only-app-mcp-token-validation.*\.ts$/u.test(
+      normalized,
+    ) ||
+    /^packages\/domain\/src\/read-only-app-mcp-www-authenticate.*\.ts$/u.test(
       normalized,
     )
   );
@@ -279,6 +296,9 @@ export function isMcpTokenValidationSourceInventoryPath(path: string) {
   if (/\.spec\.ts$/u.test(normalized)) return false;
   return (
     isMcpTokenValidationRouteRuntimeInventoryPath(normalized) ||
+    /^packages\/domain\/src\/read-only-app-mcp-invalid-token-challenge.*\.ts$/u.test(
+      normalized,
+    ) ||
     /^packages\/domain\/src\/read-only-app-mcp-token-validation.*\.ts$/u.test(
       normalized,
     ) ||

@@ -168,6 +168,9 @@ export function isMcpTokenValidationTestDoubleProofSourcePath(path: string) {
     /^packages\/domain\/src\/read-only-app-mcp-token-validation.*\.ts$/u.test(
       normalized,
     ) ||
+    /^packages\/domain\/src\/read-only-app-mcp-invalid-token-challenge.*\.ts$/u.test(
+      normalized,
+    ) ||
     /^packages\/domain\/src\/read-only-app-mcp-www-authenticate.*\.ts$/u.test(
       normalized,
     ) ||
@@ -175,9 +178,7 @@ export function isMcpTokenValidationTestDoubleProofSourcePath(path: string) {
       normalized,
     ) ||
     /^tools\/read-only-mcp-token-validation.*\.mjs$/u.test(normalized) ||
-    /^tools\/read-only-mcp-invalid-token-challenge.*\.mjs$/u.test(
-      normalized,
-    ) ||
+    /^tools\/read-only-mcp-invalid-token-challenge.*\.mjs$/u.test(normalized) ||
     /^tools\/read-only-mcp-www-authenticate.*\.mjs$/u.test(normalized) ||
     /^tools\/read-only-mcp-protected-resource-metadata.*\.mjs$/u.test(
       normalized,
@@ -316,7 +317,7 @@ function collectLineMatches(
     push("bearerTokenMaterial", "authorization-bearer-material");
   }
   if (
-    /\bbearer\s+(?!scheme\b|challenge\b|resource_metadata\b|token\b|material\b|proof-token-material\b|synthetic-token-material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
+    /\bbearer\s+(?!scheme\b|challenge\b|resource_metadata\b|parameter\b|parameters\b|token\b|material\b|proof-token-material\b|synthetic-token-material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
       line,
     )
   ) {
@@ -400,7 +401,13 @@ function isProofOrContractPath(path: string) {
     /read-only-app-mcp-token-validation-test-double-validation\.ts$/u.test(
       path,
     ) ||
+    /^packages\/domain\/src\/read-only-app-mcp-invalid-token-challenge\.ts$/u.test(
+      path,
+    ) ||
     /^plans\/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan\.md$/u.test(
+      path,
+    ) ||
+    /^plans\/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation\.md$/u.test(
       path,
     ) ||
     /^plans\/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation\.md$/u.test(

@@ -48,6 +48,10 @@ const FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH =
   "plans/FP-0132-read-only-chatgpt-app-mcp-token-validation-runtime-contracts-foundation.md";
 const FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_PATH =
   "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs";
+const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
+  "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
+const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH =
+  "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -446,7 +450,10 @@ function isAllowedMcpProtocolProofPath(path) {
       "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md" ||
     path ===
       "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md" ||
-    path === "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs" ||
+    path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH ||
+    path === FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH ||
+    path ===
+      "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||

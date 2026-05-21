@@ -15,6 +15,7 @@ import {
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
   FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PLAN_PATH,
   FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH,
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   McpProtectedResourceMetadataBuilderProofSchema,
   buildMcpProtectedResourceMetadataBuilderProof,
   textHasProtectedResourceMetadataBuilderTokenLeakage,
@@ -110,6 +111,15 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
   "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md",
   "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
+  FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-builders.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-contracts.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-plan-boundary.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-proof.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-types.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge.spec.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge.ts",
+  "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
   "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
@@ -276,6 +286,9 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
         path,
       ) ||
       /^packages\/domain\/src\/read-only-app-mcp-token-validation.*\.ts$/u.test(
+        path,
+      ) ||
+      /^packages\/domain\/src\/read-only-app-mcp-invalid-token-challenge.*\.ts$/u.test(
         path,
       ) ||
       /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path),
