@@ -51,6 +51,10 @@ const FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH =
   "plans/FP-0139-read-only-chatgpt-app-mcp-token-validation-result-envelope-local-proof-mode-implementation.md";
 const FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PROOF_PATH =
   "tools/read-only-mcp-token-validation-result-envelope-proof.mjs";
+const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH =
+  "plans/FP-0140-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-planning.md";
+const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH =
+  "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs";
 const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
   "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
 const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH =
@@ -489,6 +493,10 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
       "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH ||
     path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PROOF_PATH ||
+    path ===
+      FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH ||
+    path ===
+      FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||

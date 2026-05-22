@@ -12,6 +12,7 @@ import {
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
+  FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   scanTokenValidationNoLeakage,
   verifyFp0127WwwAuthenticateAuthChallengeContractsBoundary,
   verifyFp0128TokenValidationReadinessContractsBoundary,
@@ -29,7 +30,8 @@ import {
   verifyFp0138Absent,
   verifyFp0138AbsentOrDocsOnlyTokenValidationRuntimeImplementationPlanning,
   verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
-  verifyFp0140Absent,
+  verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning,
+  verifyFp0141Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -381,7 +383,13 @@ function verifyFp0138Compatibility() {
       verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope(
         repoPaths,
       ) &&
-      verifyFp0140Absent(repoPaths))
+      verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning({
+        planText: safeReadIfExists(
+          FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+        ),
+        repoPaths,
+      }) &&
+      verifyFp0141Absent(repoPaths))
   );
 }
 

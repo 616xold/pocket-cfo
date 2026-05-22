@@ -15,9 +15,6 @@ export const FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH =
 export const MCP_TOKEN_VALIDATION_RESULT_ENVELOPE_FP0139_PLAN_PREFIX =
   "FP-0139";
 
-export const MCP_TOKEN_VALIDATION_RESULT_ENVELOPE_FP0140_PLAN_PREFIX =
-  "FP-0140";
-
 export const TOKEN_VALIDATION_FAILURE_TAXONOMY = [
   "missing_token",
   "malformed_authorization",
@@ -312,7 +309,9 @@ export const TokenValidationResultEnvelopeProofSchema = z
     noProviderExternalCalls: trueLiteral,
     noSourceMutationFinanceWrite: trueLiteral,
     fp0139BoundaryVerified: trueLiteral,
-    fp0140Absent: trueLiteral,
+    fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified:
+      trueLiteral,
+    fp0141Absent: trueLiteral,
     fp0138TokenValidationRuntimeImplementationPlanningBoundaryStillVerified:
       trueLiteral,
     fp0137InvalidTokenChallengeReadinessBoundaryStillVerified: trueLiteral,

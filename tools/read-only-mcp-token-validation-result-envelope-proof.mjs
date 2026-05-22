@@ -13,6 +13,7 @@ import {
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
+  FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   TokenValidationResultEnvelopeProofSchema,
   buildTokenValidationResultEnvelope,
   buildTokenValidationResultEnvelopeInputDescriptor,
@@ -34,7 +35,8 @@ import {
   verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
   verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary,
   verifyFp0139PlanningTextRequiredTopics,
-  verifyFp0140Absent,
+  verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning,
+  verifyFp0141Absent,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
   verifyTokenValidationResultEnvelopeBoundaryFields,
@@ -64,6 +66,9 @@ const changedPaths = changedPathScope.combinedChangedPaths;
 const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const fp0139PlanText = safeRead(
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
+);
+const fp0140PlanText = safeReadIfExists(
+  FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
 );
 const noLeakageScan = scanTokenValidationNoLeakage(
   buildDocLeakageScanText({
@@ -113,7 +118,12 @@ const proof = TokenValidationResultEnvelopeProofSchema.parse(
         planText: fp0139PlanText,
         repoPaths,
       }) && Object.values(planTopics).every(Boolean),
-    fp0140Absent: verifyFp0140Absent(repoPaths),
+    fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified:
+      verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning({
+        planText: fp0140PlanText,
+        repoPaths,
+      }),
+    fp0141Absent: verifyFp0141Absent(repoPaths),
     httpPostureRecommendationVerified:
       verifyTokenValidationResultEnvelopeHttpPostureMapping(),
     issuerAudienceResourcePostureVerified:
@@ -197,6 +207,9 @@ const bridgeFields = {
       planText: fp0139PlanText,
       repoPaths,
     }),
+  fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified:
+    proof.fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified,
+  fp0141Absent: proof.fp0141Absent,
   tokenValidationResultEnvelopeImplementationBoundaryVerified:
     proof.fp0139BoundaryVerified,
   noMcpRouteBehaviorChangeFromFp0139: proof.noRouteBehaviorChange,
@@ -674,6 +687,10 @@ function readWorkingTreeAddedText(path) {
 
 function safeRead(path) {
   return readFileSync(path, "utf8");
+}
+
+function safeReadIfExists(path) {
+  return existsSync(path) ? safeRead(path) : undefined;
 }
 
 function countMatches(text, pattern) {

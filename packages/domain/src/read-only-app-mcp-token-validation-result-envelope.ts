@@ -1,7 +1,6 @@
 import {
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   MCP_TOKEN_VALIDATION_RESULT_ENVELOPE_FP0139_PLAN_PREFIX,
-  MCP_TOKEN_VALIDATION_RESULT_ENVELOPE_FP0140_PLAN_PREFIX,
   TOKEN_VALIDATION_FAILURE_TAXONOMY,
   TOKEN_VALIDATION_REQUIRED_SCOPE_ALLOWLIST,
   TOKEN_VALIDATION_RESULT_ENVELOPE_SCHEMA_VERSION,
@@ -200,7 +199,10 @@ export function buildTokenValidationResultEnvelopeProof(
     noProviderExternalCalls: input.noProviderExternalCalls ?? true,
     noSourceMutationFinanceWrite: input.noSourceMutationFinanceWrite ?? true,
     fp0139BoundaryVerified: input.fp0139BoundaryVerified ?? true,
-    fp0140Absent: input.fp0140Absent ?? true,
+    fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified:
+      input.fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified ??
+      true,
+    fp0141Absent: input.fp0141Absent ?? true,
     fp0138TokenValidationRuntimeImplementationPlanningBoundaryStillVerified:
       input.fp0138TokenValidationRuntimeImplementationPlanningBoundaryStillVerified ??
       true,
@@ -342,15 +344,6 @@ export function verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary(
   );
 }
 
-export function verifyFp0140Absent(repoPaths: readonly string[]) {
-  return (
-    fpPlanHits(
-      repoPaths,
-      MCP_TOKEN_VALIDATION_RESULT_ENVELOPE_FP0140_PLAN_PREFIX,
-    ).length === 0
-  );
-}
-
 export function verifyFp0139PlanningTextRequiredTopics(planText: string) {
   const normalized = normalize(planText);
   return {
@@ -383,7 +376,9 @@ export function verifyFp0139PlanningTextRequiredTopics(planText: string) {
       normalized.includes("bearer token material") &&
       normalized.includes("jwt-like examples") &&
       normalized.includes("no-token-echo"),
-    fp0140Absent: normalized.includes("fp-0140 remains absent"),
+    fp0140AbsentOrDocsOnlyPlanningBridge:
+      normalized.includes("fp-0140 remains absent") ||
+      normalized.includes("fp-0140 is now a docs-and-plan plus proof-gate compatibility slice"),
   };
 }
 
@@ -621,8 +616,11 @@ function fp0139PlanTextBoundaryVerified(planText: string) {
       "not invalid-token www-authenticate route behavior",
       "not route expansion",
       "not db query implementation",
-      "fp-0140 remains absent",
     ].every((requiredText) => normalized.includes(requiredText)) &&
+    (normalized.includes("fp-0140 remains absent") ||
+      normalized.includes(
+        "fp-0140 is now a docs-and-plan plus proof-gate compatibility slice",
+      )) &&
     Object.values(verifyFp0139PlanningTextRequiredTopics(planText)).every(
       Boolean,
     )

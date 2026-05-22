@@ -395,7 +395,7 @@ function isDataOrSourcePackPath(path: string) {
 
 function isProofOrContractPath(path: string) {
   return (
-    /(?:proof|contract|contracts|readiness|sequencing|plan-boundary|inventory|types|builders|result-envelope|\.spec\.ts$)/u.test(
+    /(?:proof|contract|contracts|readiness|sequencing|planning|plan-boundary|inventory|types|builders|result-envelope|\.spec\.ts$)/u.test(
       path,
     ) ||
     /read-only-app-mcp-token-validation-test-double-validation\.ts$/u.test(
