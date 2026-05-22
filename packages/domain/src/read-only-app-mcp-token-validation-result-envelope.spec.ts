@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import {
   FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
+  FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   TOKEN_VALIDATION_FAILURE_TAXONOMY,
   TokenValidationResultEnvelopeProofSchema,
   TokenValidationResultEnvelopeSchema,
@@ -16,7 +17,8 @@ import {
   verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary,
   verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
   verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary,
-  verifyFp0140Absent,
+  verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning,
+  verifyFp0141Absent,
   verifyTokenValidationResultEnvelopeBoundaryFields,
   verifyTokenValidationResultEnvelopeHttpPostureMapping,
   verifyTokenValidationResultEnvelopeNoTokenMaterialRejection,
@@ -30,7 +32,7 @@ const metadataRoutePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
 describe("FP-0139 token-validation result envelopes", () => {
-  it("accepts exactly one FP-0139 local proof-mode plan while FP-0140 remains absent", () => {
+  it("accepts exactly one FP-0139 local proof-mode plan and one FP-0140 docs-only planning bridge while FP-0141 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
@@ -38,9 +40,15 @@ describe("FP-0139 token-validation result envelopes", () => {
     const fp0138PlanText = safeRead(
       FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
     );
+    const fp0140PlanText = safeRead(
+      FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0139/u.test(path))).toEqual([
       FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0140/u.test(path))).toEqual([
+      FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
     ]);
     expect(
       verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope({
@@ -54,7 +62,13 @@ describe("FP-0139 token-validation result envelopes", () => {
         repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0140Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning({
+        planText: fp0140PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0141Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0138TokenValidationRuntimeImplementationPlanningBoundary({
         planText: fp0138PlanText,
@@ -67,7 +81,13 @@ describe("FP-0139 token-validation result envelopes", () => {
         repoPaths: [...repoPaths, "plans/FP-0139-extra-runtime.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0140Absent([...repoPaths, "plans/FP-0140-next.md"])).toBe(
+    expect(
+      verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning({
+        planText: fp0140PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0140-next.md"],
+      }),
+    ).toBe(false);
+    expect(verifyFp0141Absent([...repoPaths, "plans/FP-0141-next.md"])).toBe(
       false,
     );
   });

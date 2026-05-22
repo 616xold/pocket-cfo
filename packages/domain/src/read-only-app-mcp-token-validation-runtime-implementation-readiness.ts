@@ -29,7 +29,9 @@ export const McpTokenValidationRuntimeImplementationReadinessProofSchema = z
       trueLiteral,
     fp0139AbsentOrLocalProofModeTokenValidationResultEnvelopeVerified:
       trueLiteral,
-    fp0140Absent: trueLiteral,
+    fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified:
+      trueLiteral,
+    fp0141Absent: trueLiteral,
     tokenValidationRuntimeImplementationPlanningBoundaryVerified: trueLiteral,
     noMcpRouteBehaviorChangeFromFp0138: trueLiteral,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0138: trueLiteral,
@@ -107,7 +109,10 @@ export function buildMcpTokenValidationRuntimeImplementationReadinessProof(
     fp0139AbsentOrLocalProofModeTokenValidationResultEnvelopeVerified:
       input.fp0139AbsentOrLocalProofModeTokenValidationResultEnvelopeVerified ??
       true,
-    fp0140Absent: input.fp0140Absent ?? true,
+    fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified:
+      input.fp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanningVerified ??
+      true,
+    fp0141Absent: input.fp0141Absent ?? true,
     tokenValidationRuntimeImplementationPlanningBoundaryVerified:
       input.tokenValidationRuntimeImplementationPlanningBoundaryVerified ??
       true,

@@ -34,7 +34,7 @@ Boundary wording for proof gates: FP-0139 is not production token validation, no
 - Decision: Required scopes must be sanitized identifiers from the read-only allowlist. The envelope never emits broad wildcard, write, admin, or hidden provider scopes.
 - Decision: Issuer/audience/resource, subject/org/company, revocation/replay, no-token-echo, proof-mode-only, and evidence-free decision fields are structured posture boundaries only. No real issuer, JWKS, provider, user, org, company, revocation, nonce, DB, or route lookup is performed.
 - Decision: FP-0134 synthetic test-double evaluator output remains proof/test-only and is not route-consumed. FP-0139 may preserve compatibility with FP-0134 boundaries, but it does not make FP-0134 a route input.
-- Decision: FP-0140 remains absent. Public ChatGPT App submission and production token-validation runtime should wait.
+- Decision: FP-0140 is now a docs-and-plan plus proof-gate compatibility slice after FP-0139. Public ChatGPT App submission and production token-validation runtime should wait.
 
 ## Context and Orientation
 
@@ -57,7 +57,7 @@ GitHub connector product behavior is out of scope. Routine `git`, `gh`, push, an
 
 ## Plan of Work
 
-This slice creates exactly one FP-0139 plan and adds pure domain result-envelope contracts/builders/evaluator logic under `packages/domain/src/read-only-app-mcp-token-validation-result-envelope*.ts`. It adds one direct proof command at `tools/read-only-mcp-token-validation-result-envelope-proof.mjs`, focused domain specs, and the minimum proof-gate bridge so prior proof tools accept exactly one local proof-mode FP-0139 implementation while FP-0140 remains absent.
+This slice creates exactly one FP-0139 plan and adds pure domain result-envelope contracts/builders/evaluator logic under `packages/domain/src/read-only-app-mcp-token-validation-result-envelope*.ts`. It adds one direct proof command at `tools/read-only-mcp-token-validation-result-envelope-proof.mjs`, focused domain specs, and the minimum proof-gate bridge so prior proof tools accept exactly one local proof-mode FP-0139 implementation. FP-0140 is now a docs-and-plan plus proof-gate compatibility slice that consumes FP-0139 only as future planning input.
 
 Allowed changes are limited to the FP-0139 plan, the token-validation result-envelope domain files/specs, proof-gate helpers/specs in the existing read-only app MCP token-validation/test-double/invalid-token/WWW-Authenticate/protected-resource-metadata families when needed for compatibility, `packages/domain/src/index.ts` exports if needed, the new direct proof command, existing proof tools only for bridge compatibility, and directly stale docs/plugins wording if the new FP-0139 truth makes them stale.
 
@@ -67,7 +67,7 @@ Forbidden scope remains: no production token validation, Authorization header pa
 
 1. Create this FP-0139 Finance Plan.
 2. Add pure result-envelope schemas/types/builders/evaluator in `packages/domain/src/read-only-app-mcp-token-validation-result-envelope*.ts`.
-3. Add focused specs proving sanitized descriptor acceptance, raw token/Bearer/JWT-like rejection, closed failure taxonomy, deterministic HTTP posture recommendations, symbolic WWW-Authenticate error boundaries, sanitized required scopes, issuer/audience/resource posture, subject/org/company binding posture, revocation/replay posture, no-token-echo markers, evidence-free security decision boundary, proof-mode-only boundary, and FP-0140 absence.
+3. Add focused specs proving sanitized descriptor acceptance, raw token/Bearer/JWT-like rejection, closed failure taxonomy, deterministic HTTP posture recommendations, symbolic WWW-Authenticate error boundaries, sanitized required scopes, issuer/audience/resource posture, subject/org/company binding posture, revocation/replay posture, no-token-echo markers, evidence-free security decision boundary, proof-mode-only boundary, and the later FP-0140 docs-only planning bridge.
 4. Add `tools/read-only-mcp-token-validation-result-envelope-proof.mjs` with machine-readable JSON proof fields.
 5. Update minimum proof-gate bridges so FP-0138 through FP-0100 relevant tools accept exactly one FP-0139 local proof-mode result-envelope implementation and still reject FP-0140 plus runtime/token/OAuth/auth/route/DB/provider/source/finance widening.
 6. Refresh only directly stale active docs and `plugins.md` wording if necessary.
@@ -78,7 +78,7 @@ Forbidden scope remains: no production token validation, Authorization header pa
 Acceptance requires:
 
 - exactly one FP-0139 plan path exists at `plans/FP-0139-read-only-chatgpt-app-mcp-token-validation-result-envelope-local-proof-mode-implementation.md`
-- FP-0140 remains absent
+- FP-0140 remains docs-and-plan plus proof-gate compatibility only after this slice
 - result-envelope builder/evaluator accepts sanitized descriptors only and does not accept raw token, Bearer, Authorization header, JWT-like, OAuth credential, session, cookie, provider credential, or OpenAI key material
 - failure taxonomy is closed and exact
 - HTTP posture recommendation is deterministic and does not emit a route response
@@ -158,7 +158,7 @@ Replay implication: FP-0139 creates no mission state changes, ingest actions, re
 
 Evidence/provenance/freshness implication: FP-0139 creates no raw source, source snapshot, Finance Twin state, CFO Wiki output, evidence bundle, freshness posture change, or finance limitation output. Its envelope explicitly marks the security decision as evidence-free and proof-mode-only so future route behavior cannot mistake it for source-backed finance evidence or production authentication.
 
-No new environment variables, package scripts, migrations, fixtures, datasets, source packs, public assets, screenshots, images, app-submission assets, provider calls, OpenAI API/model calls, deployment config, external artifacts, or FP-0140 are added.
+No new environment variables, package scripts, migrations, fixtures, datasets, source packs, public assets, screenshots, images, app-submission assets, provider calls, OpenAI API/model calls, deployment config, external artifacts, or FP-0141 are added.
 
 ## Interfaces and Dependencies
 
@@ -166,7 +166,7 @@ FP-0139 adds one pure domain interface: sanitized descriptor input to `TokenVali
 
 Future invalid-token route behavior may depend on these envelopes only after a later Finance Plan proves route consumption, header construction, JSON-RPC refusal separation, canonical resource metadata references, no-token-echo, and production validation trust gates. Future production token-validation runtime remains blocked until issuer/audience/resource/scope, user-org-company, revocation/replay, provider/auth-server, canonical public resource URI, and no-token-leakage gates are concrete.
 
-Upstream proof dependencies: FP-0138, FP-0137, FP-0136, FP-0135, FP-0134, FP-0133, FP-0132, FP-0131, FP-0130, FP-0128, FP-0127, FP-0125, FP-0107, FP-0106, and FP-0100 must remain proven. FP-0140 remains absent.
+Upstream proof dependencies: FP-0138, FP-0137, FP-0136, FP-0135, FP-0134, FP-0133, FP-0132, FP-0131, FP-0130, FP-0128, FP-0127, FP-0125, FP-0107, FP-0106, and FP-0100 must remain proven. FP-0140 is now a docs-and-plan plus proof-gate compatibility slice only; FP-0141 remains absent.
 
 ## Outcomes & Retrospective
 
@@ -184,7 +184,7 @@ Implemented artifacts:
 
 Result-envelope decisions made: closed taxonomy, deterministic HTTP posture recommendations, symbolic WWW-Authenticate error values only, sanitized read-only required scopes, issuer/audience/resource posture without provider calls, subject/org/company posture without lookup, revocation/replay posture without stores, no-token-echo markers, proof-mode-only boundary, and evidence-free security decision boundary.
 
-Posture preserved: FP-0138, FP-0137, FP-0136, FP-0135, FP-0134, FP-0133, FP-0132, FP-0131, FP-0130, FP-0128, FP-0127, FP-0125, FP-0107, FP-0106, and FP-0100 remain proven. FP-0134 synthetic evaluator output remains proof/test-only and is not route-consumed. FP-0140 remains absent.
+Posture preserved: FP-0138, FP-0137, FP-0136, FP-0135, FP-0134, FP-0133, FP-0132, FP-0131, FP-0130, FP-0128, FP-0127, FP-0125, FP-0107, FP-0106, and FP-0100 remain proven. FP-0134 synthetic evaluator output remains proof/test-only and is not route-consumed. FP-0140 is now a docs-and-plan plus proof-gate compatibility slice only, and FP-0141 remains absent.
 
 Guardrails preserved: no production token validation, Authorization header parsing, token parsing, JWT decoding, signature verification, token introspection, OAuth implementation, token/session storage, auth middleware, invalid-token WWW-Authenticate header emission, route response emission, `/mcp` behavior change, protected-resource metadata route behavior change, missing-token behavior change, invalid-token challenge runtime, DB query, schema/migration, package-script change, provider call, OpenAI API/model call, source mutation, finance write, public asset, listing copy, generated public prose, external communication, or autonomous action was added.
 
