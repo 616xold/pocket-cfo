@@ -7,7 +7,10 @@ import {
 import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-contracts";
 import { FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-implementation-readiness";
 import { FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH } from "./read-only-app-mcp-token-validation-result-envelope-contracts";
-import { FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-implementation-planning";
+import {
+  FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+  FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
+} from "./read-only-app-mcp-invalid-token-challenge-implementation-planning";
 import { FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-contracts";
 import { FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-implementation-readiness";
 import {
@@ -49,12 +52,16 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+  FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.spec.ts",
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts",
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts",
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts",
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
+  "packages/domain/src/benchmark-community.spec.ts",
   "packages/domain/src/index.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge-builders.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge-contracts.ts",
@@ -77,6 +84,8 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "packages/domain/src/read-only-app-mcp-token-validation-test-double-inventory.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-test-double.spec.ts",
   "packages/domain/src/read-only-app-mcp-canonical-resource-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-endpoint-architecture-proof.ts",
+  "packages/domain/src/read-only-app-mcp-endpoint-route-ownership-inventory.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-www-authenticate-boundary-hardening.spec.ts",
@@ -103,6 +112,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs",
+  "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs",
   "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
@@ -117,6 +127,9 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-route-adapter-proof.mjs",
   "tools/read-only-endpoint-route-ownership-proof.mjs",
   "tools/read-only-endpoint-architecture-proof.mjs",
+  "tools/read-only-chatgpt-app-mcp-proof.mjs",
+  "tools/benchmark-community-pack-proof.mjs",
+  "tools/read-only-public-app-security-boundary-proof.mjs",
   "README.md",
   "CODEX_README.md",
   "START_HERE.md",
@@ -443,12 +456,24 @@ function isWwwAuthenticateRouteBehaviorPath(path: string) {
 function isAllowedFp0130MissingTokenWwwAuthenticateRouteMatch(
   match: McpTokenValidationInventoryMatch,
 ) {
+  if (
+    match.path ===
+      "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts" &&
+    match.patternName === "www-authenticate-route-behavior" &&
+    /resource_metadata/.test(match.excerpt)
+  ) {
+    return true;
+  }
+
   return (
     match.path === FP0130_MCP_ROUTE_PATH &&
     match.patternName === "www-authenticate-route-behavior" &&
-    /(?:reply\s*)?\.header\(\s*["']WWW-Authenticate["']\s*,\s*challenge\.wwwAuthenticate\s*\)/u.test(
+    (/(?:reply\s*)?\.header\(\s*["']WWW-Authenticate["']\s*,\s*challenge\.wwwAuthenticate\s*\)/u.test(
       match.excerpt,
-    )
+    ) ||
+      /(?:reply\s*)?\.header\(\s*["']WWW-Authenticate["']\s*,\s*invalidTokenChallenge\.wwwAuthenticate\s*\)/u.test(
+        match.excerpt,
+      ))
   );
 }
 

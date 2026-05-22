@@ -9,6 +9,10 @@ import {
 } from "./read-only-app-mcp-endpoint-architecture-contracts";
 
 const trueLiteral = z.literal(true);
+const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_MODULE_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts";
+const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_SPEC_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.spec.ts";
 
 export const EndpointArchitectureProofSchema = z
   .object({
@@ -405,6 +409,9 @@ function endpointRuntimeRepositoryViolation(
   if (isAllowedEndpointArchitectureProofSurface(file.path)) return false;
   if (isAllowedHistoricalLocalPreviewSurface(file.path)) return false;
   if (isAllowedFp0107LocalRouteAdapterSurface(file)) return false;
+  if (isAllowedFp0141InvalidTokenChallengeLocalRuntimeSurface(file)) {
+    return false;
+  }
   if (isAllowedFp0125LocalProtectedResourceMetadataRouteSurface(file)) {
     return false;
   }
@@ -415,6 +422,28 @@ function endpointRuntimeRepositoryViolation(
   return (
     looksLikePublicAppEndpointRuntimePath(file.path) ||
     looksLikePublicAppEndpointRuntimeSource(source)
+  );
+}
+
+function isAllowedFp0141InvalidTokenChallengeLocalRuntimeSurface(
+  file: EndpointRuntimeRepositoryInventoryFile,
+): boolean {
+  if (file.path === FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_SPEC_PATH) {
+    return true;
+  }
+  if (file.path !== FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_MODULE_PATH) {
+    return false;
+  }
+
+  const source = file.source ?? "";
+  return (
+    source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    source.includes("TokenValidationResultEnvelopeSchema") &&
+    source.includes("MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE") &&
+    source.includes("noTokenEcho") &&
+    !/request\.headers\.authorization|decodeJwt|jwtVerify|jose|jsonwebtoken|introspect|tokenExchange|sessionHandler|Set-Cookie|listen\s*\(|fetch\s*\(/u.test(
+      source,
+    )
   );
 }
 

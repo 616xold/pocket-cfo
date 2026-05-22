@@ -14,6 +14,7 @@ import {
   FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+  FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   McpInvalidTokenChallengeImplementationPlanningProofSchema,
   buildMcpInvalidTokenChallengeImplementationPlanningProof,
   isMcpTokenValidationTestDoubleProofSourcePath,
@@ -37,6 +38,9 @@ import {
   verifyFp0140PlanningTextRequiredTopics,
   verifyFp0140SymbolicWwwAuthenticateErrorPlanning,
   verifyFp0141Absent,
+  verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime,
+  verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary,
+  verifyFp0142Absent,
   verifyMcpInvalidTokenChallengeContractBoundaries,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
@@ -66,6 +70,9 @@ const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const fp0140PlanText = safeRead(
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
 );
+const fp0141PlanText = safeRead(
+  FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
+);
 const fp0139PlanText = safeRead(FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH);
 const fp0140Topics = verifyFp0140PlanningTextRequiredTopics(fp0140PlanText);
 const changedDocText = readChangedDocText(changedPaths);
@@ -73,6 +80,7 @@ const noLeakageScan = scanTokenValidationNoLeakage(
   [fp0140PlanText, changedDocText].join("\n"),
 );
 const sourceScope = verifySourceScope();
+const fp0141RuntimeBridge = fp0141RuntimeBridgeVerified();
 const priorBoundaries = verifyPriorBoundaries();
 const repositoryInventory = verifyRepositoryInventory();
 const resultEnvelopeBoundary =
@@ -117,12 +125,16 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
         planText: fp0140PlanText,
         repoPaths,
       }),
-    fp0141Absent: verifyFp0141Absent(repoPaths),
+    fp0141Absent: verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime({
+      planText: fp0141PlanText,
+      repoPaths,
+    }),
     invalidTokenChallengeImplementationPlanningVerified:
       Object.values(fp0140Topics).every(Boolean),
     missingTokenBehaviorStillSeparate:
       fp0140Topics.routePosturesSeparate &&
-      sourceScope.noMissingTokenChallengeBehaviorChange &&
+      (sourceScope.noMissingTokenChallengeBehaviorChange ||
+        fp0141RuntimeBridge) &&
       priorBoundaries.fp0130MissingTokenChallengeBoundaryStillVerified,
     noAuthMiddlewareImplementation:
       sourceScope.noAuthMiddlewareImplementation &&
@@ -132,7 +144,7 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noInvalidTokenChallengeRuntime:
-      sourceScope.noInvalidTokenChallengeRuntime &&
+      (sourceScope.noInvalidTokenChallengeRuntime || fp0141RuntimeBridge) &&
       repositoryInventory.noInvalidTokenChallengeRuntimeRepositoryInventoryVerified,
     noJwtDecodingRuntime:
       sourceScope.noJwtDecodingRuntime &&
@@ -141,9 +153,10 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
       noLeakageScan.accepted &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noMcpRouteBehaviorChange:
-      sourceScope.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
+      (sourceScope.noMcpRouteBehaviorChange || fp0141RuntimeBridge) &&
+      localMcpRouteShapeStillVerified(),
     noMissingTokenChallengeBehaviorChange:
-      sourceScope.noMissingTokenChallengeBehaviorChange,
+      sourceScope.noMissingTokenChallengeBehaviorChange || fp0141RuntimeBridge,
     noOauthImplementation:
       sourceScope.noOauthImplementation &&
       repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
@@ -177,7 +190,8 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
     noTokenValidationRuntime:
       sourceScope.noTokenValidationRuntime &&
       repositoryInventory.noTokenValidationRuntimeRepositoryInventoryVerified,
-    noWwwAuthenticateHeaderRuntime: sourceScope.noWwwAuthenticateHeaderRuntime,
+    noWwwAuthenticateHeaderRuntime:
+      sourceScope.noWwwAuthenticateHeaderRuntime || fp0141RuntimeBridge,
     protectedResourceMetadataBehaviorStillSeparate:
       fp0140Topics.routePosturesSeparate &&
       sourceScope.noProtectedResourceMetadataRouteBehaviorChange &&
@@ -196,7 +210,18 @@ const bridgeFields = {
       planText: fp0140PlanText,
       repoPaths,
     }),
-  fp0141Absent: verifyFp0141Absent(repoPaths),
+  fp0141Absent: proof.fp0141Absent,
+  fp0141AbsentOrLocalInvalidTokenChallengeRuntimeVerified:
+    verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime({
+      planText: fp0141PlanText,
+      repoPaths,
+    }),
+  fp0141LocalInvalidTokenChallengeRuntimeBoundaryVerified:
+    verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary({
+      planText: fp0141PlanText,
+      repoPaths,
+    }),
+  fp0142Absent: verifyFp0142Absent(repoPaths),
   invalidTokenChallengeImplementationPlanningBoundaryVerified:
     proof.fp0140BoundaryVerified,
   noInvalidTokenChallengeRuntimeFromFp0140:
@@ -369,6 +394,35 @@ function verifySourceScope() {
         changedExecutableSource,
       ),
   };
+}
+
+function fp0141RuntimeBridgeVerified() {
+  return (
+    verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary({
+      planText: fp0141PlanText,
+      repoPaths,
+    }) &&
+    verifyFp0142Absent(repoPaths) &&
+    localMcpRouteShapeStillVerified() &&
+    fp0141InvalidTokenRouteInjectionShapeVerified()
+  );
+}
+
+function fp0141InvalidTokenRouteInjectionShapeVerified() {
+  const source = safeRead(MCP_ROUTE_PATH);
+  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
+  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+
+  return (
+    source.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    !source.includes("evaluateSyntheticTokenValidationScenario") &&
+    !source.includes("buildTokenValidationResultEnvelope")
+  );
 }
 
 function verifyPriorBoundaries() {

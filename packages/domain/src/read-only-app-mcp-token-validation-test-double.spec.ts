@@ -67,6 +67,10 @@ import {
   verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
   verifyFp0140AbsentOrDocsOnlyInvalidTokenChallengeImplementationPlanning,
   verifyFp0141Absent,
+  FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
+  verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime,
+  verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary,
+  verifyFp0142Absent,
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   verifyMcpTokenValidationTestDoubleContractBoundaries,
   verifyMcpTokenValidationTestDoubleNoTokenExamples,
@@ -94,7 +98,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0133 token-validation test-double contract foundations", () => {
-  it("accepts FP-0136/0137/0138, FP-0139 result envelopes, and one FP-0140 docs-only planning bridge while FP-0141 remains absent", () => {
+  it("accepts FP-0136/0137/0138, FP-0139 result envelopes, FP-0140 planning, and exactly one FP-0141 runtime plan while FP-0142 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0133_TOKEN_VALIDATION_TEST_DOUBLE_CONTRACTS_PLAN_PATH,
@@ -116,6 +120,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     );
     const fp0140PlanText = safeRead(
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
+    const fp0141PlanText = safeRead(
+      FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
     );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0133/u.test(path))).toEqual([
@@ -141,6 +148,9 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0140/u.test(path))).toEqual([
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0141/u.test(path))).toEqual([
+      FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
     ]);
     expect(
       verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts({
@@ -243,6 +253,19 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
     ).toBe(true);
     expect(verifyFp0141Absent(repoPaths)).toBe(true);
     expect(
+      verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime({
+        planText: fp0141PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary({
+        planText: fp0141PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(verifyFp0142Absent(repoPaths)).toBe(true);
+    expect(
       verifyFp0133TokenValidationTestDoubleContractsBoundary({
         planText,
         repoPaths: [...repoPaths, "plans/FP-0133-second-contract.md"],
@@ -305,7 +328,13 @@ describe("FP-0133 token-validation test-double contract foundations", () => {
       }),
     ).toBe(false);
     expect(
-      verifyFp0141Absent([...repoPaths, "plans/FP-0141-invalid-token.md"]),
+      verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime({
+        planText: fp0141PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0141-invalid-token.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0142Absent([...repoPaths, "plans/FP-0142-invalid-token.md"]),
     ).toBe(false);
   });
 

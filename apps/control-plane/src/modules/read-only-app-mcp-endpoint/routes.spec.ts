@@ -9,7 +9,10 @@ import {
   MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
   buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
   buildProtectedResourceMetadataRouteInputEvidenceBundle,
+  buildTokenValidationResultEnvelope,
+  buildTokenValidationResultEnvelopeInputDescriptor,
   validRouteInput,
+  type TokenValidationFailureTaxonomy,
 } from "@pocket-cto/domain";
 import { registerHttpErrorHandler } from "../../lib/http-errors";
 import { registerReadOnlyAppMcpEndpointRoutes } from "./routes";
@@ -408,6 +411,160 @@ describe("read-only app MCP endpoint routes", () => {
     });
   });
 
+  it("emits an injected local invalid-token challenge from sanitized FP-0139 envelopes", async () => {
+    let serviceCalls = 0;
+    const app = await buildTestApp(apps, {
+      readOnlyAppMcpEndpointService: {
+        handle() {
+          serviceCalls += 1;
+          throw new Error("invalid-token challenge must run before dispatch");
+        },
+      },
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        tokenEnvelopeFor("invalid_token"),
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      payload: {
+        id: "init-invalid-token",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const body = response.json();
+
+    expect(serviceCalls).toBe(0);
+    expect(response.statusCode).toBe(401);
+    expect(response.headers["www-authenticate"]).toContain(
+      'error="invalid_token"',
+    );
+    expect(response.headers["www-authenticate"]).toContain(
+      `resource_metadata="${MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE}"`,
+    );
+    expect(body).toMatchObject({
+      error: "invalid_token",
+      invalidTokenChallengeOnly: true,
+      localOnly: true,
+      noTokenEcho: true,
+      noTokenParsingRuntime: true,
+      noProductionTokenValidationRuntime: true,
+      readOnly: true,
+      resourceMetadata: MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
+      symbolicWwwAuthenticateError: "invalid_token",
+    });
+    expect(body.jsonrpc).toBeUndefined();
+    expect(JSON.stringify(body)).not.toMatch(
+      /authorization|access_token|refresh_token|client_secret|cookie|session|rawToken|decodedClaims/u,
+    );
+  });
+
+  it("maps injected malformed authorization and insufficient-scope envelopes to HTTP challenge posture", async () => {
+    const malformedApp = await buildTestApp(apps, {
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope: tokenEnvelopeFor(
+        "malformed_authorization",
+      ),
+    });
+    const insufficientScopeApp = await buildTestApp(apps, {
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "insufficient_scope",
+            requiredScopes: ["mcp:read", "evidence:read"],
+          }),
+        ),
+    });
+
+    const malformedResponse = await malformedApp.inject({
+      method: "POST",
+      payload: {
+        id: "init-malformed-authorization",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const insufficientScopeResponse = await insufficientScopeApp.inject({
+      method: "POST",
+      payload: {
+        id: "init-insufficient-scope",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+
+    expect(malformedResponse.statusCode).toBe(400);
+    expect(malformedResponse.headers["www-authenticate"]).toContain(
+      'error="invalid_request"',
+    );
+    expect(malformedResponse.json().error).toBe("invalid_request");
+    expect(insufficientScopeResponse.statusCode).toBe(403);
+    expect(insufficientScopeResponse.headers["www-authenticate"]).toContain(
+      'error="insufficient_scope"',
+    );
+    expect(insufficientScopeResponse.headers["www-authenticate"]).toContain(
+      'scope="mcp:read evidence:read"',
+    );
+    expect(insufficientScopeResponse.json().requiredScopes).toEqual([
+      "mcp:read",
+      "evidence:read",
+    ]);
+  });
+
+  it("keeps missing-token challenge behavior ahead of injected invalid-token mapping", async () => {
+    const app = await buildTestApp(apps, {
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        tokenEnvelopeFor("invalid_token"),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
+    });
+
+    const missingTokenResponse = await app.inject({
+      method: "POST",
+      payload: {
+        id: "init-missing-token-still-separate",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const authorizationPresentResponse = await app.inject({
+      headers: {
+        authorization: ["Bearer", ["proof", "token", "material"].join("-")].join(
+          " ",
+        ),
+      },
+      method: "POST",
+      payload: {
+        id: "init-authorization-present-still-separate",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+
+    expect(missingTokenResponse.statusCode).toBe(401);
+    expect(missingTokenResponse.headers["www-authenticate"]).toBe(
+      MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
+    );
+    expect(missingTokenResponse.json()).toMatchObject({
+      error: "authorization_required",
+      missingTokenOnly: true,
+    });
+    expect(authorizationPresentResponse.statusCode).toBe(401);
+    expect(
+      authorizationPresentResponse.headers["www-authenticate"],
+    ).toBeUndefined();
+    expect(authorizationPresentResponse.json()).toMatchObject({
+      error: "token_validation_runtime_not_implemented",
+      failClosed: true,
+    });
+  });
+
   it("fails closed before /mcp route registration when the challenge dependency lacks metadata route evidence", async () => {
     const app = Fastify();
     apps.push(app);
@@ -607,6 +764,14 @@ async function buildTestApp(
 function validEvidenceBundle() {
   return buildProtectedResourceMetadataRouteInputEvidenceBundle(
     validRouteInput,
+  );
+}
+
+function tokenEnvelopeFor(failure: TokenValidationFailureTaxonomy) {
+  return buildTokenValidationResultEnvelope(
+    buildTokenValidationResultEnvelopeInputDescriptor({
+      outcome: failure,
+    }),
   );
 }
 

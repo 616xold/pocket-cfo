@@ -497,10 +497,22 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
     /readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle/u.test(
       sourceText,
     );
+  const invalidTokenChallengePresent =
+    /readOnlyAppMcpInvalidTokenChallengeResultEnvelope|invalidTokenChallenge\.wwwAuthenticate|buildReadOnlyAppMcpInvalidTokenChallengeResponse/u.test(
+      sourceText,
+    );
+  const invalidTokenChallengeAllowed =
+    !invalidTokenChallengePresent ||
+    (/readOnlyAppMcpInvalidTokenChallengeResultEnvelope/u.test(sourceText) &&
+      /buildReadOnlyAppMcpInvalidTokenChallengeResponse/u.test(sourceText) &&
+      /(?:reply\s*)?\.header\(\s*["']WWW-Authenticate["']\s*,\s*invalidTokenChallenge\.wwwAuthenticate\s*\)/u.test(
+        sourceText,
+      ));
 
   return (
     /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/u.test(sourceText) &&
     challengeDependencyAccepted &&
+    invalidTokenChallengeAllowed &&
     /buildMcpWwwAuthenticateMissingTokenChallengeResponse/u.test(sourceText) &&
     /buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse/u.test(
       sourceText,
@@ -511,7 +523,7 @@ function routeSourceHasOnlyFp0130MissingTokenChallengeBehavior(
     !/\b(?:oauthCallback|tokenStore|sessionStore|authMiddleware|validateToken|verifyToken|verifyBearer|jwtVerify|decodeJwt|parseJwt|parseToken|introspectToken)\s*\(/u.test(
       sourceText,
     ) &&
-    !/resource_metadata\s*=|Bearer\s+resource_metadata/iu.test(sourceText)
+    !/Bearer\s+resource_metadata/iu.test(sourceText)
   );
 }
 

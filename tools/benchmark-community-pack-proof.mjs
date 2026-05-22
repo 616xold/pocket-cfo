@@ -3691,6 +3691,9 @@ function isAllowedFp0107LocalRouteAdapterPath(path) {
     path === FP0125_LOCAL_ROUTE_PROOF_PATH ||
     path === "apps/control-plane/src/app.ts" ||
     path === "tools/read-only-mcp-route-adapter-proof.mjs" ||
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/invalid-token-challenge(?:\.spec)?\.ts$/u.test(
+      path,
+    ) ||
     /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|schema|formatter|service|evidence-dispatcher)(?:\.spec)?\.ts$/u.test(
       path,
     )

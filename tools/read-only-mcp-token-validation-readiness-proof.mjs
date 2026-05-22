@@ -102,6 +102,7 @@ const wwwAuthenticateRuntimeLimitedToFp0130MissingTokenChallenge =
 const noWwwAuthenticateRuntime =
   wwwAuthenticateRuntimeLimitedToFp0130MissingTokenChallenge &&
   !/WWW-Authenticate/iu.test(metadataRouteSource);
+const changedAppsSdkRuntimeSource = readChangedAppsSdkRuntimeSource();
 const scopeScan = changedScopeScan();
 const noLeakageProof = sanitizedNoLeakageProof();
 const failureModeProof = verifyTokenValidationFailureModeContracts();
@@ -216,7 +217,8 @@ const proof = McpTokenValidationReadinessProofSchema.parse(
       scopeScan.noProtectedResourceMetadataRouteBehaviorChange &&
       metadataRouteShapeStillVerified(),
     noMissingTokenChallengeBehaviorChangeFromFp0132:
-      !changedPaths.includes(MCP_ROUTE_PATH) &&
+      (!changedPaths.includes(MCP_ROUTE_PATH) ||
+        fp0141RouteDependencyBridgeVerified()) &&
       !changedPaths.includes(
         "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts",
       ),
@@ -421,7 +423,7 @@ function changedScopeScan() {
         /(?:apps-sdk|app-submission|submission-assets)/iu.test(path),
       ) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
-        changedExecutableSource,
+        changedAppsSdkRuntimeSource,
       ),
     noAuthMiddlewareImplementation:
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|requireAuth|authenticateRequest|setCookie)\s*\(/u.test(
@@ -538,6 +540,23 @@ function routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() {
   );
 }
 
+function fp0141RouteDependencyBridgeVerified() {
+  const missingTokenIndex = mcpRouteSource.indexOf("if (missingTokenChallenge)");
+  const invalidTokenIndex = mcpRouteSource.indexOf("if (invalidTokenChallenge)");
+
+  return (
+    mcpRouteSource.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    mcpRouteSource.includes(
+      "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
+    ) &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    localMcpRouteShapeStillVerified()
+  );
+}
+
 function readChangedExecutableSource() {
   return changedPaths
     .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
@@ -548,6 +567,17 @@ function readChangedExecutableSource() {
         path !==
         "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
     )
+    .filter((path) => existsSync(path))
+    .map((path) => safeRead(path))
+    .join("\n");
+}
+
+function readChangedAppsSdkRuntimeSource() {
+  return changedPaths
+    .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
+    .filter((path) => !path.startsWith("tools/"))
+    .filter((path) => !path.endsWith(".spec.ts"))
+    .filter((path) => !/packages\/domain\/src\/.*(?:proof|inventory).*\.ts$/u.test(path))
     .filter((path) => existsSync(path))
     .map((path) => safeRead(path))
     .join("\n");

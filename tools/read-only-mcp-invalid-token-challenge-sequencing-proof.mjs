@@ -308,9 +308,12 @@ function verifySourceScope() {
       !/\b(?:parseJwt|decodeJwt|jwtDecode|jwtVerify|verifyJwt)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noMcpRouteBehaviorChangeFromFp0135: !changedPaths.includes(MCP_ROUTE_PATH),
+    noMcpRouteBehaviorChangeFromFp0135:
+      !changedPaths.includes(MCP_ROUTE_PATH) ||
+      fp0141RouteDependencyBridgeVerified(),
     noMissingTokenChallengeBehaviorChangeFromFp0135:
-      !changedPaths.includes(MCP_ROUTE_PATH) &&
+      (!changedPaths.includes(MCP_ROUTE_PATH) ||
+        fp0141RouteDependencyBridgeVerified()) &&
       !changedPaths.includes(MISSING_TOKEN_HELPER_PATH),
     noModelCallsFromFp0135: !modelCallRegex.test(changedExecutableSource),
     noOauthImplementationFromFp0135:
@@ -369,6 +372,22 @@ function verifyRepositoryInventory() {
     repoPaths,
     sourceTextByPath: readProofSourceTextByPath(repoPaths),
   });
+}
+
+function fp0141RouteDependencyBridgeVerified() {
+  const source = safeRead(MCP_ROUTE_PATH);
+  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
+  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+
+  return (
+    source.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    localMcpRouteShapeStillVerified()
+  );
 }
 
 function verifyFp0138Compatibility() {

@@ -1,13 +1,13 @@
 # Codex Plugins
 
-This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0140 invalid-token challenge implementation-planning slice, the FP-0139 token-validation result-envelope implementation slice, the FP-0138 token-validation runtime implementation-planning slice, the FP-0137 invalid-token WWW-Authenticate challenge implementation-readiness slice, the FP-0136 invalid-token WWW-Authenticate challenge contract foundation slice, and the targeted FP-0136 post-merge proof-source durability correction.
+This file records the plugins available in this Codex local thread and the repo-local Pocket CFO plugin used for the FP-0141 invalid-token challenge local runtime slice, the FP-0140 invalid-token challenge implementation-planning slice, the FP-0139 token-validation result-envelope implementation slice, the FP-0138 token-validation runtime implementation-planning slice, the FP-0137 invalid-token WWW-Authenticate challenge implementation-readiness slice, the FP-0136 invalid-token WWW-Authenticate challenge contract foundation slice, and the targeted FP-0136 post-merge proof-source durability correction.
 
 ## Repo-local plugin used
 
 - `pocket-cfo-codex-operator`
   - Marketplace entry: `.agents/plugins/marketplace.json`
   - Bundle path: `plugins/pocket-cfo-codex-operator/`
-  - Skills invoked for the FP-0140 docs-and-plan/proof-gate invalid-token challenge implementation-planning slice covering FP-0139/0138/0137/0136/0135/0134/0133/0132/0131/0130 boundary preservation, FP-0139 result-envelope dependency planning, future failure-mode-to-HTTP posture planning, symbolic WWW-Authenticate error mapping without header emission, missing-token/protected-resource metadata/`/mcp` behavior preservation, no route consumption of synthetic test doubles, no real token examples, no JWT-like examples, no Bearer token material, no token parser/JWT decoder/production token validation runtime/token introspection/session/OAuth/auth middleware runtime, no route behavior change, FP-0141 absence, proof-gate bridge, direct stale-doc refresh, validation, and handoff:
+  - Skills invoked for the FP-0141 local invalid-token challenge runtime slice covering FP-0140/0139/0138/0137/0136/0135/0134/0133/0132/0131/0130 boundary preservation, sanitized FP-0139 result-envelope-only adapter behavior, failure-mode-to-400/401/403 posture mapping, symbolic WWW-Authenticate error preservation, resource_metadata dependency preservation, required-scope guidance preservation, missing-token/protected-resource metadata/JSON-RPC separation, no route consumption of synthetic test doubles, no real token examples, no JWT-like examples, no Bearer token material, no token parser/JWT decoder/production token validation runtime/token introspection/session/OAuth/auth middleware runtime, no route expansion, FP-0142 absence, proof-gate bridge, direct stale-doc refresh, validation, and handoff:
     - Finance Plan Orchestrator
     - Modular Architecture Guard
     - Source Provenance Guard

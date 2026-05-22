@@ -14,6 +14,7 @@ import {
   validateLocalMcpOriginHeader,
   type McpOriginValidationResult,
 } from "./schema";
+import { buildReadOnlyAppMcpInvalidTokenChallengeResponse } from "./invalid-token-challenge";
 
 export async function registerReadOnlyAppMcpEndpointRoutes(
   app: FastifyInstance,
@@ -24,6 +25,7 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
     >;
     readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency;
     readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle?: McpProtectedResourceMetadataRouteInputEvidenceBundle;
+    readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown;
   } = {},
 ) {
   const service =
@@ -39,6 +41,12 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
               deps.readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle,
           },
         ).missingTokenChallenge;
+  const invalidTokenChallenge =
+    deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined
+      ? null
+      : buildReadOnlyAppMcpInvalidTokenChallengeResponse(
+          deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope,
+        );
 
   app.get("/mcp", async (request, reply) => {
     const originValidation = validateLocalMcpOriginHeader(
@@ -73,6 +81,13 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
       const failClosed =
         buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse();
       return reply.code(failClosed.statusCode).send(failClosed.body);
+    }
+
+    if (invalidTokenChallenge) {
+      return reply
+        .header("WWW-Authenticate", invalidTokenChallenge.wwwAuthenticate)
+        .code(invalidTokenChallenge.statusCode)
+        .send(invalidTokenChallenge.body);
     }
 
     const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body);

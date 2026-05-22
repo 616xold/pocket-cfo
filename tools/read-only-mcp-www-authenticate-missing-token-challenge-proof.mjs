@@ -127,11 +127,13 @@ const proof = {
   fp0134BoundaryVerified: planProof.fp0134BoundaryVerified,
   tokenValidationRuntimeContractsFoundationVerified:
     planProof.tokenValidationRuntimeContractsFoundationVerified,
-  noMcpRouteBehaviorChangeFromFp0132: sourceProof.noMcpRouteBehaviorChange,
+  noMcpRouteBehaviorChangeFromFp0132:
+    sourceProof.noNewRoutePath && fp0141RouteDependencyBridgeVerified(),
   noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
     sourceProof.noProtectedResourceMetadataRouteBehaviorChange,
   noMissingTokenChallengeBehaviorChangeFromFp0132:
-    !changedPaths.includes(MCP_ROUTE_PATH) &&
+    (!changedPaths.includes(MCP_ROUTE_PATH) ||
+      fp0141RouteDependencyBridgeVerified()) &&
     !changedPaths.includes(
       "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts",
     ),
@@ -598,6 +600,24 @@ function verifySourceAndScope() {
         executableChangedSource,
       ),
   };
+}
+
+function fp0141RouteDependencyBridgeVerified() {
+  const missingTokenIndex = mcpRouteSource.indexOf("if (missingTokenChallenge)");
+  const invalidTokenIndex = mcpRouteSource.indexOf("if (invalidTokenChallenge)");
+
+  return (
+    mcpRouteSource.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    mcpRouteSource.includes(
+      "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
+    ) &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    countMatches(mcpRouteSource, /app\.post\("\/mcp"/gu) === 1 &&
+    countMatches(mcpRouteSource, /app\.get\("\/mcp"/gu) === 1
+  );
 }
 
 function verifyPlanBoundaries() {
