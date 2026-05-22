@@ -84,12 +84,15 @@ const proof = {
       planText: fp0132PlanText,
       repoPaths,
     }),
-  noMcpRouteBehaviorChangeFromFp0132: !changedPaths.includes(MCP_ROUTE_PATH),
+  noMcpRouteBehaviorChangeFromFp0132:
+    !changedPaths.includes(MCP_ROUTE_PATH) ||
+    fp0141RouteDependencyBridgeVerified(),
   noProtectedResourceMetadataRouteBehaviorChangeFromFp0132:
     !changedPaths.includes(METADATA_ROUTE_PATH),
   noMissingTokenChallengeBehaviorChangeFromFp0132:
     !changedPaths.includes(MISSING_TOKEN_HELPER_PATH) &&
-    !changedPaths.includes(MCP_ROUTE_PATH),
+    (!changedPaths.includes(MCP_ROUTE_PATH) ||
+      fp0141RouteDependencyBridgeVerified()),
   noInvalidTokenChallengeRuntimeFromFp0132:
     sourceProof.noInvalidTokenChallengeRuntimeFromFp0131,
   noTokenParsingRuntimeFromFp0132: sourceProof.noTokenParsingRuntimeFromFp0131,
@@ -261,10 +264,13 @@ function verifySourceAndScope() {
     noInvalidTokenChallengeRuntimeFromFp0131: !invalidTokenRuntimePattern.test(
       changedExecutableSource,
     ),
-    noMcpRouteBehaviorChangeFromFp0131: !changedPaths.includes(MCP_ROUTE_PATH),
+    noMcpRouteBehaviorChangeFromFp0131:
+      !changedPaths.includes(MCP_ROUTE_PATH) ||
+      fp0141RouteDependencyBridgeVerified(),
     noMissingTokenChallengeBehaviorChangeFromFp0131:
       !changedPaths.includes(MISSING_TOKEN_HELPER_PATH) &&
-      !changedPaths.includes(MCP_ROUTE_PATH),
+      (!changedPaths.includes(MCP_ROUTE_PATH) ||
+        fp0141RouteDependencyBridgeVerified()),
     noOauthImplementationFromFp0131:
       !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
         changedExecutableSource,
@@ -348,6 +354,22 @@ function changedDocumentationAddedLines() {
     .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
     .map((line) => line.slice(1))
     .join("\n");
+}
+
+function fp0141RouteDependencyBridgeVerified() {
+  const source = safeRead(MCP_ROUTE_PATH);
+  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
+  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+
+  return (
+    source.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    localMcpRouteShapeStillVerified()
+  );
 }
 
 function localMcpRouteShapeStillVerified() {

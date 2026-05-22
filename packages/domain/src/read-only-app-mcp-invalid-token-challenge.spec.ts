@@ -15,6 +15,7 @@ import {
   FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH,
   FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+  FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   MCP_INVALID_TOKEN_CHALLENGE_FAILURE_TAXONOMY,
   MCP_INVALID_TOKEN_CHALLENGE_FUTURE_400_FAILURES,
   MCP_INVALID_TOKEN_CHALLENGE_FUTURE_401_FAILURES,
@@ -51,6 +52,10 @@ import {
   verifyFp0140PlanningTextRequiredTopics,
   verifyFp0140SymbolicWwwAuthenticateErrorPlanning,
   verifyFp0141Absent,
+  verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime,
+  verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary,
+  verifyFp0141PlanningTextRequiredTopics,
+  verifyFp0142Absent,
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   verifyMcpInvalidTokenChallengeContractBoundaries,
 } from "./index";
@@ -80,7 +85,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0136 invalid-token challenge contract foundations", () => {
-  it("accepts FP-0136 through FP-0139 result-envelope plans and one FP-0140 docs-only planning bridge while FP-0141 remains absent", () => {
+  it("accepts FP-0136 through FP-0141 boundaries while FP-0142 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
@@ -93,6 +98,9 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     );
     const fp0140PlanText = safeRead(
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    );
+    const fp0141PlanText = safeRead(
+      FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
     );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0136/u.test(path))).toEqual([
@@ -109,6 +117,9 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0140/u.test(path))).toEqual([
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0141/u.test(path))).toEqual([
+      FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
     ]);
     expect(verifyFp0136Absent(repoPaths)).toBe(false);
     expect(
@@ -163,6 +174,24 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
     ).toBe(true);
     expect(verifyFp0141Absent(repoPaths)).toBe(true);
     expect(
+      verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime({
+        planText: fp0141PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary({
+        planText: fp0141PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      Object.values(verifyFp0141PlanningTextRequiredTopics(fp0141PlanText)).every(
+        Boolean,
+      ),
+    ).toBe(true);
+    expect(verifyFp0142Absent(repoPaths)).toBe(true);
+    expect(
       verifyFp0136AbsentOrLocalInvalidTokenChallengeContracts({
         planText,
         repoPaths: [...repoPaths, "plans/FP-0136-extra-contract.md"],
@@ -197,7 +226,13 @@ describe("FP-0136 invalid-token challenge contract foundations", () => {
         repoPaths: [...repoPaths, "plans/FP-0140-future.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0141Absent([...repoPaths, "plans/FP-0141-future.md"])).toBe(
+    expect(
+      verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime({
+        planText: fp0141PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0141-future.md"],
+      }),
+    ).toBe(false);
+    expect(verifyFp0142Absent([...repoPaths, "plans/FP-0142-future.md"])).toBe(
       false,
     );
   });

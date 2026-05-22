@@ -494,7 +494,8 @@ function verifySourceScope() {
 
   return {
     localSyntheticTestDoubleOnly:
-      !changedPaths.includes(MCP_ROUTE_PATH) &&
+      (!changedPaths.includes(MCP_ROUTE_PATH) ||
+        fp0141RouteDependencyBridgeVerified()) &&
       !changedPaths.includes(METADATA_ROUTE_PATH),
     noAuthMiddlewareImplementation:
       !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|requireAuth|authenticateRequest|setCookie)\s*\(/u.test(
@@ -521,9 +522,12 @@ function verifySourceScope() {
       !/\b(?:parseJwt|decodeJwt|jwtDecode|jwtVerify|verifyJwt)\s*\(/u.test(
         changedExecutableSource,
       ),
-    noMcpRouteBehaviorChange: !changedPaths.includes(MCP_ROUTE_PATH),
+    noMcpRouteBehaviorChange:
+      !changedPaths.includes(MCP_ROUTE_PATH) ||
+      fp0141RouteDependencyBridgeVerified(),
     noMissingTokenChallengeBehaviorChange:
-      !changedPaths.includes(MCP_ROUTE_PATH) &&
+      (!changedPaths.includes(MCP_ROUTE_PATH) ||
+        fp0141RouteDependencyBridgeVerified()) &&
       !changedPaths.includes(MISSING_TOKEN_HELPER_PATH),
     noModelCalls: !modelCallRegex.test(changedExecutableSource),
     noOauthImplementation:
@@ -582,6 +586,22 @@ function verifyRepositoryInventory() {
     repoPaths,
     sourceTextByPath: readProofSourceTextByPath(repoPaths),
   });
+}
+
+function fp0141RouteDependencyBridgeVerified() {
+  const source = safeRead(MCP_ROUTE_PATH);
+  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
+  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+
+  return (
+    source.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    localMcpRouteShapeStillVerified()
+  );
 }
 
 function verifyFp0138Compatibility() {

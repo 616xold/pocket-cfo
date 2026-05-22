@@ -340,10 +340,12 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
     expect(routeSource.match(/app\.post\("\/mcp"/gu)?.length).toBe(1);
     expect(routeSource.match(/app\.get\("\/mcp"/gu)?.length).toBe(1);
     expect(routeSource).not.toMatch(/oauth-protected-resource|resource_metadata/iu);
-    expect(routeSource.match(/WWW-Authenticate/gu)?.length).toBe(1);
+    expect(routeSource.match(/WWW-Authenticate/gu)?.length).toBe(2);
+    expect(routeSource).toMatch(/challenge\.wwwAuthenticate/u);
+    expect(routeSource).toMatch(/invalidTokenChallenge\.wwwAuthenticate/u);
   });
 
-  it("keeps route files limited to the FP-0130 missing-token seam in this branch", () => {
+  it("keeps route files limited to the FP-0130 and FP-0141 challenge seams in this branch", () => {
     const changedRouteFiles = changedFilePaths().filter((path) =>
       /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
         path,

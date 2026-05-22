@@ -11,11 +11,21 @@ export const MCP_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_SCHEMA_VERSION 
 
 export const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH =
   "plans/FP-0140-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-planning.md";
+export const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH =
+  "plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md";
 
 export const MCP_INVALID_TOKEN_CHALLENGE_FP0140_PLAN_PREFIX = "FP-0140";
 export const MCP_INVALID_TOKEN_CHALLENGE_FP0141_PLAN_PREFIX = "FP-0141";
+export const MCP_INVALID_TOKEN_CHALLENGE_FP0142_PLAN_PREFIX = "FP-0142";
 
 type Fp0140BoundaryInput =
+  | readonly string[]
+  | {
+      planText?: string;
+      repoPaths: readonly string[];
+    };
+
+type Fp0141BoundaryInput =
   | readonly string[]
   | {
       planText?: string;
@@ -201,8 +211,56 @@ export function verifyFp0140InvalidTokenChallengeImplementationPlanningBoundary(
 }
 
 export function verifyFp0141Absent(repoPaths: readonly string[]) {
+  const fp0141Hits = fpPlanHits(
+    repoPaths,
+    MCP_INVALID_TOKEN_CHALLENGE_FP0141_PLAN_PREFIX,
+  );
   return (
-    fpPlanHits(repoPaths, MCP_INVALID_TOKEN_CHALLENGE_FP0141_PLAN_PREFIX)
+    fp0141Hits.length === 0 ||
+    (fp0141Hits.length === 1 &&
+      fp0141Hits[0] ===
+        FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH)
+  );
+}
+
+export function verifyFp0141AbsentOrLocalInvalidTokenChallengeRuntime(
+  input: Fp0141BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeBoundaryInput(input);
+  const fp0141Hits = fpPlanHits(
+    repoPaths,
+    MCP_INVALID_TOKEN_CHALLENGE_FP0141_PLAN_PREFIX,
+  );
+  if (fp0141Hits.length === 0) return true;
+
+  return (
+    fp0141Hits.length === 1 &&
+    fp0141Hits[0] ===
+      FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH &&
+    (typeof planText !== "string" || fp0141PlanTextBoundaryVerified(planText))
+  );
+}
+
+export function verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary(
+  input: Fp0141BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeBoundaryInput(input);
+  const fp0141Hits = fpPlanHits(
+    repoPaths,
+    MCP_INVALID_TOKEN_CHALLENGE_FP0141_PLAN_PREFIX,
+  );
+  return (
+    fp0141Hits.length === 1 &&
+    fp0141Hits[0] ===
+      FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH &&
+    typeof planText === "string" &&
+    fp0141PlanTextBoundaryVerified(planText)
+  );
+}
+
+export function verifyFp0142Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, MCP_INVALID_TOKEN_CHALLENGE_FP0142_PLAN_PREFIX)
       .length === 0
   );
 }
@@ -261,6 +319,59 @@ export function verifyFp0140PlanningTextRequiredTopics(planText: string) {
   };
 }
 
+export function verifyFp0141PlanningTextRequiredTopics(planText: string) {
+  const normalized = normalize(planText);
+  return {
+    localInvalidTokenChallengeRuntimeOnly:
+      normalized.includes("first narrow local runtime slice") &&
+      normalized.includes("local invalid-token challenge mapping") &&
+      normalized.includes("existing `/mcp` path"),
+    consumesFp0139ResultEnvelopeOnly:
+      normalized.includes("sanitized fp-0139 token-validation result envelopes only") &&
+      normalized.includes("raw token material") &&
+      normalized.includes("fp-0134 synthetic evaluator output"),
+    failureModeMapping:
+      normalized.includes("malformed_authorization") &&
+      normalized.includes("invalid_request") &&
+      normalized.includes("http 400") &&
+      normalized.includes("invalid_token") &&
+      normalized.includes("expired_token") &&
+      normalized.includes("revoked_token") &&
+      normalized.includes("http 401") &&
+      normalized.includes("insufficient_scope") &&
+      normalized.includes("http 403"),
+    routeAndMetadataPosture:
+      normalized.includes("missing-token behavior remains") &&
+      normalized.includes("protected-resource metadata route behavior remains") &&
+      normalized.includes("json-rpc refusal") &&
+      normalized.includes("default `buildapp()` and default `/mcp` behavior remain unchanged"),
+    noRuntimeAuthScope:
+      normalized.includes("does not implement production token validation") &&
+      normalized.includes("token parsing") &&
+      normalized.includes("jwt decoding") &&
+      normalized.includes("token introspection") &&
+      normalized.includes("oauth") &&
+      normalized.includes("auth middleware"),
+    noPersistenceOrExternalScope:
+      normalized.includes("db queries") &&
+      normalized.includes("schemas") &&
+      normalized.includes("migrations") &&
+      normalized.includes("openai api/model calls") &&
+      normalized.includes("provider calls") &&
+      normalized.includes("source mutation") &&
+      normalized.includes("finance writes"),
+    noTokenMaterial:
+      normalized.includes("raw token material") &&
+      normalized.includes("authorization header material") &&
+      normalized.includes("bearer token material") &&
+      normalized.includes("jwt-like strings") &&
+      normalized.includes("no-token-echo"),
+    fp0142Absent: normalized.includes("fp-0142 absent"),
+    publicSubmissionWait:
+      normalized.includes("public chatgpt app submission should wait"),
+  };
+}
+
 export function verifyFp0140FailureModeToHttpPosturePlanning() {
   return (
     TOKEN_VALIDATION_FAILURE_TAXONOMY.includes("malformed_authorization") &&
@@ -314,6 +425,33 @@ function fp0140PlanTextBoundaryVerified(planText: string) {
       "fp-0141 remains absent",
     ].every((requiredText) => normalized.includes(requiredText)) &&
     Object.values(verifyFp0140PlanningTextRequiredTopics(planText)).every(
+      Boolean,
+    )
+  );
+}
+
+function fp0141PlanTextBoundaryVerified(planText: string) {
+  const normalized = normalize(planText);
+  return (
+    [
+      "first narrow local runtime slice",
+      "local invalid-token challenge mapping",
+      "sanitized fp-0139 token-validation result envelopes only",
+      "does not implement production token validation",
+      "token parsing",
+      "jwt decoding",
+      "token introspection",
+      "oauth",
+      "token/session storage",
+      "auth middleware",
+      "missing-token behavior remains",
+      "protected-resource metadata route behavior remains",
+      "json-rpc refusal",
+      "default `buildapp()` and default `/mcp` behavior remain unchanged",
+      "fp-0142 absent",
+      "public chatgpt app submission should wait",
+    ].every((requiredText) => normalized.includes(requiredText)) &&
+    Object.values(verifyFp0141PlanningTextRequiredTopics(planText)).every(
       Boolean,
     )
   );

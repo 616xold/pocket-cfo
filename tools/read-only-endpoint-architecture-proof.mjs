@@ -78,6 +78,10 @@ const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH =
   "plans/FP-0140-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-planning.md";
 const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs";
+const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PLAN_PATH =
+  "plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md";
+const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PROOF_PATH =
+  "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs";
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -426,6 +430,7 @@ function routeRuntimeChangedFilesBoundary() {
       (path) =>
         !isAllowedFp0107LocalRouteAdapterPath(path) &&
         !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) &&
+        !isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) &&
         !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path),
     )
     .filter((path) =>
@@ -443,6 +448,7 @@ function routeRuntimeChangedFilesBoundary() {
   const forbiddenRuntimeMarkers = changedPaths.filter((path) => {
     if (isAllowedFp0107LocalRouteAdapterPath(path)) return false;
     if (isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path)) return false;
+    if (isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path)) return false;
     if (isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path)) {
       return false;
     }
@@ -470,6 +476,7 @@ function routeRuntimeChangedFilesBoundary() {
         (path) =>
           !isAllowedFp0107LocalRouteAdapterPath(path) &&
           !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) &&
+          !isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) &&
           !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) &&
           /^(apps\/control-plane|packages\/backend|packages\/server)\//u.test(
             path,
@@ -749,6 +756,7 @@ function isAllowedEndpointProofPlanPath(path) {
   return (
     isAllowedFp0107LocalRouteAdapterPath(path) ||
     isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
+    isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) ||
     path === FP0103_PLAN ||
     path === FP0104_PLAN ||
     path === FP0105_PLAN ||
@@ -836,6 +844,16 @@ function isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) {
     path === FP0125_LOCAL_ROUTE_PATH ||
     path === FP0125_LOCAL_ROUTE_SPEC_PATH ||
     path === FP0125_LOCAL_ROUTE_PROOF_PATH
+  );
+}
+
+function isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) {
+  return (
+    path === FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PLAN_PATH ||
+    path === FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PROOF_PATH ||
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/invalid-token-challenge(?:\.spec)?\.ts$/u.test(
+      path,
+    )
   );
 }
 

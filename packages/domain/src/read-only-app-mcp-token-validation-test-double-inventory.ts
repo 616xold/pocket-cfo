@@ -404,6 +404,12 @@ function isProofOrContractPath(path: string) {
     /^packages\/domain\/src\/read-only-app-mcp-invalid-token-challenge\.ts$/u.test(
       path,
     ) ||
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/invalid-token-challenge\.ts$/u.test(
+      path,
+    ) ||
+    /^plans\/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation\.md$/u.test(
+      path,
+    ) ||
     /^plans\/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan\.md$/u.test(
       path,
     ) ||

@@ -56,6 +56,10 @@ const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH =
   "plans/FP-0140-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-planning.md";
 const FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs";
+const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PLAN_PATH =
+  "plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md";
+const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PROOF_PATH =
+  "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs";
 const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH =
   "plans/FP-0136-read-only-chatgpt-app-mcp-invalid-token-challenge-contracts-foundation.md";
 const FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PROOF_PATH =
@@ -365,6 +369,7 @@ function changedRuntimeSurfaceBoundary() {
       (path) =>
         !isAllowedFp0107LocalRouteAdapterPath(path) &&
         !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) &&
+        !isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) &&
         !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path),
     )
     .filter((path) =>
@@ -425,6 +430,7 @@ function isAllowedMcpProtocolProofPath(path) {
   return (
     isAllowedFp0107LocalRouteAdapterPath(path) ||
     isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
+    isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) ||
     path === FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH ||
     path === FP0112_PLAN ||
     path === FP0113_PLAN ||
@@ -499,6 +505,16 @@ function isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) {
     path === FP0125_LOCAL_ROUTE_PATH ||
     path === FP0125_LOCAL_ROUTE_SPEC_PATH ||
     path === FP0125_LOCAL_ROUTE_PROOF_PATH
+  );
+}
+
+function isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) {
+  return (
+    path === FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PLAN_PATH ||
+    path === FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PROOF_PATH ||
+    /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/invalid-token-challenge(?:\.spec)?\.ts$/u.test(
+      path,
+    )
   );
 }
 
