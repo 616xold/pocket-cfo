@@ -1,4 +1,5 @@
 import type { TokenValidationFailureTaxonomy } from "./read-only-app-mcp-token-validation-result-envelope-contracts";
+import { verifyFp0146AbsentOrParserContractProviderSelectionProofPlan } from "./read-only-app-mcp-authorization-parser-contracts";
 
 export const MCP_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_SCHEMA_VERSION =
   "v2bm.read-only-app-mcp-token-validation-runtime-contracts-proof-hardening.v1";
@@ -153,11 +154,8 @@ export function buildFp0145RuntimeContractProof() {
 }
 
 export function verifyFp0146Absent(repoPaths: readonly string[]) {
-  return (
-    fpPlanHits(
-      repoPaths,
-      FP0146_TOKEN_VALIDATION_RUNTIME_FOLLOWUP_PLAN_PREFIX,
-    ).length === 0
+  return verifyFp0146AbsentOrParserContractProviderSelectionProofPlan(
+    repoPaths,
   );
 }
 

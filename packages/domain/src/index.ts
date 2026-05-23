@@ -32,6 +32,7 @@ export * from "./read-only-app-mcp-protected-resource-metadata";
 export * from "./read-only-app-mcp-protocol-envelope";
 export * from "./read-only-app-mcp-public-security";
 export * from "./read-only-app-mcp-remote-host-resource";
+export * from "./read-only-app-mcp-authorization-parser-contracts";
 export {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_FORBIDDEN_LEAKAGE_MATERIALS,

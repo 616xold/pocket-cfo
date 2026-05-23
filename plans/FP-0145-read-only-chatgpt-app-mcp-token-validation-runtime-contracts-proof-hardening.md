@@ -21,7 +21,8 @@ The purpose is to make future runtime work safer by proving exactly what later p
 - [x] 2026-05-23T16:24:04Z - Refreshed directly stale active docs/plugin notes that still described FP-0145 as absent or future-only.
 - [x] 2026-05-23T16:24:04Z - Ran focused validation and the required proof ladder; same-branch QA found older proof tools that needed exact FP-0145 allowed-path compatibility updates, and those corrections were patched on this branch without runtime scope.
 - [x] 2026-05-23T16:31:36Z - Post-closeout final validation passed: `git diff --check`, all required proof tools, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-- [ ] Commit once, push, and create the PR.
+- [x] 2026-05-23T22:45:59Z - Commit, push, and PR creation completed through PR #324. `gh pr view 324` confirms merged PR #324, head SHA `9f79fe0c0ce17c9ce7e1a07990324c0ef2295fd3`, and merge commit `6fd000554cbaf2afd8c33b0a986ee656612fc4f3`.
+- [x] 2026-05-23T22:45:59Z - Same-branch QA corrected `plugins.md` only. No post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -32,6 +33,8 @@ OpenAI Developers docs tooling was not exposed as read-only tooling in this loca
 Older proof bridge tools with exact changed-path allowlists needed direct compatibility refreshes for the single FP-0145 plan, domain proof-helper, and direct proof-tool paths. The QA correction stayed proof-only and did not widen route, DB, schema, package, source, finance, OpenAI, provider, public, or auth runtime scope.
 
 `pnpm ci:repro:current` initially failed once in a temporary checkout on an unrelated control-plane orchestrator DB spec after the local full `pnpm test` run had passed. The isolated `src/modules/orchestrator/drizzle-service.spec.ts` spec then passed locally, so the defect was treated as transient integration-DB behavior and the final post-closeout reproducibility run remains the gating result.
+
+Post-merge freshness for PR #324 was corrected on the FP-0146 branch only because this plan still had a stale unchecked commit/push/PR item. PR #324 is merged with head SHA `9f79fe0c0ce17c9ce7e1a07990324c0ef2295fd3` and merge commit `6fd000554cbaf2afd8c33b0a986ee656612fc4f3`; same-branch QA corrected `plugins.md` only, and no post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 ## Decision Log
 
@@ -49,6 +52,7 @@ Older proof bridge tools with exact changed-path allowlists needed direct compat
 - 2026-05-23T16:01:59Z - A future FP-0146 may open parser-contract-only or provider-selection-proof-only work, not runtime implementation, unless this plan is explicitly superseded by a later proof slice.
 - 2026-05-23T16:01:59Z - Public ChatGPT App demo and submission remain future-only.
 - 2026-05-23T16:24:04Z - Compatibility updates to existing proof bridge tools may accept the exact FP-0145 proof-hardening artifacts while FP-0146 remains absent; they do not authorize generic successor plan sprawl or runtime token-validation behavior.
+- 2026-05-23T22:45:59Z - PR #324 is the merged FP-0145 delivery record. The post-merge freshness correction updates this plan only; it does not create a separate polish branch or require post-merge QA when current `main` matches the validated PR head/merge posture and CI remains green.
 
 ## Context and Orientation
 
@@ -248,3 +252,5 @@ Implemented the FP-0145 contract/proof-hardening foundation as a read-only local
 Production token validation remains blocked. Authorization parser implementation, token parser implementation, JWT decoder implementation, JWKS fetching/caching implementation, token introspection implementation, OAuth/session/auth middleware, route behavior changes, missing-token behavior changes, invalid-token challenge behavior changes, protected-resource metadata route behavior changes, DB/schema/package work, OpenAI API/model calls, provider calls, source mutation, finance writes, public assets, generated public prose, listing copy, app submission, external communications, and autonomous action remain out of scope and proof-blocked.
 
 Validation posture at closeout: focused proof and spec validation passed; the full local `pnpm test` run passed; a first `pnpm ci:repro:current` attempt failed once in an unrelated control-plane orchestrator DB spec, and the isolated failing spec passed locally. The post-closeout rerun passed, including `pnpm ci:repro:current`.
+
+Post-merge freshness correction: PR #324 is merged, `gh` confirms head SHA `9f79fe0c0ce17c9ce7e1a07990324c0ef2295fd3` and merge commit `6fd000554cbaf2afd8c33b0a986ee656612fc4f3`, same-branch QA corrected `plugins.md` only, and no post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.

@@ -63,11 +63,11 @@ import {
   verifyFp0145PlanningTextRequiredTopics,
   verifyFp0145RuntimeContractProof,
   verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary,
-  verifyFp0146Absent,
   verifyMcpTokenValidationRuntimeNoLeakageExamples,
   verifyMcpTokenValidationRuntimeRequiredContractBoundaries,
   verifyMcpTokenValidationRuntimeResultEnvelopeBoundary,
 } from "./read-only-app-mcp-token-validation-runtime";
+import { verifyFp0146AbsentOrParserContractProviderSelectionProofPlan } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,
   verifyFp0139AbsentOrLocalProofModeTokenValidationResultEnvelope,
@@ -300,7 +300,7 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
     ).toBe(false);
   });
 
-  it("accepts exactly one FP-0145 runtime-contract proof-hardening plan while FP-0146 remains absent", () => {
+  it("accepts exactly one FP-0145 runtime-contract proof-hardening plan and exact FP-0146 parser-contract successor", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
@@ -309,7 +309,9 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
     expect(repoPaths.filter((path) => /(^|\/)FP-0145/u.test(path))).toEqual([
       FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
     ]);
-    expect(verifyFp0146Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan(repoPaths),
+    ).toBe(true);
     expect(
       verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan({
         planText,
@@ -333,9 +335,12 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
         repoPaths: [...repoPaths, "plans/FP-0145-runtime.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0146Absent([...repoPaths, "plans/FP-0146-runtime.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan([
+        ...repoPaths,
+        "plans/FP-0146-runtime.md",
+      ]),
+    ).toBe(false);
   });
 
   it("keeps FP-0145 provider mode unresolved and runtime input tokenless", () => {

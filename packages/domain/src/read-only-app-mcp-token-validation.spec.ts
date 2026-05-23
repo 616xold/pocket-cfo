@@ -77,8 +77,8 @@ import {
   verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan,
   verifyFp0145PlanningTextRequiredTopics,
   verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary,
-  verifyFp0146Absent,
 } from "./read-only-app-mcp-token-validation-runtime";
+import { verifyFp0146AbsentOrParserContractProviderSelectionProofPlan } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const fp0123RouteInputPlanPath =
@@ -272,7 +272,7 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     ).toBe(false);
   });
 
-  it("accepts exactly one FP-0144 docs/proof plan and exact FP-0145 proof-hardening successor while FP-0146 remains absent", () => {
+  it("accepts exactly one FP-0144 docs/proof plan, exact FP-0145 proof-hardening, and exact FP-0146 parser-contract successor", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
@@ -287,7 +287,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     expect(repoPaths.filter((path) => /(^|\/)FP-0145/u.test(path))).toEqual([
       FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
     ]);
-    expect(verifyFp0146Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan(repoPaths),
+    ).toBe(true);
     expect(
       verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan({
         planText,
@@ -385,9 +387,12 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         repoPaths: [...repoPaths, "plans/FP-0145-runtime.md"],
       }),
     ).toBe(false);
-    expect(verifyFp0146Absent([...repoPaths, "plans/FP-0146-runtime.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan([
+        ...repoPaths,
+        "plans/FP-0146-runtime.md",
+      ]),
+    ).toBe(false);
   });
 
   it("keeps FP-0144 forbidden source-scope checks as top-level proof fields", () => {

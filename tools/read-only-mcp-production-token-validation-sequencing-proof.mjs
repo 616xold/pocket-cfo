@@ -24,7 +24,7 @@ import {
   verifyFp0144PlanningTextRequiredTopics,
   verifyFp0144ProductionTokenValidationSequencingPlanBoundary,
   verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan,
-  verifyFp0146Absent,
+  verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
   verifyMcpInvalidTokenChallengeContractBoundaries,
   verifyTokenValidationResultEnvelopeBoundaryFields,
   verifyTokenValidationResultEnvelopeHttpPostureMapping,
@@ -85,7 +85,8 @@ const output = {
       planText: fp0145PlanText,
       repoPaths,
     }),
-  fp0146Absent: verifyFp0146Absent(repoPaths),
+  fp0146AbsentOrParserContractProviderSelectionProofPlanVerified:
+    verifyFp0146AbsentOrParserContractProviderSelectionProofPlan(repoPaths),
   productionTokenValidationSequencingPlanBoundaryVerified:
     verifyFp0144ProductionTokenValidationSequencingPlanBoundary({
       planText: fp0144PlanText,
