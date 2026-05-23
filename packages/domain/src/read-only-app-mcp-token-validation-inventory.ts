@@ -7,6 +7,7 @@ import {
 import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-contracts";
 import { FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-implementation-readiness";
 import { FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH } from "./read-only-app-mcp-token-validation-result-envelope-contracts";
+import { FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-token-validation-production-sequencing";
 import {
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
@@ -56,6 +57,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   "plans/FP-0143-read-only-chatgpt-app-mcp-invalid-token-app-construction-wiring.md",
+  FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
@@ -113,6 +115,7 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs",
   "tools/read-only-mcp-token-validation-runtime-sequencing-proof.mjs",
   "tools/read-only-mcp-token-validation-result-envelope-proof.mjs",
+  "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs",
   "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
   "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",

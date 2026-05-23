@@ -450,7 +450,8 @@ function routeRuntimeChangedFilesBoundary() {
   const forbiddenRuntimeMarkers = changedPaths.filter((path) => {
     if (isAllowedFp0107LocalRouteAdapterPath(path)) return false;
     if (isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path)) return false;
-    if (isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path)) return false;
+    if (isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path))
+      return false;
     if (isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path)) {
       return false;
     }
@@ -775,10 +776,11 @@ function isAllowedEndpointProofPlanPath(path) {
     path ===
       FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH ||
     path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH ||
-    path ===
-      FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH ||
+    path === FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH ||
     path === FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH ||
     path === FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH ||
+    path ===
+      "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md" ||
     path ===
       "plans/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning.md" ||
     path ===
@@ -812,6 +814,8 @@ function isAllowedEndpointProofPlanPath(path) {
     path ===
       "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs" ||
     path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
+    path ===
+      "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs" ||
     path ===
       "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path ===

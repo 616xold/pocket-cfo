@@ -909,6 +909,7 @@ function changedFilesAreAllowed() {
     FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
     FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
     FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+    "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md",
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.spec.ts",
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts",
     ROUTE_PATH,
@@ -953,6 +954,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
     "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
     "tools/read-only-mcp-token-validation-result-envelope-proof.mjs",
+    "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs",
@@ -1090,7 +1092,9 @@ function fp0143RouteBridgeVerified() {
     ) &&
     routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
     routeSource.includes("missing-token challenge co-registration") &&
-    routeSource.includes("protected-resource metadata route evidence dependency") &&
+    routeSource.includes(
+      "protected-resource metadata route evidence dependency",
+    ) &&
     routeSource.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
     missingTokenIndex >= 0 &&
     invalidTokenIndex > missingTokenIndex &&

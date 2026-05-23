@@ -63,6 +63,16 @@ import {
   verifyTokenValidationNoLeakageExamples,
   verifyTokenValidationScopeChallengeContracts,
 } from "./read-only-app-mcp-token-validation-proof";
+import {
+  FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
+  FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATE_MAPPINGS,
+  FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATES,
+  verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan,
+  verifyFp0144FailureStateMapping,
+  verifyFp0144PlanningTextRequiredTopics,
+  verifyFp0144ProductionTokenValidationSequencingPlanBoundary,
+  verifyFp0145Absent,
+} from "./read-only-app-mcp-token-validation-production-sequencing";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const fp0123RouteInputPlanPath =
@@ -254,6 +264,95 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         "plans/FP-0133-next-runtime.md",
       ]),
     ).toBe(false);
+  });
+
+  it("accepts exactly one FP-0144 docs/proof production token-validation sequencing plan while FP-0145 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(
+      FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
+    );
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0144/u.test(path))).toEqual([
+      FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(verifyFp0145Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0144ProductionTokenValidationSequencingPlanBoundary({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      Object.values(verifyFp0144PlanningTextRequiredTopics(planText)).every(
+        Boolean,
+      ),
+    ).toBe(true);
+    expect(verifyFp0144FailureStateMapping()).toBe(true);
+    expect(
+      FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATE_MAPPINGS.map(
+        ({ state }) => state,
+      ),
+    ).toEqual([...FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATES]);
+    expect(
+      new Set(
+        FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATE_MAPPINGS.map(
+          ({ envelopeFailure }) => envelopeFailure,
+        ),
+      ),
+    ).toEqual(
+      new Set([
+        "missing_token",
+        "malformed_authorization",
+        "invalid_token",
+        "expired_token",
+        "revoked_token",
+        "wrong_audience",
+        "wrong_resource",
+        "insufficient_scope",
+        "wrong_org",
+        "company_binding_mismatch",
+        "replay_or_nonce_failure",
+        "unsupported_validation_mode",
+        "production_validation_unavailable",
+      ]),
+    );
+    expect(
+      FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATE_MAPPINGS.find(
+        ({ state }) => state === "missing_token",
+      )?.missingTokenLaneSeparate,
+    ).toBe(true);
+    expect(
+      FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_STATE_MAPPINGS.filter(
+        ({ state }) => state !== "missing_token",
+      ).every(
+        ({ invalidTokenChallengeDownstreamOfEnvelope }) =>
+          invalidTokenChallengeDownstreamOfEnvelope,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan({
+        planText,
+        repoPaths: [...repoPaths, "plans/FP-0144-duplicate.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan({
+        planText,
+        repoPaths: [
+          ...repoPaths.filter((path) => !/(^|\/)FP-0144/u.test(path)),
+          "plans/FP-0144-token-validation-runtime.md",
+        ],
+      }),
+    ).toBe(false);
+    expect(verifyFp0145Absent([...repoPaths, "plans/FP-0145-runtime.md"])).toBe(
+      false,
+    );
   });
 
   it("models all required failure modes as proof-only contracts", () => {
