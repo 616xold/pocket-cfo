@@ -36,7 +36,7 @@ const metadataRoutePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
 describe("FP-0139 token-validation result envelopes", () => {
-  it("accepts FP-0139 result envelopes, FP-0140 planning, and exactly one FP-0141 runtime plan while FP-0142 remains absent", () => {
+  it("accepts FP-0139 result envelopes, FP-0140 planning, FP-0141 runtime, and exact FP-0142 sequencing", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH,

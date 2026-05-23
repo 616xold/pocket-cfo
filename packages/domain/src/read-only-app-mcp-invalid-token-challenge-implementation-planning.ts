@@ -3,6 +3,7 @@ import {
   TOKEN_VALIDATION_FAILURE_TAXONOMY,
   TOKEN_VALIDATION_WWW_AUTHENTICATE_ERROR_SYMBOLS,
 } from "./read-only-app-mcp-token-validation-result-envelope-contracts";
+import { FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-route-integration-sequencing";
 
 const trueLiteral = z.literal(true);
 
@@ -259,9 +260,15 @@ export function verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary(
 }
 
 export function verifyFp0142Absent(repoPaths: readonly string[]) {
+  const fp0142Hits = fpPlanHits(
+    repoPaths,
+    MCP_INVALID_TOKEN_CHALLENGE_FP0142_PLAN_PREFIX,
+  );
   return (
-    fpPlanHits(repoPaths, MCP_INVALID_TOKEN_CHALLENGE_FP0142_PLAN_PREFIX)
-      .length === 0
+    fp0142Hits.length === 0 ||
+    (fp0142Hits.length === 1 &&
+      fp0142Hits[0] ===
+        FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH)
   );
 }
 

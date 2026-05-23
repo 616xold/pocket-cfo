@@ -83,7 +83,7 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0132 token-validation runtime contract foundations", () => {
-  it("accepts FP-0138 planning, FP-0139 result envelopes, FP-0140 planning, and exactly one FP-0141 runtime plan while FP-0142 remains absent", () => {
+  it("accepts FP-0138 planning, FP-0139 result envelopes, FP-0140 planning, FP-0141 runtime, and exact FP-0142 sequencing", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0138_TOKEN_VALIDATION_RUNTIME_IMPLEMENTATION_PLANNING_PLAN_PATH,

@@ -4,4 +4,6 @@ export * from "./read-only-app-mcp-invalid-token-challenge-implementation-planni
 export * from "./read-only-app-mcp-invalid-token-challenge-implementation-readiness";
 export * from "./read-only-app-mcp-invalid-token-challenge-plan-boundary";
 export * from "./read-only-app-mcp-invalid-token-challenge-proof";
+export * from "./read-only-app-mcp-invalid-token-challenge-route-integration-sequencing";
+export * from "./read-only-app-mcp-invalid-token-challenge-route-integration-sequencing-proof";
 export * from "./read-only-app-mcp-invalid-token-challenge-types";

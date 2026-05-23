@@ -15,7 +15,7 @@ The proof point is a deterministic local adapter and explicit dependency-injecte
 - [x] 2026-05-22T22:46:09Z - Ran the pre-edit proof ladder and focused domain/control-plane specs; all baseline gates passed before code changes.
 - [x] 2026-05-22T22:46:09Z - Used official read-only MCP, RFC, and OpenAI Apps SDK web documentation for protocol context; OpenAI Developers tooling exposed only API-key setup surfaces and was not used.
 - [x] 2026-05-22T23:44:16Z - Implemented the local invalid-token challenge adapter, dependency-injected `/mcp` route path, focused specs, and direct proof command.
-- [x] 2026-05-22T23:44:16Z - Bridged prior proof gates so exactly one FP-0141 file is accepted while FP-0142 remains absent.
+- [x] 2026-05-22T23:44:16Z - Bridged prior proof gates so exactly one FP-0141 file is accepted while FP-0142 absent was the FP-0141 closeout state; later FP-0142 records route integration sequencing only.
 - [x] 2026-05-22T23:44:16Z - Refreshed directly stale active docs/plugin wording for the FP-0141 local invalid-token challenge seam.
 - [x] 2026-05-22T23:44:16Z - Ran focused validation, the full proof ladder, repo-wide validation, and `pnpm ci:repro:current`; all passed before this closeout edit. The required post-closeout rerun remains the last validation step before commit.
 
@@ -25,7 +25,7 @@ Preflight found the repository exactly at the expected FP-0140 merge commit. The
 
 OpenAI Developers tool discovery in this local thread exposed API-key setup actions only, not callable read-only documentation tools. Per the slice policy, those actions were not used. Official web documentation was used read-only instead.
 
-Proof-gate bridge work was broader than the adapter itself because older FP-0100, FP-0103, FP-0122, FP-0128, FP-0130, FP-0132, FP-0135, FP-0136, FP-0137, FP-0138, FP-0139, and FP-0140 guards intentionally treated new `/mcp` `WWW-Authenticate` runtime surfaces as forbidden. The bridge now permits only the FP-0141 local sanitized-envelope adapter path, its focused specs, the exact FP-0141 plan, and the exact route dependency hook while FP-0142 remains absent.
+Proof-gate bridge work was broader than the adapter itself because older FP-0100, FP-0103, FP-0122, FP-0128, FP-0130, FP-0132, FP-0135, FP-0136, FP-0137, FP-0138, FP-0139, and FP-0140 guards intentionally treated new `/mcp` `WWW-Authenticate` runtime surfaces as forbidden. The bridge now permits only the FP-0141 local sanitized-envelope adapter path, its focused specs, the exact FP-0141 plan, and the exact route dependency hook while FP-0142 absent was the FP-0141 closeout state; later FP-0142 remains docs/proof route integration sequencing only.
 
 The direct FP-0141 proof initially overmatched machine-readable proof output as token logging because older proof JSON field names include token-validation words. The detector was narrowed to distinguish structured proof output from runtime logging of token-bearing names; no application token logging was added.
 
@@ -67,7 +67,7 @@ GitHub connector product behavior is explicitly out of scope. Normal `git` and `
 
 ## Plan of Work
 
-Create one FP-0141 plan file. Add a local invalid-token challenge adapter near the existing read-only app MCP endpoint. Wire the existing `/mcp` POST route behind a new explicit dependency that accepts sanitized FP-0139 rejected result envelopes only; default behavior remains unchanged when the dependency is absent. Add focused control-plane and domain specs. Add a direct machine-readable proof command. Bridge the minimum prior proof gates so exactly one FP-0141 implementation plan is allowed while FP-0142 remains absent.
+Create one FP-0141 plan file. Add a local invalid-token challenge adapter near the existing read-only app MCP endpoint. Wire the existing `/mcp` POST route behind a new explicit dependency that accepts sanitized FP-0139 rejected result envelopes only; default behavior remains unchanged when the dependency is absent. Add focused control-plane and domain specs. Add a direct machine-readable proof command. Bridge the minimum prior proof gates so exactly one FP-0141 implementation plan is allowed while FP-0142 absent remains true for the FP-0141 historical closeout.
 
 Patch only directly stale docs/plugin wording if validation proves it is stale. Do not add routes, metadata route behavior, missing-token behavior, DB/schema/package changes, production auth runtime, token examples, public assets, source packs, providers, OpenAI calls, source mutation, finance writes, generated finance advice, or external communications.
 
@@ -88,7 +88,7 @@ Patch only directly stale docs/plugin wording if validation proves it is stale. 
 Acceptance requires:
 
 - exactly one FP-0141 file at `plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md`
-- FP-0142 absent
+- FP-0142 absent at FP-0141 closeout; later FP-0142 records route integration sequencing only
 - sanitized FP-0139 result envelopes accepted as the only adapter input
 - raw token material, Authorization header material, Bearer token material, JWT-like strings, and raw descriptors rejected
 - malformed authorization / `invalid_request` mapped to 400
@@ -146,13 +146,13 @@ pnpm ci:repro:current
 
 ## Idempotence and Recovery
 
-If a prior proof gate rejects FP-0141 path presence, patch only the proof-gate bridge so it accepts exactly `plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md` and keeps FP-0142 absent.
+If a prior proof gate rejects FP-0141 path presence, patch only the proof-gate bridge so it accepts exactly `plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md` and keeps FP-0142 absent as the FP-0141 closeout state.
 
 If route tests show default `/mcp`, missing-token challenge, protected-resource metadata route, or JSON-RPC refusal behavior changed outside the injected invalid-token dependency path, revert the route hook and keep only the local adapter until a correction plan can narrow the path.
 
 If validation fails because the adapter requires token parsing, JWT decoding, introspection, OAuth, session state, DB state, provider calls, OpenAI calls, or raw token material, stop and recommend the smallest FP-0141 correction rather than widening scope.
 
-Do not recover by adding production validation, token parser/JWT decoder/introspection, OAuth/session/auth middleware, DB/schema/package work, source/data fixtures, provider calls, OpenAI calls, source mutation, finance writes, public app behavior, app submission material, or FP-0142.
+Do not recover by adding production validation, token parser/JWT decoder/introspection, OAuth/session/auth middleware, DB/schema/package work, source/data fixtures, provider calls, OpenAI calls, source mutation, finance writes, public app behavior, app submission material, route integration implementation, default app wiring, or FP-0143.
 
 ## Artifacts and Notes
 
