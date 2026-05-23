@@ -76,9 +76,8 @@ const fp0141PlanText = safeRead(
 const fp0139PlanText = safeRead(FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH);
 const fp0140Topics = verifyFp0140PlanningTextRequiredTopics(fp0140PlanText);
 const changedDocText = readChangedDocText(changedPaths);
-const noLeakageScan = scanTokenValidationNoLeakage(
-  [fp0140PlanText, changedDocText].join("\n"),
-);
+const noLeakageScan = scanTokenValidationNoLeakage(fp0140PlanText);
+const changedTokenExampleScan = scanChangedTokenExamples(changedDocText);
 const sourceScope = verifySourceScope();
 const fp0141RuntimeBridge = fp0141RuntimeBridgeVerified();
 const priorBoundaries = verifyPriorBoundaries();
@@ -141,6 +140,7 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
       repositoryInventory.noOauthTokenSessionAuthRuntimeRepositoryInventoryVerified,
     noBearerTokenMaterial:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noBearerTokenMaterial &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noInvalidTokenChallengeRuntime:
@@ -151,6 +151,7 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
       repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
     noJwtLikeExamples:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noJwtLikeExamples &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noMcpRouteBehaviorChange:
       (sourceScope.noMcpRouteBehaviorChange || fp0141RuntimeBridge) &&
@@ -170,6 +171,7 @@ const proof = McpInvalidTokenChallengeImplementationPlanningProofSchema.parse(
     noProviderExternalCalls: sourceScope.noProviderExternalCalls,
     noRealTokenExamples:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noRealTokenExamples &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noRouteConsumesSyntheticEvaluator:
       sourceScope.noRouteConsumesSyntheticEvaluator &&
@@ -292,6 +294,7 @@ const output = {
   ...bridgeFields,
   proofDetails: {
     changedPathScope,
+    changedTokenExampleScan,
     noLeakageScan,
     priorBoundaries,
     repositoryInventory,
@@ -410,8 +413,12 @@ function fp0141RuntimeBridgeVerified() {
 
 function fp0141InvalidTokenRouteInjectionShapeVerified() {
   const source = safeRead(MCP_ROUTE_PATH);
-  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = source.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = source.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     source.includes(
@@ -423,6 +430,30 @@ function fp0141InvalidTokenRouteInjectionShapeVerified() {
     !source.includes("evaluateSyntheticTokenValidationScenario") &&
     !source.includes("buildTokenValidationResultEnvelope")
   );
+}
+
+function scanChangedTokenExamples(text) {
+  const sanitized = text
+    .replaceAll('authorization: ""', "")
+    .replaceAll("authorization-present-local-only", "")
+    .replaceAll("resource_metadata", "resource metadata");
+  return {
+    noBearerTokenMaterial:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\bbearer\s+(?!scheme\b|challenge\b|resource\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
+        sanitized,
+      ),
+    noJwtLikeExamples:
+      !/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u.test(
+        sanitized,
+      ),
+    noRealTokenExamples:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\b(?:access_token|refresh_token|client_secret|x-api-key|api_key)\s*[:=]\s*[A-Za-z0-9][A-Za-z0-9._~+/-]{7,}={0,2}\b/iu.test(
+        sanitized,
+      ) &&
+      !/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{8,}\b/u.test(sanitized),
+  };
 }
 
 function verifyPriorBoundaries() {

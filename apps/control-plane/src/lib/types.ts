@@ -144,6 +144,8 @@ export type ReadOnlyAppMcpProtectedResourceMetadataRouteEvidencePort =
 export type ReadOnlyAppMcpLocalProofGatedMissingTokenChallengePort =
   McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency;
 
+export type ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort = unknown;
+
 export type SourceServicePort = Pick<
   SourceRegistryService,
   | "createSource"
@@ -253,6 +255,7 @@ export type AppContainer = {
   monitoringService?: MonitoringServicePort;
   operatorReadinessService: OperatorReadinessServicePort;
   readOnlyAppMcpEndpointService?: ReadOnlyAppMcpEndpointServicePort;
+  readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort;
   readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: ReadOnlyAppMcpLocalProofGatedMissingTokenChallengePort;
   readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle?: ReadOnlyAppMcpProtectedResourceMetadataRouteEvidencePort;
   operatorControl: {

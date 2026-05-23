@@ -8,10 +8,19 @@ export const MCP_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_SCHEMA_VERSION =
 
 export const FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH =
   "plans/FP-0142-read-only-chatgpt-app-mcp-invalid-token-route-integration-sequencing-master-plan.md";
+export const FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH =
+  "plans/FP-0143-read-only-chatgpt-app-mcp-invalid-token-app-construction-wiring.md";
 
 export const MCP_INVALID_TOKEN_CHALLENGE_FP0143_PLAN_PREFIX = "FP-0143";
 
 type Fp0142BoundaryInput =
+  | readonly string[]
+  | {
+      planText?: string;
+      repoPaths: readonly string[];
+    };
+
+type Fp0143BoundaryInput =
   | readonly string[]
   | {
       planText?: string;
@@ -50,6 +59,24 @@ export function verifyFp0142RouteIntegrationSequencingPlanBoundary(
 export function verifyFp0143Absent(repoPaths: readonly string[]) {
   return fpPlanHits(repoPaths, MCP_INVALID_TOKEN_CHALLENGE_FP0143_PLAN_PREFIX)
     .length === 0;
+}
+
+export function verifyFp0143AbsentOrInvalidTokenAppConstructionWiring(
+  input: Fp0143BoundaryInput,
+) {
+  const { planText, repoPaths } = normalizeBoundaryInput(input);
+  const fp0143Hits = fpPlanHits(
+    repoPaths,
+    MCP_INVALID_TOKEN_CHALLENGE_FP0143_PLAN_PREFIX,
+  );
+  if (fp0143Hits.length === 0) return true;
+
+  return (
+    fp0143Hits.length === 1 &&
+    fp0143Hits[0] ===
+      FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH &&
+    (typeof planText !== "string" || fp0143PlanTextBoundaryVerified(planText))
+  );
 }
 
 export function verifyFp0142PlanningTextRequiredTopics(planText: string) {
@@ -183,6 +210,36 @@ function fp0142PlanTextBoundaryVerified(planText: string) {
       Boolean,
     )
   );
+}
+
+function fp0143PlanTextBoundaryVerified(planText: string) {
+  const normalized = normalize(planText);
+  return [
+    "local-only/read-only implementation slice",
+    "explicit app/container construction wiring",
+    "optional container dependency",
+    "buildapp",
+    "pre-sanitized fp-0139 token-validation result envelope",
+    "authorization-present",
+    "missing-token challenge",
+    "protected-resource metadata",
+    "no production token validation",
+    "token parser",
+    "authorization parser",
+    "jwt decoder",
+    "token introspection",
+    "oauth implementation",
+    "token/session storage",
+    "auth middleware",
+    "db query",
+    "schema migration",
+    "package script",
+    "openai api/model call",
+    "provider external call",
+    "source mutation",
+    "finance write",
+    "fp-0144 remains absent",
+  ].every((requiredText) => normalized.includes(requiredText));
 }
 
 function normalizeBoundaryInput(input: Fp0142BoundaryInput) {

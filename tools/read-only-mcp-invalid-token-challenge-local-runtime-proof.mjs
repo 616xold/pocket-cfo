@@ -57,6 +57,7 @@ const MCP_ROUTE_PATH =
 const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 const APP_PATH = "apps/control-plane/src/app.ts";
+const BOOTSTRAP_PATH = "apps/control-plane/src/bootstrap.ts";
 
 const repoPaths = repoFilePaths();
 const changedPathScope = changedFilePathScope();
@@ -65,6 +66,7 @@ const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const routeSource = safeRead(MCP_ROUTE_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
 const appSource = safeRead(APP_PATH);
+const bootstrapSource = safeRead(BOOTSTRAP_PATH);
 const fp0141PlanText = safeRead(
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
 );
@@ -354,8 +356,12 @@ function verifyAdapterBehavior() {
 }
 
 function verifyRouteBehaviorShape() {
-  const missingTokenIndex = routeSource.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = routeSource.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = routeSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = routeSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return {
     missingTokenBehaviorStillSeparate:
@@ -372,7 +378,12 @@ function verifyRouteBehaviorShape() {
         "deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined",
       ) &&
       routeSource.includes("? null") &&
-      !appSource.includes("readOnlyAppMcpInvalidTokenChallengeResultEnvelope"),
+      appSource.includes(
+        "readOnlyAppMcpInvalidTokenChallengeResultEnvelope:\n      container.readOnlyAppMcpInvalidTokenChallengeResultEnvelope",
+      ) &&
+      !bootstrapSource.includes(
+        "readOnlyAppMcpInvalidTokenChallengeResultEnvelope",
+      ),
     noMcpRouteBehaviorChangeExceptInvalidTokenChallengeDependency:
       routeSource.includes(
         "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",

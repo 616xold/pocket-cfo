@@ -11,7 +11,10 @@ import {
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
 } from "./read-only-app-mcp-invalid-token-challenge-implementation-planning";
-import { FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-route-integration-sequencing";
+import {
+  FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+} from "./read-only-app-mcp-invalid-token-challenge-route-integration-sequencing";
 import { FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-contracts";
 import { FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH } from "./read-only-app-mcp-invalid-token-challenge-implementation-readiness";
 import { FP0132_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-runtime-contracts";
@@ -49,6 +52,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
@@ -114,6 +118,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs",
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
+  "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs",
   "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",

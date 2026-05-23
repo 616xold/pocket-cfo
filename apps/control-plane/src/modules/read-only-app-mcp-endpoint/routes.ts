@@ -1,6 +1,7 @@
 import type { FastifyInstance, FastifyReply } from "fastify";
 import {
   assertMcpWwwAuthenticateMissingTokenChallengeMetadataRouteCoRegistration,
+  assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration,
   buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse,
   buildMcpWwwAuthenticateMissingTokenChallengeResponse,
   type McpProtectedResourceMetadataRouteInputEvidenceBundle,
@@ -44,9 +45,13 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
   const invalidTokenChallenge =
     deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined
       ? null
-      : buildReadOnlyAppMcpInvalidTokenChallengeResponse(
-          deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope,
-        );
+      : assertInvalidTokenChallengeCoRegistration({
+          invalidTokenChallengeResultEnvelope:
+            deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope,
+          missingTokenChallenge,
+          protectedResourceMetadataRouteInputEvidenceBundle:
+            deps.readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle,
+        });
 
   app.get("/mcp", async (request, reply) => {
     const originValidation = validateLocalMcpOriginHeader(
@@ -67,27 +72,27 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
       return sendOriginRejected(reply, originValidation);
     }
 
-    if (missingTokenChallenge) {
-      if (request.headers.authorization === undefined) {
-        const challenge = buildMcpWwwAuthenticateMissingTokenChallengeResponse(
-          missingTokenChallenge,
-        );
-        return reply
-          .header("WWW-Authenticate", challenge.wwwAuthenticate)
-          .code(challenge.statusCode)
-          .send(challenge.body);
-      }
-
-      const failClosed =
-        buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse();
-      return reply.code(failClosed.statusCode).send(failClosed.body);
+    if (missingTokenChallenge && request.headers.authorization === undefined) {
+      const challenge = buildMcpWwwAuthenticateMissingTokenChallengeResponse(
+        missingTokenChallenge,
+      );
+      return reply
+        .header("WWW-Authenticate", challenge.wwwAuthenticate)
+        .code(challenge.statusCode)
+        .send(challenge.body);
     }
 
-    if (invalidTokenChallenge) {
+    if (invalidTokenChallenge && request.headers.authorization !== undefined) {
       return reply
         .header("WWW-Authenticate", invalidTokenChallenge.wwwAuthenticate)
         .code(invalidTokenChallenge.statusCode)
         .send(invalidTokenChallenge.body);
+    }
+
+    if (missingTokenChallenge) {
+      const failClosed =
+        buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse();
+      return reply.code(failClosed.statusCode).send(failClosed.body);
     }
 
     const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body);
@@ -98,6 +103,32 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
 
     return response;
   });
+}
+
+function assertInvalidTokenChallengeCoRegistration(input: {
+  invalidTokenChallengeResultEnvelope: unknown;
+  missingTokenChallenge: McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency | null;
+  protectedResourceMetadataRouteInputEvidenceBundle?: McpProtectedResourceMetadataRouteInputEvidenceBundle;
+}) {
+  if (input.missingTokenChallenge === null) {
+    throw new Error(
+      "Invalid-token challenge requires missing-token challenge co-registration",
+    );
+  }
+
+  if (input.protectedResourceMetadataRouteInputEvidenceBundle === undefined) {
+    throw new Error(
+      "Invalid-token challenge requires protected-resource metadata route evidence dependency",
+    );
+  }
+
+  assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration(
+    input.protectedResourceMetadataRouteInputEvidenceBundle,
+  );
+
+  return buildReadOnlyAppMcpInvalidTokenChallengeResponse(
+    input.invalidTokenChallengeResultEnvelope,
+  );
 }
 
 function sendOriginRejected(

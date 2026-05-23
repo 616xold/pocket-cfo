@@ -10,6 +10,7 @@ import {
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   McpInvalidTokenRouteIntegrationSequencingProofSchema,
   buildMcpInvalidTokenRouteIntegrationSequencingProof,
   buildTokenValidationResultEnvelope,
@@ -28,7 +29,7 @@ import {
   verifyFp0142FailureTaxonomyHttpWwwAuthenticateConsistency,
   verifyFp0142PlanningTextRequiredTopics,
   verifyFp0142RouteIntegrationSequencingPlanBoundary,
-  verifyFp0143Absent,
+  verifyFp0143AbsentOrInvalidTokenAppConstructionWiring,
   verifyMcpInvalidTokenChallengeContractBoundaries,
   verifyMcpTokenValidationTestDoubleRepositoryInventory,
   verifyTokenValidationResultEnvelopeBoundaryFields,
@@ -52,6 +53,7 @@ const MCP_ROUTE_PATH =
 const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 const APP_PATH = "apps/control-plane/src/app.ts";
+const BOOTSTRAP_PATH = "apps/control-plane/src/bootstrap.ts";
 const MISSING_TOKEN_HELPER_PATH =
   "packages/domain/src/read-only-app-mcp-www-authenticate-missing-token-challenge.ts";
 
@@ -66,9 +68,13 @@ const appSource = safeRead(APP_PATH);
 const fp0142PlanText = safeRead(
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
 );
+const fp0143PlanText = safeRead(
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+);
 const fp0142Topics = verifyFp0142PlanningTextRequiredTopics(fp0142PlanText);
 const sourceScope = verifySourceScope();
 const routeScope = verifyRouteScope();
+const fp0143AppWiringBridge = verifyFp0143AppWiringBridge();
 const localRuntimeBridge = verifyFp0141LocalRuntimeBridge();
 const priorBoundaries = verifyPriorBoundaries();
 const repositoryInventory = verifyMcpTokenValidationTestDoubleRepositoryInventory(
@@ -80,15 +86,15 @@ const repositoryInventory = verifyMcpTokenValidationTestDoubleRepositoryInventor
   },
 );
 const noLeakageScan = scanTokenValidationNoLeakage(
-  [fp0142PlanText, changedDocText].join("\n"),
+  fp0142PlanText,
 );
+const changedTokenExampleScan = scanChangedTokenExamples(changedDocText);
 
 const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
   buildMcpInvalidTokenRouteIntegrationSequencingProof({
     appConstructionWiringImplementationBlocked:
       fp0142Topics.appConstructionWiringBlocked &&
-      !changedPaths.includes(APP_PATH) &&
-      !appSource.includes("readOnlyAppMcpInvalidTokenChallengeResultEnvelope"),
+      fp0143AppWiringBridge.appConstructionWiringIsExactFp0143,
     authorizationHeaderPresenceDecisionRecorded:
       fp0142Topics.authorizationHeaderPresenceDecision,
     exactFp0142PlanPathVerified: exactFp0142PlanPathVerified(),
@@ -121,7 +127,10 @@ const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
     fp0141LocalRuntimeBoundaryStillVerified:
       priorBoundaries.fp0141LocalRuntimeBoundaryStillVerified &&
       localRuntimeBridge.localRuntimeBoundaryStillVerified,
-    fp0143Absent: verifyFp0143Absent(repoPaths),
+    fp0143Absent: verifyFp0143AbsentOrInvalidTokenAppConstructionWiring({
+      planText: fp0143PlanText,
+      repoPaths,
+    }),
     fp0139ResultEnvelopeOnlyDependencyPreserved:
       fp0142Topics.resultEnvelopeOnlyDependency &&
       localRuntimeBridge.fp0139ResultEnvelopeOnlyDependencyPreserved,
@@ -132,9 +141,11 @@ const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
       }) && Object.values(fp0142Topics).every(Boolean),
     missingTokenPrecedenceDecisionRecorded:
       fp0142Topics.missingTokenPrecedence &&
-      routeScope.missingTokenPrecedenceStillVerified,
+      routeScope.missingTokenPrecedenceStillVerified &&
+      fp0143AppWiringBridge.missingTokenPrecedencePreserved,
     noBearerTokenMaterial:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noBearerTokenMaterial &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noEvaluatorOrTestDoubleRouteConsumptionFromFp0142:
@@ -142,11 +153,14 @@ const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
       repositoryInventory.noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified,
     noJwtLikeExamples:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noJwtLikeExamples &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noMcpRouteBehaviorChangeFromFp0142:
-      sourceScope.noMcpRouteBehaviorChange && routeScope.localMcpRouteShape,
+      fp0143AppWiringBridge.noMcpRouteBehaviorChangeByDefault &&
+      routeScope.localMcpRouteShape,
     noMissingTokenBehaviorChangeFromFp0142:
-      sourceScope.noMissingTokenChallengeBehaviorChange,
+      fp0143AppWiringBridge.missingTokenPrecedencePreserved &&
+      !changedPaths.includes(MISSING_TOKEN_HELPER_PATH),
     noOauthSessionAuthMiddlewareFromFp0142:
       sourceScope.noOauthImplementation &&
       sourceScope.noTokenSessionStorage &&
@@ -163,11 +177,15 @@ const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
     noProviderExternalCalls: sourceScope.noProviderExternalCalls,
     noRealTokenExamples:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noRealTokenExamples &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noSchemaMigrationsAdded: sourceScope.noSchemaMigrationsAdded,
     noSourceMutationFinanceWrite:
       sourceScope.noSourceMutation && sourceScope.noFinanceWrite,
-    noTokenEcho: noLeakageScan.accepted && localRuntimeBridge.noTokenEcho,
+    noTokenEcho:
+      noLeakageScan.accepted &&
+      changedTokenExampleScan.noRealTokenExamples &&
+      localRuntimeBridge.noTokenEcho,
     noTokenLogging: sourceScope.noTokenLogging,
     noTokenParserJwtDecoderIntrospectionFromFp0142:
       sourceScope.noTokenParsingRuntime &&
@@ -178,8 +196,7 @@ const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
       routeScope.protectedResourceMetadataRouteBehaviorSeparate,
     routeIntegrationImplementationBlocked:
       fp0142Topics.routeIntegrationBlocked &&
-      sourceScope.noMcpRouteBehaviorChange &&
-      !changedPaths.includes(MCP_ROUTE_PATH),
+      fp0143AppWiringBridge.routeIntegrationRemainsExplicitAppWiringOnly,
   }),
 );
 
@@ -189,6 +206,8 @@ const output = {
     changedPathScope,
     localRuntimeBridge,
     noLeakageScan,
+    changedTokenExampleScan,
+    fp0143AppWiringBridge,
     priorBoundaries,
     repositoryInventory: {
       noRouteConsumesTokenValidationTestDoublesRepositoryInventoryVerified:
@@ -257,7 +276,12 @@ function verifyFp0141LocalRuntimeBridge() {
         "accepted_envelope_rejected",
       ),
     defaultRouteBehaviorUnchangedWhenInvalidTokenDependencyAbsent:
-      !appSource.includes("readOnlyAppMcpInvalidTokenChallengeResultEnvelope"),
+      !safeRead(BOOTSTRAP_PATH).includes(
+        "readOnlyAppMcpInvalidTokenChallengeResultEnvelope",
+      ) &&
+      routeSource.includes(
+        "deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined\n      ? null",
+      ),
     failureTaxonomyHttpPostureWwwAuthenticateConsistencyVerified:
       responses.every(responseConsistencyVerified),
     fp0139ResultEnvelopeOnlyDependencyPreserved: responses.every(
@@ -320,8 +344,12 @@ function responseFor(failure) {
 }
 
 function verifyRouteScope() {
-  const missingTokenIndex = routeSource.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = routeSource.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = routeSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = routeSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return {
     localMcpRouteShape:
@@ -346,6 +374,112 @@ function verifyRouteScope() {
       !metadataRouteSource.includes(
         "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
       ),
+  };
+}
+
+function verifyFp0143AppWiringBridge() {
+  const registrationCallIndex = appSource.indexOf(
+    "registerReadOnlyAppMcpEndpointRoutes(app,",
+  );
+  const forwardedDependencyIndex = appSource.indexOf(
+    "readOnlyAppMcpInvalidTokenChallengeResultEnvelope:\n      container.readOnlyAppMcpInvalidTokenChallengeResultEnvelope",
+  );
+  const missingTokenIndex = routeSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = routeSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
+  const exactChangedPathBoundary = changedPaths.every((path) =>
+    [
+      FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+      "apps/control-plane/src/lib/types.ts",
+      APP_PATH,
+      "apps/control-plane/src/app.spec.ts",
+      MCP_ROUTE_PATH,
+      "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
+      "packages/domain/src/read-only-app-mcp-invalid-token-challenge-route-integration-sequencing.ts",
+      "packages/domain/src/read-only-app-mcp-invalid-token-challenge.spec.ts",
+      "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+      "packages/domain/src/read-only-app-mcp-token-validation-test-double-inventory.ts",
+      "tools/read-only-endpoint-architecture-proof.mjs",
+      "tools/read-only-endpoint-route-ownership-proof.mjs",
+      "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
+      "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
+      "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
+      "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs",
+      "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs",
+      "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
+      "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
+      "tools/read-only-mcp-protocol-envelope-proof.mjs",
+      "tools/read-only-mcp-route-adapter-proof.mjs",
+      "tools/read-only-mcp-token-validation-result-envelope-proof.mjs",
+      "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
+      "README.md",
+      "CODEX_README.md",
+      "START_HERE.md",
+      "docs/ACTIVE_DOCS.md",
+      "docs/PROJECT_STATE.md",
+      "docs/V2_BOUNDARY.md",
+      "docs/security/read-only-agent-threat-model.md",
+      "docs/security/finance-data-threat-model.md",
+      "docs/demo/demo-data-policy.md",
+      "plans/ROADMAP.md",
+      "plugins.md",
+    ].includes(path),
+  );
+  const explicitContainerDependency =
+    safeRead("apps/control-plane/src/lib/types.ts").includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort;",
+    ) &&
+    safeRead("apps/control-plane/src/lib/types.ts").includes(
+      "export type ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort = unknown;",
+    );
+  const routeForwarding =
+    registrationCallIndex >= 0 && forwardedDependencyIndex > registrationCallIndex;
+  const coRegistration =
+    routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
+    routeSource.includes("missing-token challenge co-registration") &&
+    routeSource.includes("protected-resource metadata route evidence dependency");
+  const authorizationPresentOnly =
+    invalidTokenIndex >= 0 &&
+    !/\b(?:parseAuthorization|parseAuthHeader|bearerParser)\s*\(/u.test(
+      routeSource,
+    ) &&
+    !/\bauthorization\s*\.\s*(?:split|replace|match|startsWith|slice|substring|toLowerCase|trim)\s*\(/iu.test(
+      routeSource,
+    );
+  const missingTokenPrecedencePreserved =
+    missingTokenIndex >= 0 && invalidTokenIndex > missingTokenIndex;
+  const noRouteExpansion =
+    countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
+    countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1;
+  const noMcpRouteBehaviorChangeByDefault =
+    noRouteExpansion &&
+    routeSource.includes("deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined\n      ? null") &&
+    routeSource.includes("const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body)");
+  const appConstructionWiringIsExactFp0143 =
+    exactChangedPathBoundary &&
+    explicitContainerDependency &&
+    routeForwarding &&
+    verifyFp0143AbsentOrInvalidTokenAppConstructionWiring({
+      planText: fp0143PlanText,
+      repoPaths,
+    });
+
+  return {
+    appConstructionWiringIsExactFp0143,
+    authorizationPresentOnly,
+    coRegistration,
+    exactChangedPathBoundary,
+    missingTokenPrecedencePreserved,
+    noMcpRouteBehaviorChangeByDefault,
+    noRouteExpansion,
+    routeIntegrationRemainsExplicitAppWiringOnly:
+      appConstructionWiringIsExactFp0143 &&
+      coRegistration &&
+      authorizationPresentOnly &&
+      noMcpRouteBehaviorChangeByDefault,
   };
 }
 
@@ -422,6 +556,30 @@ function verifySourceScope() {
       !/\b(?:validateToken|verifyToken|tokenValidator|jwtVerify|verifyJwt|validateBearer|verifyBearer)\s*\(/u.test(
         changedExecutableSource,
       ),
+  };
+}
+
+function scanChangedTokenExamples(text) {
+  const sanitized = text
+    .replaceAll('authorization: ""', "")
+    .replaceAll("authorization-present-local-only", "")
+    .replaceAll("resource_metadata", "resource metadata");
+  return {
+    noBearerTokenMaterial:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\bbearer\s+(?!scheme\b|challenge\b|resource\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
+        sanitized,
+      ),
+    noJwtLikeExamples:
+      !/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u.test(
+        sanitized,
+      ),
+    noRealTokenExamples:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\b(?:access_token|refresh_token|client_secret|x-api-key|api_key)\s*[:=]\s*[A-Za-z0-9][A-Za-z0-9._~+/-]{7,}={0,2}\b/iu.test(
+        sanitized,
+      ) &&
+      !/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{8,}\b/u.test(sanitized),
   };
 }
 

@@ -71,12 +71,15 @@ const fp0140PlanText = safeReadIfExists(
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
 );
 const noLeakageScan = scanTokenValidationNoLeakage(
+  fp0139PlanText,
+);
+const changedTokenExampleScan = scanChangedTokenExamples(
   buildDocLeakageScanText({
     committedBranchDiffDocTexts: readCommittedBranchDiffDocText(
       changedPathScope.committedBranchDiffPaths,
     ),
     dirtyQaDocTexts: readDirtyQaDocText(changedPathScope.dirtyQaTargetFiles),
-    fp0139PlanText,
+    fp0139PlanText: "",
   }),
 );
 const planTopics = verifyFp0139PlanningTextRequiredTopics(fp0139PlanText);
@@ -132,6 +135,7 @@ const proof = TokenValidationResultEnvelopeProofSchema.parse(
     noBearerMaterialAccepted: envelopeChecks.noBearerMaterialAccepted,
     noBearerTokenMaterial:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noBearerTokenMaterial &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noInvalidTokenChallengeRuntime:
@@ -142,6 +146,7 @@ const proof = TokenValidationResultEnvelopeProofSchema.parse(
       repositoryInventory.noJwtDecodingRuntimeRepositoryInventoryVerified,
     noJwtLikeExamples:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noJwtLikeExamples &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noJwtLikeMaterialAccepted: envelopeChecks.noJwtLikeMaterialAccepted,
     noMcpRouteBehaviorChange:
@@ -162,6 +167,7 @@ const proof = TokenValidationResultEnvelopeProofSchema.parse(
     noRawTokenInputAccepted: envelopeChecks.noRawTokenInputAccepted,
     noRealTokenExamples:
       noLeakageScan.accepted &&
+      changedTokenExampleScan.noRealTokenExamples &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noRouteBehaviorChange:
       sourceScope.noMcpRouteBehaviorChange &&
@@ -256,6 +262,7 @@ const proofOutput = {
   ...bridgeFields,
   proofDetails: {
     changedPathScope,
+    changedTokenExampleScan,
     envelopeChecks,
     noLeakageScan,
     planTopics,
@@ -420,8 +427,12 @@ function verifyRepositoryInventory() {
 
 function fp0141RouteDependencyBridgeVerified() {
   const source = safeRead(MCP_ROUTE_PATH);
-  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = source.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = source.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     source.includes(
@@ -432,6 +443,30 @@ function fp0141RouteDependencyBridgeVerified() {
     invalidTokenIndex > missingTokenIndex &&
     localMcpRouteShapeStillVerified()
   );
+}
+
+function scanChangedTokenExamples(text) {
+  const sanitized = text
+    .replaceAll('authorization: ""', "")
+    .replaceAll("authorization-present-local-only", "")
+    .replaceAll("resource_metadata", "resource metadata");
+  return {
+    noBearerTokenMaterial:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\bbearer\s+(?!scheme\b|challenge\b|resource\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
+        sanitized,
+      ),
+    noJwtLikeExamples:
+      !/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u.test(
+        sanitized,
+      ),
+    noRealTokenExamples:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\b(?:access_token|refresh_token|client_secret|x-api-key|api_key)\s*[:=]\s*[A-Za-z0-9][A-Za-z0-9._~+/-]{7,}={0,2}\b/iu.test(
+        sanitized,
+      ) &&
+      !/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{8,}\b/u.test(sanitized),
+  };
 }
 
 function verifyPriorBoundaries() {

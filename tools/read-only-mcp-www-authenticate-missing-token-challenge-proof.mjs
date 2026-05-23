@@ -318,7 +318,7 @@ async function verifyAppBehavior() {
       },
       url: "/mcp",
     });
-    const explicitAuthorizationValue = "Bearer proof-token-material";
+    const explicitAuthorizationValue = "authorization-present-local-only";
     const explicitAuthorizationPresent = await challengeWithMetadataApp.inject({
       headers: { authorization: explicitAuthorizationValue },
       method: "POST",
@@ -362,7 +362,6 @@ async function verifyAppBehavior() {
         !explicitAuthorizationPresent.body.includes(
           explicitAuthorizationValue,
         ) &&
-        !explicitAuthorizationPresent.body.includes("proof-token-material") &&
         explicitAuthorizationPresent.json().error ===
           "token_validation_runtime_not_implemented",
       defaultBuildAppMcpBehaviorUnchanged:
@@ -603,8 +602,12 @@ function verifySourceAndScope() {
 }
 
 function fp0141RouteDependencyBridgeVerified() {
-  const missingTokenIndex = mcpRouteSource.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = mcpRouteSource.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = mcpRouteSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = mcpRouteSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     mcpRouteSource.includes(
