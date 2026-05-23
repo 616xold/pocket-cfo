@@ -56,6 +56,7 @@ const MCP_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
+const APP_PATH = "apps/control-plane/src/app.ts";
 
 const repoPaths = repoFilePaths();
 const changedPathScope = changedFilePathScope();
@@ -63,6 +64,7 @@ const changedPaths = changedPathScope.combinedChangedPaths;
 const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const routeSource = safeRead(MCP_ROUTE_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
+const appSource = safeRead(APP_PATH);
 const fp0141PlanText = safeRead(
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
 );
@@ -96,6 +98,17 @@ const output = {
   insufficientScopeMapsTo403: adapterChecks.insufficientScopeMapsTo403,
   symbolicWwwAuthenticateErrorsPreserved:
     adapterChecks.symbolicWwwAuthenticateErrorsPreserved,
+  failureTaxonomyHttpPostureWwwAuthenticateConsistencyVerified:
+    adapterChecks.failureTaxonomyHttpPostureWwwAuthenticateConsistencyVerified,
+  missingTokenEnvelopesRejected: adapterChecks.missingTokenEnvelopesRejected,
+  acceptedEnvelopesRejected: adapterChecks.acceptedEnvelopesRejected,
+  defaultRouteBehaviorUnchangedWhenInvalidTokenDependencyAbsent:
+    routeChecks.defaultRouteBehaviorUnchangedWhenInvalidTokenDependencyAbsent,
+  localOnlyInvalidTokenBehaviorDoesNotParseHeadersOrTokens:
+    adapterChecks.localOnlyInvalidTokenBehaviorDoesNotParseHeadersOrTokens &&
+    sourceScope.noTokenParsingRuntime &&
+    sourceScope.noJwtDecodingRuntime &&
+    sourceScope.noTokenIntrospectionRuntime,
   resourceMetadataDependencyPreserved:
     adapterChecks.resourceMetadataDependencyPreserved,
   scopeChallengeGuidancePreserved:
@@ -116,6 +129,10 @@ const output = {
     repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
   noTokenEcho: adapterChecks.noTokenEcho,
   noTokenLogging: sourceScope.noTokenLogging,
+  noTokenExamplesJwtBearerMaterialInPlansDocsProofOutputs:
+    repositoryInventory.noRealTokenExampleRepositoryInventoryVerified &&
+    repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified &&
+    repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
   missingTokenBehaviorStillSeparate:
     adapterChecks.missingTokenBehaviorStillSeparate &&
     routeChecks.missingTokenBehaviorStillSeparate,
@@ -248,6 +265,12 @@ function verifyAdapterBehavior() {
     .join("\n");
 
   return {
+    acceptedEnvelopesRejected:
+      !assessReadOnlyAppMcpInvalidTokenChallengeEnvelope(acceptedEnvelope)
+        .accepted &&
+      assessReadOnlyAppMcpInvalidTokenChallengeEnvelope(
+        acceptedEnvelope,
+      ).rejectionReasons.includes("accepted_envelope_rejected"),
     consumesFp0139ResultEnvelopeOnly:
       assessReadOnlyAppMcpInvalidTokenChallengeEnvelope(
         envelopeFor("invalid_token"),
@@ -269,14 +292,42 @@ function verifyAdapterBehavior() {
       malformed.statusCode === 400 && malformed.body.error === "invalid_request",
     invalidTokenChallengeRuntimeImplemented:
       invalid.descriptor.invalidTokenChallengeRuntimeImplemented,
+    failureTaxonomyHttpPostureWwwAuthenticateConsistencyVerified: [
+      malformed,
+      invalid,
+      expired,
+      revoked,
+      wrongOrg,
+      insufficientScope,
+    ].every(responseConsistencyVerified),
     jsonRpcRefusalEnvelopeStillSeparate:
       invalid.descriptor.jsonRpcRefusalEnvelopeStillSeparate &&
       !("jsonrpc" in invalid.body),
     localInvalidTokenChallengeRuntimeOnly:
       invalid.descriptor.localInvalidTokenChallengeRuntimeOnly,
+    localOnlyInvalidTokenBehaviorDoesNotParseHeadersOrTokens: [
+      malformed,
+      invalid,
+      expired,
+      revoked,
+      wrongOrg,
+      insufficientScope,
+    ].every(
+      (response) =>
+        response.body.noTokenParsingRuntime &&
+        response.body.noJwtDecodingRuntime &&
+        response.body.noTokenIntrospectionRuntime &&
+        response.body.noProductionTokenValidationRuntime,
+    ),
     missingTokenBehaviorStillSeparate:
       !assessReadOnlyAppMcpInvalidTokenChallengeEnvelope(missingEnvelope)
         .accepted,
+    missingTokenEnvelopesRejected:
+      !assessReadOnlyAppMcpInvalidTokenChallengeEnvelope(missingEnvelope)
+        .accepted &&
+      assessReadOnlyAppMcpInvalidTokenChallengeEnvelope(
+        missingEnvelope,
+      ).rejectionReasons.includes("missing_token_behavior_separate"),
     noTokenEcho: scanTokenValidationNoLeakage(sanitizedResponseText).accepted,
     resourceMetadataDependencyPreserved:
       [malformed, invalid, insufficientScope].every(
@@ -316,6 +367,12 @@ function verifyRouteBehaviorShape() {
       routeSource.includes(
         "buildMcpWwwAuthenticateAuthorizationHeaderNoValidationResponse",
       ),
+    defaultRouteBehaviorUnchangedWhenInvalidTokenDependencyAbsent:
+      routeSource.includes(
+        "deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined",
+      ) &&
+      routeSource.includes("? null") &&
+      !appSource.includes("readOnlyAppMcpInvalidTokenChallengeResultEnvelope"),
     noMcpRouteBehaviorChangeExceptInvalidTokenChallengeDependency:
       routeSource.includes(
         "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
@@ -337,6 +394,28 @@ function verifyRouteBehaviorShape() {
         "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
       ),
   };
+}
+
+function responseConsistencyVerified(response) {
+  const statusCode = response.descriptor.statusCode;
+  const symbolic = response.descriptor.symbolicWwwAuthenticateError;
+  const headerError = response.descriptor.wwwAuthenticateHeaderError;
+
+  if (statusCode === 400) {
+    return symbolic === "invalid_request" && headerError === "invalid_request";
+  }
+  if (statusCode === 403) {
+    return (
+      symbolic === "insufficient_scope" && headerError === "insufficient_scope"
+    );
+  }
+  if (statusCode === 401) {
+    return (
+      ["invalid_token", "fail_closed_non_leaking"].includes(symbolic) &&
+      headerError === "invalid_token"
+    );
+  }
+  return false;
 }
 
 function verifySourceScope() {
