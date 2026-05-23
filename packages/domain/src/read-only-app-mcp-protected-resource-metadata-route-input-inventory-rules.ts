@@ -7,6 +7,7 @@ import {
 } from "./read-only-app-mcp-protected-resource-metadata-route-input-contracts";
 import { FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH } from "./read-only-app-mcp-token-validation-contracts";
 import { FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH } from "./read-only-app-mcp-token-validation-result-envelope-contracts";
+import { FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH } from "./read-only-app-mcp-token-validation-production-sequencing";
 import {
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
@@ -53,6 +54,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+  FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
@@ -113,6 +115,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs",
   "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs",
   "tools/read-only-mcp-token-validation-result-envelope-proof.mjs",
+  "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs",
   "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
   "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",

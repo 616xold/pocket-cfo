@@ -8,6 +8,7 @@ import {
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+  FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
   buildTokenValidationResultEnvelope,
   buildTokenValidationResultEnvelopeInputDescriptor,
   scanTokenValidationNoLeakage,
@@ -20,6 +21,7 @@ import {
   verifyFp0142FailureTaxonomyHttpWwwAuthenticateConsistency,
   verifyFp0142RouteIntegrationSequencingPlanBoundary,
   verifyFp0143AbsentOrInvalidTokenAppConstructionWiring,
+  verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan,
   verifyMcpInvalidTokenChallengeContractBoundaries,
   verifyTokenValidationResultEnvelopeBoundaryFields,
   verifyTokenValidationResultEnvelopeHttpPostureMapping,
@@ -100,8 +102,7 @@ const output = {
     appWiringScope.invalidTokenDependencyAbsentByDefault,
   invalidTokenRequiresAuthorizationPresent:
     routeScope.invalidTokenRequiresAuthorizationPresent,
-  missingTokenPrecedencePreserved:
-    routeScope.missingTokenPrecedencePreserved,
+  missingTokenPrecedencePreserved: routeScope.missingTokenPrecedencePreserved,
   protectedResourceMetadataCoRegistrationVerified:
     routeScope.protectedResourceMetadataCoRegistrationVerified,
   missingTokenChallengeCoRegistrationVerified:
@@ -148,7 +149,13 @@ const output = {
       repoPaths,
     }) &&
     changedPathsWithinFp0143Boundary(),
-  fp0144Absent: !repoPaths.some((path) => /(^|\/)FP-0144/u.test(path)),
+  fp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlanVerified:
+    verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan({
+      planText: safeRead(
+        FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
+      ),
+      repoPaths,
+    }),
   fp0142RouteIntegrationSequencingBoundaryStillVerified:
     priorBoundaries.fp0142RouteIntegrationSequencingBoundaryStillVerified,
   fp0141LocalRuntimeBoundaryStillVerified:
@@ -189,9 +196,15 @@ function verifyAppWiringScope() {
 
   return {
     buildAppDefaultBehaviorStillUnchanged:
-      appSource.includes("options?.container ?? (await createServerContainer())") &&
-      !bootstrapSource.includes("readOnlyAppMcpInvalidTokenChallengeResultEnvelope") &&
-      routeSource.includes("deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined\n      ? null"),
+      appSource.includes(
+        "options?.container ?? (await createServerContainer())",
+      ) &&
+      !bootstrapSource.includes(
+        "readOnlyAppMcpInvalidTokenChallengeResultEnvelope",
+      ) &&
+      routeSource.includes(
+        "deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined\n      ? null",
+      ),
     explicitContainerDependencyVerified:
       typesSource.includes(
         "export type ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort = unknown;",
@@ -199,8 +212,9 @@ function verifyAppWiringScope() {
       typesSource.includes(
         "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort;",
       ),
-    invalidTokenDependencyAbsentByDefault:
-      !bootstrapSource.includes("readOnlyAppMcpInvalidTokenChallengeResultEnvelope"),
+    invalidTokenDependencyAbsentByDefault: !bootstrapSource.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope",
+    ),
     routeRegistrationDependencyForwardingVerified:
       registrationCallIndex >= 0 &&
       forwardedDependencyIndex > registrationCallIndex &&
@@ -223,8 +237,9 @@ function verifyRouteScope() {
 
   return {
     defaultJsonRpcServicePathStillPresent:
-      routeSource.includes("const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body)") &&
-      routeSource.includes("return response;"),
+      routeSource.includes(
+        "const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body)",
+      ) && routeSource.includes("return response;"),
     getMcpBehaviorUnchanged:
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1 &&
       routeSource.includes('.header("Allow", "POST")') &&
@@ -251,7 +266,9 @@ function verifyRouteScope() {
     missingTokenPrecedencePreserved:
       missingTokenIndex >= 0 &&
       invalidTokenIndex > missingTokenIndex &&
-      routeSpecSource.includes("keeps invalid-token challenge absent until Authorization is present"),
+      routeSpecSource.includes(
+        "keeps invalid-token challenge absent until Authorization is present",
+      ),
     noEvaluatorOrTestDoubleRouteConsumption:
       !routeSource.includes("evaluateSyntheticTokenValidationScenario") &&
       !/token-validation-test-double|TestDouble/u.test(routeSource),
@@ -265,12 +282,16 @@ function verifyRouteScope() {
       routeSource.includes(
         "assertProtectedResourceMetadataRouteInputEvidenceBundleAcceptedForLocalRouteRegistration",
       ) &&
-      routeSource.includes("protected-resource metadata route evidence dependency") &&
+      routeSource.includes(
+        "protected-resource metadata route evidence dependency",
+      ) &&
       appSpecSource.includes("lacks protected-resource metadata evidence"),
     protectedResourceMetadataRouteBehaviorUnchanged:
       !changedPaths.includes(METADATA_ROUTE_PATH) &&
       countMatches(metadataRouteSource, /app\.get\(/gu) === 1 &&
-      !metadataRouteSource.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+      !metadataRouteSource.includes(
+        "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
+      ) &&
       !metadataRouteSource.includes("WWW-Authenticate"),
   };
 }
@@ -413,8 +434,9 @@ function verifySourceScope() {
       !/(?:\bnew\s+OpenAI\b|\bimport\s+(?:[^;\n]*?\s+from\s+)?["']openai["']|\brequire\s*\(\s*["']openai["']\s*\)|\bresponses\s*\.\s*create\s*\(|\bchat\s*\.\s*completions\b|\bfiles\s*\.\s*create\s*\(|\bapi\.openai\.com\b)/u.test(
         changedExecutableSource,
       ),
-    noPackageScriptsAdded:
-      !changedPaths.some((path) => /(?:^|\/)package\.json$/u.test(path)),
+    noPackageScriptsAdded: !changedPaths.some((path) =>
+      /(?:^|\/)package\.json$/u.test(path),
+    ),
     noProductionTokenValidation:
       !/\b(?:validateToken|verifyToken|tokenValidator|jwtVerify|verifyJwt|validateBearer|verifyBearer)\s*\(/u.test(
         changedExecutableSource,
@@ -454,9 +476,10 @@ function scanChangedTokenExamples(text) {
     .replaceAll("authorization-present-local-only", "")
     .replaceAll("resource_metadata", "resource metadata");
   return {
-    noBearerTokenMaterial: !/\bbearer\s+(?!scheme\b|challenge\b|resource\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
-      sanitized,
-    ),
+    noBearerTokenMaterial:
+      !/\bbearer\s+(?!scheme\b|challenge\b|resource\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
+        sanitized,
+      ),
     noJwtLikeExamples:
       !/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u.test(
         sanitized,
@@ -479,10 +502,14 @@ function changedPathsWithinFp0143Boundary() {
       ROUTE_SPEC_PATH,
       TYPES_PATH,
       FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+      "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md",
+      "packages/domain/src/index.ts",
       "packages/domain/src/read-only-app-mcp-invalid-token-challenge-route-integration-sequencing.ts",
       "packages/domain/src/read-only-app-mcp-invalid-token-challenge.spec.ts",
       "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
       "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
+      "packages/domain/src/read-only-app-mcp-token-validation-production-sequencing.ts",
+      "packages/domain/src/read-only-app-mcp-token-validation.spec.ts",
       "packages/domain/src/read-only-app-mcp-token-validation-test-double-inventory.ts",
       "tools/read-only-endpoint-architecture-proof.mjs",
       "tools/read-only-endpoint-route-ownership-proof.mjs",
@@ -505,6 +532,7 @@ function changedPathsWithinFp0143Boundary() {
       "tools/read-only-mcp-token-validation-runtime-sequencing-proof.mjs",
       "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
       "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
+      "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs",
       "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
       "README.md",
       "CODEX_README.md",
@@ -655,7 +683,8 @@ function repoFilePaths() {
   function walk(directory) {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       if (skipped.has(entry.name)) continue;
-      const fullPath = directory === "." ? entry.name : `${directory}/${entry.name}`;
+      const fullPath =
+        directory === "." ? entry.name : `${directory}/${entry.name}`;
       if (entry.isDirectory()) walk(fullPath);
       else results.push(fullPath);
     }

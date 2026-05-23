@@ -77,17 +77,14 @@ const routeScope = verifyRouteScope();
 const fp0143AppWiringBridge = verifyFp0143AppWiringBridge();
 const localRuntimeBridge = verifyFp0141LocalRuntimeBridge();
 const priorBoundaries = verifyPriorBoundaries();
-const repositoryInventory = verifyMcpTokenValidationTestDoubleRepositoryInventory(
-  {
+const repositoryInventory =
+  verifyMcpTokenValidationTestDoubleRepositoryInventory({
     branchDiffPaths: changedPathScope.committedBranchDiffPaths,
     dirtyPaths: changedPathScope.dirtyQaTargetFiles,
     repoPaths,
     sourceTextByPath: readProofSourceTextByPath(repoPaths),
-  },
-);
-const noLeakageScan = scanTokenValidationNoLeakage(
-  fp0142PlanText,
-);
+  });
+const noLeakageScan = scanTokenValidationNoLeakage(fp0142PlanText);
 const changedTokenExampleScan = scanChangedTokenExamples(changedDocText);
 
 const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
@@ -169,8 +166,7 @@ const proof = McpInvalidTokenRouteIntegrationSequencingProofSchema.parse(
       sourceScope.noOpenAiApiCalls &&
       repositoryInventory.noOpenAiApiSourceScanVerified,
     noPackageScriptsAdded: sourceScope.noPackageScriptsAdded,
-    noProductionTokenValidationFromFp0142:
-      sourceScope.noTokenValidationRuntime,
+    noProductionTokenValidationFromFp0142: sourceScope.noTokenValidationRuntime,
     noProtectedResourceMetadataRouteBehaviorChangeFromFp0142:
       sourceScope.noProtectedResourceMetadataRouteBehaviorChange &&
       routeScope.metadataRouteShape,
@@ -287,14 +283,13 @@ function verifyFp0141LocalRuntimeBridge() {
     fp0139ResultEnvelopeOnlyDependencyPreserved: responses.every(
       (response) => response.descriptor.consumesFp0139ResultEnvelopeOnly,
     ),
-    localOnlyInvalidTokenBehaviorDoesNotParseHeadersOrTokens:
-      responses.every(
-        (response) =>
-          response.body.noTokenParsingRuntime &&
-          response.body.noJwtDecodingRuntime &&
-          response.body.noTokenIntrospectionRuntime &&
-          response.body.noProductionTokenValidationRuntime,
-      ),
+    localOnlyInvalidTokenBehaviorDoesNotParseHeadersOrTokens: responses.every(
+      (response) =>
+        response.body.noTokenParsingRuntime &&
+        response.body.noJwtDecodingRuntime &&
+        response.body.noTokenIntrospectionRuntime &&
+        response.body.noProductionTokenValidationRuntime,
+    ),
     localRuntimeBoundaryStillVerified: responses.every(
       (response) =>
         response.descriptor.localInvalidTokenChallengeRuntimeOnly &&
@@ -357,13 +352,13 @@ function verifyRouteScope() {
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
     metadataRouteShape:
       countMatches(metadataRouteSource, /app\.get\(/gu) === 1 &&
-      (metadataRouteSource.includes("/.well-known/oauth-protected-resource/mcp") ||
+      (metadataRouteSource.includes(
+        "/.well-known/oauth-protected-resource/mcp",
+      ) ||
         metadataRouteSource.includes(
           "MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH",
         )) &&
-      !/app\.post|app\.put|app\.patch|app\.delete/iu.test(
-        metadataRouteSource,
-      ),
+      !/app\.post|app\.put|app\.patch|app\.delete/iu.test(metadataRouteSource),
     missingTokenPrecedenceStillVerified:
       missingTokenIndex >= 0 && invalidTokenIndex > missingTokenIndex,
     noEvaluatorOrTestDoubleRouteConsumption:
@@ -398,10 +393,14 @@ function verifyFp0143AppWiringBridge() {
       "apps/control-plane/src/app.spec.ts",
       MCP_ROUTE_PATH,
       "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
+      "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md",
+      "packages/domain/src/index.ts",
       "packages/domain/src/read-only-app-mcp-invalid-token-challenge-route-integration-sequencing.ts",
       "packages/domain/src/read-only-app-mcp-invalid-token-challenge.spec.ts",
       "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
       "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
+      "packages/domain/src/read-only-app-mcp-token-validation-production-sequencing.ts",
+      "packages/domain/src/read-only-app-mcp-token-validation.spec.ts",
       "packages/domain/src/read-only-app-mcp-token-validation-test-double-inventory.ts",
       "tools/read-only-endpoint-architecture-proof.mjs",
       "tools/read-only-endpoint-route-ownership-proof.mjs",
@@ -424,6 +423,7 @@ function verifyFp0143AppWiringBridge() {
       "tools/read-only-mcp-token-validation-runtime-sequencing-proof.mjs",
       "tools/read-only-mcp-token-validation-test-double-contract-proof.mjs",
       "tools/read-only-mcp-token-validation-test-double-local-proof.mjs",
+      "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs",
       "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
       "README.md",
       "CODEX_README.md",
@@ -446,11 +446,14 @@ function verifyFp0143AppWiringBridge() {
       "export type ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort = unknown;",
     );
   const routeForwarding =
-    registrationCallIndex >= 0 && forwardedDependencyIndex > registrationCallIndex;
+    registrationCallIndex >= 0 &&
+    forwardedDependencyIndex > registrationCallIndex;
   const coRegistration =
     routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
     routeSource.includes("missing-token challenge co-registration") &&
-    routeSource.includes("protected-resource metadata route evidence dependency");
+    routeSource.includes(
+      "protected-resource metadata route evidence dependency",
+    );
   const authorizationPresentOnly =
     invalidTokenIndex >= 0 &&
     !/\b(?:parseAuthorization|parseAuthHeader|bearerParser)\s*\(/u.test(
@@ -466,8 +469,12 @@ function verifyFp0143AppWiringBridge() {
     countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1;
   const noMcpRouteBehaviorChangeByDefault =
     noRouteExpansion &&
-    routeSource.includes("deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined\n      ? null") &&
-    routeSource.includes("const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body)");
+    routeSource.includes(
+      "deps.readOnlyAppMcpInvalidTokenChallengeResultEnvelope === undefined\n      ? null",
+    ) &&
+    routeSource.includes(
+      "const response: ReadOnlyAppMcpEndpointResult = service.handle(request.body)",
+    );
   const appConstructionWiringIsExactFp0143 =
     exactChangedPathBoundary &&
     explicitContainerDependency &&
@@ -774,7 +781,8 @@ function repoFilePaths() {
   function walk(directory) {
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       if (skipped.has(entry.name)) continue;
-      const fullPath = directory === "." ? entry.name : `${directory}/${entry.name}`;
+      const fullPath =
+        directory === "." ? entry.name : `${directory}/${entry.name}`;
       if (entry.isDirectory()) walk(fullPath);
       else results.push(fullPath);
     }

@@ -501,8 +501,7 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
       "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PLAN_PATH ||
     path === FP0139_TOKEN_VALIDATION_RESULT_ENVELOPE_PROOF_PATH ||
-    path ===
-      FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH ||
+    path === FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH ||
     path ===
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH ||
     path === FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH ||
@@ -510,6 +509,10 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
       "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs" ||
     path === FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH ||
     path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
+    path ===
+      "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md" ||
+    path ===
+      "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||
