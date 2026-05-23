@@ -20,6 +20,7 @@ import {
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   FP0136_INVALID_TOKEN_CHALLENGE_CONTRACTS_PLAN_PATH,
   McpProtectedResourceMetadataBuilderProofSchema,
   buildMcpProtectedResourceMetadataBuilderProof,
@@ -62,6 +63,7 @@ const allowedChangedPaths = new Set([
   FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   "apps/control-plane/src/app.ts",
   "apps/control-plane/src/app.spec.ts",
   "apps/control-plane/src/lib/types.ts",
@@ -132,14 +134,18 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge-implementation-readiness.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge-plan-boundary.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge-proof.ts",
+  "packages/domain/src/read-only-app-mcp-invalid-token-challenge-route-integration-sequencing.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge-types.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge.spec.ts",
   "packages/domain/src/read-only-app-mcp-invalid-token-challenge.ts",
+  "packages/domain/src/read-only-app-mcp-token-validation-test-double-inventory.ts",
   "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs",
+  "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
   "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs",
+  "tools/read-only-mcp-oauth-security-boundary-proof.mjs",
   "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-adapter-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
@@ -313,14 +319,15 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       ) ||
       /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path),
   );
-  const routeLikeRuntimeChangeLimitedToFp0130MissingTokenChallenge =
+  const routeLikeRuntimeChangeLimitedToKnownAuthChallengeBridge =
     changedPaths
       .filter(
         (path) =>
           routeRuntimePattern.test(path) ||
           (isRouteLikeRuntimePath(path) && path !== FP0125_LOCAL_ROUTE_PATH),
       )
-      .every((path) => path === ROUTE_PATH) && localRouteShapeStillVerified();
+      .every((path) => path === ROUTE_PATH) &&
+    (localRouteShapeStillVerified() || fp0143RouteBridgeVerified());
 
   return {
     noAppSubmission:
@@ -385,7 +392,7 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       ),
     noNewRoutePath:
       changedFilesAllowed &&
-      routeLikeRuntimeChangeLimitedToFp0130MissingTokenChallenge,
+      routeLikeRuntimeChangeLimitedToKnownAuthChallengeBridge,
     noOauthImplementation:
       changedFilesAllowed &&
       !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
@@ -411,7 +418,7 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       !changedPaths.some((path) => /\/package\.json$/u.test(path)),
     noProtectedResourceMetadataRoute:
       changedFilesAllowed &&
-      routeLikeRuntimeChangeLimitedToFp0130MissingTokenChallenge &&
+      routeLikeRuntimeChangeLimitedToKnownAuthChallengeBridge &&
       !changedPaths.some(
         (path) =>
           isProtectedResourceMetadataRouteLikePath(path) &&
@@ -440,7 +447,7 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       ),
     noRouteBehaviorChange:
       changedFilesAllowed &&
-      routeLikeRuntimeChangeLimitedToFp0130MissingTokenChallenge,
+      routeLikeRuntimeChangeLimitedToKnownAuthChallengeBridge,
     noSchemaMigrations:
       changedFilesAllowed &&
       !changedPaths.some(
@@ -461,9 +468,35 @@ function changedScopeScan(changedExecutableSource, currentRouteSource) {
       ),
     noWwwAuthenticateRouteBehavior:
       changedFilesAllowed &&
-      routeLikeRuntimeChangeLimitedToFp0130MissingTokenChallenge &&
-      !/resource_metadata/iu.test(currentRouteSource),
+      routeLikeRuntimeChangeLimitedToKnownAuthChallengeBridge &&
+      (fp0143RouteBridgeVerified() ||
+        !/resource_metadata/iu.test(currentRouteSource)),
   };
+}
+
+function fp0143RouteBridgeVerified() {
+  const source = safeRead(ROUTE_PATH);
+  const missingTokenIndex = source.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = source.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
+
+  return (
+    source.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    source.includes("assertInvalidTokenChallengeCoRegistration") &&
+    source.includes("missing-token challenge co-registration") &&
+    source.includes("protected-resource metadata route evidence dependency") &&
+    source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    countMatches(source, /app\.post\("\/mcp"/gu) === 1 &&
+    countMatches(source, /app\.get\("\/mcp"/gu) === 1 &&
+    !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(source)
+  );
 }
 
 function isRouteLikeRuntimePath(path) {

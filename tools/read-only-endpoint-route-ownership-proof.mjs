@@ -6,6 +6,7 @@ import {
   FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH,
   FP0105_ENDPOINT_ROUTE_OWNERSHIP_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   buildEndpointRouteOwnershipProof,
   inspectEndpointRouteOwnershipRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -507,6 +508,8 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path === FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH ||
     path ===
       "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs" ||
+    path === FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH ||
+    path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||

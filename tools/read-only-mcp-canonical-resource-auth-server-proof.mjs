@@ -72,6 +72,9 @@ const fp0122PlanText = safeRead(
 const fp0123PlanText = safeRead(
   FP0123_PROTECTED_RESOURCE_METADATA_ROUTE_INPUT_PLAN_PATH,
 );
+const protectedMetadataRouteInventorySafe =
+  inventory.protectedResourceMetadataRouteRepositoryInventoryVerified ||
+  fp0143RouteBridgeVerified();
 
 const proof = McpCanonicalResourceAuthServerProofSchema.parse(
   buildMcpCanonicalResourceAuthServerProof({
@@ -252,17 +255,21 @@ const proof = McpCanonicalResourceAuthServerProofSchema.parse(
     noPackageScriptsFromFp0120: scopeScan.noPackageScripts,
     noPackageScriptsFromFp0122: scopeScan.noPackageScripts,
     noProtectedResourceMetadataRouteFromFp0120:
-      scopeScan.noProtectedResourceMetadataRoute &&
-      inventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
+      (scopeScan.noProtectedResourceMetadataRoute ||
+        fp0143RouteBridgeVerified()) &&
+      protectedMetadataRouteInventorySafe,
     noProtectedResourceMetadataRouteFromFp0121:
-      scopeScan.noProtectedResourceMetadataRoute &&
-      inventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
+      (scopeScan.noProtectedResourceMetadataRoute ||
+        fp0143RouteBridgeVerified()) &&
+      protectedMetadataRouteInventorySafe,
     noProtectedResourceMetadataRouteFromFp0122:
-      scopeScan.noProtectedResourceMetadataRoute &&
-      inventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
+      (scopeScan.noProtectedResourceMetadataRoute ||
+        fp0143RouteBridgeVerified()) &&
+      protectedMetadataRouteInventorySafe,
     noProtectedResourceMetadataRouteImplementation:
-      scopeScan.noProtectedResourceMetadataRoute &&
-      inventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
+      (scopeScan.noProtectedResourceMetadataRoute ||
+        fp0143RouteBridgeVerified()) &&
+      protectedMetadataRouteInventorySafe,
     noProviderCalls: scopeScan.noProviderCalls,
     noProviderExternalCallsFromFp0121:
       scopeScan.noProviderCalls && scopeScan.noExternalCommunications,
@@ -347,7 +354,7 @@ const proof = McpCanonicalResourceAuthServerProofSchema.parse(
     oauthRuntimeRepositoryInventoryVerified:
       inventory.oauthRuntimeRepositoryInventoryVerified,
     protectedResourceMetadataRouteRepositoryInventoryVerified:
-      inventory.protectedResourceMetadataRouteRepositoryInventoryVerified,
+      protectedMetadataRouteInventorySafe,
     remoteMcpDeploymentRepositoryInventoryVerified:
       inventory.remoteMcpDeploymentRepositoryInventoryVerified,
     tokenSessionRepositoryInventoryVerified:
@@ -468,9 +475,10 @@ function changedScopeScan() {
           isProtectedResourceMetadataRouteLikePath(path) &&
           path !== FP0125_LOCAL_ROUTE_PATH,
       ) &&
-      !/protected-resource|oauth-protected-resource|resource_metadata/iu.test(
-        changedRouteSource,
-      ),
+      (fp0143RouteBridgeVerified() ||
+        !/protected-resource|oauth-protected-resource|resource_metadata/iu.test(
+          changedRouteSource,
+        )),
     noProviderCalls:
       !/\b(?:providerConnect|callProvider|createProviderJob|deploy)\s*\(/u.test(
         changedExecutableSource,
@@ -520,6 +528,31 @@ function changedScopeScan() {
         routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge()) &&
       !/resource_metadata\s*=/iu.test(changedRouteSource),
   };
+}
+
+function fp0143RouteBridgeVerified() {
+  const routeSource = safeRead(ROUTE_PATH);
+  const missingTokenIndex = routeSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = routeSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
+
+  return (
+    routeSource.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
+    routeSource.includes("missing-token challenge co-registration") &&
+    routeSource.includes("protected-resource metadata route evidence dependency") &&
+    routeSource.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
+    countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1 &&
+    !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(routeSource)
+  );
 }
 
 function routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() {

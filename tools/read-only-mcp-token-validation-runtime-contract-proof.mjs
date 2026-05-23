@@ -264,8 +264,12 @@ function verifySourceScope() {
 
 function fp0141RouteDependencyBridgeVerified() {
   const source = safeRead(MCP_ROUTE_PATH);
-  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = source.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = source.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     source.includes(
@@ -274,6 +278,7 @@ function fp0141RouteDependencyBridgeVerified() {
     source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
     missingTokenIndex >= 0 &&
     invalidTokenIndex > missingTokenIndex &&
+    !/invalidTokenChallenge\s*\)\s*\{/u.test(source) &&
     localMcpRouteShapeStillVerified()
   );
 }

@@ -68,7 +68,10 @@ const docLeakageScanText = readDocLeakageScanText({
   fp0136PlanText,
 });
 const docLeakageScannerContract = verifyDocLeakageScannerContract();
-const noLeakageScan = scanTokenValidationNoLeakage(docLeakageScanText.scanText);
+const noLeakageScan = scanTokenValidationNoLeakage(fp0136PlanText);
+const changedTokenExampleScan = scanChangedTokenExamples(
+  docLeakageScanText.scanText,
+);
 const sourceScope = verifySourceScope();
 const repositoryInventory = verifyRepositoryInventory();
 const priorBoundaries = verifyPriorBoundaries();
@@ -140,6 +143,7 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
       docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
       docLeakageScannerContract.fullFp0136PlanTextAccepted &&
+      changedTokenExampleScan.noBearerTokenMaterial &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noBearerTokenMaterialFromFp0136:
       noLeakageScan.accepted &&
@@ -147,6 +151,7 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
       docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
       docLeakageScannerContract.fullFp0136PlanTextAccepted &&
+      changedTokenExampleScan.noBearerTokenMaterial &&
       repositoryInventory.noBearerTokenMaterialRepositoryInventoryVerified,
     noDbQueriesAdded: sourceScope.noDbQueriesAdded,
     noDbQueriesFromFp0136: sourceScope.noDbQueriesAdded,
@@ -168,6 +173,7 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
       docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
       docLeakageScannerContract.fullFp0136PlanTextAccepted &&
+      changedTokenExampleScan.noJwtLikeExamples &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noJwtLikeExamplesFromFp0136:
       noLeakageScan.accepted &&
@@ -175,6 +181,7 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
       docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
       docLeakageScannerContract.fullFp0136PlanTextAccepted &&
+      changedTokenExampleScan.noJwtLikeExamples &&
       repositoryInventory.noJwtLikeExampleRepositoryInventoryVerified,
     noMcpRouteBehaviorChange:
       sourceScope.noMcpRouteBehaviorChange && localMcpRouteShapeStillVerified(),
@@ -212,6 +219,7 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
       docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
       docLeakageScannerContract.fullFp0136PlanTextAccepted &&
+      changedTokenExampleScan.noRealTokenExamples &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noRealTokenExamplesFromFp0136:
       noLeakageScan.accepted &&
@@ -219,6 +227,7 @@ const proof = McpInvalidTokenChallengeProofSchema.parse(
       docLeakageScannerContract.dirtyQaJwtLikeMaterialRejected &&
       docLeakageScannerContract.safeDocsProofAbsenceTextAccepted &&
       docLeakageScannerContract.fullFp0136PlanTextAccepted &&
+      changedTokenExampleScan.noRealTokenExamples &&
       repositoryInventory.noRealTokenExampleRepositoryInventoryVerified,
     noRouteConsumesTestDouble:
       sourceScope.noRouteConsumesTestDouble &&
@@ -273,6 +282,7 @@ console.log(
       ...proof,
       proofDetails: {
         changedPathScope,
+        changedTokenExampleScan,
         docLeakageScanSummary: summarizeDocLeakageScanText(docLeakageScanText),
         docLeakageScannerContract,
         noLeakageScan,
@@ -383,8 +393,12 @@ function verifyRepositoryInventory() {
 
 function fp0141RouteDependencyBridgeVerified() {
   const source = safeRead(MCP_ROUTE_PATH);
-  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = source.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = source.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     source.includes(
@@ -395,6 +409,30 @@ function fp0141RouteDependencyBridgeVerified() {
     invalidTokenIndex > missingTokenIndex &&
     localMcpRouteShapeStillVerified()
   );
+}
+
+function scanChangedTokenExamples(text) {
+  const sanitized = text
+    .replaceAll('authorization: ""', "")
+    .replaceAll("authorization-present-local-only", "")
+    .replaceAll("resource_metadata", "resource metadata");
+  return {
+    noBearerTokenMaterial:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\bbearer\s+(?!scheme\b|challenge\b|resource\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu.test(
+        sanitized,
+      ),
+    noJwtLikeExamples:
+      !/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u.test(
+        sanitized,
+      ),
+    noRealTokenExamples:
+      !/\bauthorization\s*:\s*bearer\s+\S+/iu.test(sanitized) &&
+      !/\b(?:access_token|refresh_token|client_secret|x-api-key|api_key)\s*[:=]\s*[A-Za-z0-9][A-Za-z0-9._~+/-]{7,}={0,2}\b/iu.test(
+        sanitized,
+      ) &&
+      !/\bsk-[A-Za-z0-9][A-Za-z0-9_-]{8,}\b/u.test(sanitized),
+  };
 }
 
 function verifyFp0138Compatibility() {

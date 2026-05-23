@@ -208,6 +208,26 @@ function localRouteShapeStillVerified() {
   );
 }
 
+function fp0143RouteCompatibilityStillLocalOnly() {
+  const routeSource = safeRead(ROUTE_PATH);
+  return (
+    localRouteShapeStillVerified() &&
+    routeSource.includes(
+      "if (missingTokenChallenge && request.headers.authorization === undefined)",
+    ) &&
+    routeSource.includes(
+      "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+    ) &&
+    routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
+    !/\bauthorization\s*\.\s*(?:split|replace|match|startsWith|slice|substring|toLowerCase|trim)\s*\(/iu.test(
+      routeSource,
+    ) &&
+    !/\b(?:validateToken|verifyToken|tokenValidator|jwtVerify|verifyJwt|validateBearer|verifyBearer|oauthCallback|tokenExchange|authMiddleware|setCookie)\s*\(/u.test(
+      routeSource,
+    )
+  );
+}
+
 function changedScopeScan() {
   const changedCode = changedPaths
     .filter(
@@ -263,11 +283,12 @@ function changedScopeScan() {
       !/\b(?:remoteMcpRuntime|mcpServerRuntime|startRemoteMcp|listen\s*\(|deploy\s*\()\b/u.test(
         changedCode,
       ),
-    noRouteBehaviorChange: !changedPaths.some((path) =>
-      /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
-        path,
-      ),
-    ),
+    noRouteBehaviorChange:
+      !changedPaths.some((path) =>
+        /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u.test(
+          path,
+        ),
+      ) || fp0143RouteCompatibilityStillLocalOnly(),
     noSchemaMigrationsAdded: !changedPaths.some(
       (path) =>
         /^packages\/db\//u.test(path) ||

@@ -4,6 +4,7 @@ import { join } from "node:path";
 import {
   FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   McpProtocolProofSchema,
   buildMcpProtocolProof,
   inspectEndpointRouteOwnershipRepositoryInventory,
@@ -488,6 +489,8 @@ function isAllowedMcpProtocolProofPath(path) {
     path ===
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH ||
     path === FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH ||
+    path === FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH ||
+    path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
     path ===
       "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||

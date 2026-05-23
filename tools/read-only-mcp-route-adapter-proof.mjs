@@ -9,6 +9,7 @@ import {
   FP0124_PROTECTED_RESOURCE_METADATA_ROUTE_IMPLEMENTATION_PLAN_PATH,
   FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   MCP_TOOL_ALLOWLIST,
   buildMcpToolDescriptorContracts,
   verifyFp0116AbsentOrLocalRemoteHostResourceContracts,
@@ -907,6 +908,7 @@ function changedFilesAreAllowed() {
     "plans/FP-0140-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-planning.md",
     FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_IMPLEMENTATION_PLAN_PATH,
     FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+    FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.spec.ts",
     "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts",
     ROUTE_PATH,
@@ -954,6 +956,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-invalid-token-challenge-contract-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-implementation-planning-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs",
+    "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
     "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-sequencing-proof.mjs",
     "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs",
@@ -1068,7 +1071,32 @@ function endpointRuntimeChangeLimitedToFp0130MissingTokenChallenge() {
     countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1 &&
     !/app\.(?:get|post|put|patch|delete)\("\/mcp\//u.test(routeSource) &&
     !/resource_metadata|oauth-protected-resource/iu.test(routeSource) &&
-    routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge()
+    (routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() ||
+      fp0143RouteBridgeVerified())
+  );
+}
+
+function fp0143RouteBridgeVerified() {
+  const missingTokenIndex = routeSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = routeSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
+
+  return (
+    routeSource.includes(
+      "readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown",
+    ) &&
+    routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
+    routeSource.includes("missing-token challenge co-registration") &&
+    routeSource.includes("protected-resource metadata route evidence dependency") &&
+    routeSource.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
+    missingTokenIndex >= 0 &&
+    invalidTokenIndex > missingTokenIndex &&
+    !/\b(?:oauthCallback|tokenStore|sessionStore|authMiddleware|validateToken|verifyToken|verifyBearer|jwtVerify|decodeJwt|parseJwt|parseToken|introspectToken)\s*\(/u.test(
+      routeSource,
+    )
   );
 }
 

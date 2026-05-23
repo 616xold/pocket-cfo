@@ -422,9 +422,16 @@ describe("read-only app MCP endpoint routes", () => {
       },
       readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
         tokenEnvelopeFor("invalid_token"),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const response = await app.inject({
+      headers: {
+        authorization: "authorization-present-local-only",
+      },
       method: "POST",
       payload: {
         id: "init-invalid-token",
@@ -465,6 +472,10 @@ describe("read-only app MCP endpoint routes", () => {
       readOnlyAppMcpInvalidTokenChallengeResultEnvelope: tokenEnvelopeFor(
         "malformed_authorization",
       ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
     const insufficientScopeApp = await buildTestApp(apps, {
       readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
@@ -474,9 +485,16 @@ describe("read-only app MCP endpoint routes", () => {
             requiredScopes: ["mcp:read", "evidence:read"],
           }),
         ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const malformedResponse = await malformedApp.inject({
+      headers: {
+        authorization: "authorization-present-local-only",
+      },
       method: "POST",
       payload: {
         id: "init-malformed-authorization",
@@ -486,6 +504,9 @@ describe("read-only app MCP endpoint routes", () => {
       url: "/mcp",
     });
     const insufficientScopeResponse = await insufficientScopeApp.inject({
+      headers: {
+        authorization: "authorization-present-local-only",
+      },
       method: "POST",
       payload: {
         id: "init-insufficient-scope",
@@ -534,9 +555,7 @@ describe("read-only app MCP endpoint routes", () => {
     });
     const authorizationPresentResponse = await app.inject({
       headers: {
-        authorization: ["Bearer", ["proof", "token", "material"].join("-")].join(
-          " ",
-        ),
+        authorization: "authorization-present-local-only",
       },
       method: "POST",
       payload: {
@@ -556,13 +575,87 @@ describe("read-only app MCP endpoint routes", () => {
       missingTokenOnly: true,
     });
     expect(authorizationPresentResponse.statusCode).toBe(401);
-    expect(
-      authorizationPresentResponse.headers["www-authenticate"],
-    ).toBeUndefined();
+    expect(authorizationPresentResponse.headers["www-authenticate"]).toContain(
+      'error="invalid_token"',
+    );
     expect(authorizationPresentResponse.json()).toMatchObject({
-      error: "token_validation_runtime_not_implemented",
-      failClosed: true,
+      error: "invalid_token",
+      invalidTokenChallengeOnly: true,
     });
+  });
+
+  it("keeps invalid-token challenge absent until Authorization is present", async () => {
+    let serviceCalls = 0;
+    const app = await buildTestApp(apps, {
+      readOnlyAppMcpEndpointService: {
+        handle() {
+          serviceCalls += 1;
+          throw new Error("missing-token challenge must run before dispatch");
+        },
+      },
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        tokenEnvelopeFor("invalid_token"),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
+    });
+
+    const response = await app.inject({
+      method: "POST",
+      payload: {
+        id: "init-no-authorization-invalid-token-absent",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+
+    expect(serviceCalls).toBe(0);
+    expect(response.statusCode).toBe(401);
+    expect(response.headers["www-authenticate"]).toBe(
+      MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
+    );
+    expect(response.json()).toMatchObject({
+      error: "authorization_required",
+      missingTokenOnly: true,
+    });
+  });
+
+  it("fails closed before /mcp route registration when invalid-token wiring lacks protected-resource metadata evidence", async () => {
+    const app = Fastify();
+    apps.push(app);
+    registerHttpErrorHandler(app);
+
+    await expect(
+      registerReadOnlyAppMcpEndpointRoutes(app, {
+        readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+          tokenEnvelopeFor("invalid_token"),
+        readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+          buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      }),
+    ).rejects.toThrow(
+      /requires protected-resource metadata route evidence dependency/u,
+    );
+    expect(app.hasRoute({ method: "POST", url: "/mcp" })).toBe(false);
+    expect(app.hasRoute({ method: "GET", url: "/mcp" })).toBe(false);
+  });
+
+  it("fails closed before /mcp route registration when invalid-token wiring lacks missing-token co-registration", async () => {
+    const app = Fastify();
+    apps.push(app);
+    registerHttpErrorHandler(app);
+
+    await expect(
+      registerReadOnlyAppMcpEndpointRoutes(app, {
+        readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+          tokenEnvelopeFor("invalid_token"),
+        readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+          validEvidenceBundle(),
+      }),
+    ).rejects.toThrow(/requires missing-token challenge co-registration/u);
+    expect(app.hasRoute({ method: "POST", url: "/mcp" })).toBe(false);
+    expect(app.hasRoute({ method: "GET", url: "/mcp" })).toBe(false);
   });
 
   it("fails closed before /mcp route registration when the challenge dependency lacks metadata route evidence", async () => {
@@ -638,7 +731,7 @@ describe("read-only app MCP endpoint routes", () => {
 
   it("fails closed without authenticating when Authorization is present in explicit missing-token mode", async () => {
     let serviceCalls = 0;
-    const suppliedAuthorization = "Bearer supplied-token-material";
+    const suppliedAuthorization = "authorization-present-local-only";
     const app = await buildTestApp(apps, {
       readOnlyAppMcpEndpointService: {
         handle() {
@@ -669,7 +762,6 @@ describe("read-only app MCP endpoint routes", () => {
     expect(response.statusCode).toBe(401);
     expect(response.headers["www-authenticate"]).toBeUndefined();
     expect(response.body).not.toContain(suppliedAuthorization);
-    expect(response.body).not.toContain("supplied-token-material");
     expect(response.json()).toEqual({
       error: "token_validation_runtime_not_implemented",
       failClosed: true,

@@ -8,6 +8,8 @@ import {
   type EvidenceToolResponse,
   buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
   buildProtectedResourceMetadataRouteInputEvidenceBundle,
+  buildTokenValidationResultEnvelope,
+  buildTokenValidationResultEnvelopeInputDescriptor,
   type ProofBundleManifest,
   ProofBundleManifestSchema,
   validRouteInput,
@@ -156,7 +158,7 @@ describe("control-plane app", () => {
     });
     const authorizationPresentResponse = await app.inject({
       headers: {
-        authorization: "Bearer route-wiring-proof-token",
+        authorization: "authorization-present-local-only",
       },
       method: "POST",
       payload: {
@@ -188,7 +190,7 @@ describe("control-plane app", () => {
       authorizationPresentResponse.headers["www-authenticate"],
     ).toBeUndefined();
     expect(authorizationPresentResponse.body).not.toContain(
-      "route-wiring-proof-token",
+      "authorization-present-local-only",
     );
     expect(authorizationPresentResponse.json()).toMatchObject({
       error: "token_validation_runtime_not_implemented",
@@ -207,6 +209,110 @@ describe("control-plane app", () => {
     expect(metadataResponse.json()).toEqual(
       evidenceBundle.builderOutput.document,
     );
+  });
+
+  it("wires explicit invalid-token challenge result envelope through buildApp only with co-registered challenge dependencies", async () => {
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    const app = await createStubApp(apps, {
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "invalid_token",
+          }),
+        ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
+    });
+
+    const missingAuthorizationResponse = await app.inject({
+      method: "POST",
+      payload: {
+        id: "mcp-explicit-invalid-missing-authorization",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const authorizationPresentResponse = await app.inject({
+      headers: {
+        authorization: "authorization-present-local-only",
+      },
+      method: "POST",
+      payload: {
+        id: "mcp-explicit-invalid-authorization-present",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+
+    expect(missingAuthorizationResponse.statusCode).toBe(401);
+    expect(missingAuthorizationResponse.headers["www-authenticate"]).toBe(
+      MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
+    );
+    expect(missingAuthorizationResponse.json()).toMatchObject({
+      error: "authorization_required",
+      missingTokenOnly: true,
+    });
+    expect(authorizationPresentResponse.statusCode).toBe(401);
+    expect(authorizationPresentResponse.headers["www-authenticate"]).toContain(
+      'error="invalid_token"',
+    );
+    expect(authorizationPresentResponse.json()).toMatchObject({
+      error: "invalid_token",
+      invalidTokenChallengeOnly: true,
+      noTokenEcho: true,
+      noTokenParsingRuntime: true,
+      noProductionTokenValidationRuntime: true,
+      resourceMetadata: MCP_WWW_AUTHENTICATE_LOCAL_RESOURCE_METADATA_REFERENCE,
+    });
+  });
+
+  it("fails closed during buildApp when invalid-token wiring lacks protected-resource metadata evidence", async () => {
+    const base = createInMemoryContainer();
+
+    await expect(
+      buildApp({
+        container: {
+          ...base,
+          readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+            buildTokenValidationResultEnvelope(
+              buildTokenValidationResultEnvelopeInputDescriptor({
+                outcome: "invalid_token",
+              }),
+            ),
+          readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+            buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+        },
+      }),
+    ).rejects.toThrow(
+      /requires protected-resource metadata route evidence dependency/u,
+    );
+  });
+
+  it("fails closed during buildApp when invalid-token wiring lacks missing-token challenge co-registration", async () => {
+    const base = createInMemoryContainer();
+
+    await expect(
+      buildApp({
+        container: {
+          ...base,
+          readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+            buildTokenValidationResultEnvelope(
+              buildTokenValidationResultEnvelopeInputDescriptor({
+                outcome: "invalid_token",
+              }),
+            ),
+          readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+            buildProtectedResourceMetadataRouteInputEvidenceBundle(
+              validRouteInput,
+            ),
+        },
+      }),
+    ).rejects.toThrow(/requires missing-token challenge co-registration/u);
   });
 
   it("does not register the protected-resource metadata route by default", async () => {
@@ -4926,6 +5032,7 @@ async function createStubApp(
       >;
     };
     readOnlyAppMcpEndpointService?: AppContainer["readOnlyAppMcpEndpointService"];
+    readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: AppContainer["readOnlyAppMcpInvalidTokenChallengeResultEnvelope"];
     readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: AppContainer["readOnlyAppMcpLocalProofGatedMissingTokenChallenge"];
     readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle?: AppContainer["readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle"];
     replayService?: Partial<AppContainer["replayService"]>;

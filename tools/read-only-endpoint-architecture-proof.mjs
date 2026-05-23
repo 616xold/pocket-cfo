@@ -4,6 +4,7 @@ import { execFileSync } from "node:child_process";
 import {
   EndpointArchitectureProofSchema,
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   buildEndpointArchitectureProof,
   inspectEndpointRuntimeRepositoryInventory,
 } from "../packages/domain/src/index.ts";
@@ -777,6 +778,7 @@ function isAllowedEndpointProofPlanPath(path) {
     path ===
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PLAN_PATH ||
     path === FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH ||
+    path === FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH ||
     path ===
       "plans/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning.md" ||
     path ===
@@ -809,6 +811,7 @@ function isAllowedEndpointProofPlanPath(path) {
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH ||
     path ===
       "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs" ||
+    path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
     path ===
       "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path ===

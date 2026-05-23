@@ -179,6 +179,9 @@ export function isMcpTokenValidationTestDoubleProofSourcePath(path: string) {
     ) ||
     /^tools\/read-only-mcp-token-validation.*\.mjs$/u.test(normalized) ||
     /^tools\/read-only-mcp-invalid-token-challenge.*\.mjs$/u.test(normalized) ||
+    /^tools\/read-only-mcp-invalid-token-app-wiring-proof\.mjs$/u.test(
+      normalized,
+    ) ||
     /^tools\/read-only-mcp-www-authenticate.*\.mjs$/u.test(normalized) ||
     /^tools\/read-only-mcp-protected-resource-metadata.*\.mjs$/u.test(
       normalized,

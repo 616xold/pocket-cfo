@@ -541,8 +541,12 @@ function routeWwwAuthenticateLimitedToFp0130MissingTokenChallenge() {
 }
 
 function fp0141RouteDependencyBridgeVerified() {
-  const missingTokenIndex = mcpRouteSource.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = mcpRouteSource.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = mcpRouteSource.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = mcpRouteSource.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     mcpRouteSource.includes(
@@ -553,6 +557,7 @@ function fp0141RouteDependencyBridgeVerified() {
     ) &&
     missingTokenIndex >= 0 &&
     invalidTokenIndex > missingTokenIndex &&
+    !/invalidTokenChallenge\s*\)\s*\{/u.test(mcpRouteSource) &&
     localMcpRouteShapeStillVerified()
   );
 }
