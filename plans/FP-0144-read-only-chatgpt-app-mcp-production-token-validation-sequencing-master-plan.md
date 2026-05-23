@@ -19,6 +19,7 @@ Production token-validation runtime cannot start from current repo truth. The ne
 - [x] 2026-05-23T12:36:49Z - Created the exact FP-0144 plan, direct production token-validation sequencing proof command, proof-gate bridge helpers/specs, and directly stale active docs refresh. `plugins.md` was checked and did not need a direct refresh.
 - [x] 2026-05-23T12:56:09Z - Ran final validation through `git diff --check`, all required proof tools, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`; all passed before this closeout edit.
 - [x] 2026-05-23T13:05:42Z - Same-branch QA found `plugins.md` freshness was stale for FP-0144 operator/plugin usage. Patched only `plugins.md` and this QA log on the same branch, with no runtime, route, token/OAuth/auth, DB/schema/package, source, finance-write, public-app, submission, or FP-0145 scope added.
+- [x] 2026-05-23T16:01:59Z - FP-0145 follow-up proof hardening patched the FP-0144 proof bridge so forbidden OpenAI/model/provider/source/finance/public/submission scope checks are top-level proof-failing fields, while preserving FP-0144 as a shipped docs-and-plan/proof-gate sequencing record.
 
 ## Surprises & Discoveries
 
@@ -40,6 +41,7 @@ Some older proof fields still use historical successor names such as "absent" wh
 - 2026-05-23T12:36:49Z - FP-0145 remains absent. FP-0145 should not open production runtime implementation; if opened later, it should be another narrow runtime-contract and proof-hardening slice unless FP-0144 follow-up proof says otherwise.
 - 2026-05-23T12:36:49Z - GitHub connector product behavior, provider/certification/deployment execution, public ChatGPT App behavior, public app submission, OpenAI API/model use, source mutation, finance writes, external communications, and autonomous action remain out of scope.
 - 2026-05-23T13:05:42Z - Same-branch QA correction is limited to plugin freshness documentation and this plan log. The FP-0144 production token-validation sequencing verdict and all token/OAuth/auth/runtime/route guardrails remain unchanged.
+- 2026-05-23T16:01:59Z - FP-0145 may exist only as the explicitly named runtime-contract/proof-hardening successor. This does not reopen FP-0144 production runtime scope and does not authorize parser, JWT/JWKS, introspection, OAuth/session/auth middleware, route behavior, DB/schema/package, provider, OpenAI, source, finance-write, public-app, submission, external-communication, or autonomous-action work.
 
 ## Context and Orientation
 

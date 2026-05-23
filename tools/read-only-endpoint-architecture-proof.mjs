@@ -782,6 +782,8 @@ function isAllowedEndpointProofPlanPath(path) {
     path ===
       "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md" ||
     path ===
+      "plans/FP-0145-read-only-chatgpt-app-mcp-token-validation-runtime-contracts-proof-hardening.md" ||
+    path ===
       "plans/FP-0138-read-only-chatgpt-app-mcp-token-validation-runtime-implementation-planning.md" ||
     path ===
       "plans/FP-0133-read-only-chatgpt-app-mcp-token-validation-test-double-contracts-foundation.md" ||
@@ -816,6 +818,8 @@ function isAllowedEndpointProofPlanPath(path) {
     path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
     path ===
       "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs" ||
+    path ===
+      "tools/read-only-mcp-token-validation-runtime-contracts-proof-hardening-proof.mjs" ||
     path ===
       "tools/read-only-mcp-token-validation-runtime-implementation-readiness-proof.mjs" ||
     path ===

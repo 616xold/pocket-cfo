@@ -71,8 +71,14 @@ import {
   verifyFp0144FailureStateMapping,
   verifyFp0144PlanningTextRequiredTopics,
   verifyFp0144ProductionTokenValidationSequencingPlanBoundary,
-  verifyFp0145Absent,
 } from "./read-only-app-mcp-token-validation-production-sequencing";
+import {
+  FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
+  verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan,
+  verifyFp0145PlanningTextRequiredTopics,
+  verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary,
+  verifyFp0146Absent,
+} from "./read-only-app-mcp-token-validation-runtime";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const fp0123RouteInputPlanPath =
@@ -266,16 +272,22 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     ).toBe(false);
   });
 
-  it("accepts exactly one FP-0144 docs/proof production token-validation sequencing plan while FP-0145 remains absent", () => {
+  it("accepts exactly one FP-0144 docs/proof plan and exact FP-0145 proof-hardening successor while FP-0146 remains absent", () => {
     const repoPaths = repoFilePaths();
     const planText = safeRead(
       FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
+    );
+    const fp0145PlanText = safeRead(
+      FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
     );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0144/u.test(path))).toEqual([
       FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
     ]);
-    expect(verifyFp0145Absent(repoPaths)).toBe(true);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0145/u.test(path))).toEqual([
+      FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
+    ]);
+    expect(verifyFp0146Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0144AbsentOrDocsOnlyProductionTokenValidationSequencingPlan({
         planText,
@@ -290,6 +302,23 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
     ).toBe(true);
     expect(
       Object.values(verifyFp0144PlanningTextRequiredTopics(planText)).every(
+        Boolean,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan({
+        planText: fp0145PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary({
+        planText: fp0145PlanText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      Object.values(verifyFp0145PlanningTextRequiredTopics(fp0145PlanText)).every(
         Boolean,
       ),
     ).toBe(true);
@@ -350,9 +379,35 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
         ],
       }),
     ).toBe(false);
-    expect(verifyFp0145Absent([...repoPaths, "plans/FP-0145-runtime.md"])).toBe(
+    expect(
+      verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan({
+        planText: fp0145PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0145-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(verifyFp0146Absent([...repoPaths, "plans/FP-0146-runtime.md"])).toBe(
       false,
     );
+  });
+
+  it("keeps FP-0144 forbidden source-scope checks as top-level proof fields", () => {
+    const proofSource = safeRead(
+      "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs",
+    );
+
+    for (const field of [
+      "noOpenAiApiCallsFromFp0144",
+      "noModelCallsFromFp0144",
+      "noProviderCallsFromFp0144",
+      "noSourceMutationFromFp0144",
+      "noFinanceWriteFromFp0144",
+      "noExternalCommunicationsFromFp0144",
+      "noPublicAssetsFromFp0144",
+      "noGeneratedPublicProseFromFp0144",
+      "noAppSubmissionFromFp0144",
+    ]) {
+      expect(proofSource).toContain(field);
+    }
   });
 
   it("models all required failure modes as proof-only contracts", () => {

@@ -512,7 +512,11 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     path ===
       "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md" ||
     path ===
+      "plans/FP-0145-read-only-chatgpt-app-mcp-token-validation-runtime-contracts-proof-hardening.md" ||
+    path ===
       "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs" ||
+    path ===
+      "tools/read-only-mcp-token-validation-runtime-contracts-proof-hardening-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp-oauth-security.*\.ts$/u.test(
       path,
     ) ||

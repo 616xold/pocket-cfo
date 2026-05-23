@@ -29,6 +29,7 @@ import { scanTokenValidationNoLeakage } from "./read-only-app-mcp-token-validati
 
 export * from "./read-only-app-mcp-token-validation-runtime-contracts";
 export * from "./read-only-app-mcp-token-validation-runtime-implementation-readiness";
+export * from "./read-only-app-mcp-token-validation-runtime-proof-hardening";
 
 export type McpTokenValidationRuntimeContracts = ReturnType<
   typeof buildMcpTokenValidationRuntimeContracts
