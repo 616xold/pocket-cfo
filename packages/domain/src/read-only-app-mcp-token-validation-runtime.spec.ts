@@ -51,6 +51,19 @@ import {
   verifyFp0132AbsentOrLocalTokenValidationRuntimeContracts,
   verifyFp0132PlanningTextRequiredTopics,
   verifyFp0132TokenValidationRuntimeContractsBoundary,
+  FP0145_FAILURE_MODE_MAPPINGS,
+  FP0145_FAILURE_MODES,
+  FP0145_PROVIDER_MODE,
+  FP0145_RESOURCE_AND_IDENTITY_PREREQUISITES,
+  FP0145_RUNTIME_SAFETY_PREREQUISITES,
+  FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
+  buildFp0145RuntimeContractProof,
+  verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan,
+  verifyFp0145FailureModeMapping,
+  verifyFp0145PlanningTextRequiredTopics,
+  verifyFp0145RuntimeContractProof,
+  verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary,
+  verifyFp0146Absent,
   verifyMcpTokenValidationRuntimeNoLeakageExamples,
   verifyMcpTokenValidationRuntimeRequiredContractBoundaries,
   verifyMcpTokenValidationRuntimeResultEnvelopeBoundary,
@@ -285,6 +298,102 @@ describe("FP-0132 token-validation runtime contract foundations", () => {
         "plans/FP-0133-invalid-token.md",
       ]),
     ).toBe(false);
+  });
+
+  it("accepts exactly one FP-0145 runtime-contract proof-hardening plan while FP-0146 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(
+      FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
+    );
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0145/u.test(path))).toEqual([
+      FP0145_TOKEN_VALIDATION_RUNTIME_CONTRACTS_PROOF_HARDENING_PLAN_PATH,
+    ]);
+    expect(verifyFp0146Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      Object.values(verifyFp0145PlanningTextRequiredTopics(planText)).every(
+        Boolean,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0145AbsentOrContractOnlyTokenValidationRuntimeProofHardeningPlan({
+        planText,
+        repoPaths: [...repoPaths, "plans/FP-0145-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(verifyFp0146Absent([...repoPaths, "plans/FP-0146-runtime.md"])).toBe(
+      false,
+    );
+  });
+
+  it("keeps FP-0145 provider mode unresolved and runtime input tokenless", () => {
+    const proof = buildFp0145RuntimeContractProof();
+
+    expect(proof.providerMode).toBe(FP0145_PROVIDER_MODE);
+    expect(proof.productionTokenValidationRuntimeCanStartAfterFp0145).toBe(
+      false,
+    );
+    expect(proof.futureRuntimeInputBoundary.carriesAuthorizationPresenceOnly).toBe(
+      true,
+    );
+    expect(
+      proof.futureRuntimeInputBoundary
+        .carriesAuthorizationSchemeClassificationOnly,
+    ).toBe(true);
+    expect(proof.futureRuntimeInputBoundary.carriesRawAuthorizationHeader).toBe(
+      false,
+    );
+    expect(proof.futureRuntimeInputBoundary.carriesRawTokenMaterial).toBe(
+      false,
+    );
+    expect(proof.futureRuntimeInputBoundary.carriesTokenText).toBe(false);
+    expect(proof.parserContractMayBePlannedNext).toBe(true);
+    expect(proof.parserImplementationMayStartNext).toBe(false);
+    expect(proof.runtimeImplementationMayStartNext).toBe(false);
+    expect(verifyFp0145RuntimeContractProof()).toBe(true);
+  });
+
+  it("records FP-0145 resource, identity, safety, and FP-0139 mapping prerequisites", () => {
+    const proof = buildFp0145RuntimeContractProof();
+
+    expect(proof.resourceAndIdentityPrerequisites).toEqual([
+      ...FP0145_RESOURCE_AND_IDENTITY_PREREQUISITES,
+    ]);
+    expect(proof.runtimeSafetyPrerequisites).toEqual([
+      ...FP0145_RUNTIME_SAFETY_PREREQUISITES,
+    ]);
+    expect(proof.failureModeMappings).toEqual([
+      ...FP0145_FAILURE_MODE_MAPPINGS,
+    ]);
+    expect(FP0145_FAILURE_MODE_MAPPINGS.map(({ failureMode }) => failureMode)).toEqual(
+      [...FP0145_FAILURE_MODES],
+    );
+    expect(verifyFp0145FailureModeMapping()).toBe(true);
+    expect(
+      FP0145_FAILURE_MODE_MAPPINGS.find(
+        ({ failureMode }) => failureMode === "missing-token",
+      )?.missingTokenLaneSeparate,
+    ).toBe(true);
+    expect(
+      FP0145_FAILURE_MODE_MAPPINGS.filter(
+        ({ failureMode }) => failureMode !== "missing-token",
+      ).every(
+        ({ invalidTokenChallengeDownstreamOfFp0139 }) =>
+          invalidTokenChallengeDownstreamOfFp0139,
+      ),
+    ).toBe(true);
   });
 
   it("requires future issuer, audience, resource, scope, temporal, replay, subject, and company checks without runtime implementation", () => {

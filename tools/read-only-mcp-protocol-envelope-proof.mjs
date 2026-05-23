@@ -495,7 +495,11 @@ function isAllowedMcpProtocolProofPath(path) {
     path ===
       "plans/FP-0144-read-only-chatgpt-app-mcp-production-token-validation-sequencing-master-plan.md" ||
     path ===
+      "plans/FP-0145-read-only-chatgpt-app-mcp-token-validation-runtime-contracts-proof-hardening.md" ||
+    path ===
       "tools/read-only-mcp-production-token-validation-sequencing-proof.mjs" ||
+    path ===
+      "tools/read-only-mcp-token-validation-runtime-contracts-proof-hardening-proof.mjs" ||
     path === "tools/benchmark-community-pack-proof.mjs" ||
     /^packages\/domain\/src\/read-only-app-mcp.*\.ts$/u.test(path) ||
     /^packages\/domain\/src\/benchmark-community.*\.ts$/u.test(path) ||
