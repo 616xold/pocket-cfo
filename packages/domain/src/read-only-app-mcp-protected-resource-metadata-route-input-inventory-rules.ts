@@ -105,6 +105,7 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "tools/read-only-mcp-canonical-resource-auth-server-proof.mjs",
   "tools/read-only-mcp-protected-resource-metadata-proof.mjs",
   "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs",
+  "tools/read-only-mcp-oauth-security-boundary-proof.mjs",
   "tools/read-only-mcp-www-authenticate-auth-challenge-proof.mjs",
   "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
   "tools/read-only-mcp-token-validation-readiness-proof.mjs",

@@ -48,7 +48,7 @@ FP-0139 shipped sanitized local token-validation result envelopes. FP-0141 consu
 
 Official protocol context used for FP-0143:
 
-- MCP Authorization: protected-resource metadata discovery, `WWW-Authenticate` `resource_metadata`, scope challenge guidance, resource indicators, and invalid/expired token posture.
+- MCP authorization specification context covers protected-resource metadata discovery, `WWW-Authenticate` `resource_metadata`, scope challenge guidance, resource indicators, and invalid/expired token posture.
 - MCP Security Best Practices: no token passthrough and audience/resource trust-boundary posture.
 - RFC 6750: `invalid_request`, `invalid_token`, `insufficient_scope`, HTTP 400/401/403 posture, and missing-credentials challenge behavior without error detail.
 - OpenAI Apps SDK Authentication: Apps SDK auth should conform to MCP authorization, host protected-resource metadata, and return `WWW-Authenticate` challenges for unauthenticated requests.

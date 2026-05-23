@@ -329,25 +329,23 @@ function verifyNoTokenLeakage() {
 }
 
 function changedDocumentationAddedLines() {
+  const dirtyDocPaths = new Set(worktreeStatusPaths().filter(isDocPath));
+  const committedDocPaths = committedBranchDiffPaths()
+    .filter(isDocPath)
+    .filter((path) => !dirtyDocPaths.has(path));
   const output = [
-    readGitOutput([
-      "diff",
-      "--unified=0",
-      "origin/main...HEAD",
-      "--",
-      "*.md",
-      "*.mdx",
-      "*.txt",
-    ]),
-    readGitOutput([
-      "diff",
-      "--unified=0",
-      "HEAD",
-      "--",
-      "*.md",
-      "*.mdx",
-      "*.txt",
-    ]),
+    ...committedDocPaths.map((path) =>
+      readGitOutput([
+        "diff",
+        "--unified=0",
+        "origin/main...HEAD",
+        "--",
+        path,
+      ]),
+    ),
+    ...[...dirtyDocPaths].map((path) =>
+      readGitOutput(["diff", "--unified=0", "HEAD", "--", path]),
+    ),
   ].join("\n");
   return output
     .split("\n")
@@ -356,10 +354,18 @@ function changedDocumentationAddedLines() {
     .join("\n");
 }
 
+function isDocPath(path) {
+  return /\.(?:md|mdx|txt)$/iu.test(path);
+}
+
 function fp0141RouteDependencyBridgeVerified() {
   const source = safeRead(MCP_ROUTE_PATH);
-  const missingTokenIndex = source.indexOf("if (missingTokenChallenge)");
-  const invalidTokenIndex = source.indexOf("if (invalidTokenChallenge)");
+  const missingTokenIndex = source.indexOf(
+    "if (missingTokenChallenge && request.headers.authorization === undefined)",
+  );
+  const invalidTokenIndex = source.indexOf(
+    "if (invalidTokenChallenge && request.headers.authorization !== undefined)",
+  );
 
   return (
     source.includes(
@@ -368,6 +374,7 @@ function fp0141RouteDependencyBridgeVerified() {
     source.includes("buildReadOnlyAppMcpInvalidTokenChallengeResponse") &&
     missingTokenIndex >= 0 &&
     invalidTokenIndex > missingTokenIndex &&
+    !/invalidTokenChallenge\s*\)\s*\{/u.test(source) &&
     localMcpRouteShapeStillVerified()
   );
 }
