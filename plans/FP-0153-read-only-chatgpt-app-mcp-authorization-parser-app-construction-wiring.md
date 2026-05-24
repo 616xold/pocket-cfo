@@ -24,6 +24,7 @@ Target phase: V2BU read-only ChatGPT App/MCP Authorization parser app-constructi
 - [x] 2026-05-24T20:49:45Z - Required post-closeout validation passed after the final closeout edit: `git diff --check`, FP-0153 direct proof, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-24T20:54:55Z - Committed once as `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`, pushed `codex/v2bu-read-only-chatgpt-app-mcp-authorization-parser-app-construction-wiring-local-v1`, and opened PR #332 at `https://github.com/616xold/pocket-cfo/pull/332`.
 - [x] 2026-05-24T20:59:33Z - Same-branch QA found and corrected stale plan closeout wording that still described commit, push, and PR creation as pending after PR #332 already existed.
+- [x] 2026-05-24T21:24:18Z - Same-branch FP-0154 freshness polish corrected only this FP-0153 plan closeout after PR #332 merged. `gh pr view 332` confirmed PR #332 merged to `main` at 2026-05-24T21:13:13Z with head SHA `a43d0f9d1437d0370db2da108f1cc197868f64aa` and merge commit `637905efa76e032827a2e7fa6185f2c3f84de169`; `gh pr checks 332` confirmed GitHub `static` and `integration-db` checks were green. No post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -168,7 +169,7 @@ Route registration now fails closed if a parser route-decision dependency is sup
 
 FP-0152 closeout freshness was corrected for PR #331 merge facts, including head SHA `ade9c5c63487505bc3698a5bec51161cfeb358dd`, merge commit `867544bda1f3cd7c44fc8103fa8579e80ef7103f`, green GitHub `static` and `integration-db` checks, same-branch QA no-issue/no-correction posture, and no post-merge QA requirement while current `main` matches the validated PR head/merge posture and CI remains green.
 
-No parser construction, default parser wiring, production token validation, token parser implementation, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, provider selection implementation, provider integration, provider calls, DB query/schema/migration/package work, OpenAI API/model call, source mutation, finance write, public asset, generated public prose, app submission, external communication, or autonomous action was added. FP-0154 remains absent.
+No parser construction, default parser wiring, production token validation, token parser implementation, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, provider selection implementation, provider integration, provider calls, DB query/schema/migration/package work, OpenAI API/model call, source mutation, finance write, public asset, generated public prose, app submission, external communication, or autonomous action was added. The later FP-0154 branch is limited to local adapter construction-readiness and proof planning only.
 
 Focused validation before final closeout pass:
 
@@ -199,4 +200,4 @@ Required post-closeout validation passed after the final closeout edit:
 - `pnpm test` passed.
 - `pnpm ci:repro:current` passed, including temp-worktree install, static validation, build, integration DB test suite, and clean-tree checks.
 
-Commit, push, and PR creation were completed after that checkpoint. The FP-0153 implementation commit is `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`, and the open PR is #332 at `https://github.com/616xold/pocket-cfo/pull/332`.
+Commit, push, and PR creation were completed after that checkpoint. The FP-0153 implementation commit is `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`. PR #332 at `https://github.com/616xold/pocket-cfo/pull/332` merged to `main` at 2026-05-24T21:13:13Z with head SHA `a43d0f9d1437d0370db2da108f1cc197868f64aa` and merge commit `637905efa76e032827a2e7fa6185f2c3f84de169`. Same-branch QA after merge corrected only stale FP-0153 plan freshness wording, GitHub `static` and `integration-db` checks were green, and no post-merge QA is required while current `main` matches the validated PR head/merge posture and CI remains green.
