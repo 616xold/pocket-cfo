@@ -96,6 +96,7 @@ export * from "./read-only-app-mcp-token-validation-result-envelope";
 export * from "./read-only-app-mcp-token-validation-production-sequencing";
 export * from "./read-only-app-mcp-token-validation-proof";
 export * from "./read-only-app-mcp-www-authenticate";
+export * from "./read-only-app-mcp-provider-selection-evidence-hardening";
 export * from "./replay-event";
 export * from "./reporting-mission";
 export * from "./source-registry";
