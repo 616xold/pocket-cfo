@@ -2,6 +2,7 @@ import type {
   McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
   McpProtectedResourceMetadataRouteInputEvidenceBundle,
   OperatorControlAvailability as DomainOperatorControlAvailability,
+  ReadOnlyMcpAuthorizationParserRouteDecisionDependency,
 } from "@pocket-cto/domain";
 import type { ApprovalService } from "../modules/approvals/service";
 import type { CloseControlAcknowledgementService } from "../modules/close-control-acknowledgement/service";
@@ -146,6 +147,9 @@ export type ReadOnlyAppMcpLocalProofGatedMissingTokenChallengePort =
 
 export type ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort = unknown;
 
+export type ReadOnlyAppMcpAuthorizationParserRouteDecisionPort =
+  ReadOnlyMcpAuthorizationParserRouteDecisionDependency;
+
 export type SourceServicePort = Pick<
   SourceRegistryService,
   | "createSource"
@@ -254,6 +258,7 @@ export type AppContainer = {
   missionReportingActionsService: MissionReportingActionServicePort;
   monitoringService?: MonitoringServicePort;
   operatorReadinessService: OperatorReadinessServicePort;
+  readOnlyAppMcpAuthorizationParserRouteDecision?: ReadOnlyAppMcpAuthorizationParserRouteDecisionPort;
   readOnlyAppMcpEndpointService?: ReadOnlyAppMcpEndpointServicePort;
   readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: ReadOnlyAppMcpInvalidTokenChallengeResultEnvelopePort;
   readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: ReadOnlyAppMcpLocalProofGatedMissingTokenChallengePort;

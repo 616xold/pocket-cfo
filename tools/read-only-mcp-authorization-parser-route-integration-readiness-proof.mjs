@@ -35,7 +35,8 @@ import {
   verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
   verifyFp0151RouteIntegrationReadinessPlanningTextRequiredTopics,
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
-  verifyFp0153Absent,
+  verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
+  verifyFp0154Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "../packages/domain/src/index.ts";
@@ -126,7 +127,9 @@ const output = {
     verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan(
       repoPaths,
     ),
-  fp0153Absent: verifyFp0153Absent(repoPaths),
+  fp0153AbsentOrAppConstructionWiringPlanVerified:
+    verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(repoPaths),
+  fp0154Absent: verifyFp0154Absent(repoPaths),
   routeIntegrationImplementationReadinessBoundaryVerified:
     verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary({
       fp0150PlanText,
@@ -292,9 +295,8 @@ function verifyRouteScope() {
       routeSpecSourceIncludes(
         "keeps default POST /mcp behavior unchanged without the parser route-decision dependency",
       ) &&
-      routeSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision === undefined",
-      ),
+      routeSource.includes("assertParserRouteDecisionCoRegistration") &&
+      routeSource.includes("input.parserRouteDecision === undefined"),
     invalidTokenChallengeSpecRecorded:
       routeSpecSourceIncludes(
         "routes malformed and unsupported parser decisions to the existing invalid-token challenge",

@@ -391,9 +391,8 @@ function verifyRouteScope() {
       routeSpecSourceIncludes(
         "keeps default POST /mcp behavior unchanged without the parser route-decision dependency",
       ) &&
-      routeSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision === undefined",
-      ),
+      routeSource.includes("assertParserRouteDecisionCoRegistration") &&
+      routeSource.includes("input.parserRouteDecision === undefined"),
     fp0152ExplicitRouteIntegrationBridge:
       repoPaths.includes(
         "plans/FP-0152-read-only-chatgpt-app-mcp-authorization-parser-route-integration-implementation.md",
@@ -413,7 +412,7 @@ function verifyRouteScope() {
         "keeps missing-token challenge ahead of the parser route-decision dependency",
       ) &&
       routeSource.indexOf("request.headers.authorization === undefined") <
-        routeSource.indexOf("deps.readOnlyAppMcpAuthorizationParserRouteDecision"),
+        routeSource.indexOf("parserRouteDecisionDependency({"),
     noPureParserImport: !/read-only-app-mcp-authorization-parser["']/u.test(
       routeSource,
     ),

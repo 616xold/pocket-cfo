@@ -111,6 +111,8 @@ export async function buildApp(options?: { container?: AppContainer }) {
     replayService: container.replayService,
   });
   await registerReadOnlyAppMcpEndpointRoutes(app, {
+    readOnlyAppMcpAuthorizationParserRouteDecision:
+      container.readOnlyAppMcpAuthorizationParserRouteDecision,
     readOnlyAppMcpEndpointService: container.readOnlyAppMcpEndpointService,
     readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
       container.readOnlyAppMcpInvalidTokenChallengeResultEnvelope,

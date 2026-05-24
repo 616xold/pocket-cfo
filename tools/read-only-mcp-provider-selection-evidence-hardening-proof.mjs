@@ -338,9 +338,8 @@ function verifyRouteScope() {
       routeSpecSourceIncludes(
         "keeps default POST /mcp behavior unchanged without the parser route-decision dependency",
       ) &&
-      routeSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision === undefined",
-      ),
+      routeSource.includes("assertParserRouteDecisionCoRegistration") &&
+      routeSource.includes("input.parserRouteDecision === undefined"),
     invalidTokenChallengeDownstreamOnlyPreserved:
       routeSpecSourceIncludes(
         "routes malformed and unsupported parser decisions to the existing invalid-token challenge",
@@ -353,7 +352,7 @@ function verifyRouteScope() {
         "keeps missing-token challenge ahead of the parser route-decision dependency",
       ) &&
       routeSource.indexOf("request.headers.authorization === undefined") <
-        routeSource.indexOf("deps.readOnlyAppMcpAuthorizationParserRouteDecision"),
+        routeSource.indexOf("parserRouteDecisionDependency({"),
     noInvalidTokenChallengeBehaviorChange:
       !changedPaths.includes(MCP_ROUTE_PATH) &&
       !changedPaths.includes(INVALID_TOKEN_CHALLENGE_PATH),
