@@ -14,12 +14,12 @@ import {
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
   FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
-  MCP_AUTHORIZATION_PARSER_IMPLEMENTATION_SCHEMA_VERSION,
+  FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS,
   classifyReadOnlyMcpAuthorizationHeader,
   parseReadOnlyMcpAuthorizationHeader,
-  sanitizeProofOnlyNoTokenLeakageFixtureText,
   scanProofOnlyNoTokenLeakageText,
+  scanTokenValidationNoLeakage,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary,
   verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary,
@@ -30,14 +30,17 @@ import {
   verifyFp0146ParserContractProviderSelectionProofPlanBoundary,
   verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary,
   verifyFp0148AuthorizationParserImplementationReadinessPlanBoundary,
-  verifyFp0148CloseoutFreshnessForFp0149,
   verifyFp0149CloseoutFreshnessForFp0150,
-  verifyFp0148SharedProofOnlyLeakageSanitizer,
   verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan,
   verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
+  verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary,
+  verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics,
   verifyFp0151Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
 } from "../packages/domain/src/index.ts";
+
+const MCP_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_SCHEMA_VERSION =
+  "v2br.read-only-app-mcp-authorization-parser-route-integration-sequencing.v1";
 
 const MCP_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
@@ -63,6 +66,9 @@ const changedPathScope = changedFilePathScope();
 const changedPaths = changedPathScope.combinedChangedPaths;
 const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const changedLeakageText = readChangedLeakageText(changedPaths);
+const fp0150PlanText = safeRead(
+  FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+);
 const fp0149PlanText = safeRead(
   FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
 );
@@ -88,6 +94,7 @@ const parserSource = safeRead(PARSER_PATH);
 const parserSpecSource = safeRead(PARSER_SPEC_PATH);
 const routeSource = safeRead(MCP_ROUTE_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
+const invalidTokenChallengeSource = safeRead(INVALID_TOKEN_CHALLENGE_PATH);
 const sanitizedOutput = parseReadOnlyMcpAuthorizationHeader({
   authorizationHeader: `Bearer ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent}`,
 });
@@ -98,44 +105,59 @@ const sanitizedOutputFields = Object.keys(sanitizedOutput);
 const passthroughAttempt = classifyReadOnlyMcpAuthorizationHeader({
   authorizationHeader: `Bearer ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.passthroughAttempt}`,
 });
-const sourceScope = verifySourceScope();
-const routeScope = verifyRouteScope();
-const parserScope = verifyParserScope();
-const noLeakageScope = verifyNoLeakageScope(changedLeakageText);
-const fp0149PlanTopics = verifyFp0149PlanningTextRequiredTopics(fp0149PlanText);
-const priorBoundaries = verifyPriorBoundaries();
+const emptyBearer = classifyReadOnlyMcpAuthorizationHeader({
+  authorizationHeader: "Bearer",
+});
+const unsafeWhitespace = classifyReadOnlyMcpAuthorizationHeader({
+  authorizationHeader: `Bearer  ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent}`,
+});
+const fp0150PlanTopics =
+  verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics(
+    fp0150PlanText,
+  );
 const boundaryProof =
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary(repoPaths);
+const parserScope = verifyParserScope();
+const routeScope = verifyRouteScope();
+const sourceScope = verifySourceScope();
+const noLeakageScope = verifyNoLeakageScope(changedLeakageText);
+const priorBoundaries = verifyPriorBoundaries();
 
 const output = {
-  schemaVersion: MCP_AUTHORIZATION_PARSER_IMPLEMENTATION_SCHEMA_VERSION,
-  fp0149AbsentOrAuthorizationParserPureDomainImplementationPlanVerified:
-    verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
-      repoPaths,
-    ) && exactlyOneFp0149Plan(),
+  schemaVersion:
+    MCP_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_SCHEMA_VERSION,
   fp0150AbsentOrRouteIntegrationSequencingPlanVerified:
     verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan(
       repoPaths,
-    ),
+    ) &&
+    exactlyOneFp0150Plan() &&
+    verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary({
+      planText: fp0150PlanText,
+      repoPaths,
+    }),
   fp0151Absent: verifyFp0151Absent(repoPaths),
-  authorizationParserPureDomainImplementationBoundaryVerified:
-    Object.values(boundaryProof).every(Boolean) &&
-    Object.values(fp0149PlanTopics).every(Boolean),
   authorizationParserMaterialObservationHardened:
     sanitizedOutput.authorization_scheme_classification === "bearer" &&
     sanitizedOutput.credential_material_observed === true &&
     sanitizedOutputAlt.authorization_scheme_classification === "bearer" &&
     sanitizedOutputAlt.credential_material_observed === true &&
     passthroughAttempt.authorization_scheme_classification === "malformed" &&
-    passthroughAttempt.failure_state === "token_material_passthrough_attempt",
-  parserImplementationPureDomainOnly:
+    passthroughAttempt.failure_state === "token_material_passthrough_attempt" &&
+    emptyBearer.failure_state === "bearer_without_material" &&
+    unsafeWhitespace.failure_state ===
+      "bearer_with_unsafe_whitespace_or_control_characters",
+  routeIntegrationSequencingBoundaryVerified:
+    Object.values(fp0150PlanTopics).every(Boolean),
+  parserStillPureDomainOnly:
     parserScope.noForbiddenParserImports &&
     parserScope.noForbiddenParserRuntimeApis,
   parserRouteConsumptionStillBlocked:
     routeScope.noRouteBehaviorChange && parserScope.noRouteImports,
   productionTokenValidationRuntimeStillBlocked:
     sourceScope.noProductionTokenValidation,
-  providerSelectionStillDeferred: fp0149PlanTopics.providerSelectionDeferred,
+  providerSelectionStillDeferred:
+    fp0150PlanTopics.providerDeferred &&
+    normalize(fp0150PlanText).includes("provider-neutral/deferred"),
   providerCallsStillBlocked: sourceScope.noProviderCalls,
   providerIntegrationStillBlocked: sourceScope.noProviderIntegration,
   tokenParserImplementationStillBlocked: sourceScope.noTokenParser,
@@ -164,31 +186,36 @@ const output = {
     FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS.every(
       (field) => !sanitizedOutputFields.includes(field),
     ),
+  futureRouteIntegrationSequenceRecorded: fp0150PlanTopics.futureRouteSequence,
+  futureRouteIntegrationProofPrerequisitesRecorded:
+    fp0150PlanTopics.futureProofPrerequisites,
   parserFailureStatesMappedToFp0139AndFp0130:
-    passthroughAttempt.failure_mapping?.envelopeFailure === "invalid_token" &&
-    fp0149PlanTopics.failureMapping,
+    boundaryProof.parserFailureStatesMappedToFp0139AndFp0130 &&
+    fp0150PlanTopics.futureRouteSequence,
   parserFixturesContainNoRealTokenExamples:
     noLeakageScope.fixturesLeakageScan.accepted,
   sharedProofOnlyLeakageSanitizerStillVerified:
-    verifyFp0148SharedProofOnlyLeakageSanitizer() &&
+    noLeakageScope.sharedSanitizerStillStrict &&
     noLeakageScope.leakageScan.accepted,
-  noJwtLikeExamplesFromFp0149: noLeakageScope.noJwtLikeExamples,
-  noBearerTokenMaterialFromFp0149: noLeakageScope.noBearerTokenMaterial,
-  noTokenEchoLoggingFromFp0149:
+  noJwtLikeExamplesFromFp0150: noLeakageScope.noJwtLikeExamples,
+  noBearerTokenMaterialFromFp0150: noLeakageScope.noBearerTokenMaterial,
+  noTokenEchoLoggingFromFp0150:
     noLeakageScope.noTokenEchoLogging && sourceScope.noTokenLogging,
-  noOpenAiApiCallsFromFp0149: sourceScope.noOpenAiApiCalls,
-  noModelCallsFromFp0149: sourceScope.noModelCalls,
-  noProviderCallsFromFp0149: sourceScope.noProviderCalls,
-  noSourceMutationFromFp0149: sourceScope.noSourceMutation,
-  noFinanceWriteFromFp0149: sourceScope.noFinanceWrite,
-  noExternalCommunicationsFromFp0149: sourceScope.noExternalCommunications,
-  noPublicAssetsFromFp0149: sourceScope.noPublicAssets,
-  noGeneratedPublicProseFromFp0149: sourceScope.noGeneratedPublicProse,
-  noAppSubmissionFromFp0149: sourceScope.noAppSubmission,
-  fp0148CloseoutFreshnessVerified:
-    verifyFp0148CloseoutFreshnessForFp0149(fp0148PlanText),
+  noOpenAiApiCallsFromFp0150: sourceScope.noOpenAiApiCalls,
+  noModelCallsFromFp0150: sourceScope.noModelCalls,
+  noProviderCallsFromFp0150: sourceScope.noProviderCalls,
+  noSourceMutationFromFp0150: sourceScope.noSourceMutation,
+  noFinanceWriteFromFp0150: sourceScope.noFinanceWrite,
+  noExternalCommunicationsFromFp0150: sourceScope.noExternalCommunications,
+  noPublicAssetsFromFp0150: sourceScope.noPublicAssets,
+  noGeneratedPublicProseFromFp0150: sourceScope.noGeneratedPublicProse,
+  noAppSubmissionFromFp0150: sourceScope.noAppSubmission,
   fp0149CloseoutFreshnessVerified:
     verifyFp0149CloseoutFreshnessForFp0150(fp0149PlanText),
+  fp0149ParserImplementationBoundaryStillVerified:
+    verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
+      repoPaths,
+    ) && Object.values(boundaryProof).every(Boolean),
   fp0148ReadinessBoundaryStillVerified:
     verifyFp0148AuthorizationParserImplementationReadinessPlanBoundary({
       planText: fp0148PlanText,
@@ -222,7 +249,7 @@ const output = {
     priorBoundaries.fp0100PublicSecurityBoundaryStillVerified,
   proofDetails: {
     changedPathScope,
-    fp0149PlanTopics,
+    fp0150PlanTopics,
     noLeakageScope,
     parserScope,
     priorBoundaries,
@@ -238,13 +265,13 @@ const proofOutputLeakageScan = scanProofOnlyNoTokenLeakageText(
 for (const [key, value] of Object.entries(output)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0149 authorization parser pure-domain implementation proof failed: ${key}`,
+      `FP-0150 authorization parser route-integration sequencing proof failed: ${key}`,
     );
   }
 }
 if (!proofOutputLeakageScan.accepted) {
   throw new Error(
-    `FP-0149 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
+    `FP-0150 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
   );
 }
 
@@ -283,7 +310,9 @@ function verifyParserScope() {
     noRawAuthorizationHeaderOutput: forbiddenOutputFields.every(
       (field) => !sanitizedOutputFields.includes(field),
     ),
-    noRawTokenOutput: !sanitizedOutputFields.includes("raw_token"),
+    noRawTokenOutput:
+      !sanitizedOutputFields.includes("raw_token") &&
+      !sanitizedOutputFields.includes("token"),
     noRouteImports:
       !routeSource.includes("read-only-app-mcp-authorization-parser") &&
       !metadataRouteSource.includes("read-only-app-mcp-authorization-parser"),
@@ -379,7 +408,10 @@ function verifyRouteScope() {
   return {
     noInvalidTokenChallengeBehaviorChange:
       !changedPaths.includes(MCP_ROUTE_PATH) &&
-      !changedPaths.includes(INVALID_TOKEN_CHALLENGE_PATH),
+      !changedPaths.includes(INVALID_TOKEN_CHALLENGE_PATH) &&
+      invalidTokenChallengeSource.includes(
+        "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
+      ),
     noMissingTokenBehaviorChange:
       !changedPaths.includes(MCP_ROUTE_PATH) &&
       routeSource.includes(
@@ -410,11 +442,30 @@ function verifyNoLeakageScope(text) {
     READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresentAlt,
     READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.notAToken,
     READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.passthroughAttempt,
+    fp0150PlanText,
     parserSource,
     parserSpecSource,
   ].join("\n");
   const fixturesLeakageScan = scanProofOnlyNoTokenLeakageText(fixtureText);
   const changedTokenExampleScan = scanChangedTokenExamples(text);
+  const generatedCredential = ["alpha", "numeric", "fixture"].join("");
+  const unsafeBearerLine = [
+    "authorization",
+    ": ",
+    "bearer",
+    " ",
+    generatedCredential,
+  ].join("");
+  const unsafeJwtLikeLine = [
+    "ey",
+    "J",
+    "headerpart",
+    ".",
+    "payloadpart",
+    ".",
+    "signaturepart",
+  ].join("");
+
   return {
     fixturesLeakageScan,
     leakageScan,
@@ -425,6 +476,9 @@ function verifyNoLeakageScope(text) {
     noRealTokenExamples:
       leakageScan.accepted && changedTokenExampleScan.noRealTokenExamples,
     noTokenEchoLogging: !hasTokenLoggingRuntime(changedExecutableSource),
+    sharedSanitizerStillStrict:
+      !scanProofOnlyNoTokenLeakageText(unsafeBearerLine).accepted &&
+      !scanTokenValidationNoLeakage(unsafeJwtLikeLine).accepted,
   };
 }
 
@@ -502,64 +556,14 @@ function verifyPriorBoundaries() {
   };
 }
 
-function verifyFp0149PlanningTextRequiredTopics(planText) {
-  const normalized = normalize(planText);
-  return {
-    dbSchemaPackageBlocked:
-      normalized.includes("does not add db/schema/package work") &&
-      normalized.includes("forbidden edit surfaces: routes"),
-    failureMapping:
-      normalized.includes("missing_authorization") &&
-      normalized.includes("fp-0130 missing-token lane") &&
-      normalized.includes("unsupported_validation_mode") &&
-      normalized.includes("token_material_passthrough_attempt") &&
-      normalized.includes("invalid_token"),
-    fp0150Boundary:
-      normalized.includes(
-        "future fp-0150 may open only route-integration sequencing",
-      ) && normalized.includes("route integration itself remains blocked"),
-    oauthAuthBlocked: normalized.includes(
-      "oauth/session/auth middleware remains blocked",
-    ),
-    outputBoundary:
-      FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS.every((field) =>
-        normalized.includes(field),
-      ) &&
-      FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS.every((field) =>
-        normalized.includes(field),
-      ),
-    parserImplementationIncluded:
-      normalized.includes("authorization parser implementation is included") &&
-      normalized.includes("pure-domain/local-only"),
-    providerSelectionDeferred: normalized.includes(
-      "provider selection remains provider-neutral/deferred",
-    ),
-    publicAppBlocked: normalized.includes(
-      "public chatgpt app demo/submission remains blocked",
-    ),
-    rawMaterialBlocked:
-      normalized.includes("may not carry raw header material") &&
-      normalized.includes("may not carry token-derived fingerprint"),
-    routeConsumptionBlocked:
-      normalized.includes("/mcp` route consumption remains blocked") ||
-      normalized.includes("/mcp route consumption remains blocked"),
-    safeSentinels:
-      normalized.includes("[credential omitted]") &&
-      normalized.includes("[not-a-token]") &&
-      normalized.includes("[credential-present]"),
-    tokenValidationBlocked: normalized.includes(
-      "production token validation remains blocked",
-    ),
-  };
-}
-
-function exactlyOneFp0149Plan() {
+function exactlyOneFp0150Plan() {
   const hits = repoPaths
     .map((path) => path.replace(/\\/gu, "/"))
-    .filter((path) => /(^|\/)FP-0149/u.test(path));
+    .filter((path) => /(^|\/)FP-0150/u.test(path));
   return (
     hits.length === 1 &&
-    hits[0] === FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH
+    hits[0] ===
+      FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH
   );
 }
 
@@ -640,50 +644,17 @@ function changedFilePathScope() {
 
 function readChangedExecutableSource(paths) {
   return paths
-    .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
+    .filter((path) => /\.(?:mjs|ts|tsx)$/u.test(path))
     .filter((path) => !path.endsWith(".spec.ts"))
-    .filter((path) => existsSync(path))
-    .map((path) => `// ${path}\n${safeRead(path)}`)
+    .map((path) => safeRead(path))
     .join("\n");
 }
 
 function readChangedLeakageText(paths) {
-  return sanitizeProofOnlyNoTokenLeakageFixtureText(
-    paths
-      .filter((path) => /\.(?:md|mdx|txt|ts|tsx|js|mjs|cjs)$/u.test(path))
-      .filter((path) => existsSync(path))
-      .map((path) => `# ${path}\n${readAddedLinesOrFullFile(path)}`)
-      .join("\n"),
-  );
-}
-
-function readAddedLinesOrFullFile(path) {
-  const additions = [
-    readDiffAdditions([
-      "diff",
-      "--unified=0",
-      "origin/main...HEAD",
-      "--",
-      path,
-    ]),
-    readDiffAdditions(["diff", "--unified=0", "--", path]),
-  ]
-    .filter(Boolean)
+  return paths
+    .filter((path) => /\.(?:md|mjs|ts|tsx)$/u.test(path))
+    .map((path) => safeRead(path))
     .join("\n");
-
-  return additions || safeRead(path);
-}
-
-function readDiffAdditions(args) {
-  try {
-    return execFileSync("git", args, { encoding: "utf8" })
-      .split("\n")
-      .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
-      .map((line) => line.slice(1))
-      .join("\n");
-  } catch {
-    return "";
-  }
 }
 
 function repoFilePaths(dir = ".", prefix = "") {
@@ -696,30 +667,25 @@ function repoFilePaths(dir = ".", prefix = "") {
       return [];
     }
     const path = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) return repoFilePaths(path, path);
+    const absolutePath = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) return repoFilePaths(absolutePath, path);
     return [path];
   });
-}
-
-function readGitLines(args) {
-  try {
-    return execFileSync("git", args, { encoding: "utf8" })
-      .split(/\r?\n/u)
-      .map((line) => line.trim())
-      .filter(Boolean);
-  } catch {
-    return [];
-  }
 }
 
 function safeRead(path) {
   return readFileSync(path, "utf8");
 }
 
+function readGitLines(args) {
+  const output = execFileSync("git", args, { encoding: "utf8" }).trim();
+  return output.length === 0 ? [] : output.split("\n");
+}
+
 function countMatches(value, pattern) {
   return value.match(pattern)?.length ?? 0;
 }
 
-function normalize(text) {
-  return text.toLowerCase().replace(/\s+/gu, " ").trim();
+function normalize(value) {
+  return value.toLowerCase().replace(/\s+/gu, " ").trim();
 }

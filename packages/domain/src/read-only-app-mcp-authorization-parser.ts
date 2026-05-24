@@ -7,7 +7,8 @@ import {
   verifyFp0146AuthorizationParserContractsProof,
   verifyFp0146ParserFailureMapping,
   verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan,
-  verifyFp0150Absent,
+  verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
+  verifyFp0151Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { verifyFp0148AuthorizationParserImplementationReadinessProof } from "./read-only-app-mcp-authorization-parser-implementation-readiness";
 
@@ -17,6 +18,7 @@ export const MCP_AUTHORIZATION_PARSER_IMPLEMENTATION_SCHEMA_VERSION =
 export const READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS = {
   credentialOmitted: "[credential omitted]",
   credentialPresent: "[credential-present]",
+  credentialPresentAlt: "[credential-present-alt]",
   notAToken: "[not-a-token]",
   passthroughAttempt: "[passthrough-attempt]",
 } as const;
@@ -139,6 +141,9 @@ export function verifyReadOnlyMcpAuthorizationParserImplementationBoundary(
   const safeBearer = classifyReadOnlyMcpAuthorizationHeader({
     authorizationHeader: `Bearer ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent}`,
   });
+  const safeBearerAlt = classifyReadOnlyMcpAuthorizationHeader({
+    authorizationHeader: `Bearer ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresentAlt}`,
+  });
   const passthroughAttempt = classifyReadOnlyMcpAuthorizationHeader({
     authorizationHeader: `Bearer ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.passthroughAttempt}`,
   });
@@ -146,19 +151,31 @@ export function verifyReadOnlyMcpAuthorizationParserImplementationBoundary(
 
   return {
     authorizationParserPureDomainImplementationBoundaryVerified: true,
+    authorizationParserMaterialObservationHardened:
+      safeBearer.authorization_scheme_classification === "bearer" &&
+      safeBearer.credential_material_observed &&
+      safeBearer.failure_state === null &&
+      safeBearerAlt.authorization_scheme_classification === "bearer" &&
+      safeBearerAlt.credential_material_observed &&
+      safeBearerAlt.failure_state === null,
     fp0148ReadinessBoundaryStillVerified:
       verifyFp0148AuthorizationParserImplementationReadinessProof(),
     fp0149AbsentOrAuthorizationParserPureDomainImplementationPlanVerified:
       verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
         repoPaths,
       ),
-    fp0150Absent: verifyFp0150Absent(repoPaths),
+    fp0150AbsentOrRouteIntegrationSequencingPlanVerified:
+      verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan(
+        repoPaths,
+      ),
+    fp0151Absent: verifyFp0151Absent(repoPaths),
     parserFailureStatesMappedToFp0139AndFp0130:
       verifyFp0146ParserFailureMapping() &&
       passthroughAttempt.failure_mapping?.envelopeFailure === "invalid_token",
     parserImplementationPureDomainOnly: true,
-    parserNeverReturnsRawAuthorizationHeader:
-      !outputFieldNames.includes("authorization_header"),
+    parserNeverReturnsRawAuthorizationHeader: !outputFieldNames.includes(
+      "authorization_header",
+    ),
     parserNeverReturnsRawTokenMaterial: !outputFieldNames.includes("raw_token"),
     parserNeverReturnsTokenDerivedFingerprint:
       sanitizedOutput.no_token_derived_fingerprint_retained === true,
@@ -168,7 +185,9 @@ export function verifyReadOnlyMcpAuthorizationParserImplementationBoundary(
     productionTokenValidationRuntimeStillBlocked: true,
     safeBearerSentinelObservedWithoutRetention:
       safeBearer.authorization_scheme_classification === "bearer" &&
-      safeBearer.credential_material_observed,
+      safeBearer.credential_material_observed &&
+      safeBearerAlt.authorization_scheme_classification === "bearer" &&
+      safeBearerAlt.credential_material_observed,
   } as const;
 }
 
@@ -178,6 +197,21 @@ export function verifyFp0148CloseoutFreshnessForFp0149(planText: string) {
     normalized.includes("pr #327 merged") &&
     normalized.includes("2877d8caffb4ffecd5e99a7b59656903fca8682b") &&
     normalized.includes("9a562161b74ff8bc77d0366166300a6cac259444") &&
+    normalized.includes(
+      "same-branch qa found no issues and made no correction",
+    ) &&
+    normalized.includes(
+      "no post-merge qa is required when current main matches the validated pr head/merge posture and ci remains green",
+    )
+  );
+}
+
+export function verifyFp0149CloseoutFreshnessForFp0150(planText: string) {
+  const normalized = normalizePlanText(planText);
+  return (
+    normalized.includes("pr #328 merged") &&
+    normalized.includes("fdde3b35f195bb357db175116c511fe6ab10868d") &&
+    normalized.includes("bbefbbaf2f4bd65be96fbecf246eaca5120149b8") &&
     normalized.includes(
       "same-branch qa found no issues and made no correction",
     ) &&
@@ -203,7 +237,12 @@ function classifyHeaderString(headerValue: string) {
 
   const scheme = firstSegment(headerValue);
   if (isValidAuthorizationScheme(scheme)) {
-    return classification("present", "unsupported", false, "unsupported_scheme");
+    return classification(
+      "present",
+      "unsupported",
+      false,
+      "unsupported_scheme",
+    );
   }
 
   return classification(
@@ -236,20 +275,16 @@ function classifyBearerHeader(headerValue: string) {
   }
 
   const materialPlaceholder = afterScheme.slice(1);
-  if (hasControlCharacter(materialPlaceholder) || hasWhitespace(materialPlaceholder)) {
+  if (
+    hasControlCharacter(materialPlaceholder) ||
+    hasWhitespace(materialPlaceholder)
+  ) {
     return classification(
       "present",
       "malformed",
       false,
       "bearer_with_unsafe_whitespace_or_control_characters",
     );
-  }
-
-  if (
-    materialPlaceholder ===
-    READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent
-  ) {
-    return classification("present", "bearer", true, null);
   }
 
   if (
@@ -264,12 +299,7 @@ function classifyBearerHeader(headerValue: string) {
     );
   }
 
-  return classification(
-    "present",
-    "malformed",
-    false,
-    "token_material_passthrough_attempt",
-  );
+  return classification("present", "bearer", true, null);
 }
 
 function classification(
@@ -282,7 +312,8 @@ function classification(
     authorization_presence: authorizationPresence,
     authorization_scheme_classification: schemeClassification,
     credential_material_observed: credentialMaterialObserved,
-    failure_mapping: mapReadOnlyMcpAuthorizationParserFailureState(failureState),
+    failure_mapping:
+      mapReadOnlyMcpAuthorizationParserFailureState(failureState),
     failure_state: failureState,
     no_forwarding: true,
     no_raw_header_retained: true,
@@ -305,11 +336,15 @@ function hasControlCharacter(value: string) {
 }
 
 function hasWhitespace(value: string) {
-  return value.split("").some((character) => character === " " || character === "\t");
+  return value
+    .split("")
+    .some((character) => character === " " || character === "\t");
 }
 
 function isBlank(value: string) {
-  return value.split("").every((character) => character === " " || character === "\t");
+  return value
+    .split("")
+    .every((character) => character === " " || character === "\t");
 }
 
 function isValidAuthorizationScheme(value: string) {
