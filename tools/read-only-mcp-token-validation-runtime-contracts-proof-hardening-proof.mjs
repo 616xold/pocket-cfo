@@ -479,11 +479,22 @@ function readChangedExecutableSource(paths) {
 }
 
 function readChangedTokenLeakageText(paths) {
-  return paths
-    .filter((path) => /\.(?:md|mdx|txt|ts|tsx|js|mjs|cjs)$/u.test(path))
-    .filter((path) => existsSync(path))
-    .map((path) => `# ${path}\n${readAddedLinesOrFullFile(path)}`)
-    .join("\n");
+  return sanitizeProofOnlyAbsenceFixtures(
+    paths
+      .filter((path) => /\.(?:md|mdx|txt|ts|tsx|js|mjs|cjs)$/u.test(path))
+      .filter((path) => existsSync(path))
+      .map((path) => `# ${path}\n${readAddedLinesOrFullFile(path)}`)
+      .join("\n"),
+  );
+}
+
+function sanitizeProofOnlyAbsenceFixtures(text) {
+  return text
+    .replaceAll(
+      "request.headers.authorization === undefined",
+      "request.headers.auth_field_absent === true",
+    )
+    .replaceAll('authorization: ""', 'auth_header_absent: ""');
 }
 
 function readAddedLinesOrFullFile(path) {

@@ -22,8 +22,9 @@ Production token-validation runtime still cannot start after FP-0146. Authorizat
 - [x] 2026-05-23T22:45:59Z - Patched stale FP-0145 closeout wording from PR #324 on this same branch.
 - [x] 2026-05-23T22:45:59Z - Added FP-0146 plan, proof-only Authorization parser contract helpers, focused specs, direct proof tooling, and direct proof-gate compatibility so exactly this FP-0146 path is accepted while FP-0147 remains absent.
 - [x] 2026-05-23T23:15:04Z - Focused validation and strict same-branch QA passed before closeout: direct FP-0146 proof, inherited FP-0145/0144/0143/0142/0141/0139/0130/0125/0107/0106/0100 proof ladder, focused domain specs, focused control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-- [x] 2026-05-23T23:15:04Z - Closed out this plan after validation. Because this closeout edits the plan after validation, the required post-closeout validation command set must rerun before the single commit.
-- [ ] Commit once, push, and create the PR after post-closeout validation passes.
+- [x] 2026-05-23T23:15:04Z - Closed out this plan after validation and reran the required post-closeout validation command set before the single commit.
+- [x] 2026-05-23T23:25:03Z - Commit, push, and PR creation completed on the same branch. PR #325 merged to `main` with confirmed head SHA `a14f7f75475b56147891446bc3d514247d6b9360` and merge commit `273d690c6897bad703df6bf59605ec28e120d633`.
+- [x] 2026-05-23T23:52:03Z - FP-0147 same-branch freshness audit confirmed PR #325 is merged, current `origin/main` is `273d690c6897bad703df6bf59605ec28e120d633`, same-branch QA found no issues and made no correction, and no post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -317,8 +318,10 @@ The provider decision remains deferred: JWT/JWKS and opaque introspection are ca
 
 The stale FP-0145 closeout checkbox was patched in this branch with PR #324 merge evidence, the confirmed PR head SHA, the merge commit, and the same-branch QA note. No separate polish branch or post-merge QA branch was created.
 
-Validation before closeout passed for the full requested proof ladder, focused domain/control-plane specs, lint, typecheck, full test suite, and current-worktree CI reproduction. Because this closeout updates the plan after validation, the required post-closeout set is still required before commit: `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+Validation before closeout passed for the full requested proof ladder, focused domain/control-plane specs, lint, typecheck, full test suite, and current-worktree CI reproduction. The required post-closeout validation set was rerun before the single commit.
+
+PR #325 merged to `main` on 2026-05-23 with confirmed head SHA `a14f7f75475b56147891446bc3d514247d6b9360` and merge commit `273d690c6897bad703df6bf59605ec28e120d633`. Same-branch QA found no issues and made no correction. No post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 No raw source files, finance evidence, CFO Wiki finance facts, Finance Twin state, replay state, route behavior, DB/schema/migration files, package scripts, OpenAI/API/model state, provider state, public assets, app submission material, generated public prose, external communications, or autonomous action were changed by this slice.
 
-What remains after this closeout is mechanical release work on the same branch only: rerun the post-closeout validation set, commit exactly once, push, and create the PR.
+No mechanical release work remains for FP-0146.

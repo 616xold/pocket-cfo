@@ -11,6 +11,11 @@ export const FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PREFI
 
 export const FP0147_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0147";
 
+export const FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH =
+  "plans/FP-0147-read-only-chatgpt-app-mcp-provider-selection-evidence-hardening.md";
+
+export const FP0148_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0148";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -258,6 +263,28 @@ export function verifyFp0147Absent(repoPaths: readonly string[]) {
   );
 }
 
+export function verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0147_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX,
+  );
+  if (hits.length === 0) return true;
+
+  return (
+    hits.length === 1 &&
+    hits[0] === FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH
+  );
+}
+
+export function verifyFp0148Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, FP0148_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX)
+      .length === 0
+  );
+}
+
 export function verifyFp0146AuthorizationParserContractsProof() {
   const proof = buildFp0146AuthorizationParserContractsProviderSelectionProof();
   const outputFieldNames = Object.keys(proof.sanitizedParserOutputContract);
@@ -323,7 +350,8 @@ export function verifyFp0146ParserFailureMapping() {
       ({ failureState }) => failureState === "unsupported_scheme",
     )?.envelopeFailure === "unsupported_validation_mode" &&
     FP0146_FAILURE_MAPPINGS.find(
-      ({ failureState }) => failureState === "token_material_passthrough_attempt",
+      ({ failureState }) =>
+        failureState === "token_material_passthrough_attempt",
     )?.envelopeFailure === "invalid_token"
   );
 }
@@ -339,7 +367,9 @@ export function verifyFp0146PlanningTextRequiredTopics(planText: string) {
         "fp-0146 does not parse, decode, validate, introspect, fetch, store, authorize, authenticate, or route tokens",
       ),
     parserImplementationStillBlocked:
-      normalized.includes("authorization parser implementation remains blocked") &&
+      normalized.includes(
+        "authorization parser implementation remains blocked",
+      ) &&
       normalized.includes(
         "only a future implementation-readiness slice may open",
       ),
@@ -359,18 +389,22 @@ export function verifyFp0146PlanningTextRequiredTopics(planText: string) {
       normalized.includes("future authorization parser input contract") &&
       normalized.includes("without retaining raw header") &&
       normalized.includes("without retaining raw token material"),
-    sanitizedOutputFields: FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS.every(
-      (field) => normalized.includes(field),
-    ),
+    sanitizedOutputFields:
+      FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS.every((field) =>
+        normalized.includes(field),
+      ),
     forbiddenTokenDerivedFields:
       FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS.every((field) =>
         normalized.includes(field),
-      ) &&
-      normalized.includes("forbidden until separately proven"),
+      ) && normalized.includes("forbidden until separately proven"),
     failureStatesMapped:
       FP0146_FAILURE_STATES.every((state) => normalized.includes(state)) &&
-      normalized.includes("unsupported scheme -> unsupported_validation_mode") &&
-      normalized.includes("token material passthrough attempt -> invalid_token"),
+      normalized.includes(
+        "unsupported scheme -> unsupported_validation_mode",
+      ) &&
+      normalized.includes(
+        "token material passthrough attempt -> invalid_token",
+      ),
     providerSelectionCriteria: FP0146_PROVIDER_SELECTION_CRITERIA.every(
       (criterion) => normalized.includes(criterion),
     ),
@@ -380,13 +414,23 @@ export function verifyFp0146PlanningTextRequiredTopics(planText: string) {
       normalized.includes("provider-selection-evidence-hardening") &&
       normalized.includes("not production validation runtime"),
     publicAppFutureOnly:
-      normalized.includes("public chatgpt app demo/submission remains future-only") ||
-      normalized.includes("public chatgpt app demo and submission remain future-only"),
+      normalized.includes(
+        "public chatgpt app demo/submission remains future-only",
+      ) ||
+      normalized.includes(
+        "public chatgpt app demo and submission remain future-only",
+      ),
     priorPosturePreserved:
-      normalized.includes("fp-0139 result envelopes remain the only future validation output contract") &&
+      normalized.includes(
+        "fp-0139 result envelopes remain the only future validation output contract",
+      ) &&
       normalized.includes("fp-0130 missing-token lane remains separate") &&
-      normalized.includes("invalid-token challenge remains downstream of sanitized fp-0139 envelopes") &&
-      normalized.includes("protected-resource metadata route behavior unchanged") &&
+      normalized.includes(
+        "invalid-token challenge remains downstream of sanitized fp-0139 envelopes",
+      ) &&
+      normalized.includes(
+        "protected-resource metadata route behavior unchanged",
+      ) &&
       (normalized.includes("/mcp route behavior unchanged") ||
         normalized.includes("`/mcp` route behavior unchanged")),
   };

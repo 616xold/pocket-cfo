@@ -36,6 +36,7 @@ import {
   FP0146_PROVIDER_MODE,
   FP0146_PROVIDER_SELECTION_CRITERIA,
   FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS,
+  FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   buildFp0146AuthorizationParserContractsProviderSelectionProof,
   buildFp0146SanitizedParserOutputContract,
   verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
@@ -44,6 +45,8 @@ import {
   verifyFp0146ParserFailureMapping,
   verifyFp0146PlanningTextRequiredTopics,
   verifyFp0147Absent,
+  verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan,
+  verifyFp0148Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -59,8 +62,11 @@ const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
 describe("FP-0146 Authorization parser contract and provider-selection proof", () => {
-  it("accepts exactly one FP-0146 parser-contract/provider-selection-proof plan while FP-0147 remains absent", () => {
+  it("accepts exactly one FP-0146 parser-contract/provider-selection-proof plan while only the FP-0147 evidence-hardening follow-up may exist", () => {
     const repoPaths = repoFilePaths();
+    const repoPathsWithoutFp0147 = repoPaths.filter(
+      (path) => path !== FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
+    );
     const planText = safeRead(
       FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
     );
@@ -85,7 +91,10 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
         Boolean,
       ),
     ).toBe(true);
-    expect(verifyFp0147Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan(repoPaths),
+    ).toBe(true);
+    expect(verifyFp0148Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0146AbsentOrParserContractProviderSelectionProofPlan({
         planText,
@@ -101,10 +110,32 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
     expect(verifyFp0147Absent([...repoPaths, "plans/FP-0147-runtime.md"])).toBe(
       false,
     );
+    expect(
+      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan([
+        ...repoPathsWithoutFp0147,
+        FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
+      ]),
+    ).toBe(true);
+    expect(
+      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan([
+        ...repoPaths,
+        "plans/FP-0147-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(
+      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan([
+        ...repoPaths,
+        FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
+      ]),
+    ).toBe(false);
+    expect(verifyFp0148Absent([...repoPaths, "plans/FP-0148-runtime.md"])).toBe(
+      false,
+    );
   });
 
   it("models sanitized parser output without raw credential material or token-derived fingerprints", () => {
-    const proof = buildFp0146AuthorizationParserContractsProviderSelectionProof();
+    const proof =
+      buildFp0146AuthorizationParserContractsProviderSelectionProof();
     const outputContract = buildFp0146SanitizedParserOutputContract();
     const outputFields = Object.keys(outputContract);
 
@@ -140,9 +171,9 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
   });
 
   it("maps parser failure states to FP-0139 envelopes or the FP-0130 missing-token lane", () => {
-    expect(FP0146_FAILURE_MAPPINGS.map(({ failureState }) => failureState)).toEqual(
-      [...FP0146_FAILURE_STATES],
-    );
+    expect(
+      FP0146_FAILURE_MAPPINGS.map(({ failureState }) => failureState),
+    ).toEqual([...FP0146_FAILURE_STATES]);
     expect(
       FP0146_FAILURE_MAPPINGS.find(
         ({ failureState }) => failureState === "missing_authorization",
@@ -158,7 +189,8 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
     ).toMatchObject({ envelopeFailure: "unsupported_validation_mode" });
     expect(
       FP0146_FAILURE_MAPPINGS.find(
-        ({ failureState }) => failureState === "token_material_passthrough_attempt",
+        ({ failureState }) =>
+          failureState === "token_material_passthrough_attempt",
       ),
     ).toMatchObject({
       envelopeFailure: "invalid_token",
@@ -176,7 +208,8 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
   });
 
   it("records provider-selection criteria without choosing a provider or calling one", () => {
-    const proof = buildFp0146AuthorizationParserContractsProviderSelectionProof();
+    const proof =
+      buildFp0146AuthorizationParserContractsProviderSelectionProof();
 
     expect(proof.providerMode).toBe(FP0146_PROVIDER_MODE);
     expect(proof.candidateProviderModes).toEqual([
@@ -209,19 +242,25 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
     ).toBe(true);
     expect(
       verifyFp0144ProductionTokenValidationSequencingPlanBoundary({
-        planText: safeRead(FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH),
+        planText: safeRead(
+          FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
     expect(
       verifyFp0143AbsentOrInvalidTokenAppConstructionWiring({
-        planText: safeRead(FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH),
+        planText: safeRead(
+          FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
     expect(
       verifyFp0142RouteIntegrationSequencingPlanBoundary({
-        planText: safeRead(FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH),
+        planText: safeRead(
+          FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+        ),
         repoPaths,
       }),
     ).toBe(true);
@@ -247,9 +286,9 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
         repoPaths,
       }),
     ).toBe(true);
-    expect(docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"])).toBe(
-      true,
-    );
+    expect(
+      docsBoundary(fp0107PlanPath, ["local/control-plane", "post /mcp"]),
+    ).toBe(true);
     expect(
       docsBoundary(fp0106PlanPath, [
         "mcp protocol envelope",
@@ -273,8 +312,10 @@ function routePosturePreserved() {
 
   return {
     invalidTokenChallengeBehaviorUnchanged:
-      countMatches(routeSource, /readOnlyAppMcpInvalidTokenChallengeResultEnvelope/gu) ===
-      3,
+      countMatches(
+        routeSource,
+        /readOnlyAppMcpInvalidTokenChallengeResultEnvelope/gu,
+      ) === 3,
     metadataRouteBehaviorUnchanged:
       countMatches(metadataRouteSource, /app\.get\(/gu) === 1 &&
       (metadataRouteSource.includes(
@@ -284,8 +325,12 @@ function routePosturePreserved() {
           "MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH",
         )),
     missingTokenBehaviorUnchanged:
-      routeSource.includes("readOnlyAppMcpLocalProofGatedMissingTokenChallenge") &&
-      routeSource.includes("buildMcpWwwAuthenticateMissingTokenChallengeResponse"),
+      routeSource.includes(
+        "readOnlyAppMcpLocalProofGatedMissingTokenChallenge",
+      ) &&
+      routeSource.includes(
+        "buildMcpWwwAuthenticateMissingTokenChallengeResponse",
+      ),
     mcpRouteBehaviorUnchanged:
       countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
