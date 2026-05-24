@@ -35,7 +35,7 @@ import {
   verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
   verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary,
   verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics,
-  verifyFp0151Absent,
+  verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
 } from "../packages/domain/src/index.ts";
 
@@ -135,7 +135,10 @@ const output = {
       planText: fp0150PlanText,
       repoPaths,
     }),
-  fp0151Absent: verifyFp0151Absent(repoPaths),
+  fp0151AbsentOrRouteIntegrationReadinessPlanVerified:
+    verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
+      repoPaths,
+    ),
   authorizationParserMaterialObservationHardened:
     sanitizedOutput.authorization_scheme_classification === "bearer" &&
     sanitizedOutput.credential_material_observed === true &&

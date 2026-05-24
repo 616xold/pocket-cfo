@@ -35,7 +35,7 @@ import {
   verifyFp0148SharedProofOnlyLeakageSanitizer,
   verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan,
   verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
-  verifyFp0151Absent,
+  verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
 } from "../packages/domain/src/index.ts";
 
@@ -117,7 +117,10 @@ const output = {
     verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan(
       repoPaths,
     ),
-  fp0151Absent: verifyFp0151Absent(repoPaths),
+  fp0151AbsentOrRouteIntegrationReadinessPlanVerified:
+    verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
+      repoPaths,
+    ),
   authorizationParserPureDomainImplementationBoundaryVerified:
     Object.values(boundaryProof).every(Boolean) &&
     Object.values(fp0149PlanTopics).every(Boolean),
