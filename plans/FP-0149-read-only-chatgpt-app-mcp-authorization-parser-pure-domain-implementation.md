@@ -19,16 +19,21 @@ The user-visible proof point is narrow: Pocket CFO can classify whether an injec
 - [x] 2026-05-24T13:30:36Z - Implemented the pure-domain parser, focused specs, exact FP-0149 proof command, bridge compatibility, and direct active-doc/plugin freshness refresh.
 - [x] 2026-05-24T13:30:36Z - Strict same-branch QA found proof-gate compatibility gaps in inherited FP-0143, FP-0142, and FP-0107 changed-path boundaries for the exact FP-0149 parser/proof files. Those proof-only bridge corrections stayed on this branch and did not change route/runtime/provider behavior.
 - [x] 2026-05-24T13:30:36Z - Final validation passed: `git diff --check`, the direct FP-0149 proof, the full requested proof ladder, focused domain/control-plane Vitest suites, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-24T14:55:19Z - FP-0150 preflight freshness correction recorded that PR #328 merged to `main` with head SHA `fdde3b35f195bb357db175116c511fe6ab10868d` and merge commit `bbefbbaf2f4bd65be96fbecf246eaca5120149b8`. Same-branch QA found no issues and made no correction. No separate polish branch or post-merge QA branch was created.
 
 ## Surprises & Discoveries
 
 PR #327 is merged. `gh pr view 327` confirmed head SHA `2877d8caffb4ffecd5e99a7b59656903fca8682b` and merge commit `9a562161b74ff8bc77d0366166300a6cac259444`.
+
+PR #328 merged. `gh pr view 328` confirmed head SHA `fdde3b35f195bb357db175116c511fe6ab10868d` and merge commit `bbefbbaf2f4bd65be96fbecf246eaca5120149b8`.
 
 OpenAI Developers did not expose read-only docs tooling in this thread. The available OpenAI Platform path was API-key setup, which is explicitly out of scope. Official public MCP/RFC/OpenAI docs were used only as read-only boundary context.
 
 FP-0148 closeout was missing PR #327 merge facts. This branch patches that freshness issue directly and does not create a separate polish or post-merge QA branch.
 
 Inherited proof tools needed exact FP-0149 changed-path compatibility so older boundary proofs could distinguish pure-domain parser implementation from route/app-construction work. The corrections were limited to proof allowlists and did not alter runtime behavior, parser output, route integration posture, provider posture, or auth posture.
+
+FP-0149 closeout wording was stale after PR #328 merged. The FP-0150 branch patches that freshness issue directly; no post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Decision Log
 
@@ -45,6 +50,7 @@ Inherited proof tools needed exact FP-0149 changed-path compatibility so older b
 - 2026-05-24T12:46:30Z - Failure-state mapping remains separate from sanitized output: `missing_authorization` maps to the FP-0130 missing-token lane; `malformed_authorization`, `multiple_authorization_values`, `bearer_without_material`, and `bearer_with_unsafe_whitespace_or_control_characters` map to FP-0139 `malformed_authorization`; `unsupported_scheme` maps to FP-0139 `unsupported_validation_mode`; `token_material_passthrough_attempt` maps to FP-0139 `invalid_token`.
 - 2026-05-24T12:46:30Z - Parser fixtures use safe sentinels only: `[credential omitted]`, `[not-a-token]`, `[credential-present]`, and `[passthrough-attempt]`. No realistic Authorization header examples, JWT-like strings, credential-looking bearer material, token-derived fingerprints, or copied external examples are allowed.
 - 2026-05-24T12:46:30Z - Future FP-0150 may open only route-integration sequencing. It may not implement route integration, production token validation, OAuth/session/auth middleware, provider calls, public app behavior, or app submission.
+- 2026-05-24T14:55:19Z - PR #328 merged. Same-branch QA found no issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Context and Orientation
 
@@ -76,7 +82,7 @@ Official context was used read-only:
 3. Add a pure parser module at `packages/domain/src/read-only-app-mcp-authorization-parser.ts`.
 4. Add focused parser specs at `packages/domain/src/read-only-app-mcp-authorization-parser.spec.ts`.
 5. Add a direct proof command at `tools/read-only-mcp-authorization-parser-pure-domain-implementation-proof.mjs`.
-6. Patch proof-gate bridge fields so exactly this FP-0149 plan is accepted while FP-0150 remains absent and older FP boundaries remain intact.
+6. Patch proof-gate bridge fields so exactly this FP-0149 plan is accepted while FP-0150 was absent during FP-0149 validation and older FP boundaries remain intact.
 7. Refresh directly stale active docs and `plugins.md` only where they still frame FP-0148 as active/future-only or FP-0149 as blocked.
 8. Run focused validation and strict same-branch QA. Patch this same branch if a real defect is found.
 9. Close out the plan, rerun required validation if closeout edits happen after validation, commit exactly once, push, and create the PR.
@@ -106,7 +112,7 @@ Forbidden edit surfaces: routes, route behavior, DB/schema/migrations, package s
 Acceptance is observable when:
 
 - Exactly one FP-0149 plan exists at `plans/FP-0149-read-only-chatgpt-app-mcp-authorization-parser-pure-domain-implementation.md`.
-- FP-0150 remains absent.
+- Successor-plan posture is explicit: FP-0150 was absent at FP-0149 closeout, and the later FP-0150 branch may only record route-integration sequencing with FP-0151 absent.
 - The parser is pure-domain/local-only.
 - The parser module imports no route, DB, provider, OpenAI, crypto, fs, network, process/env, logger, or time APIs.
 - The parser returns absent/missing behavior for undefined, null, and empty arrays.
@@ -230,4 +236,6 @@ Strict same-branch QA found no product behavior issue. It did find narrow proof 
 
 Final validation passed before this closeout edit: `git diff --check`, the direct FP-0149 proof, FP-0148/0147/0146/0145/0144/0143/0142/0141/0139/0130/0125/0107/0106/0100 boundary proofs, endpoint ownership and architecture proofs, read-only app/evidence/document/index proofs, focused domain and control-plane Vitest suites, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 
-No FP-0150 was created. Route consumption, route integration, production token validation, provider selection/calls/integration, token parser/JWT/JWKS/introspection, OAuth/session/auth middleware, DB/schema/package work, OpenAI/model calls, source mutation, finance writes, public assets, generated public prose, app submission, external communications, and autonomous action remain blocked.
+At FP-0149 closeout, no successor plan had been created. This FP-0150 branch now creates exactly one successor record for parser material-observation hardening and route-integration sequencing only; route consumption, route integration implementation, production token validation, provider selection/calls/integration, token parser/JWT/JWKS/introspection, OAuth/session/auth middleware, DB/schema/package work, OpenAI/model calls, source mutation, finance writes, public assets, generated public prose, app submission, external communications, and autonomous action remain blocked.
+
+The stale FP-0149 closeout wording was patched on the FP-0150 branch. PR #328 merged with head SHA `fdde3b35f195bb357db175116c511fe6ab10868d` and merge commit `bbefbbaf2f4bd65be96fbecf246eaca5120149b8`. Same-branch QA found no issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.

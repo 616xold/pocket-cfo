@@ -26,6 +26,11 @@ export const FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH =
 
 export const FP0150_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0150";
 
+export const FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH =
+  "plans/FP-0150-read-only-chatgpt-app-mcp-authorization-parser-route-integration-sequencing.md";
+
+export const FP0151_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0151";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -338,6 +343,50 @@ export function verifyFp0150Absent(repoPaths: readonly string[]) {
   );
 }
 
+export function verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0150_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX,
+  );
+  if (hits.length === 0) return true;
+
+  return (
+    hits.length === 1 &&
+    hits[0] ===
+      FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH
+  );
+}
+
+export function verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary(input: {
+  planText: string;
+  repoPaths: readonly string[];
+}) {
+  const hits = fpPlanHits(
+    input.repoPaths,
+    FP0150_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX,
+  );
+
+  return (
+    hits.length === 1 &&
+    hits[0] ===
+      FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH &&
+    Object.values(
+      verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics(
+        input.planText,
+      ),
+    ).every(Boolean)
+  );
+}
+
+export function verifyFp0151Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, FP0151_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX)
+      .length === 0
+  );
+}
+
 export function verifyFp0146AuthorizationParserContractsProof() {
   const proof = buildFp0146AuthorizationParserContractsProviderSelectionProof();
   const outputFieldNames = Object.keys(proof.sanitizedParserOutputContract);
@@ -486,6 +535,104 @@ export function verifyFp0146PlanningTextRequiredTopics(planText: string) {
       ) &&
       (normalized.includes("/mcp route behavior unchanged") ||
         normalized.includes("`/mcp` route behavior unchanged")),
+  };
+}
+
+export function verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics(
+  planText: string,
+) {
+  const normalized = normalize(planText);
+  return {
+    fp0150Scope:
+      normalized.includes(
+        "fp-0150 includes only pure-domain parser material-observation hardening and route-integration sequencing",
+      ) && normalized.includes("this is not route integration"),
+    parserMaterialObservationIncluded:
+      normalized.includes(
+        "pure-domain parser material-observation hardening is included",
+      ) && normalized.includes("narrow correction"),
+    routeConsumptionBlocked:
+      normalized.includes(
+        "`/mcp` route may not consume the parser in fp-0150",
+      ) ||
+      normalized.includes("/mcp route may not consume the parser in fp-0150"),
+    routeIntegrationBlocked:
+      normalized.includes("route integration may not start after fp-0150") &&
+      normalized.includes("future route-integration implementation-readiness"),
+    productionRuntimeBlocked: normalized.includes(
+      "production token-validation runtime cannot start after fp-0150",
+    ),
+    providerDeferred:
+      normalized.includes("provider selection cannot start after fp-0150") &&
+      normalized.includes("provider-neutral/deferred"),
+    oauthAuthBlocked: normalized.includes(
+      "oauth/session/auth middleware cannot start after fp-0150",
+    ),
+    publicAppBlocked: normalized.includes(
+      "public chatgpt app demo/submission cannot start after fp-0150",
+    ),
+    futureRouteSequence:
+      normalized.includes("future route dependency injection only") &&
+      normalized.includes(
+        "parser result must be downstream of missing-token precedence",
+      ) &&
+      normalized.includes(
+        "missing authorization still uses fp-0130 missing-token lane",
+      ) &&
+      normalized.includes(
+        "malformed/unsupported parser classifications map through fp-0139 envelopes",
+      ) &&
+      normalized.includes(
+        "parser output may not be logged, echoed, stored, or returned directly",
+      ) &&
+      normalized.includes(
+        "protected-resource metadata route behavior remains unchanged",
+      ),
+    futureProofPrerequisites:
+      normalized.includes("future route integration proof prerequisites") &&
+      normalized.includes("parser pure-domain proof green") &&
+      normalized.includes("no-token-leakage proof green") &&
+      normalized.includes("missing-token proof green") &&
+      normalized.includes("fp-0139 envelope proof green") &&
+      normalized.includes("provider/runtime/oauth/auth guardrails green"),
+    futureFp0151Boundary:
+      normalized.includes("future fp-0151 may open only") &&
+      normalized.includes("route-integration implementation-readiness") &&
+      normalized.includes("parser material-observation correction") &&
+      normalized.includes("proof-gate correction") &&
+      normalized.includes("must not implement route integration"),
+    parserOutputBoundary:
+      normalized.includes(
+        "parser output remains limited to fp-0146 sanitized fields",
+      ) &&
+      normalized.includes("never returns raw header/token material") &&
+      normalized.includes("token-derived fingerprint") &&
+      normalized.includes("decoded header") &&
+      normalized.includes("decoded payload"),
+    forbiddenRuntimeScope:
+      normalized.includes("no token parser") &&
+      normalized.includes("no jwt decoder") &&
+      normalized.includes("no jwks") &&
+      normalized.includes("no token introspection") &&
+      normalized.includes("no db/schema/package work") &&
+      normalized.includes("no openai api/model calls") &&
+      normalized.includes("no provider calls"),
+    priorBoundaries:
+      normalized.includes("preserve fp-0149 parser implementation") &&
+      normalized.includes("fp-0148 readiness") &&
+      normalized.includes("fp-0147 provider-selection evidence") &&
+      normalized.includes("fp-0146 parser contracts") &&
+      normalized.includes("fp-0145 runtime contracts") &&
+      normalized.includes("fp-0144 production token-validation sequencing") &&
+      normalized.includes("fp-0143 app wiring") &&
+      normalized.includes("fp-0142 route sequencing") &&
+      normalized.includes("fp-0141 invalid-token local runtime") &&
+      normalized.includes("fp-0139 result envelopes") &&
+      normalized.includes("fp-0130 missing-token challenge") &&
+      normalized.includes("fp-0125 protected-resource metadata route") &&
+      normalized.includes("fp-0107 route adapter") &&
+      normalized.includes("fp-0106 protocol envelope") &&
+      normalized.includes("fp-0100 security boundary"),
   };
 }
 

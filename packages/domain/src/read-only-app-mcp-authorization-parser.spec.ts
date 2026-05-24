@@ -35,11 +35,15 @@ import {
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
   FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
+  FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   verifyFp0146ParserContractProviderSelectionProofPlanBoundary,
   verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
   verifyFp0149Absent,
   verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan,
-  verifyFp0150Absent,
+  verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
+  verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary,
+  verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics,
+  verifyFp0151Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary } from "./read-only-app-mcp-provider-selection-evidence-hardening";
 import {
@@ -52,6 +56,7 @@ import {
   mapReadOnlyMcpAuthorizationParserFailureState,
   parseReadOnlyMcpAuthorizationHeader,
   verifyFp0148CloseoutFreshnessForFp0149,
+  verifyFp0149CloseoutFreshnessForFp0150,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
 } from "./read-only-app-mcp-authorization-parser";
 
@@ -68,11 +73,14 @@ const invalidTokenChallengePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts";
 
 describe("FP-0149 pure-domain Authorization parser implementation", () => {
-  it("accepts exactly one FP-0149 parser implementation plan while FP-0150 remains absent", () => {
+  it("accepts exactly one FP-0149 parser implementation plan and exact FP-0150 sequencing plan while FP-0151 remains absent", () => {
     const repoPaths = repoFilePaths();
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0149/u.test(path))).toEqual([
       FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0150/u.test(path))).toEqual([
+      FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
     ]);
     expect(verifyFp0149Absent(repoPaths)).toBe(true);
     expect(
@@ -80,14 +88,25 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
         repoPaths,
       ),
     ).toBe(true);
-    expect(verifyFp0150Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(verifyFp0151Absent(repoPaths)).toBe(true);
     expect(
       verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan([
         ...repoPaths,
         "plans/FP-0149-route-runtime.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0150Absent([...repoPaths, "plans/FP-0150-next.md"])).toBe(
+    expect(
+      verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan([
+        ...repoPaths,
+        "plans/FP-0150-next.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0151Absent([...repoPaths, "plans/FP-0151-next.md"])).toBe(
       false,
     );
   });
@@ -96,13 +115,19 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
     const parserSource = safeRead(parserPath);
 
     expect(parserSource).not.toMatch(/from ["']node:/u);
-    expect(parserSource).not.toMatch(/\b(?:fetch|setTimeout|setInterval)\s*\(/u);
-    expect(parserSource).not.toMatch(/\b(?:Date|Math\.random|crypto|process\.env)\b/u);
+    expect(parserSource).not.toMatch(
+      /\b(?:fetch|setTimeout|setInterval)\s*\(/u,
+    );
+    expect(parserSource).not.toMatch(
+      /\b(?:Date|Math\.random|crypto|process\.env)\b/u,
+    );
     expect(parserSource).not.toMatch(/\b(?:console|logger)\s*\./u);
     expect(parserSource).not.toMatch(/apps\/control-plane|routes|fastify/iu);
     expect(parserSource).not.toMatch(/packages\/db|drizzle|sql`/iu);
     expect(parserSource).not.toMatch(/openai|api\.openai\.com/iu);
-    expect(parserSource).not.toMatch(/jwks|introspect|oauthCallback|sessionStore/iu);
+    expect(parserSource).not.toMatch(
+      /jwks|introspect|oauthCallback|sessionStore/iu,
+    );
     expect(parserSource).not.toMatch(/callProvider|providerConnect|deploy/iu);
   });
 
@@ -162,19 +187,27 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
     });
   });
 
-  it("classifies scheme sentinel presence and malformed scheme inputs without echoing credential material", () => {
-    const safeBearerHeader = `Bearer ${READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent}`;
+  it("classifies safe single-piece Bearer material sentinels without hardcoding one sentinel", () => {
+    const safeBearerHeaders = [
+      READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent,
+      READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresentAlt,
+    ].map((sentinel) => `Bearer ${sentinel}`);
 
-    expect(
-      classifyReadOnlyMcpAuthorizationHeader({
-        authorizationHeader: safeBearerHeader,
-      }),
-    ).toMatchObject({
-      authorization_presence: "present",
-      authorization_scheme_classification: "bearer",
-      credential_material_observed: true,
-      failure_state: null,
-    });
+    for (const safeBearerHeader of safeBearerHeaders) {
+      expect(
+        classifyReadOnlyMcpAuthorizationHeader({
+          authorizationHeader: safeBearerHeader,
+        }),
+      ).toMatchObject({
+        authorization_presence: "present",
+        authorization_scheme_classification: "bearer",
+        credential_material_observed: true,
+        failure_state: null,
+      });
+    }
+  });
+
+  it("keeps passthrough-attempt, empty Bearer, and unsafe whitespace/control malformed without echoing credential material", () => {
     expect(
       classifyReadOnlyMcpAuthorizationHeader({ authorizationHeader: "Bearer" }),
     ).toMatchObject({
@@ -274,6 +307,7 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
     const safeFixtureText = [
       READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialOmitted,
       READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresent,
+      READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.credentialPresentAlt,
       READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.notAToken,
       READ_ONLY_MCP_AUTHORIZATION_PARSER_SAFE_SENTINELS.passthroughAttempt,
       safeRead(parserPath),
@@ -398,9 +432,51 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
     ).toBe(true);
     expect(
       verifyFp0148CloseoutFreshnessForFp0149(
-        safeRead(FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH),
+        safeRead(
+          FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
+        ),
       ),
     ).toBe(true);
+    expect(
+      verifyFp0149CloseoutFreshnessForFp0150(
+        safeRead(
+          FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
+        ),
+      ),
+    ).toBe(true);
+  });
+
+  it("records FP-0150 route-integration sequencing without route integration or runtime/provider widening", () => {
+    const repoPaths = repoFilePaths();
+    const planText = safeRead(
+      FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+    );
+    const topics =
+      verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics(
+        planText,
+      );
+
+    expect(Object.values(topics).every(Boolean)).toBe(true);
+    expect(
+      verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary({
+        planText,
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(planText).toContain("This is not route integration.");
+    expect(planText).toContain(
+      "`/mcp` route may not consume the parser in FP-0150",
+    );
+    expect(planText.toLowerCase()).toContain(
+      "production token-validation runtime cannot start after fp-0150",
+    );
+    expect(planText).toContain("future route dependency injection only");
+    expect(planText).toContain(
+      "parser result must be downstream of missing-token precedence",
+    );
+    expect(planText).toContain(
+      "protected-resource metadata route behavior remains unchanged",
+    );
   });
 });
 
