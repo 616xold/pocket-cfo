@@ -10,7 +10,8 @@ import {
   verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
   verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
-  verifyFp0154Absent,
+  verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
+  verifyFp0155Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 export const MCP_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_SCHEMA_VERSION =
@@ -208,7 +209,11 @@ export function buildReadOnlyMcpAuthorizationParserRouteDecisionReadinessProof(
       verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(
         repoPaths,
       ),
-    fp0154Absent: verifyFp0154Absent(repoPaths),
+    fp0154AbsentOrLocalAdapterConstructionReadinessPlanVerified:
+      verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
+        repoPaths,
+      ),
+    fp0155Absent: verifyFp0155Absent(repoPaths),
     routeIntegrationImplementationReadinessBoundaryVerified:
       fp0151PlanTopics === null ||
       Object.values(fp0151PlanTopics).every(Boolean),

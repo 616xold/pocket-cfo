@@ -34,7 +34,8 @@ import {
   verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
   verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
-  verifyFp0154Absent,
+  verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
+  verifyFp0155Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "../packages/domain/src/index.ts";
@@ -111,7 +112,11 @@ const output = {
     ) &&
     exactlyOneFp0153Plan() &&
     Object.values(fp0153Topics).every(Boolean),
-  fp0154Absent: verifyFp0154Absent(repoPaths) && noFp0154Plan(),
+  fp0154AbsentOrLocalAdapterConstructionReadinessPlanVerified:
+    verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
+      repoPaths,
+    ),
+  fp0155Absent: verifyFp0155Absent(repoPaths),
   appConstructionWiringBoundaryVerified:
     appScope.containerPortAdded &&
     appScope.buildAppPassesExplicitDependency &&
@@ -772,10 +777,6 @@ function exactlyOneFp0153Plan() {
     hits[0] === FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH &&
     existsSync(FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH)
   );
-}
-
-function noFp0154Plan() {
-  return repoPaths.filter((path) => /(^|\/)FP-0154/u.test(path)).length === 0;
 }
 
 function changedFilePathScope() {

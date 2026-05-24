@@ -36,7 +36,8 @@ import {
   verifyFp0151RouteIntegrationReadinessPlanningTextRequiredTopics,
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
   verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
-  verifyFp0154Absent,
+  verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
+  verifyFp0155Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "../packages/domain/src/index.ts";
@@ -129,7 +130,11 @@ const output = {
     ),
   fp0153AbsentOrAppConstructionWiringPlanVerified:
     verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(repoPaths),
-  fp0154Absent: verifyFp0154Absent(repoPaths),
+  fp0154AbsentOrLocalAdapterConstructionReadinessPlanVerified:
+    verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
+      repoPaths,
+    ),
+  fp0155Absent: verifyFp0155Absent(repoPaths),
   routeIntegrationImplementationReadinessBoundaryVerified:
     verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary({
       fp0150PlanText,

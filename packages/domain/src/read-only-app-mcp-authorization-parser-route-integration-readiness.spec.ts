@@ -45,7 +45,8 @@ import {
   verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
   verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
-  verifyFp0154Absent,
+  verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
+  verifyFp0155Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary } from "./read-only-app-mcp-provider-selection-evidence-hardening";
 import {
@@ -129,10 +130,21 @@ describe("FP-0151 Authorization parser route-integration readiness", () => {
         "plans/FP-0153-next.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0154Absent(repoPaths)).toBe(true);
-    expect(verifyFp0154Absent([...repoPaths, "plans/FP-0154-next.md"])).toBe(
-      false,
-    );
+    expect(repoPaths.filter((path) => /(^|\/)FP-0154/u.test(path))).toEqual([
+      "plans/FP-0154-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-construction-readiness.md",
+    ]);
+    expect(
+      verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan([
+        ...repoPaths,
+        "plans/FP-0154-next.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0155Absent(repoPaths)).toBe(true);
     expect(
       Object.values(
         verifyFp0151RouteIntegrationReadinessPlanningTextRequiredTopics(

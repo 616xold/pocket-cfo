@@ -24,6 +24,7 @@ Target phase: V2BU read-only ChatGPT App/MCP Authorization parser app-constructi
 - [x] 2026-05-24T20:49:45Z - Required post-closeout validation passed after the final closeout edit: `git diff --check`, FP-0153 direct proof, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-24T20:54:55Z - Committed once as `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`, pushed `codex/v2bu-read-only-chatgpt-app-mcp-authorization-parser-app-construction-wiring-local-v1`, and opened PR #332 at `https://github.com/616xold/pocket-cfo/pull/332`.
 - [x] 2026-05-24T20:59:33Z - Same-branch QA found and corrected stale plan closeout wording that still described commit, push, and PR creation as pending after PR #332 already existed.
+- [x] 2026-05-24T21:24:18Z - Same-branch FP-0154 freshness polish corrected only this FP-0153 plan closeout after PR #332 merged. `gh pr view 332` confirmed PR #332 merged to `main` at 2026-05-24T21:13:13Z with head SHA `a43d0f9d1437d0370db2da108f1cc197868f64aa` and merge commit `637905efa76e032827a2e7fa6185f2c3f84de169`; `gh pr checks 332` confirmed GitHub `static` and `integration-db` checks were green. No post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -31,7 +32,7 @@ FP-0152 route behavior was intentionally explicit-dependency-only, but it allowe
 
 OpenAI Developers tooling was not used for API-key setup. Official web docs were used only for read-only protocol and security context. The active code remains the source of implementation truth.
 
-Older proof gates used absence-only or direct-call pattern checks for route integration and app construction successor boundaries. FP-0153 updated those proof bridges narrowly to accept the exact FP-0153 plan and the hardened local `parserRouteDecisionDependency` gate while keeping FP-0154 absent and all production auth/provider/runtime work blocked.
+Older proof gates used absence-only or direct-call pattern checks for route integration and app construction successor boundaries. FP-0153 updated those proof bridges narrowly to accept the exact FP-0153 plan and the hardened local `parserRouteDecisionDependency` gate while keeping successor work absent at FP-0153 closeout. The later FP-0154 successor is limited to local adapter construction-readiness/proof-only and keeps all production auth/provider/runtime work blocked.
 
 ## Decision Log
 
@@ -126,7 +127,7 @@ pnpm test
 pnpm ci:repro:current
 ```
 
-Acceptance is observable when `AppContainer` exposes the optional dependency port, `buildApp({ container })` passes an explicitly supplied dependency through, default containers do not construct or populate it, route registration rejects parser dependency without the invalid-token challenge lane, existing invalid-token co-registration still requires missing-token challenge and protected-resource metadata evidence, origin rejection and missing-token precedence happen before any parser dependency call, present Authorization with full co-registration uses the existing sanitized invalid-token response, parser decision objects never appear in HTTP response bodies or logs, protected-resource metadata route behavior is unchanged, FP-0154 is absent, and the prior FP proof ladder remains green.
+Acceptance is observable when `AppContainer` exposes the optional dependency port, `buildApp({ container })` passes an explicitly supplied dependency through, default containers do not construct or populate it, route registration rejects parser dependency without the invalid-token challenge lane, existing invalid-token co-registration still requires missing-token challenge and protected-resource metadata evidence, origin rejection and missing-token precedence happen before any parser dependency call, present Authorization with full co-registration uses the existing sanitized invalid-token response, parser decision objects never appear in HTTP response bodies or logs, protected-resource metadata route behavior is unchanged, the later FP-0154 successor remains limited to local adapter construction-readiness/proof-only, and the prior FP proof ladder remains green.
 
 ## Idempotence and Recovery
 
@@ -168,7 +169,7 @@ Route registration now fails closed if a parser route-decision dependency is sup
 
 FP-0152 closeout freshness was corrected for PR #331 merge facts, including head SHA `ade9c5c63487505bc3698a5bec51161cfeb358dd`, merge commit `867544bda1f3cd7c44fc8103fa8579e80ef7103f`, green GitHub `static` and `integration-db` checks, same-branch QA no-issue/no-correction posture, and no post-merge QA requirement while current `main` matches the validated PR head/merge posture and CI remains green.
 
-No parser construction, default parser wiring, production token validation, token parser implementation, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, provider selection implementation, provider integration, provider calls, DB query/schema/migration/package work, OpenAI API/model call, source mutation, finance write, public asset, generated public prose, app submission, external communication, or autonomous action was added. FP-0154 remains absent.
+No parser construction, default parser wiring, production token validation, token parser implementation, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, provider selection implementation, provider integration, provider calls, DB query/schema/migration/package work, OpenAI API/model call, source mutation, finance write, public asset, generated public prose, app submission, external communication, or autonomous action was added. The later FP-0154 branch is limited to local adapter construction-readiness and proof planning only.
 
 Focused validation before final closeout pass:
 
@@ -199,4 +200,4 @@ Required post-closeout validation passed after the final closeout edit:
 - `pnpm test` passed.
 - `pnpm ci:repro:current` passed, including temp-worktree install, static validation, build, integration DB test suite, and clean-tree checks.
 
-Commit, push, and PR creation were completed after that checkpoint. The FP-0153 implementation commit is `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`, and the open PR is #332 at `https://github.com/616xold/pocket-cfo/pull/332`.
+Commit, push, and PR creation were completed after that checkpoint. The FP-0153 implementation commit is `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`. PR #332 at `https://github.com/616xold/pocket-cfo/pull/332` merged to `main` at 2026-05-24T21:13:13Z with head SHA `a43d0f9d1437d0370db2da108f1cc197868f64aa` and merge commit `637905efa76e032827a2e7fa6185f2c3f84de169`. Same-branch QA after merge corrected only stale FP-0153 plan freshness wording, GitHub `static` and `integration-db` checks were green, and no post-merge QA is required while current `main` matches the validated PR head/merge posture and CI remains green.
