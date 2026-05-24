@@ -15,6 +15,7 @@ import {
   FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
   FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
+  FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   buildReadOnlyMcpAuthorizationParserRouteDecisionReadinessProof,
   scanProofOnlyNoTokenLeakageText,
   scanTokenValidationNoLeakage,
@@ -39,7 +40,11 @@ import {
 } from "../packages/domain/src/index.ts";
 
 const SCHEMA_VERSION =
-  "v2bt.read-only-app-mcp-authorization-parser-route-integration-implementation.v1";
+  "v2bu.read-only-app-mcp-authorization-parser-app-construction-wiring.v1";
+const APP_PATH = "apps/control-plane/src/app.ts";
+const APP_SPEC_PATH = "apps/control-plane/src/app.spec.ts";
+const TYPES_PATH = "apps/control-plane/src/lib/types.ts";
+const BOOTSTRAP_PATH = "apps/control-plane/src/bootstrap.ts";
 const MCP_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 const ROUTE_SPEC_PATH =
@@ -64,11 +69,18 @@ const changedPathScope = changedFilePathScope();
 const changedPaths = changedPathScope.combinedChangedPaths;
 const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const changedLeakageText = readChangedLeakageText(changedPaths);
+const appSource = safeRead(APP_PATH);
+const appSpecSource = safeRead(APP_SPEC_PATH);
+const typesSource = safeRead(TYPES_PATH);
+const bootstrapSource = safeRead(BOOTSTRAP_PATH);
 const routeSource = safeRead(MCP_ROUTE_PATH);
 const routeSpecSource = safeRead(ROUTE_SPEC_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
 const invalidTokenChallengeSource = safeRead(INVALID_TOKEN_CHALLENGE_PATH);
 const tokenValidationSource = safeRead(TOKEN_VALIDATION_SOURCE_PATH);
+const fp0153PlanText = safeRead(
+  FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+);
 const fp0152PlanText = safeRead(
   FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
 );
@@ -78,14 +90,14 @@ const fp0151PlanText = safeRead(
 const fp0150PlanText = safeRead(
   FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
 );
-const routeBody = routeSource.slice(routeSource.indexOf('app.post("/mcp"'));
 const readinessProof =
   buildReadOnlyMcpAuthorizationParserRouteDecisionReadinessProof({
     fp0150PlanText,
     fp0151PlanText,
     repoPaths,
   });
-const fp0152Topics = verifyFp0152PlanTopics(fp0152PlanText);
+const fp0153Topics = verifyFp0153PlanTopics(fp0153PlanText);
+const appScope = verifyAppScope();
 const routeScope = verifyRouteScope();
 const sourceScope = verifySourceScope();
 const noLeakageScope = verifyNoLeakageScope(changedLeakageText);
@@ -93,27 +105,32 @@ const priorBoundaries = verifyPriorBoundaries();
 
 const output = {
   schemaVersion: SCHEMA_VERSION,
-  fp0152AbsentOrRouteIntegrationImplementationPlanVerified:
-    verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan(
-      repoPaths,
-    ) && exactlyOneFp0152Plan(),
   fp0153AbsentOrAppConstructionWiringPlanVerified:
-    verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(repoPaths),
-  fp0154Absent: verifyFp0154Absent(repoPaths),
-  routeIntegrationImplementationBoundaryVerified:
-    Object.values(fp0152Topics).every(Boolean),
-  routeDependencyInjectionImplemented:
-    routeScope.optionalParserDecisionDependencyInjected &&
-    routeScope.parserDecisionDependencyCalledWithRequestHeader &&
+    verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(
+      repoPaths,
+    ) &&
+    exactlyOneFp0153Plan() &&
+    Object.values(fp0153Topics).every(Boolean),
+  fp0154Absent: verifyFp0154Absent(repoPaths) && noFp0154Plan(),
+  appConstructionWiringBoundaryVerified:
+    appScope.containerPortAdded &&
+    appScope.buildAppPassesExplicitDependency &&
+    appScope.defaultCreateContainerLeavesDependencyAbsent &&
+    fp0153Topics.appConstructionWiringIncluded,
+  appContainerParserRouteDecisionPortAdded: appScope.containerPortAdded,
+  buildAppPassesExplicitParserRouteDecisionDependency:
+    appScope.buildAppPassesExplicitDependency,
+  defaultBuildAppBehaviorStillUnchangedWhenDependencyAbsent:
+    appScope.defaultBuildAppBehaviorSpecRecorded &&
+    appScope.defaultCreateContainerLeavesDependencyAbsent,
+  parserConstructionInsideAppStillBlocked: appScope.noParserConstruction,
+  parserConstructionInsideRouteStillBlocked: routeScope.noParserConstruction,
+  parserDependencyCoRegistrationHardened:
     routeScope.parserDependencyCoRegistrationHardened,
   parserDependencyRequiresInvalidTokenChallengeLane:
     routeScope.parserDependencyRequiresInvalidTokenChallengeLane,
   invalidTokenChallengeCoRegistrationStillRequiresMissingTokenAndMetadata:
     routeScope.invalidTokenChallengeCoRegistrationStillRequiresMissingTokenAndMetadata,
-  parserConstructionInsideRouteStillBlocked:
-    routeScope.noPureParserImport && routeScope.noParserConstruction,
-  defaultRouteBehaviorWithoutParserDependencyStillUnchanged:
-    routeScope.defaultBehaviorWithoutParserDependencySpecRecorded,
   routeConsumesOnlyRouteSafeParserDecision:
     routeScope.routeSafeDecisionTypeOnly &&
     routeScope.routeDecisionConsumptionLimitedToBooleans,
@@ -140,37 +157,37 @@ const output = {
   protectedResourceMetadataRouteStillUnchanged:
     routeScope.protectedResourceMetadataRouteStillUnchanged,
   productionTokenValidationRuntimeStillBlocked:
-    fp0152Topics.productionTokenValidationBlocked &&
+    fp0153Topics.productionTokenValidationBlocked &&
     sourceScope.noProductionTokenValidation,
   providerSelectionStillDeferred:
-    fp0152Topics.providerSelectionBlocked && sourceScope.noProviderSelection,
+    fp0153Topics.providerSelectionBlocked && sourceScope.noProviderSelection,
   providerCallsStillBlocked:
-    fp0152Topics.providerCallsBlocked && sourceScope.noProviderCalls,
+    fp0153Topics.providerCallsBlocked && sourceScope.noProviderCalls,
   providerIntegrationStillBlocked:
-    fp0152Topics.providerIntegrationBlocked && sourceScope.noProviderIntegration,
+    fp0153Topics.providerIntegrationBlocked && sourceScope.noProviderIntegration,
   tokenParserImplementationStillBlocked:
-    fp0152Topics.tokenParserBlocked && sourceScope.noTokenParser,
+    fp0153Topics.tokenParserBlocked && sourceScope.noTokenParser,
   jwtDecoderImplementationStillBlocked:
-    fp0152Topics.jwtDecoderBlocked && sourceScope.noJwtDecoder,
+    fp0153Topics.jwtDecoderBlocked && sourceScope.noJwtDecoder,
   jwksFetchImplementationStillBlocked:
-    fp0152Topics.jwksFetchBlocked && sourceScope.noJwksFetch,
+    fp0153Topics.jwksFetchBlocked && sourceScope.noJwksFetch,
   tokenIntrospectionImplementationStillBlocked:
-    fp0152Topics.tokenIntrospectionBlocked && sourceScope.noTokenIntrospection,
+    fp0153Topics.tokenIntrospectionBlocked && sourceScope.noTokenIntrospection,
   oauthImplementationStillBlocked:
-    fp0152Topics.oauthBlocked && sourceScope.noOauthImplementation,
+    fp0153Topics.oauthBlocked && sourceScope.noOauthImplementation,
   tokenSessionStorageStillBlocked:
-    fp0152Topics.tokenSessionStorageBlocked && sourceScope.noTokenSessionStorage,
+    fp0153Topics.tokenSessionStorageBlocked && sourceScope.noTokenSessionStorage,
   authMiddlewareStillBlocked:
-    fp0152Topics.authMiddlewareBlocked && sourceScope.noAuthMiddleware,
-  noOpenAiApiCallsFromFp0152: sourceScope.noOpenAiApiCalls,
-  noModelCallsFromFp0152: sourceScope.noModelCalls,
-  noProviderCallsFromFp0152: sourceScope.noProviderCalls,
-  noSourceMutationFromFp0152: sourceScope.noSourceMutation,
-  noFinanceWriteFromFp0152: sourceScope.noFinanceWrite,
-  noExternalCommunicationsFromFp0152: sourceScope.noExternalCommunications,
-  noPublicAssetsFromFp0152: sourceScope.noPublicAssets,
-  noGeneratedPublicProseFromFp0152: sourceScope.noGeneratedPublicProse,
-  noAppSubmissionFromFp0152: sourceScope.noAppSubmission,
+    fp0153Topics.authMiddlewareBlocked && sourceScope.noAuthMiddleware,
+  noOpenAiApiCallsFromFp0153: sourceScope.noOpenAiApiCalls,
+  noModelCallsFromFp0153: sourceScope.noModelCalls,
+  noProviderCallsFromFp0153: sourceScope.noProviderCalls,
+  noSourceMutationFromFp0153: sourceScope.noSourceMutation,
+  noFinanceWriteFromFp0153: sourceScope.noFinanceWrite,
+  noExternalCommunicationsFromFp0153: sourceScope.noExternalCommunications,
+  noPublicAssetsFromFp0153: sourceScope.noPublicAssets,
+  noGeneratedPublicProseFromFp0153: sourceScope.noGeneratedPublicProse,
+  noAppSubmissionFromFp0153: sourceScope.noAppSubmission,
   parserFixturesContainNoRealTokenExamples:
     noLeakageScope.fixturesLeakageScan.accepted &&
     noLeakageScope.noBearerTokenMaterial &&
@@ -178,11 +195,12 @@ const output = {
   sharedProofOnlyLeakageSanitizerStillVerified:
     noLeakageScope.leakageScan.accepted &&
     noLeakageScope.sharedSanitizerStillStrict &&
-    tokenValidationSource.includes(
-      "authorization-present-local-only",
+    tokenValidationSource.includes("authorization-present-local-only"),
+  fp0152CloseoutFreshnessVerified: verifyFp0152CloseoutFreshness(),
+  fp0152RouteIntegrationBoundaryStillVerified:
+    verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan(
+      repoPaths,
     ),
-  fp0151CloseoutFreshnessVerified:
-    verifyFp0151CloseoutFreshnessForFp0152(fp0151PlanText),
   fp0151RouteReadinessBoundaryStillVerified:
     verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
       repoPaths,
@@ -233,8 +251,9 @@ const output = {
   fp0100PublicSecurityBoundaryStillVerified:
     priorBoundaries.fp0100PublicSecurityBoundaryStillVerified,
   proofDetails: {
+    appScope,
     changedPathScope,
-    fp0152Topics,
+    fp0153Topics,
     noLeakageScope,
     routeScope,
     sourceScope,
@@ -248,93 +267,173 @@ const proofOutputLeakageScan = scanProofOnlyNoTokenLeakageText(
 for (const [key, value] of Object.entries(output)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0152 authorization parser route-integration implementation proof failed: ${key}`,
+      `FP-0153 authorization parser app-construction wiring proof failed: ${key}`,
     );
   }
 }
 if (!proofOutputLeakageScan.accepted) {
   throw new Error(
-    `FP-0152 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
+    `FP-0153 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
   );
 }
 
 console.log(JSON.stringify(output, null, 2));
 
-function verifyFp0152PlanTopics(planText) {
+function verifyFp0153PlanTopics(planText) {
   const normalized = normalize(planText);
   return {
-    explicitDependencyInjectionOnly:
+    appConstructionWiringIncluded:
+      normalized.includes("app-construction wiring is included") &&
+      (normalized.includes("explicit container dependency pass-through only") ||
+        normalized.includes(
+          "only as explicit container dependency pass-through",
+        )),
+    routeCoRegistrationIncluded:
+      normalized.includes("route co-registration hardening is included") &&
       normalized.includes(
-        "explicit-dependency-injection route integration only",
-      ) &&
-      normalized.includes("parser construction inside the route is excluded"),
-    routeSafeOnly:
-      normalized.includes(
-        "route may consume only route-safe parser decision outputs",
-      ) &&
-      normalized.includes("raw parser internals are excluded"),
+        "parser route-decision dependency requires the existing invalid-token challenge lane",
+      ),
+    parserConstructionBlocked:
+      (normalized.includes("parser construction inside `buildapp` is excluded") ||
+        normalized.includes("parser construction inside `buildapp` is not included")) &&
+      (normalized.includes(
+        "parser construction inside `/mcp` routes is excluded",
+      ) ||
+        normalized.includes(
+          "parser construction inside `/mcp` routes is not included",
+        )),
     defaultBehaviorUnchanged:
-      normalized.includes(
-        "default `/mcp` behavior remains unchanged when the dependency is absent",
-      ),
-    routeSequence:
-      normalized.includes("local origin validation runs first") &&
-      normalized.includes(
-        "missing-token challenge for undefined authorization remains before the parser dependency call",
-      ) &&
-      normalized.includes(
-        "malformed and unsupported parser decisions route to the existing sanitized invalid-token challenge",
-      ),
-    futureFp0153Boundary:
-      normalized.includes("future fp-0153 may open only") &&
-      normalized.includes("app-construction wiring") &&
-      normalized.includes("route-integration correction") &&
+      (normalized.includes(
+        "default `buildapp()` behavior remains unchanged when the dependency is absent",
+      ) ||
+        normalized.includes(
+          "default `buildapp()` behavior remains unchanged when the container dependency is absent",
+        )) &&
+      (normalized.includes(
+        "default `/mcp` behavior remains unchanged when parser route-decision dependency is absent",
+      ) ||
+        normalized.includes(
+          "default `/mcp` behavior remains unchanged when the dependency is absent",
+        )),
+    containerShape:
+      normalized.includes("readonlyappmcpauthorizationparserroutedecision?:") &&
+      normalized.includes("readonlymcpauthorizationparserroutedecisiondependency") &&
+      (normalized.includes("explicit container field only") ||
+        normalized.includes("optional, explicit")) &&
+      normalized.includes("no default construction") &&
+      normalized.includes("no env-based construction"),
+    buildAppPassThrough:
+      (normalized.includes(
+        "passes `container.readonlyappmcpauthorizationparserroutedecision`",
+      ) ||
+        normalized.includes(
+          "may pass `container.readonlyappmcpauthorizationparserroutedecision`",
+        )) &&
+      (normalized.includes("default `createcontainer()` leaves this field absent") ||
+        normalized.includes("`createcontainer()`") &&
+          normalized.includes("do not construct or populate this field")),
+    routeCoRegistration:
+      (normalized.includes(
+        "if parser route-decision dependency is supplied without invalid-token challenge, route registration fails closed",
+      ) ||
+        normalized.includes(
+          "if the parser route-decision dependency is supplied without invalid-token challenge registration, route registration fails closed",
+        )) &&
+      (normalized.includes(
+        "invalid-token challenge co-registration still requires missing-token challenge and protected-resource metadata evidence",
+      ) ||
+        normalized.includes(
+          "invalid-token challenge co-registration still requires missing-token challenge and protected-resource metadata evidence requirements",
+        )),
+    futureFp0154Boundary:
+      normalized.includes("future fp-0154 may open only") &&
+      normalized.includes("local parser route-decision adapter construction readiness") &&
+      normalized.includes("app-construction correction") &&
       normalized.includes("proof-gate correction"),
     productionTokenValidationBlocked: normalized.includes(
-      "production token-validation runtime remains blocked",
+      "production token-validation runtime cannot start after fp-0153",
     ),
-    providerSelectionBlocked:
-      normalized.includes("provider selection remains blocked") ||
-      normalized.includes("provider selection cannot start"),
-    providerCallsBlocked: normalized.includes("provider calls remain blocked"),
-    providerIntegrationBlocked: normalized.includes(
-      "provider integration remains blocked",
+    providerSelectionBlocked: normalized.includes(
+      "provider selection cannot start after fp-0153",
     ),
-    tokenParserBlocked: normalized.includes(
-      "token parser implementation remains blocked",
-    ),
-    jwtDecoderBlocked: normalized.includes(
-      "jwt decoder implementation remains blocked",
-    ),
-    jwksFetchBlocked: normalized.includes(
-      "jwks fetching/caching remains blocked",
-    ),
-    tokenIntrospectionBlocked: normalized.includes(
-      "token introspection remains blocked",
-    ),
+    providerCallsBlocked: normalized.includes("provider calls") &&
+      normalized.includes("not implement"),
+    providerIntegrationBlocked: normalized.includes("provider integration") &&
+      normalized.includes("not implement"),
+    tokenParserBlocked: normalized.includes("token parser implementation") &&
+      normalized.includes("not implement"),
+    jwtDecoderBlocked:
+      (normalized.includes("jwt decoder") ||
+        normalized.includes("jwt decoding")) &&
+      normalized.includes("not implement"),
+    jwksFetchBlocked: normalized.includes("jwks fetching") &&
+      normalized.includes("not implement"),
+    tokenIntrospectionBlocked: normalized.includes("token introspection") &&
+      normalized.includes("not implement"),
     oauthBlocked: normalized.includes(
-      "oauth/session/auth middleware remains blocked",
+      "oauth/session/auth middleware cannot start after fp-0153",
     ),
-    tokenSessionStorageBlocked: normalized.includes(
-      "token/session storage remains blocked",
-    ),
-    authMiddlewareBlocked: normalized.includes("auth middleware remains blocked"),
-    protectedResourceMetadataUnchanged: normalized.includes(
-      "protected-resource metadata route behavior remains unchanged",
+    tokenSessionStorageBlocked:
+      (normalized.includes("token/session storage") ||
+        normalized.includes("token or session storage")) &&
+      normalized.includes("not implement"),
+    authMiddlewareBlocked: normalized.includes(
+      "auth middleware cannot start after fp-0153",
     ),
     priorBoundaries:
-      normalized.includes("fp-0151 route readiness") &&
-      normalized.includes("fp-0150 route sequencing") &&
-      normalized.includes("fp-0149 parser implementation") &&
-      normalized.includes("fp-0146 parser contracts") &&
-      normalized.includes("fp-0139 result envelopes") &&
-      normalized.includes("fp-0130 missing-token challenge") &&
-      normalized.includes("fp-0125 protected-resource metadata route") &&
-      normalized.includes("fp-0100 security boundary"),
+      (normalized.includes("fp-0152 route integration") ||
+        normalized.includes("fp-0152 route behavior")) &&
+      normalized.includes("fp-0151") &&
+      normalized.includes("fp-0150") &&
+      normalized.includes("fp-0149") &&
+      normalized.includes("fp-0143") &&
+      normalized.includes("fp-0139") &&
+      normalized.includes("fp-0130") &&
+      normalized.includes("fp-0125") &&
+      normalized.includes("fp-0100"),
+  };
+}
+
+function verifyAppScope() {
+  return {
+    buildAppPassesExplicitDependency:
+      appSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision:",
+      ) &&
+      appSource.includes(
+        "container.readOnlyAppMcpAuthorizationParserRouteDecision",
+      ),
+    containerPortAdded:
+      typesSource.includes(
+        "ReadOnlyAppMcpAuthorizationParserRouteDecisionPort",
+      ) &&
+      typesSource.includes(
+        "ReadOnlyMcpAuthorizationParserRouteDecisionDependency",
+      ) &&
+      typesSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision?: ReadOnlyAppMcpAuthorizationParserRouteDecisionPort",
+      ),
+    defaultBuildAppBehaviorSpecRecorded:
+      appSpecSource.includes(
+        "does not construct a parser route-decision dependency in default containers or app construction",
+      ) &&
+      appSpecSource.includes(
+        "passes an explicitly supplied parser route-decision dependency through buildApp only with the invalid-token challenge lane",
+      ),
+    defaultCreateContainerLeavesDependencyAbsent:
+      !bootstrapSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision:",
+      ),
+    noParserConstruction:
+      noPureParserImport(appSource) &&
+      noPureParserImport(bootstrapSource) &&
+      !/\bparseReadOnlyMcpAuthorizationHeader\s*\(/u.test(appSource) &&
+      !/\bparseReadOnlyMcpAuthorizationHeader\s*\(/u.test(bootstrapSource),
   };
 }
 
 function verifyRouteScope() {
+  const routeBody = routeSource.slice(routeSource.indexOf('app.post("/mcp"'));
   const originIndex = routeBody.indexOf("const originValidation");
   const originRejectedIndex = routeBody.indexOf("sendOriginRejected");
   const missingTokenIndex = routeBody.indexOf(
@@ -345,25 +444,22 @@ function verifyRouteScope() {
   );
 
   return {
-    defaultBehaviorWithoutParserDependencySpecRecorded:
-      routeSpecSource.includes(
-        "keeps default POST /mcp behavior unchanged without the parser route-decision dependency",
-      ),
-    invalidTokenChallengeSpecRecorded:
-      routeSpecSource.includes(
-        "routes malformed and unsupported parser decisions to the existing invalid-token challenge",
+    invalidTokenChallengeCoRegistrationStillRequiresMissingTokenAndMetadata:
+      routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
+      routeSource.includes(
+        "Invalid-token challenge requires missing-token challenge co-registration",
       ) &&
-      routeSpecSource.includes(
-        "routes observed safe parser decisions to the existing invalid-token challenge until validation runtime exists",
+      routeSource.includes(
+        "Invalid-token challenge requires protected-resource metadata route evidence dependency",
       ),
     missingTokenPrecedenceSpecRecorded:
       routeSpecSource.includes(
         "keeps missing-token challenge ahead of the parser route-decision dependency",
       ),
     noParserConstruction:
+      noPureParserImport(routeSource) &&
       !/\bparseReadOnlyMcpAuthorizationHeader\s*\(/u.test(routeSource) &&
-      !/\bclassifyReadOnlyMcpAuthorizationHeader\s*\(/u.test(routeSource) &&
-      !/\bnew\s+ReadOnlyMcpAuthorization/u.test(routeSource),
+      !/\bclassifyReadOnlyMcpAuthorizationHeader\s*\(/u.test(routeSource),
     noParserDecisionLogging:
       !/\b(?:console|logger)\s*\.[a-z]+\s*\([^)]*parserRouteDecision/iu.test(
         routeSource,
@@ -373,24 +469,13 @@ function verifyRouteScope() {
     noParserDecisionSend: !/\.send\s*\(\s*parserRouteDecision\b/u.test(
       routeSource,
     ),
-    noPureParserImport: !/read-only-app-mcp-authorization-parser["']/u.test(
-      routeSource,
-    ),
-    optionalParserDecisionDependencyInjected:
-      routeSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision?: ReadOnlyMcpAuthorizationParserRouteDecisionDependency",
-      ) &&
-      routeSource.includes(
-        "type ReadOnlyMcpAuthorizationParserRouteDecisionDependency",
-      ),
     originBeforeMissingToken:
       originIndex >= 0 &&
       originRejectedIndex > originIndex &&
       missingTokenIndex > originRejectedIndex,
-    parserDecisionDependencyCalledWithRequestHeader:
-      routeSource.includes(
-        "authorizationHeader: request.headers.authorization",
-      ),
+    missingTokenBeforeParserDecision:
+      missingTokenIndex >= 0 &&
+      parserDecisionIndex > missingTokenIndex,
     parserDependencyCoRegistrationHardened:
       routeSource.includes("assertParserRouteDecisionCoRegistration") &&
       routeSource.includes(
@@ -407,17 +492,6 @@ function verifyRouteScope() {
       routeSource.includes(
         "Authorization parser route-decision dependency requires invalid-token challenge co-registration",
       ),
-    invalidTokenChallengeCoRegistrationStillRequiresMissingTokenAndMetadata:
-      routeSource.includes("assertInvalidTokenChallengeCoRegistration") &&
-      routeSource.includes(
-        "Invalid-token challenge requires missing-token challenge co-registration",
-      ) &&
-      routeSource.includes(
-        "Invalid-token challenge requires protected-resource metadata route evidence dependency",
-      ),
-    missingTokenBeforeParserDecision:
-      missingTokenIndex >= 0 &&
-      parserDecisionIndex > missingTokenIndex,
     parserDecisionRoutesOnlyToExistingInvalidTokenChallenge:
       routeSource.includes("routesToExistingInvalidTokenChallenge") &&
       routeSource.includes("invalidTokenChallenge.wwwAuthenticate") &&
@@ -440,7 +514,10 @@ function verifyRouteScope() {
       routeSource.includes(
         "ReadOnlyMcpAuthorizationParserRouteDecisionReadiness",
       ) &&
-      !routeSource.includes("parseReadOnlyMcpAuthorizationHeader"),
+      routeSource.includes(
+        "ReadOnlyMcpAuthorizationParserRouteDecisionDependency",
+      ) &&
+      noPureParserImport(routeSource),
   };
 }
 
@@ -549,7 +626,7 @@ function verifyNoLeakageScope(leakageText) {
   ].join("");
   const leakageScan = scanProofOnlyNoTokenLeakageText(leakageText);
   const fixturesLeakageScan = scanProofOnlyNoTokenLeakageText(
-    [routeSpecSource, fp0152PlanText].join("\n"),
+    [appSpecSource, routeSpecSource, fp0153PlanText].join("\n"),
   );
   const tokenExampleScan = scanChangedTokenExamples(leakageText);
 
@@ -562,6 +639,23 @@ function verifyNoLeakageScope(leakageText) {
       scanProofOnlyNoTokenLeakageText(unsafeBearerLine).accepted === false &&
       scanTokenValidationNoLeakage(unsafeJwtLikeLine).accepted === false,
   };
+}
+
+function verifyFp0152CloseoutFreshness() {
+  const normalized = normalize(fp0152PlanText);
+  return (
+    normalized.includes("pr #331 merged") &&
+    normalized.includes("ade9c5c63487505bc3698a5bec51161cfeb358dd") &&
+    normalized.includes("867544bda1f3cd7c44fc8103fa8579e80ef7103f") &&
+    normalized.includes("static") &&
+    normalized.includes("integration-db") &&
+    normalized.includes(
+      "post-merge same-branch qa found no issues and made no correction",
+    ) &&
+    normalized.includes(
+      "no post-merge qa is required when current `main` matches the validated pr head/merge posture and ci remains green",
+    )
+  );
 }
 
 function verifyPriorBoundaries() {
@@ -644,20 +738,8 @@ function verifyPriorBoundaries() {
   };
 }
 
-function verifyFp0151CloseoutFreshnessForFp0152(planText) {
-  const normalized = normalize(planText);
-  return (
-    normalized.includes("pr #330 merged") &&
-    normalized.includes("9521cdc0db6138cf0d43d63fd62b983fb0748eaf") &&
-    normalized.includes("11bff71bc24970e2ca629ddc7320a5b41221cde6") &&
-    normalized.includes("github static and integration-db checks were green") &&
-    normalized.includes(
-      "same-branch qa found no issues and made no correction",
-    ) &&
-    normalized.includes(
-      "no post-merge qa is required when current main matches the validated pr head/merge posture and ci remains green",
-    )
-  );
+function noPureParserImport(source) {
+  return !/read-only-app-mcp-authorization-parser["']/u.test(source);
 }
 
 function hasTokenLoggingRuntime(source) {
@@ -683,14 +765,17 @@ function scanChangedTokenExamples(source) {
   };
 }
 
-function exactlyOneFp0152Plan() {
-  const hits = repoPaths.filter((path) => /(^|\/)FP-0152/u.test(path));
+function exactlyOneFp0153Plan() {
+  const hits = repoPaths.filter((path) => /(^|\/)FP-0153/u.test(path));
   return (
     hits.length === 1 &&
-    hits[0] ===
-      FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH &&
-    existsSync(FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH)
+    hits[0] === FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH &&
+    existsSync(FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH)
   );
+}
+
+function noFp0154Plan() {
+  return repoPaths.filter((path) => /(^|\/)FP-0154/u.test(path)).length === 0;
 }
 
 function changedFilePathScope() {

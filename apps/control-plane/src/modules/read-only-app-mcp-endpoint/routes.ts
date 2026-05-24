@@ -55,6 +55,12 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
           protectedResourceMetadataRouteInputEvidenceBundle:
             deps.readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle,
         });
+  const parserRouteDecisionDependency =
+    assertParserRouteDecisionCoRegistration({
+      invalidTokenChallenge,
+      parserRouteDecision:
+        deps.readOnlyAppMcpAuthorizationParserRouteDecision,
+    });
 
   app.get("/mcp", async (request, reply) => {
     const originValidation = validateLocalMcpOriginHeader(
@@ -86,9 +92,9 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
     }
 
     const parserRouteDecision =
-      deps.readOnlyAppMcpAuthorizationParserRouteDecision === undefined
+      parserRouteDecisionDependency === null
         ? null
-        : deps.readOnlyAppMcpAuthorizationParserRouteDecision({
+        : parserRouteDecisionDependency({
             authorizationHeader: request.headers.authorization,
           });
 
@@ -162,6 +168,23 @@ function assertInvalidTokenChallengeCoRegistration(input: {
   return buildReadOnlyAppMcpInvalidTokenChallengeResponse(
     input.invalidTokenChallengeResultEnvelope,
   );
+}
+
+function assertParserRouteDecisionCoRegistration(input: {
+  invalidTokenChallenge: ReturnType<
+    typeof buildReadOnlyAppMcpInvalidTokenChallengeResponse
+  > | null;
+  parserRouteDecision?: ReadOnlyMcpAuthorizationParserRouteDecisionDependency;
+}) {
+  if (input.parserRouteDecision === undefined) return null;
+
+  if (input.invalidTokenChallenge === null) {
+    throw new Error(
+      "Authorization parser route-decision dependency requires invalid-token challenge co-registration",
+    );
+  }
+
+  return input.parserRouteDecision;
 }
 
 function sendOriginRejected(

@@ -17,6 +17,7 @@ Target phase: V2BT read-only ChatGPT App/MCP Authorization parser route-integrat
 - [x] 2026-05-24T18:36:53Z - Added focused route/domain specs, FP-0152 exact-plan/FP-0153-absence helpers, direct FP-0152 proof tooling, and exact successor proof-gate bridge compatibility.
 - [x] 2026-05-24T18:36:53Z - Refreshed directly stale active docs/plugins where they still presented FP-0152 as absent or FP-0151 as the active boundary after this slice.
 - [x] 2026-05-24T18:54:10Z - Focused validation, strict same-branch QA, proof ladder, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` passed before this closeout edit. Same-branch QA found one stale protected-resource metadata builder assertion about `WWW-Authenticate` header-write count after FP-0152 proof bridge expansion; it was corrected in scope and rerun. This closeout edit requires the mandated post-closeout rerun before the single commit, push, and PR creation.
+- [x] 2026-05-24T20:08:45Z - Post-merge freshness polish confirmed PR #331 merged to `main` with head SHA `ade9c5c63487505bc3698a5bec51161cfeb358dd` and merge commit `867544bda1f3cd7c44fc8103fa8579e80ef7103f`. GitHub PR and push `static` and `integration-db` checks were green. Post-merge same-branch QA found no issues and made no correction. No post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -27,6 +28,8 @@ OpenAI Developers tooling exposed API-key setup surfaces rather than read-only d
 The existing proof-only no-token-leakage scanner treated whole-file dirty route specs with the established safe `authorization-present-local-only` placeholder as suspicious once FP-0152 changed that route spec. The shared proof-only sanitizer now normalizes that exact safe placeholder while still leaving credential-shaped material unsanitized and rejected.
 
 Strict same-branch QA found no route behavior defect. It found one stale protected-resource metadata builder proof assertion that counted `WWW-Authenticate` header writes too narrowly after route proof bridge expansion. The correction now asserts the exact bounded challenge header writes and keeps protected-resource metadata route behavior unchanged.
+
+PR #331 merge truth matched the FP-0152 closeout posture: `gh pr view 331` confirmed merged state, head SHA `ade9c5c63487505bc3698a5bec51161cfeb358dd`, and merge commit `867544bda1f3cd7c44fc8103fa8579e80ef7103f`. `gh pr checks 331` confirmed GitHub `static` and `integration-db` checks green for both pull request and push events. Post-merge same-branch QA found no issues and made no correction, so no post-merge QA branch is required while current `main` remains at the validated merge commit and CI remains green.
 
 ## Decision Log
 
@@ -43,6 +46,7 @@ Strict same-branch QA found no route behavior defect. It found one stale protect
 - 2026-05-24T18:36:53Z - Route integration consumes only injected route-safe decision booleans and maps parser decision failures to existing challenge/fail-closed branches; it never returns or logs the decision object.
 - 2026-05-24T18:36:53Z - Successor proof-gate bridge compatibility is limited to the exact FP-0152 route-integration plan while FP-0153 remains absent.
 - 2026-05-24T18:54:10Z - Closeout recommendation: app-construction wiring for injecting the already-implemented parser route-decision dependency may start next only as a narrow FP-0153. Route-integration correction, parser material-observation correction, provider-selection evidence correction, and one-off proof-gate correction are not needed from this FP-0152 validation posture. Public ChatGPT App submission must wait.
+- 2026-05-24T20:08:45Z - Post-merge closeout correction records PR #331 as merged and current `main` as matching the validated merge posture. No separate polish branch or post-merge QA branch is required.
 
 ## Context and Orientation
 
@@ -158,6 +162,6 @@ GitHub connector product behavior is out of scope. Routine `git` and `gh` CLI op
 
 FP-0152 implemented the read-only ChatGPT App/MCP Authorization parser route-integration slice through explicit dependency injection. The route accepts an optional `readOnlyAppMcpAuthorizationParserRouteDecision` dependency, never constructs or imports the pure parser implementation, preserves default `/mcp` behavior when the dependency is absent, keeps local origin validation and missing-token precedence upstream, maps parser failure/credential-observed decisions only to the existing sanitized invalid-token challenge lane when that dependency is injected, and leaves protected-resource metadata behavior unchanged.
 
-No production token validation, provider selection, provider integration, provider calls, token parser, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, token/session storage, DB/schema/package work, OpenAI API/model call, public asset, listing copy, generated public prose, app submission, source mutation, finance write, external communication, or autonomous action was added. FP-0153 remains absent.
+No production token validation, provider selection, provider integration, provider calls, token parser, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, token/session storage, DB/schema/package work, OpenAI API/model call, public asset, listing copy, generated public prose, app submission, source mutation, finance write, external communication, or autonomous action was added. FP-0153 remained absent at FP-0152 closeout and may start only as the narrow app-construction wiring and route co-registration hardening slice named by a separate Finance Plan.
 
-Validation before this closeout edit passed, including the direct FP-0152 proof, successor proof bridges, prior boundary proof ladder, focused route/domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Because this closeout updates the plan after validation, the final commit is allowed only after the required post-closeout rerun remains green.
+Validation passed for PR #331 before merge, including the direct FP-0152 proof, successor proof bridges, prior boundary proof ladder, focused route/domain specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. GitHub `static` and `integration-db` checks were green, PR #331 merged, and no post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.

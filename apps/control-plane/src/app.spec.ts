@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import { afterEach, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
 import {
@@ -10,8 +11,10 @@ import {
   buildProtectedResourceMetadataRouteInputEvidenceBundle,
   buildTokenValidationResultEnvelope,
   buildTokenValidationResultEnvelopeInputDescriptor,
+  deriveReadOnlyMcpAuthorizationParserRouteDecisionReadiness,
   type ProofBundleManifest,
   ProofBundleManifestSchema,
+  type ReadOnlyMcpAuthorizationParserRouteDecisionDependency,
   validRouteInput,
 } from "@pocket-cto/domain";
 import { buildApp } from "./app";
@@ -119,6 +122,30 @@ describe("control-plane app", () => {
     expect(getResponse.headers.allow).toBe("POST");
     expect(getResponse.headers["www-authenticate"]).toBeUndefined();
     expect(getResponse.body).toBe("");
+  });
+
+  it("does not construct a parser route-decision dependency in default containers or app construction", () => {
+    const container = createInMemoryContainer();
+    const appSource = readFileSync(new URL("./app.ts", import.meta.url), "utf8");
+    const bootstrapSource = readFileSync(
+      new URL("./bootstrap.ts", import.meta.url),
+      "utf8",
+    );
+
+    expect(
+      "readOnlyAppMcpAuthorizationParserRouteDecision" in container,
+    ).toBe(false);
+    expect(appSource).toContain(
+      "container.readOnlyAppMcpAuthorizationParserRouteDecision",
+    );
+    expect(appSource).not.toMatch(/parseReadOnlyMcpAuthorizationHeader/u);
+    expect(appSource).not.toMatch(
+      /read-only-app-mcp-authorization-parser["']/u,
+    );
+    expect(bootstrapSource).not.toMatch(
+      /readOnlyAppMcpAuthorizationParserRouteDecision\s*:/u,
+    );
+    expect(bootstrapSource).not.toMatch(/parseReadOnlyMcpAuthorizationHeader/u);
   });
 
   it("fails closed during buildApp when the challenge dependency lacks metadata route evidence", async () => {
@@ -313,6 +340,89 @@ describe("control-plane app", () => {
         },
       }),
     ).rejects.toThrow(/requires missing-token challenge co-registration/u);
+  });
+
+  it("fails closed during buildApp when parser route-decision wiring lacks the invalid-token challenge lane", async () => {
+    const base = createInMemoryContainer();
+    let parserCalls = 0;
+
+    await expect(
+      buildApp({
+        container: {
+          ...base,
+          readOnlyAppMcpAuthorizationParserRouteDecision() {
+            parserCalls += 1;
+            return routeDecisionForObservedAuthorization();
+          },
+          readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+            buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+          readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+            buildProtectedResourceMetadataRouteInputEvidenceBundle(
+              validRouteInput,
+            ),
+        },
+      }),
+    ).rejects.toThrow(
+      /requires invalid-token challenge co-registration/u,
+    );
+    expect(parserCalls).toBe(0);
+  });
+
+  it("passes an explicitly supplied parser route-decision dependency through buildApp only with the invalid-token challenge lane", async () => {
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    let parserCalls = 0;
+    const parserDependency: ReadOnlyMcpAuthorizationParserRouteDecisionDependency =
+      (input) => {
+        parserCalls += 1;
+        expect(input.authorizationHeader).toBe(
+          "authorization-present-local-only",
+        );
+        return routeDecisionForObservedAuthorization();
+      };
+    const app = await createStubApp(apps, {
+      readOnlyAppMcpAuthorizationParserRouteDecision: parserDependency,
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "invalid_token",
+          }),
+        ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
+    });
+
+    const response = await app.inject({
+      headers: {
+        authorization: "authorization-present-local-only",
+      },
+      method: "POST",
+      payload: {
+        id: "mcp-explicit-parser-route-decision",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+
+    expect(parserCalls).toBe(1);
+    expect(response.statusCode).toBe(401);
+    expect(response.headers["www-authenticate"]).toContain(
+      'error="invalid_token"',
+    );
+    expect(response.body).not.toContain("authorization-present-local-only");
+    expect(response.body).not.toMatch(
+      /parser_route_decision_contract_version|authorization_scheme_classification|credential_material_observed|parser_failure_state/u,
+    );
+    expect(response.json()).toMatchObject({
+      error: "invalid_token",
+      invalidTokenChallengeOnly: true,
+      noTokenEcho: true,
+      noTokenParsingRuntime: true,
+      noProductionTokenValidationRuntime: true,
+    });
   });
 
   it("does not register the protected-resource metadata route by default", async () => {
@@ -5010,6 +5120,15 @@ function validMcpArgumentsFor(toolName: (typeof MCP_TOOL_ALLOWLIST)[number]) {
   }
 }
 
+function routeDecisionForObservedAuthorization() {
+  return deriveReadOnlyMcpAuthorizationParserRouteDecisionReadiness({
+    authorization_presence: "present",
+    authorization_scheme_classification: "bearer",
+    credential_material_observed: true,
+    failure_state: null,
+  });
+}
+
 async function createStubApp(
   apps: FastifyInstance[],
   overrides: {
@@ -5031,6 +5150,7 @@ async function createStubApp(
         AppContainer["operatorControl"]["runtimeControlService"]
       >;
     };
+    readOnlyAppMcpAuthorizationParserRouteDecision?: AppContainer["readOnlyAppMcpAuthorizationParserRouteDecision"];
     readOnlyAppMcpEndpointService?: AppContainer["readOnlyAppMcpEndpointService"];
     readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: AppContainer["readOnlyAppMcpInvalidTokenChallengeResultEnvelope"];
     readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: AppContainer["readOnlyAppMcpLocalProofGatedMissingTokenChallenge"];

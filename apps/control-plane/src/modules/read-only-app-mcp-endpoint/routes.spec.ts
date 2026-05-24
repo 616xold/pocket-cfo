@@ -480,6 +480,12 @@ describe("read-only app MCP endpoint routes", () => {
           failure_state: "unsupported_scheme",
         });
       },
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        tokenEnvelopeFor("invalid_token"),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const response = await app.inject({
@@ -525,6 +531,8 @@ describe("read-only app MCP endpoint routes", () => {
           throw new Error("missing-token challenge must run before dispatch");
         },
       },
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        tokenEnvelopeFor("invalid_token"),
       readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
         buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
       readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
@@ -1036,99 +1044,60 @@ describe("read-only app MCP endpoint routes", () => {
     });
   });
 
-  it("keeps present Authorization fail-closed without invalid-token challenge even when parser dependency is injected", async () => {
+  it("fails closed before /mcp route registration when parser dependency lacks the invalid-token challenge lane", async () => {
+    const app = Fastify();
+    apps.push(app);
+    registerHttpErrorHandler(app);
     let parserCalls = 0;
-    let serviceCalls = 0;
-    const suppliedAuthorization = "authorization-present-local-only";
-    const app = await buildTestApp(apps, {
-      readOnlyAppMcpAuthorizationParserRouteDecision(input) {
-        parserCalls += 1;
-        expect(input.authorizationHeader).toBe(suppliedAuthorization);
-        return routeDecisionFor({
-          authorization_presence: "present",
-          authorization_scheme_classification: "bearer",
-          credential_material_observed: true,
-          failure_state: null,
-        });
-      },
-      readOnlyAppMcpEndpointService: {
-        handle() {
-          serviceCalls += 1;
-          throw new Error("no-validation fail-closed branch must run first");
+
+    await expect(
+      registerReadOnlyAppMcpEndpointRoutes(app, {
+        readOnlyAppMcpAuthorizationParserRouteDecision() {
+          parserCalls += 1;
+          return routeDecisionFor({
+            authorization_presence: "present",
+            authorization_scheme_classification: "bearer",
+            credential_material_observed: true,
+            failure_state: null,
+          });
         },
-      },
-      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
-        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
-      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
-        validEvidenceBundle(),
-    });
-
-    const response = await app.inject({
-      headers: {
-        authorization: suppliedAuthorization,
-      },
-      method: "POST",
-      payload: {
-        id: "init-parser-no-invalid-token-challenge",
-        jsonrpc: "2.0",
-        method: "initialize",
-      },
-      url: "/mcp",
-    });
-
-    expect(parserCalls).toBe(1);
-    expect(serviceCalls).toBe(0);
-    expect(response.statusCode).toBe(401);
-    expect(response.headers["www-authenticate"]).toBeUndefined();
-    expect(response.body).not.toContain(suppliedAuthorization);
-    expect(response.json()).toEqual({
-      error: "token_validation_runtime_not_implemented",
-      failClosed: true,
-      localOnly: true,
-      message:
-        "Authorization was supplied, but this local read-only MCP preview does not implement token validation.",
-      noTokenParsingRuntime: true,
-      noTokenValidationRuntime: true,
-      readOnly: true,
-    });
-    expectNoParserDecisionExposure(response.body);
+        readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+          buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+        readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+          validEvidenceBundle(),
+      }),
+    ).rejects.toThrow(
+      /requires invalid-token challenge co-registration/u,
+    );
+    expect(parserCalls).toBe(0);
+    expect(app.hasRoute({ method: "POST", url: "/mcp" })).toBe(false);
+    expect(app.hasRoute({ method: "GET", url: "/mcp" })).toBe(false);
   });
 
-  it("keeps service dispatch unchanged when no auth challenge dependency is configured", async () => {
+  it("fails closed before /mcp route registration when parser dependency is supplied without any challenge lane", async () => {
+    const app = Fastify();
+    apps.push(app);
+    registerHttpErrorHandler(app);
     let parserCalls = 0;
-    const app = await buildTestApp(apps, {
-      readOnlyAppMcpAuthorizationParserRouteDecision() {
-        parserCalls += 1;
-        return routeDecisionFor({
-          authorization_presence: "present",
-          authorization_scheme_classification: "bearer",
-          credential_material_observed: true,
-          failure_state: null,
-        });
-      },
-    });
 
-    const response = await app.inject({
-      headers: {
-        authorization: "authorization-present-local-only",
-      },
-      method: "POST",
-      payload: {
-        id: "ping-parser-dependency-only",
-        jsonrpc: "2.0",
-        method: "ping",
-      },
-      url: "/mcp",
-    });
-
-    expect(parserCalls).toBe(1);
-    expect(response.statusCode).toBe(200);
-    expect(response.headers["www-authenticate"]).toBeUndefined();
-    expect(response.json()).toEqual({
-      id: "ping-parser-dependency-only",
-      jsonrpc: "2.0",
-      result: {},
-    });
+    await expect(
+      registerReadOnlyAppMcpEndpointRoutes(app, {
+        readOnlyAppMcpAuthorizationParserRouteDecision() {
+          parserCalls += 1;
+          return routeDecisionFor({
+            authorization_presence: "present",
+            authorization_scheme_classification: "bearer",
+            credential_material_observed: true,
+            failure_state: null,
+          });
+        },
+      }),
+    ).rejects.toThrow(
+      /requires invalid-token challenge co-registration/u,
+    );
+    expect(parserCalls).toBe(0);
+    expect(app.hasRoute({ method: "POST", url: "/mcp" })).toBe(false);
+    expect(app.hasRoute({ method: "GET", url: "/mcp" })).toBe(false);
   });
 
   it("keeps GET /mcp unchanged and does not call the parser dependency", async () => {
@@ -1143,6 +1112,12 @@ describe("read-only app MCP endpoint routes", () => {
           failure_state: "unsupported_scheme",
         });
       },
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        tokenEnvelopeFor("invalid_token"),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        validEvidenceBundle(),
     });
 
     const response = await app.inject({
