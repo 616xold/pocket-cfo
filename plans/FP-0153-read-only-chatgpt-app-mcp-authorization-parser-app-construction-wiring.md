@@ -22,7 +22,8 @@ Target phase: V2BU read-only ChatGPT App/MCP Authorization parser app-constructi
 - [x] 2026-05-24T20:34:58Z - Focused same-branch QA passed: `git diff --check`, FP-0153 and predecessor proof gates, domain MCP/auth Vitest suite (224 tests), and control-plane app/route Vitest suite (135 tests).
 - [x] 2026-05-24T20:44:33Z - Full validation passed before final closeout edit: all required proof gates, focused domain/control-plane suites, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-24T20:49:45Z - Required post-closeout validation passed after the final closeout edit: `git diff --check`, FP-0153 direct proof, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
-- [ ] Commit once, push, and open the PR.
+- [x] 2026-05-24T20:54:55Z - Committed once as `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`, pushed `codex/v2bu-read-only-chatgpt-app-mcp-authorization-parser-app-construction-wiring-local-v1`, and opened PR #332 at `https://github.com/616xold/pocket-cfo/pull/332`.
+- [x] 2026-05-24T20:59:33Z - Same-branch QA found and corrected stale plan closeout wording that still described commit, push, and PR creation as pending after PR #332 already existed.
 
 ## Surprises & Discoveries
 
@@ -176,7 +177,7 @@ Focused validation before final closeout pass:
 - Domain focused Vitest suite passed: 21 files, 224 tests.
 - Control-plane focused Vitest suite passed: 4 files, 135 tests.
 
-Final full validation, commit, push, and PR creation remain pending at this checkpoint.
+Final full validation passed before the final closeout edit, and the implementation was committed once, pushed, and opened as PR #332 after that checkpoint.
 
 Full validation before the final closeout edit passed:
 
@@ -198,4 +199,4 @@ Required post-closeout validation passed after the final closeout edit:
 - `pnpm test` passed.
 - `pnpm ci:repro:current` passed, including temp-worktree install, static validation, build, integration DB test suite, and clean-tree checks.
 
-Commit, push, and PR creation remain pending at this checkpoint.
+Commit, push, and PR creation were completed after that checkpoint. The FP-0153 implementation commit is `a50e3a914ceaaf4cd2861f33a2a165cb18b981c9`, and the open PR is #332 at `https://github.com/616xold/pocket-cfo/pull/332`.
