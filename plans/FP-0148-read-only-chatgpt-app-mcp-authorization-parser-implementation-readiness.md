@@ -21,10 +21,13 @@ FP-0147 shipped provider-selection evidence-hardening with provider mode still p
 - [x] 2026-05-24T11:27:23Z - Strict same-branch QA found inherited proof-tool compatibility gaps for the new exact FP-0148 readiness path and one local proof-only scanner false positive path; both were corrected on this branch without widening runtime, route, provider, DB, package, source, finance, or public-app scope.
 - [x] 2026-05-24T11:27:23Z - Final validation passed before closeout: full proof ladder, focused domain and control-plane vitest suites, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-24T11:27:23Z - Closeout recorded. Because this closeout edit happened after validation, rerun `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` before commit.
+- [x] 2026-05-24T12:46:30Z - FP-0149 preflight freshness correction recorded that PR #327 merged to `main` with head SHA `2877d8caffb4ffecd5e99a7b59656903fca8682b` and merge commit `9a562161b74ff8bc77d0366166300a6cac259444`. No separate post-merge QA branch was created.
 
 ## Surprises & Discoveries
 
 PR #326 is merged, and `gh pr view 326` confirms head SHA `464fb3f7fb57b5a28ba282eedbfd087cd079114f` and merge commit `a0b8439084ecb52e146b5111960d53ae76e13053`.
+
+PR #327 is merged, and `gh pr view 327` confirms head SHA `2877d8caffb4ffecd5e99a7b59656903fca8682b` and merge commit `9a562161b74ff8bc77d0366166300a6cac259444`.
 
 FP-0147 had stale closeout wording that still described post-closeout validation and mechanical release work as pending after PR #326 merged. This branch patches that same-branch freshness issue directly, records that same-branch QA found no issues and made no correction, and records that no post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
@@ -228,6 +231,8 @@ Final validation passed before this closeout edit: `git diff --check`, the direc
 Strict same-branch QA found no product behavior issue. It did find proof durability work required by this slice: inherited proof tools needed exact FP-0148 readiness-path compatibility, and the provider-selection proof needed to avoid scanning unchanged strict-scanner self-test fixtures as if they were newly introduced credential material. Both corrections stayed in the proof-only bridge/sanitizer scope and were rerun through the validation ladder.
 
 The stale FP-0147 closeout wording was patched on this branch. The plan now records that PR #326 merged with head SHA `464fb3f7fb57b5a28ba282eedbfd087cd079114f` and merge commit `a0b8439084ecb52e146b5111960d53ae76e13053`, that same-branch QA found no issues and made no correction, and that no post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
+
+The stale FP-0148 closeout wording was patched on the FP-0149 branch. PR #327 merged with head SHA `2877d8caffb4ffecd5e99a7b59656903fca8682b` and merge commit `9a562161b74ff8bc77d0366166300a6cac259444`. Same-branch QA found no issues and made no correction. No post-merge QA is required when current `main` matches the validated PR head/merge posture and CI remains green.
 
 The shared proof-only no-token-leakage sanitizer is centralized in the domain token-validation boundary. It accepts only exact proof-only absence/retention terminology and exact no-value fixtures, while keeping credential-shaped material, JWT-like examples, bearer material, token echo/logging, raw header fixtures with credential material, and token-derived fields rejected.
 

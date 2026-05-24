@@ -21,6 +21,11 @@ export const FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH =
 
 export const FP0149_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0149";
 
+export const FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH =
+  "plans/FP-0149-read-only-chatgpt-app-mcp-authorization-parser-pure-domain-implementation.md";
+
+export const FP0150_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0150";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -306,8 +311,29 @@ export function verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPl
 }
 
 export function verifyFp0149Absent(repoPaths: readonly string[]) {
+  return verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
+    repoPaths,
+  );
+}
+
+export function verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0149_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX,
+  );
+  if (hits.length === 0) return true;
+
   return (
-    fpPlanHits(repoPaths, FP0149_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX)
+    hits.length === 1 &&
+    hits[0] === FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH
+  );
+}
+
+export function verifyFp0150Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, FP0150_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX)
       .length === 0
   );
 }
