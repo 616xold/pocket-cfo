@@ -119,9 +119,12 @@ const output = {
   tokenSessionStorageStillBlocked: sourceScope.noTokenSessionStorage,
   authMiddlewareStillBlocked: sourceScope.noAuthMiddleware,
   routeBehaviorStillUnchanged: routeScope.noRouteBehaviorChange,
-  missingTokenBehaviorStillUnchanged: routeScope.noMissingTokenBehaviorChange,
+  missingTokenBehaviorStillUnchanged:
+    routeScope.noMissingTokenBehaviorChange ||
+    routeScope.missingTokenPrecedencePreserved,
   invalidTokenChallengeBehaviorStillUnchanged:
-    routeScope.noInvalidTokenChallengeBehaviorChange,
+    routeScope.noInvalidTokenChallengeBehaviorChange ||
+    routeScope.invalidTokenChallengeDownstreamOnlyPreserved,
   protectedResourceMetadataRouteStillUnchanged:
     routeScope.noProtectedResourceMetadataRouteBehaviorChange,
   noRawAuthorizationHeaderInContracts:
@@ -311,6 +314,13 @@ function verifySourceScope() {
 
 function verifyRouteScope() {
   return {
+    invalidTokenChallengeDownstreamOnlyPreserved:
+      routeSpecSourceIncludes(
+        "routes malformed and unsupported parser decisions to the existing invalid-token challenge",
+      ) &&
+      routeSpecSourceIncludes(
+        "routes observed safe parser decisions to the existing invalid-token challenge until validation runtime exists",
+      ),
     localMcpRouteShape:
       countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
@@ -335,6 +345,12 @@ function verifyRouteScope() {
       routeSource.includes(
         "buildMcpWwwAuthenticateMissingTokenChallengeResponse",
       ),
+    missingTokenPrecedencePreserved:
+      routeSpecSourceIncludes(
+        "keeps missing-token challenge ahead of the parser route-decision dependency",
+      ) &&
+      routeSource.indexOf("request.headers.authorization === undefined") <
+        routeSource.indexOf("deps.readOnlyAppMcpAuthorizationParserRouteDecision"),
     noProtectedResourceMetadataRouteBehaviorChange:
       !changedPaths.includes(METADATA_ROUTE_PATH) &&
       countMatches(metadataRouteSource, /app\.get\(/gu) === 1 &&
@@ -346,6 +362,12 @@ function verifyRouteScope() {
       countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
   };
+}
+
+function routeSpecSourceIncludes(value) {
+  return safeRead(
+    "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
+  ).includes(value);
 }
 
 function verifyNoLeakageScope(text) {

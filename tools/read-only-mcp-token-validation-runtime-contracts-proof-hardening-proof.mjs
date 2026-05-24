@@ -97,10 +97,15 @@ const output = {
   oauthImplementationStillBlocked: sourceScope.noOauthImplementation,
   tokenSessionStorageStillBlocked: sourceScope.noTokenSessionStorage,
   authMiddlewareStillBlocked: sourceScope.noAuthMiddleware,
-  routeBehaviorStillUnchanged: routeScope.noRouteBehaviorChange,
-  missingTokenBehaviorStillUnchanged: routeScope.noMissingTokenBehaviorChange,
+  routeBehaviorStillUnchanged:
+    routeScope.noRouteBehaviorChange ||
+    routeScope.defaultBehaviorWithoutParserDependencyStillUnchanged,
+  missingTokenBehaviorStillUnchanged:
+    routeScope.noMissingTokenBehaviorChange ||
+    routeScope.missingTokenPrecedencePreserved,
   invalidTokenChallengeBehaviorStillUnchanged:
-    routeScope.noInvalidTokenChallengeBehaviorChange,
+    routeScope.noInvalidTokenChallengeBehaviorChange ||
+    routeScope.invalidTokenChallengeDownstreamOnlyPreserved,
   protectedResourceMetadataRouteStillUnchanged:
     routeScope.noProtectedResourceMetadataRouteBehaviorChange,
   fp0139EnvelopeOnlyOutputContractStillVerified:
@@ -175,6 +180,20 @@ console.log(JSON.stringify(output, null, 2));
 
 function verifyRouteScope() {
   return {
+    defaultBehaviorWithoutParserDependencyStillUnchanged:
+      routeSpecSourceIncludes(
+        "keeps default POST /mcp behavior unchanged without the parser route-decision dependency",
+      ) &&
+      routeSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision === undefined",
+      ),
+    invalidTokenChallengeDownstreamOnlyPreserved:
+      routeSpecSourceIncludes(
+        "routes malformed and unsupported parser decisions to the existing invalid-token challenge",
+      ) &&
+      routeSpecSourceIncludes(
+        "routes observed safe parser decisions to the existing invalid-token challenge until validation runtime exists",
+      ),
     localMcpRouteShape:
       countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
@@ -193,6 +212,12 @@ function verifyRouteScope() {
     noMissingTokenBehaviorChange:
       !changedPaths.includes(MCP_ROUTE_PATH) &&
       !changedPaths.includes(MISSING_TOKEN_HELPER_PATH),
+    missingTokenPrecedencePreserved:
+      routeSpecSourceIncludes(
+        "keeps missing-token challenge ahead of the parser route-decision dependency",
+      ) &&
+      routeSource.indexOf("request.headers.authorization === undefined") <
+        routeSource.indexOf("deps.readOnlyAppMcpAuthorizationParserRouteDecision"),
     noProtectedResourceMetadataRouteBehaviorChange:
       !changedPaths.includes(METADATA_ROUTE_PATH) &&
       !metadataRouteSource.includes("WWW-Authenticate"),
@@ -202,6 +227,12 @@ function verifyRouteScope() {
       countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
   };
+}
+
+function routeSpecSourceIncludes(value) {
+  return safeRead(
+    "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
+  ).includes(value);
 }
 
 function verifySourceScope() {

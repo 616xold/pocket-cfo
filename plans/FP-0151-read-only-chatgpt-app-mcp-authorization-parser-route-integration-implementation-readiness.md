@@ -15,6 +15,7 @@ FP-0151 is route-integration implementation-readiness and proof planning only af
 - [x] 2026-05-24T16:25:17Z - Strict same-branch QA found inherited FP-0142/FP-0143 proof-boundary allowlists that recognized FP-0150 but not the exact FP-0151 readiness successor; patched only proof-gate bridge compatibility without route/runtime/provider/OAuth/auth behavior changes.
 - [x] 2026-05-24T16:27:04Z - Strict same-branch QA found the inherited FP-0107 route-adapter proof-boundary allowlist also needed exact FP-0151 successor recognition; patched only the proof allowlist without route-adapter behavior change.
 - [x] 2026-05-24T16:36:03Z - Final validation passed: `git diff --check`, the direct FP-0151 proof, the full requested proof ladder, focused domain/control-plane Vitest suites, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-24T18:18:03Z - Post-merge freshness polish confirmed PR #330 merged to `main` with head SHA `9521cdc0db6138cf0d43d63fd62b983fb0748eaf` and merge commit `11bff71bc24970e2ca629ddc7320a5b41221cde6`; GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction, and no post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Decisions
 
@@ -29,6 +30,7 @@ FP-0151 is route-integration implementation-readiness and proof planning only af
 - Provider-selection evidence correction is not needed after FP-0151 because FP-0147 provider-selection evidence hardening remains green.
 - Narrow same-branch proof-gate bridge corrections were needed and applied for inherited FP-0107/FP-0142/FP-0143 allowlists; no additional proof-gate correction is needed after FP-0151 unless later validation detects a defect.
 - Post-merge QA is not recommended when the branch merges without substantive post-validation correction, GitHub checks remain green, and current `main` matches the validated PR head/merge posture.
+- PR #330 merged on 2026-05-24 with head SHA `9521cdc0db6138cf0d43d63fd62b983fb0748eaf` and merge commit `11bff71bc24970e2ca629ddc7320a5b41221cde6`. GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction, so no post-merge QA is required when current main matches that validated head/merge posture and CI remains green.
 
 ## Route-Safe Parser Decision Contract
 
@@ -213,3 +215,5 @@ FP-0151 closes as a route-integration implementation-readiness and proof-plannin
 No route integration, route consumption, route behavior change, missing-token behavior change, invalid-token challenge behavior change, protected-resource metadata route behavior change, production token validation, provider selection implementation, provider integration, provider calls, token parser, JWT decoder, JWKS fetch/cache, token introspection, OAuth/session/auth middleware, evaluator/test-double route consumption, DB queries, schemas, migrations, package scripts, OpenAI API/model calls, source mutation, finance writes, public assets, listing copy, generated public prose, app submission, external communications, or autonomous action is included.
 
 Future route-integration implementation may start only in a separate FP-0152 implementation slice if FP-0151 readiness proof remains green and FP-0152 explicitly authorizes implementation with explicit dependency injection. Public ChatGPT App submission should wait.
+
+Post-merge freshness correction: PR #330 merged to `main` with head SHA `9521cdc0db6138cf0d43d63fd62b983fb0748eaf` and merge commit `11bff71bc24970e2ca629ddc7320a5b41221cde6`. GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.

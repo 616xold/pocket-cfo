@@ -573,6 +573,14 @@ function sanitizeProofOnlyNoTokenLeakageFixtureLine(line: string) {
     .replace(
       /\bauthorization\s*:\s*null\b/giu,
       "authorization_presence: absent",
+    )
+    .replace(
+      /\bauthorization\s*:\s*"authorization-present-local-only"/giu,
+      "authorization_presence: present_safe_placeholder",
+    )
+    .replace(
+      /\bauthorization\s*:\s*suppliedAuthorization\b/giu,
+      "authorization_presence: present_safe_placeholder",
     );
 }
 
