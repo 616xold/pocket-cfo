@@ -42,11 +42,14 @@ import {
 import { verifyFp0133AbsentOrLocalTokenValidationTestDoubleContracts } from "./read-only-app-mcp-token-validation-test-double";
 import {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
+  MCP_PROOF_ONLY_NO_TOKEN_RETENTION_TERMS,
   MCP_TOKEN_VALIDATION_FAILURE_MODES,
   MCP_TOKEN_VALIDATION_READ_ONLY_SCOPES,
   buildTokenValidationReadinessContract,
   deriveTokenFailureChallengeReadiness,
   isMcpTokenValidationSourceInventoryPath,
+  sanitizeProofOnlyNoTokenLeakageFixtureText,
+  scanProofOnlyNoTokenLeakageText,
   scanTokenValidationNoLeakage,
   validateTokenFailureModeContract,
   validateTokenScopeChallenge,
@@ -320,9 +323,9 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
       }),
     ).toBe(true);
     expect(
-      Object.values(verifyFp0145PlanningTextRequiredTopics(fp0145PlanText)).every(
-        Boolean,
-      ),
+      Object.values(
+        verifyFp0145PlanningTextRequiredTopics(fp0145PlanText),
+      ).every(Boolean),
     ).toBe(true);
     expect(verifyFp0144FailureStateMapping()).toBe(true);
     expect(
@@ -557,6 +560,53 @@ describe("FP-0128 token-validation failure readiness contracts", () => {
       expect(scan.matches.length, text).toBeGreaterThan(0);
     }
     expect(verifyTokenValidationNoLeakageExamples()).toBe(true);
+  });
+
+  it("centralizes proof-only no-token-retention fixture sanitization without allowing token-like material", () => {
+    const exactAbsenceFixture = [
+      "request.headers.",
+      "authorization",
+      " === undefined",
+    ].join("");
+    const emptyHeaderFixture = ["authorization", ": ", '""'].join("");
+    const generatedCredential = ["alpha", "numeric", "fixture"].join("");
+    const unsafeBearerLine = [
+      "authorization",
+      ": ",
+      "bearer",
+      " ",
+      generatedCredential,
+    ].join("");
+    const unsafeJwtLikeLine = [
+      "ey",
+      "J",
+      "headerpart",
+      ".",
+      "payloadpart",
+      ".",
+      "signaturepart",
+    ].join("");
+
+    expect(
+      scanProofOnlyNoTokenLeakageText(
+        MCP_PROOF_ONLY_NO_TOKEN_RETENTION_TERMS.join("\n"),
+      ).accepted,
+    ).toBe(true);
+    expect(
+      sanitizeProofOnlyNoTokenLeakageFixtureText(exactAbsenceFixture),
+    ).toBe("authorization_presence: absent");
+    expect(scanTokenValidationNoLeakage(emptyHeaderFixture).accepted).toBe(
+      false,
+    );
+    expect(scanProofOnlyNoTokenLeakageText(emptyHeaderFixture).accepted).toBe(
+      true,
+    );
+    expect(scanProofOnlyNoTokenLeakageText(unsafeBearerLine).accepted).toBe(
+      false,
+    );
+    expect(scanProofOnlyNoTokenLeakageText(unsafeJwtLikeLine).accepted).toBe(
+      false,
+    );
   });
 
   it("fails token failure contracts closed when runtime status or token material is requested", () => {

@@ -11,6 +11,7 @@ import {
   FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
   MCP_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_SCHEMA_VERSION,
   buildFp0146AuthorizationParserContractsProviderSelectionProof,
+  sanitizeProofOnlyNoTokenLeakageFixtureText,
   scanTokenValidationNoLeakage,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary,
@@ -25,7 +26,7 @@ import {
   verifyFp0146ParserFailureMapping,
   verifyFp0146PlanningTextRequiredTopics,
   verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan,
-  verifyFp0148Absent,
+  verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
 } from "../packages/domain/src/index.ts";
 
 const MCP_ROUTE_PATH =
@@ -78,7 +79,10 @@ const output = {
     }),
   fp0147AbsentOrProviderSelectionEvidenceHardeningPlanVerified:
     verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan(repoPaths),
-  fp0148Absent: verifyFp0148Absent(repoPaths),
+  fp0148AbsentOrAuthorizationParserImplementationReadinessPlanVerified:
+    verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan(
+      repoPaths,
+    ),
   authorizationParserContractsBoundaryVerified:
     verifyFp0146ParserContractProviderSelectionProofPlanBoundary({
       planText: fp0146PlanText,
@@ -549,22 +553,13 @@ function readChangedExecutableSource(paths) {
 }
 
 function readChangedTokenLeakageText(paths) {
-  return sanitizeProofOnlyAbsenceFixtures(
+  return sanitizeProofOnlyNoTokenLeakageFixtureText(
     paths
       .filter((path) => /\.(?:md|mdx|txt|ts|tsx|js|mjs|cjs)$/u.test(path))
       .filter((path) => existsSync(path))
       .map((path) => `# ${path}\n${readAddedLinesOrFullFile(path)}`)
       .join("\n"),
   );
-}
-
-function sanitizeProofOnlyAbsenceFixtures(text) {
-  return text
-    .replaceAll(
-      "request.headers.authorization === undefined",
-      "request.headers.auth_field_absent === true",
-    )
-    .replaceAll('authorization: ""', 'auth_header_absent: ""');
 }
 
 function readAddedLinesOrFullFile(path) {

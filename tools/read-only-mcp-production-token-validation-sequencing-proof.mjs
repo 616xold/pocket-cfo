@@ -10,6 +10,7 @@ import {
   FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
   MCP_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_SCHEMA_VERSION,
+  sanitizeProofOnlyNoTokenLeakageFixtureText,
   scanTokenValidationNoLeakage,
   verifyExactTokenValidationResultEnvelopeFailureTaxonomy,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
@@ -505,7 +506,7 @@ function readChangedExecutableSource(paths) {
 }
 
 function readChangedTokenLeakageText(paths) {
-  return sanitizeProofOnlyAbsenceFixtures(
+  return sanitizeProofOnlyNoTokenLeakageFixtureText(
     paths
       .filter((path) => /\.(?:md|mdx|txt|ts|tsx|js|mjs|cjs)$/u.test(path))
       .filter((path) => existsSync(path))
@@ -514,18 +515,15 @@ function readChangedTokenLeakageText(paths) {
   );
 }
 
-function sanitizeProofOnlyAbsenceFixtures(text) {
-  return text
-    .replaceAll(
-      "request.headers.authorization === undefined",
-      "request.headers.auth_field_absent === true",
-    )
-    .replaceAll('authorization: ""', 'auth_header_absent: ""');
-}
-
 function readAddedLinesOrFullFile(path) {
   const additions = [
-    readDiffAdditions(["diff", "--unified=0", "origin/main...HEAD", "--", path]),
+    readDiffAdditions([
+      "diff",
+      "--unified=0",
+      "origin/main...HEAD",
+      "--",
+      path,
+    ]),
     readDiffAdditions(["diff", "--unified=0", "--", path]),
   ]
     .filter(Boolean)

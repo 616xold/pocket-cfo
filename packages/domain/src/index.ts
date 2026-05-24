@@ -33,10 +33,12 @@ export * from "./read-only-app-mcp-protocol-envelope";
 export * from "./read-only-app-mcp-public-security";
 export * from "./read-only-app-mcp-remote-host-resource";
 export * from "./read-only-app-mcp-authorization-parser-contracts";
+export * from "./read-only-app-mcp-authorization-parser-implementation-readiness";
 export {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_FORBIDDEN_LEAKAGE_MATERIALS,
   MCP_TOKEN_NO_LEAKAGE_SURFACES,
+  MCP_PROOF_ONLY_NO_TOKEN_RETENTION_TERMS,
   MCP_TOKEN_VALIDATION_CONTRACT_ONLY_FAILURE_MODES,
   MCP_TOKEN_VALIDATION_FAILURE_MODES,
   MCP_TOKEN_VALIDATION_FORBIDDEN_SCOPE_TOKENS,
@@ -60,6 +62,8 @@ export {
   buildMcpTokenValidationReadinessContracts,
   buildTokenValidationReadinessContract,
   deriveTokenFailureChallengeReadiness,
+  sanitizeProofOnlyNoTokenLeakageFixtureText,
+  scanProofOnlyNoTokenLeakageText,
   scanTokenValidationNoLeakage,
   textHasTokenValidationNoLeakage,
   validateTokenFailureModeContract,

@@ -37,6 +37,15 @@ export type McpTokenNoLeakageScan = {
   rejectionReasons: readonly string[];
 };
 
+export const MCP_PROOF_ONLY_NO_TOKEN_RETENTION_TERMS = [
+  "authorization absent",
+  "authorization_presence: absent",
+  "no_raw_header_retained",
+  "no_raw_token_retained",
+  "no_token_derived_fingerprint_retained",
+  "credential_material_observed: false",
+] as const;
+
 export type McpTokenScopeChallengeValidation = {
   accepted: boolean;
   forbiddenMatches: readonly string[];
@@ -214,6 +223,21 @@ export function scanTokenValidationNoLeakage(
     matches,
     rejectionReasons: [...new Set(matches.map((match) => match.pattern))],
   };
+}
+
+export function sanitizeProofOnlyNoTokenLeakageFixtureText(text: string) {
+  return text
+    .split("\n")
+    .map(sanitizeProofOnlyNoTokenLeakageFixtureLine)
+    .join("\n");
+}
+
+export function scanProofOnlyNoTokenLeakageText(
+  text: string,
+): McpTokenNoLeakageScan {
+  return scanTokenValidationNoLeakage(
+    sanitizeProofOnlyNoTokenLeakageFixtureText(text),
+  );
 }
 
 export function textHasTokenValidationNoLeakage(text: string) {
@@ -531,6 +555,38 @@ function forbiddenScopeTokensFor(scope: string) {
 
 function normalizeSearchToken(value: string) {
   return value.toLowerCase().replace(/[^a-z0-9]/gu, "");
+}
+
+function sanitizeProofOnlyNoTokenLeakageFixtureLine(line: string) {
+  if (containsCredentialLikeMaterial(line)) return line;
+
+  return line
+    .replace(
+      /\brequest\.headers\.authorization\s*={2,3}\s*undefined\b/giu,
+      "authorization_presence: absent",
+    )
+    .replace(/\bauthorization\s*:\s*""/giu, "authorization_presence: absent")
+    .replace(
+      /\bauthorization\s*:\s*undefined\b/giu,
+      "authorization_presence: absent",
+    )
+    .replace(
+      /\bauthorization\s*:\s*null\b/giu,
+      "authorization_presence: absent",
+    );
+}
+
+function containsCredentialLikeMaterial(line: string) {
+  const credentialMaterialPatterns = [
+    /\bauthorization\s*:\s*bearer\s+\S+/iu,
+    /\bbearer\s+(?!scheme\b|challenge\b|resource_metadata\b|parameter\b|parameters\b|token\b|material\b)[A-Za-z0-9._~+/-]{8,}={0,2}\b/iu,
+    /\bbasic\s+[A-Za-z0-9+/=._-]{8,}\b/iu,
+    /\b(?:access_token|refresh_token|client_secret|x-api-key|api_key)\s*[:=]\s*[A-Za-z0-9][A-Za-z0-9._~+/-]{7,}={0,2}\b/iu,
+    /\bsk-[A-Za-z0-9][A-Za-z0-9_-]{8,}\b/u,
+    /\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/u,
+  ];
+
+  return credentialMaterialPatterns.some((pattern) => pattern.test(line));
 }
 
 function isSafeAbsenceOrProhibitionText(line: string) {

@@ -32,9 +32,11 @@ import {
 import {
   FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
+  FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
   verifyFp0146ParserContractProviderSelectionProofPlanBoundary,
   verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan,
   verifyFp0148Absent,
+  verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   FP0147_AUTHORIZATION_SERVER_DISCOVERY_EVIDENCE_REQUIREMENTS,
@@ -67,8 +69,12 @@ const metadataRoutePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 
 describe("FP-0147 provider-selection evidence hardening", () => {
-  it("accepts exactly one FP-0147 evidence-hardening plan while FP-0148 remains absent", () => {
+  it("accepts exactly one FP-0147 evidence-hardening plan while the exact FP-0148 readiness follow-up may exist", () => {
     const repoPaths = repoFilePaths();
+    const repoPathsWithoutFp0148 = repoPaths.filter(
+      (path) =>
+        path !== FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
+    );
     const planText = safeRead(
       FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
     );
@@ -79,7 +85,12 @@ describe("FP-0147 provider-selection evidence hardening", () => {
     expect(
       verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan(repoPaths),
     ).toBe(true);
-    expect(verifyFp0148Absent(repoPaths)).toBe(true);
+    expect(verifyFp0148Absent(repoPathsWithoutFp0148)).toBe(true);
+    expect(
+      verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
     expect(
       verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary({
         planText,
@@ -92,9 +103,12 @@ describe("FP-0147 provider-selection evidence hardening", () => {
         "plans/FP-0147-runtime.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0148Absent([...repoPaths, "plans/FP-0148-runtime.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan([
+        ...repoPaths,
+        "plans/FP-0148-runtime.md",
+      ]),
+    ).toBe(false);
   });
 
   it("keeps provider mode deferred and blocks provider, parser, runtime, OAuth, route, DB, and public-submission scope", () => {
