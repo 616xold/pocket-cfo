@@ -18,7 +18,8 @@ FP-0146 shipped parser-contract/provider-selection-proof only. FP-0147 hardens t
 - [x] 2026-05-23T23:52:03Z - Patched stale FP-0146 closeout wording from PR #325 on this same FP-0147 branch.
 - [x] 2026-05-23T23:52:03Z - Added the FP-0147 plan, provider-selection evidence-hardening domain proof bridge, focused specs, and direct proof command.
 - [x] 2026-05-24T00:24:18Z - Focused validation and strict same-branch QA passed on this same branch. QA found proof-gate bridge compatibility gaps in existing app-wiring, route-integration sequencing, and route-adapter proof tools for the new FP-0147 plan/proof paths; those were patched before final validation. Final proof sanity also found proof-only authorization-field absence fixtures tripping inherited token-leakage scanners in FP-0144/0145/0146 proof tools; the scanner inputs were narrowed to sanitize only those absence fixtures while preserving real token-material detection, and the full validation ladder was rerun successfully.
-- [x] 2026-05-24T00:24:18Z - Full validation passed before closeout, including `pnpm ci:repro:current`. This closeout edit records that the required post-closeout validation subset must remain green before the single commit, push, and PR creation.
+- [x] 2026-05-24T00:24:18Z - Full validation passed before closeout, including `pnpm ci:repro:current`; PR #326 later merged the validated branch.
+- [x] 2026-05-24T11:07:44Z - FP-0148 same-branch freshness polish confirmed PR #326 merged with head SHA `464fb3f7fb57b5a28ba282eedbfd087cd079114f` and merge commit `a0b8439084ecb52e146b5111960d53ae76e13053`, recorded that same-branch QA found no issues and made no correction, and records that no post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -28,7 +29,9 @@ FP-0146 had stale closeout wording that still described post-closeout validation
 
 OpenAI Developers read-only docs tooling was not available in this local thread. The exposed OpenAI Platform path was API-key setup, which is out of scope, so official public docs were used read-only and no key flow was invoked.
 
-Strict same-branch QA found no provider-selection implementation, provider integration, provider calls, Authorization parser runtime, token parser, JWT decoder, JWKS fetcher, introspection client, OAuth/session/auth middleware, route behavior change, missing-token behavior change, invalid-token challenge behavior change, protected-resource metadata route behavior change, DB/schema/package work, OpenAI API/model call, source mutation, finance write, public asset, listing copy, generated public prose, app submission, external communication, or autonomous action. The only corrections were proof-gate bridge compatibility updates so prior boundary tools accept the exact FP-0147 plan/proof files while continuing to reject FP-0148 and forbidden scope, plus narrow proof-only scanner sanitizers for authorization-field absence fixtures that are not token material.
+Strict same-branch QA found no provider-selection implementation, provider integration, provider calls, Authorization parser runtime, token parser, JWT decoder, JWKS fetcher, introspection client, OAuth/session/auth middleware, route behavior change, missing-token behavior change, invalid-token challenge behavior change, protected-resource metadata route behavior change, DB/schema/package work, OpenAI API/model call, source mutation, finance write, public asset, listing copy, generated public prose, app submission, external communication, or autonomous action. The only corrections were proof-gate bridge compatibility updates so prior boundary tools accept the exact FP-0147 plan/proof files while preserving forbidden-scope rejection, plus narrow proof-only scanner sanitizers for authorization-field absence fixtures that are not token material.
+
+FP-0148 freshness polish confirmed PR #326 is merged. `gh pr view 326` reports head SHA `464fb3f7fb57b5a28ba282eedbfd087cd079114f`, merge commit `a0b8439084ecb52e146b5111960d53ae76e13053`, and `main` matching the validated PR/merge posture. Same-branch QA found no issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Decision Log
 
@@ -78,11 +81,11 @@ These docs are context only. Product source truth for Pocket CFO finance answers
 
 Provider mode after FP-0147: provider-neutral/deferred.
 
-| Mode | Status | Evidence posture | Decision |
-| --- | --- | --- | --- |
-| `jwt_jwks_candidate` | Candidate only | Incomplete until issuer, audience/resource, JWKS URI, key rotation, unavailable-service fail-closed, scope, org, company, no-passthrough, SSRF, and dev/test tenant evidence are complete. | Not selected. |
-| `opaque_introspection_candidate` | Candidate only | Incomplete until issuer, audience/resource or equivalent, introspection endpoint, revocation, unavailable-service fail-closed, scope, org, company, no-passthrough, SSRF, and dev/test tenant evidence are complete. | Not selected. |
-| `provider_neutral_deferred` | Active | Complete as the only safe posture because repo evidence does not yet prove a provider decision. | Selected posture, not a provider. |
+| Mode                             | Status         | Evidence posture                                                                                                                                                                                                     | Decision                          |
+| -------------------------------- | -------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| `jwt_jwks_candidate`             | Candidate only | Incomplete until issuer, audience/resource, JWKS URI, key rotation, unavailable-service fail-closed, scope, org, company, no-passthrough, SSRF, and dev/test tenant evidence are complete.                           | Not selected.                     |
+| `opaque_introspection_candidate` | Candidate only | Incomplete until issuer, audience/resource or equivalent, introspection endpoint, revocation, unavailable-service fail-closed, scope, org, company, no-passthrough, SSRF, and dev/test tenant evidence are complete. | Not selected.                     |
+| `provider_neutral_deferred`      | Active         | Complete as the only safe posture because repo evidence does not yet prove a provider decision.                                                                                                                      | Selected posture, not a provider. |
 
 No provider is selected after FP-0147. The matrix is recorded to prevent provider drift, not to authorize provider integration.
 
@@ -206,7 +209,7 @@ FP-0147 adds proof gates so exactly one FP-0147 path is accepted:
 
 - `plans/FP-0147-read-only-chatgpt-app-mcp-provider-selection-evidence-hardening.md`
 
-The bridge rejects FP-0148 and rejects any other FP-0147 path. It proves:
+The bridge originally rejected FP-0148 at FP-0147 closeout. FP-0148 now keeps that boundary intact while allowing only the exact FP-0148 implementation-readiness/proof-hardening successor plan and rejecting FP-0149, any other FP-0148 path, and any other FP-0147 path. It proves:
 
 - FP-0147 is provider-selection evidence-hardening/proof only.
 - FP-0147 does not choose provider without explicit complete evidence.
@@ -222,7 +225,8 @@ The bridge rejects FP-0148 and rejects any other FP-0147 path. It proves:
 - Dev/test tenant and mTLS/egress/IP allowlist future evidence requirements are recorded.
 - Failure states are mapped to FP-0139 envelopes or `future_only_provider_evidence_refusal`.
 - FP-0146 stale closeout is patched if present.
-- FP-0148 remains absent.
+- FP-0148 is absent or exactly `plans/FP-0148-read-only-chatgpt-app-mcp-authorization-parser-implementation-readiness.md` as an implementation-readiness/proof-hardening successor only.
+- FP-0149 remains absent.
 - FP-0146 parser contracts remain intact.
 - FP-0145 runtime contracts remain intact.
 - FP-0144 production token-validation sequencing remains intact.
@@ -261,7 +265,8 @@ Forbidden scope:
 - Real token examples, JWT-like examples, Bearer material, token-derived fingerprints, token echo, or token logging.
 - DB/schema/package/data/OpenAI/provider/source/finance-write scope.
 - Public assets, generated public prose, listing copy, screenshots, submission materials, external communications, provider/certification/deployment execution, or autonomous action.
-- FP-0148 creation.
+- Any FP-0148 path other than the exact implementation-readiness/proof-hardening successor.
+- FP-0149 creation.
 
 ## Validation Ladder
 
@@ -313,7 +318,8 @@ Outcomes:
 - FP-0130 missing-token lane, invalid-token challenge downstream of sanitized FP-0139 envelopes, protected-resource metadata route posture, and `/mcp` route behavior are preserved.
 - FP-0146, FP-0145, FP-0144, FP-0143, FP-0142, FP-0141, FP-0139, FP-0130, FP-0125, FP-0107, FP-0106, and FP-0100 boundaries remain intact.
 - FP-0146 closeout freshness was corrected with PR #325 head SHA `a14f7f75475b56147891446bc3d514247d6b9360`, merge commit `273d690c6897bad703df6bf59605ec28e120d633`, same-branch QA/no-correction posture, and no post-merge QA requirement when current main matches validated PR/merge posture and CI remains green.
-- No FP-0148 was created.
+- PR #326 merged with head SHA `464fb3f7fb57b5a28ba282eedbfd087cd079114f` and merge commit `a0b8439084ecb52e146b5111960d53ae76e13053`; same-branch QA found no issues and made no correction.
+- FP-0148 was later created only as the exact implementation-readiness/proof-hardening successor; it does not authorize parser implementation, route consumption, production token validation, provider selection, OAuth/session/auth middleware, public app work, or FP-0149.
 
 Validation passed before this closeout:
 
@@ -325,6 +331,6 @@ Validation passed before this closeout:
 - `pnpm test` passed.
 - `pnpm ci:repro:current` passed in a clean temp worktree.
 
-Because this closeout is a post-validation doc edit, release requires the post-closeout subset to remain green: `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 No post-merge QA is recommended unless this branch receives a substantive correction after final validation, GitHub checks are suspicious, or `main` behaves differently after merge.

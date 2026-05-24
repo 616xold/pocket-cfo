@@ -16,8 +16,8 @@ import {
 import {
   FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
   FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH,
-  verifyFp0143AbsentOrInvalidTokenAppConstructionWiring,
   verifyFp0142RouteIntegrationSequencingPlanBoundary,
+  verifyFp0143AbsentOrInvalidTokenAppConstructionWiring,
 } from "./read-only-app-mcp-invalid-token-challenge-route-integration-sequencing";
 import {
   FP0144_PRODUCTION_TOKEN_VALIDATION_SEQUENCING_PLAN_PATH,
@@ -29,27 +29,35 @@ import {
 } from "./read-only-app-mcp-token-validation-runtime";
 import {
   FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
-  FP0146_CANDIDATE_PROVIDER_MODES,
   FP0146_FAILURE_MAPPINGS,
-  FP0146_FAILURE_STATES,
   FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS,
-  FP0146_PROVIDER_MODE,
-  FP0146_PROVIDER_SELECTION_CRITERIA,
   FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS,
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
-  buildFp0146AuthorizationParserContractsProviderSelectionProof,
-  buildFp0146SanitizedParserOutputContract,
-  verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
-  verifyFp0146AuthorizationParserContractsProof,
   verifyFp0146ParserContractProviderSelectionProofPlanBoundary,
-  verifyFp0146ParserFailureMapping,
-  verifyFp0146PlanningTextRequiredTopics,
-  verifyFp0147Absent,
-  verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan,
-  verifyFp0148Absent,
   verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
+  verifyFp0149Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
+import { verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary } from "./read-only-app-mcp-provider-selection-evidence-hardening";
+import {
+  MCP_PROOF_ONLY_NO_TOKEN_RETENTION_TERMS,
+  scanProofOnlyNoTokenLeakageText,
+  scanTokenValidationNoLeakage,
+} from "./read-only-app-mcp-token-validation";
+import {
+  FP0148_FUTURE_FP0149_ALLOWED_SCOPE,
+  FP0148_FUTURE_PARSER_INPUT_BOUNDARY,
+  FP0148_FUTURE_PARSER_OUTPUT_BOUNDARY,
+  FP0148_PARSER_READINESS_TEST_MATRIX,
+  buildFp0148AuthorizationParserImplementationReadinessProof,
+  verifyFp0147CloseoutFreshnessForFp0148,
+  verifyFp0148AuthorizationParserImplementationReadinessPlanBoundary,
+  verifyFp0148AuthorizationParserImplementationReadinessProof,
+  verifyFp0148ParserFailureMapping,
+  verifyFp0148PlanningTextRequiredTopics,
+  verifyFp0148ReadinessTestMatrixWithoutTokenMaterial,
+  verifyFp0148SharedProofOnlyLeakageSanitizer,
+} from "./read-only-app-mcp-authorization-parser-implementation-readiness";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const mcpRoutePath =
@@ -63,189 +71,204 @@ const fp0106PlanPath =
 const fp0100PlanPath =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 
-describe("FP-0146 Authorization parser contract and provider-selection proof", () => {
-  it("accepts exactly one FP-0146 parser-contract/provider-selection-proof plan while exact FP-0147 and FP-0148 follow-ups may exist", () => {
+describe("FP-0148 Authorization parser implementation readiness", () => {
+  it("accepts exactly one FP-0148 readiness plan while FP-0149 remains absent", () => {
     const repoPaths = repoFilePaths();
-    const repoPathsWithoutFp0147 = repoPaths.filter(
-      (path) => path !== FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
-    );
-    const repoPathsWithoutFp0148 = repoPaths.filter(
-      (path) =>
-        path !== FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
-    );
     const planText = safeRead(
-      FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
+      FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
     );
 
-    expect(repoPaths.filter((path) => /(^|\/)FP-0146/u.test(path))).toEqual([
-      FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
+    expect(repoPaths.filter((path) => /(^|\/)FP-0148/u.test(path))).toEqual([
+      FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
     ]);
-    expect(
-      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan({
-        planText,
-        repoPaths,
-      }),
-    ).toBe(true);
-    expect(
-      verifyFp0146ParserContractProviderSelectionProofPlanBoundary({
-        planText,
-        repoPaths,
-      }),
-    ).toBe(true);
-    expect(
-      Object.values(verifyFp0146PlanningTextRequiredTopics(planText)).every(
-        Boolean,
-      ),
-    ).toBe(true);
-    expect(
-      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan(repoPaths),
-    ).toBe(true);
-    expect(verifyFp0148Absent(repoPathsWithoutFp0148)).toBe(true);
     expect(
       verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan(
         repoPaths,
       ),
     ).toBe(true);
+    expect(verifyFp0149Absent(repoPaths)).toBe(true);
     expect(
-      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan({
+      verifyFp0148AuthorizationParserImplementationReadinessPlanBoundary({
         planText,
-        repoPaths: [...repoPaths, "plans/FP-0146-runtime.md"],
-      }),
-    ).toBe(false);
-    expect(
-      verifyFp0146AbsentOrParserContractProviderSelectionProofPlan({
-        planText,
-        repoPaths: [...repoPaths, "plans/FP-0147-runtime.md"],
+        repoPaths,
       }),
     ).toBe(true);
-    expect(verifyFp0147Absent([...repoPaths, "plans/FP-0147-runtime.md"])).toBe(
-      false,
-    );
-    expect(
-      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan([
-        ...repoPathsWithoutFp0147,
-        FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
-      ]),
-    ).toBe(true);
-    expect(
-      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan([
-        ...repoPaths,
-        "plans/FP-0147-runtime.md",
-      ]),
-    ).toBe(false);
-    expect(
-      verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan([
-        ...repoPaths,
-        FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
-      ]),
-    ).toBe(false);
     expect(
       verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan([
         ...repoPaths,
         "plans/FP-0148-runtime.md",
       ]),
     ).toBe(false);
+    expect(verifyFp0149Absent([...repoPaths, "plans/FP-0149-parser.md"])).toBe(
+      false,
+    );
   });
 
-  it("models sanitized parser output without raw credential material or token-derived fingerprints", () => {
-    const proof =
-      buildFp0146AuthorizationParserContractsProviderSelectionProof();
-    const outputContract = buildFp0146SanitizedParserOutputContract();
-    const outputFields = Object.keys(outputContract);
+  it("keeps parser implementation, runtime validation, provider selection, OAuth, and public submission blocked", () => {
+    const proof = buildFp0148AuthorizationParserImplementationReadinessProof();
 
-    expect(proof.parserContractAndProviderSelectionProofOnly).toBe(true);
-    expect(proof.authorizationParserImplementationCanStartAfterFp0146).toBe(
+    expect(proof.fp0148ImplementationReadinessAndProofHardeningOnly).toBe(true);
+    expect(proof.authorizationParserImplementationCanStartAfterFp0148).toBe(
       false,
     );
-    expect(proof.productionTokenValidationRuntimeCanStartAfterFp0146).toBe(
+    expect(proof.productionTokenValidationRuntimeCanStartAfterFp0148).toBe(
       false,
     );
-    expect(proof.tokenParserImplementationCanStartAfterFp0146).toBe(false);
-    expect(proof.jwtDecoderImplementationCanStartAfterFp0146).toBe(false);
-    expect(proof.jwksFetchingCachingImplementationCanStartAfterFp0146).toBe(
-      false,
+    expect(proof.providerSelectionCanStartAfterFp0148).toBe(false);
+    expect(proof.oauthSessionAuthMiddlewareCanStartAfterFp0148).toBe(false);
+    expect(proof.publicChatGptAppDemoSubmissionCanStartAfterFp0148).toBe(false);
+    expect(proof.futureFp0149MayOpenOnly).toEqual([
+      ...FP0148_FUTURE_FP0149_ALLOWED_SCOPE,
+    ]);
+    expect(proof.noTokenParserImplementation).toBe(true);
+    expect(proof.noJwtDecoderImplementation).toBe(true);
+    expect(proof.noJwksFetchImplementation).toBe(true);
+    expect(proof.noTokenIntrospectionImplementation).toBe(true);
+    expect(proof.noRouteBehaviorChange).toBe(true);
+    expect(verifyFp0148AuthorizationParserImplementationReadinessProof()).toBe(
+      true,
     );
-    expect(proof.tokenIntrospectionImplementationCanStartAfterFp0146).toBe(
+  });
+
+  it("records parser input and output boundaries without retaining raw header, token material, or token-derived fields", () => {
+    const proof = buildFp0148AuthorizationParserImplementationReadinessProof();
+
+    expect(proof.futureParserInputBoundaryTerms).toEqual([
+      ...FP0148_FUTURE_PARSER_INPUT_BOUNDARY,
+    ]);
+    expect(
+      proof.futureParserInputBoundary
+        .mayInspectInjectedRawRequestHeaderOnlyInsideFuturePureParserFunction,
+    ).toBe(true);
+    expect(
+      proof.futureParserInputBoundary.rawHeaderRetainedOutsideParserStack,
+    ).toBe(false);
+    expect(proof.futureParserInputBoundary.rawTokenMaterialRetained).toBe(
       false,
-    );
-    expect(proof.oauthSessionAuthMiddlewareCanStartAfterFp0146).toBe(false);
-    expect(proof.routeBehaviorMayChangeAfterFp0146).toBe(false);
-    expect(outputContract.no_raw_header_retained).toBe(true);
-    expect(outputContract.no_raw_token_retained).toBe(true);
-    expect(outputContract.no_token_derived_fingerprint_retained).toBe(true);
-    expect(FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS).toEqual(
-      outputFields,
     );
     expect(
+      proof.futureParserInputBoundary
+        .tokenDerivedPrefixSuffixLengthHashDigestClaimsDecodedHeaderPayloadEmitted,
+    ).toBe(false);
+    expect(proof.futureParserOutputBoundary.allowedSanitizedFields).toEqual([
+      ...FP0148_FUTURE_PARSER_OUTPUT_BOUNDARY,
+    ]);
+    expect(FP0148_FUTURE_PARSER_OUTPUT_BOUNDARY).toEqual([
+      ...FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS,
+    ]);
+    expect(
       FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS.every(
-        (field) => !outputFields.includes(field),
+        (field) =>
+          !proof.futureParserOutputBoundary.allowedSanitizedFields.includes(
+            field as (typeof FP0148_FUTURE_PARSER_OUTPUT_BOUNDARY)[number],
+          ),
       ),
     ).toBe(true);
-    expect(verifyFp0146AuthorizationParserContractsProof()).toBe(true);
   });
 
   it("maps parser failure states to FP-0139 envelopes or the FP-0130 missing-token lane", () => {
+    const proof = buildFp0148AuthorizationParserImplementationReadinessProof();
+
+    expect(proof.parserFailureMappings).toHaveLength(
+      FP0146_FAILURE_MAPPINGS.length,
+    );
     expect(
-      FP0146_FAILURE_MAPPINGS.map(({ failureState }) => failureState),
-    ).toEqual([...FP0146_FAILURE_STATES]);
-    expect(
-      FP0146_FAILURE_MAPPINGS.find(
+      proof.parserFailureMappings.find(
         ({ failureState }) => failureState === "missing_authorization",
       ),
     ).toMatchObject({
       envelopeFailure: "missing_token",
-      missingTokenLaneSeparate: true,
+      mapsToFp0130MissingTokenLane: true,
     });
     expect(
-      FP0146_FAILURE_MAPPINGS.find(
+      proof.parserFailureMappings.find(
         ({ failureState }) => failureState === "unsupported_scheme",
       ),
     ).toMatchObject({ envelopeFailure: "unsupported_validation_mode" });
     expect(
-      FP0146_FAILURE_MAPPINGS.find(
+      proof.parserFailureMappings.find(
         ({ failureState }) =>
           failureState === "token_material_passthrough_attempt",
       ),
-    ).toMatchObject({
-      envelopeFailure: "invalid_token",
-      noForwarding: true,
-      noTokenEcho: true,
-    });
+    ).toMatchObject({ envelopeFailure: "invalid_token" });
+    expect(verifyFp0148ParserFailureMapping()).toBe(true);
+  });
+
+  it("keeps the readiness test matrix token-free and centralizes proof-only no-token-leakage fixture sanitization", () => {
+    const absenceFixture = [
+      "request.headers.",
+      "authorization",
+      " === undefined",
+    ].join("");
+    const emptyFixture = ["authorization", ": ", '""'].join("");
+    const generatedCredential = ["alpha", "numeric", "fixture"].join("");
+    const unsafeBearerLine = [
+      "authorization",
+      ": ",
+      "bearer",
+      " ",
+      generatedCredential,
+    ].join("");
+
+    expect(FP0148_PARSER_READINESS_TEST_MATRIX).toContain(
+      "multiple_header_values_structural_only",
+    );
+    expect(FP0148_PARSER_READINESS_TEST_MATRIX).toContain(
+      "bearer_present_classification_with_sentinel_non_token_placeholder",
+    );
+    expect(verifyFp0148ReadinessTestMatrixWithoutTokenMaterial()).toBe(true);
     expect(
-      FP0146_FAILURE_MAPPINGS.every(
-        ({ failureState, invalidTokenChallengeDownstreamOfFp0139 }) =>
-          failureState === "missing_authorization" ||
-          invalidTokenChallengeDownstreamOfFp0139,
+      scanProofOnlyNoTokenLeakageText(
+        MCP_PROOF_ONLY_NO_TOKEN_RETENTION_TERMS.join("\n"),
+      ).accepted,
+    ).toBe(true);
+    expect(scanProofOnlyNoTokenLeakageText(absenceFixture).accepted).toBe(true);
+    expect(scanProofOnlyNoTokenLeakageText(emptyFixture).accepted).toBe(true);
+    expect(scanTokenValidationNoLeakage(emptyFixture).accepted).toBe(false);
+    expect(scanProofOnlyNoTokenLeakageText(unsafeBearerLine).accepted).toBe(
+      false,
+    );
+    expect(verifyFp0148SharedProofOnlyLeakageSanitizer()).toBe(true);
+  });
+
+  it("preserves FP-0147 freshness, route behavior, and earlier boundary proofs", () => {
+    const repoPaths = repoFilePaths();
+    const fp0148PlanText = safeRead(
+      FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
+    );
+
+    expect(
+      Object.values(
+        verifyFp0148PlanningTextRequiredTopics(fp0148PlanText),
+      ).every(Boolean),
+    ).toBe(true);
+    expect(
+      verifyFp0147CloseoutFreshnessForFp0148(
+        safeRead(FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH),
       ),
     ).toBe(true);
-    expect(verifyFp0146ParserFailureMapping()).toBe(true);
-  });
-
-  it("records provider-selection criteria without choosing a provider or calling one", () => {
-    const proof =
-      buildFp0146AuthorizationParserContractsProviderSelectionProof();
-
-    expect(proof.providerMode).toBe(FP0146_PROVIDER_MODE);
-    expect(proof.candidateProviderModes).toEqual([
-      ...FP0146_CANDIDATE_PROVIDER_MODES,
-    ]);
-    expect(proof.providerSelectionCriteria).toEqual([
-      ...FP0146_PROVIDER_SELECTION_CRITERIA,
-    ]);
-    expect(proof.noProviderCallsInThisSlice).toBe(true);
-    expect(proof.noCredentialForwardingInThisSlice).toBe(true);
-    expect(proof.noTokenPassthroughInThisSlice).toBe(true);
-  });
-
-  it("preserves route, missing-token, invalid-token, metadata, and earlier proof boundaries", () => {
-    const repoPaths = repoFilePaths();
-
     expect(routePosturePreserved()).toEqual({
       invalidTokenChallengeBehaviorUnchanged: true,
       metadataRouteBehaviorUnchanged: true,
       missingTokenBehaviorUnchanged: true,
       mcpRouteBehaviorUnchanged: true,
     });
+    expect(
+      verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary({
+        planText: safeRead(
+          FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
+    expect(
+      verifyFp0146ParserContractProviderSelectionProofPlanBoundary({
+        planText: safeRead(
+          FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
+        ),
+        repoPaths,
+      }),
+    ).toBe(true);
     expect(
       verifyFp0145TokenValidationRuntimeProofHardeningPlanBoundary({
         planText: safeRead(
@@ -332,16 +355,14 @@ function routePosturePreserved() {
       ) === 3,
     metadataRouteBehaviorUnchanged:
       countMatches(metadataRouteSource, /app\.get\(/gu) === 1 &&
-      (metadataRouteSource.includes(
-        '"/.well-known/oauth-protected-resource/mcp"',
-      ) ||
-        metadataRouteSource.includes(
-          "MCP_ROUTE_INPUT_EXPECTED_MCP_METADATA_ROUTE_PATH",
-        )),
+      metadataRouteSource.includes(
+        "READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH",
+      ),
     missingTokenBehaviorUnchanged:
-      routeSource.includes(
-        "readOnlyAppMcpLocalProofGatedMissingTokenChallenge",
-      ) &&
+      countMatches(
+        routeSource,
+        /readOnlyAppMcpLocalProofGatedMissingTokenChallenge/gu,
+      ) === 3 &&
       routeSource.includes(
         "buildMcpWwwAuthenticateMissingTokenChallengeResponse",
       ),
@@ -368,7 +389,8 @@ function repoFilePaths(dir = repoRoot, prefix = ""): string[] {
       return [];
     }
     const path = prefix ? `${prefix}/${entry.name}` : entry.name;
-    if (entry.isDirectory()) return repoFilePaths(`${dir}/${entry.name}`, path);
+    const absolutePath = `${dir}/${entry.name}`;
+    if (entry.isDirectory()) return repoFilePaths(absolutePath, path);
     return [path];
   });
 }

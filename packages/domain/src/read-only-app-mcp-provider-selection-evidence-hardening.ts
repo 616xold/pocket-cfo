@@ -2,7 +2,7 @@ import type { TokenValidationFailureTaxonomy } from "./read-only-app-mcp-token-v
 import {
   FP0146_PROVIDER_MODE,
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
-  verifyFp0148Absent as verifyFp0148AbsentFromAuthorizationParser,
+  verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 export const MCP_PROVIDER_SELECTION_EVIDENCE_HARDENING_SCHEMA_VERSION =
@@ -295,7 +295,9 @@ export function verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary(
 ) {
   return (
     exactlyOneFp0147Plan(input.repoPaths) &&
-    verifyFp0148AbsentFromAuthorizationParser(input.repoPaths) &&
+    verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan(
+      input.repoPaths,
+    ) &&
     Object.values(verifyFp0147PlanningTextRequiredTopics(input.planText)).every(
       Boolean,
     ) &&

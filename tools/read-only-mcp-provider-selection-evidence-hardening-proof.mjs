@@ -12,6 +12,7 @@ import {
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   MCP_PROVIDER_SELECTION_EVIDENCE_HARDENING_SCHEMA_VERSION,
   buildFp0147ProviderSelectionEvidenceHardeningProof,
+  sanitizeProofOnlyNoTokenLeakageFixtureText,
   scanTokenValidationNoLeakage,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary,
@@ -26,7 +27,7 @@ import {
   verifyFp0147ProviderEvidenceFailureStateMapping,
   verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary,
   verifyFp0147ProviderSelectionEvidenceHardeningProof,
-  verifyFp0148Absent,
+  verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
 } from "../packages/domain/src/index.ts";
 
 const MCP_ROUTE_PATH =
@@ -77,7 +78,10 @@ const output = {
   schemaVersion: MCP_PROVIDER_SELECTION_EVIDENCE_HARDENING_SCHEMA_VERSION,
   fp0147AbsentOrProviderSelectionEvidenceHardeningPlanVerified:
     verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan(repoPaths),
-  fp0148Absent: verifyFp0148Absent(repoPaths),
+  fp0148AbsentOrAuthorizationParserImplementationReadinessPlanVerified:
+    verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan(
+      repoPaths,
+    ),
   providerSelectionEvidenceHardeningBoundaryVerified:
     verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary({
       planText: fp0147PlanText,
@@ -532,18 +536,42 @@ function readChangedExecutableSource(paths) {
 }
 
 function readChangedLeakageText(paths) {
-  return sanitizeProofOnlyAbsenceFixtures(
-    paths.map((path) => safeReadOrEmpty(path)).join("\n"),
+  return sanitizeProofOnlyNoTokenLeakageFixtureText(
+    paths
+      .filter((path) => /\.(?:md|mdx|txt|ts|tsx|js|mjs|cjs)$/u.test(path))
+      .filter((path) => existsSync(path))
+      .map((path) => `# ${path}\n${readAddedLinesOrFullFile(path)}`)
+      .join("\n"),
   );
 }
 
-function sanitizeProofOnlyAbsenceFixtures(text) {
-  return text
-    .replaceAll(
-      "request.headers.authorization === undefined",
-      "request.headers.auth_field_absent === true",
-    )
-    .replaceAll('authorization: ""', 'auth_header_absent: ""');
+function readAddedLinesOrFullFile(path) {
+  const additions = [
+    readDiffAdditions([
+      "diff",
+      "--unified=0",
+      "origin/main...HEAD",
+      "--",
+      path,
+    ]),
+    readDiffAdditions(["diff", "--unified=0", "--", path]),
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  return additions || safeReadOrEmpty(path);
+}
+
+function readDiffAdditions(args) {
+  try {
+    return execFileSync("git", args, { encoding: "utf8" })
+      .split("\n")
+      .filter((line) => line.startsWith("+") && !line.startsWith("+++"))
+      .map((line) => line.slice(1))
+      .join("\n");
+  } catch {
+    return "";
+  }
 }
 
 function repoFilePaths(dir = ".", prefix = "") {
