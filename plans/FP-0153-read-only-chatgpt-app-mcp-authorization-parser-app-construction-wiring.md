@@ -32,7 +32,7 @@ FP-0152 route behavior was intentionally explicit-dependency-only, but it allowe
 
 OpenAI Developers tooling was not used for API-key setup. Official web docs were used only for read-only protocol and security context. The active code remains the source of implementation truth.
 
-Older proof gates used absence-only or direct-call pattern checks for route integration and app construction successor boundaries. FP-0153 updated those proof bridges narrowly to accept the exact FP-0153 plan and the hardened local `parserRouteDecisionDependency` gate while keeping FP-0154 absent and all production auth/provider/runtime work blocked.
+Older proof gates used absence-only or direct-call pattern checks for route integration and app construction successor boundaries. FP-0153 updated those proof bridges narrowly to accept the exact FP-0153 plan and the hardened local `parserRouteDecisionDependency` gate while keeping successor work absent at FP-0153 closeout. The later FP-0154 successor is limited to local adapter construction-readiness/proof-only and keeps all production auth/provider/runtime work blocked.
 
 ## Decision Log
 
@@ -127,7 +127,7 @@ pnpm test
 pnpm ci:repro:current
 ```
 
-Acceptance is observable when `AppContainer` exposes the optional dependency port, `buildApp({ container })` passes an explicitly supplied dependency through, default containers do not construct or populate it, route registration rejects parser dependency without the invalid-token challenge lane, existing invalid-token co-registration still requires missing-token challenge and protected-resource metadata evidence, origin rejection and missing-token precedence happen before any parser dependency call, present Authorization with full co-registration uses the existing sanitized invalid-token response, parser decision objects never appear in HTTP response bodies or logs, protected-resource metadata route behavior is unchanged, FP-0154 is absent, and the prior FP proof ladder remains green.
+Acceptance is observable when `AppContainer` exposes the optional dependency port, `buildApp({ container })` passes an explicitly supplied dependency through, default containers do not construct or populate it, route registration rejects parser dependency without the invalid-token challenge lane, existing invalid-token co-registration still requires missing-token challenge and protected-resource metadata evidence, origin rejection and missing-token precedence happen before any parser dependency call, present Authorization with full co-registration uses the existing sanitized invalid-token response, parser decision objects never appear in HTTP response bodies or logs, protected-resource metadata route behavior is unchanged, the later FP-0154 successor remains limited to local adapter construction-readiness/proof-only, and the prior FP proof ladder remains green.
 
 ## Idempotence and Recovery
 

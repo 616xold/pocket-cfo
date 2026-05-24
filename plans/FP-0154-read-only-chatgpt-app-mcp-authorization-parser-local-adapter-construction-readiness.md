@@ -20,6 +20,7 @@ Target phase: V2BV read-only ChatGPT App/MCP Authorization parser local adapter 
 - [x] 2026-05-24T22:27:37Z - Focused proof ladder, focused domain/control-plane Vitest suites, `pnpm lint`, `pnpm typecheck`, and `pnpm test` passed.
 - [x] 2026-05-24T22:27:37Z - First `pnpm ci:repro:current` attempt failed on a transient DB-backed orchestrator spec timeout after local `pnpm test` had passed; same-branch rerun passed cleanly with the timed-out spec completing in 3057ms and full CI reproduction succeeding.
 - [x] 2026-05-24T22:27:37Z - Closeout recorded no adapter implementation, no factory export, no app/route/default construction, no route behavior change, no token validation/provider/OAuth/session/auth middleware, no DB/schema/package/source/finance/public-app/submission scope, and no FP-0155.
+- [x] 2026-05-24T22:43:13Z - Same-branch QA corrected residual FP-0153 narrative/acceptance wording that still implied FP-0154 should remain absent after the FP-0154 successor exists. The correction is documentation freshness only and does not widen adapter/runtime/provider/auth scope.
 
 ## Surprises & Discoveries
 
