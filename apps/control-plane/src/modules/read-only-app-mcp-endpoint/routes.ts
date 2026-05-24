@@ -6,6 +6,8 @@ import {
   buildMcpWwwAuthenticateMissingTokenChallengeResponse,
   type McpProtectedResourceMetadataRouteInputEvidenceBundle,
   type McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
+  type ReadOnlyMcpAuthorizationParserRouteDecisionDependency,
+  type ReadOnlyMcpAuthorizationParserRouteDecisionReadiness,
 } from "@pocket-cto/domain";
 import {
   ReadOnlyAppMcpEndpointService,
@@ -27,6 +29,7 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
     readOnlyAppMcpLocalProofGatedMissingTokenChallenge?: McpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency;
     readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle?: McpProtectedResourceMetadataRouteInputEvidenceBundle;
     readOnlyAppMcpInvalidTokenChallengeResultEnvelope?: unknown;
+    readOnlyAppMcpAuthorizationParserRouteDecision?: ReadOnlyMcpAuthorizationParserRouteDecisionDependency;
   } = {},
 ) {
   const service =
@@ -82,6 +85,24 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
         .send(challenge.body);
     }
 
+    const parserRouteDecision =
+      deps.readOnlyAppMcpAuthorizationParserRouteDecision === undefined
+        ? null
+        : deps.readOnlyAppMcpAuthorizationParserRouteDecision({
+            authorizationHeader: request.headers.authorization,
+          });
+
+    if (
+      invalidTokenChallenge &&
+      parserRouteDecision !== null &&
+      routesToExistingInvalidTokenChallenge(parserRouteDecision)
+    ) {
+      return reply
+        .header("WWW-Authenticate", invalidTokenChallenge.wwwAuthenticate)
+        .code(invalidTokenChallenge.statusCode)
+        .send(invalidTokenChallenge.body);
+    }
+
     if (invalidTokenChallenge && request.headers.authorization !== undefined) {
       return reply
         .header("WWW-Authenticate", invalidTokenChallenge.wwwAuthenticate)
@@ -103,6 +124,18 @@ export async function registerReadOnlyAppMcpEndpointRoutes(
 
     return response;
   });
+}
+
+function routesToExistingInvalidTokenChallenge(
+  decision: ReadOnlyMcpAuthorizationParserRouteDecisionReadiness,
+) {
+  return (
+    decision.authorization_presence === "present" &&
+    decision.invalid_token_challenge_downstream_only &&
+    !decision.maps_to_fp0130_missing_token_lane &&
+    (decision.maps_to_fp0139_result_envelope ||
+      decision.credential_material_observed)
+  );
 }
 
 function assertInvalidTokenChallengeCoRegistration(input: {

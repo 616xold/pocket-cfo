@@ -8,7 +8,8 @@ import {
   type Fp0146ParserFailureMapping,
   verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary,
   verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
-  verifyFp0152Absent,
+  verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
+  verifyFp0153Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 export const MCP_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_SCHEMA_VERSION =
@@ -90,6 +91,14 @@ export type ReadOnlyMcpAuthorizationParserRouteDecisionReadiness = {
   parser_failure_state: Fp0146FailureState | null;
   parser_route_decision_contract_version: typeof MCP_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_SCHEMA_VERSION;
 };
+
+export type ReadOnlyMcpAuthorizationParserRouteDecisionDependencyInput = {
+  authorizationHeader?: string | readonly string[] | null;
+};
+
+export type ReadOnlyMcpAuthorizationParserRouteDecisionDependency = (
+  input: ReadOnlyMcpAuthorizationParserRouteDecisionDependencyInput,
+) => ReadOnlyMcpAuthorizationParserRouteDecisionReadiness;
 
 export type ReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundaryInput =
   | readonly string[]
@@ -190,7 +199,11 @@ export function buildReadOnlyMcpAuthorizationParserRouteDecisionReadinessProof(
       verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
         repoPaths,
       ),
-    fp0152Absent: verifyFp0152Absent(repoPaths),
+    fp0152AbsentOrRouteIntegrationImplementationPlanVerified:
+      verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan(
+        repoPaths,
+      ),
+    fp0153Absent: verifyFp0153Absent(repoPaths),
     routeIntegrationImplementationReadinessBoundaryVerified:
       fp0151PlanTopics === null ||
       Object.values(fp0151PlanTopics).every(Boolean),

@@ -135,7 +135,9 @@ const output = {
     parserScope.noForbiddenParserImports &&
     parserScope.noForbiddenParserRuntimeApis,
   parserRouteConsumptionStillBlocked:
-    routeScope.noRouteBehaviorChange && parserScope.noRouteImports,
+    routeScope.fp0152ExplicitRouteIntegrationBridge
+      ? routeScope.noPureParserImport && parserScope.noRouteImports
+      : routeScope.noRouteBehaviorChange && parserScope.noRouteImports,
   productionTokenValidationRuntimeStillBlocked:
     sourceScope.noProductionTokenValidation,
   providerSelectionStillDeferred: fp0149PlanTopics.providerSelectionDeferred,
@@ -149,10 +151,15 @@ const output = {
   oauthImplementationStillBlocked: sourceScope.noOauthImplementation,
   tokenSessionStorageStillBlocked: sourceScope.noTokenSessionStorage,
   authMiddlewareStillBlocked: sourceScope.noAuthMiddleware,
-  routeBehaviorStillUnchanged: routeScope.noRouteBehaviorChange,
-  missingTokenBehaviorStillUnchanged: routeScope.noMissingTokenBehaviorChange,
+  routeBehaviorStillUnchanged:
+    routeScope.noRouteBehaviorChange ||
+    routeScope.defaultBehaviorWithoutParserDependencyStillUnchanged,
+  missingTokenBehaviorStillUnchanged:
+    routeScope.noMissingTokenBehaviorChange ||
+    routeScope.missingTokenPrecedencePreserved,
   invalidTokenChallengeBehaviorStillUnchanged:
-    routeScope.noInvalidTokenChallengeBehaviorChange,
+    routeScope.noInvalidTokenChallengeBehaviorChange ||
+    routeScope.invalidTokenChallengeDownstreamOnlyPreserved,
   protectedResourceMetadataRouteStillUnchanged:
     routeScope.noProtectedResourceMetadataRouteBehaviorChange,
   parserOutputLimitedToFp0146SanitizedFields:
@@ -380,6 +387,36 @@ function verifySourceScope() {
 
 function verifyRouteScope() {
   return {
+    defaultBehaviorWithoutParserDependencyStillUnchanged:
+      routeSpecSourceIncludes(
+        "keeps default POST /mcp behavior unchanged without the parser route-decision dependency",
+      ) &&
+      routeSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision === undefined",
+      ),
+    fp0152ExplicitRouteIntegrationBridge:
+      repoPaths.includes(
+        "plans/FP-0152-read-only-chatgpt-app-mcp-authorization-parser-route-integration-implementation.md",
+      ) &&
+      routeSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision?:",
+      ),
+    invalidTokenChallengeDownstreamOnlyPreserved:
+      routeSpecSourceIncludes(
+        "routes malformed and unsupported parser decisions to the existing invalid-token challenge",
+      ) &&
+      routeSpecSourceIncludes(
+        "routes observed safe parser decisions to the existing invalid-token challenge until validation runtime exists",
+      ),
+    missingTokenPrecedencePreserved:
+      routeSpecSourceIncludes(
+        "keeps missing-token challenge ahead of the parser route-decision dependency",
+      ) &&
+      routeSource.indexOf("request.headers.authorization === undefined") <
+        routeSource.indexOf("deps.readOnlyAppMcpAuthorizationParserRouteDecision"),
+    noPureParserImport: !/read-only-app-mcp-authorization-parser["']/u.test(
+      routeSource,
+    ),
     noInvalidTokenChallengeBehaviorChange:
       !changedPaths.includes(MCP_ROUTE_PATH) &&
       !changedPaths.includes(INVALID_TOKEN_CHALLENGE_PATH),
@@ -403,6 +440,12 @@ function verifyRouteScope() {
       countMatches(routeSource, /app\.post\("\/mcp"/gu) === 1 &&
       countMatches(routeSource, /app\.get\("\/mcp"/gu) === 1,
   };
+}
+
+function routeSpecSourceIncludes(value) {
+  return safeRead(
+    "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts",
+  ).includes(value);
 }
 
 function verifyNoLeakageScope(text) {
@@ -445,7 +488,8 @@ function verifyPriorBoundaries() {
     ]),
     fp0107RouteAdapterBoundaryStillVerified:
       docsBoundary(FP0107_PLAN, ["local/control-plane", "post /mcp"]) &&
-      verifyRouteScope().noRouteBehaviorChange,
+      (verifyRouteScope().noRouteBehaviorChange ||
+        verifyRouteScope().defaultBehaviorWithoutParserDependencyStillUnchanged),
     fp0125ProtectedResourceMetadataRouteBoundaryStillVerified:
       docsBoundary(FP0125_PLAN, [
         "local-only/read-only",

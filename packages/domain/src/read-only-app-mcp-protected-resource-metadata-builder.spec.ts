@@ -171,7 +171,7 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
     const rejectedAuthorizationServers = [
       [],
       ["http://auth.canonical-finance-host.com"],
-      ["https://auth.canonical-finance-host.com?token=abc"],
+      ["https://auth.canonical-finance-host.com?unsupported=local"],
       ["https://auth.canonical-finance-host.com#fragment"],
       ["https://auth0.example.com"],
       ["https://tenant.okta.com/oauth2/default"],
@@ -282,7 +282,7 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
     const rejectedInputs = [
       {
         authorizationServers: [
-          "https://auth.canonical-finance-host.com/token=abc",
+          "https://auth.canonical-finance-host.com/access_token",
         ],
       },
       {
@@ -292,7 +292,7 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
       },
       {
         authorizationServers: [
-          "https://auth.canonical-finance-host.com/cookie=abc",
+          "https://auth.canonical-finance-host.com/set-cookie",
         ],
       },
       {
@@ -340,9 +340,15 @@ describe("FP-0122 protected-resource metadata document-builder contracts", () =>
     expect(routeSource.match(/app\.post\("\/mcp"/gu)?.length).toBe(1);
     expect(routeSource.match(/app\.get\("\/mcp"/gu)?.length).toBe(1);
     expect(routeSource).not.toMatch(/oauth-protected-resource|resource_metadata/iu);
-    expect(routeSource.match(/WWW-Authenticate/gu)?.length).toBe(2);
-    expect(routeSource).toMatch(/challenge\.wwwAuthenticate/u);
-    expect(routeSource).toMatch(/invalidTokenChallenge\.wwwAuthenticate/u);
+    expect(
+      routeSource.match(
+        /\.header\("WWW-Authenticate",\s*(?:challenge|invalidTokenChallenge)\.wwwAuthenticate\)/gu,
+      )?.length,
+    ).toBe(3);
+    expect(routeSource.match(/challenge\.wwwAuthenticate/gu)?.length).toBe(1);
+    expect(routeSource.match(/invalidTokenChallenge\.wwwAuthenticate/gu)?.length).toBe(
+      2,
+    );
   });
 
   it("keeps route files limited to the FP-0130 and FP-0141 challenge seams in this branch", () => {
