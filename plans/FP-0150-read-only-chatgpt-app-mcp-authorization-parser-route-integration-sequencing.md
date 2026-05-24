@@ -18,10 +18,13 @@ The user-visible proof point is narrow: syntactically safe, non-empty, single-pi
 - [x] 2026-05-24T15:19:16Z - Implemented the parser material-observation hardening, exact FP-0150 proof command, focused parser specs, FP-0149 closeout freshness correction, direct active-doc/plugin refresh, and proof-gate bridge compatibility.
 - [x] 2026-05-24T15:19:16Z - Strict same-branch QA found narrow proof compatibility gaps in inherited FP-0143, FP-0142, and FP-0107 changed-path boundaries plus one case-sensitive FP-0150 plan-text assertion. Corrections stayed proof/spec-only and did not change route/runtime/provider behavior.
 - [x] 2026-05-24T15:19:16Z - Final validation passed before this closeout edit: `git diff --check`, the direct FP-0150 proof, the full requested proof ladder, focused domain/control-plane Vitest suites, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Because this closeout edit is post-validation documentation, the required post-closeout checks must be rerun.
+- [x] 2026-05-24T16:04:51Z - FP-0151 same-branch freshness polish confirmed PR #329 merged, head SHA `2fbc25f890bf3c5f7d842776610a0267d0e3bd11`, merge commit `a09c9b19975e6da1e21d386a16ccd2ff2406e988`, and current `origin/main` at the merge commit. GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
 PR #328 is merged. `gh pr view 328` confirmed head SHA `fdde3b35f195bb357db175116c511fe6ab10868d` and merge commit `bbefbbaf2f4bd65be96fbecf246eaca5120149b8`.
+
+PR #329 merged after FP-0150 closeout. `gh pr view 329` confirmed head SHA `2fbc25f890bf3c5f7d842776610a0267d0e3bd11` and merge commit `a09c9b19975e6da1e21d386a16ccd2ff2406e988`. `gh pr checks 329` confirmed GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction, so no post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 FP-0149 closeout was stale after the merge. This branch patches that freshness issue directly and does not create a separate polish branch or post-merge QA branch.
 
@@ -125,7 +128,7 @@ Future route integration proof prerequisites:
 Acceptance is observable when:
 
 - Exactly one FP-0150 file exists at `plans/FP-0150-read-only-chatgpt-app-mcp-authorization-parser-route-integration-sequencing.md`.
-- FP-0151 remains absent.
+- FP-0151 remained absent at FP-0150 closeout; a later exact FP-0151 route-integration implementation-readiness successor may be accepted by its own plan/proof bridge.
 - The parser material-observation correction remains pure-domain/local-only.
 - Safe single-piece Bearer-scheme sentinels `[credential-present]` and `[credential-present-alt]` both classify as `authorization_presence: present`, `authorization_scheme_classification: bearer`, `credential_material_observed: true`, and `failure_state: null`.
 - The explicit safe passthrough-attempt sentinel still maps to `token_material_passthrough_attempt`.
@@ -185,7 +188,7 @@ pnpm ci:repro:current
 
 ## Idempotence and Recovery
 
-This slice is idempotent because it accepts exactly one FP-0150 plan path, adds one parser hardening correction, one focused proof command, exact bridge compatibility, direct stale-doc refresh only where needed, and no runtime route wiring. Re-running the proof command should accept this exact FP-0150 file, reject duplicate FP-0150 files, and reject any FP-0151 file.
+This slice is idempotent because it accepts exactly one FP-0150 plan path, adds one parser hardening correction, one focused proof command, exact bridge compatibility, direct stale-doc refresh only where needed, and no runtime route wiring. Re-running the proof command should accept this exact FP-0150 file, reject duplicate FP-0150 files, and allow only an exact later FP-0151 route-integration implementation-readiness successor.
 
 If validation fails, do not widen scope. Patch only the parser module, parser spec, FP-0150 plan, FP-0149 freshness note, proof bridge, shared sanitizer compatibility, or directly stale docs on this branch. If failure points to missing services, auth failure, unrelated dirty files, or a proof failure that requires runtime/auth/route/provider expansion, stop and report the exact blocker.
 
@@ -243,3 +246,5 @@ The parser still returns only FP-0146 sanitized output fields. It never returns,
 FP-0150 records future route-integration sequencing and proof prerequisites only. Route integration may not start from FP-0150; only a future route-integration implementation-readiness or explicitly authorized later implementation plan may open if all proof gates remain green.
 
 No FP-0151 is created by this plan. Route consumption, route integration, production token validation, provider selection/calls/integration, token parser/JWT/JWKS/introspection, OAuth/session/auth middleware, DB/schema/package work, OpenAI/model calls, source mutation, finance writes, public assets, generated public prose, app submission, external communications, and autonomous action remain blocked.
+
+Post-merge freshness correction on the FP-0151 branch records that PR #329 merged with head SHA `2fbc25f890bf3c5f7d842776610a0267d0e3bd11` and merge commit `a09c9b19975e6da1e21d386a16ccd2ff2406e988`. GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green. No separate polish branch or post-merge QA branch is needed.

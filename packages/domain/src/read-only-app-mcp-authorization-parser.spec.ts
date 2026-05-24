@@ -36,6 +36,7 @@ import {
   FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
   FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
   FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
   verifyFp0146ParserContractProviderSelectionProofPlanBoundary,
   verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
   verifyFp0149Absent,
@@ -43,7 +44,7 @@ import {
   verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
   verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary,
   verifyFp0150RouteIntegrationSequencingPlanningTextRequiredTopics,
-  verifyFp0151Absent,
+  verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary } from "./read-only-app-mcp-provider-selection-evidence-hardening";
 import {
@@ -73,7 +74,7 @@ const invalidTokenChallengePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts";
 
 describe("FP-0149 pure-domain Authorization parser implementation", () => {
-  it("accepts exactly one FP-0149 parser implementation plan and exact FP-0150 sequencing plan while FP-0151 remains absent", () => {
+  it("accepts exact FP-0149, FP-0150, and FP-0151 readiness plan paths", () => {
     const repoPaths = repoFilePaths();
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0149/u.test(path))).toEqual([
@@ -81,6 +82,9 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
     ]);
     expect(repoPaths.filter((path) => /(^|\/)FP-0150/u.test(path))).toEqual([
       FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+    ]);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0151/u.test(path))).toEqual([
+      FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
     ]);
     expect(verifyFp0149Absent(repoPaths)).toBe(true);
     expect(
@@ -93,7 +97,11 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
         repoPaths,
       ),
     ).toBe(true);
-    expect(verifyFp0151Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
     expect(
       verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan([
         ...repoPaths,
@@ -106,9 +114,12 @@ describe("FP-0149 pure-domain Authorization parser implementation", () => {
         "plans/FP-0150-next.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0151Absent([...repoPaths, "plans/FP-0151-next.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan([
+        ...repoPaths,
+        "plans/FP-0151-next.md",
+      ]),
+    ).toBe(false);
   });
 
   it("keeps the parser module pure-domain and local-only", () => {

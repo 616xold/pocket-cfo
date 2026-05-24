@@ -8,7 +8,7 @@ import {
   verifyFp0146ParserFailureMapping,
   verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan,
   verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan,
-  verifyFp0151Absent,
+  verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { verifyFp0148AuthorizationParserImplementationReadinessProof } from "./read-only-app-mcp-authorization-parser-implementation-readiness";
 
@@ -168,7 +168,10 @@ export function verifyReadOnlyMcpAuthorizationParserImplementationBoundary(
       verifyFp0150AbsentOrAuthorizationParserRouteIntegrationSequencingPlan(
         repoPaths,
       ),
-    fp0151Absent: verifyFp0151Absent(repoPaths),
+    fp0151AbsentOrRouteIntegrationReadinessPlanVerified:
+      verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
+        repoPaths,
+      ),
     parserFailureStatesMappedToFp0139AndFp0130:
       verifyFp0146ParserFailureMapping() &&
       passthroughAttempt.failure_mapping?.envelopeFailure === "invalid_token",
