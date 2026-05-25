@@ -48,9 +48,9 @@ import {
   verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
   verifyFp0156AbsentOrAuthorizationParserLocalAdapterAppConstructionInjectionPlan,
   verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan,
-  verifyFp0158Absent,
   verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan,
-  verifyFp0159Absent,
+  verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan,
+  verifyFp0160Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary,
@@ -143,7 +143,12 @@ const output = {
   fp0158AbsentOrEvidenceAppLocalDemoBridgePlanVerified:
     verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan(repoPaths) &&
     planScope.fp0158AbsentOrEvidenceAppLocalDemoBridgePlan,
-  fp0159Absent: verifyFp0159Absent(repoPaths) && planScope.fp0159Absent,
+  fp0159AbsentOrEvidenceAppLocalPreviewDemoUiBridgeReadinessPlanVerified:
+    verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan(
+      repoPaths,
+    ) &&
+    planScope.fp0159AbsentOrEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan,
+  fp0160Absent: verifyFp0160Absent(repoPaths) && planScope.fp0160Absent,
   localAuthDemoHarnessBoundaryVerified:
     planScope.localDemoOnlyPlan &&
     harnessScope.localOnly &&
@@ -360,7 +365,11 @@ function verifyPlanScope() {
       (fp0158Hits.length === 1 &&
         fp0158Hits[0] ===
           "plans/FP-0158-read-only-chatgpt-app-mcp-evidence-app-local-demo-bridge.md"),
-    fp0159Absent: repoPaths.every((path) => !/(^|\/)FP-0159/u.test(path)),
+    fp0159AbsentOrEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan:
+      verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan(
+        repoPaths,
+      ),
+    fp0160Absent: verifyFp0160Absent(repoPaths),
   };
 }
 

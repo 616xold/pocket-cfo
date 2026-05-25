@@ -113,6 +113,7 @@ async function runLocalEvidenceAppDemoBridge() {
     metadataRouteVerified: authLane.metadataRouteVerified,
     searchEvidenceVerified: evidenceLane.searchEvidenceVerified,
     fetchEvidenceCardVerified: evidenceLane.fetchEvidenceCardVerified,
+    fetchSourceAnchorVerified: evidenceLane.fetchSourceAnchorVerified,
     fetchDocumentMapVerified: evidenceLane.fetchDocumentMapVerified,
     fetchSourceCoverageVerified: evidenceLane.fetchSourceCoverageVerified,
     fetchCompanyPostureVerified: evidenceLane.fetchCompanyPostureVerified,
@@ -312,6 +313,10 @@ async function runEvidenceToolLane() {
     fetchEvidenceCardVerified: toolOk(
       toolResponses.fetch_evidence_card,
       "fetch_evidence_card",
+    ),
+    fetchSourceAnchorVerified: toolOk(
+      toolResponses.fetch_source_anchor,
+      "fetch_source_anchor",
     ),
     fetchSourceCoverageVerified: toolOk(
       toolResponses.fetch_source_coverage,
@@ -587,6 +592,7 @@ function assertSummary(summary) {
     "metadataRouteVerified",
     "searchEvidenceVerified",
     "fetchEvidenceCardVerified",
+    "fetchSourceAnchorVerified",
     "fetchDocumentMapVerified",
     "fetchSourceCoverageVerified",
     "fetchCompanyPostureVerified",
