@@ -29,7 +29,7 @@ const readinessModulePath =
   "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.ts";
 
 describe("FP-0159 local preview/demo UI bridge readiness boundary", () => {
-  it("accepts exactly one FP-0159 readiness path while FP-0160 remains absent", () => {
+  it("accepts exactly one FP-0159 readiness path and exact FP-0160 implementation path while FP-0161 remains absent", () => {
     const repoPaths = repoFilePaths();
     const fp0159Hits = repoPaths.filter((path) =>
       /(^|\/)FP-0159/u.test(path),
@@ -63,6 +63,15 @@ describe("FP-0159 local preview/demo UI bridge readiness boundary", () => {
           fp0158SourceAnchorSummaryVerified(),
         fp0159PlanText,
         repoPaths: [...repoPaths, "plans/FP-0160-runtime.md"],
+      }),
+    ).toBe(false);
+    expect(
+      verifyReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessBoundary({
+        fp0158PlanText,
+        fp0158SourceAnchorSummaryVerified:
+          fp0158SourceAnchorSummaryVerified(),
+        fp0159PlanText,
+        repoPaths: [...repoPaths, "plans/FP-0161-runtime.md"],
       }),
     ).toBe(false);
   });

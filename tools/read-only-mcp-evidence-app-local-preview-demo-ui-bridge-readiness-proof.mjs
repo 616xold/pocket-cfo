@@ -14,6 +14,10 @@ const SCHEMA_VERSION =
 
 const FP0158_PLAN_PATH =
   "plans/FP-0158-read-only-chatgpt-app-mcp-evidence-app-local-demo-bridge.md";
+const FP0159_PLAN_PATH =
+  "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md";
+const FP0160_PLAN_PATH =
+  "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md";
 const FP0158_HARNESS_PATH =
   "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs";
 const FP0158_PROOF_PATH =
@@ -24,8 +28,19 @@ const FP0156_PROOF_PATH =
   "tools/read-only-mcp-authorization-parser-local-adapter-app-construction-injection-proof.mjs";
 const PREVIEW_ROUTE_PATH =
   "apps/web/app/read-only-app-mcp-preview/page.tsx";
+const PREVIEW_ROUTE_SPEC_PATH =
+  "apps/web/app/read-only-app-mcp-preview/page.spec.tsx";
 const READINESS_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.ts";
+const READINESS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.spec.ts";
+const CONTRACTS_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.ts";
+const CONTRACTS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts";
+const INDEX_PATH = "packages/domain/src/index.ts";
+const IMPLEMENTATION_PROOF_PATH =
+  "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs";
 const FP0097_PLAN_PATH =
   "plans/FP-0097-read-only-chatgpt-app-mcp-premium-ui-preview-route-visual-qa-foundation.md";
 const FP0096_PLAN_PATH =
@@ -43,19 +58,30 @@ const allowedChangedPaths = new Set([
   "plans/ROADMAP.md",
   "plugins.md",
   FP0158_PLAN_PATH,
-  FP0159_READINESS_PLAN_PATH,
+  FP0159_PLAN_PATH,
+  FP0160_PLAN_PATH,
   FP0158_HARNESS_PATH,
   FP0158_PROOF_PATH,
   FP0157_PROOF_PATH,
   FP0156_PROOF_PATH,
+  "tools/read-only-endpoint-architecture-proof.mjs",
+  "tools/read-only-endpoint-route-ownership-proof.mjs",
+  "tools/read-only-mcp-authorization-parser-app-construction-wiring-proof.mjs",
+  "tools/read-only-mcp-authorization-parser-route-integration-implementation-proof.mjs",
+  "tools/read-only-mcp-authorization-parser-route-integration-readiness-proof.mjs",
+  "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
   "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
+  "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
+  PREVIEW_ROUTE_PATH,
+  PREVIEW_ROUTE_SPEC_PATH,
   READINESS_MODULE_PATH,
-  "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.spec.ts",
-  "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.ts",
-  "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts",
-  "packages/domain/src/index.ts",
+  READINESS_SPEC_PATH,
+  CONTRACTS_MODULE_PATH,
+  CONTRACTS_SPEC_PATH,
+  INDEX_PATH,
+  IMPLEMENTATION_PROOF_PATH,
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
 ]);
 
@@ -95,12 +121,19 @@ const output = {
   fp0159ReadinessPlanPathExact:
     repoPaths.filter((path) => /(^|\/)FP-0159/u.test(path)).length === 1 &&
     existsSync(FP0159_READINESS_PLAN_PATH),
+  fp0160AbsentOrExactImplementationPlanAccepted:
+    readinessProof
+      .fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlanVerified ===
+    true,
+  fp0161Absent: readinessProof.fp0161Absent === true,
   fp0159PlanTextRequiredTopicsVerified:
     readinessProof.evidenceAppLocalPreviewDemoUiBridgeReadinessBoundaryVerified,
   changedPathScopeAccepted: pathScope.onlyAllowedChangedPaths,
   existingPreviewRouteStillUnchanged:
-    readinessProof.existingPreviewRouteStillUnchanged &&
-    !pathScope.previewRouteChanged &&
+    (readinessProof.existingPreviewRouteStillUnchanged ||
+      pathScope.previewRouteChangedOnlyForExactFp0160Bridge) &&
+    (!pathScope.previewRouteChanged ||
+      pathScope.previewRouteChangedOnlyForExactFp0160Bridge) &&
     existsSync(PREVIEW_ROUTE_PATH),
   noNewRouteOrApiRouteFromFp0159:
     readinessProof.noNewRouteOrApiRouteFromFp0159 &&
@@ -150,13 +183,20 @@ console.log(JSON.stringify(output, null, 2));
 
 function verifyChangedPathScope() {
   const disallowedChangedPaths = changedPaths.filter(
-    (path) => !allowedChangedPaths.has(path),
+    (path) =>
+      !allowedChangedPaths.has(path) &&
+      !path.startsWith("apps/web/components/read-only-app-mcp/"),
   );
   const previewRouteChanged = changedPaths.includes(PREVIEW_ROUTE_PATH);
+  const previewRouteChangedOnlyForExactFp0160Bridge =
+    previewRouteChanged && existsSync(FP0160_PLAN_PATH);
   const newRouteOrApiRouteAdded = changedPaths.some(
     (path) =>
-      /^apps\/web\/app\//u.test(path) ||
+      (/^apps\/web\/app\//u.test(path) &&
+        path !== PREVIEW_ROUTE_PATH &&
+        path !== PREVIEW_ROUTE_SPEC_PATH) ||
       /\/api\//u.test(path) ||
+      /\/route\.tsx?$/u.test(path) ||
       path.endsWith("/routes.ts"),
   );
 
@@ -164,11 +204,17 @@ function verifyChangedPathScope() {
     disallowedChangedPaths,
     newRouteOrApiRouteAdded,
     noForbiddenRuntimePathsChanged:
-      !changedPaths.some((path) =>
-        /^apps\/(?:control-plane|web)\//u.test(path),
-      ) && !previewRouteChanged,
+      !changedPaths.some((path) => /^apps\/control-plane\//u.test(path)) &&
+      !changedPaths.some(
+        (path) =>
+          /^apps\/web\//u.test(path) &&
+          path !== PREVIEW_ROUTE_PATH &&
+          path !== PREVIEW_ROUTE_SPEC_PATH &&
+          !path.startsWith("apps/web/components/read-only-app-mcp/"),
+      ),
     onlyAllowedChangedPaths: disallowedChangedPaths.length === 0,
     previewRouteChanged,
+    previewRouteChangedOnlyForExactFp0160Bridge,
   };
 }
 

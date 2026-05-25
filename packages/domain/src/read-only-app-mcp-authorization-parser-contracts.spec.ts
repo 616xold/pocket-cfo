@@ -41,6 +41,7 @@ import {
   FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH,
   FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH,
   FP0159_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_READINESS_PLAN_PATH,
+  FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH,
   buildFp0146AuthorizationParserContractsProviderSelectionProof,
   buildFp0146SanitizedParserOutputContract,
   verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
@@ -59,6 +60,8 @@ import {
   verifyFp0159Absent,
   verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan,
   verifyFp0160Absent,
+  verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan,
+  verifyFp0161Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -157,7 +160,7 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
     ).toBe(false);
   });
 
-  it("accepts exact FP-0157, FP-0158, and FP-0159 readiness plans while FP-0160 remains absent", () => {
+  it("accepts exact FP-0157, FP-0158, FP-0159 readiness, and FP-0160 implementation plans while FP-0161 remains absent", () => {
     const repoPaths = repoFilePaths();
     const repoPathsWithoutFp0157 = repoPaths.filter(
       (path) =>
@@ -171,6 +174,11 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
       (path) =>
         path !==
         FP0159_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_READINESS_PLAN_PATH,
+    );
+    const repoPathsWithoutFp0160 = repoPaths.filter(
+      (path) =>
+        path !==
+        FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH,
     );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0157/u.test(path))).toEqual([
@@ -222,8 +230,22 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
     expect(verifyFp0159Absent([...repoPaths, "plans/FP-0159-runtime.md"])).toBe(
       false,
     );
-    expect(verifyFp0160Absent(repoPaths)).toBe(true);
+    expect(verifyFp0160Absent(repoPathsWithoutFp0160)).toBe(true);
+    expect(
+      verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
     expect(verifyFp0160Absent([...repoPaths, "plans/FP-0160-runtime.md"])).toBe(
+      false,
+    );
+    expect(
+      verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan(
+        [...repoPaths, "plans/FP-0160-runtime.md"],
+      ),
+    ).toBe(false);
+    expect(verifyFp0161Absent(repoPaths)).toBe(true);
+    expect(verifyFp0161Absent([...repoPaths, "plans/FP-0161-runtime.md"])).toBe(
       false,
     );
   });

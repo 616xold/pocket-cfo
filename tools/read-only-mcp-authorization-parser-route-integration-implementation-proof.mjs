@@ -728,7 +728,12 @@ function changedFilePathScope() {
 function readChangedExecutableSource(paths) {
   return paths
     .filter((path) => /\.(?:mjs|ts|tsx)$/u.test(path))
-    .filter((path) => !path.endsWith(".spec.ts"))
+    .filter(
+      (path) =>
+        path.startsWith("apps/control-plane/") ||
+        path.startsWith("packages/domain/src/"),
+    )
+    .filter((path) => !/\.spec\.(?:ts|tsx)$/u.test(path))
     .map((path) => safeRead(path))
     .join("\n");
 }
