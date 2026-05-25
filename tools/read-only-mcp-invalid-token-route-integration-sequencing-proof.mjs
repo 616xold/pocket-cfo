@@ -481,6 +481,7 @@ function verifyFp0143AppWiringBridge() {
       "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs",
       "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
       "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
+      "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
       "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
       "README.md",
       "CODEX_README.md",

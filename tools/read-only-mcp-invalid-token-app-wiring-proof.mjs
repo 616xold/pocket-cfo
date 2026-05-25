@@ -588,6 +588,7 @@ function changedPathsWithinFp0143Boundary() {
       "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs",
       "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
       "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
+      "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
       "plans/FP-0158-read-only-chatgpt-app-mcp-evidence-app-local-demo-bridge.md",
       "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md",
       "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md",
