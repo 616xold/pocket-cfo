@@ -18,6 +18,7 @@ Target phase: V2BW read-only ChatGPT App/MCP Authorization parser local adapter 
 - [x] 2026-05-25T00:10:11Z - Same-branch QA corrected exact successor proof bridges only: FP-0155/FP-0156 bridge fields, new direct proof command recognition, invalid-token predecessor allowlists, and FP-0107 route-adapter changed-file recognition. No app construction, route behavior, provider, token-validation runtime, DB/schema/package, source, or finance-write behavior changed.
 - [x] 2026-05-25T00:10:11Z - Final pre-closeout validation passed: `git diff --check`; the full FP-0155 through FP-0100 proof ladder listed below; focused domain and control-plane specs; `pnpm lint`; `pnpm typecheck`; `pnpm test`; and `pnpm ci:repro:current`.
 - [x] 2026-05-25T00:10:11Z - Closeout records no remaining adapter implementation correction, app-construction correction, route integration correction, provider-selection evidence correction, or proof-gate correction before PR. Post-closeout validation must rerun the required diff/lint/typecheck/test/repro commands before commit.
+- [x] 2026-05-25T08:46:09Z - FP-0156 same-branch freshness polish confirmed PR #334 merged to `main`; `gh` reported head SHA `8d05bbaa5fa19c80e630dea317f148cd81b85f97`, merge commit `a291881c0853ddb56af6a56cbad9e71184a75742`, and green GitHub `static` plus `integration-db` checks. Post-merge same-branch QA found no FP-0155 release/check issues and made no correction. No post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -172,3 +173,5 @@ Proof and specs cover safe sentinel inputs only: absent header, empty header, un
 Validation passed before this closeout entry. Because this closeout entry is a post-validation doc edit, the required post-closeout checks are `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` before the single commit.
 
 Future FP-0156 may start only explicit app-construction injection of the already-implemented local adapter factory, adapter implementation correction, or proof-gate correction if this proof posture remains green. Public ChatGPT App submission, default adapter wiring, production token validation, OAuth/session/auth middleware, provider calls/integration, DB/schema/package work, source mutation, finance writes, and external communications remain blocked.
+
+FP-0156 follow-up freshness confirmed PR #334 merged after this closeout: head SHA `8d05bbaa5fa19c80e630dea317f148cd81b85f97`, merge commit `a291881c0853ddb56af6a56cbad9e71184a75742`, GitHub `static` and `integration-db` checks green, and no post-merge QA required while current main matches the validated PR head/merge posture and CI remains green.

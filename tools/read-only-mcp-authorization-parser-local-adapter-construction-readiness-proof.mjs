@@ -17,6 +17,7 @@ import {
   FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
   FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
+  FP0156_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_INJECTION_PLAN_PATH,
   MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_READINESS_SCHEMA_VERSION,
   buildReadOnlyMcpAuthorizationParserLocalAdapterReadinessProof,
   scanProofOnlyNoTokenLeakageText,
@@ -611,7 +612,13 @@ function absentOrExactFp0155Plan() {
 }
 
 function noFp0156Plan() {
-  return repoPaths.filter((path) => /(^|\/)FP-0156/u.test(path)).length === 0;
+  const hits = repoPaths.filter((path) => /(^|\/)FP-0156/u.test(path));
+  return (
+    hits.length === 0 ||
+    (hits.length === 1 &&
+      hits[0] ===
+        FP0156_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_INJECTION_PLAN_PATH)
+  );
 }
 
 function scanChangedTokenExamples(source) {

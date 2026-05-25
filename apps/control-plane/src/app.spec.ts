@@ -36,6 +36,10 @@ import {
   GitHubRepositoryNotFoundError,
 } from "./modules/github-app/errors";
 import { RuntimeActiveTurnNotFoundError } from "./modules/runtime-codex/errors";
+import {
+  READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_ERROR,
+  withReadOnlyAppMcpAuthorizationParserLocalAdapter,
+} from "./read-only-app-mcp-authorization-parser-local-adapter-app-construction";
 
 const unknownMissionId = "11111111-1111-4111-8111-111111111111";
 const unknownApprovalId = "22222222-2222-4222-8222-222222222222";
@@ -423,6 +427,152 @@ describe("control-plane app", () => {
       noTokenParsingRuntime: true,
       noProductionTokenValidationRuntime: true,
     });
+  });
+
+  it("injects the local adapter through the explicit app-construction helper without mutating the container", () => {
+    const base = createInMemoryContainer();
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    const container: AppContainer = {
+      ...base,
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "invalid_token",
+          }),
+        ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
+    };
+
+    const injected =
+      withReadOnlyAppMcpAuthorizationParserLocalAdapter(container);
+
+    expect(injected).not.toBe(container);
+    expect(injected.closeControlService).toBe(container.closeControlService);
+    expect(container.readOnlyAppMcpAuthorizationParserRouteDecision).toBe(
+      undefined,
+    );
+    expect(
+      "readOnlyAppMcpAuthorizationParserRouteDecision" in base,
+    ).toBe(false);
+    expect(
+      typeof injected.readOnlyAppMcpAuthorizationParserRouteDecision,
+    ).toBe("function");
+    expect(
+      injected.readOnlyAppMcpAuthorizationParserRouteDecision?.({}),
+    ).toMatchObject({
+      maps_to_fp0130_missing_token_lane: true,
+      parser_failure_state: "missing_authorization",
+    });
+  });
+
+  it("fails closed when explicit local adapter injection lacks any required co-registration lane", () => {
+    const base = createInMemoryContainer();
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    const completeContainer: AppContainer = {
+      ...base,
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "invalid_token",
+          }),
+        ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
+    };
+
+    for (const partialContainer of [
+      {
+        ...completeContainer,
+        readOnlyAppMcpInvalidTokenChallengeResultEnvelope: undefined,
+      },
+      {
+        ...completeContainer,
+        readOnlyAppMcpLocalProofGatedMissingTokenChallenge: undefined,
+      },
+      {
+        ...completeContainer,
+        readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+          undefined,
+      },
+    ] satisfies AppContainer[]) {
+      expect(() =>
+        withReadOnlyAppMcpAuthorizationParserLocalAdapter(partialContainer),
+      ).toThrow(
+        READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_ERROR,
+      );
+    }
+  });
+
+  it("routes helper-injected parser decisions through buildApp without exposing parser objects", async () => {
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    const container = withReadOnlyAppMcpAuthorizationParserLocalAdapter({
+      ...createInMemoryContainer(),
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "invalid_token",
+          }),
+        ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
+    });
+    const app = await buildApp({ container });
+    apps.push(app);
+
+    const missingAuthorizationResponse = await app.inject({
+      method: "POST",
+      payload: {
+        id: "mcp-helper-injected-missing-authorization",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const authorizationPresentResponse = await app.inject({
+      headers: {
+        authorization: "authorization-present-local-only",
+      },
+      method: "POST",
+      payload: {
+        id: "mcp-helper-injected-authorization-present",
+        jsonrpc: "2.0",
+        method: "initialize",
+      },
+      url: "/mcp",
+    });
+    const metadataResponse = await app.inject({
+      method: "GET",
+      url: READ_ONLY_APP_MCP_PROTECTED_RESOURCE_METADATA_ROUTE_PATH,
+    });
+
+    expect(missingAuthorizationResponse.statusCode).toBe(401);
+    expect(missingAuthorizationResponse.headers["www-authenticate"]).toBe(
+      MCP_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_HEADER,
+    );
+    expect(authorizationPresentResponse.statusCode).toBe(401);
+    expect(authorizationPresentResponse.headers["www-authenticate"]).toContain(
+      'error="invalid_token"',
+    );
+    expect(authorizationPresentResponse.body).not.toContain(
+      "authorization-present-local-only",
+    );
+    expect(authorizationPresentResponse.body).not.toMatch(
+      /parser_route_decision_contract_version|authorization_scheme_classification|credential_material_observed|parser_failure_state|envelope_failure/u,
+    );
+    expect(metadataResponse.statusCode).toBe(200);
+    expect(metadataResponse.json()).toEqual(
+      evidenceBundle.builderOutput.document,
+    );
   });
 
   it("does not register the protected-resource metadata route by default", async () => {
