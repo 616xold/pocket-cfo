@@ -38,6 +38,7 @@ import {
   FP0146_SANITIZED_AUTHORIZATION_PARSER_OUTPUT_FIELDS,
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
+  FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH,
   buildFp0146AuthorizationParserContractsProviderSelectionProof,
   buildFp0146SanitizedParserOutputContract,
   verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
@@ -49,6 +50,9 @@ import {
   verifyFp0147AbsentOrProviderSelectionEvidenceHardeningPlan,
   verifyFp0148Absent,
   verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
+  verifyFp0157Absent,
+  verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan,
+  verifyFp0158Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -145,6 +149,32 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
         "plans/FP-0148-runtime.md",
       ]),
     ).toBe(false);
+  });
+
+  it("accepts exactly one FP-0157 local auth demo harness plan while FP-0158 remains absent", () => {
+    const repoPaths = repoFilePaths();
+    const repoPathsWithoutFp0157 = repoPaths.filter(
+      (path) =>
+        path !== FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH,
+    );
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0157/u.test(path))).toEqual([
+      FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH,
+    ]);
+    expect(verifyFp0157Absent(repoPathsWithoutFp0157)).toBe(true);
+    expect(
+      verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan(repoPaths),
+    ).toBe(true);
+    expect(
+      verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan([
+        ...repoPaths,
+        "plans/FP-0157-public-app.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0158Absent(repoPaths)).toBe(true);
+    expect(verifyFp0158Absent([...repoPaths, "plans/FP-0158-runtime.md"])).toBe(
+      false,
+    );
   });
 
   it("models sanitized parser output without raw credential material or token-derived fingerprints", () => {
