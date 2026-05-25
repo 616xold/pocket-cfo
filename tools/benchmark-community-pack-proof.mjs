@@ -1429,6 +1429,8 @@ function fp0091LocalUiComponentBoundary() {
     .join("\n")
     .toLowerCase();
   const normalizedComponentSource = componentSource.replace(/[^a-z0-9]+/gu, "");
+  const submissionScanComponentSource =
+    removeBlockedPublicSubmissionCopy(normalizedComponentSource);
   const componentFilesVerified =
     componentSource.length > 0 &&
     [
@@ -1488,7 +1490,7 @@ function fp0091LocalUiComponentBoundary() {
   const noOauthSubmissionFromFp0091 =
     ["does not add oauth", "does not add app submission"].every(
       (requiredText) => lower.includes(requiredText),
-    ) && !/(oauth|submitapp|appsubmission)/u.test(normalizedComponentSource);
+    ) && !/(oauth|submitapp|appsubmission)/u.test(submissionScanComponentSource);
   const noPublicAppImplementationFromFp0091 = [
     "does not implement a public chatgpt app",
     "no public app implementation",
@@ -1561,6 +1563,8 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
     .join("\n")
     .toLowerCase();
   const normalizedComponentSource = componentSource.replace(/[^a-z0-9]+/gu, "");
+  const submissionScanComponentSource =
+    removeBlockedPublicSubmissionCopy(normalizedComponentSource);
   const normalizedComponentAndTestSource = componentAndTestSource.replace(
     /[^a-z0-9]+/gu,
     "",
@@ -1611,7 +1615,7 @@ function fp0092LocalUiCompositionAccessibilityBoundary() {
   const noOauthSubmissionFromFp0092 =
     ["does not add oauth", "does not add app submission"].every(
       (requiredText) => lower.includes(requiredText),
-    ) && !/(oauth|submitapp|appsubmission)/u.test(normalizedComponentSource);
+    ) && !/(oauth|submitapp|appsubmission)/u.test(submissionScanComponentSource);
   const noPublicAppImplementationFromFp0092 = [
     "does not implement a public chatgpt app",
     "no public app implementation",
@@ -1888,9 +1892,7 @@ function fp0094LocalPreviewRouteBoundary() {
       "does not add openai api/model calls",
       "no openai api key was created or used",
     ].every((requiredText) => normalized.includes(requiredText)) &&
-    !/(openai_api_key|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
-      routeSource,
-    );
+    !hasCodeLevelOpenAiIntegration(routeSource);
   const noSourceMutationFinanceWriteFromFp0094 = [
     "no source mutation",
     "no finance writes",
@@ -2088,9 +2090,7 @@ function fp0095LocalPreviewRouteStateMatrixBoundary() {
       "no openai api/model calls",
       "no openai api key was created or used",
     ].every((requiredText) => normalized.includes(requiredText)) &&
-    !/(openai_api_key|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
-      routeSource,
-    );
+    !hasCodeLevelOpenAiIntegration(routeSource);
   const noProviderCertificationDeploymentFromFp0095 = [
     "no provider/certification/deployment work",
     "no provider/certification/deployment/external communications",
@@ -2315,9 +2315,7 @@ function fp0096LocalPreviewRouteStateMatrixBoundary() {
     ["does not add openai api/model calls", "no openai api/model call"].every(
       (requiredText) => normalized.includes(requiredText),
     ) &&
-    !/(openai_api_key|process\.env|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
-      routeSource,
-    );
+    !hasCodeLevelOpenAiIntegration(routeSource);
   const noSourceMutationFinanceWriteFromFp0096 = [
     "no source mutation",
     "no finance writes",
@@ -2565,9 +2563,7 @@ function fp0097LocalPreviewRouteVisualQaBoundary() {
     ["does not add openai api/model calls", "no openai api/model call"].every(
       (requiredText) => normalized.includes(requiredText),
     ) &&
-    !/(openai_api_key|process\.env|from\s+["']openai["']|openai\.|responses\.create|chat\.completions)/iu.test(
-      routeSource,
-    );
+    !hasCodeLevelOpenAiIntegration(routeSource);
   const noSourceMutationFinanceWriteFromFp0097 = [
     "no source mutation",
     "no finance writes",
@@ -3782,6 +3778,12 @@ function hasCodeLevelModelIntegration(sourceText) {
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&");
+}
+
+function removeBlockedPublicSubmissionCopy(sourceText) {
+  return sourceText
+    .replace(/nopublicchatgptappsubmission/gu, "")
+    .replace(/nopublicappsubmission/gu, "");
 }
 
 function repoFilePaths() {

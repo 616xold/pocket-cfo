@@ -64,7 +64,7 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
     expect(html).toContain("not authenticated tool execution");
     expect(html).toContain("Local-only synthetic preview");
     expect(html).toContain("No production token validation");
-    expect(html).toContain("No public ChatGPT App release");
+    expect(html).toContain("No public ChatGPT App submission");
     expect(html).toContain("No real finance data");
     expect(html).toContain("No runtime fetch");
     expect(html).toContain("Missing-token challenge verified");
@@ -100,7 +100,7 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
       "write output",
       ["real", "finance", "record"].join(" "),
       "public demo data",
-      "app submission",
+      "app submission available",
     ]) {
       expect(visibleText).not.toContain(forbiddenPhrase);
     }
@@ -190,6 +190,7 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
       level: 1,
       text: "Pocket CFO read-only app/MCP preview",
     });
+    expect(headings.filter((heading) => heading.level === 1)).toHaveLength(1);
     for (let index = 1; index < headings.length; index += 1) {
       expect(headings[index]?.level).toBeLessThanOrEqual(
         (headings[index - 1]?.level ?? 0) + 1,
@@ -274,7 +275,7 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
       "public launch",
       "launch publicly",
       "public demo data",
-      "app submission",
+      "app submission available",
     ]) {
       expect(visibleText).not.toContain(forbiddenPhrase);
     }
@@ -296,7 +297,12 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
     expect(html).not.toContain(".jpeg");
     expect(html).not.toContain(".webp");
     expect(stripTags(html).toLowerCase()).not.toContain("screenshot");
-    expect(html).not.toContain("app submission");
+    expect(stripTags(html).toLowerCase()).toContain(
+      "no public chatgpt app submission",
+    );
+    expect(stripTags(html).toLowerCase()).not.toContain(
+      "app submission material",
+    );
     expect(html).not.toContain("public launch");
     expect(html).not.toContain("<pre");
     expect(routeDirectoryAssets()).toEqual([]);

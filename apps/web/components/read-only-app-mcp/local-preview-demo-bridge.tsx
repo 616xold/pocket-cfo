@@ -55,7 +55,14 @@ export function LocalPreviewDemoBridge({
         }}
       >
         {snapshot.boundaryBadges.map((badge) => (
-          <li key={badge}>
+          <li
+            aria-label={badge}
+            data-boundary-badge={badge}
+            data-status-label={badge}
+            data-status-outcome={badge.startsWith("No ") ? "blocked" : "verified"}
+            data-status-tone="proof"
+            key={badge}
+          >
             <span style={badgeStyle("proof")}>{badge}</span>
           </li>
         ))}
@@ -146,7 +153,12 @@ type BridgeLaneProps = {
 function BridgeLane({ lane, laneId }: BridgeLaneProps) {
   return (
     <ReadOnlyPanel labelledBy={`local-preview-demo-bridge-${laneId}-title`}>
-      <div data-lane={laneId} style={stackStyle}>
+      <div
+        aria-label={lane.label}
+        data-lane={laneId}
+        data-lane-label={lane.label}
+        style={stackStyle}
+      >
         <SectionHeading
           eyebrow={lane.label}
           headingLevel={3}
@@ -157,7 +169,7 @@ function BridgeLane({ lane, laneId }: BridgeLaneProps) {
         <ul style={listStyle}>
           {lane.statuses.map((status) => (
             <li key={status.label}>
-              <StatusRow status={status} />
+              <StatusRow laneId={laneId} status={status} />
             </li>
           ))}
         </ul>
@@ -166,10 +178,23 @@ function BridgeLane({ lane, laneId }: BridgeLaneProps) {
   );
 }
 
-function StatusRow({ status }: { status: LocalPreviewDemoBridgeStatus }) {
+function StatusRow({
+  laneId,
+  status,
+}: {
+  laneId: BridgeLaneProps["laneId"];
+  status: LocalPreviewDemoBridgeStatus;
+}) {
+  const outcome = readStatusOutcome(status);
+
   return (
     <span
+      aria-label={`${status.label}. Status ${outcome}. Tone ${status.tone}.`}
+      data-status-id={readStatusId(laneId, status)}
+      data-status-label={status.label}
+      data-status-outcome={outcome}
       data-status-tone={status.tone}
+      id={readStatusId(laneId, status)}
       style={{
         ...badgeStyle(status.tone),
         justifyContent: "flex-start",
@@ -179,6 +204,24 @@ function StatusRow({ status }: { status: LocalPreviewDemoBridgeStatus }) {
       {status.label}
     </span>
   );
+}
+
+function readStatusOutcome(status: LocalPreviewDemoBridgeStatus) {
+  if (status.label.includes("false")) return "blocked";
+  if (status.label.includes("fails closed")) return "fail-closed";
+  return status.tone === "warning" || status.tone === "danger"
+    ? "blocked"
+    : "verified";
+}
+
+function readStatusId(
+  laneId: BridgeLaneProps["laneId"],
+  status: LocalPreviewDemoBridgeStatus,
+) {
+  return `local-preview-demo-bridge-${laneId}-status-${status.label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/gu, "-")
+    .replace(/^-|-$/gu, "")}`;
 }
 
 function SnapshotItem({ label, value }: { label: string; value: string }) {

@@ -2,7 +2,7 @@ import {
   FP0159_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_READINESS_PLAN_PATH,
   verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan,
   verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan,
-  verifyFp0161Absent,
+  verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   scanProofOnlyNoTokenLeakageText,
@@ -191,7 +191,10 @@ export function buildReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessProo
       verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan(
         repoPaths,
       ),
-    fp0161Absent: verifyFp0161Absent(repoPaths),
+    fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted:
+      verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan(
+        repoPaths,
+      ),
     evidenceAppLocalPreviewDemoUiBridgeReadinessBoundaryVerified:
       Object.values(planTopics).every(Boolean) &&
       input.changedPathScopeAccepted !== false,

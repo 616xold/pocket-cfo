@@ -62,6 +62,8 @@ import {
   verifyFp0160Absent,
   verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan,
   verifyFp0161Absent,
+  verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan,
+  verifyFp0162Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -244,8 +246,27 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
         [...repoPaths, "plans/FP-0160-runtime.md"],
       ),
     ).toBe(false);
-    expect(verifyFp0161Absent(repoPaths)).toBe(true);
+    const repoPathsWithoutFp0161 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0161/u.test(path),
+    );
+
+    expect(verifyFp0161Absent(repoPathsWithoutFp0161)).toBe(true);
+    expect(verifyFp0161Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
     expect(verifyFp0161Absent([...repoPaths, "plans/FP-0161-runtime.md"])).toBe(
+      false,
+    );
+    expect(
+      verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan(
+        [...repoPaths, "plans/FP-0161-runtime.md"],
+      ),
+    ).toBe(false);
+    expect(verifyFp0162Absent(repoPaths)).toBe(true);
+    expect(verifyFp0162Absent([...repoPaths, "plans/FP-0162-runtime.md"])).toBe(
       false,
     );
   });

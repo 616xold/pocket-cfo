@@ -83,6 +83,12 @@ export const FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPL
 export const FP0161_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX =
   "FP-0161";
 
+export const FP0161_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_VISUAL_QA_ACCESSIBILITY_PLAN_PATH =
+  "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md";
+
+export const FP0162_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX =
+  "FP-0162";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -665,6 +671,31 @@ export function verifyFp0161Absent(repoPaths: readonly string[]) {
     fpPlanHits(
       repoPaths,
       FP0161_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX,
+    ).length === 0
+  );
+}
+
+export function verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0161_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX,
+  );
+  if (hits.length === 0) return true;
+
+  return (
+    hits.length === 1 &&
+    hits[0] ===
+      FP0161_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_VISUAL_QA_ACCESSIBILITY_PLAN_PATH
+  );
+}
+
+export function verifyFp0162Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(
+      repoPaths,
+      FP0162_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX,
     ).length === 0
   );
 }

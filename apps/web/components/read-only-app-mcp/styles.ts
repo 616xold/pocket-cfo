@@ -9,7 +9,7 @@ export const colors = {
   freshSoft: "#eef8f1",
   ink: "#17201d",
   line: "#d9dfd8",
-  muted: "#66736f",
+  muted: "#63706c",
   panel: "#ffffff",
   proof: "#5d517b",
   proofSoft: "#f4f1fb",
