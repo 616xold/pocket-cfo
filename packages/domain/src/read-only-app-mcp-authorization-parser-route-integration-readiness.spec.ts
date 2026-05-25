@@ -37,6 +37,7 @@ import {
   FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
   FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
   FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+  FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
   verifyFp0146ParserContractProviderSelectionProofPlanBoundary,
   verifyFp0148AbsentOrAuthorizationParserImplementationReadinessPlan,
   verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan,
@@ -46,7 +47,8 @@ import {
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
   verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
   verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
-  verifyFp0155Absent,
+  verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
+  verifyFp0156Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { verifyFp0147ProviderSelectionEvidenceHardeningPlanBoundary } from "./read-only-app-mcp-provider-selection-evidence-hardening";
 import {
@@ -82,7 +84,7 @@ const invalidTokenChallengePath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts";
 
 describe("FP-0151 Authorization parser route-integration readiness", () => {
-  it("accepts exactly one FP-0151 readiness path, exact FP-0152 implementation path, exact FP-0153 app wiring path, and FP-0154 absence", () => {
+  it("accepts exact FP-0151 through FP-0155 parser plan paths while FP-0156 remains absent", () => {
     const repoPaths = repoFilePaths();
     const fp0151PlanText = safeRead(
       FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
@@ -144,7 +146,24 @@ describe("FP-0151 Authorization parser route-integration readiness", () => {
         "plans/FP-0154-next.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0155Absent(repoPaths)).toBe(true);
+    expect(repoPaths.filter((path) => /(^|\/)FP-0155/u.test(path))).toEqual([
+      FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan([
+        ...repoPaths,
+        "plans/FP-0155-next.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0156Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0156Absent([...repoPaths, "plans/FP-0156-next.md"]),
+    ).toBe(false);
     expect(
       Object.values(
         verifyFp0151RouteIntegrationReadinessPlanningTextRequiredTopics(

@@ -5,8 +5,10 @@ import {
   FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
   FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS,
   FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
+  FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
   verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
-  verifyFp0155Absent,
+  verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
+  verifyFp0156Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   READ_ONLY_MCP_AUTHORIZATION_PARSER_ROUTE_SAFE_DECISION_FIELDS,
@@ -45,7 +47,7 @@ const routeSpecPath =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts";
 
 describe("FP-0154 Authorization parser local adapter construction readiness", () => {
-  it("accepts exactly one FP-0154 readiness path while FP-0155 remains absent", () => {
+  it("accepts exactly one FP-0154 readiness path and the approved FP-0155 implementation path", () => {
     const repoPaths = repoFilePaths();
     const fp0154PlanText = safeRead(
       FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
@@ -65,13 +67,24 @@ describe("FP-0154 Authorization parser local adapter construction readiness", ()
         "plans/FP-0154-runtime-adapter.md",
       ]),
     ).toBe(false);
-    expect(repoPaths.filter((path) => /(^|\/)FP-0155/u.test(path))).toEqual(
-      [],
-    );
-    expect(verifyFp0155Absent(repoPaths)).toBe(true);
-    expect(verifyFp0155Absent([...repoPaths, "plans/FP-0155-next.md"])).toBe(
-      false,
-    );
+    expect(repoPaths.filter((path) => /(^|\/)FP-0155/u.test(path))).toEqual([
+      FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
+    ]);
+    expect(
+      verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan([
+        ...repoPaths,
+        "plans/FP-0155-next.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0156Absent(repoPaths)).toBe(true);
+    expect(
+      verifyFp0156Absent([...repoPaths, "plans/FP-0156-next.md"]),
+    ).toBe(false);
     expect(
       Object.values(
         verifyFp0154LocalAdapterConstructionReadinessPlanningTextRequiredTopics(

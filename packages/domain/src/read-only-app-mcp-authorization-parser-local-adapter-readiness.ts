@@ -6,7 +6,8 @@ import {
   FP0146_FORBIDDEN_TOKEN_DERIVED_OBSERVABILITY_FIELDS,
   type Fp0146FailureState,
   verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
-  verifyFp0155Absent,
+  verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
+  verifyFp0156Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   READ_ONLY_MCP_AUTHORIZATION_PARSER_ROUTE_SAFE_DECISION_FIELDS,
@@ -146,7 +147,11 @@ export function buildReadOnlyMcpAuthorizationParserLocalAdapterReadinessProof(
       ) &&
       (fp0154PlanTopics === null ||
         Object.values(fp0154PlanTopics).every(Boolean)),
-    fp0155Absent: verifyFp0155Absent(repoPaths),
+    fp0155AbsentOrLocalAdapterImplementationPlanVerified:
+      verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan(
+        repoPaths,
+      ),
+    fp0156Absent: verifyFp0156Absent(repoPaths),
     localAdapterConstructionReadinessBoundaryVerified:
       fp0154PlanTopics === null ||
       Object.values(fp0154PlanTopics).every(Boolean),
