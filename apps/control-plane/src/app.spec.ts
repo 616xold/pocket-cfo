@@ -1,4 +1,6 @@
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import { afterEach, describe, expect, it } from "vitest";
 import type { FastifyInstance } from "fastify";
 import {
@@ -15,6 +17,7 @@ import {
   type ProofBundleManifest,
   ProofBundleManifestSchema,
   type ReadOnlyMcpAuthorizationParserRouteDecisionDependency,
+  scanProofOnlyNoTokenLeakageText,
   validRouteInput,
 } from "@pocket-cto/domain";
 import { buildApp } from "./app";
@@ -38,9 +41,11 @@ import {
 import { RuntimeActiveTurnNotFoundError } from "./modules/runtime-codex/errors";
 import {
   READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_ERROR,
+  READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_DOUBLE_INJECTION_ERROR,
   withReadOnlyAppMcpAuthorizationParserLocalAdapter,
 } from "./read-only-app-mcp-authorization-parser-local-adapter-app-construction";
 
+const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const unknownMissionId = "11111111-1111-4111-8111-111111111111";
 const unknownApprovalId = "22222222-2222-4222-8222-222222222222";
 const unknownTaskId = "33333333-3333-4333-8333-333333333333";
@@ -130,15 +135,18 @@ describe("control-plane app", () => {
 
   it("does not construct a parser route-decision dependency in default containers or app construction", () => {
     const container = createInMemoryContainer();
-    const appSource = readFileSync(new URL("./app.ts", import.meta.url), "utf8");
+    const appSource = readFileSync(
+      new URL("./app.ts", import.meta.url),
+      "utf8",
+    );
     const bootstrapSource = readFileSync(
       new URL("./bootstrap.ts", import.meta.url),
       "utf8",
     );
 
-    expect(
-      "readOnlyAppMcpAuthorizationParserRouteDecision" in container,
-    ).toBe(false);
+    expect("readOnlyAppMcpAuthorizationParserRouteDecision" in container).toBe(
+      false,
+    );
     expect(appSource).toContain(
       "container.readOnlyAppMcpAuthorizationParserRouteDecision",
     );
@@ -366,9 +374,7 @@ describe("control-plane app", () => {
             ),
         },
       }),
-    ).rejects.toThrow(
-      /requires invalid-token challenge co-registration/u,
-    );
+    ).rejects.toThrow(/requires invalid-token challenge co-registration/u);
     expect(parserCalls).toBe(0);
   });
 
@@ -455,17 +461,54 @@ describe("control-plane app", () => {
     expect(container.readOnlyAppMcpAuthorizationParserRouteDecision).toBe(
       undefined,
     );
-    expect(
-      "readOnlyAppMcpAuthorizationParserRouteDecision" in base,
-    ).toBe(false);
-    expect(
-      typeof injected.readOnlyAppMcpAuthorizationParserRouteDecision,
-    ).toBe("function");
+    expect("readOnlyAppMcpAuthorizationParserRouteDecision" in base).toBe(
+      false,
+    );
+    expect(typeof injected.readOnlyAppMcpAuthorizationParserRouteDecision).toBe(
+      "function",
+    );
     expect(
       injected.readOnlyAppMcpAuthorizationParserRouteDecision?.({}),
     ).toMatchObject({
       maps_to_fp0130_missing_token_lane: true,
       parser_failure_state: "missing_authorization",
+    });
+  });
+
+  it("fails closed when explicit local adapter injection would overwrite an existing parser route-decision dependency", () => {
+    const base = createInMemoryContainer();
+    const evidenceBundle =
+      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput);
+    const existingParserDependency: ReadOnlyMcpAuthorizationParserRouteDecisionDependency =
+      () => routeDecisionForObservedAuthorization();
+    const container: AppContainer = {
+      ...base,
+      readOnlyAppMcpAuthorizationParserRouteDecision: existingParserDependency,
+      readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
+        buildTokenValidationResultEnvelope(
+          buildTokenValidationResultEnvelopeInputDescriptor({
+            outcome: "invalid_token",
+          }),
+        ),
+      readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
+        buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
+      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
+        evidenceBundle,
+    };
+
+    expect(() =>
+      withReadOnlyAppMcpAuthorizationParserLocalAdapter(container),
+    ).toThrow(
+      READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_DOUBLE_INJECTION_ERROR,
+    );
+    expect(container.readOnlyAppMcpAuthorizationParserRouteDecision).toBe(
+      existingParserDependency,
+    );
+    expect(
+      container.readOnlyAppMcpAuthorizationParserRouteDecision?.({}),
+    ).toMatchObject({
+      authorization_presence: "present",
+      invalid_token_challenge_downstream_only: true,
     });
   });
 
@@ -573,6 +616,35 @@ describe("control-plane app", () => {
     expect(metadataResponse.json()).toEqual(
       evidenceBundle.builderOutput.document,
     );
+  });
+
+  it("runs the local auth demo harness with a sanitized summary only", () => {
+    const output = execFileSync(
+      "pnpm",
+      ["exec", "tsx", "tools/read-only-mcp-auth-local-demo-harness.mjs"],
+      {
+        cwd: repoRoot,
+        encoding: "utf8",
+      },
+    );
+    const summary = JSON.parse(output) as Record<string, unknown>;
+
+    expect(summary).toEqual({
+      localOnly: true,
+      explicitHelperOnly: true,
+      defaultBehaviorPreserved: true,
+      missingAuthorizationChallengeVerified: true,
+      authorizationPresentInvalidChallengeVerified: true,
+      metadataRouteVerified: true,
+      noCredentialMaterialExposed: true,
+      noParserDecisionObjectExposed: true,
+      productionTokenValidationImplemented: false,
+    });
+    expect(output).not.toContain("authorization-present-local-only");
+    expect(output).not.toMatch(
+      /parser_route_decision_contract_version|authorization_scheme_classification|credential_material_observed|parser_failure_state|envelope_failure|token_fingerprint/u,
+    );
+    expect(scanProofOnlyNoTokenLeakageText(output).accepted).toBe(true);
   });
 
   it("does not register the protected-resource metadata route by default", async () => {
