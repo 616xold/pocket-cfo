@@ -1,4 +1,3 @@
-import { classifyReadOnlyMcpAuthorizationHeader } from "./read-only-app-mcp-authorization-parser";
 import {
   verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
   verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
@@ -14,9 +13,6 @@ import {
   verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary,
 } from "./read-only-app-mcp-authorization-parser-local-adapter-readiness";
 import {
-  type ReadOnlyMcpAuthorizationParserRouteDecisionDependency,
-  type ReadOnlyMcpAuthorizationParserRouteDecisionDependencyInput,
-  deriveReadOnlyMcpAuthorizationParserRouteDecisionReadiness,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "./read-only-app-mcp-authorization-parser-route-integration-readiness";
 import {
@@ -26,12 +22,17 @@ import {
   verifyReadOnlyMcpAuthorizationParserLocalAdapterSharedSanitizerStillStrict,
   verifyFp0155LocalAdapterImplementationPlanningTextRequiredTopics,
 } from "./read-only-app-mcp-authorization-parser-local-adapter-readiness-fp0155";
+import { createReadOnlyMcpAuthorizationParserRouteDecisionDependency } from "./read-only-app-mcp-authorization-parser-local-adapter-runtime";
 import { scanProofOnlyNoTokenLeakageText } from "./read-only-app-mcp-token-validation";
 
 export const MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_SCHEMA_VERSION =
   "v2bw.read-only-app-mcp-authorization-parser-local-adapter-implementation.v1";
 
 export { verifyFp0155LocalAdapterImplementationPlanningTextRequiredTopics };
+export {
+  MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_RUNTIME_SCHEMA_VERSION,
+  createReadOnlyMcpAuthorizationParserRouteDecisionDependency,
+} from "./read-only-app-mcp-authorization-parser-local-adapter-runtime";
 
 export type ReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundaryInput =
   | readonly string[]
@@ -40,25 +41,6 @@ export type ReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundaryInpu
       fp0155PlanText?: string;
       repoPaths?: readonly string[];
     };
-
-export function createReadOnlyMcpAuthorizationParserRouteDecisionDependency(): ReadOnlyMcpAuthorizationParserRouteDecisionDependency {
-  return function readOnlyMcpAuthorizationParserRouteDecision(
-    input: ReadOnlyMcpAuthorizationParserRouteDecisionDependencyInput,
-  ) {
-    const classification = classifyReadOnlyMcpAuthorizationHeader({
-      authorizationHeader: input.authorizationHeader,
-    });
-
-    return deriveReadOnlyMcpAuthorizationParserRouteDecisionReadiness({
-      authorization_presence: classification.authorization_presence,
-      authorization_scheme_classification:
-        classification.authorization_scheme_classification,
-      credential_material_observed:
-        classification.credential_material_observed,
-      failure_state: classification.failure_state,
-    });
-  };
-}
 
 export function buildReadOnlyMcpAuthorizationParserLocalAdapterImplementationProof(
   input: ReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundaryInput = [],

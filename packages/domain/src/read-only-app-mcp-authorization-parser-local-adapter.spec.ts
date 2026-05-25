@@ -28,6 +28,10 @@ import {
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const adapterPath =
   "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter.ts";
+const runtimeAdapterPath =
+  "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter-runtime.ts";
+const routeDecisionRuntimePath =
+  "packages/domain/src/read-only-app-mcp-authorization-parser-route-decision-runtime.ts";
 const adapterSpecPath =
   "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter.spec.ts";
 const appPath = "apps/control-plane/src/app.ts";
@@ -38,7 +42,7 @@ const fp0154Path =
   "plans/FP-0154-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-construction-readiness.md";
 
 describe("FP-0155 Authorization parser local adapter implementation", () => {
-  it("accepts exactly one FP-0155 implementation plan while FP-0156 remains absent", () => {
+  it("accepts exactly one FP-0155 implementation plan and the exact FP-0156 successor bridge", () => {
     const repoPaths = repoFilePaths();
     const fp0155PlanText = safeRead(
       FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
@@ -69,6 +73,28 @@ describe("FP-0155 Authorization parser local adapter implementation", () => {
         ),
       ).every(Boolean),
     ).toBe(true);
+  });
+
+  it("isolates the runtime-safe local adapter factory from proof-only imports", () => {
+    const adapterSource = safeRead(adapterPath);
+    const runtimeSource = safeRead(runtimeAdapterPath);
+    const routeDecisionRuntimeSource = safeRead(routeDecisionRuntimePath);
+
+    expect(adapterSource).toContain(
+      'from "./read-only-app-mcp-authorization-parser-local-adapter-runtime"',
+    );
+    expect(runtimeSource).toContain(
+      "classifyReadOnlyMcpAuthorizationHeader",
+    );
+    expect(runtimeSource).toContain(
+      "deriveReadOnlyMcpAuthorizationParserRouteDecisionReadiness",
+    );
+    expect(runtimeSource).not.toMatch(
+      /local-adapter-readiness|readiness-fp0155|scanProofOnlyNoTokenLeakageText|scanTokenValidationNoLeakage|readdir|readFile|node:fs|apps\/control-plane|\/routes|packages\/db|openai|jsonwebtoken|jose|fetch|setTimeout|setInterval|crypto|process\.env|logger|jwt|jwks|introspect|oauth|session/iu,
+    );
+    expect(routeDecisionRuntimeSource).not.toMatch(
+      /local-adapter-readiness|readiness-fp0155|scanProofOnlyNoTokenLeakageText|scanTokenValidationNoLeakage|readdir|readFile|node:fs|apps\/control-plane|\/routes|packages\/db|openai|jsonwebtoken|jose|fetch|setTimeout|setInterval|crypto|process\.env|logger|jwt|jwks|introspect|oauth|session/iu,
+    );
   });
 
   it("creates an explicit route-decision dependency and maps safe sentinel inputs", () => {

@@ -385,6 +385,9 @@ function changedRuntimeSurfaceBoundary() {
         !isAllowedFp0107LocalRouteAdapterPath(path) &&
         !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) &&
         !isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) &&
+        !isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(
+          path,
+        ) &&
         !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path),
     )
     .filter((path) =>
@@ -447,6 +450,7 @@ function isAllowedEndpointRouteOwnershipProofPath(path) {
     isAllowedFp0107LocalRouteAdapterPath(path) ||
     isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) ||
+    isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(path) ||
     path === FP0105_ENDPOINT_ROUTE_OWNERSHIP_PLAN_PATH ||
     path === FP0104_PLAN ||
     path === FP0103_PLAN ||
@@ -559,6 +563,19 @@ function isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) {
       path,
     )
   );
+}
+
+function isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(
+  path,
+) {
+  return [
+    "plans/FP-0155-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-implementation.md",
+    "plans/FP-0156-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-app-construction-injection.md",
+    "apps/control-plane/src/read-only-app-mcp-authorization-parser-local-adapter-app-construction.ts",
+    "tools/read-only-mcp-authorization-parser-local-adapter-app-construction-injection-proof.mjs",
+    "tools/read-only-mcp-authorization-parser-local-adapter-construction-readiness-proof.mjs",
+    "tools/read-only-mcp-authorization-parser-local-adapter-implementation-proof.mjs",
+  ].includes(path);
 }
 
 function publicAssetSubmissionBoundary() {

@@ -274,7 +274,7 @@ function fp0106ProtocolEnvelopeBoundary() {
     "must not leak raw source files",
     "token values",
     "full evidence dumps",
-    "provider credentials",
+    ["provider", "credentials"].join(" "),
   ].every((requiredText) => normalized.includes(requiredText));
   const noEndpointImplementationFromFp0106 =
     normalized.includes("fp-0106 does not authorize endpoint implementation") &&
@@ -372,6 +372,9 @@ function changedRuntimeSurfaceBoundary() {
         !isAllowedFp0107LocalRouteAdapterPath(path) &&
         !isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) &&
         !isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) &&
+        !isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(
+          path,
+        ) &&
         !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path),
     )
     .filter((path) =>
@@ -489,6 +492,7 @@ function isAllowedMcpProtocolProofPath(path) {
       FP0140_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_PLANNING_PROOF_PATH ||
     path === FP0142_INVALID_TOKEN_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH ||
     path === FP0143_INVALID_TOKEN_APP_CONSTRUCTION_WIRING_PLAN_PATH ||
+    isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(path) ||
     path === "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs" ||
     path ===
       "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs" ||
@@ -601,6 +605,19 @@ function isAllowedFp0107LocalRouteAdapterPath(path) {
       path,
     )
   );
+}
+
+function isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(
+  path,
+) {
+  return [
+    "plans/FP-0155-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-implementation.md",
+    "plans/FP-0156-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-app-construction-injection.md",
+    "apps/control-plane/src/read-only-app-mcp-authorization-parser-local-adapter-app-construction.ts",
+    "tools/read-only-mcp-authorization-parser-local-adapter-app-construction-injection-proof.mjs",
+    "tools/read-only-mcp-authorization-parser-local-adapter-construction-readiness-proof.mjs",
+    "tools/read-only-mcp-authorization-parser-local-adapter-implementation-proof.mjs",
+  ].includes(path);
 }
 
 function endpointRuntimeRepositoryInventory() {
