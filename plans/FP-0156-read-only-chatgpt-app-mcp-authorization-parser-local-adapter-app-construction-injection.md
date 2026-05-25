@@ -28,6 +28,7 @@ Target phase: V2BX read-only ChatGPT App/MCP Authorization parser local adapter 
 - [x] 2026-05-25T09:14:53Z - Pre-closeout validation passed: `git diff --check`, all requested FP-0156 through predecessor proof commands, focused domain specs, focused control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-25T09:22:50Z - Same-branch QA found and corrected one proof-string leakage-sanitizer issue in an older protocol proof bridge by keeping the checked phrase assembled at runtime instead of as a scanner-visible credential phrase.
 - [x] 2026-05-25T09:22:50Z - Final post-closeout validation passed on the edited tree: `git diff --check`, all requested proof commands, focused domain specs, focused control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-25T09:30:54Z - Same-branch QA for PR #335 found and corrected one tiny `plugins.md` top-summary freshness gap so the repo-local plugin summary names FP-0156 alongside the prior Authorization parser slices. No runtime, route, adapter, provider, OAuth/session/auth, DB/schema/package, source, finance-write, public-app, or FP-0157 scope changed. Because this QA made a correction, the requested validation ladder and `pnpm ci:repro:current` must rerun before the correction commit.
 
 ## Surprises & Discoveries
 
@@ -181,3 +182,5 @@ Same-branch QA found proof-bridge successor gaps in older predecessor proof tool
 FP-0155 closeout freshness is corrected. Active docs and `plugins.md` no longer present FP-0156 as only future work once this branch is applied.
 
 Final post-closeout validation passed before commit. The only same-branch QA correction after closeout was scanner-safe proof-string assembly in `tools/read-only-mcp-protocol-envelope-proof.mjs`; it did not change route behavior, default construction behavior, adapter behavior, token/runtime/provider/OAuth/auth posture, schema/package/source/finance behavior, or public app posture.
+
+PR #335 same-branch QA later found one tiny `plugins.md` top-summary freshness gap. The correction only names FP-0156 in the repo-local plugin summary that already contained the detailed FP-0156 bullet; it does not change runtime behavior, proof semantics, route behavior, default construction behavior, adapter behavior, token/runtime/provider/OAuth/auth posture, schema/package/source/finance behavior, or public app posture.
