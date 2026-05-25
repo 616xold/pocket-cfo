@@ -1,4 +1,6 @@
-import { execFileSync } from "node:child_process";
+/* global console */
+
+import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_LOCAL_IMPLEMENTATION_PLAN_PATH,
@@ -11,24 +13,15 @@ import {
   FP0146_AUTHORIZATION_PARSER_CONTRACTS_PROVIDER_SELECTION_PLAN_PATH,
   FP0147_PROVIDER_SELECTION_EVIDENCE_HARDENING_PLAN_PATH,
   FP0148_AUTHORIZATION_PARSER_IMPLEMENTATION_READINESS_PLAN_PATH,
-  FP0149_AUTHORIZATION_PARSER_PURE_DOMAIN_IMPLEMENTATION_PLAN_PATH,
   FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
-  FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
-  FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
-  FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
   FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
-  FP0156_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_INJECTION_PLAN_PATH,
   FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH,
-  buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency,
-  buildProtectedResourceMetadataRouteInputEvidenceBundle,
-  buildReadOnlyMcpAuthorizationParserLocalAdapterImplementationProof,
-  buildTokenValidationResultEnvelope,
-  buildTokenValidationResultEnvelopeInputDescriptor,
+  FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH,
+  MCP_TOOL_ALLOWLIST,
   createReadOnlyMcpAuthorizationParserRouteDecisionDependency,
   scanProofOnlyNoTokenLeakageText,
   scanTokenValidationNoLeakage,
-  validRouteInput,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
   verifyFp0139LocalProofModeTokenValidationResultEnvelopeBoundary,
   verifyFp0141LocalInvalidTokenChallengeRuntimeBoundary,
@@ -48,7 +41,6 @@ import {
   verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
   verifyFp0156AbsentOrAuthorizationParserLocalAdapterAppConstructionInjectionPlan,
   verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan,
-  verifyFp0158Absent,
   verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan,
   verifyFp0159Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
@@ -56,59 +48,65 @@ import {
   verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "../packages/domain/src/index.ts";
-import { createInMemoryContainer } from "../apps/control-plane/src/bootstrap.ts";
-import {
-  READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_ERROR,
-  READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_DOUBLE_INJECTION_ERROR,
-  withReadOnlyAppMcpAuthorizationParserLocalAdapter,
-} from "../apps/control-plane/src/read-only-app-mcp-authorization-parser-local-adapter-app-construction.ts";
 
 const SCHEMA_VERSION =
-  "v2by.read-only-chatgpt-app-mcp-auth-local-demo-harness-proof.v1";
+  "v2bz.read-only-chatgpt-app-mcp-evidence-app-local-demo-bridge-proof.v1";
 
+const HARNESS_PATH = "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs";
+const AUTH_HARNESS_PROOF_PATH =
+  "tools/read-only-mcp-auth-local-demo-harness-proof.mjs";
+const FP0156_PROOF_PATH =
+  "tools/read-only-mcp-authorization-parser-local-adapter-app-construction-injection-proof.mjs";
 const APP_PATH = "apps/control-plane/src/app.ts";
 const APP_SPEC_PATH = "apps/control-plane/src/app.spec.ts";
 const BOOTSTRAP_PATH = "apps/control-plane/src/bootstrap.ts";
-const APP_HELPER_PATH =
-  "apps/control-plane/src/read-only-app-mcp-authorization-parser-local-adapter-app-construction.ts";
+const TYPES_PATH = "apps/control-plane/src/lib/types.ts";
 const MCP_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 const ROUTE_SPEC_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts";
+const SERVICE_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/service.ts";
+const DISPATCHER_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.ts";
+const DISPATCHER_SPEC_PATH =
+  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/evidence-dispatcher.spec.ts";
 const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 const INVALID_TOKEN_CHALLENGE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts";
-const HARNESS_PATH = "tools/read-only-mcp-auth-local-demo-harness.mjs";
-const FP0156_PROOF_PATH =
-  "tools/read-only-mcp-authorization-parser-local-adapter-app-construction-injection-proof.mjs";
 const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 const FP0106_PLAN =
   "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
 const FP0107_PLAN =
   "plans/FP-0107-read-only-chatgpt-app-mcp-local-fastify-mcp-route-adapter-foundation.md";
+const FP0108_PLAN =
+  "plans/FP-0108-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-contracts.md";
+const FP0109_PLAN =
+  "plans/FP-0109-read-only-chatgpt-app-mcp-read-only-evidence-tool-dispatch-adapter-implementation.md";
 const FP0125_PLAN =
   "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
+const FP0086_PLAN =
+  "plans/FP-0086-benchmark-community-pack-foundation.md";
+const FP0085_PLAN =
+  "plans/FP-0085-bounded-llm-orchestration-foundation.md";
+const FP0082_PLAN =
+  "plans/FP-0082-read-only-mcp-chatgpt-evidence-app-alpha.md";
+const FP0081_PLAN =
+  "plans/FP-0081-document-precision-adapters-foundation.md";
+const FP0080_PLAN =
+  "plans/FP-0080-evidence-index-and-document-map-foundation.md";
 
 const repoPaths = repoFilePaths();
 const changedPathScope = changedFilePathScope();
 const changedPaths = changedPathScope.combinedChangedPaths;
 const changedLeakageText = readChangedLeakageText(changedPaths);
-const appSource = safeRead(APP_PATH);
-const appSpecSource = safeRead(APP_SPEC_PATH);
-const bootstrapSource = safeRead(BOOTSTRAP_PATH);
-const appHelperSource = safeRead(APP_HELPER_PATH);
-const routeSource = safeRead(MCP_ROUTE_PATH);
-const routeSpecSource = safeRead(ROUTE_SPEC_PATH);
-const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
-const invalidTokenChallengeSource = safeRead(INVALID_TOKEN_CHALLENGE_PATH);
-const harnessSource = safeRead(HARNESS_PATH);
+const fp0158PlanText = safeRead(
+  FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH,
+);
 const fp0157PlanText = safeRead(
   FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH,
-);
-const fp0156PlanText = safeRead(
-  FP0156_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_INJECTION_PLAN_PATH,
 );
 const fp0155PlanText = safeRead(
   FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
@@ -116,77 +114,114 @@ const fp0155PlanText = safeRead(
 const fp0154PlanText = safeRead(
   FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
 );
-const harnessSummary = runHarness();
+const appSource = safeRead(APP_PATH);
+const appSpecSource = safeRead(APP_SPEC_PATH);
+const bootstrapSource = safeRead(BOOTSTRAP_PATH);
+const typesSource = safeRead(TYPES_PATH);
+const routeSource = safeRead(MCP_ROUTE_PATH);
+const routeSpecSource = safeRead(ROUTE_SPEC_PATH);
+const serviceSource = safeRead(SERVICE_PATH);
+const dispatcherSource = safeRead(DISPATCHER_PATH);
+const dispatcherSpecSource = safeRead(DISPATCHER_SPEC_PATH);
+const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
+const invalidTokenChallengeSource = safeRead(INVALID_TOKEN_CHALLENGE_PATH);
+const harnessSource = safeRead(HARNESS_PATH);
+const authHarnessProofSource = safeRead(AUTH_HARNESS_PROOF_PATH);
+const fp0156ProofSource = safeRead(FP0156_PROOF_PATH);
+const harnessRun = runHarness();
+const harnessSummary = JSON.parse(harnessRun.stdout);
+const planScope = verifyPlanScope();
+const harnessScope = verifyHarnessScope();
+const routeScope = verifyRouteScope();
+const appScope = verifyAppScope();
+const evidenceScope = verifyEvidenceScope();
+const sourceScope = verifySourceScope();
+const noLeakageScope = verifyNoLeakageScope();
+const priorBoundaries = verifyPriorBoundaries();
 const runtimeDependency =
   createReadOnlyMcpAuthorizationParserRouteDecisionDependency();
 const decisionFields = Object.keys(runtimeDependency({}));
-const planScope = verifyPlanScope();
-const helperScope = verifyHelperScope();
-const harnessScope = verifyHarnessScope();
-const appScope = verifyAppScope();
-const routeScope = verifyRouteScope();
-const sourceScope = verifySourceScope();
-const noLeakageScope = verifyNoLeakageScope(changedLeakageText);
-const priorBoundaries = verifyPriorBoundaries();
-const adapterProof =
-  buildReadOnlyMcpAuthorizationParserLocalAdapterImplementationProof({
-    fp0154PlanText,
-    fp0155PlanText,
-    repoPaths,
-  });
 
 const output = {
   schemaVersion: SCHEMA_VERSION,
-  fp0157AbsentOrLocalAuthDemoHarnessPlanVerified:
-    verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan(repoPaths) &&
-    planScope.exactlyOneFp0157Plan,
   fp0158AbsentOrEvidenceAppLocalDemoBridgePlanVerified:
     verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan(repoPaths) &&
-    planScope.fp0158AbsentOrEvidenceAppLocalDemoBridgePlan,
+    planScope.exactlyOneFp0158Plan &&
+    planScope.planTextBoundaryVerified,
   fp0159Absent: verifyFp0159Absent(repoPaths) && planScope.fp0159Absent,
-  localAuthDemoHarnessBoundaryVerified:
-    planScope.localDemoOnlyPlan &&
+  evidenceAppLocalDemoBridgeBoundaryVerified:
+    planScope.localEvidenceAppDemoBridgeOnly &&
     harnessScope.localOnly &&
     harnessScope.inMemoryOnly,
+  authBoundaryLaneVerified:
+    harnessSummary.authBoundaryLaneVerified === true &&
+    harnessSummary.missingAuthorizationChallengeVerified === true &&
+    harnessSummary.authorizationPresentInvalidChallengeVerified === true &&
+    harnessSummary.metadataRouteVerified === true,
+  evidenceToolLaneVerified:
+    harnessSummary.evidenceToolLaneVerified === true &&
+    evidenceScope.allRequiredToolsVerified,
   explicitHelperOnlyLocalHarnessVerified:
-    harnessScope.usesExplicitHelper &&
-    !harnessScope.constructsAdapterDirectly &&
-    !harnessScope.wiresDefaultAdapter,
-  helperDoubleInjectionFailsClosed:
-    helperScope.doubleInjectionThrowsDeterministicError &&
-    helperScope.doubleInjectionCheckBeforeFactoryConstruction,
-  helperStillRequiresInvalidTokenMissingTokenAndMetadataLane:
-    helperScope.coRegistrationErrorPreserved &&
-    helperScope.incompleteCoRegistrationStillFailsClosed,
+    harnessSummary.explicitHelperOnly === true &&
+    harnessScope.authLaneUsesExplicitHelperOnly,
+  explicitEvidenceDispatchOnlyVerified:
+    harnessSummary.explicitEvidenceDispatchOnly === true &&
+    harnessScope.evidenceLaneUsesExplicitDispatchOnly,
+  syntheticEvidenceServiceOnlyVerified:
+    harnessScope.syntheticEvidenceServiceOnly &&
+    noLeakageScope.evidenceFixturesContainNoRealFinanceData,
+  localHarnessSanitizedSummaryOnly:
+    harnessScope.summaryFieldsOnly &&
+    noLeakageScope.harnessStdoutLeakageScan.accepted &&
+    harnessRun.stderr === "",
+  localHarnessResponseBodiesHeadersStdoutStderrLeakageScanned:
+    harnessScope.scansResponseBodiesAndHeaders &&
+    noLeakageScope.harnessStdoutLeakageScan.accepted &&
+    noLeakageScope.harnessStderrLeakageScan.accepted,
   defaultAdapterWiringStillBlocked:
-    appScope.defaultCreateContainerLeavesDependencyAbsent &&
-    appScope.defaultCreateInMemoryContainerLeavesDependencyAbsent,
-  defaultCreateContainerBehaviorStillUnchanged:
-    appScope.defaultCreateContainerLeavesDependencyAbsent,
-  defaultCreateInMemoryContainerBehaviorStillUnchanged:
-    appScope.defaultCreateInMemoryContainerLeavesDependencyAbsent,
-  defaultBuildAppBehaviorStillUnchanged:
-    appScope.buildAppPassThroughPreserved &&
-    appScope.buildAppDoesNotCallExplicitHelper &&
+    appScope.defaultCreateContainerLeavesParserDependencyAbsent &&
+    appScope.defaultCreateInMemoryContainerLeavesParserDependencyAbsent,
+  defaultEvidenceDispatchWiringStillBlocked:
+    appScope.defaultCreateContainerLeavesEndpointServiceAbsent &&
+    appScope.defaultCreateInMemoryContainerLeavesEndpointServiceAbsent &&
     harnessSummary.defaultBehaviorPreserved === true,
+  defaultCreateContainerBehaviorStillUnchanged:
+    appScope.defaultCreateContainerLeavesParserDependencyAbsent &&
+    appScope.defaultCreateContainerLeavesEndpointServiceAbsent,
+  defaultCreateInMemoryContainerBehaviorStillUnchanged:
+    appScope.defaultCreateInMemoryContainerLeavesParserDependencyAbsent &&
+    appScope.defaultCreateInMemoryContainerLeavesEndpointServiceAbsent,
+  defaultBuildAppBehaviorStillUnchanged:
+    appScope.buildAppPassThroughOnly &&
+    !appSource.includes("withReadOnlyAppMcpAuthorizationParserLocalAdapter") &&
+    !appSource.includes("new LocalReadOnlyEvidenceToolDispatchAdapter"),
   mcpRouteBehaviorStillUnchanged: routeScope.mcpRouteShapePreserved,
   protectedResourceMetadataRouteStillUnchanged:
     routeScope.protectedResourceMetadataRouteShapePreserved,
-  localHarnessMissingAuthorizationChallengeVerified:
+  missingTokenChallengeVerified:
     harnessSummary.missingAuthorizationChallengeVerified === true,
-  localHarnessAuthorizationPresentInvalidChallengeVerified:
+  authorizationPresentInvalidChallengeVerified:
     harnessSummary.authorizationPresentInvalidChallengeVerified === true,
-  localHarnessMetadataRouteVerified:
-    harnessSummary.metadataRouteVerified === true,
-  localHarnessSanitizedSummaryOnly:
-    harnessScope.summaryFieldsOnly &&
-    harnessScope.outputLeakageScan.accepted &&
-    harnessSummary.noCredentialMaterialExposed === true,
+  metadataRouteVerified: harnessSummary.metadataRouteVerified === true,
+  evidenceSearchVerified: harnessSummary.searchEvidenceVerified === true,
+  evidenceCardFetchVerified: harnessSummary.fetchEvidenceCardVerified === true,
+  documentMapFetchVerified: harnessSummary.fetchDocumentMapVerified === true,
+  sourceCoverageFetchVerified: harnessSummary.fetchSourceCoverageVerified === true,
+  companyPostureFetchVerified:
+    harnessSummary.fetchCompanyPostureVerified === true,
+  capabilityBoundariesFetchVerified:
+    harnessSummary.fetchCapabilityBoundariesVerified === true,
+  companyKeyMismatchFailsClosed:
+    harnessSummary.companyKeyMismatchFailsClosed === true,
+  invalidToolFailsClosed: harnessSummary.invalidToolFailsClosed === true,
+  invalidArgumentsFailClosed:
+    harnessSummary.invalidArgumentsFailClosed === true,
   parserDecisionNeverReturnedInHttpResponse:
-    routeScope.responseNoParserDecisionObjectExposure &&
-    harnessSummary.noParserDecisionObjectExposed === true,
+    harnessSummary.noParserDecisionObjectExposed === true &&
+    routeScope.responseNoParserDecisionObjectExposure,
   parserDecisionNeverLogged:
-    routeScope.noRouteParserDecisionLogging && harnessScope.summaryConsoleOnly,
+    routeScope.noRouteParserDecisionLogging &&
+    !harnessSource.includes("console.error"),
   parserDecisionNeverCarriesRawAuthorizationHeader:
     !decisionFields.includes("authorization_header") &&
     !decisionFields.includes("raw_authorization_header"),
@@ -194,12 +229,22 @@ const output = {
     !decisionFields.includes("raw_token") && !decisionFields.includes("token"),
   parserDecisionNeverCarriesTokenDerivedFingerprint:
     !decisionFields.includes("token_fingerprint"),
+  noRawSourceDumpExposed:
+    harnessSummary.noRawSourceDumpExposed === true &&
+    noLeakageScope.noRawSourceDumpInHarnessOutput,
+  noPrivateFieldExposed: noLeakageScope.noPrivateFieldInHarnessOutput,
+  noGeneratedAdviceExposed: noLeakageScope.noGeneratedAdviceInHarnessOutput,
+  noWriteActionExposed:
+    harnessSummary.noWriteActionExposed === true &&
+    noLeakageScope.noWriteActionInHarnessOutput,
   parserFixturesContainNoRealTokenExamples:
-    noLeakageScope.fixturesLeakageScan.accepted &&
+    noLeakageScope.parserFixturesLeakageScan.accepted &&
     noLeakageScope.noBearerTokenMaterial &&
     noLeakageScope.noJwtLikeExamples,
+  evidenceFixturesContainNoRealFinanceData:
+    noLeakageScope.evidenceFixturesContainNoRealFinanceData,
   sharedProofOnlyLeakageSanitizerStillVerified:
-    noLeakageScope.leakageScan.accepted &&
+    noLeakageScope.changedLeakageScan.accepted &&
     noLeakageScope.sharedSanitizerStillStrict,
   productionTokenValidationRuntimeStillBlocked:
     sourceScope.noProductionTokenValidation &&
@@ -215,22 +260,28 @@ const output = {
   oauthImplementationStillBlocked: sourceScope.noOauthImplementation,
   tokenSessionStorageStillBlocked: sourceScope.noTokenSessionStorage,
   authMiddlewareStillBlocked: sourceScope.noAuthMiddleware,
-  noOpenAiApiCallsFromFp0157: sourceScope.noOpenAiApiCalls,
-  noModelCallsFromFp0157: sourceScope.noModelCalls,
-  noProviderCallsFromFp0157: sourceScope.noProviderCalls,
-  noSourceMutationFromFp0157: sourceScope.noSourceMutation,
-  noFinanceWriteFromFp0157: sourceScope.noFinanceWrite,
-  noExternalCommunicationsFromFp0157: sourceScope.noExternalCommunications,
-  noPublicAssetsFromFp0157: sourceScope.noPublicAssets,
-  noGeneratedPublicProseFromFp0157: sourceScope.noGeneratedPublicProse,
-  noAppSubmissionFromFp0157: sourceScope.noAppSubmission,
-  fp0156CloseoutFreshnessVerified: verifyFp0156CloseoutFreshness(),
+  noOpenAiApiCallsFromFp0158: sourceScope.noOpenAiApiCalls,
+  noModelCallsFromFp0158: sourceScope.noModelCalls,
+  noProviderCallsFromFp0158: sourceScope.noProviderCalls,
+  noSourceMutationFromFp0158: sourceScope.noSourceMutation,
+  noFinanceWriteFromFp0158: sourceScope.noFinanceWrite,
+  noExternalCommunicationsFromFp0158: sourceScope.noExternalCommunications,
+  noPublicAssetsFromFp0158: sourceScope.noPublicAssets,
+  noGeneratedPublicProseFromFp0158: sourceScope.noGeneratedPublicProse,
+  noAppSubmissionFromFp0158: sourceScope.noAppSubmission,
+  fp0157CloseoutFreshnessVerified: verifyFp0157CloseoutFreshness(),
+  fp0157LocalAuthDemoHarnessBoundaryStillVerified:
+    verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan(repoPaths) &&
+    authHarnessProofSource.includes(
+      "fp0158AbsentOrEvidenceAppLocalDemoBridgePlanVerified",
+    ),
   fp0156AppConstructionInjectionBoundaryStillVerified:
     verifyFp0156AbsentOrAuthorizationParserLocalAdapterAppConstructionInjectionPlan(
       repoPaths,
     ) &&
-    appScope.buildAppPassThroughPreserved &&
-    helperScope.coRegistrationErrorPreserved,
+    fp0156ProofSource.includes(
+      "fp0158AbsentOrEvidenceAppLocalDemoBridgePlanVerified",
+    ),
   fp0155LocalAdapterImplementationBoundaryStillVerified:
     verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan(
       repoPaths,
@@ -239,8 +290,7 @@ const output = {
       fp0154PlanText,
       fp0155PlanText,
       repoPaths,
-    }) &&
-    adapterProof.localAdapterImplementationBoundaryVerified,
+    }),
   fp0154LocalAdapterReadinessBoundaryStillVerified:
     verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
       repoPaths,
@@ -286,6 +336,20 @@ const output = {
     priorBoundaries.fp0130MissingTokenChallengeBoundaryStillVerified,
   fp0125ProtectedResourceMetadataRouteBoundaryStillVerified:
     priorBoundaries.fp0125ProtectedResourceMetadataRouteBoundaryStillVerified,
+  fp0109EvidenceDispatchAdapterBoundaryStillVerified:
+    priorBoundaries.fp0109EvidenceDispatchAdapterBoundaryStillVerified,
+  fp0108EvidenceDispatchContractBoundaryStillVerified:
+    priorBoundaries.fp0108EvidenceDispatchContractBoundaryStillVerified,
+  fp0086BenchmarkCommunityBoundaryStillVerified:
+    priorBoundaries.fp0086BenchmarkCommunityBoundaryStillVerified,
+  fp0085BoundedOrchestrationBoundaryStillVerified:
+    priorBoundaries.fp0085BoundedOrchestrationBoundaryStillVerified,
+  fp0082EvidenceAppAlphaBoundaryStillVerified:
+    priorBoundaries.fp0082EvidenceAppAlphaBoundaryStillVerified,
+  fp0081DocumentPrecisionBoundaryStillVerified:
+    priorBoundaries.fp0081DocumentPrecisionBoundaryStillVerified,
+  fp0080EvidenceIndexBoundaryStillVerified:
+    priorBoundaries.fp0080EvidenceIndexBoundaryStillVerified,
   fp0107RouteAdapterBoundaryStillVerified:
     priorBoundaries.fp0107RouteAdapterBoundaryStillVerified,
   fp0106ProtocolEnvelopeBoundaryStillVerified:
@@ -293,16 +357,9 @@ const output = {
   fp0100PublicSecurityBoundaryStillVerified:
     priorBoundaries.fp0100PublicSecurityBoundaryStillVerified,
   proofDetails: {
-    appScope,
     changedPathScope,
-    decisionFields,
-    harnessScope,
     harnessSummary,
-    helperScope,
-    noLeakageScope,
     planScope,
-    routeScope,
-    sourceScope,
   },
 };
 
@@ -312,200 +369,132 @@ const proofOutputLeakageScan = scanProofOnlyNoTokenLeakageText(
 
 for (const [key, value] of Object.entries(output)) {
   if (typeof value === "boolean" && value !== true) {
-    throw new Error(`FP-0157 local auth demo harness proof failed: ${key}`);
+    throw new Error(
+      `FP-0158 evidence app local demo bridge proof failed: ${key}`,
+    );
   }
 }
 if (!proofOutputLeakageScan.accepted) {
   throw new Error(
-    `FP-0157 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
+    `FP-0158 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
   );
+}
+if (JSON.stringify(output).includes("authorization-present-local-only")) {
+  throw new Error("FP-0158 proof output exposed the Authorization sentinel");
 }
 
 console.log(JSON.stringify(output, null, 2));
 
 function runHarness() {
-  const stdout = execFileSync(
+  const result = spawnSync(
     "pnpm",
-    ["exec", "tsx", "tools/read-only-mcp-auth-local-demo-harness.mjs"],
-    { encoding: "utf8" },
+    ["exec", "tsx", "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs"],
+    {
+      encoding: "utf8",
+    },
   );
-  return JSON.parse(stdout);
+  if (result.status !== 0) {
+    throw new Error(
+      `FP-0158 harness failed: ${result.stderr || result.stdout}`,
+    );
+  }
+  return {
+    stderr: result.stderr,
+    stdout: result.stdout,
+  };
 }
 
 function verifyPlanScope() {
-  const fp0157Hits = repoPaths.filter((path) => /(^|\/)FP-0157/u.test(path));
   const fp0158Hits = repoPaths.filter((path) => /(^|\/)FP-0158/u.test(path));
-  const normalized = normalizePlanText(fp0157PlanText);
+  const normalized = normalizePlanText(fp0158PlanText);
 
   return {
-    exactlyOneFp0157Plan:
-      fp0157Hits.length === 1 &&
-      fp0157Hits[0] ===
-        FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH &&
-      existsSync(FP0157_AUTHORIZATION_PARSER_LOCAL_AUTH_DEMO_HARNESS_PLAN_PATH),
-    localDemoOnlyPlan: includesAll(normalized, [
-      "a local read-only mcp auth demo/smoke harness is included",
-      "helper double-injection fail-closed hardening is included",
-      "default adapter construction is not included",
-      "default `createcontainer()` and `createinmemorycontainer()` behavior do not change",
-      "default `buildapp()` behavior does not change when the helper is not used",
-      "production token-validation runtime cannot start after fp-0157",
-      "provider selection cannot start after fp-0157",
-      "oauth/session/auth middleware cannot start after fp-0157",
-      "public chatgpt app demo/submission cannot start after fp-0157",
-      "future fp-0158 may open only",
-    ]),
-    fp0158AbsentOrEvidenceAppLocalDemoBridgePlan:
-      fp0158Hits.length === 0 ||
-      (fp0158Hits.length === 1 &&
-        fp0158Hits[0] ===
-          "plans/FP-0158-read-only-chatgpt-app-mcp-evidence-app-local-demo-bridge.md"),
+    exactlyOneFp0158Plan:
+      fp0158Hits.length === 1 &&
+      fp0158Hits[0] ===
+        FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH &&
+      existsSync(FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH),
     fp0159Absent: repoPaths.every((path) => !/(^|\/)FP-0159/u.test(path)),
-  };
-}
-
-function verifyHelperScope() {
-  const completeContainer = completeHelperContainer();
-  const injected =
-    withReadOnlyAppMcpAuthorizationParserLocalAdapter(completeContainer);
-  const partialContainers = [
-    {
-      ...completeContainer,
-      readOnlyAppMcpInvalidTokenChallengeResultEnvelope: undefined,
-    },
-    {
-      ...completeContainer,
-      readOnlyAppMcpLocalProofGatedMissingTokenChallenge: undefined,
-    },
-    {
-      ...completeContainer,
-      readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
-        undefined,
-    },
-  ];
-  const dependencyIndex = appHelperSource.indexOf(
-    "container.readOnlyAppMcpAuthorizationParserRouteDecision",
-  );
-  const factoryIndex = appHelperSource.indexOf(
-    "createReadOnlyMcpAuthorizationParserRouteDecisionDependency()",
-  );
-
-  return {
-    coRegistrationErrorPreserved: appHelperSource.includes(
-      READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_ERROR,
-    ),
-    doubleInjectionCheckBeforeFactoryConstruction:
-      dependencyIndex >= 0 && factoryIndex > dependencyIndex,
-    doubleInjectionThrowsDeterministicError:
-      throwsMessage(
-        () =>
-          withReadOnlyAppMcpAuthorizationParserLocalAdapter({
-            ...completeContainer,
-            readOnlyAppMcpAuthorizationParserRouteDecision: runtimeDependency,
-          }),
-        READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_DOUBLE_INJECTION_ERROR,
-      ) &&
-      completeContainer.readOnlyAppMcpAuthorizationParserRouteDecision ===
-        undefined,
-    incompleteCoRegistrationStillFailsClosed: partialContainers.every(
-      (container) =>
-        throwsMessage(
-          () => withReadOnlyAppMcpAuthorizationParserLocalAdapter(container),
-          READ_ONLY_APP_MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_APP_CONSTRUCTION_ERROR,
-        ),
-    ),
-    noInputMutation:
-      injected !== completeContainer &&
-      completeContainer.readOnlyAppMcpAuthorizationParserRouteDecision ===
-        undefined &&
-      typeof injected.readOnlyAppMcpAuthorizationParserRouteDecision ===
-        "function",
-  };
-}
-
-function completeHelperContainer() {
-  return {
-    ...createInMemoryContainer(),
-    readOnlyAppMcpInvalidTokenChallengeResultEnvelope:
-      buildTokenValidationResultEnvelope(
-        buildTokenValidationResultEnvelopeInputDescriptor({
-          outcome: "invalid_token",
-        }),
-      ),
-    readOnlyAppMcpLocalProofGatedMissingTokenChallenge:
-      buildMcpWwwAuthenticateLocalProofGatedMissingTokenChallengeDependency(),
-    readOnlyAppMcpProtectedResourceMetadataRouteInputEvidenceBundle:
-      buildProtectedResourceMetadataRouteInputEvidenceBundle(validRouteInput),
+    localEvidenceAppDemoBridgeOnly: includesAll(normalized, [
+      "a read-only evidence app local demo bridge is included",
+      "the demo bridge uses two local lanes",
+      "default auth adapter construction is not included",
+      "default evidence dispatch wiring is not included",
+      "default `createcontainer()`, `createinmemorycontainer()`, and `buildapp()` behavior do not change",
+      "production token-validation runtime cannot start after fp-0158",
+      "provider selection cannot start after fp-0158",
+      "oauth/session/auth middleware cannot start after fp-0158",
+      "public chatgpt app demo/submission cannot start after fp-0158",
+      "future fp-0159 may open only",
+    ]),
+    planTextBoundaryVerified: includesAll(normalized, [
+      "auth boundary lane",
+      "evidence tool lane",
+      "synthetic/stub evidence service",
+      "response bodies, relevant response headers, harness stdout, harness stderr, and proof output",
+      "no real finance data",
+      "no public demo data",
+    ]),
   };
 }
 
 function verifyHarnessScope() {
   const summaryKeys = Object.keys(harnessSummary).sort();
-  const outputLeakageScan = scanProofOnlyNoTokenLeakageText(
-    JSON.stringify(harnessSummary),
-  );
 
   return {
-    constructsAdapterDirectly: harnessSource.includes(
-      "createReadOnlyMcpAuthorizationParserRouteDecisionDependency",
-    ),
+    authLaneUsesExplicitHelperOnly:
+      harnessSource.includes(
+        "withReadOnlyAppMcpAuthorizationParserLocalAdapter",
+      ) &&
+      !harnessSource.includes("createReadOnlyMcpAuthorizationParserRouteDecisionDependency"),
+    evidenceLaneUsesExplicitDispatchOnly:
+      harnessSource.includes("new ReadOnlyAppMcpEndpointService") &&
+      harnessSource.includes("new LocalReadOnlyEvidenceToolDispatchAdapter") &&
+      harnessSource.includes("readOnlyAppMcpEndpointService: endpointService") &&
+      !routeSource.includes("LocalReadOnlyEvidenceToolDispatchAdapter"),
     inMemoryOnly:
       harnessSource.includes("createInMemoryContainer") &&
       !harnessSource.includes("createContainer()") &&
       !harnessSource.includes("createServerContainer"),
     localOnly: harnessSummary.localOnly === true,
-    outputLeakageScan,
-    summaryConsoleOnly:
-      countMatches(harnessSource, /console\.log/gu) === 1 &&
-      harnessSource.includes("console.log(JSON.stringify(summary, null, 2))"),
+    scansResponseBodiesAndHeaders:
+      harnessSource.includes("collectResponseSurface") &&
+      harnessSource.includes("local bridge response bodies and headers"),
     summaryFieldsOnly:
       JSON.stringify(summaryKeys) ===
       JSON.stringify(
         [
+          "authBoundaryLaneVerified",
           "authorizationPresentInvalidChallengeVerified",
+          "companyKeyMismatchFailsClosed",
           "defaultBehaviorPreserved",
+          "evidenceToolLaneVerified",
+          "explicitEvidenceDispatchOnly",
           "explicitHelperOnly",
+          "fetchCapabilityBoundariesVerified",
+          "fetchCompanyPostureVerified",
+          "fetchDocumentMapVerified",
+          "fetchEvidenceCardVerified",
+          "fetchSourceCoverageVerified",
+          "invalidArgumentsFailClosed",
+          "invalidToolFailsClosed",
           "localOnly",
           "metadataRouteVerified",
           "missingAuthorizationChallengeVerified",
           "noCredentialMaterialExposed",
           "noParserDecisionObjectExposed",
+          "noRawSourceDumpExposed",
+          "noWriteActionExposed",
           "productionTokenValidationImplemented",
+          "publicChatGptAppImplemented",
+          "searchEvidenceVerified",
         ].sort(),
       ),
-    usesExplicitHelper: harnessSource.includes(
-      "withReadOnlyAppMcpAuthorizationParserLocalAdapter",
-    ),
-    wiresDefaultAdapter:
-      bootstrapSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision:",
-      ) ||
-      appSource.includes("withReadOnlyAppMcpAuthorizationParserLocalAdapter"),
-  };
-}
-
-function verifyAppScope() {
-  return {
-    buildAppDoesNotCallExplicitHelper:
-      !appSource.includes(
-        "withReadOnlyAppMcpAuthorizationParserLocalAdapter",
-      ) &&
-      !bootstrapSource.includes(
-        "withReadOnlyAppMcpAuthorizationParserLocalAdapter",
-      ),
-    buildAppPassThroughPreserved:
-      appSource.includes("readOnlyAppMcpAuthorizationParserRouteDecision:") &&
-      appSource.includes(
-        "container.readOnlyAppMcpAuthorizationParserRouteDecision",
-      ),
-    defaultCreateContainerLeavesDependencyAbsent:
-      !bootstrapSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision:",
-      ) && bootstrapSource.includes("export async function createContainer"),
-    defaultCreateInMemoryContainerLeavesDependencyAbsent:
-      !bootstrapSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision:",
-      ) && bootstrapSource.includes("createInMemoryContainer"),
+    syntheticEvidenceServiceOnly:
+      harnessSource.includes("function syntheticEvidenceService()") &&
+      harnessSource.includes("Synthetic local demo citation") &&
+      !harnessSource.includes("ReadOnlyEvidenceToolService(") &&
+      !harnessSource.includes("buildEvidenceIndexFoundation"),
   };
 }
 
@@ -559,13 +548,70 @@ function verifyRouteScope() {
   };
 }
 
+function verifyAppScope() {
+  return {
+    buildAppPassThroughOnly:
+      appSource.includes("container.readOnlyAppMcpAuthorizationParserRouteDecision") &&
+      appSource.includes("container.readOnlyAppMcpEndpointService") &&
+      !appSource.includes("createReadOnlyMcpAuthorizationParserRouteDecisionDependency"),
+    defaultCreateContainerLeavesEndpointServiceAbsent:
+      !bootstrapSource.includes("readOnlyAppMcpEndpointService:") &&
+      typesSource.includes("readOnlyAppMcpEndpointService?:"),
+    defaultCreateContainerLeavesParserDependencyAbsent:
+      !bootstrapSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision:",
+      ),
+    defaultCreateInMemoryContainerLeavesEndpointServiceAbsent:
+      !bootstrapSource.includes("readOnlyAppMcpEndpointService:") &&
+      bootstrapSource.includes("createInMemoryContainer"),
+    defaultCreateInMemoryContainerLeavesParserDependencyAbsent:
+      !bootstrapSource.includes(
+        "readOnlyAppMcpAuthorizationParserRouteDecision:",
+      ) && bootstrapSource.includes("createInMemoryContainer"),
+  };
+}
+
+function verifyEvidenceScope() {
+  return {
+    allRequiredToolsVerified:
+      sameList(MCP_TOOL_ALLOWLIST, [
+        "search_evidence",
+        "fetch_evidence_card",
+        "fetch_source_anchor",
+        "fetch_document_map",
+        "fetch_source_coverage",
+        "fetch_company_posture",
+        "fetch_capability_boundaries",
+      ]) &&
+      harnessSummary.searchEvidenceVerified === true &&
+      harnessSummary.fetchEvidenceCardVerified === true &&
+      harnessSummary.fetchDocumentMapVerified === true &&
+      harnessSummary.fetchSourceCoverageVerified === true &&
+      harnessSummary.fetchCompanyPostureVerified === true &&
+      harnessSummary.fetchCapabilityBoundariesVerified === true,
+    dispatcherAdapterPreserved:
+      dispatcherSource.includes("LocalReadOnlyEvidenceToolDispatchAdapter") &&
+      dispatcherSource.includes("expectedCompanyKey") &&
+      dispatcherSource.includes("formatEvidenceDispatchLocalRefusal"),
+    dispatcherSpecsPreserved:
+      dispatcherSpecSource.includes("maps every exact V2G tool") &&
+      dispatcherSpecSource.includes("requires expected companyKey") &&
+      dispatcherSpecSource.includes("fails closed for invalid tool names"),
+    endpointServiceExplicitDispatcherOnly:
+      serviceSource.includes("evidenceToolDispatcher?:") &&
+      serviceSource.includes("if (this.evidenceToolDispatcher)") &&
+      serviceSource.includes("formatToolDispatchRefusalResult"),
+  };
+}
+
 function verifySourceScope() {
-  const fp0157RuntimeSource = [
-    appHelperSource,
+  const fp0158RuntimeSource = [
     harnessSource,
     appSource,
     bootstrapSource,
     routeSource,
+    serviceSource,
+    dispatcherSource,
     metadataRouteSource,
     invalidTokenChallengeSource,
   ].join("\n");
@@ -578,33 +624,31 @@ function verifySourceScope() {
       ["require", "Auth"].join(""),
       ["authenticate", "Request"].join(""),
       ["set", "Cookie"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noExternalCommunications: !functionCallRegex([
       ["send", "Email"].join(""),
-      ["send", "Report"].join(""),
       ["post", "Slack"].join(""),
       ["external", "Message"].join(""),
       ["publish", "Submission"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noFinanceWrite: !functionCallRegex([
       ["write", "Finance", "Twin"].join(""),
       ["update", "Ledger"].join(""),
-      ["finance", "Write"].join(""),
       ["post", "Ledger"].join(""),
       ["create", "Journal", "Entry"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noGeneratedPublicProse: !functionCallRegex([
       ["generate", "Listing", "Copy"].join(""),
       ["marketing", "Copy"].join(""),
       ["public", "Description"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noJwtDecoder: !functionCallRegex([
       ["parse", "Jwt"].join(""),
       ["decode", "Jwt"].join(""),
       ["jwt", "Decode"].join(""),
       ["jwt", "Verify"].join(""),
       ["verify", "Jwt"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noJwksFetch: !functionCallRegex([
       ["jwks", "Client"].join(""),
       ["get", "Signing", "Key"].join(""),
@@ -612,19 +656,19 @@ function verifySourceScope() {
       ["create", "Remote", "JWK", "Set"].join(""),
       ["fetch", "Jwks"].join(""),
       ["load", "Jwks"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noModelCalls: !functionCallRegex([
       ["responses", "create"].join("."),
       ["chat", "completions"].join("."),
       ["call", "Model"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noOauthImplementation: !functionCallRegex([
       ["oauth", "Callback"].join(""),
       ["authorize", "Url"].join(""),
       ["token", "Exchange"].join(""),
       ["authorization", "Code"].join(""),
       ["pkce", "Verifier"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noOpenAiApiCalls: !new RegExp(
       [
         ["new", "OpenAI"].join("\\s+"),
@@ -632,50 +676,48 @@ function verifySourceScope() {
         ["api", "openai", "com"].join("\\."),
       ].join("|"),
       "iu",
-    ).test(fp0157RuntimeSource),
+    ).test(fp0158RuntimeSource),
     noProductionTokenValidation: !functionCallRegex([
       ["validate", "Token"].join(""),
       ["verify", "Token"].join(""),
       ["token", "Validator"].join(""),
       ["validate", "Bearer"].join(""),
       ["verify", "Bearer"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noProviderCalls: !functionCallRegex([
       ["provider", "Connect"].join(""),
       ["create", "Provider", "Job"].join(""),
       ["contact", "Customer"].join(""),
       ["external", "Message"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noProviderIntegration: !functionCallRegex([
       ["provider", "Connect"].join(""),
       ["create", "Provider", "Job"].join(""),
       ["provider", "Adapter"].join(""),
       ["provider", "Client"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noProviderSelection: !functionCallRegex([
       ["select", "Provider"].join(""),
       ["choose", "Provider"].join(""),
       ["resolve", "Provider"].join(""),
       ["provider", "Selector"].join(""),
-    ]).test(fp0157RuntimeSource),
-    noPublicAssets: !new RegExp(
-      [
-        ["screen", "Shot"].join(""),
-        ["public", "Asset"].join(""),
-        ["listing", "Copy"].join(""),
-        ["app", "Submission", "Asset"].join(""),
-      ].join("|"),
-      "u",
-    ).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
+    noPublicAssets: !functionCallRegex([
+      ["create", "Screen", "Shot"].join(""),
+      ["upload", "Screen", "Shot"].join(""),
+      ["create", "Public", "Asset"].join(""),
+      ["generate", "Listing", "Copy"].join(""),
+      ["build", "App", "Submission", "Asset"].join(""),
+    ]).test(fp0158RuntimeSource),
     noSourceMutation: !functionCallRegex([
       ["upload", "Source"].join(""),
       ["mutate", "Source"].join(""),
       ["rewrite", "Source"].join(""),
       ["delete", "Source"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noTokenIntrospection: !functionCallRegex([
       ["introspect", "Token"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noTokenParser: !functionCallRegex([
       ["decode", "Token"].join(""),
       ["parse", "Token"].join(""),
@@ -683,18 +725,18 @@ function verifySourceScope() {
       ["decode", "Jwt"].join(""),
       ["jwt", "Decode"].join(""),
       ["introspect", "Token"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
     noTokenSessionStorage: !functionCallRegex([
       ["token", "Store"].join(""),
       ["session", "Store"].join(""),
       ["session", "Handler"].join(""),
       ["refresh", "Token", "Store"].join(""),
       ["set", "Cookie"].join(""),
-    ]).test(fp0157RuntimeSource),
+    ]).test(fp0158RuntimeSource),
   };
 }
 
-function verifyNoLeakageScope(leakageText) {
+function verifyNoLeakageScope() {
   const unsafeCredentialLine = [
     "authorization",
     ": ",
@@ -711,23 +753,47 @@ function verifyNoLeakageScope(leakageText) {
     ".",
     "signaturepart",
   ].join("");
-  const leakageScan = scanProofOnlyNoTokenLeakageText(leakageText);
-  const fixturesLeakageScan = scanProofOnlyNoTokenLeakageText(
+  const changedLeakageScan = scanProofOnlyNoTokenLeakageText(changedLeakageText);
+  const parserFixturesLeakageScan = scanProofOnlyNoTokenLeakageText(
     [
-      appHelperSource,
-      appSpecSource,
       harnessSource,
+      authHarnessProofSource,
+      fp0156ProofSource,
+      fp0158PlanText,
       fp0157PlanText,
-      fp0156PlanText,
     ].join("\n"),
   );
-  const tokenExampleScan = scanChangedTokenExamples(leakageText);
+  const harnessStdoutLeakageScan = scanProofOnlyNoTokenLeakageText(
+    harnessRun.stdout,
+  );
+  const harnessStderrLeakageScan = scanProofOnlyNoTokenLeakageText(
+    harnessRun.stderr,
+  );
+  const outputText = `${harnessRun.stdout}\n${harnessRun.stderr}`;
+  const tokenExampleScan = scanChangedTokenExamples(changedLeakageText);
 
   return {
-    fixturesLeakageScan,
-    leakageScan,
+    changedLeakageScan,
+    evidenceFixturesContainNoRealFinanceData:
+      !/\b(?:account_number|routing_number|bank_balance|payroll|customer_list|vendor_list|tax_id)\b/iu.test(
+        harnessSource,
+      ),
+    harnessStderrLeakageScan,
+    harnessStdoutLeakageScan,
     noBearerTokenMaterial: tokenExampleScan.noBearerTokenMaterial,
+    noGeneratedAdviceInHarnessOutput:
+      !/generatedAdvice|modelGeneratedAdvice|financeAdvice/u.test(outputText),
     noJwtLikeExamples: tokenExampleScan.noJwtLikeExamples,
+    noPrivateFieldInHarnessOutput: !/privateField|private_field/u.test(outputText),
+    noRawSourceDumpInHarnessOutput:
+      !/rawFullText|rawFileText|fullFileText|fileContents|rawSourceDump/u.test(
+        outputText,
+      ),
+    noWriteActionInHarnessOutput:
+      !/writeAction|send_report|update_ledger|financeWriteExecuted/u.test(
+        outputText,
+      ),
+    parserFixturesLeakageScan,
     sharedSanitizerStillStrict:
       scanProofOnlyNoTokenLeakageText(unsafeCredentialLine).accepted ===
         false &&
@@ -827,42 +893,71 @@ function verifyPriorBoundaries() {
         ),
         repoPaths,
       }),
-    fp0125ProtectedResourceMetadataRouteBoundaryStillVerified:
-      safeRead(FP0125_PLAN).includes("protected-resource metadata") &&
-      safeRead(FP0125_PLAN).includes("local route"),
-    fp0107RouteAdapterBoundaryStillVerified:
-      safeRead(FP0107_PLAN).includes("local Fastify") &&
-      safeRead(FP0107_PLAN).includes("/mcp"),
-    fp0106ProtocolEnvelopeBoundaryStillVerified:
-      safeRead(FP0106_PLAN).includes("protocol envelope") &&
-      safeRead(FP0106_PLAN).includes("tool dispatch"),
-    fp0100PublicSecurityBoundaryStillVerified:
-      safeRead(FP0100_PLAN).includes(
-        "public ChatGPT App/MCP security boundary",
-      ) && safeRead(FP0100_PLAN).includes("read-only"),
+    fp0125ProtectedResourceMetadataRouteBoundaryStillVerified: docsBoundary(
+      FP0125_PLAN,
+      ["protected-resource metadata", "local route"],
+    ),
+    fp0109EvidenceDispatchAdapterBoundaryStillVerified: docsBoundary(
+      FP0109_PLAN,
+      ["local-only", "dependency-injected", "default fail-closed"],
+    ),
+    fp0108EvidenceDispatchContractBoundaryStillVerified: docsBoundary(
+      FP0108_PLAN,
+      ["evidence tool dispatch contracts", "does not change route behavior"],
+    ),
+    fp0086BenchmarkCommunityBoundaryStillVerified: docsBoundary(FP0086_PLAN, [
+      "benchmark/community",
+      "no real finance data",
+    ]),
+    fp0085BoundedOrchestrationBoundaryStillVerified: docsBoundary(FP0085_PLAN, [
+      "bounded llm orchestration",
+      "no openai api calls",
+    ]),
+    fp0082EvidenceAppAlphaBoundaryStillVerified: docsBoundary(FP0082_PLAN, [
+      "read-only evidence-tool",
+      "not as a public mcp server",
+    ]),
+    fp0081DocumentPrecisionBoundaryStillVerified: docsBoundary(FP0081_PLAN, [
+      "document precision",
+      "textpdfadapter",
+    ]),
+    fp0080EvidenceIndexBoundaryStillVerified: docsBoundary(FP0080_PLAN, [
+      "evidenceindex",
+      "document-map",
+    ]),
+    fp0107RouteAdapterBoundaryStillVerified: docsBoundary(FP0107_PLAN, [
+      "local/control-plane",
+      "post /mcp",
+    ]),
+    fp0106ProtocolEnvelopeBoundaryStillVerified: docsBoundary(FP0106_PLAN, [
+      "mcp protocol envelope",
+      "tools/call",
+    ]),
+    fp0100PublicSecurityBoundaryStillVerified: docsBoundary(FP0100_PLAN, [
+      "public-app security boundary",
+      "local/proof-only",
+    ]),
   };
 }
 
-function verifyFp0156CloseoutFreshness() {
-  const normalized = normalizePlanText(fp0156PlanText);
+function verifyFp0157CloseoutFreshness() {
+  const normalized = normalizePlanText(fp0157PlanText);
   return includesAll(normalized, [
-    "pr #335 merged",
-    "61c7fa6d07fcb47ff4a4b05db3b870c92b7f715a",
-    "08e33b0f665606dee68a03c15ca766b76bc7b4bb",
-    "same-branch qa corrected only plugins.md and the fp-0156 plan",
+    "pr #336 merged",
+    "86268a8882f3c404ba4666b868a576c401d4ce61",
+    "2d02b692dac61bb02b22a78ce824ff87c107e01f",
+    "same-branch qa found no issues and made no correction",
     "static",
     "integration-db",
     "no post-merge qa is required when current main matches the validated pr head/merge posture and ci remains green",
   ]);
 }
 
-function throwsMessage(fn, message) {
-  try {
-    fn();
-    return false;
-  } catch (error) {
-    return error instanceof Error && error.message === message;
-  }
+function docsBoundary(path, requiredTexts) {
+  const normalized = normalizePlanText(safeRead(path));
+  return requiredTexts.every((requiredText) =>
+    normalized.includes(normalizePlanText(requiredText)),
+  );
 }
 
 function changedFilePathScope() {
@@ -955,4 +1050,8 @@ function functionCallRegex(names) {
 
 function countMatches(value, pattern) {
   return value.match(pattern)?.length ?? 0;
+}
+
+function sameList(left, right) {
+  return JSON.stringify(left) === JSON.stringify(right);
 }

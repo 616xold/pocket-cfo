@@ -42,6 +42,8 @@ import {
   verifyFp0156AbsentOrAuthorizationParserLocalAdapterAppConstructionInjectionPlan,
   verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan,
   verifyFp0158Absent,
+  verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan,
+  verifyFp0159Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary,
@@ -132,7 +134,10 @@ const output = {
   fp0157AbsentOrLocalAuthDemoHarnessPlanVerified:
     verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan(repoPaths) &&
     planScope.fp0157AbsentOrLocalAuthDemoHarnessPlan,
-  fp0158Absent: verifyFp0158Absent(repoPaths) && planScope.noFp0158Plan,
+  fp0158AbsentOrEvidenceAppLocalDemoBridgePlanVerified:
+    verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan(repoPaths) &&
+    planScope.fp0158AbsentOrEvidenceAppLocalDemoBridgePlan,
+  fp0159Absent: verifyFp0159Absent(repoPaths) && planScope.fp0159Absent,
   runtimeSafeAdapterFactoryImportBoundaryVerified:
     sourceScope.runtimeAdapterImportsOnlyAllowedRuntimeModules &&
     sourceScope.runtimeAdapterNoForbiddenImportsOrApis &&
@@ -351,7 +356,12 @@ function verifyPlanScope() {
       (fp0157Hits.length === 1 &&
         fp0157Hits[0] ===
           "plans/FP-0157-read-only-chatgpt-app-mcp-auth-local-demo-harness.md"),
-    noFp0158Plan: fp0158Hits.length === 0,
+    fp0158AbsentOrEvidenceAppLocalDemoBridgePlan:
+      fp0158Hits.length === 0 ||
+      (fp0158Hits.length === 1 &&
+        fp0158Hits[0] ===
+          "plans/FP-0158-read-only-chatgpt-app-mcp-evidence-app-local-demo-bridge.md"),
+    fp0159Absent: repoPaths.every((path) => !/(^|\/)FP-0159/u.test(path)),
   };
 }
 
