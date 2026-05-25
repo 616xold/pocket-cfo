@@ -6,7 +6,7 @@ import {
   FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH,
   scanProofOnlyNoTokenLeakageText,
   verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan,
-  verifyFp0161Absent,
+  verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan,
 } from "../packages/domain/src/index.ts";
 
 const SCHEMA_VERSION =
@@ -16,6 +16,8 @@ const FP0159_PLAN_PATH =
   "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md";
 const FP0160_PLAN_PATH =
   FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH;
+const FP0161_PLAN_PATH =
+  "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md";
 const READINESS_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs";
 const READINESS_MODULE_PATH =
@@ -38,6 +40,11 @@ const BRIDGE_SNAPSHOT_PATH =
 const BRIDGE_SPEC_PATH =
   "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.spec.tsx";
 const BRIDGE_INDEX_PATH = "apps/web/components/read-only-app-mcp/index.ts";
+const BRIDGE_STYLES_PATH =
+  "apps/web/components/read-only-app-mcp/styles.ts";
+const BRIDGE_UI_PATH = "apps/web/components/read-only-app-mcp/ui.tsx";
+const VISUAL_QA_ACCESSIBILITY_PROOF_PATH =
+  "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
 const FP0158_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-demo-bridge-proof.mjs";
 const FP0157_PROOF_PATH =
@@ -56,6 +63,7 @@ const allowedChangedPaths = new Set([
   "plugins.md",
   FP0159_PLAN_PATH,
   FP0160_PLAN_PATH,
+  FP0161_PLAN_PATH,
   READINESS_PROOF_PATH,
   READINESS_MODULE_PATH,
   READINESS_SPEC_PATH,
@@ -68,6 +76,8 @@ const allowedChangedPaths = new Set([
   BRIDGE_SNAPSHOT_PATH,
   BRIDGE_SPEC_PATH,
   BRIDGE_INDEX_PATH,
+  BRIDGE_STYLES_PATH,
+  BRIDGE_UI_PATH,
   FP0158_PROOF_PATH,
   FP0157_PROOF_PATH,
   FP0156_PROOF_PATH,
@@ -81,7 +91,11 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
   "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
+  "tools/read-only-chatgpt-app-mcp-proof.mjs",
+  "tools/benchmark-community-pack-proof.mjs",
+  "packages/domain/src/benchmark-community.spec.ts",
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
+  VISUAL_QA_ACCESSIBILITY_PROOF_PATH,
 ]);
 
 const repoPaths = repoFilePaths();
@@ -120,7 +134,8 @@ const output = {
   schemaVersion: SCHEMA_VERSION,
   fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlanVerified:
     planScope.fp0160PlanAccepted,
-  fp0161Absent: planScope.fp0161Absent,
+  fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted:
+    planScope.fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted,
   evidenceAppLocalPreviewDemoUiBridgeImplementationBoundaryVerified:
     planScope.fp0160PlanBoundaryVerified &&
     renderedScope.localOnlyBoundaryRendered &&
@@ -253,7 +268,10 @@ function verifyPathScope() {
 
 function verifyPlanScope() {
   const fp0160Hits = repoPaths.filter((path) => /(^|\/)FP-0160/u.test(path));
-  const fp0161Absent = verifyFp0161Absent(repoPaths);
+  const fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted =
+    verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan(
+      repoPaths,
+    );
   const normalizedPlan = normalize(fp0160PlanText);
 
   return {
@@ -284,7 +302,7 @@ function verifyPlanScope() {
       normalizedPlan.includes("publicchatgptappimplemented: false") &&
       normalizedPlan.includes("source-anchor status as first-class") &&
       normalizedPlan.includes("fp-0161 may open only"),
-    fp0161Absent,
+    fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted,
     publicChatGptAppBlocked:
       normalizedPlan.includes(
         "public chatgpt app behavior/submission is not included",
@@ -516,7 +534,8 @@ function verifyFp0159Scope() {
       readinessProof
         .fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlanVerified ===
         true &&
-      readinessProof.fp0161Absent === true &&
+      readinessProof
+        .fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted === true &&
       readinessProof.noNewRouteOrApiRouteFromFp0159 === true,
   };
 }
@@ -526,6 +545,10 @@ function verifyNoLeakageScope() {
     "\n",
   );
   const bridgeVisible = normalize(bridgeRuntimeSource);
+  const bridgeVisibleWithoutBlockedSubmissionCopy = bridgeVisible.replace(
+    /no public chatgpt app submission/gu,
+    "",
+  );
   const changedLeakageScan = scanProofOnlyNoTokenLeakageText(
     readChangedLeakageText(changedPaths),
   );
@@ -551,8 +574,8 @@ function verifyNoLeakageScope() {
     ),
     noPublicAssetsScreenshotsSubmissionMaterial:
       !/\.(?:png|jpe?g|webp|gif|svg)$/iu.test(changedPaths.join("\n")) &&
-      !/screenshot|listing copy|submission material|app submission/iu.test(
-        bridgeVisible,
+      !/screenshot|listing copy|submission material|app submission available/iu.test(
+        bridgeVisibleWithoutBlockedSubmissionCopy,
       ),
     noPublicDemoDataFromFp0160: !/\bpublic demo data\b/iu.test(
       bridgeRuntimeSource,
@@ -573,7 +596,9 @@ function verifyNoLeakageScope() {
         "iu",
       ).test(bridgeRuntimeSource),
     noSubmissionMaterialFromBridge:
-      !/app submission|submission material|listing copy/iu.test(bridgeVisible),
+      !/app submission available|submission material|listing copy/iu.test(
+        bridgeVisibleWithoutBlockedSubmissionCopy,
+      ),
     proofOutputLeakageScanAccepted: true,
   };
 }

@@ -1,6 +1,6 @@
 export type LocalPreviewDemoBridgeStatus = {
   label: string;
-  tone: "fresh" | "proof" | "warning";
+  tone: "danger" | "fresh" | "proof" | "warning";
 };
 
 export type LocalPreviewDemoBridgeLane = {
@@ -56,7 +56,7 @@ export const localPreviewDemoBridgeSnapshot = {
   boundaryBadges: [
     "Local-only synthetic preview",
     "No production token validation",
-    "No public ChatGPT App release",
+    "No public ChatGPT App submission",
     "No real finance data",
     "No runtime fetch",
   ],

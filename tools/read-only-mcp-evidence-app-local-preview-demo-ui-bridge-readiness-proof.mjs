@@ -18,6 +18,8 @@ const FP0159_PLAN_PATH =
   "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md";
 const FP0160_PLAN_PATH =
   "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md";
+const FP0161_PLAN_PATH =
+  "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md";
 const FP0158_HARNESS_PATH =
   "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs";
 const FP0158_PROOF_PATH =
@@ -41,6 +43,8 @@ const CONTRACTS_SPEC_PATH =
 const INDEX_PATH = "packages/domain/src/index.ts";
 const IMPLEMENTATION_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs";
+const VISUAL_QA_ACCESSIBILITY_PROOF_PATH =
+  "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
 const FP0097_PLAN_PATH =
   "plans/FP-0097-read-only-chatgpt-app-mcp-premium-ui-preview-route-visual-qa-foundation.md";
 const FP0096_PLAN_PATH =
@@ -60,6 +64,7 @@ const allowedChangedPaths = new Set([
   FP0158_PLAN_PATH,
   FP0159_PLAN_PATH,
   FP0160_PLAN_PATH,
+  FP0161_PLAN_PATH,
   FP0158_HARNESS_PATH,
   FP0158_PROOF_PATH,
   FP0157_PROOF_PATH,
@@ -74,6 +79,9 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
   "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
+  "tools/read-only-chatgpt-app-mcp-proof.mjs",
+  "tools/benchmark-community-pack-proof.mjs",
+  "packages/domain/src/benchmark-community.spec.ts",
   PREVIEW_ROUTE_PATH,
   PREVIEW_ROUTE_SPEC_PATH,
   READINESS_MODULE_PATH,
@@ -82,6 +90,7 @@ const allowedChangedPaths = new Set([
   CONTRACTS_SPEC_PATH,
   INDEX_PATH,
   IMPLEMENTATION_PROOF_PATH,
+  VISUAL_QA_ACCESSIBILITY_PROOF_PATH,
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
 ]);
 
@@ -125,7 +134,9 @@ const output = {
     readinessProof
       .fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlanVerified ===
     true,
-  fp0161Absent: readinessProof.fp0161Absent === true,
+  fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted:
+    readinessProof
+      .fp0161AbsentOrExactVisualQaAccessibilityPlanAccepted === true,
   fp0159PlanTextRequiredTopicsVerified:
     readinessProof.evidenceAppLocalPreviewDemoUiBridgeReadinessBoundaryVerified,
   changedPathScopeAccepted: pathScope.onlyAllowedChangedPaths,

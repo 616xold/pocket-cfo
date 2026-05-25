@@ -29,7 +29,7 @@ const readinessModulePath =
   "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.ts";
 
 describe("FP-0159 local preview/demo UI bridge readiness boundary", () => {
-  it("accepts exactly one FP-0159 readiness path and exact FP-0160 implementation path while FP-0161 remains absent", () => {
+  it("accepts exactly one FP-0159 readiness path plus exact FP-0160 and FP-0161 successor paths", () => {
     const repoPaths = repoFilePaths();
     const fp0159Hits = repoPaths.filter((path) =>
       /(^|\/)FP-0159/u.test(path),

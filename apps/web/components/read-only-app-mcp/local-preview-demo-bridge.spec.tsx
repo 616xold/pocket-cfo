@@ -18,7 +18,7 @@ describe("LocalPreviewDemoBridge", () => {
     expect(html).toContain("not authenticated tool execution");
     expect(html).toContain("Local-only synthetic preview");
     expect(html).toContain("No production token validation");
-    expect(html).toContain("No public ChatGPT App release");
+    expect(html).toContain("No public ChatGPT App submission");
     expect(html).toContain("No real finance data");
   });
 
@@ -76,6 +76,36 @@ describe("LocalPreviewDemoBridge", () => {
     ).toBe(false);
     expect(localPreviewDemoBridgeSnapshot.publicChatGptAppImplemented).toBe(
       false,
+    );
+  });
+
+  it("exposes stable accessible labels, ids, and non-color-only status posture", () => {
+    const html = renderBridge();
+
+    expect(html).toContain('aria-labelledby="local-preview-demo-bridge-title"');
+    expect(html).toContain(
+      'aria-label="Local demo bridge boundary badges"',
+    );
+    expect(html).toContain('data-boundary-badge="No public ChatGPT App submission"');
+    expect(html).toContain('data-status-label="No public ChatGPT App submission"');
+    expect(html).toContain('data-status-outcome="blocked"');
+    expect(html).toContain('aria-label="Auth boundary lane"');
+    expect(html).toContain('aria-label="Evidence tool lane"');
+    expect(html).toContain('data-lane-label="Auth boundary lane"');
+    expect(html).toContain('data-lane-label="Evidence tool lane"');
+    expect(html).toContain(
+      'id="local-preview-demo-bridge-auth-boundary-status-missing-token-challenge-verified"',
+    );
+    expect(html).toContain(
+      'data-status-id="local-preview-demo-bridge-evidence-tool-status-companykey-mismatch-fails-closed"',
+    );
+    expect(html).toContain('data-status-tone="fresh"');
+    expect(html).toContain('data-status-tone="proof"');
+    expect(html).toContain('data-status-tone="warning"');
+    expect(html).toContain('data-status-outcome="verified"');
+    expect(html).toContain('data-status-outcome="fail-closed"');
+    expect(html).toContain(
+      'aria-label="Production token validation implemented: false. Status blocked. Tone warning."',
     );
   });
 
