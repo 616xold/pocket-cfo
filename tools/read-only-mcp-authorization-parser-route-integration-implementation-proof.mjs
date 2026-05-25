@@ -34,7 +34,8 @@ import {
   verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan,
   verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan,
   verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan,
-  verifyFp0155Absent,
+  verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
+  verifyFp0156Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "../packages/domain/src/index.ts";
@@ -104,7 +105,11 @@ const output = {
     verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
       repoPaths,
     ),
-  fp0155Absent: verifyFp0155Absent(repoPaths),
+  fp0155AbsentOrLocalAdapterImplementationPlanVerified:
+    verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan(
+      repoPaths,
+    ),
+  fp0156Absent: verifyFp0156Absent(repoPaths),
   routeIntegrationImplementationBoundaryVerified:
     Object.values(fp0152Topics).every(Boolean),
   routeDependencyInjectionImplemented:

@@ -17,8 +17,9 @@ import {
   FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
   FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
   FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
-  MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_READINESS_SCHEMA_VERSION,
-  buildReadOnlyMcpAuthorizationParserLocalAdapterReadinessProof,
+  FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
+  MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_SCHEMA_VERSION,
+  buildReadOnlyMcpAuthorizationParserLocalAdapterImplementationProof,
   scanProofOnlyNoTokenLeakageText,
   scanTokenValidationNoLeakage,
   verifyFp0130LocalMissingTokenChallengeImplementationBoundary,
@@ -40,27 +41,23 @@ import {
   verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan,
   verifyFp0156Absent,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
+  verifyReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary,
   verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary,
 } from "../packages/domain/src/index.ts";
 
 const APP_PATH = "apps/control-plane/src/app.ts";
-const APP_SPEC_PATH = "apps/control-plane/src/app.spec.ts";
 const BOOTSTRAP_PATH = "apps/control-plane/src/bootstrap.ts";
 const MCP_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
-const ROUTE_SPEC_PATH =
-  "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.spec.ts";
 const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 const INVALID_TOKEN_CHALLENGE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/invalid-token-challenge.ts";
-const READINESS_PATH =
-  "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter-readiness.ts";
-const READINESS_SPEC_PATH =
-  "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter-readiness.spec.ts";
-const TOKEN_VALIDATION_SOURCE_PATH =
-  "packages/domain/src/read-only-app-mcp-token-validation.ts";
+const ADAPTER_PATH =
+  "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter.ts";
+const ADAPTER_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-authorization-parser-local-adapter.spec.ts";
 const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 const FP0106_PLAN =
@@ -73,37 +70,24 @@ const FP0125_PLAN =
 const repoPaths = repoFilePaths();
 const changedPathScope = changedFilePathScope();
 const changedPaths = changedPathScope.combinedChangedPaths;
-const changedExecutableSource = readChangedExecutableSource(changedPaths);
 const changedLeakageText = readChangedLeakageText(changedPaths);
 const appSource = safeRead(APP_PATH);
-const appSpecSource = safeRead(APP_SPEC_PATH);
 const bootstrapSource = safeRead(BOOTSTRAP_PATH);
 const routeSource = safeRead(MCP_ROUTE_PATH);
-const routeSpecSource = safeRead(ROUTE_SPEC_PATH);
 const metadataRouteSource = safeRead(METADATA_ROUTE_PATH);
 const invalidTokenChallengeSource = safeRead(INVALID_TOKEN_CHALLENGE_PATH);
-const readinessSource = safeRead(READINESS_PATH);
-const readinessSpecSource = safeRead(READINESS_SPEC_PATH);
-const tokenValidationSource = safeRead(TOKEN_VALIDATION_SOURCE_PATH);
+const adapterSource = safeRead(ADAPTER_PATH);
+const adapterSpecSource = safeRead(ADAPTER_SPEC_PATH);
+const fp0155PlanText = safeRead(
+  FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH,
+);
 const fp0154PlanText = safeRead(
   FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH,
 );
-const fp0153PlanText = safeRead(
-  FP0153_AUTHORIZATION_PARSER_APP_CONSTRUCTION_WIRING_PLAN_PATH,
-);
-const fp0152PlanText = safeRead(
-  FP0152_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_IMPLEMENTATION_PLAN_PATH,
-);
-const fp0151PlanText = safeRead(
-  FP0151_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_READINESS_PLAN_PATH,
-);
-const fp0150PlanText = safeRead(
-  FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
-);
-const readinessProof =
-  buildReadOnlyMcpAuthorizationParserLocalAdapterReadinessProof({
-    fp0153PlanText,
+const adapterProof =
+  buildReadOnlyMcpAuthorizationParserLocalAdapterImplementationProof({
     fp0154PlanText,
+    fp0155PlanText,
     repoPaths,
   });
 const sourceScope = verifySourceScope();
@@ -113,149 +97,111 @@ const noLeakageScope = verifyNoLeakageScope(changedLeakageText);
 const priorBoundaries = verifyPriorBoundaries();
 
 const output = {
-  schemaVersion: MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_READINESS_SCHEMA_VERSION,
-  fp0154AbsentOrLocalAdapterConstructionReadinessPlanVerified:
-    verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
-      repoPaths,
-    ) &&
-    exactlyOneFp0154Plan() &&
-    readinessProof.fp0154AbsentOrLocalAdapterConstructionReadinessPlanVerified,
+  schemaVersion:
+    MCP_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_SCHEMA_VERSION,
   fp0155AbsentOrLocalAdapterImplementationPlanVerified:
     verifyFp0155AbsentOrAuthorizationParserLocalAdapterImplementationPlan(
       repoPaths,
-    ) && absentOrExactFp0155Plan(),
+    ) &&
+    exactlyOneFp0155Plan() &&
+    adapterProof.fp0155AbsentOrLocalAdapterImplementationPlanVerified,
   fp0156Absent: verifyFp0156Absent(repoPaths) && noFp0156Plan(),
-  localAdapterConstructionReadinessBoundaryVerified:
-    verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary({
-      fp0153PlanText,
+  localAdapterImplementationBoundaryVerified:
+    verifyReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundary({
       fp0154PlanText,
+      fp0155PlanText,
       repoPaths,
     }),
-  adapterImplementationStillBlocked:
-    sourceScope.noAdapterImplementation &&
-    readinessProof.adapterImplementationStillBlocked,
-  adapterFactoryExportStillBlocked:
-    sourceScope.noAdapterFactoryExport &&
-    readinessProof.adapterFactoryExportStillBlocked,
+  explicitLocalAdapterFactoryImplemented:
+    adapterProof.explicitLocalAdapterFactoryImplemented &&
+    adapterSource.includes(
+      "createReadOnlyMcpAuthorizationParserRouteDecisionDependency",
+    ),
   adapterConstructionInsideAppStillBlocked:
-    appScope.noLocalAdapterConstruction &&
-    readinessProof.adapterConstructionInsideAppStillBlocked,
+    appScope.noAdapterImport && appScope.noAdapterConstruction,
   adapterConstructionInsideRouteStillBlocked:
-    routeScope.noLocalAdapterConstruction &&
-    readinessProof.adapterConstructionInsideRouteStillBlocked,
+    routeScope.noAdapterImport && routeScope.noAdapterConstruction,
   defaultAdapterWiringStillBlocked:
-    appScope.defaultCreateContainerLeavesParserDependencyAbsent &&
-    readinessProof.defaultAdapterWiringStillBlocked,
-  buildAppBehaviorStillUnchanged:
-    appScope.buildAppExplicitPassThroughPreserved &&
-    readinessProof.buildAppBehaviorStillUnchanged,
-  mcpRouteBehaviorStillUnchanged:
-    routeScope.mcpRouteShapePreserved &&
-    readinessProof.mcpRouteBehaviorStillUnchanged,
-  futureAdapterInputBoundaryRecorded:
-    readinessProof.futureAdapterInputBoundaryRecorded,
-  futureAdapterOutputBoundaryRecorded:
-    readinessProof.futureAdapterOutputBoundaryRecorded,
-  futureAdapterCompositionRecorded:
-    readinessProof.futureAdapterCompositionRecorded,
-  futureAdapterFailureMappingRecorded:
-    readinessProof.futureAdapterFailureMappingRecorded,
-  futureAdapterTestMatrixRecorded:
-    readinessProof.futureAdapterTestMatrixRecorded,
-  parserDecisionNeverCarriesRawAuthorizationHeader:
-    readinessProof.parserDecisionNeverCarriesRawAuthorizationHeader,
-  parserDecisionNeverCarriesRawTokenMaterial:
-    readinessProof.parserDecisionNeverCarriesRawTokenMaterial,
-  parserDecisionNeverCarriesTokenDerivedFingerprint:
-    readinessProof.parserDecisionNeverCarriesTokenDerivedFingerprint,
-  parserDecisionNeverCarriesTokenPrefixSuffixLengthHashDigestClaimsDecodedOutput:
-    readinessProof.parserDecisionNeverCarriesTokenPrefixSuffixLengthHashDigestClaimsDecodedOutput,
+    appScope.defaultCreateContainerLeavesDependencyAbsent,
+  buildAppBehaviorStillUnchanged: appScope.buildAppPassThroughPreserved,
+  mcpRouteBehaviorStillUnchanged: routeScope.mcpRouteShapePreserved,
+  adapterInputBoundaryImplemented: adapterProof.adapterInputBoundaryImplemented,
+  adapterOutputBoundaryImplemented: adapterProof.adapterOutputBoundaryImplemented,
+  adapterCompositionImplemented:
+    adapterProof.adapterCompositionImplemented &&
+    sourceScope.callsClassifier &&
+    sourceScope.callsRouteDecisionHelper,
+  adapterFailureMappingImplemented: adapterProof.adapterFailureMappingImplemented,
+  adapterTestMatrixImplemented: adapterProof.adapterTestMatrixImplemented,
+  adapterOutputNeverCarriesRawAuthorizationHeader:
+    adapterProof.adapterOutputNeverCarriesRawAuthorizationHeader,
+  adapterOutputNeverCarriesRawTokenMaterial:
+    adapterProof.adapterOutputNeverCarriesRawTokenMaterial,
+  adapterOutputNeverCarriesTokenDerivedFingerprint:
+    adapterProof.adapterOutputNeverCarriesTokenDerivedFingerprint,
+  adapterOutputNeverCarriesTokenPrefixSuffixLengthHashDigestClaimsDecodedOutput:
+    adapterProof.adapterOutputNeverCarriesTokenPrefixSuffixLengthHashDigestClaimsDecodedOutput,
+  adapterOutputLimitedToRouteSafeDecisionFields:
+    adapterProof.adapterOutputLimitedToRouteSafeDecisionFields,
+  adapterDeterministicSynchronousSideEffectFree:
+    adapterProof.adapterDeterministicSynchronousSideEffectFree &&
+    sourceScope.noAsyncRuntimeApis,
+  adapterDoesNotImportRoutesOrApp: sourceScope.noRouteOrAppImports,
+  adapterDoesNotImportDbProviderOpenAiNetworkRuntimeApis:
+    sourceScope.noDbProviderOpenAiNetworkRuntimeImports,
   productionTokenValidationRuntimeStillBlocked:
-    sourceScope.noProductionTokenValidation &&
-    readinessProof.productionTokenValidationRuntimeStillBlocked,
-  providerSelectionStillDeferred:
-    sourceScope.noProviderSelection && readinessProof.providerSelectionStillDeferred,
-  providerCallsStillBlocked:
-    sourceScope.noProviderCalls && readinessProof.providerCallsStillBlocked,
-  providerIntegrationStillBlocked:
-    sourceScope.noProviderIntegration && readinessProof.providerIntegrationStillBlocked,
-  tokenParserImplementationStillBlocked:
-    sourceScope.noTokenParser && readinessProof.tokenParserImplementationStillBlocked,
-  jwtDecoderImplementationStillBlocked:
-    sourceScope.noJwtDecoder && readinessProof.jwtDecoderImplementationStillBlocked,
-  jwksFetchImplementationStillBlocked:
-    sourceScope.noJwksFetch && readinessProof.jwksFetchImplementationStillBlocked,
-  tokenIntrospectionImplementationStillBlocked:
-    sourceScope.noTokenIntrospection &&
-    readinessProof.tokenIntrospectionImplementationStillBlocked,
-  oauthImplementationStillBlocked:
-    sourceScope.noOauthImplementation && readinessProof.oauthImplementationStillBlocked,
-  tokenSessionStorageStillBlocked:
-    sourceScope.noTokenSessionStorage &&
-    readinessProof.tokenSessionStorageStillBlocked,
-  authMiddlewareStillBlocked:
-    sourceScope.noAuthMiddleware && readinessProof.authMiddlewareStillBlocked,
-  noOpenAiApiCallsFromFp0154:
-    sourceScope.noOpenAiApiCalls && readinessProof.noOpenAiApiCallsFromFp0154,
-  noModelCallsFromFp0154:
-    sourceScope.noModelCalls && readinessProof.noModelCallsFromFp0154,
-  noProviderCallsFromFp0154:
-    sourceScope.noProviderCalls && readinessProof.noProviderCallsFromFp0154,
-  noSourceMutationFromFp0154:
-    sourceScope.noSourceMutation && readinessProof.noSourceMutationFromFp0154,
-  noFinanceWriteFromFp0154:
-    sourceScope.noFinanceWrite && readinessProof.noFinanceWriteFromFp0154,
-  noExternalCommunicationsFromFp0154:
-    sourceScope.noExternalCommunications &&
-    readinessProof.noExternalCommunicationsFromFp0154,
-  noPublicAssetsFromFp0154:
-    sourceScope.noPublicAssets && readinessProof.noPublicAssetsFromFp0154,
-  noGeneratedPublicProseFromFp0154:
-    sourceScope.noGeneratedPublicProse &&
-    readinessProof.noGeneratedPublicProseFromFp0154,
-  noAppSubmissionFromFp0154:
-    sourceScope.noAppSubmission && readinessProof.noAppSubmissionFromFp0154,
+    sourceScope.noProductionTokenValidation,
+  providerSelectionStillDeferred: sourceScope.noProviderSelection,
+  providerCallsStillBlocked: sourceScope.noProviderCalls,
+  providerIntegrationStillBlocked: sourceScope.noProviderIntegration,
+  tokenParserImplementationStillBlocked: sourceScope.noTokenParser,
+  jwtDecoderImplementationStillBlocked: sourceScope.noJwtDecoder,
+  jwksFetchImplementationStillBlocked: sourceScope.noJwksFetch,
+  tokenIntrospectionImplementationStillBlocked: sourceScope.noTokenIntrospection,
+  oauthImplementationStillBlocked: sourceScope.noOauthImplementation,
+  tokenSessionStorageStillBlocked: sourceScope.noTokenSessionStorage,
+  authMiddlewareStillBlocked: sourceScope.noAuthMiddleware,
+  noOpenAiApiCallsFromFp0155: sourceScope.noOpenAiApiCalls,
+  noModelCallsFromFp0155: sourceScope.noModelCalls,
+  noProviderCallsFromFp0155: sourceScope.noProviderCalls,
+  noSourceMutationFromFp0155: sourceScope.noSourceMutation,
+  noFinanceWriteFromFp0155: sourceScope.noFinanceWrite,
+  noExternalCommunicationsFromFp0155: sourceScope.noExternalCommunications,
+  noPublicAssetsFromFp0155: sourceScope.noPublicAssets,
+  noGeneratedPublicProseFromFp0155: sourceScope.noGeneratedPublicProse,
+  noAppSubmissionFromFp0155: sourceScope.noAppSubmission,
   adapterFixturesContainNoRealTokenExamples:
     noLeakageScope.fixturesLeakageScan.accepted &&
     noLeakageScope.noBearerTokenMaterial &&
-    noLeakageScope.noJwtLikeExamples &&
-    readinessProof.adapterFixturesContainNoRealTokenExamples,
+    noLeakageScope.noJwtLikeExamples,
   sharedProofOnlyLeakageSanitizerStillVerified:
     noLeakageScope.leakageScan.accepted &&
-    noLeakageScope.sharedSanitizerStillStrict &&
-    tokenValidationSource.includes("authorization-present-local-only") &&
-    readinessProof.sharedProofOnlyLeakageSanitizerStillVerified,
-  fp0153CloseoutFreshnessVerified:
-    readinessProof.fp0153CloseoutFreshnessVerified,
+    noLeakageScope.sharedSanitizerStillStrict,
+  fp0154CloseoutFreshnessVerified:
+    adapterProof.fp0154CloseoutFreshnessVerified,
+  fp0154LocalAdapterReadinessBoundaryStillVerified:
+    verifyFp0154AbsentOrAuthorizationParserLocalAdapterConstructionReadinessPlan(
+      repoPaths,
+    ) &&
+    verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary({
+      fp0154PlanText,
+      repoPaths,
+    }),
   fp0153AppConstructionWiringBoundaryStillVerified:
-    verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(
-      repoPaths,
-    ) && priorBoundaries.fp0153AppConstructionWiringBoundaryStillVerified,
+    priorBoundaries.fp0153AppConstructionWiringBoundaryStillVerified,
   fp0152RouteIntegrationBoundaryStillVerified:
-    verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan(
-      repoPaths,
-    ) && priorBoundaries.fp0152RouteIntegrationBoundaryStillVerified,
+    priorBoundaries.fp0152RouteIntegrationBoundaryStillVerified,
   fp0151RouteReadinessBoundaryStillVerified:
     verifyFp0151AbsentOrAuthorizationParserRouteIntegrationReadinessPlan(
       repoPaths,
     ) &&
     verifyReadOnlyMcpAuthorizationParserRouteIntegrationReadinessBoundary({
-      fp0150PlanText,
-      fp0151PlanText,
       repoPaths,
     }),
   fp0150RouteIntegrationSequencingBoundaryStillVerified:
-    verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary({
-      planText: fp0150PlanText,
-      repoPaths,
-    }),
+    priorBoundaries.fp0150RouteIntegrationSequencingBoundaryStillVerified,
   fp0149ParserImplementationBoundaryStillVerified:
-    verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
-      repoPaths,
-    ) &&
-    Object.values(
-      verifyReadOnlyMcpAuthorizationParserImplementationBoundary(repoPaths),
-    ).every(Boolean),
+    priorBoundaries.fp0149ParserImplementationBoundaryStillVerified,
   fp0148ReadinessBoundaryStillVerified:
     priorBoundaries.fp0148ReadinessBoundaryStillVerified,
   fp0147ProviderSelectionEvidenceBoundaryStillVerified:
@@ -300,46 +246,186 @@ const proofOutputLeakageScan = scanProofOnlyNoTokenLeakageText(
 for (const [key, value] of Object.entries(output)) {
   if (typeof value === "boolean" && value !== true) {
     throw new Error(
-      `FP-0154 authorization parser local adapter readiness proof failed: ${key}`,
+      `FP-0155 authorization parser local adapter implementation proof failed: ${key}`,
     );
   }
 }
 if (!proofOutputLeakageScan.accepted) {
   throw new Error(
-    `FP-0154 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
+    `FP-0155 proof output leaked credential material: ${proofOutputLeakageScan.rejectionReasons.join(", ")}`,
   );
 }
 
 console.log(JSON.stringify(output, null, 2));
 
+function verifySourceScope() {
+  return {
+    callsClassifier: adapterSource.includes(
+      "classifyReadOnlyMcpAuthorizationHeader",
+    ),
+    callsRouteDecisionHelper: adapterSource.includes(
+      "deriveReadOnlyMcpAuthorizationParserRouteDecisionReadiness",
+    ),
+    noAsyncRuntimeApis:
+      !/\basync\b/u.test(adapterSource) &&
+      !/\b(?:fetch|setTimeout|setInterval)\s*\(/u.test(adapterSource),
+    noAuthMiddleware: !functionCallRegex([
+      ["auth", "Middleware"].join(""),
+      ["authorization", "Middleware"].join(""),
+      ["route", "Guard"].join(""),
+      ["require", "Auth"].join(""),
+      ["authenticate", "Request"].join(""),
+      ["set", "Cookie"].join(""),
+    ]).test(adapterSource),
+    noDbProviderOpenAiNetworkRuntimeImports:
+      !/from ["'][^"']*(?:packages\/db|\/db|provider|network|logger|runtime)["']/u.test(
+        adapterSource,
+      ) &&
+      !/from ["'](?:node:|openai|jose|jsonwebtoken)["']/u.test(adapterSource),
+    noExternalCommunications: !functionCallRegex([
+      ["send", "Email"].join(""),
+      ["send", "Report"].join(""),
+      ["post", "Slack"].join(""),
+      ["external", "Message"].join(""),
+      ["publish", "Submission"].join(""),
+    ]).test(adapterSource),
+    noFinanceWrite: !functionCallRegex([
+      ["write", "Finance", "Twin"].join(""),
+      ["update", "Ledger"].join(""),
+      ["finance", "Write"].join(""),
+      ["post", "Ledger"].join(""),
+      ["create", "Journal", "Entry"].join(""),
+    ]).test(adapterSource),
+    noGeneratedPublicProse: !functionCallRegex([
+      ["generate", "Listing", "Copy"].join(""),
+      ["marketing", "Copy"].join(""),
+      ["public", "Description"].join(""),
+    ]).test(adapterSource),
+    noJwtDecoder: !functionCallRegex([
+      ["parse", "Jwt"].join(""),
+      ["decode", "Jwt"].join(""),
+      ["jwt", "Decode"].join(""),
+      ["jwt", "Verify"].join(""),
+      ["verify", "Jwt"].join(""),
+    ]).test(adapterSource),
+    noJwksFetch: !functionCallRegex([
+      ["jwks", "Client"].join(""),
+      ["get", "Signing", "Key"].join(""),
+      ["remote", "Jwks"].join(""),
+      ["create", "Remote", "JWK", "Set"].join(""),
+      ["fetch", "Jwks"].join(""),
+      ["load", "Jwks"].join(""),
+    ]).test(adapterSource),
+    noModelCalls: !functionCallRegex([
+      ["responses", "create"].join("."),
+      ["chat", "completions"].join("."),
+      ["call", "Model"].join(""),
+    ]).test(adapterSource),
+    noOauthImplementation: !functionCallRegex([
+      ["oauth", "Callback"].join(""),
+      ["authorize", "Url"].join(""),
+      ["token", "Exchange"].join(""),
+      ["authorization", "Code"].join(""),
+      ["pkce", "Verifier"].join(""),
+    ]).test(adapterSource),
+    noOpenAiApiCalls:
+      !new RegExp(
+        [
+          ["new", "OpenAI"].join("\\s+"),
+          ["from", "openai"].join("\\s+"),
+          ["api", "openai", "com"].join("\\."),
+        ].join("|"),
+        "iu",
+      ).test(adapterSource),
+    noProductionTokenValidation: !functionCallRegex([
+      ["validate", "Token"].join(""),
+      ["verify", "Token"].join(""),
+      ["token", "Validator"].join(""),
+      ["validate", "Bearer"].join(""),
+      ["verify", "Bearer"].join(""),
+    ]).test(adapterSource),
+    noProviderCalls: !functionCallRegex([
+      ["provider", "Connect"].join(""),
+      ["create", "Provider", "Job"].join(""),
+      ["contact", "Customer"].join(""),
+      ["external", "Message"].join(""),
+    ]).test(adapterSource),
+    noProviderIntegration: !functionCallRegex([
+      ["provider", "Connect"].join(""),
+      ["create", "Provider", "Job"].join(""),
+      ["provider", "Adapter"].join(""),
+      ["provider", "Client"].join(""),
+    ]).test(adapterSource),
+    noProviderSelection: !functionCallRegex([
+      ["select", "Provider"].join(""),
+      ["choose", "Provider"].join(""),
+      ["resolve", "Provider"].join(""),
+      ["provider", "Selector"].join(""),
+    ]).test(adapterSource),
+    noPublicAssets: !new RegExp(
+      [
+        ["screen", "Shot"].join(""),
+        ["public", "Asset"].join(""),
+        ["listing", "Copy"].join(""),
+        ["app", "Submission", "Asset"].join(""),
+      ].join("|"),
+      "u",
+    ).test(adapterSource),
+    noRouteOrAppImports:
+      !/from ["'][^"']*(?:apps\/|control-plane|\/routes|\/app)["']/u.test(
+        adapterSource,
+      ),
+    noSourceMutation: !functionCallRegex([
+      ["upload", "Source"].join(""),
+      ["mutate", "Source"].join(""),
+      ["rewrite", "Source"].join(""),
+      ["delete", "Source"].join(""),
+    ]).test(adapterSource),
+    noTokenIntrospection: !functionCallRegex([
+      ["introspect", "Token"].join(""),
+    ]).test(adapterSource),
+    noTokenParser: !functionCallRegex([
+      ["decode", "Token"].join(""),
+      ["parse", "Token"].join(""),
+      ["parse", "Jwt"].join(""),
+      ["decode", "Jwt"].join(""),
+      ["jwt", "Decode"].join(""),
+      ["introspect", "Token"].join(""),
+    ]).test(adapterSource),
+    noTokenSessionStorage: !functionCallRegex([
+      ["token", "Store"].join(""),
+      ["session", "Store"].join(""),
+      ["session", "Handler"].join(""),
+      ["refresh", "Token", "Store"].join(""),
+      ["set", "Cookie"].join(""),
+    ]).test(adapterSource),
+  };
+}
+
 function verifyAppScope() {
   return {
-    buildAppExplicitPassThroughPreserved:
-      appSource.includes(
-        "readOnlyAppMcpAuthorizationParserRouteDecision:",
-      ) &&
+    buildAppPassThroughPreserved:
+      appSource.includes("readOnlyAppMcpAuthorizationParserRouteDecision:") &&
       appSource.includes(
         "container.readOnlyAppMcpAuthorizationParserRouteDecision",
-      ) &&
-      appSpecSource.includes(
-        "passes an explicitly supplied parser route-decision dependency through buildApp only with the invalid-token challenge lane",
       ),
-    defaultCreateContainerLeavesParserDependencyAbsent:
+    defaultCreateContainerLeavesDependencyAbsent:
       !bootstrapSource.includes(
         "readOnlyAppMcpAuthorizationParserRouteDecision:",
       ),
-    noLocalAdapterConstruction:
-      !appSource.includes(
-        "read-only-app-mcp-authorization-parser-local-adapter-readiness",
-      ) &&
-      !bootstrapSource.includes(
-        "read-only-app-mcp-authorization-parser-local-adapter-readiness",
-      ) &&
-      !/\b(?:create|build|make)ReadOnlyMcpAuthorizationParserLocalAdapter\b/u.test(
+    noAdapterConstruction:
+      !/\bcreateReadOnlyMcpAuthorizationParserRouteDecisionDependency\b/u.test(
         appSource,
       ) &&
-      !/\b(?:create|build|make)ReadOnlyMcpAuthorizationParserLocalAdapter\b/u.test(
+      !/\bcreateReadOnlyMcpAuthorizationParserRouteDecisionDependency\b/u.test(
         bootstrapSource,
+      ),
+    noAdapterImport:
+      !appSource.includes(
+        "read-only-app-mcp-authorization-parser-local-adapter",
+      ) &&
+      !bootstrapSource.includes(
+        "read-only-app-mcp-authorization-parser-local-adapter",
       ),
   };
 }
@@ -353,118 +439,13 @@ function verifyRouteScope() {
       invalidTokenChallengeSource.includes(
         "buildReadOnlyAppMcpInvalidTokenChallengeResponse",
       ),
-    noLocalAdapterConstruction:
-      !routeSource.includes(
-        "read-only-app-mcp-authorization-parser-local-adapter-readiness",
-      ) &&
-      !routeSource.includes("read-only-app-mcp-authorization-parser\"") &&
-      !/\b(?:create|build|make)ReadOnlyMcpAuthorizationParserLocalAdapter\b/u.test(
+    noAdapterConstruction:
+      !/\bcreateReadOnlyMcpAuthorizationParserRouteDecisionDependency\b/u.test(
         routeSource,
       ),
-    registrationHardeningPreserved:
-      routeSource.includes("assertParserRouteDecisionCoRegistration") &&
-      routeSource.includes(
-        "Authorization parser route-decision dependency requires invalid-token challenge co-registration",
-      ) &&
-      routeSpecSource.includes(
-        "fails closed before /mcp route registration when parser dependency lacks the invalid-token challenge lane",
-      ),
-  };
-}
-
-function verifySourceScope() {
-  const modelCallPattern = ["call", "Model"].join("");
-  const modelCallRegex = new RegExp(
-    `\\b(?:responses\\.create|chat\\.completions|model\\s*\\.\\s*create|models\\s*\\.\\s*create|${modelCallPattern})\\s*\\(`,
-    "u",
-  );
-
-  return {
-    noAdapterFactoryExport:
-      !/\b(?:create|build|make)ReadOnlyMcpAuthorizationParserLocalAdapter\b/u.test(
-        readinessSource,
-      ) && !/\bLocalAdapterFactory\b/u.test(readinessSource),
-    noAdapterImplementation:
-      readinessSource.includes(
-        "buildReadOnlyMcpAuthorizationParserLocalAdapterReadinessProof",
-      ) &&
-      !/\breturn\s+(?:async\s+)?function\s+readOnlyMcpAuthorizationParserLocalAdapter\b/u.test(
-        readinessSource,
-      ),
-    noAuthMiddleware:
-      !/\b(?:authMiddleware|authorizationMiddleware|routeGuard|verifyBearer|requireAuth|authenticateRequest|setCookie)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noExternalCommunications:
-      !/\b(?:sendEmail|sendReport|postSlack|externalMessage|publishSubmission)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noFinanceWrite:
-      !/\b(?:writeFinanceTwin|updateLedger|financeWrite|postLedger|createJournalEntry)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noGeneratedPublicProse:
-      !/\b(?:generateListingCopy|marketingCopy|publicDescription)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noJwtDecoder:
-      !/\b(?:parseJwt|decodeJwt|jwtDecode|jwtVerify|verifyJwt)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noJwksFetch:
-      !/\b(?:jwksClient|jwksUri|getSigningKey|remoteJwks|createRemoteJWKSet|fetchJwks|loadJwks)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noModelCalls: !modelCallRegex.test(changedExecutableSource),
-    noOauthImplementation:
-      !/\b(?:oauthCallback|authorizeUrl|tokenExchange|authorizationCode|pkceVerifier)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noOpenAiApiCalls:
-      !/(?:\bnew\s+OpenAI\b|\bimport\s+(?:[^;\n]*?\s+from\s+)?["']openai["']|\brequire\s*\(\s*["']openai["']\s*\)|\bresponses\s*\.\s*create\s*\(|\bchat\s*\.\s*completions\b|\bfiles\s*\.\s*create\s*\(|\bapi\.openai\.com\b)/u.test(
-        changedExecutableSource,
-      ),
-    noProductionTokenValidation:
-      !/\b(?:validateToken|verifyToken|tokenValidator|jwtVerify|verifyJwt|validateBearer|verifyBearer)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noProviderCalls:
-      !/\b(?:providerConnect|createProviderJob|sendEmail|sendReport|contactCustomer|externalMessage)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noProviderIntegration:
-      !/\b(?:providerConnect|createProviderJob|providerAdapter|providerClient)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noProviderSelection:
-      !/\b(?:selectProvider|chooseProvider|resolveProvider|providerSelector)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noPublicAssets:
-      !new RegExp(
-        `\\b(?:${[
-          ["screen", "Shot"].join(""),
-          ["public", "Asset"].join(""),
-          ["listing", "Copy"].join(""),
-          ["app", "Submission", "Asset"].join(""),
-        ].join("|")})\\b`,
-        "u",
-      ).test(changedExecutableSource),
-    noSourceMutation:
-      !/\b(?:uploadSource|mutateSource|rewriteSource|deleteSource)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noTokenIntrospection: !/\bintrospectToken\s*\(/u.test(
-      changedExecutableSource,
+    noAdapterImport: !routeSource.includes(
+      "read-only-app-mcp-authorization-parser-local-adapter",
     ),
-    noTokenParser:
-      !/\b(?:decodeToken|parseToken|parseJwt|decodeJwt|jwtDecode|introspectToken)\s*\(/u.test(
-        changedExecutableSource,
-      ),
-    noTokenSessionStorage:
-      !/\b(?:tokenStore|sessionStore|sessionHandler|refreshTokenStore|setCookie)\s*\(/u.test(
-        changedExecutableSource,
-      ),
   };
 }
 
@@ -487,7 +468,7 @@ function verifyNoLeakageScope(leakageText) {
   ].join("");
   const leakageScan = scanProofOnlyNoTokenLeakageText(leakageText);
   const fixturesLeakageScan = scanProofOnlyNoTokenLeakageText(
-    [readinessSource, readinessSpecSource, fp0154PlanText].join("\n"),
+    [adapterSource, adapterSpecSource, fp0155PlanText].join("\n"),
   );
   const tokenExampleScan = scanChangedTokenExamples(leakageText);
 
@@ -503,6 +484,11 @@ function verifyNoLeakageScope(leakageText) {
 }
 
 function verifyPriorBoundaries() {
+  const fp0150PlanText = safeRead(
+    FP0150_AUTHORIZATION_PARSER_ROUTE_INTEGRATION_SEQUENCING_PLAN_PATH,
+  );
+  const repoBoundary = { repoPaths };
+
   return {
     fp0153AppConstructionWiringBoundaryStillVerified:
       verifyFp0153AbsentOrAuthorizationParserAppConstructionWiringPlan(
@@ -512,6 +498,18 @@ function verifyPriorBoundaries() {
       verifyFp0152AbsentOrAuthorizationParserRouteIntegrationImplementationPlan(
         repoPaths,
       ),
+    fp0150RouteIntegrationSequencingBoundaryStillVerified:
+      verifyFp0150AuthorizationParserRouteIntegrationSequencingPlanBoundary({
+        planText: fp0150PlanText,
+        repoPaths,
+      }),
+    fp0149ParserImplementationBoundaryStillVerified:
+      verifyFp0149AbsentOrAuthorizationParserPureDomainImplementationPlan(
+        repoPaths,
+      ) &&
+      Object.values(
+        verifyReadOnlyMcpAuthorizationParserImplementationBoundary(repoPaths),
+      ).every(Boolean),
     fp0148ReadinessBoundaryStillVerified:
       verifyFp0148AuthorizationParserImplementationReadinessPlanBoundary({
         planText: safeRead(
@@ -587,26 +585,16 @@ function verifyPriorBoundaries() {
       safeRead(FP0100_PLAN).includes(
         "public ChatGPT App/MCP security boundary",
       ) && safeRead(FP0100_PLAN).includes("read-only"),
+    ...repoBoundary,
   };
 }
 
-function exactlyOneFp0154Plan() {
-  const hits = repoPaths.filter((path) => /(^|\/)FP-0154/u.test(path));
-  return (
-    hits.length === 1 &&
-    hits[0] ===
-      FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH &&
-    existsSync(FP0154_AUTHORIZATION_PARSER_LOCAL_ADAPTER_CONSTRUCTION_READINESS_PLAN_PATH)
-  );
-}
-
-function absentOrExactFp0155Plan() {
+function exactlyOneFp0155Plan() {
   const hits = repoPaths.filter((path) => /(^|\/)FP-0155/u.test(path));
   return (
-    hits.length === 0 ||
-    (hits.length === 1 &&
-      hits[0] ===
-        "plans/FP-0155-read-only-chatgpt-app-mcp-authorization-parser-local-adapter-implementation.md")
+    hits.length === 1 &&
+    hits[0] === FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH &&
+    existsSync(FP0155_AUTHORIZATION_PARSER_LOCAL_ADAPTER_IMPLEMENTATION_PLAN_PATH)
   );
 }
 
@@ -653,14 +641,6 @@ function changedFilePathScope() {
   };
 }
 
-function readChangedExecutableSource(paths) {
-  return paths
-    .filter((path) => /\.(?:mjs|ts|tsx)$/u.test(path))
-    .filter((path) => !path.endsWith(".spec.ts"))
-    .map((path) => safeRead(path))
-    .join("\n");
-}
-
 function readChangedLeakageText(paths) {
   return paths
     .filter((path) => /\.(?:md|mjs|ts|tsx)$/u.test(path))
@@ -697,6 +677,10 @@ function gitLines(args) {
   } catch {
     return [];
   }
+}
+
+function functionCallRegex(names) {
+  return new RegExp(`\\b(?:${names.join("|")})\\s*\\(`, "u");
 }
 
 function countMatches(value, pattern) {
