@@ -5,10 +5,12 @@ import {
   EmptyEvidenceState,
   ErrorAndUnsupportedState,
   LoadingEvidenceState,
+  LocalPreviewDemoBridge,
   NoRuntimeBoundaryPanel,
   PrivacyBoundaryPanel,
   ReadOnlyAppMcpExperienceFrame,
   RefusalPanel,
+  localPreviewDemoBridgeSnapshot,
   type ReadOnlyAppMcpCitation,
   type ReadOnlyAppMcpEvidenceCard,
   type ReadOnlyAppMcpForbiddenAction,
@@ -249,6 +251,7 @@ export default function ReadOnlyAppMcpPreviewPage() {
         summary="One local page renders the shipped FP-0091 and FP-0092 component composition without transport or mutation behavior."
         title="Answer state matrix foundation"
       />
+      <LocalPreviewDemoBridge snapshot={localPreviewDemoBridgeSnapshot} />
       <section
         aria-labelledby="local-preview-state-matrix-title"
         data-layout="read-only-app-mcp-state-matrix"

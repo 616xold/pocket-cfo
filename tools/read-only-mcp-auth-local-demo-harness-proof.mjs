@@ -50,7 +50,7 @@ import {
   verifyFp0157AbsentOrReadOnlyMcpAuthLocalDemoHarnessPlan,
   verifyFp0158AbsentOrReadOnlyMcpEvidenceAppLocalDemoBridgePlan,
   verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan,
-  verifyFp0160Absent,
+  verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan,
   verifyReadOnlyMcpAuthorizationParserImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterImplementationBoundary,
   verifyReadOnlyMcpAuthorizationParserLocalAdapterReadinessBoundary,
@@ -148,7 +148,10 @@ const output = {
       repoPaths,
     ) &&
     planScope.fp0159AbsentOrEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan,
-  fp0160Absent: verifyFp0160Absent(repoPaths) && planScope.fp0160Absent,
+  fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlanVerified:
+    verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan(
+      repoPaths,
+    ) && planScope.fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan,
   localAuthDemoHarnessBoundaryVerified:
     planScope.localDemoOnlyPlan &&
     harnessScope.localOnly &&
@@ -369,7 +372,10 @@ function verifyPlanScope() {
       verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan(
         repoPaths,
       ),
-    fp0160Absent: verifyFp0160Absent(repoPaths),
+    fp0160AbsentOrEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan:
+      verifyFp0160AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeImplementationPlan(
+        repoPaths,
+      ),
   };
 }
 

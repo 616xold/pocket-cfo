@@ -8,6 +8,8 @@ export * from "./freshness-badge";
 export * from "./freshness-summary-panel";
 export * from "./ids";
 export * from "./limitation-callout";
+export * from "./local-preview-demo-bridge";
+export * from "./local-preview-demo-bridge-snapshot";
 export * from "./no-runtime-boundary-panel";
 export * from "./permitted-next-actions-panel";
 export * from "./privacy-boundary-panel";

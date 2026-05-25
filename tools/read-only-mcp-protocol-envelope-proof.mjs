@@ -375,7 +375,8 @@ function changedRuntimeSurfaceBoundary() {
         !isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(
           path,
         ) &&
-        !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path),
+        !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) &&
+        !isAllowedFp0160LocalPreviewDemoUiBridgePath(path),
     )
     .filter((path) =>
       [
@@ -436,6 +437,7 @@ function isAllowedMcpProtocolProofPath(path) {
     isAllowedFp0107LocalRouteAdapterPath(path) ||
     isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) ||
+    isAllowedFp0160LocalPreviewDemoUiBridgePath(path) ||
     path === FP0106_MCP_PROTOCOL_ENVELOPE_PLAN_PATH ||
     path === FP0112_PLAN ||
     path === FP0113_PLAN ||
@@ -534,6 +536,21 @@ function isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) {
       path,
     )
   );
+}
+
+function isAllowedFp0160LocalPreviewDemoUiBridgePath(path) {
+  return [
+    "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md",
+    "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md",
+    "apps/web/app/read-only-app-mcp-preview/page.tsx",
+    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx",
+    "apps/web/components/read-only-app-mcp/index.ts",
+    "apps/web/components/read-only-app-mcp/local-preview-demo-bridge-snapshot.ts",
+    "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.spec.tsx",
+    "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.tsx",
+    "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
+    "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
+  ].includes(path);
 }
 
 function isAllowedStaleDocRefreshPath(path) {

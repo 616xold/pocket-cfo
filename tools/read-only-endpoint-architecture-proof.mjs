@@ -436,7 +436,8 @@ function routeRuntimeChangedFilesBoundary() {
         !isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(
           path,
         ) &&
-        !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path),
+        !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) &&
+        !isAllowedFp0160LocalPreviewDemoUiBridgePath(path),
     )
     .filter((path) =>
       [
@@ -460,6 +461,7 @@ function routeRuntimeChangedFilesBoundary() {
     if (isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path)) {
       return false;
     }
+    if (isAllowedFp0160LocalPreviewDemoUiBridgePath(path)) return false;
     if (!isRuntimeCandidate(path)) return false;
     const source = readFileSync(path, "utf8");
     return routeRuntimeMarkerPatterns().some((pattern) => pattern.test(source));
@@ -470,7 +472,12 @@ function routeRuntimeChangedFilesBoundary() {
   return {
     allClear,
     noAppRoutesAdded:
-      allClear && !changedPaths.some((path) => /^apps\/web\/app\//u.test(path)),
+      allClear &&
+      !changedPaths.some(
+        (path) =>
+          /^apps\/web\/app\//u.test(path) &&
+          !isAllowedFp0160LocalPreviewDemoUiBridgePath(path),
+      ),
     noAppsSdkResourceImplementation:
       allClear &&
       !changedPaths.some(
@@ -489,6 +496,7 @@ function routeRuntimeChangedFilesBoundary() {
             path,
           ) &&
           !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) &&
+          !isAllowedFp0160LocalPreviewDemoUiBridgePath(path) &&
           /^(apps\/control-plane|packages\/backend|packages\/server)\//u.test(
             path,
           ),
@@ -769,6 +777,7 @@ function isAllowedEndpointProofPlanPath(path) {
     isAllowedFp0109EvidenceDispatchAdapterHardeningPath(path) ||
     isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) ||
     isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(path) ||
+    isAllowedFp0160LocalPreviewDemoUiBridgePath(path) ||
     path === FP0103_PLAN ||
     path === FP0104_PLAN ||
     path === FP0105_PLAN ||
@@ -879,6 +888,21 @@ function isAllowedFp0141InvalidTokenChallengeLocalRuntimePath(path) {
       path,
     )
   );
+}
+
+function isAllowedFp0160LocalPreviewDemoUiBridgePath(path) {
+  return [
+    "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md",
+    "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md",
+    "apps/web/app/read-only-app-mcp-preview/page.tsx",
+    "apps/web/app/read-only-app-mcp-preview/page.spec.tsx",
+    "apps/web/components/read-only-app-mcp/index.ts",
+    "apps/web/components/read-only-app-mcp/local-preview-demo-bridge-snapshot.ts",
+    "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.spec.tsx",
+    "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.tsx",
+    "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
+    "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
+  ].includes(path);
 }
 
 function isAllowedFp0156AuthorizationParserLocalAdapterAppConstructionPath(

@@ -546,7 +546,7 @@ function readChangedCodeSourceText() {
       (path) =>
         /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
         !path.startsWith("tools/") &&
-        !path.endsWith(".spec.ts") &&
+        !/\.spec\.(?:ts|tsx)$/u.test(path) &&
         !fp0123RouteInputSourceScanExcludedPaths.has(path),
     )
     .map(safeRead)

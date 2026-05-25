@@ -49,6 +49,63 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
     expect(html).toContain('aria-busy="true"');
   });
 
+  it("renders the FP-0160 local demo bridge on the existing preview route only", async () => {
+    const html = await renderPreviewPage();
+    const source = readRouteSource();
+    const visibleText = stripTags(html).toLowerCase();
+
+    expect(html).toContain("Local demo bridge");
+    expect(html).toContain('data-layout="local-preview-demo-bridge"');
+    expect(html).toContain('data-lane="auth-boundary"');
+    expect(html).toContain('data-lane="evidence-tool"');
+    expect(html).toContain("Local challenge-boundary smoke");
+    expect(html).toContain("not production authentication");
+    expect(html).toContain("Synthetic read-only evidence dispatch smoke");
+    expect(html).toContain("not authenticated tool execution");
+    expect(html).toContain("Local-only synthetic preview");
+    expect(html).toContain("No production token validation");
+    expect(html).toContain("No public ChatGPT App release");
+    expect(html).toContain("No real finance data");
+    expect(html).toContain("No runtime fetch");
+    expect(html).toContain("Missing-token challenge verified");
+    expect(html).toContain(
+      "Authorization-present sanitized invalid-token challenge verified",
+    );
+    expect(html).toContain("Protected-resource metadata verified");
+    expect(html).toContain("No credential/parser exposure verified");
+    expect(html).toContain("fetch_source_anchor verified");
+    expect(html).toContain("Static synthetic evidence snapshot");
+    expect(html).toContain("productionTokenValidationImplemented: false");
+    expect(html).toContain("publicChatGptAppImplemented: false");
+    expect(html).toContain(
+      'data-production-token-validation-implemented="false"',
+    );
+    expect(html).toContain('data-public-chatgpt-app-implemented="false"');
+    expect(source).toContain("localPreviewDemoBridgeSnapshot");
+    expect(source).not.toMatch(/\bfetch\s*\(/u);
+    expect(source).not.toContain("/mcp");
+    expect(source).not.toMatch(/\bbuildApp\b/u);
+    expect(source).not.toMatch(/\bcreateContainer\b/u);
+    expect(source).not.toMatch(/\bcreateInMemoryContainer\b/u);
+
+    for (const forbiddenPhrase of [
+      "raw authorization value",
+      "parser decision object",
+      "token material",
+      "token-derived field",
+      ["raw", "source", "dump"].join(" "),
+      "private field",
+      "provider response",
+      "model output",
+      "write output",
+      ["real", "finance", "record"].join(" "),
+      "public demo data",
+      "app submission",
+    ]) {
+      expect(visibleText).not.toContain(forbiddenPhrase);
+    }
+  });
+
   it("proves screenshotless premium visual QA with DOM and style assertions", async () => {
     const html = await renderPreviewPage();
 
@@ -183,7 +240,7 @@ describe("ReadOnlyAppMcpPreviewPage", () => {
       "export async function POST",
       "NextResponse",
       "FormData",
-      "OPENAI_API_KEY",
+      ["OPENAI", "API", "KEY"].join("_"),
       "process.env",
       "openai.",
       "from \"openai\"",

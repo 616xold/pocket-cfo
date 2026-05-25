@@ -480,6 +480,8 @@ function verifyFp0143AppWiringBridge() {
       "tools/read-only-mcp-evidence-app-local-demo-bridge-proof.mjs",
       "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs",
       "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs",
+      "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
+      "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
       "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
       "README.md",
       "CODEX_README.md",
@@ -493,6 +495,13 @@ function verifyFp0143AppWiringBridge() {
       "plans/ROADMAP.md",
       "plugins.md",
       "apps/control-plane/src/read-only-app-mcp-authorization-parser-local-adapter-app-construction.ts",
+      "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md",
+      "apps/web/app/read-only-app-mcp-preview/page.tsx",
+      "apps/web/app/read-only-app-mcp-preview/page.spec.tsx",
+      "apps/web/components/read-only-app-mcp/index.ts",
+      "apps/web/components/read-only-app-mcp/local-preview-demo-bridge-snapshot.ts",
+      "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.spec.tsx",
+      "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.tsx",
     ].includes(path),
   );
   const explicitContainerDependency =
