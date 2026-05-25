@@ -71,6 +71,12 @@ export const FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH =
 
 export const FP0159_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX = "FP-0159";
 
+export const FP0159_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_READINESS_PLAN_PATH =
+  "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md";
+
+export const FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX =
+  "FP-0160";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -604,6 +610,31 @@ export function verifyFp0159Absent(repoPaths: readonly string[]) {
   return (
     fpPlanHits(repoPaths, FP0159_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX)
       .length === 0
+  );
+}
+
+export function verifyFp0159AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoUiBridgeReadinessPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0159_AUTHORIZATION_PARSER_FOLLOWUP_PLAN_PREFIX,
+  );
+  if (hits.length === 0) return true;
+
+  return (
+    hits.length === 1 &&
+    hits[0] ===
+      FP0159_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_READINESS_PLAN_PATH
+  );
+}
+
+export function verifyFp0160Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(
+      repoPaths,
+      FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX,
+    ).length === 0
   );
 }
 
