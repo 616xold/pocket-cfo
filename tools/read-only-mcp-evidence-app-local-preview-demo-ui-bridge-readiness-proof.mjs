@@ -353,18 +353,27 @@ function readChangedLeakageText(paths) {
 }
 
 function readChangedAddedText(paths) {
+  const textPaths = paths.filter((path) => /\.(?:md|mjs|ts|tsx)$/u.test(path));
   const trackedAdditionText = [
-    diffAddedLines(["diff", "--unified=0", "origin/main...HEAD"]),
-    diffAddedLines(["diff", "--unified=0"]),
-    diffAddedLines(["diff", "--cached", "--unified=0"]),
+    diffAddedLinesForPaths(
+      ["diff", "--unified=0", "origin/main...HEAD"],
+      textPaths,
+    ),
+    diffAddedLinesForPaths(["diff", "--unified=0"], textPaths),
+    diffAddedLinesForPaths(["diff", "--cached", "--unified=0"], textPaths),
   ].join("\n");
   const untrackedText = gitLines(["ls-files", "--others", "--exclude-standard"])
     .filter((path) => paths.includes(path))
-    .filter((path) => /\.(?:md|mjs|ts|tsx)$/u.test(path))
+    .filter((path) => textPaths.includes(path))
     .map((path) => safeRead(path))
     .join("\n");
 
   return `${trackedAdditionText}\n${untrackedText}`;
+}
+
+function diffAddedLinesForPaths(args, paths) {
+  if (paths.length === 0) return "";
+  return diffAddedLines([...args, "--", ...paths]);
 }
 
 function diffAddedLines(args) {

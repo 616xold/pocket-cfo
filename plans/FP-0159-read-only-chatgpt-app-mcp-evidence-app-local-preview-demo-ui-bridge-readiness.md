@@ -22,6 +22,7 @@ Target phase: V2CA read-only ChatGPT App/MCP Evidence App local preview/demo UI 
 - [x] 2026-05-25T14:33:18Z - Added the FP-0159 readiness helper, focused specs, direct proof command, exact FP-0159/FP-0160 successor bridge compatibility, and direct active-doc/plugin freshness edits without changing preview route, route runtime, default app construction, default auth adapter wiring, default evidence dispatch wiring, provider behavior, database behavior, package scripts, source evidence, or finance state.
 - [x] 2026-05-25T14:33:18Z - Patched proof-gate compatibility where older successor and changed-file guards still treated FP-0159 as absent-only. The patches remain proof-only and preserve the existing runtime boundaries.
 - [x] 2026-05-25T14:33:18Z - Final validation passed, including the FP-0159 readiness proof, FP-0158 bridge proof and harness, predecessor proof ladder, focused domain and control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. One full-suite `pnpm test` attempt hit the existing FP-0128 simulated route-source test timeout at 5107ms; rerunning `pnpm test` unchanged passed, so no correction was made.
+- [x] 2026-05-25T14:45:52Z - Same-branch QA found and corrected a proof-only added-line scan defect in the FP-0159 readiness proof. The real-finance-data scanner now honors the caller's non-tool path filter instead of scanning every branch addition, so it no longer trips on its own sentinel strings while still scanning the intended non-tool plan/domain/doc additions.
 
 ## Surprises & Discoveries
 
@@ -34,6 +35,8 @@ OpenAI Developers tooling in this local thread exposed API-key setup surfaces on
 Several older proof gates had exact successor or changed-file allowlists that still assumed FP-0159 must be absent. FP-0159 patched only those proof bridges to accept this exact readiness plan while keeping FP-0160 absent and leaving app, route, and dispatch behavior unchanged.
 
 A single `pnpm test` run timed out in the pre-existing FP-0128 simulated committed helper route-source test, then passed unchanged on rerun. This was recorded as validation noise rather than a slice defect because no route source, token-validation runtime, or default wiring was changed.
+
+Same-branch QA exposed that the FP-0159 proof's added-line scanner accepted a path filter but did not pass that filter through to tracked git diffs. The defect was proof-only and could not change app/runtime behavior, but it made the proof fail against its own sentinel strings after the branch was committed.
 
 ## Decision Log
 
@@ -57,6 +60,7 @@ A single `pnpm test` run timed out in the pre-existing FP-0128 simulated committ
 - 2026-05-25T13:58:04Z - Source mutation is not included. Finance write is not included. External communication is not included. Public assets are not included. Generated public prose is not included. App submission is not included. OpenAI API/model call is not included. OpenAI API/model integration is not included.
 - 2026-05-25T13:58:04Z - Preserve FP-0158 local evidence demo bridge, FP-0157 local auth demo harness, FP-0156 app-construction injection, FP-0155 local adapter implementation, FP-0154 local adapter readiness, FP-0153 app-construction wiring, FP-0152 route integration, FP-0151 route readiness, FP-0150 route sequencing, FP-0149 parser implementation, FP-0148 readiness, FP-0147 provider-selection evidence, FP-0146 parser contracts, FP-0145 runtime contracts, FP-0144 production token-validation sequencing, FP-0143 app wiring, FP-0142 route sequencing, FP-0141 invalid-token local runtime, FP-0139 result envelopes, FP-0130 missing-token challenge, FP-0125 protected-resource metadata route, FP-0109 evidence dispatch adapter, FP-0108 evidence dispatch contracts, FP-0097 preview visual QA, FP-0096 preview state matrix, FP-0094 preview route, FP-0086 benchmark/community contracts, FP-0085 bounded orchestration, FP-0082 evidence app alpha, FP-0081 document precision, FP-0080 evidence index, FP-0107 route adapter, FP-0106 protocol envelope, and FP-0100 public security boundary.
 - 2026-05-25T14:33:18Z - Exact FP-0159 successor bridge compatibility is proof-only. It allows this readiness plan and new proof command while continuing to block FP-0160 and unrelated route/runtime/provider/auth/schema/package/public-app changes.
+- 2026-05-25T14:45:52Z - Same-branch QA correction remains proof-gate only. It changes no preview route, UI bridge runtime, route behavior, default app construction, auth adapter wiring, evidence dispatch wiring, provider/auth/token runtime, source data, finance state, DB/schema/package surface, public assets, or app-submission material.
 
 ## Context and Orientation
 
