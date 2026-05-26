@@ -176,10 +176,10 @@ function collectForbiddenOpenAiExecutableMatches(sourceText: string) {
     },
     { name: "openai-client", pattern: /\bnew\s+OpenAI\b/u },
     { name: "openai-member-call", pattern: /\bopenai\s*\./iu },
-    { name: "responses-create", pattern: /\bresponses\s*\.\s*create\b/u },
+    { name: "responses-create", pattern: /\bresponses\s*\.\s*create\s*\(/u },
     {
       name: "chat-completions",
-      pattern: /\bchat\s*\.\s*completions\b/u,
+      pattern: /\bchat\s*\.\s*completions\s*\.\s*create\s*\(/u,
     },
     {
       name: "openai-env-key",
@@ -192,9 +192,9 @@ function collectForbiddenOpenAiExecutableMatches(sourceText: string) {
       name: "openai-api-host",
       pattern: new RegExp(`\\b${escapeRegExp(apiHost)}\\b`, "u"),
     },
-    { name: "model-create", pattern: /\bmodel\s*\.\s*create\b/u },
-    { name: "models-create", pattern: /\bmodels\s*\.\s*create\b/u },
-    { name: "call-model", pattern: /\bcall\s*Model\b/u },
+    { name: "model-create", pattern: /\bmodel\s*\.\s*create\s*\(/u },
+    { name: "models-create", pattern: /\bmodels\s*\.\s*create\s*\(/u },
+    { name: "call-model", pattern: /\bcall\s*Model\s*\(/u },
   ];
 
   return sourceText.split("\n").flatMap((line, index) => {

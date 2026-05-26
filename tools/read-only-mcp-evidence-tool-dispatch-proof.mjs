@@ -32,9 +32,13 @@ const fp0123RouteInputSourceScanExcludedPaths = new Set([
 ]);
 const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ]);
 
 const repoPaths = repoFilePaths();

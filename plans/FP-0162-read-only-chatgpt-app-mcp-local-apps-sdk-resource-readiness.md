@@ -21,6 +21,7 @@ Target phase: V2CD read-only ChatGPT App/MCP local Apps SDK resource readiness p
 - [x] 2026-05-26T16:22:56Z - Added the FP-0162 pure domain readiness helper, focused specs, direct proof command, and exact predecessor proof-gate compatibility without app/web runtime edits, route edits, resource registration, tool descriptor implementation, component bundle config, token validation runtime, OAuth/session/auth middleware, provider calls, DB/schema work, package scripts, OpenAI API/model calls, real data, public assets, screenshots, or app submission material.
 - [x] 2026-05-26T16:22:56Z - Refreshed only directly stale active docs and `plugins.md` wording for FP-0162 readiness planning and the continued runtime/public/auth/provider blocks.
 - [x] 2026-05-26T16:22:56Z - Final validation passed: proof ladder, optional shipped evidence dispatch proofs, app/web spec listing, focused domain suite, focused control-plane suite, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-26T19:24:04Z - FP-0163 same-branch freshness polish recorded that PR #341 merged with head SHA `9589a8fc9c4df6b81fbcb75a6b94d8b343f07cd0`, merge commit `08aaadd19a8505b89b1143c2311089a7dbdd2252`, GitHub static and integration-db checks were green, same-branch QA found no issues and made no correction, and no standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -35,6 +36,8 @@ Older predecessor proof gates treated exact FP-0162 Apps SDK readiness filenames
 The FP-0158 leakage scanner correctly caught literal authorization-header wording in changed proof text. The proof was adjusted to keep the scanner durable without introducing token-like or credential-like examples.
 
 The FP-0123 and FP-0128 inventories treated exact local Apps SDK readiness source and generated build artifacts as broader public/runtime resource paths. Exact FP-0162 readiness exceptions were added so `pnpm ci:repro:current` can prove clean generated builds without weakening route/auth/resource guardrails.
+
+The shipped FP-0162 closeout wording became stale after PR #341 merged. FP-0163 patched that freshness on the same branch rather than creating a separate polish or post-merge QA branch.
 
 ## Decision Log
 
@@ -197,6 +200,8 @@ GitHub connector product behavior is out of scope. Routine `git` and `gh` CLI op
 ## Outcomes & Retrospective
 
 FP-0162 shipped as a local-only, read-only, proof-only Apps SDK component-resource readiness planning slice. It records future local Apps SDK resource input, output, metadata, CSP/domain, tool descriptor, `readOnlyHint`, outputTemplate, and implementation-sequence decisions without implementing the resource.
+
+PR #341 merged FP-0162 with head SHA `9589a8fc9c4df6b81fbcb75a6b94d8b343f07cd0` and merge commit `08aaadd19a8505b89b1143c2311089a7dbdd2252`. GitHub static and integration-db checks were green. Same-branch QA found no issues and made no correction. No standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 No replay event is required because no mission state, ingest state, source registry state, Finance Twin facts, CFO Wiki facts, finance answers, reports, approvals, monitoring outputs, durable finance artifacts, route behavior, `/mcp` behavior, protected-resource metadata route behavior, app construction behavior, or production runtime behavior changed. The durable acceptance evidence is the direct FP-0162 proof, predecessor proof ladder, focused specs, repo-level checks, and reproducible CI run.
 

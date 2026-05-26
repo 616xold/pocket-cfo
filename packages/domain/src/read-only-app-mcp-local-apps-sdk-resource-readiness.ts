@@ -1,7 +1,8 @@
 import {
   FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH,
   verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan,
-  verifyFp0163Absent,
+  verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
+  verifyFp0164Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   scanProofOnlyNoTokenLeakageText,
@@ -43,7 +44,7 @@ export const FUTURE_APPS_SDK_RESOURCE_IMPLEMENTATION_SEQUENCE = [
 ] as const;
 
 export const FUTURE_APPS_SDK_RESOURCE_ACCEPTANCE_CHECKLIST = [
-  "exactly_one_fp0162_readiness_plan", "fp0163_absent", "readiness_planning_only", "no_apps_sdk_resource_runtime", "no_register_resource", "no_mcp_resource_template", "no_tool_descriptor_output_template_implementation", "no_component_bundle_config", "future_input_output_metadata_descriptor_sequence_recorded", "two_lane_separation_preserved", "no_credential_parser_source_leakage", "no_real_finance_data", "no_public_assets_screenshots_submission",
+  "exactly_one_fp0162_readiness_plan", "fp0163_absent_or_exact_resource_skeleton_plan", "fp0164_absent", "readiness_planning_only", "no_apps_sdk_resource_runtime", "no_register_resource", "no_mcp_resource_template", "no_tool_descriptor_output_template_implementation", "no_component_bundle_config", "future_input_output_metadata_descriptor_sequence_recorded", "two_lane_separation_preserved", "no_credential_parser_source_leakage", "no_real_finance_data", "no_public_assets_screenshots_submission",
 ] as const;
 
 const FORBIDDEN_RAW_SOURCE_DUMPS_PLAN_TEXT = ["raw", "source dumps"].join(" ");
@@ -86,7 +87,9 @@ export function buildReadOnlyMcpLocalAppsSdkResourceReadinessProof(
     schemaVersion: MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_SCHEMA_VERSION,
     fp0162AbsentOrLocalAppsSdkResourceReadinessPlanVerified:
       verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan(repoPaths),
-    fp0163Absent: verifyFp0163Absent(repoPaths),
+    fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
+      verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan(repoPaths),
+    fp0164Absent: verifyFp0164Absent(repoPaths),
     localAppsSdkResourceReadinessBoundaryVerified:
       Object.values(topics).every(Boolean) && input.changedPathScopeAccepted !== false,
     appsSdkResourceImplementationStillBlocked:

@@ -22,6 +22,8 @@ const FP0161_PLAN_PATH =
   "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md";
 const FP0162_PLAN_PATH =
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
+const FP0163_PLAN_PATH =
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
 const FP0158_HARNESS_PATH =
   "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs";
 const FP0158_PROOF_PATH =
@@ -53,6 +55,12 @@ const LOCAL_APPS_SDK_RESOURCE_READINESS_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts";
 const LOCAL_APPS_SDK_RESOURCE_READINESS_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts";
+const LOCAL_APPS_SDK_RESOURCE_SKELETON_PROOF_PATH =
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs";
+const LOCAL_APPS_SDK_RESOURCE_SKELETON_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts";
+const LOCAL_APPS_SDK_RESOURCE_SKELETON_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts";
 const FP0097_PLAN_PATH =
   "plans/FP-0097-read-only-chatgpt-app-mcp-premium-ui-preview-route-visual-qa-foundation.md";
 const FP0096_PLAN_PATH =
@@ -74,6 +82,7 @@ const allowedChangedPaths = new Set([
   FP0160_PLAN_PATH,
   FP0161_PLAN_PATH,
   FP0162_PLAN_PATH,
+  FP0163_PLAN_PATH,
   FP0158_HARNESS_PATH,
   FP0158_PROOF_PATH,
   FP0157_PROOF_PATH,
@@ -107,6 +116,11 @@ const allowedChangedPaths = new Set([
   LOCAL_APPS_SDK_RESOURCE_READINESS_PROOF_PATH,
   LOCAL_APPS_SDK_RESOURCE_READINESS_MODULE_PATH,
   LOCAL_APPS_SDK_RESOURCE_READINESS_SPEC_PATH,
+  LOCAL_APPS_SDK_RESOURCE_SKELETON_PROOF_PATH,
+  LOCAL_APPS_SDK_RESOURCE_SKELETON_MODULE_PATH,
+  LOCAL_APPS_SDK_RESOURCE_SKELETON_SPEC_PATH,
+  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",

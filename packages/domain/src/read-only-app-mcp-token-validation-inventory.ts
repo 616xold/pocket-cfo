@@ -153,20 +153,40 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "plans/ROADMAP.md",
   "plugins.md",
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
-  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
-] as const;
-
-const FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS = [
-  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
-  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
-  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.js",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.js",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.d.ts",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.d.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
+] as const;
+
+const FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS = [
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.d.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ] as const;
 
 export type McpTokenValidationInventoryMatch = {
@@ -339,14 +359,7 @@ export function verifyMcpTokenValidationReadinessDurabilityScan(
 function withoutFp0162LocalAppsSdkResourceReadinessPaths(
   paths: readonly string[],
 ) {
-  return paths.filter(
-    (path) =>
-      !FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS.includes(
-        normalizePath(
-          path,
-        ) as (typeof FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS)[number],
-      ),
-  );
+  return paths.filter((path) => !isLocalAppsSdkProofOnlyAllowedPath(path));
 }
 
 export function isFp0128TokenValidationAllowedChangedPath(path: string) {
@@ -445,11 +458,20 @@ function inventoryExecutableSourceText(
   return Object.entries(sourceTextByPath)
     .filter(
       ([path]) =>
-        isMcpTokenValidationSourceInventoryPath(path) ||
-        (changedPathSet.has(path) && isExecutablePath(path)),
+        !isLocalAppsSdkProofOnlyAllowedPath(path) &&
+        (isMcpTokenValidationSourceInventoryPath(path) ||
+          (changedPathSet.has(path) && isExecutablePath(path))),
     )
     .map(([, sourceText]) => sourceText)
     .join("\n");
+}
+
+function isLocalAppsSdkProofOnlyAllowedPath(path: string) {
+  return FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS.includes(
+    normalizePath(
+      path,
+    ) as (typeof FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS)[number],
+  );
 }
 
 function isMcpTokenValidationRouteRuntimeInventoryPath(path: string) {
