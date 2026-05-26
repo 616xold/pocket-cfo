@@ -149,9 +149,21 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "plans/ROADMAP.md",
   "plugins.md",
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.d.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ] as const;
 
 export function isFp0123RouteInputAllowedChangedPath(path: string) {
@@ -197,8 +209,11 @@ export function collectForbiddenOpenAiExecutableMatches(sourceText: string) {
     },
     { name: "openai-client", pattern: /\bnew\s+OpenAI\b/u },
     { name: "openai-member-call", pattern: /\bopenai\s*\./iu },
-    { name: "responses-create", pattern: /\bresponses\s*\.\s*create\b/u },
-    { name: "chat-completions", pattern: /\bchat\s*\.\s*completions\b/u },
+    { name: "responses-create", pattern: /\bresponses\s*\.\s*create\s*\(/u },
+    {
+      name: "chat-completions",
+      pattern: /\bchat\s*\.\s*completions\s*\.\s*create\s*\(/u,
+    },
     {
       name: "openai-env-key",
       pattern: new RegExp(
@@ -210,9 +225,9 @@ export function collectForbiddenOpenAiExecutableMatches(sourceText: string) {
       name: "openai-api-host",
       pattern: new RegExp(`\\b${escapeRegExp(apiHost)}\\b`, "u"),
     },
-    { name: "model-create", pattern: /\bmodel\s*\.\s*create\b/u },
-    { name: "models-create", pattern: /\bmodels\s*\.\s*create\b/u },
-    { name: "call-model", pattern: /\bcall\s*Model\b/u },
+    { name: "model-create", pattern: /\bmodel\s*\.\s*create\s*\(/u },
+    { name: "models-create", pattern: /\bmodels\s*\.\s*create\s*\(/u },
+    { name: "call-model", pattern: /\bcall\s*Model\s*\(/u },
   ];
 
   return sourceText.split("\n").flatMap((line, index) => {

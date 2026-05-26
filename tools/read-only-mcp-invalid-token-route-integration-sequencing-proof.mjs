@@ -505,6 +505,7 @@ function verifyFp0143AppWiringBridge() {
       "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md",
       "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md",
       "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+      "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
       "apps/web/app/read-only-app-mcp-preview/page.tsx",
       "apps/web/app/read-only-app-mcp-preview/page.spec.tsx",
       "apps/web/components/read-only-app-mcp/index.ts",
@@ -514,10 +515,15 @@ function verifyFp0143AppWiringBridge() {
       "apps/web/components/read-only-app-mcp/styles.ts",
       "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
       "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+      "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+      "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+      "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+      "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
       "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
       "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
       "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
       "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+      "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
     ].includes(path),
   );
   const explicitContainerDependency =

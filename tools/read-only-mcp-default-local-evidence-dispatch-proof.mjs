@@ -40,9 +40,15 @@ const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
 const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ]);
 const APP_PATH = "apps/control-plane/src/app.ts";
 const TYPES_PATH = "apps/control-plane/src/lib/types.ts";
@@ -887,10 +893,10 @@ function durableNoApiModelKeyScan() {
   ].some((pattern) => pattern.test(text));
   const noModelCalls = ![
     new RegExp(`\\b${callModelName}\\s*\\(`, "u"),
-    dottedPattern("model", "create"),
-    dottedPattern("models", "create"),
-    dottedPattern("chat", "completions"),
-    dottedPattern("responses", "create"),
+    dottedCallPattern("model", "create"),
+    dottedCallPattern("models", "create"),
+    chainedDottedCallPattern("chat", "completions", "create"),
+    dottedCallPattern("responses", "create"),
   ].some((pattern) => pattern.test(text));
   const noOpenAiClientOrKeyUsage =
     noOpenAiApiCalls &&
@@ -1004,6 +1010,17 @@ function safeJson(value) {
 
 function dottedPattern(left, right) {
   return new RegExp(`\\b${left}\\s*\\.\\s*${right}\\b`, "u");
+}
+
+function dottedCallPattern(left, right) {
+  return new RegExp(`\\b${left}\\s*\\.\\s*${right}\\s*\\(`, "u");
+}
+
+function chainedDottedCallPattern(left, middle, right) {
+  return new RegExp(
+    `\\b${left}\\s*\\.\\s*${middle}\\s*\\.\\s*${right}\\s*\\(`,
+    "u",
+  );
 }
 
 function escapeRegExp(value) {

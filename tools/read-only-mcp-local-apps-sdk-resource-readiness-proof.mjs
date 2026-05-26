@@ -15,6 +15,8 @@ const FP0161_PLAN_PATH =
   "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md";
 const FP0162_PLAN_PATH =
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
+const FP0163_PLAN_PATH =
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
 const FP0161_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
 const FP0160_PROOF_PATH =
@@ -23,6 +25,8 @@ const FP0159_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs";
 const READINESS_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts";
+const SKELETON_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts";
 const PREVIEW_ROUTE_PATH =
   "apps/web/app/read-only-app-mcp-preview/page.tsx";
 const BRIDGE_COMPONENT_PATH =
@@ -41,6 +45,7 @@ const allowedChangedPaths = new Set([
   "plugins.md",
   FP0161_PLAN_PATH,
   FP0162_PLAN_PATH,
+  FP0163_PLAN_PATH,
   FP0161_PROOF_PATH,
   FP0160_PROOF_PATH,
   FP0159_PROOF_PATH,
@@ -56,10 +61,15 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
   "tools/read-only-public-app-security-boundary-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
   READINESS_MODULE_PATH,
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  SKELETON_MODULE_PATH,
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.ts",
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts",
+  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
@@ -100,7 +110,9 @@ const output = {
   schemaVersion: SCHEMA_VERSION,
   fp0162AbsentOrLocalAppsSdkResourceReadinessPlanVerified:
     readinessProof.fp0162AbsentOrLocalAppsSdkResourceReadinessPlanVerified,
-  fp0163Absent: readinessProof.fp0163Absent,
+  fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
+    readinessProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified,
+  fp0164Absent: readinessProof.fp0164Absent,
   localAppsSdkResourceReadinessBoundaryVerified:
     verifyReadOnlyMcpLocalAppsSdkResourceReadinessBoundary({
       changedPathScopeAccepted: pathScope.changedPathScopeAccepted,

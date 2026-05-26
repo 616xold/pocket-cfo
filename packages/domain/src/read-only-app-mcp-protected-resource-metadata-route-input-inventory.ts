@@ -24,13 +24,21 @@ export { FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS } from "./read-only-app-mcp-pr
 
 const FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS = [
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.js",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.js",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.d.ts",
   "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.d.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ] as const;
 
 export type McpProtectedResourceMetadataRouteInputDurabilityScanInput = {
@@ -63,7 +71,10 @@ export function verifyMcpProtectedResourceMetadataRouteInputDurabilityScan(
   const sourceTextByPath = normalizeSourceTextByPath(
     input.sourceTextByPath ?? {},
   );
-  const executableSourceText = Object.values(sourceTextByPath).join("\n");
+  const executableSourceText = Object.entries(sourceTextByPath)
+    .filter(([path]) => !isLocalAppsSdkProofOnlyAllowedPath(path))
+    .map(([, sourceText]) => sourceText)
+    .join("\n");
   const routeSourceInventoryText = Object.entries(sourceTextByPath)
     .filter(([path]) => isRouteLikeRuntimePath(path))
     .map(([, sourceText]) => sourceText)
@@ -147,12 +158,13 @@ export function verifyMcpProtectedResourceMetadataRouteInputDurabilityScan(
 function withoutFp0162LocalAppsSdkResourceReadinessPaths(
   paths: readonly string[],
 ) {
-  return paths.filter(
-    (path) =>
-      !FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS.includes(
-        normalizePath(
-          path,
-        ) as (typeof FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS)[number],
-      ),
+  return paths.filter((path) => !isLocalAppsSdkProofOnlyAllowedPath(path));
+}
+
+function isLocalAppsSdkProofOnlyAllowedPath(path: string) {
+  return FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS.includes(
+    normalizePath(
+      path,
+    ) as (typeof FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS)[number],
   );
 }

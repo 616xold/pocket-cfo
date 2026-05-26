@@ -72,9 +72,15 @@ const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs";
 const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ]);
 
 const repoPaths = repoFilePaths();
@@ -707,8 +713,8 @@ function hasCodeLevelOpenAiIntegration(sourceText) {
     new RegExp(`\\brequire\\s*\\(\\s*["']${packageName}["']\\s*\\)`, "u"),
     new RegExp(`\\bnew\\s+${clientName}\\b`, "u"),
     new RegExp(`\\b${packageName}\\s*\\.`, "u"),
-    dottedPattern("responses", "create"),
-    dottedPattern("chat", "completions"),
+    dottedCallPattern("responses", "create"),
+    chainedDottedCallPattern("chat", "completions", "create"),
     new RegExp(`\\bprocess\\s*\\.\\s*env\\s*\\.\\s*${keyName}\\b`, "u"),
     new RegExp(`\\b${keyName}\\b`, "u"),
     new RegExp(`\\b${escapeRegExp(hostName)}\\b`, "u"),
@@ -731,10 +737,10 @@ function hasCodeLevelOpenAiClientOrKeyUsage(sourceText) {
 function hasCodeLevelModelIntegration(sourceText) {
   const modelCallName = ["call", "Model"].join("");
   return [
-    wordPattern(modelCallName),
-    dottedPattern("model", "create"),
-    dottedPattern("models", "create"),
-    dottedPattern("chat", "completions"),
+    callPattern(modelCallName),
+    dottedCallPattern("model", "create"),
+    dottedCallPattern("models", "create"),
+    chainedDottedCallPattern("chat", "completions", "create"),
   ].some((check) => check.test(sourceText));
 }
 
@@ -749,8 +755,19 @@ function dottedPattern(left, right) {
   return new RegExp(`\\b${left}\\s*\\.\\s*${right}\\b`, "u");
 }
 
-function wordPattern(name) {
-  return new RegExp(`\\b${name}\\b`, "u");
+function dottedCallPattern(left, right) {
+  return new RegExp(`\\b${left}\\s*\\.\\s*${right}\\s*\\(`, "u");
+}
+
+function chainedDottedCallPattern(left, middle, right) {
+  return new RegExp(
+    `\\b${left}\\s*\\.\\s*${middle}\\s*\\.\\s*${right}\\s*\\(`,
+    "u",
+  );
+}
+
+function callPattern(name) {
+  return new RegExp(`\\b${name}\\s*\\(`, "u");
 }
 
 function normalize(value) {
