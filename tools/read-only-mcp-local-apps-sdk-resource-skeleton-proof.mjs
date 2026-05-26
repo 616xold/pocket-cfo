@@ -17,8 +17,12 @@ const FP0162_PLAN_PATH =
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
 const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
+const FP0164_PLAN_PATH =
+  "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
 const READINESS_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
+const REGISTRATION_PROOF_PATH =
+  "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs";
 const VISUAL_QA_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
 const UI_BRIDGE_IMPLEMENTATION_PROOF_PATH =
@@ -27,6 +31,12 @@ const UI_BRIDGE_READINESS_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs";
 const SKELETON_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts";
+const SKELETON_RUNTIME_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts";
+const REGISTRATION_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts";
+const REGISTRATION_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts";
 const PREVIEW_ROUTE_PATH =
   "apps/web/app/read-only-app-mcp-preview/page.tsx";
 const BRIDGE_COMPONENT_PATH =
@@ -45,7 +55,9 @@ const allowedChangedPaths = new Set([
   "plugins.md",
   FP0162_PLAN_PATH,
   FP0163_PLAN_PATH,
+  FP0164_PLAN_PATH,
   READINESS_PROOF_PATH,
+  REGISTRATION_PROOF_PATH,
   VISUAL_QA_PROOF_PATH,
   UI_BRIDGE_IMPLEMENTATION_PROOF_PATH,
   UI_BRIDGE_READINESS_PROOF_PATH,
@@ -65,7 +77,10 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
   SKELETON_MODULE_PATH,
+  SKELETON_RUNTIME_MODULE_PATH,
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  REGISTRATION_MODULE_PATH,
+  REGISTRATION_SPEC_PATH,
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
@@ -79,6 +94,8 @@ const changedPathScope = changedFilePathScope();
 const changedPaths = changedPathScope.combinedChangedPaths;
 const fp0162PlanText = safeRead(FP0162_PLAN_PATH);
 const skeletonSource = safeRead(SKELETON_MODULE_PATH);
+const skeletonRuntimeSource = safeRead(SKELETON_RUNTIME_MODULE_PATH);
+const registrationSource = safeRead(REGISTRATION_MODULE_PATH);
 const runtimePreviewSource = [
   safeRead(PREVIEW_ROUTE_PATH),
   safeRead(BRIDGE_COMPONENT_PATH),
@@ -102,13 +119,19 @@ const skeletonProof = buildReadOnlyMcpLocalAppsSdkResourceSkeletonProof({
     proofBridgeScope.fp0162SuccessorBridgeCompatibilityVerified,
   priorBoundaryOverrides,
   repoPaths,
+  runtimeSafeBuilderIsolated: sourceScope.runtimeSafeSkeletonBuilderIsolated,
 });
 
 const output = {
   schemaVersion: SCHEMA_VERSION,
   fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
     skeletonProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified,
-  fp0164Absent: skeletonProof.fp0164Absent,
+  fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
+    skeletonProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
+  fp0165Absent: skeletonProof.fp0165Absent,
+  runtimeSafeSkeletonBuilderIsolated:
+    skeletonProof.runtimeSafeSkeletonBuilderIsolated &&
+    sourceScope.runtimeSafeSkeletonBuilderIsolated,
   localAppsSdkResourceSkeletonBoundaryVerified:
     verifyReadOnlyMcpLocalAppsSdkResourceSkeletonBoundary({
       changedPathScopeAccepted: pathScope.changedPathScopeAccepted,
@@ -117,15 +140,31 @@ const output = {
         proofBridgeScope.fp0162SuccessorBridgeCompatibilityVerified,
       priorBoundaryOverrides,
       repoPaths,
+      runtimeSafeBuilderIsolated: sourceScope.runtimeSafeSkeletonBuilderIsolated,
     }) && resourceScope.localAppsSdkResourceSkeletonBoundaryVerified,
   appsSdkResourceSkeletonImplemented:
     skeletonProof.appsSdkResourceSkeletonImplemented,
   registerResourceImplementationStillBlocked:
     skeletonProof.registerResourceImplementationStillBlocked &&
-    sourceScope.noRegisterResourceImplementation,
+    sourceScope.defaultResourceRegistrationStillBlocked,
   resourceRegistrationStillBlocked:
     skeletonProof.resourceRegistrationStillBlocked &&
-    sourceScope.noResourceRegistrationImplementation,
+    sourceScope.defaultResourceRegistrationStillBlocked &&
+    sourceScope.serverResourceRegistrationStillBlocked,
+  registerResourceImplementationStillExplicitOnly:
+    skeletonProof.registerResourceImplementationStillExplicitOnly &&
+    sourceScope.explicitRegisterResourceHelperImportsRuntimeSafeBuilder &&
+    sourceScope.proofHeavySkeletonModuleNotImportedByRegistration,
+  resourceRegistrationStillExplicitOnly:
+    skeletonProof.resourceRegistrationStillExplicitOnly &&
+    sourceScope.defaultResourceRegistrationStillBlocked &&
+    sourceScope.serverResourceRegistrationStillBlocked,
+  defaultResourceRegistrationStillBlocked:
+    skeletonProof.defaultResourceRegistrationStillBlocked &&
+    sourceScope.defaultResourceRegistrationStillBlocked,
+  serverResourceRegistrationStillBlocked:
+    skeletonProof.serverResourceRegistrationStillBlocked &&
+    sourceScope.serverResourceRegistrationStillBlocked,
   toolDescriptorImplementationStillBlocked:
     skeletonProof.toolDescriptorImplementationStillBlocked &&
     sourceScope.noToolDescriptorImplementation,
@@ -153,8 +192,12 @@ const output = {
   resourceCspHasNoFrameDomains: skeletonProof.resourceCspHasNoFrameDomains,
   resourceMetadataHasNoPublicWidgetDomain:
     skeletonProof.resourceMetadataHasNoPublicWidgetDomain,
+  resourceMetadataHasNoRedirectDomains:
+    skeletonProof.resourceMetadataHasNoRedirectDomains,
   widgetDescriptionReadOnlySyntheticNonMarketing:
     skeletonProof.widgetDescriptionReadOnlySyntheticNonMarketing,
+  widgetDescriptionReadOnlySyntheticLocalNoSubmission:
+    skeletonProof.widgetDescriptionReadOnlySyntheticLocalNoSubmission,
   resourceSkeletonTwoLaneSeparationVerified:
     skeletonProof.resourceSkeletonTwoLaneSeparationVerified,
   resourceSkeletonDoesNotClaimProductionAuthentication:
@@ -276,11 +319,40 @@ function verifyPathScope() {
 function verifySourceScope() {
   const changedText = readChangedLeakageText(changedPaths);
   const changedTextNoLeakage = scanProofOnlyNoTokenLeakageText(changedText).accepted;
-  const implementationSource = [skeletonSource].join("\n");
+  const implementationSource = [
+    skeletonSource,
+    skeletonRuntimeSource,
+    registrationSource,
+  ].join("\n");
   const routeRuntimeSource = [
     safeRead("apps/control-plane/src/app.ts"),
     safeRead("apps/control-plane/src/container.ts"),
     safeRead("apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts"),
+  ].join("\n");
+  const runtimeSafeForbiddenImports = [
+    /from\s+["'][^"']*(?:proof|scanner|repo-path|readiness|token-validation|app\/|apps\/|control-plane|db|provider|openai|next|react)[^"']*["']/iu,
+    /node:(?:fs|child_process|crypto|http|https|net|tls|os|path|url)/iu,
+    /from\s+["'](?:fs|child_process|crypto|http|https|net|tls|os|path|url)["']/iu,
+  ];
+  const runtimeSafeForbiddenApis = [
+    /\b(?:readdirSync|readFileSync|writeFileSync|fetch|XMLHttpRequest|WebSocket|Date\.now|Math\.random|crypto|process\.env|logger|pino)\b/iu,
+    /\b(?:decodeJwt|jwtDecode|fetchJwks|introspectToken|oauthCallback|sessionStore|setCookie|validateToken|verifyToken)\b/iu,
+    new RegExp(
+      [
+        "from\\s+[\"']openai[\"']",
+        "new\\s+OpenAI",
+        ["OPENAI", "API", "KEY"].join("_"),
+      ].join("|"),
+      "iu",
+    ),
+    /window\.openai/iu,
+  ];
+  const proofHeavySkeletonModuleImportPattern =
+    /from\s+["']\.\/read-only-app-mcp-local-apps-sdk-resource-skeleton["']/u;
+  const defaultRegistrationSource = [
+    routeRuntimeSource,
+    safeRead("apps/control-plane/src/app.ts"),
+    safeRead("apps/control-plane/src/container.ts"),
   ].join("\n");
 
   return {
@@ -303,6 +375,13 @@ function verifySourceScope() {
         /(?:vite|webpack|rollup|next)\.config|component-bundle|widget\.html|\.css$/iu.test(
           path,
         ),
+      ),
+    defaultResourceRegistrationStillBlocked:
+      !/registerResource\s*\(/u.test(defaultRegistrationSource) &&
+      !/resources\/(?:list|read)|resource template/iu.test(routeRuntimeSource),
+    explicitRegisterResourceHelperImportsRuntimeSafeBuilder:
+      registrationSource.includes(
+        "./read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime",
       ),
     noExternalCommunications:
       !/sendEmail\s*\(|sendReport\s*\(|webhook\s*\(|externalMessage\s*\(/u.test(
@@ -348,20 +427,29 @@ function verifySourceScope() {
       !/providerClient\s*[:=(]|providerCall\s*\(|callProvider\s*\(|selectProvider\s*\(/u.test(
         implementationSource,
       ),
-    noRegisterResourceImplementation:
-      !/registerResource\s*\(/u.test(implementationSource + routeRuntimeSource),
+    proofHeavySkeletonModuleNotImportedByRegistration:
+      !proofHeavySkeletonModuleImportPattern.test(registrationSource),
     noRenderToolImplementation:
       !/\brenderTool\s*[:=(]|render_resource|structuredContentToResource/u.test(
         implementationSource,
-      ),
-    noResourceRegistrationImplementation:
-      !/registerResource\s*\(|resources\/(?:list|read)|resource template/iu.test(
-        routeRuntimeSource,
       ),
     noSourceMutation:
       !/uploadSource\s*\(|mutateSource\s*\(|rewriteSource\s*\(|deleteSource\s*\(/u.test(
         implementationSource,
       ),
+    runtimeSafeSkeletonBuilderIsolated:
+      skeletonRuntimeSource.includes(
+        "buildReadOnlyMcpLocalAppsSdkResourceSkeleton",
+      ) &&
+      runtimeSafeForbiddenImports.every(
+        (pattern) => !pattern.test(skeletonRuntimeSource),
+      ) &&
+      runtimeSafeForbiddenApis.every(
+        (pattern) => !pattern.test(skeletonRuntimeSource),
+      ),
+    serverResourceRegistrationStillBlocked:
+      !/registerResource\s*\(/u.test(routeRuntimeSource) &&
+      !/resources\/(?:list|read)|resource template/iu.test(routeRuntimeSource),
     noToolDescriptorImplementation:
       !/openai\/outputTemplate|_meta\s*:\s*\{\s*ui\s*:\s*\{\s*resourceUri|annotations\s*:\s*\{\s*readOnlyHint/u.test(
         implementationSource,
@@ -408,10 +496,14 @@ function verifyProofBridgeScope() {
     fp0162SuccessorBridgeCompatibilityVerified:
       readinessProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified ===
         true &&
-      readinessProof.fp0164Absent === true &&
+      readinessProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified ===
+        true &&
+      readinessProof.fp0165Absent === true &&
       visualQaProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified ===
         true &&
-      visualQaProof.fp0164Absent === true,
+      visualQaProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified ===
+        true &&
+      visualQaProof.fp0165Absent === true,
   };
 }
 

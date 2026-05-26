@@ -1,12 +1,34 @@
 import {
   FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
-  verifyFp0164Absent,
+  verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
+  verifyFp0165Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   scanProofOnlyNoTokenLeakageText,
   scanTokenValidationNoLeakage,
 } from "./read-only-app-mcp-token-validation";
+import {
+  LOCAL_APPS_SDK_RESOURCE_MIME_TYPE,
+  LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI,
+  buildReadOnlyMcpLocalAppsSdkResourceSkeleton,
+  isReadOnlyMcpLocalAppsSdkResourceSkeletonStaticSanitizedHtml,
+} from "./read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime";
+import type {
+  ReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot,
+} from "./read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime";
+
+export {
+  LOCAL_APPS_SDK_RESOURCE_MIME_TYPE,
+  LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI,
+  LOCAL_APPS_SDK_RESOURCE_WIDGET_DESCRIPTION,
+  MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_RUNTIME_SCHEMA_VERSION,
+  buildReadOnlyMcpLocalAppsSdkResourceSkeleton,
+  isReadOnlyMcpLocalAppsSdkResourceSkeletonStaticSanitizedHtml,
+  sanitizeReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot,
+  type ReadOnlyMcpLocalAppsSdkResourceSkeleton,
+  type ReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot,
+} from "./read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime";
 
 export const MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_SCHEMA_VERSION =
   "v2ce.read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.v1";
@@ -14,130 +36,13 @@ export const MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_SCHEMA_VERSION =
 export const FP0163_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH =
   FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH;
 
-export const LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI =
-  "ui://pocket-cfo/local-preview-demo.html";
-
-export const LOCAL_APPS_SDK_RESOURCE_MIME_TYPE =
-  "text/html;profile=mcp-app";
-
-export const LOCAL_APPS_SDK_RESOURCE_WIDGET_DESCRIPTION =
-  "Read-only synthetic Pocket CFO local preview skeleton. No production authentication, no real finance data, no public app.";
-
-const DEFAULT_SYNTHETIC_SNAPSHOT = {
-  authBoundaryLaneStatus:
-    "Synthetic local challenge boundary only; not production authentication.",
-  evidenceToolLaneStatus:
-    "Synthetic read-only evidence lane only; not authenticated evidence execution.",
-  freshnessPosture: "Static synthetic local preview snapshot.",
-  limitations: [
-    "No registerResource wiring.",
-    "No tool output template.",
-    "No public ChatGPT App.",
-  ],
-  localOnly: true,
-  noRealFinanceData: true,
-  noRuntime: true,
-  publicChatGptAppImplemented: false,
-  sourceAnchorStatus:
-    "Synthetic source-anchor status only; no source content.",
-  productionTokenValidationImplemented: false,
-} as const;
-
-const ACCEPTED_SNAPSHOT_KEYS = [
-  "authBoundaryLaneStatus",
-  "evidenceToolLaneStatus",
-  "freshnessPosture",
-  "limitations",
-  "localOnly",
-  "noRealFinanceData",
-  "noRuntime",
-  "publicChatGptAppImplemented",
-  "sourceAnchorStatus",
-  "productionTokenValidationImplemented",
-] as const;
-
-const FORBIDDEN_HTML_PATTERNS = [
-  /<script\b/iu,
-  /<\/script>/iu,
-  /<a\b/iu,
-  /<button\b/iu,
-  /<form\b/iu,
-  /<input\b/iu,
-  /<select\b/iu,
-  /<textarea\b/iu,
-  /https?:\/\//iu,
-  /\bwww\./iu,
-  /\bwindow\s*\.\s*openai\b/iu,
-  /["']\/mcp["']/iu,
-  /\b(?:upload|select files|payment|provider call|send report|certification control|source pack|public demo data)\b/iu,
-] as const;
-
-const FORBIDDEN_INPUT_PATTERNS = [
-  /\bauthorization\b/iu,
-  /\bparser decision\b/iu,
-  /\btoken(?: material|-derived)?\b/iu,
-  /\bprivate field\b/iu,
-  /\bsource body text\b/iu,
-  /\bsource dump\b/iu,
-  /\breal finance\b/iu,
-  /\bprovider data\b/iu,
-  /\bmodel output\b/iu,
-  /\bwrite output\b/iu,
-  /https?:\/\//iu,
-  /<[^>]+>/u,
-] as const;
-
-type AcceptedSnapshotKey = (typeof ACCEPTED_SNAPSHOT_KEYS)[number];
-
-type NormalizedSkeletonSnapshot = {
-  authBoundaryLaneStatus: string;
-  evidenceToolLaneStatus: string;
-  freshnessPosture: string;
-  limitations: readonly string[];
-  localOnly: true;
-  noRealFinanceData: true;
-  noRuntime: true;
-  publicChatGptAppImplemented: false;
-  sourceAnchorStatus: string;
-  productionTokenValidationImplemented: false;
-};
-
-export type ReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot = Partial<{
-  authBoundaryLaneStatus: string;
-  evidenceToolLaneStatus: string;
-  freshnessPosture: string;
-  limitations: readonly string[];
-  localOnly: true;
-  noRealFinanceData: true;
-  noRuntime: true;
-  publicChatGptAppImplemented: false;
-  sourceAnchorStatus: string;
-  productionTokenValidationImplemented: false;
-}>;
-
-export type ReadOnlyMcpLocalAppsSdkResourceSkeleton = {
-  uri: typeof LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI;
-  mimeType: typeof LOCAL_APPS_SDK_RESOURCE_MIME_TYPE;
-  text: string;
-  _meta: {
-    ui: {
-      prefersBorder: true;
-      csp: {
-        connectDomains: [];
-        resourceDomains: [];
-        frameDomains: [];
-      };
-    };
-    "openai/widgetDescription": typeof LOCAL_APPS_SDK_RESOURCE_WIDGET_DESCRIPTION;
-  };
-};
-
 export type ReadOnlyMcpLocalAppsSdkResourceSkeletonProofInput = {
   changedPathScopeAccepted?: boolean;
   fp0162CloseoutFresh?: boolean;
   fp0162SuccessorBridgeCompatible?: boolean;
   priorBoundaryOverrides?: Partial<Record<PriorBoundaryFieldName, boolean>>;
   repoPaths?: readonly string[];
+  runtimeSafeBuilderIsolated?: boolean;
   snapshot?: ReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot;
 };
 
@@ -184,30 +89,6 @@ const PRIOR_BOUNDARY_FIELD_NAMES = [
 
 type PriorBoundaryFieldName = (typeof PRIOR_BOUNDARY_FIELD_NAMES)[number];
 
-export function buildReadOnlyMcpLocalAppsSdkResourceSkeleton(
-  snapshot: ReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot = {},
-): ReadOnlyMcpLocalAppsSdkResourceSkeleton {
-  const safeSnapshot = normalizeSnapshot(snapshot);
-  const html = buildSkeletonHtml(safeSnapshot);
-
-  return {
-    uri: LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI,
-    mimeType: LOCAL_APPS_SDK_RESOURCE_MIME_TYPE,
-    text: html,
-    _meta: {
-      ui: {
-        prefersBorder: true,
-        csp: {
-          connectDomains: [],
-          resourceDomains: [],
-          frameDomains: [],
-        },
-      },
-      "openai/widgetDescription": LOCAL_APPS_SDK_RESOURCE_WIDGET_DESCRIPTION,
-    },
-  };
-}
-
 export function buildReadOnlyMcpLocalAppsSdkResourceSkeletonProof(
   input: ReadOnlyMcpLocalAppsSdkResourceSkeletonProofInput = {},
 ) {
@@ -237,14 +118,24 @@ export function buildReadOnlyMcpLocalAppsSdkResourceSkeletonProof(
     schemaVersion: MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_SCHEMA_VERSION,
     fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
       verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan(repoPaths),
-    fp0164Absent: verifyFp0164Absent(repoPaths),
+    fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
+        repoPaths,
+      ),
+    fp0165Absent: verifyFp0165Absent(repoPaths),
+    runtimeSafeSkeletonBuilderIsolated:
+      input.runtimeSafeBuilderIsolated !== false,
     localAppsSdkResourceSkeletonBoundaryVerified:
       input.changedPathScopeAccepted !== false &&
-      isStaticSanitizedHtml(html) &&
+      isReadOnlyMcpLocalAppsSdkResourceSkeletonStaticSanitizedHtml(html) &&
       resource.uri === LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI,
     appsSdkResourceSkeletonImplemented: true,
     registerResourceImplementationStillBlocked: true,
     resourceRegistrationStillBlocked: true,
+    registerResourceImplementationStillExplicitOnly: true,
+    resourceRegistrationStillExplicitOnly: true,
+    defaultResourceRegistrationStillBlocked: true,
+    serverResourceRegistrationStillBlocked: true,
     toolDescriptorImplementationStillBlocked: true,
     outputTemplateImplementationStillBlocked: true,
     renderToolImplementationStillBlocked: true,
@@ -254,7 +145,8 @@ export function buildReadOnlyMcpLocalAppsSdkResourceSkeletonProof(
       resource.uri === LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI,
     localResourceMimeTypeVerified:
       resource.mimeType === LOCAL_APPS_SDK_RESOURCE_MIME_TYPE,
-    staticSanitizedHtmlVerified: isStaticSanitizedHtml(html),
+    staticSanitizedHtmlVerified:
+      isReadOnlyMcpLocalAppsSdkResourceSkeletonStaticSanitizedHtml(html),
     scriptFreeResourceHtmlVerified: !/<script\b|<\/script>/iu.test(html),
     noExternalLinksInResourceHtml: !/<a\b|https?:\/\/|\bwww\./iu.test(html),
     resourceCspHasNoExternalConnectDomains:
@@ -263,13 +155,11 @@ export function buildReadOnlyMcpLocalAppsSdkResourceSkeletonProof(
       meta.ui.csp.resourceDomains.length === 0,
     resourceCspHasNoFrameDomains: meta.ui.csp.frameDomains.length === 0,
     resourceMetadataHasNoPublicWidgetDomain: !("domain" in meta.ui),
+    resourceMetadataHasNoRedirectDomains: !("openai/widgetCSP" in meta),
     widgetDescriptionReadOnlySyntheticNonMarketing:
-      widgetDescription.includes("read-only") &&
-      widgetDescription.includes("synthetic") &&
-      widgetDescription.includes("local preview skeleton") &&
-      !/market|launch|submit|install|try now|sign up/iu.test(
-        widgetDescription,
-      ),
+      widgetDescriptionReadOnlySyntheticLocalNoSubmission(widgetDescription),
+    widgetDescriptionReadOnlySyntheticLocalNoSubmission:
+      widgetDescriptionReadOnlySyntheticLocalNoSubmission(widgetDescription),
     resourceSkeletonTwoLaneSeparationVerified:
       html.includes('data-lane-id="auth-boundary"') &&
       html.includes('data-lane-id="evidence-tool"'),
@@ -346,102 +236,15 @@ export function verifyFp0162CloseoutFreshnessForFp0163(planText: string) {
   ]);
 }
 
-function normalizeSnapshot(
-  snapshot: ReadOnlyMcpLocalAppsSdkResourceSkeletonSnapshot,
-): NormalizedSkeletonSnapshot {
-  const unknownKeys = Object.keys(snapshot).filter(
-    (key) => !ACCEPTED_SNAPSHOT_KEYS.includes(key as AcceptedSnapshotKey),
-  );
-  if (unknownKeys.length > 0) {
-    throw new Error(
-      `Unsupported local Apps SDK resource skeleton snapshot fields: ${unknownKeys.join(
-        ", ",
-      )}`,
-    );
-  }
-
-  const merged = { ...DEFAULT_SYNTHETIC_SNAPSHOT, ...snapshot };
-  const normalizedLimitations = [...merged.limitations].map(assertSafeText);
-
-  return {
-    ...merged,
-    authBoundaryLaneStatus: assertSafeText(merged.authBoundaryLaneStatus),
-    evidenceToolLaneStatus: assertSafeText(merged.evidenceToolLaneStatus),
-    freshnessPosture: assertSafeText(merged.freshnessPosture),
-    limitations: normalizedLimitations,
-    publicChatGptAppImplemented: false,
-    sourceAnchorStatus: assertSafeText(merged.sourceAnchorStatus),
-    productionTokenValidationImplemented: false,
-  };
-}
-
-function buildSkeletonHtml(snapshot: NormalizedSkeletonSnapshot) {
-  const limitations = snapshot.limitations
-    .map((limitation) => `<li>${escapeHtml(limitation)}</li>`)
-    .join("");
-
-  return [
-    "<!doctype html>",
-    '<html lang="en">',
-    "<head>",
-    '<meta charset="utf-8">',
-    "<title>Pocket CFO local resource skeleton</title>",
-    "</head>",
-    "<body>",
-    '<main data-local-only="true" data-read-only="true" data-no-runtime="true">',
-    "<h1>Pocket CFO local resource skeleton</h1>",
-    "<p>Read-only synthetic local preview skeleton.</p>",
-    '<section aria-label="Boundary status">',
-    "<h2>Boundary status</h2>",
-    '<dl data-lanes="auth-boundary evidence-tool">',
-    '<div data-lane-id="auth-boundary">',
-    "<dt>Auth boundary lane</dt>",
-    `<dd>${escapeHtml(snapshot.authBoundaryLaneStatus)}</dd>`,
-    "</div>",
-    '<div data-lane-id="evidence-tool">',
-    "<dt>Evidence tool lane</dt>",
-    `<dd>${escapeHtml(snapshot.evidenceToolLaneStatus)}</dd>`,
-    "</div>",
-    "<div>",
-    "<dt>Source anchor status</dt>",
-    `<dd>${escapeHtml(snapshot.sourceAnchorStatus)}</dd>`,
-    "</div>",
-    "<div>",
-    "<dt>Freshness posture</dt>",
-    `<dd>${escapeHtml(snapshot.freshnessPosture)}</dd>`,
-    "</div>",
-    "</dl>",
-    "</section>",
-    '<section aria-label="Implementation status">',
-    "<h2>Implementation status</h2>",
-    '<p data-production-token-validation-implemented="false">productionTokenValidationImplemented: false</p>',
-    '<p data-public-chatgpt-app-implemented="false">publicChatGptAppImplemented: false</p>',
-    "</section>",
-    '<section aria-label="Limitations">',
-    "<h2>Limitations</h2>",
-    `<ul>${limitations}</ul>`,
-    "</section>",
-    "</main>",
-    "</body>",
-    "</html>",
-  ].join("");
-}
-
-function assertSafeText(value: string) {
-  const trimmed = value.trim();
-  if (
-    !trimmed ||
-    FORBIDDEN_INPUT_PATTERNS.some((pattern) => pattern.test(trimmed))
-  ) {
-    throw new Error("Unsafe local Apps SDK resource skeleton snapshot text");
-  }
-  return trimmed;
-}
-
-function isStaticSanitizedHtml(html: string) {
+function widgetDescriptionReadOnlySyntheticLocalNoSubmission(value: string) {
   return (
-    html.startsWith("<!doctype html>") &&
-    FORBIDDEN_HTML_PATTERNS.every((pattern) => !pattern.test(html))
+    value.includes("read-only") &&
+    value.includes("synthetic") &&
+    value.includes("local preview skeleton") &&
+    value.includes("no production authentication") &&
+    value.includes("no real finance data") &&
+    value.includes("no public app submission") &&
+    !/market|launch|install|try now|sign up/iu.test(value)
   );
 }
 
@@ -459,13 +262,4 @@ function includesAll(text: string, values: readonly string[]) {
 
 function normalize(value: string) {
   return value.toLowerCase().replace(/\s+/gu, " ").trim();
-}
-
-function escapeHtml(value: string) {
-  return value
-    .replace(/&/gu, "&amp;")
-    .replace(/</gu, "&lt;")
-    .replace(/>/gu, "&gt;")
-    .replace(/"/gu, "&quot;")
-    .replace(/'/gu, "&#39;");
 }

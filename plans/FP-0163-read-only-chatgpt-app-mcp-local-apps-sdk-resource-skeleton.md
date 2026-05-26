@@ -21,6 +21,10 @@ Target phase: V2CE read-only ChatGPT App/MCP local Apps SDK component-resource s
 - [x] 2026-05-26T20:07:41Z - Same-branch QA found predecessor proof and inventory scanners that overmatched exact FP-0163 skeleton paths or proof-regex text as runtime Apps SDK resource/API/model work. The correction stayed in proof/inventory compatibility only: exact FP-0163 path allowlists were added and executable API/model-call scanners were tightened to call-shaped matches.
 - [x] 2026-05-26T20:07:41Z - Validation passed: the full proof ladder, focused domain/control-plane suites, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
 - [x] 2026-05-26T20:50:24Z - Strict same-branch QA found stale predecessor proof allowlists that missed exact FP-0163 inventory compatibility files. The correction stayed proof-gate-only and added exact path compatibility without app/runtime/backend behavior changes.
+- [x] 2026-05-26T21:25:00Z - PR #342 merged to `main`. GitHub confirmed PR #342 head SHA `dd6c3797cdd31428ca9eee1336c811240654507c`, merge commit `e5daeb6e80001e5aa460aaead96b4d4b6f1a8310`, and GitHub `static` and `integration-db` checks were green.
+- [x] 2026-05-26T21:25:00Z - GitHub static and integration-db checks were green for PR #342.
+- [x] 2026-05-26T21:25:00Z - Same-branch QA found stale predecessor proof allowlists for exact FP-0163 inventory compatibility files. The correction was proof-gate-only and changed no runtime/app/web/route/MCP/registerResource/outputTemplate/provider/OAuth/token-validation/source/finance/public-app behavior.
+- [x] 2026-05-26T21:25:00Z - No standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -199,4 +203,8 @@ Same-branch QA made only proof/inventory compatibility corrections for exact FP-
 
 No replay event is required because no mission state, ingest state, source registry state, Finance Twin facts, CFO Wiki facts, finance answers, reports, approvals, monitoring outputs, durable finance artifacts, route behavior, `/mcp` behavior, protected-resource metadata route behavior, app construction behavior, or production runtime behavior changed.
 
-Validation passed with the direct FP-0163 proof, predecessor proof ladder, focused specs, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. Remaining work after this plan closeout is commit once, push, open the PR, and rely on PR checks; no standalone post-merge QA is recommended if GitHub checks remain green and main matches the validated branch posture.
+Validation passed with the direct FP-0163 proof, predecessor proof ladder, focused specs, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. PR #342 merged with head SHA `dd6c3797cdd31428ca9eee1336c811240654507c` and merge commit `e5daeb6e80001e5aa460aaead96b4d4b6f1a8310`; GitHub static and integration-db checks were green.
+
+Same-branch QA found stale predecessor proof allowlists for exact FP-0163 inventory compatibility files. The correction was proof-gate-only and changed no runtime/app/web/route/MCP/registerResource/outputTemplate/provider/OAuth/token-validation/source/finance/public-app behavior.
+
+No standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.

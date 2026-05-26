@@ -99,6 +99,11 @@ export const FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH =
 
 export const FP0164_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX = "FP-0164";
 
+export const FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH =
+  "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
+
+export const FP0165_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX = "FP-0165";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -751,6 +756,29 @@ export function verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan(
 export function verifyFp0164Absent(repoPaths: readonly string[]) {
   return (
     fpPlanHits(repoPaths, FP0164_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX).length ===
+    0
+  );
+}
+
+export function verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0164_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX,
+  );
+
+  return (
+    hits.length === 0 ||
+    (hits.length === 1 &&
+      hits[0] ===
+        FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH)
+  );
+}
+
+export function verifyFp0165Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, FP0165_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX).length ===
     0
   );
 }
