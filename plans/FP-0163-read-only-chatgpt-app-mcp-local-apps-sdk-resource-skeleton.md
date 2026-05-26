@@ -20,6 +20,7 @@ Target phase: V2CE read-only ChatGPT App/MCP local Apps SDK component-resource s
 - [x] 2026-05-26T19:24:04Z - Added the pure-domain local Apps SDK resource skeleton helper, focused spec, and direct proof command without app/web runtime edits, route edits, resource registration, output template wiring, component bundle config, token validation runtime, OAuth/session/auth middleware, provider calls, DB/schema work, package scripts, OpenAI API/model calls, real data, public assets, screenshots, or app submission material.
 - [x] 2026-05-26T20:07:41Z - Same-branch QA found predecessor proof and inventory scanners that overmatched exact FP-0163 skeleton paths or proof-regex text as runtime Apps SDK resource/API/model work. The correction stayed in proof/inventory compatibility only: exact FP-0163 path allowlists were added and executable API/model-call scanners were tightened to call-shaped matches.
 - [x] 2026-05-26T20:07:41Z - Validation passed: the full proof ladder, focused domain/control-plane suites, `git diff --check`, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`.
+- [x] 2026-05-26T20:50:24Z - Strict same-branch QA found stale predecessor proof allowlists that missed exact FP-0163 inventory compatibility files. The correction stayed proof-gate-only and added exact path compatibility without app/runtime/backend behavior changes.
 
 ## Surprises & Discoveries
 

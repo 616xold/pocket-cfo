@@ -37,6 +37,8 @@ const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
 ]);

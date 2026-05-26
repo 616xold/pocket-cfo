@@ -517,6 +517,8 @@ function verifyFp0143AppWiringBridge() {
       "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
       "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
       "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+      "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
+      "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
       "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
       "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
       "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
