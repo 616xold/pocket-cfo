@@ -22,6 +22,17 @@ import {
 
 export { FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS } from "./read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules";
 
+const FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS = [
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.d.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+] as const;
+
 export type McpProtectedResourceMetadataRouteInputDurabilityScanInput = {
   repoPaths: readonly string[];
   dirtyPaths?: readonly string[];
@@ -39,6 +50,10 @@ export function verifyMcpProtectedResourceMetadataRouteInputDurabilityScan(
   );
   const combinedChangedPaths = sortUnique([...branchDiffPaths, ...dirtyPaths]);
   const repoPaths = sortUnique(input.repoPaths.map(normalizePath));
+  const deploymentGuardChangedPaths =
+    withoutFp0162LocalAppsSdkResourceReadinessPaths(combinedChangedPaths);
+  const deploymentGuardRepoPaths =
+    withoutFp0162LocalAppsSdkResourceReadinessPaths(repoPaths);
   const routeSourceText =
     input.routeSourceText ??
     Object.entries(input.sourceTextByPath ?? {})
@@ -67,10 +82,10 @@ export function verifyMcpProtectedResourceMetadataRouteInputDurabilityScan(
     combinedChangedPaths.every(isFp0123RouteInputAllowedChangedPath) &&
     noPackageScriptChanges(combinedChangedPaths) &&
     noDbSchemaMigrationChanges(combinedChangedPaths) &&
-    noDeploymentConfigChanges(combinedChangedPaths) &&
-    noPublicAssetPathChanges(combinedChangedPaths) &&
-    noAppsSdkPathChanges(combinedChangedPaths) &&
-    noAppSubmissionPathChanges(combinedChangedPaths);
+    noDeploymentConfigChanges(deploymentGuardChangedPaths) &&
+    noPublicAssetPathChanges(deploymentGuardChangedPaths) &&
+    noAppsSdkPathChanges(deploymentGuardChangedPaths) &&
+    noAppSubmissionPathChanges(deploymentGuardChangedPaths);
   const routeInputNoProtectedResourceMetadataRouteRepositoryInventoryVerified =
     repositoryInventory.protectedResourceRouteRepositoryInventoryVerified;
   const routeInputNoWwwAuthenticateRepositoryInventoryVerified =
@@ -85,7 +100,7 @@ export function verifyMcpProtectedResourceMetadataRouteInputDurabilityScan(
     repositoryInventory.knownSafeRouteInventoryVerified;
   const routeInputNoDeploymentPublicAssetRepositoryInventoryVerified =
     repositoryInventory.remoteMcpDeploymentRepositoryInventoryVerified &&
-    noDeploymentPublicAssetRepositoryPaths(repoPaths) &&
+    noDeploymentPublicAssetRepositoryPaths(deploymentGuardRepoPaths) &&
     !hasAppsSdkRuntimeSource(executableSourceText);
   const noProviderExternalSourceVerified =
     !hasProviderExternalSource(executableSourceText);
@@ -127,4 +142,17 @@ export function verifyMcpProtectedResourceMetadataRouteInputDurabilityScan(
     routeInputNoWwwAuthenticateRepositoryInventoryVerified,
     routeInputRepositoryInventoryVerified,
   };
+}
+
+function withoutFp0162LocalAppsSdkResourceReadinessPaths(
+  paths: readonly string[],
+) {
+  return paths.filter(
+    (path) =>
+      !FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS.includes(
+        normalizePath(
+          path,
+        ) as (typeof FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS)[number],
+      ),
+  );
 }

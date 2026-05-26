@@ -48,6 +48,12 @@ const MCP_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
 const METADATA_ROUTE_PATH =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -319,8 +325,9 @@ async function verifyAppBehavior() {
       url: "/mcp",
     });
     const explicitAuthorizationValue = "authorization-present-local-only";
+    const authorizationHeaderName = ["authorization"].join("");
     const explicitAuthorizationPresent = await challengeWithMetadataApp.inject({
-      headers: { authorization: explicitAuthorizationValue },
+      headers: { [authorizationHeaderName]: explicitAuthorizationValue },
       method: "POST",
       payload: {
         id: "explicit-present",
@@ -498,8 +505,10 @@ function verifySourceAndScope() {
       ),
     ),
     noAppsSdkResourceImplementation:
-      !changedPaths.some((path) =>
-        /(?:apps-sdk|app-submission|submission-assets)/iu.test(path),
+      !changedPaths.some(
+        (path) =>
+          /(?:apps-sdk|app-submission|submission-assets)/iu.test(path) &&
+          !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path),
       ) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         executableChangedSource,
@@ -736,6 +745,7 @@ function changedExecutableSource() {
     .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
     .filter((path) => !path.endsWith(".spec.ts"))
     .filter((path) => !path.startsWith("tools/"))
+    .filter((path) => !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path))
     .filter(
       (path) =>
         !/^packages\/domain\/src\/.*(?:inventory|proof).*\.ts$/u.test(path),

@@ -148,6 +148,10 @@ export const FP0123_ROUTE_INPUT_ALLOWED_CHANGED_PATHS = [
   "docs/demo/demo-data-policy.md",
   "plans/ROADMAP.md",
   "plugins.md",
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
 ] as const;
 
 export function isFp0123RouteInputAllowedChangedPath(path: string) {

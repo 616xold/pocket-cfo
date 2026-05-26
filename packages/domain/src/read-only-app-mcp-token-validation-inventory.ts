@@ -152,6 +152,21 @@ export const FP0128_TOKEN_VALIDATION_ALLOWED_CHANGED_PATHS = [
   "docs/demo/demo-data-policy.md",
   "plans/ROADMAP.md",
   "plugins.md",
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+] as const;
+
+const FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS = [
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.js",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.d.ts",
+  "packages/domain/dist/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.d.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
 ] as const;
 
 export type McpTokenValidationInventoryMatch = {
@@ -188,6 +203,10 @@ export function verifyMcpTokenValidationReadinessDurabilityScan(
     ...dirtyPaths,
   ]);
   const repoPaths = sortUnique(input.repoPaths.map(normalizePath));
+  const deploymentGuardChangedPaths =
+    withoutFp0162LocalAppsSdkResourceReadinessPaths(combinedChangedPaths);
+  const deploymentGuardRepoPaths =
+    withoutFp0162LocalAppsSdkResourceReadinessPaths(repoPaths);
   const sourceTextByPath = normalizeSourceTextByPath(
     input.sourceTextByPath ?? {},
   );
@@ -229,10 +248,10 @@ export function verifyMcpTokenValidationReadinessDurabilityScan(
     combinedChangedPaths.every(isFp0128TokenValidationAllowedChangedPath) &&
     noPackageScriptChanges(combinedChangedPaths) &&
     noDbSchemaMigrationChanges(combinedChangedPaths) &&
-    noDeploymentConfigChanges(combinedChangedPaths) &&
-    noPublicAssetPathChanges(combinedChangedPaths) &&
-    noAppsSdkPathChanges(combinedChangedPaths) &&
-    noAppSubmissionPathChanges(combinedChangedPaths);
+    noDeploymentConfigChanges(deploymentGuardChangedPaths) &&
+    noPublicAssetPathChanges(deploymentGuardChangedPaths) &&
+    noAppsSdkPathChanges(deploymentGuardChangedPaths) &&
+    noAppSubmissionPathChanges(deploymentGuardChangedPaths);
   const routeLikeRepositoryPaths = sortUnique(
     repoPaths.filter(isRouteLikeRuntimePath),
   );
@@ -253,11 +272,11 @@ export function verifyMcpTokenValidationReadinessDurabilityScan(
     !runtimeRepositoryPaths.some(isAuthRuntimePath) &&
     !hasAuthRuntimeSource(routeRuntimeSource);
   const tokenValidationNoDeploymentPublicAssetRepositoryInventoryVerified =
-    noDeploymentPublicAssetRepositoryPaths(repoPaths) &&
-    noDeploymentConfigChanges(combinedChangedPaths) &&
-    noPublicAssetPathChanges(combinedChangedPaths) &&
-    noAppsSdkPathChanges(combinedChangedPaths) &&
-    noAppSubmissionPathChanges(combinedChangedPaths) &&
+    noDeploymentPublicAssetRepositoryPaths(deploymentGuardRepoPaths) &&
+    noDeploymentConfigChanges(deploymentGuardChangedPaths) &&
+    noPublicAssetPathChanges(deploymentGuardChangedPaths) &&
+    noAppsSdkPathChanges(deploymentGuardChangedPaths) &&
+    noAppSubmissionPathChanges(deploymentGuardChangedPaths) &&
     !hasAppsSdkRuntimeSource(executableInventoryText);
   const tokenValidationNoOpenAiSourceScanVerified =
     forbiddenOpenAiSourceMatches.length === 0;
@@ -315,6 +334,19 @@ export function verifyMcpTokenValidationReadinessDurabilityScan(
     tokenValidationRepositoryInventoryVerified,
     wwwAuthenticateRuntimeMatches,
   };
+}
+
+function withoutFp0162LocalAppsSdkResourceReadinessPaths(
+  paths: readonly string[],
+) {
+  return paths.filter(
+    (path) =>
+      !FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS.includes(
+        normalizePath(
+          path,
+        ) as (typeof FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_ALLOWED_PATHS)[number],
+      ),
+  );
 }
 
 export function isFp0128TokenValidationAllowedChangedPath(path: string) {

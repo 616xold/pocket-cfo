@@ -38,6 +38,12 @@ const FP0106_PLAN =
   "plans/FP-0106-read-only-chatgpt-app-mcp-protocol-envelope-tool-dispatch-proof-contracts.md";
 const FP0100_PLAN =
   "plans/FP-0100-read-only-chatgpt-app-mcp-public-app-security-boundary-contracts-foundation.md";
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 const APP_PATH = "apps/control-plane/src/app.ts";
 const TYPES_PATH = "apps/control-plane/src/lib/types.ts";
 const ROUTE_PATH =
@@ -799,9 +805,7 @@ function fp0112ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceImplementation) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -833,9 +837,7 @@ function fp0113ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceImplementation) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -903,6 +905,13 @@ function durableNoApiModelKeyScan() {
     noOpenAiApiCalls,
     noOpenAiClientOrKeyUsage,
   };
+}
+
+function pathLooksLikeAppsSdkResourceImplementation(path) {
+  return (
+    /apps-sdk|app-submission|submission-assets|iframe/iu.test(path) &&
+    !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path)
+  );
 }
 
 function isDurableScanPath(path) {
