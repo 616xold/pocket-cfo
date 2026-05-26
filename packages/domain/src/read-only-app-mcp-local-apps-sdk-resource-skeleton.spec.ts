@@ -3,8 +3,10 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH,
+  FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
+  verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
+  verifyFp0165Absent,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
-  verifyFp0164Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   LOCAL_APPS_SDK_RESOURCE_MIME_TYPE,
@@ -21,6 +23,8 @@ import {
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
 const skeletonModulePath =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts";
+const skeletonRuntimeModulePath =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts";
 const readinessProofPath =
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
 const skeletonProofPath =
@@ -30,10 +34,13 @@ const controlPlaneMcpRoutePath =
 const previewRoutePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
 
 describe("FP-0163 local Apps SDK resource skeleton", () => {
-  it("accepts exactly one FP-0163 skeleton plan and keeps FP-0164 absent", () => {
+  it("accepts exactly one FP-0163 skeleton plan, the exact FP-0164 registration successor, and keeps FP-0165 absent", () => {
     const repoPaths = repoFilePaths();
     const repoPathsWithoutFp0163 = repoPaths.filter(
       (path) => !/(^|\/)FP-0163/u.test(path),
+    );
+    const repoPathsWithoutFp0164 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0164/u.test(path),
     );
 
     expect(
@@ -56,8 +63,25 @@ describe("FP-0163 local Apps SDK resource skeleton", () => {
         "plans/FP-0163-register-resource.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0164Absent(repoPaths)).toBe(true);
-    expect(verifyFp0164Absent([...repoPaths, "plans/FP-0164-runtime.md"])).toBe(
+    expect(
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan([
+        ...repoPathsWithoutFp0164,
+        FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
+      ]),
+    ).toBe(true);
+    expect(
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan([
+        ...repoPathsWithoutFp0164,
+        "plans/FP-0164-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0165Absent(repoPaths)).toBe(true);
+    expect(verifyFp0165Absent([...repoPaths, "plans/FP-0165-runtime.md"])).toBe(
       false,
     );
   });
@@ -96,8 +120,11 @@ describe("FP-0163 local Apps SDK resource skeleton", () => {
     expect(resource._meta["openai/widgetDescription"]).toContain("Read-only");
     expect(resource._meta["openai/widgetDescription"]).toContain("synthetic");
     expect(resource._meta["openai/widgetDescription"]).toContain("local");
+    expect(resource._meta["openai/widgetDescription"]).toContain(
+      "No public app submission",
+    );
     expect(resource._meta["openai/widgetDescription"]).not.toMatch(
-      /market|launch|submit|install|try now|sign up/iu,
+      /market|launch|install|try now|sign up/iu,
     );
   });
 
@@ -154,19 +181,23 @@ describe("FP-0163 local Apps SDK resource skeleton", () => {
 
   it("does not add runtime registration, route, output template, render tool, component bundle, public asset, provider, OpenAI, auth, or write behavior", () => {
     const skeletonSource = safeRead(skeletonModulePath);
+    const runtimeSource = safeRead(skeletonRuntimeModulePath);
     const routeSource = safeRead(controlPlaneMcpRoutePath);
     const previewRouteSource = safeRead(previewRoutePath);
     const proofSource = [safeRead(readinessProofPath), safeRead(skeletonProofPath)]
       .join("\n")
       .toLowerCase();
 
-    expect(skeletonSource).not.toMatch(
+    expect(runtimeSource).not.toMatch(
       /from "react"|from "next|node:fs|readFile|readdir|fetch\(|buildApp\(|createContainer\(|new OpenAI|providerClient|decodeJwt|jwtDecode|fetchJwks|introspectToken|oauthCallback|sessionStore/u,
     );
+    expect(skeletonSource).toContain(
+      "read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime",
+    );
     expect(routeSource).not.toMatch(/registerResource\s*\(/u);
-    expect(skeletonSource).not.toMatch(/registerResource\s*\(/u);
-    expect(skeletonSource).not.toMatch(/openai\/outputTemplate/u);
-    expect(skeletonSource).not.toMatch(/\bcallTool\b|uploadFile|selectFiles/u);
+    expect(runtimeSource).not.toMatch(/registerResource\s*\(/u);
+    expect(runtimeSource).not.toMatch(/openai\/outputTemplate/u);
+    expect(runtimeSource).not.toMatch(/\bcallTool\b|uploadFile|selectFiles/u);
     expect(previewRouteSource).not.toMatch(/\bfetch\s*\(|["']\/mcp["']/u);
     expect(proofSource).toContain("registerresource");
     expect(proofSource).toContain("componentbundle");
@@ -183,6 +214,11 @@ describe("FP-0163 local Apps SDK resource skeleton", () => {
 
     expect(proof.appsSdkResourceSkeletonImplemented).toBe(true);
     expect(proof.registerResourceImplementationStillBlocked).toBe(true);
+    expect(
+      proof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0165Absent).toBe(true);
+    expect(proof.runtimeSafeSkeletonBuilderIsolated).toBe(true);
     expect(proof.resourceRegistrationStillBlocked).toBe(true);
     expect(proof.outputTemplateImplementationStillBlocked).toBe(true);
     expect(proof.noProductionTokenValidationFromFp0163).toBe(true);

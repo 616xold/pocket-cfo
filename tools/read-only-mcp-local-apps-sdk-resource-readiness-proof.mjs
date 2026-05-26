@@ -17,6 +17,8 @@ const FP0162_PLAN_PATH =
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
 const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
+const FP0164_PLAN_PATH =
+  "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
 const FP0161_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
 const FP0160_PROOF_PATH =
@@ -27,6 +29,14 @@ const READINESS_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts";
 const SKELETON_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts";
+const SKELETON_RUNTIME_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts";
+const REGISTRATION_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts";
+const REGISTRATION_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts";
+const REGISTRATION_PROOF_PATH =
+  "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs";
 const PREVIEW_ROUTE_PATH =
   "apps/web/app/read-only-app-mcp-preview/page.tsx";
 const BRIDGE_COMPONENT_PATH =
@@ -46,6 +56,7 @@ const allowedChangedPaths = new Set([
   FP0161_PLAN_PATH,
   FP0162_PLAN_PATH,
   FP0163_PLAN_PATH,
+  FP0164_PLAN_PATH,
   FP0161_PROOF_PATH,
   FP0160_PROOF_PATH,
   FP0159_PROOF_PATH,
@@ -62,10 +73,14 @@ const allowedChangedPaths = new Set([
   "tools/read-only-public-app-security-boundary-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
+  REGISTRATION_PROOF_PATH,
   READINESS_MODULE_PATH,
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
   SKELETON_MODULE_PATH,
+  SKELETON_RUNTIME_MODULE_PATH,
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  REGISTRATION_MODULE_PATH,
+  REGISTRATION_SPEC_PATH,
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.ts",
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
@@ -112,7 +127,9 @@ const output = {
     readinessProof.fp0162AbsentOrLocalAppsSdkResourceReadinessPlanVerified,
   fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
     readinessProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified,
-  fp0164Absent: readinessProof.fp0164Absent,
+  fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
+    readinessProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
+  fp0165Absent: readinessProof.fp0165Absent,
   localAppsSdkResourceReadinessBoundaryVerified:
     verifyReadOnlyMcpLocalAppsSdkResourceReadinessBoundary({
       changedPathScopeAccepted: pathScope.changedPathScopeAccepted,
@@ -129,7 +146,7 @@ const output = {
     sourceScope.noAppsSdkResourceRuntime,
   registerResourceImplementationStillBlocked:
     readinessProof.registerResourceImplementationStillBlocked &&
-    sourceScope.noRegisterResourceImplementation,
+    sourceScope.noDefaultRegisterResourceWiring,
   toolDescriptorImplementationStillBlocked:
     readinessProof.toolDescriptorImplementationStillBlocked &&
     sourceScope.noToolDescriptorImplementation,
@@ -254,8 +271,21 @@ function verifySourceScope() {
   const changedText = readChangedLeakageText(changedPaths);
   const changedTextNoLeakage = scanProofOnlyNoTokenLeakageText(changedText).accepted;
   const runtimeSource = normalize(runtimePreviewSource);
+  const routeRuntimeSource = [
+    safeRead("apps/control-plane/src/app.ts"),
+    safeRead("apps/control-plane/src/container.ts"),
+    safeRead("apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts"),
+  ].join("\n");
   const nonPlanChangedPaths = changedPaths.filter(
-    (path) => !path.endsWith(".md") && path !== FP0161_PROOF_PATH,
+    (path) =>
+      !path.endsWith(".md") &&
+      path !== FP0161_PROOF_PATH &&
+      path !== REGISTRATION_PROOF_PATH &&
+      path !== REGISTRATION_MODULE_PATH &&
+      path !== REGISTRATION_SPEC_PATH &&
+      path !== SKELETON_RUNTIME_MODULE_PATH &&
+      path !== SKELETON_MODULE_PATH &&
+      path !== "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   );
 
   return {
@@ -285,8 +315,8 @@ function verifySourceScope() {
     noLiveMcpFetchFromPreviewUi:
       !/\bfetch\s*\(/u.test(runtimePreviewSource) &&
       !/["']\/mcp["']/u.test(runtimePreviewSource),
-    noRegisterResourceImplementation:
-      !/registerResource\s*\(/u.test(readinessModuleSource + runtimePreviewSource),
+    noDefaultRegisterResourceWiring:
+      !/registerResource\s*\(/u.test(routeRuntimeSource + runtimePreviewSource),
     noToolDescriptorImplementation:
       !/openai\/outputTemplate|_meta\s*:\s*\{\s*ui|annotations\s*:\s*\{\s*readOnlyHint/u.test(readinessModuleSource),
     noWindowOpenAiUsageFromFp0162:

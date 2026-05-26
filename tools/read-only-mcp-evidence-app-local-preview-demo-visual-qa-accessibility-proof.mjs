@@ -7,7 +7,8 @@ import {
   verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan,
   verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
-  verifyFp0164Absent,
+  verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
+  verifyFp0165Absent,
 } from "../packages/domain/src/index.ts";
 
 const SCHEMA_VERSION =
@@ -25,6 +26,8 @@ const FP0162_PLAN_PATH =
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
 const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
+const FP0164_PLAN_PATH =
+  "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
 const FP0162_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
 const FP0163_PROOF_PATH =
@@ -85,8 +88,11 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
@@ -98,6 +104,8 @@ const allowedChangedPaths = new Set([
   FP0163_PROOF_PATH,
   FP0162_PLAN_PATH,
   FP0163_PLAN_PATH,
+  FP0164_PLAN_PATH,
+  "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs",
 ]);
 
 const repoPaths = repoFilePaths();
@@ -138,7 +146,9 @@ const output = {
     planScope.fp0162PlanAccepted,
   fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
     planScope.fp0163PlanAccepted,
-  fp0164Absent: planScope.fp0164Absent,
+  fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
+    planScope.fp0164PlanAccepted,
+  fp0165Absent: planScope.fp0165Absent,
   localPreviewDemoVisualQaAccessibilityBoundaryVerified:
     planScope.visualQaAccessibilityOnly &&
     accessibilityScope.bridgeSectionLabelledByStableHeading &&
@@ -294,7 +304,11 @@ function verifyPlanScope() {
       ),
     fp0163PlanAccepted:
       verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan(repoPaths),
-    fp0164Absent: verifyFp0164Absent(repoPaths),
+    fp0164PlanAccepted:
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
+        repoPaths,
+      ),
+    fp0165Absent: verifyFp0165Absent(repoPaths),
     visualQaAccessibilityOnly: includesAll(normalizedPlan, [
       "visual qa/accessibility hardening is included",
       "local-only and screenshotless",

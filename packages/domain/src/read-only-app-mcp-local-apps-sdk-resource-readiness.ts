@@ -2,7 +2,8 @@ import {
   FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH,
   verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
-  verifyFp0164Absent,
+  verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
+  verifyFp0165Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   scanProofOnlyNoTokenLeakageText,
@@ -89,7 +90,11 @@ export function buildReadOnlyMcpLocalAppsSdkResourceReadinessProof(
       verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan(repoPaths),
     fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified:
       verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan(repoPaths),
-    fp0164Absent: verifyFp0164Absent(repoPaths),
+    fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
+        repoPaths,
+      ),
+    fp0165Absent: verifyFp0165Absent(repoPaths),
     localAppsSdkResourceReadinessBoundaryVerified:
       Object.values(topics).every(Boolean) && input.changedPathScopeAccepted !== false,
     appsSdkResourceImplementationStillBlocked:

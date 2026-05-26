@@ -44,6 +44,7 @@ import {
   FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH,
   FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH,
   FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH,
+  FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
   buildFp0146AuthorizationParserContractsProviderSelectionProof,
   buildFp0146SanitizedParserOutputContract,
   verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
@@ -70,6 +71,8 @@ import {
   verifyFp0163Absent,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
   verifyFp0164Absent,
+  verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
+  verifyFp0165Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -317,8 +320,37 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
         "plans/FP-0163-runtime.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0164Absent(repoPaths)).toBe(true);
+    const repoPathsWithoutFp0164 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0164/u.test(path),
+    );
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0164/u.test(path))).toEqual([
+      FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
+    ]);
+    expect(verifyFp0164Absent(repoPathsWithoutFp0164)).toBe(true);
+    expect(verifyFp0164Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan([
+        ...repoPathsWithoutFp0164,
+        FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
+      ]),
+    ).toBe(true);
     expect(verifyFp0164Absent([...repoPaths, "plans/FP-0164-runtime.md"])).toBe(
+      false,
+    );
+    expect(
+      verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan([
+        ...repoPaths,
+        "plans/FP-0164-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0165Absent(repoPaths)).toBe(true);
+    expect(verifyFp0165Absent([...repoPaths, "plans/FP-0165-runtime.md"])).toBe(
       false,
     );
   });

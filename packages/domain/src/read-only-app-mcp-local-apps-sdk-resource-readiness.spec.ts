@@ -17,6 +17,7 @@ import {
 } from "./read-only-app-mcp-local-apps-sdk-resource-readiness";
 import {
   FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH,
+  FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   scanProofOnlyNoTokenLeakageText,
@@ -35,10 +36,13 @@ const bridgeComponentPath =
   "apps/web/components/read-only-app-mcp/local-preview-demo-bridge.tsx";
 
 describe("FP-0162 local Apps SDK resource readiness boundary", () => {
-  it("accepts exactly one FP-0162 readiness path and only the exact FP-0163 skeleton successor", () => {
+  it("accepts exactly one FP-0162 readiness path and exact FP-0163/FP-0164 successors", () => {
     const repoPaths = repoFilePaths();
     const repoPathsWithoutFp0163 = repoPaths.filter(
       (path) => !/(^|\/)FP-0163/u.test(path),
+    );
+    const repoPathsWithoutFp0164 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0164/u.test(path),
     );
     const fp0162Hits = repoPaths.filter((path) => /(^|\/)FP-0162/u.test(path));
     const fp0162PlanText = safeRead(FP0162_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH);
@@ -84,7 +88,18 @@ describe("FP-0162 local Apps SDK resource readiness boundary", () => {
         fp0161PlanText: safeRead(fp0161PlanPath),
         fp0161SuccessorPathScopeHardened: true,
         fp0162PlanText,
-        repoPaths: [...repoPaths, "plans/FP-0164-resource-registration.md"],
+        repoPaths: [
+          ...repoPathsWithoutFp0164,
+          FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
+        ],
+      }),
+    ).toBe(true);
+    expect(
+      verifyReadOnlyMcpLocalAppsSdkResourceReadinessBoundary({
+        fp0161PlanText: safeRead(fp0161PlanPath),
+        fp0161SuccessorPathScopeHardened: true,
+        fp0162PlanText,
+        repoPaths: [...repoPathsWithoutFp0164, "plans/FP-0164-runtime.md"],
       }),
     ).toBe(false);
   });
@@ -176,6 +191,10 @@ describe("FP-0162 local Apps SDK resource readiness boundary", () => {
     });
 
     expect(proof.localAppsSdkResourceReadinessBoundaryVerified).toBe(true);
+    expect(
+      proof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0165Absent).toBe(true);
     expect(proof.appsSdkResourceImplementationStillBlocked).toBe(true);
     expect(proof.registerResourceImplementationStillBlocked).toBe(true);
     expect(proof.mcpResourceTemplateImplementationStillBlocked).toBe(true);
