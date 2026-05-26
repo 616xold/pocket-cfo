@@ -5,7 +5,8 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import {
   scanProofOnlyNoTokenLeakageText,
   verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan,
-  verifyFp0162Absent,
+  verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan,
+  verifyFp0163Absent,
 } from "../packages/domain/src/index.ts";
 
 const SCHEMA_VERSION =
@@ -57,7 +58,15 @@ const allowedChangedPaths = new Set([
   FP0159_PROOF_PATH,
   "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
+  "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
+  "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
+  "tools/read-only-mcp-protected-resource-metadata-local-route-proof.mjs",
+  "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
+  "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
+  "tools/read-only-endpoint-architecture-proof.mjs",
+  "tools/read-only-endpoint-route-ownership-proof.mjs",
+  "tools/read-only-public-app-security-boundary-proof.mjs",
   "tools/read-only-chatgpt-app-mcp-proof.mjs",
   "tools/benchmark-community-pack-proof.mjs",
   "packages/domain/src/benchmark-community.spec.ts",
@@ -65,7 +74,15 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts",
   "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.ts",
   "packages/domain/src/read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
+  "packages/domain/src/index.ts",
   "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
 ]);
 
 const repoPaths = repoFilePaths();
@@ -102,7 +119,9 @@ const output = {
   schemaVersion: SCHEMA_VERSION,
   fp0161AbsentOrLocalPreviewDemoVisualQaAccessibilityPlanVerified:
     planScope.fp0161PlanAccepted,
-  fp0162Absent: planScope.fp0162Absent,
+  fp0162AbsentOrLocalAppsSdkResourceReadinessPlanVerified:
+    planScope.fp0162PlanAccepted,
+  fp0163Absent: planScope.fp0163Absent,
   localPreviewDemoVisualQaAccessibilityBoundaryVerified:
     planScope.visualQaAccessibilityOnly &&
     accessibilityScope.bridgeSectionLabelledByStableHeading &&
@@ -252,7 +271,11 @@ function verifyPlanScope() {
       verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan(
         repoPaths,
       ),
-    fp0162Absent: verifyFp0162Absent(repoPaths),
+    fp0162PlanAccepted:
+      verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan(
+        repoPaths,
+      ),
+    fp0163Absent: verifyFp0163Absent(repoPaths),
     visualQaAccessibilityOnly: includesAll(normalizedPlan, [
       "visual qa/accessibility hardening is included",
       "local-only and screenshotless",
@@ -674,11 +697,19 @@ function runJsonTool(path) {
 }
 
 function changedFilePathScope() {
-  const tracked = gitLines(["diff", "--name-only", "HEAD"]);
+  const committedBranchDiffPaths = gitLines([
+    "diff",
+    "--name-only",
+    "origin/main...HEAD",
+  ]);
+  const unstaged = gitLines(["diff", "--name-only"]);
+  const staged = gitLines(["diff", "--name-only", "--cached"]);
   const untracked = gitLines(["ls-files", "--others", "--exclude-standard"]);
-  const combinedChangedPaths = [...new Set([...tracked, ...untracked])].sort();
+  const combinedChangedPaths = [
+    ...new Set([...committedBranchDiffPaths, ...unstaged, ...staged, ...untracked]),
+  ].sort();
 
-  return { combinedChangedPaths, tracked, untracked };
+  return { combinedChangedPaths, committedBranchDiffPaths, unstaged, staged, untracked };
 }
 
 function gitLines(args) {

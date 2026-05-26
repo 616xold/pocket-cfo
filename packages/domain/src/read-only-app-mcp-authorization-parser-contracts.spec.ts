@@ -42,6 +42,7 @@ import {
   FP0158_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_DEMO_BRIDGE_PLAN_PATH,
   FP0159_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_READINESS_PLAN_PATH,
   FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH,
+  FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH,
   buildFp0146AuthorizationParserContractsProviderSelectionProof,
   buildFp0146SanitizedParserOutputContract,
   verifyFp0146AbsentOrParserContractProviderSelectionProofPlan,
@@ -64,6 +65,8 @@ import {
   verifyFp0161Absent,
   verifyFp0161AbsentOrReadOnlyMcpEvidenceAppLocalPreviewDemoVisualQaAccessibilityPlan,
   verifyFp0162Absent,
+  verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan,
+  verifyFp0163Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 
 const repoRoot = fileURLToPath(new URL("../../../", import.meta.url));
@@ -265,8 +268,28 @@ describe("FP-0146 Authorization parser contract and provider-selection proof", (
         [...repoPaths, "plans/FP-0161-runtime.md"],
       ),
     ).toBe(false);
-    expect(verifyFp0162Absent(repoPaths)).toBe(true);
-    expect(verifyFp0162Absent([...repoPaths, "plans/FP-0162-runtime.md"])).toBe(
+    const repoPathsWithoutFp0162 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0162/u.test(path),
+    );
+
+    expect(repoPaths.filter((path) => /(^|\/)FP-0162/u.test(path))).toEqual([
+      FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH,
+    ]);
+    expect(verifyFp0162Absent(repoPathsWithoutFp0162)).toBe(true);
+    expect(verifyFp0162Absent(repoPaths)).toBe(false);
+    expect(
+      verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan([
+        ...repoPaths,
+        "plans/FP-0162-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0163Absent(repoPaths)).toBe(true);
+    expect(verifyFp0163Absent([...repoPaths, "plans/FP-0163-runtime.md"])).toBe(
       false,
     );
   });

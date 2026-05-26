@@ -89,6 +89,11 @@ export const FP0161_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_VISUAL_QA_ACCE
 export const FP0162_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX =
   "FP-0162";
 
+export const FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH =
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
+
+export const FP0163_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX = "FP-0163";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -697,6 +702,28 @@ export function verifyFp0162Absent(repoPaths: readonly string[]) {
       repoPaths,
       FP0162_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX,
     ).length === 0
+  );
+}
+
+export function verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0162_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_FOLLOWUP_PLAN_PREFIX,
+  );
+  if (hits.length === 0) return true;
+
+  return (
+    hits.length === 1 &&
+    hits[0] === FP0162_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_READINESS_PLAN_PATH
+  );
+}
+
+export function verifyFp0163Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, FP0163_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX).length ===
+    0
   );
 }
 

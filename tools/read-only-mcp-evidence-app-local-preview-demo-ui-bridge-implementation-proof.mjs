@@ -18,6 +18,8 @@ const FP0160_PLAN_PATH =
   FP0160_READ_ONLY_MCP_EVIDENCE_APP_LOCAL_PREVIEW_DEMO_UI_BRIDGE_IMPLEMENTATION_PLAN_PATH;
 const FP0161_PLAN_PATH =
   "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md";
+const FP0162_PLAN_PATH =
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md";
 const READINESS_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-readiness-proof.mjs";
 const READINESS_MODULE_PATH =
@@ -45,6 +47,12 @@ const BRIDGE_STYLES_PATH =
 const BRIDGE_UI_PATH = "apps/web/components/read-only-app-mcp/ui.tsx";
 const VISUAL_QA_ACCESSIBILITY_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
+const LOCAL_APPS_SDK_RESOURCE_READINESS_PROOF_PATH =
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
+const LOCAL_APPS_SDK_RESOURCE_READINESS_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts";
+const LOCAL_APPS_SDK_RESOURCE_READINESS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts";
 const FP0158_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-demo-bridge-proof.mjs";
 const FP0157_PROOF_PATH =
@@ -64,6 +72,7 @@ const allowedChangedPaths = new Set([
   FP0159_PLAN_PATH,
   FP0160_PLAN_PATH,
   FP0161_PLAN_PATH,
+  FP0162_PLAN_PATH,
   READINESS_PROOF_PATH,
   READINESS_MODULE_PATH,
   READINESS_SPEC_PATH,
@@ -86,16 +95,26 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-authorization-parser-app-construction-wiring-proof.mjs",
   "tools/read-only-mcp-authorization-parser-route-integration-implementation-proof.mjs",
   "tools/read-only-mcp-authorization-parser-route-integration-readiness-proof.mjs",
+  "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
   "tools/read-only-mcp-evidence-tool-dispatch-proof.mjs",
   "tools/read-only-mcp-invalid-token-app-wiring-proof.mjs",
   "tools/read-only-mcp-invalid-token-route-integration-sequencing-proof.mjs",
+  "tools/read-only-mcp-protected-resource-metadata-local-route-proof.mjs",
   "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
+  "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
+  "tools/read-only-public-app-security-boundary-proof.mjs",
   "tools/read-only-chatgpt-app-mcp-proof.mjs",
   "tools/benchmark-community-pack-proof.mjs",
   "packages/domain/src/benchmark-community.spec.ts",
   "tools/read-only-mcp-evidence-app-local-preview-demo-ui-bridge-implementation-proof.mjs",
   VISUAL_QA_ACCESSIBILITY_PROOF_PATH,
+  LOCAL_APPS_SDK_RESOURCE_READINESS_PROOF_PATH,
+  LOCAL_APPS_SDK_RESOURCE_READINESS_MODULE_PATH,
+  LOCAL_APPS_SDK_RESOURCE_READINESS_SPEC_PATH,
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
+  "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
 ]);
 
 const repoPaths = repoFilePaths();

@@ -30,6 +30,12 @@ const fp0123RouteInputSourceScanExcludedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
 ]);
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -560,9 +566,7 @@ function fp0110ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceImplementation) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -614,9 +618,7 @@ function fp0112ChangedScopeScan() {
     /\.(?:png|jpe?g|gif|webp|svg|ico|avif|mp4|mov|pdf)$/iu;
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceImplementation) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -679,9 +681,7 @@ function fp0113ChangedScopeScan() {
       ),
     ),
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceImplementation) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -747,9 +747,7 @@ function fp0114ChangedScopeScan() {
       ),
     ),
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceImplementation) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -846,6 +844,13 @@ function noApiModelClientKeyUsage(text) {
     noOpenAiApiCalls,
     noOpenAiClientOrKeyUsage,
   };
+}
+
+function pathLooksLikeAppsSdkResourceImplementation(path) {
+  return (
+    /apps-sdk|app-submission|submission-assets|iframe/iu.test(path) &&
+    !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path)
+  );
 }
 
 function safeRead(path) {

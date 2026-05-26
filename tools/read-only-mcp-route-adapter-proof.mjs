@@ -93,6 +93,12 @@ const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH =
   "plans/FP-0137-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-readiness-master-plan.md";
 const READ_ONLY_MCP_ENDPOINT_RUNTIME_PATH_PATTERN =
   /^apps\/control-plane\/src\/modules\/read-only-app-mcp-endpoint\/(?:routes|service|formatter|schema|evidence-dispatcher)\.ts$/u;
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -927,6 +933,7 @@ function changedFilesAreAllowed() {
     "plans/FP-0159-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-readiness.md",
     "plans/FP-0160-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-ui-bridge-implementation.md",
     "plans/FP-0161-read-only-chatgpt-app-mcp-evidence-app-local-preview-demo-visual-qa-accessibility.md",
+    ...FP0162_ALLOWED_RESOURCE_READINESS_PATHS,
     "apps/web/app/read-only-app-mcp-preview/page.tsx",
     "apps/web/app/read-only-app-mcp-preview/page.spec.tsx",
     "apps/web/components/read-only-app-mcp/index.ts",
@@ -1062,9 +1069,7 @@ function fp0110ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceChange) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -1181,9 +1186,7 @@ function fp0112ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceChange) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -1226,9 +1229,7 @@ function fp0113ChangedScopeScan() {
     .join("\n");
   return {
     noAppsSdkResource:
-      !changedPaths.some((path) =>
-        /apps-sdk|app-submission|submission-assets|iframe/iu.test(path),
-      ) &&
+      !changedPaths.some(pathLooksLikeAppsSdkResourceChange) &&
       !/\b(?:registerResource|ui:\/\/|componentResource|iframe)\b/u.test(
         changedRuntimeSource,
       ),
@@ -1345,6 +1346,13 @@ function changedFilePaths() {
   const tracked = runGit(["diff", "--name-only", "origin/main", "--"]);
   const untracked = runGit(["ls-files", "--others", "--exclude-standard"]);
   return [...new Set([...tracked, ...untracked].filter(Boolean))].sort();
+}
+
+function pathLooksLikeAppsSdkResourceChange(path) {
+  return (
+    /apps-sdk|app-submission|submission-assets|iframe/iu.test(path) &&
+    !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path)
+  );
 }
 
 function repoFilePaths() {

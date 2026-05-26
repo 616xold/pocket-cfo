@@ -70,6 +70,12 @@ const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PLAN_PATH =
   "plans/FP-0137-read-only-chatgpt-app-mcp-invalid-token-challenge-implementation-readiness-master-plan.md";
 const FP0137_INVALID_TOKEN_CHALLENGE_IMPLEMENTATION_READINESS_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-implementation-readiness-proof.mjs";
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -376,7 +382,8 @@ function changedRuntimeSurfaceBoundary() {
           path,
         ) &&
         !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) &&
-        !isAllowedFp0160LocalPreviewDemoUiBridgePath(path),
+        !isAllowedFp0160LocalPreviewDemoUiBridgePath(path) &&
+        !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path),
     )
     .filter((path) =>
       [
@@ -458,6 +465,7 @@ function isAllowedMcpProtocolProofPath(path) {
     path === "tools/read-only-mcp-remote-host-readiness-proof.mjs" ||
     path === "tools/read-only-mcp-protocol-envelope-proof.mjs" ||
     path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
+    FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path) ||
     path === "tools/read-only-endpoint-architecture-proof.mjs" ||
     path === "tools/read-only-public-app-security-boundary-proof.mjs" ||
     path === "tools/read-only-mcp-descriptor-response-envelope-proof.mjs" ||

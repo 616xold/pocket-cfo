@@ -84,6 +84,12 @@ const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PLAN_PATH =
   "plans/FP-0141-read-only-chatgpt-app-mcp-invalid-token-challenge-local-runtime-implementation.md";
 const FP0141_INVALID_TOKEN_CHALLENGE_LOCAL_RUNTIME_PROOF_PATH =
   "tools/read-only-mcp-invalid-token-challenge-local-runtime-proof.mjs";
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -437,7 +443,8 @@ function routeRuntimeChangedFilesBoundary() {
           path,
         ) &&
         !isAllowedFp0125LocalProtectedResourceMetadataRoutePath(path) &&
-        !isAllowedFp0160LocalPreviewDemoUiBridgePath(path),
+        !isAllowedFp0160LocalPreviewDemoUiBridgePath(path) &&
+        !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path),
     )
     .filter((path) =>
       [
@@ -462,6 +469,7 @@ function routeRuntimeChangedFilesBoundary() {
       return false;
     }
     if (isAllowedFp0160LocalPreviewDemoUiBridgePath(path)) return false;
+    if (FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path)) return false;
     if (!isRuntimeCandidate(path)) return false;
     const source = readFileSync(path, "utf8");
     return routeRuntimeMarkerPatterns().some((pattern) => pattern.test(source));
@@ -820,6 +828,7 @@ function isAllowedEndpointProofPlanPath(path) {
     path === "tools/read-only-endpoint-architecture-proof.mjs" ||
     path === "tools/read-only-endpoint-route-ownership-proof.mjs" ||
     path === "tools/read-only-mcp-oauth-implementation-sequencing-proof.mjs" ||
+    FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path) ||
     path === FP0128_TOKEN_VALIDATION_READINESS_PROOF_PATH ||
     path === FP0130_WWW_AUTHENTICATE_MISSING_TOKEN_CHALLENGE_PROOF_PATH ||
     path === FP0131_TOKEN_VALIDATION_RUNTIME_SEQUENCING_PROOF_PATH ||

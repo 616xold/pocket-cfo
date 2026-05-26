@@ -82,6 +82,12 @@ const ROUTE_MODULE =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/protected-resource-metadata-route.ts";
 const MCP_ROUTE_MODULE =
   "apps/control-plane/src/modules/read-only-app-mcp-endpoint/routes.ts";
+const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
+  "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
+  "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
+]);
 
 const repoPaths = repoFilePaths();
 const changedPaths = changedFilePaths();
@@ -93,6 +99,7 @@ const executableChangedSource = changedPaths
   .filter((path) => /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path))
   .filter((path) => !path.endsWith(".spec.ts"))
   .filter((path) => !path.startsWith("tools/"))
+  .filter((path) => !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path))
   .map(safeRead)
   .join("\n");
 
@@ -777,10 +784,11 @@ function verifyRepositoryBoundaries() {
       ),
     ),
     noAppsSdkResourceImplementation:
-      !changedPaths.some((path) =>
-        /(?:apps-sdk|appssdk|app-submission|submission-assets|iframe|component-resource)/iu.test(
-          path,
-        ),
+      !changedPaths.some(
+        (path) =>
+          /(?:apps-sdk|appssdk|app-submission|submission-assets|iframe|component-resource)/iu.test(
+            path,
+          ) && !FP0162_ALLOWED_RESOURCE_READINESS_PATHS.has(path),
       ) &&
       !/\b(?:registerResource|componentResource|iframe)\s*\(/u.test(
         routeSource,
