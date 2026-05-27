@@ -221,7 +221,10 @@ describe("FP-0162 local Apps SDK resource readiness boundary", () => {
     expect(
       proof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
     ).toBe(true);
-    expect(proof.fp0166Absent).toBe(true);
+    expect(
+      proof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0167Absent).toBe(true);
     expect(proof.appsSdkResourceImplementationStillBlocked).toBe(true);
     expect(proof.registerResourceImplementationStillBlocked).toBe(true);
     expect(proof.mcpResourceTemplateImplementationStillBlocked).toBe(true);

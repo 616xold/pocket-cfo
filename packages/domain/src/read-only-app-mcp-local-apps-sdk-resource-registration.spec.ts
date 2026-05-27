@@ -4,9 +4,12 @@ import { describe, expect, it } from "vitest";
 import {
   FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
   FP0165_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PLAN_PATH,
+  FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
   verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
   verifyFp0166Absent,
+  verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan,
+  verifyFp0167Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   LOCAL_APPS_SDK_RESOURCE_MIME_TYPE,
@@ -44,13 +47,16 @@ const controlPlaneRoutesPath =
 const previewRoutePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
 
 describe("FP-0164 local Apps SDK resource registration", () => {
-  it("accepts exactly one FP-0164 registration plan, exact FP-0165 readiness, and keeps FP-0166 absent", () => {
+  it("accepts exact FP-0164/FP-0165 records and exact FP-0166 successor skeleton planning", () => {
     const repoPaths = repoFilePaths();
     const repoPathsWithoutFp0164 = repoPaths.filter(
       (path) => !/(^|\/)FP-0164/u.test(path),
     );
     const repoPathsWithoutFp0165 = repoPaths.filter(
       (path) => !/(^|\/)FP-0165/u.test(path),
+    );
+    const repoPathsWithoutFp0166 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0166/u.test(path),
     );
 
     expect(repoPaths.filter((path) => /(^|\/)FP-0164/u.test(path))).toEqual([
@@ -90,7 +96,31 @@ describe("FP-0164 local Apps SDK resource registration", () => {
         "plans/FP-0165-render-tool.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0166Absent(repoPaths)).toBe(true);
+    expect(verifyFp0166Absent(repoPathsWithoutFp0166)).toBe(true);
+    expect(
+      verifyFp0166Absent([
+        ...repoPathsWithoutFp0166,
+        FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH,
+      ]),
+    ).toBe(false);
+    expect(
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan([
+        ...repoPathsWithoutFp0166,
+        FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH,
+      ]),
+    ).toBe(true);
+    expect(
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan([
+        ...repoPathsWithoutFp0166,
+        "plans/FP-0166-render-tool-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0167Absent(repoPaths)).toBe(true);
   });
 
   it("keeps the runtime-safe skeleton builder isolated from proof and app runtime imports", () => {
@@ -283,9 +313,9 @@ describe("FP-0164 local Apps SDK resource registration", () => {
       fp0163CloseoutFresh: true,
       fp0163SuccessorBridgeCompatible: true,
       fp0164PlanVerified: true,
-      fp0165Absent: true,
       fp0165PlanVerified: true,
-      fp0166Absent: true,
+      fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified: true,
+      fp0167Absent: true,
       noAppRuntimeOrRouteWiring: true,
       noToolDescriptorOrRenderTool: true,
       registrationHelperImportsRuntimeSafeBuilder: true,
@@ -301,11 +331,13 @@ describe("FP-0164 local Apps SDK resource registration", () => {
     expect(proof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified).toBe(
       true,
     );
-    expect(proof.fp0165Absent).toBe(true);
     expect(
       proof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
     ).toBe(true);
-    expect(proof.fp0166Absent).toBe(true);
+    expect(
+      proof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0167Absent).toBe(true);
     expect(proof.explicitRegisterResourceHelperImplemented).toBe(true);
     expect(proof.registerResourceCalledExactlyOnceInHelperSpec).toBe(true);
     expect(proof.deterministicLocalResourceNameVerified).toBe(true);
@@ -322,9 +354,9 @@ describe("FP-0164 local Apps SDK resource registration", () => {
         fp0163CloseoutFresh: true,
         fp0163SuccessorBridgeCompatible: true,
         fp0164PlanVerified: true,
-        fp0165Absent: true,
         fp0165PlanVerified: true,
-        fp0166Absent: true,
+        fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified: true,
+        fp0167Absent: true,
         noAppRuntimeOrRouteWiring: true,
         noToolDescriptorOrRenderTool: true,
         registrationHelperImportsRuntimeSafeBuilder: true,

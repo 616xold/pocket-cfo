@@ -109,6 +109,11 @@ export const FP0165_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PLAN_PA
 
 export const FP0166_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX = "FP-0166";
 
+export const FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH =
+  "plans/FP-0166-read-only-chatgpt-app-mcp-local-render-tool-descriptor-skeleton.md";
+
+export const FP0167_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX = "FP-0167";
+
 export const FP0146_PROVIDER_MODE = "provider_neutral_deferred" as const;
 
 export const FP0146_CANDIDATE_PROVIDER_MODES = [
@@ -807,6 +812,29 @@ export function verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadines
 export function verifyFp0166Absent(repoPaths: readonly string[]) {
   return (
     fpPlanHits(repoPaths, FP0166_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX).length ===
+    0
+  );
+}
+
+export function verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+  repoPaths: readonly string[],
+) {
+  const hits = fpPlanHits(
+    repoPaths,
+    FP0166_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX,
+  );
+
+  return (
+    hits.length === 0 ||
+    (hits.length === 1 &&
+      hits[0] ===
+        FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH)
+  );
+}
+
+export function verifyFp0167Absent(repoPaths: readonly string[]) {
+  return (
+    fpPlanHits(repoPaths, FP0167_READ_ONLY_MCP_FOLLOWUP_PLAN_PREFIX).length ===
     0
   );
 }

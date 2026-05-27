@@ -13,7 +13,8 @@ import {
   verifyFp0163CloseoutFreshnessForFp0164,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
   verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
-  verifyFp0166Absent,
+  verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan,
+  verifyFp0167Absent,
   verifyReadOnlyMcpLocalAppsSdkResourceRegistrationBoundary,
 } from "../packages/domain/src/index.ts";
 
@@ -26,6 +27,8 @@ const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
 const FP0165_PLAN_PATH =
   "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
+const FP0166_PLAN_PATH =
+  "plans/FP-0166-read-only-chatgpt-app-mcp-local-render-tool-descriptor-skeleton.md";
 const SKELETON_RUNTIME_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts";
 const SKELETON_MODULE_PATH =
@@ -40,6 +43,14 @@ const RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
 const RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
   "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_RUNTIME_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-skeleton-proof.mjs";
 const REGISTRATION_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs";
 const SKELETON_PROOF_PATH =
@@ -71,6 +82,7 @@ const allowedChangedPaths = new Set([
   FP0163_PLAN_PATH,
   FP0164_PLAN_PATH,
   FP0165_PLAN_PATH,
+  FP0166_PLAN_PATH,
   SKELETON_RUNTIME_MODULE_PATH,
   SKELETON_MODULE_PATH,
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
@@ -81,13 +93,18 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-token-validation-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
+  "packages/domain/src/benchmark-community.spec.ts",
   REGISTRATION_MODULE_PATH,
   REGISTRATION_SPEC_PATH,
   RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
   RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_RUNTIME_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_MODULE_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_SPEC_PATH,
   "packages/domain/src/index.ts",
   REGISTRATION_PROOF_PATH,
   RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_PROOF_PATH,
   SKELETON_PROOF_PATH,
   READINESS_PROOF_PATH,
   VISUAL_QA_PROOF_PATH,
@@ -168,10 +185,11 @@ const domainProofInput = {
     proofBridgeScope.fp0163SuccessorBridgeCompatibilityVerified,
   fp0164PlanVerified:
     planScope.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
-  fp0165Absent: planScope.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
   fp0165PlanVerified:
     planScope.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
-  fp0166Absent: planScope.fp0166Absent,
+  fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+    planScope.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+  fp0167Absent: planScope.fp0167Absent,
   noAppRuntimeOrRouteWiring:
     pathScope.noNewRouteOrApiRouteFromFp0164 &&
     pathScope.noAppWebRuntimeEditFromFp0164,
@@ -195,10 +213,11 @@ const output = {
   schemaVersion: SCHEMA_VERSION,
   fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
     registrationProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
-  fp0165Absent: registrationProof.fp0165Absent,
   fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
     registrationProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
-  fp0166Absent: registrationProof.fp0166Absent,
+  fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+    registrationProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+  fp0167Absent: registrationProof.fp0167Absent,
   localAppsSdkResourceRegistrationBoundaryVerified:
     verifyReadOnlyMcpLocalAppsSdkResourceRegistrationBoundary(
       domainProofInput,
@@ -401,7 +420,11 @@ function verifyPlanScope() {
       verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
         repoPaths,
       ),
-    fp0166Absent: verifyFp0166Absent(repoPaths),
+    fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+        repoPaths,
+      ),
+    fp0167Absent: verifyFp0167Absent(repoPaths),
   };
 }
 
@@ -678,17 +701,20 @@ function verifyProofBridgeScope() {
     fp0163SuccessorBridgeCompatibilityVerified:
       skeletonProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified === true &&
       skeletonProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified === true &&
-      skeletonProof.fp0166Absent === true &&
+      skeletonProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified === true &&
+      skeletonProof.fp0167Absent === true &&
       skeletonProof.runtimeSafeSkeletonBuilderIsolated === true &&
       skeletonProof.registerResourceImplementationStillExplicitOnly === true &&
       skeletonProof.defaultResourceRegistrationStillBlocked === true &&
       skeletonProof.serverResourceRegistrationStillBlocked === true &&
       readinessProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified === true &&
       readinessProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified === true &&
-      readinessProof.fp0166Absent === true &&
+      readinessProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified === true &&
+      readinessProof.fp0167Absent === true &&
       visualQaProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified === true &&
       visualQaProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified === true &&
-      visualQaProof.fp0166Absent === true,
+      visualQaProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified === true &&
+      visualQaProof.fp0167Absent === true,
   };
 }
 

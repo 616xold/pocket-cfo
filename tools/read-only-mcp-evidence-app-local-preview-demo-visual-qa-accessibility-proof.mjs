@@ -9,7 +9,8 @@ import {
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
   verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
-  verifyFp0166Absent,
+  verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan,
+  verifyFp0167Absent,
 } from "../packages/domain/src/index.ts";
 
 const SCHEMA_VERSION =
@@ -31,6 +32,8 @@ const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
 const FP0165_PLAN_PATH =
   "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
+const FP0166_PLAN_PATH =
+  "plans/FP-0166-read-only-chatgpt-app-mcp-local-render-tool-descriptor-skeleton.md";
 const FP0162_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
 const FP0163_PROOF_PATH =
@@ -55,6 +58,14 @@ const RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
 const RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
   "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_RUNTIME_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-skeleton-proof.mjs";
 
 const allowedChangedPaths = new Set([
   "README.md",
@@ -66,6 +77,7 @@ const allowedChangedPaths = new Set([
   "plans/ROADMAP.md",
   "plugins.md",
   FP0165_PLAN_PATH,
+  FP0166_PLAN_PATH,
   FP0160_PLAN_PATH,
   FP0161_PLAN_PATH,
   PREVIEW_ROUTE_PATH,
@@ -105,6 +117,10 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts",
   RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
   RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_RUNTIME_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_MODULE_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_PROOF_PATH,
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
@@ -164,7 +180,9 @@ const output = {
   fp0165Absent: planScope.fp0165Absent,
   fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
     planScope.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
-  fp0166Absent: planScope.fp0166Absent,
+  fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+    planScope.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+  fp0167Absent: planScope.fp0167Absent,
   localPreviewDemoVisualQaAccessibilityBoundaryVerified:
     planScope.visualQaAccessibilityOnly &&
     accessibilityScope.bridgeSectionLabelledByStableHeading &&
@@ -332,7 +350,11 @@ function verifyPlanScope() {
       verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
         repoPaths,
       ),
-    fp0166Absent: verifyFp0166Absent(repoPaths),
+    fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+        repoPaths,
+      ),
+    fp0167Absent: verifyFp0167Absent(repoPaths),
     visualQaAccessibilityOnly: includesAll(normalizedPlan, [
       "visual qa/accessibility hardening is included",
       "local-only and screenshotless",
