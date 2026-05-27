@@ -8,7 +8,8 @@ import {
   verifyFp0162AbsentOrReadOnlyMcpLocalAppsSdkResourceReadinessPlan,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
-  verifyFp0165Absent,
+  verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
+  verifyFp0166Absent,
 } from "../packages/domain/src/index.ts";
 
 const SCHEMA_VERSION =
@@ -28,6 +29,8 @@ const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
 const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
+const FP0165_PLAN_PATH =
+  "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
 const FP0162_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
 const FP0163_PROOF_PATH =
@@ -46,6 +49,12 @@ const BRIDGE_STYLES_PATH =
   "apps/web/components/read-only-app-mcp/styles.ts";
 const BRIDGE_UI_PATH = "apps/web/components/read-only-app-mcp/ui.tsx";
 const BRIDGE_INDEX_PATH = "apps/web/components/read-only-app-mcp/index.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
 
 const allowedChangedPaths = new Set([
   "README.md",
@@ -56,6 +65,7 @@ const allowedChangedPaths = new Set([
   "docs/V2_BOUNDARY.md",
   "plans/ROADMAP.md",
   "plugins.md",
+  FP0165_PLAN_PATH,
   FP0160_PLAN_PATH,
   FP0161_PLAN_PATH,
   PREVIEW_ROUTE_PATH,
@@ -93,6 +103,8 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts",
+  RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
@@ -106,6 +118,7 @@ const allowedChangedPaths = new Set([
   FP0163_PLAN_PATH,
   FP0164_PLAN_PATH,
   "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs",
+  RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH,
 ]);
 
 const repoPaths = repoFilePaths();
@@ -149,6 +162,9 @@ const output = {
   fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
     planScope.fp0164PlanAccepted,
   fp0165Absent: planScope.fp0165Absent,
+  fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
+    planScope.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
+  fp0166Absent: planScope.fp0166Absent,
   localPreviewDemoVisualQaAccessibilityBoundaryVerified:
     planScope.visualQaAccessibilityOnly &&
     accessibilityScope.bridgeSectionLabelledByStableHeading &&
@@ -308,7 +324,15 @@ function verifyPlanScope() {
       verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
         repoPaths,
       ),
-    fp0165Absent: verifyFp0165Absent(repoPaths),
+    fp0165Absent:
+      verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
+        repoPaths,
+      ),
+    fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
+      verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
+        repoPaths,
+      ),
+    fp0166Absent: verifyFp0166Absent(repoPaths),
     visualQaAccessibilityOnly: includesAll(normalizedPlan, [
       "visual qa/accessibility hardening is included",
       "local-only and screenshotless",

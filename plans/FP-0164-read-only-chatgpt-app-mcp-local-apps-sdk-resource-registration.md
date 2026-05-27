@@ -22,7 +22,10 @@ Target phase: V2CF read-only ChatGPT App/MCP local Apps SDK component-resource r
 - [x] 2026-05-26T22:52:00Z - Refreshed only directly stale active docs and `plugins.md` to move the active boundary from FP-0163 skeleton-only to FP-0164 explicit local registration.
 - [x] 2026-05-26T22:55:00Z - Focused validation passed for the FP-0164 domain specs and the direct FP-0164/FP-0163/FP-0162/FP-0161/FP-0160 proof bridge commands before full validation.
 - [x] 2026-05-26T23:24:00Z - Strict same-branch QA and final validation passed. The full proof ladder, focused domain/control-plane specs, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current` were green before closeout. `pnpm ci:repro:current` reproduced the current worktree from PR #342 merge commit `e5daeb6e80001e5aa460aaead96b4d4b6f1a8310` in a temp worktree and passed static build, DB migration, test, and clean-tree gates.
-- [ ] Commit once, push, and open the PR after the required post-closeout validation subset is green.
+- [x] 2026-05-26T23:43:00Z - PR #343 merged with head SHA `3e8edb6a67d4eb8675325dfa27f601bd661e9eda` and merge commit `8f9485d1861e0215c808ee5c623add85aaf70116`.
+- [x] 2026-05-26T23:44:00Z - PR #343 was accidentally merged before same-branch QA fully completed, so same-branch QA continued post-merge-aware on the audited branch/head.
+- [x] 2026-05-26T23:45:00Z - Same-branch QA found no issues and made no correction. Local QA passed including `pnpm ci:repro:current`; GitHub static and integration-db checks were green.
+- [x] 2026-05-26T23:46:00Z - Git and GitHub confirmed origin/main contains the audited branch commit. No standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -201,7 +204,9 @@ FP-0164 implemented the intended narrow slice. The FP-0163 proof-heavy skeleton 
 
 The deterministic local skeleton still returns static sanitized script-free HTML with MIME type `text/html;profile=mcp-app`, `_meta.ui.prefersBorder: true`, empty `_meta.ui.csp.connectDomains`, `resourceDomains`, and `frameDomains`, no public widget domain, no redirect domains, and widget description wording that says read-only, synthetic, local, no production authentication, no real finance data, and no public app submission.
 
-FP-0163 closeout freshness was corrected with PR #342 merge facts, green GitHub checks, and same-branch proof-gate-only compatibility notes. Exact predecessor proof bridges now accept the FP-0164 registration artifacts while continuing to block unrelated runtime/public/default-registration changes. FP-0165 remains absent.
+FP-0163 closeout freshness was corrected with PR #342 merge facts, green GitHub checks, and same-branch proof-gate-only compatibility notes. Exact predecessor proof bridges now accept the FP-0164 registration artifacts while continuing to block unrelated runtime/public/default-registration changes.
+
+PR #343 merged with head SHA `3e8edb6a67d4eb8675325dfa27f601bd661e9eda` and merge commit `8f9485d1861e0215c808ee5c623add85aaf70116`. The PR was accidentally merged before same-branch QA fully completed; same-branch QA continued post-merge-aware on the audited branch/head, found no issues, and made no correction. Local QA passed including `pnpm ci:repro:current`. GitHub static and integration-db checks were green. Git and GitHub confirmed origin/main contains the audited branch commit, so no standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green. FP-0165 may now open only as the separate local render tool descriptor readiness, explicit local resource registration correction, or proof-gate correction successor described above.
 
 No replay event is required because this slice changes only domain helpers, specs, proofs, and documentation/proof freshness. It changes no mission state, source registry state, Finance Twin facts, CFO Wiki facts, finance outputs, reports, approvals, monitor findings, routes, `/mcp` behavior, protected-resource metadata behavior, default containers, DB schema, migrations, package scripts, provider calls, OpenAI API/model calls, source evidence, source files, finance writes, public assets, screenshots, listing copy, app-submission material, external communication, or autonomous action.
 

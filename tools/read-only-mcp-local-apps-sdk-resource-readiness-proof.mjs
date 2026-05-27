@@ -19,6 +19,8 @@ const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
 const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
+const FP0165_PLAN_PATH =
+  "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
 const FP0161_PROOF_PATH =
   "tools/read-only-mcp-evidence-app-local-preview-demo-visual-qa-accessibility-proof.mjs";
 const FP0160_PROOF_PATH =
@@ -35,6 +37,12 @@ const REGISTRATION_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts";
 const REGISTRATION_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
 const REGISTRATION_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs";
 const PREVIEW_ROUTE_PATH =
@@ -57,6 +65,7 @@ const allowedChangedPaths = new Set([
   FP0162_PLAN_PATH,
   FP0163_PLAN_PATH,
   FP0164_PLAN_PATH,
+  FP0165_PLAN_PATH,
   FP0161_PROOF_PATH,
   FP0160_PROOF_PATH,
   FP0159_PROOF_PATH,
@@ -81,6 +90,9 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
   REGISTRATION_MODULE_PATH,
   REGISTRATION_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH,
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.ts",
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
@@ -130,6 +142,9 @@ const output = {
   fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
     readinessProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
   fp0165Absent: readinessProof.fp0165Absent,
+  fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
+    readinessProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
+  fp0166Absent: readinessProof.fp0166Absent,
   localAppsSdkResourceReadinessBoundaryVerified:
     verifyReadOnlyMcpLocalAppsSdkResourceReadinessBoundary({
       changedPathScopeAccepted: pathScope.changedPathScopeAccepted,

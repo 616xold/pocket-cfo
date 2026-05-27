@@ -12,7 +12,8 @@ import {
   scanTokenValidationNoLeakage,
   verifyFp0163CloseoutFreshnessForFp0164,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
-  verifyFp0165Absent,
+  verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
+  verifyFp0166Absent,
   verifyReadOnlyMcpLocalAppsSdkResourceRegistrationBoundary,
 } from "../packages/domain/src/index.ts";
 
@@ -23,6 +24,8 @@ const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
 const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
+const FP0165_PLAN_PATH =
+  "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
 const SKELETON_RUNTIME_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts";
 const SKELETON_MODULE_PATH =
@@ -31,6 +34,12 @@ const REGISTRATION_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts";
 const REGISTRATION_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
 const REGISTRATION_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs";
 const SKELETON_PROOF_PATH =
@@ -61,6 +70,7 @@ const allowedChangedPaths = new Set([
   "plugins.md",
   FP0163_PLAN_PATH,
   FP0164_PLAN_PATH,
+  FP0165_PLAN_PATH,
   SKELETON_RUNTIME_MODULE_PATH,
   SKELETON_MODULE_PATH,
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.spec.ts",
@@ -73,8 +83,11 @@ const allowedChangedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   REGISTRATION_MODULE_PATH,
   REGISTRATION_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
   "packages/domain/src/index.ts",
   REGISTRATION_PROOF_PATH,
+  RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH,
   SKELETON_PROOF_PATH,
   READINESS_PROOF_PATH,
   VISUAL_QA_PROOF_PATH,
@@ -155,7 +168,10 @@ const domainProofInput = {
     proofBridgeScope.fp0163SuccessorBridgeCompatibilityVerified,
   fp0164PlanVerified:
     planScope.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
-  fp0165Absent: planScope.fp0165Absent,
+  fp0165Absent: planScope.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
+  fp0165PlanVerified:
+    planScope.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
+  fp0166Absent: planScope.fp0166Absent,
   noAppRuntimeOrRouteWiring:
     pathScope.noNewRouteOrApiRouteFromFp0164 &&
     pathScope.noAppWebRuntimeEditFromFp0164,
@@ -180,6 +196,9 @@ const output = {
   fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
     registrationProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
   fp0165Absent: registrationProof.fp0165Absent,
+  fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
+    registrationProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
+  fp0166Absent: registrationProof.fp0166Absent,
   localAppsSdkResourceRegistrationBoundaryVerified:
     verifyReadOnlyMcpLocalAppsSdkResourceRegistrationBoundary(
       domainProofInput,
@@ -378,7 +397,11 @@ function verifyPlanScope() {
       verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan(
         repoPaths,
       ),
-    fp0165Absent: verifyFp0165Absent(repoPaths),
+    fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
+      verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
+        repoPaths,
+      ),
+    fp0166Absent: verifyFp0166Absent(repoPaths),
   };
 }
 
@@ -654,15 +677,18 @@ function verifyProofBridgeScope() {
   return {
     fp0163SuccessorBridgeCompatibilityVerified:
       skeletonProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified === true &&
-      skeletonProof.fp0165Absent === true &&
+      skeletonProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified === true &&
+      skeletonProof.fp0166Absent === true &&
       skeletonProof.runtimeSafeSkeletonBuilderIsolated === true &&
       skeletonProof.registerResourceImplementationStillExplicitOnly === true &&
       skeletonProof.defaultResourceRegistrationStillBlocked === true &&
       skeletonProof.serverResourceRegistrationStillBlocked === true &&
       readinessProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified === true &&
-      readinessProof.fp0165Absent === true &&
+      readinessProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified === true &&
+      readinessProof.fp0166Absent === true &&
       visualQaProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified === true &&
-      visualQaProof.fp0165Absent === true,
+      visualQaProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified === true &&
+      visualQaProof.fp0166Absent === true,
   };
 }
 
