@@ -456,6 +456,7 @@ function verifyFp0143AppWiringBridge() {
       "tools/read-only-mcp-protected-resource-metadata-builder-proof.mjs",
       "tools/read-only-mcp-protocol-envelope-proof.mjs",
       "tools/read-only-mcp-route-adapter-proof.mjs",
+      "tools/read-only-public-app-security-boundary-proof.mjs",
       "tools/read-only-mcp-token-validation-readiness-proof.mjs",
       "tools/read-only-mcp-token-validation-result-envelope-proof.mjs",
       "tools/read-only-mcp-token-validation-runtime-contract-proof.mjs",
