@@ -3,7 +3,8 @@ import {
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
   verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
-  verifyFp0166Absent,
+  verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan,
+  verifyFp0167Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
   scanProofOnlyNoTokenLeakageText,
@@ -131,7 +132,11 @@ export function buildReadOnlyMcpLocalAppsSdkResourceSkeletonProof(
       verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
         repoPaths,
       ),
-    fp0166Absent: verifyFp0166Absent(repoPaths),
+    fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+        repoPaths,
+      ),
+    fp0167Absent: verifyFp0167Absent(repoPaths),
     runtimeSafeSkeletonBuilderIsolated:
       input.runtimeSafeBuilderIsolated !== false,
     localAppsSdkResourceSkeletonBoundaryVerified:

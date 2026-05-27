@@ -21,6 +21,8 @@ const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
 const FP0165_PLAN_PATH =
   "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
+const FP0166_PLAN_PATH =
+  "plans/FP-0166-read-only-chatgpt-app-mcp-local-render-tool-descriptor-skeleton.md";
 const READINESS_PROOF_PATH =
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs";
 const REGISTRATION_PROOF_PATH =
@@ -45,6 +47,14 @@ const RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
 const RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
   "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_RUNTIME_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.spec.ts";
+const RENDER_TOOL_DESCRIPTOR_SKELETON_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-skeleton-proof.mjs";
 const PREVIEW_ROUTE_PATH =
   "apps/web/app/read-only-app-mcp-preview/page.tsx";
 const BRIDGE_COMPONENT_PATH =
@@ -65,11 +75,14 @@ const allowedChangedPaths = new Set([
   FP0163_PLAN_PATH,
   FP0164_PLAN_PATH,
   FP0165_PLAN_PATH,
+  FP0166_PLAN_PATH,
   READINESS_PROOF_PATH,
   REGISTRATION_PROOF_PATH,
   VISUAL_QA_PROOF_PATH,
   UI_BRIDGE_IMPLEMENTATION_PROOF_PATH,
   UI_BRIDGE_READINESS_PROOF_PATH,
+  "tools/benchmark-community-pack-proof.mjs",
+  "tools/read-only-chatgpt-app-mcp-proof.mjs",
   "tools/read-only-endpoint-architecture-proof.mjs",
   "tools/read-only-endpoint-route-ownership-proof.mjs",
   "tools/read-only-mcp-default-local-evidence-dispatch-proof.mjs",
@@ -80,7 +93,9 @@ const allowedChangedPaths = new Set([
   "tools/read-only-mcp-protocol-envelope-proof.mjs",
   "tools/read-only-mcp-route-adapter-proof.mjs",
   "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
+  "tools/read-only-public-app-security-boundary-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
+  "packages/domain/src/benchmark-community.spec.ts",
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.ts",
   "packages/domain/src/read-only-app-mcp-authorization-parser-contracts.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
@@ -93,6 +108,10 @@ const allowedChangedPaths = new Set([
   RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
   RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
   RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_RUNTIME_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_MODULE_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_SPEC_PATH,
+  RENDER_TOOL_DESCRIPTOR_SKELETON_PROOF_PATH,
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",
@@ -140,10 +159,11 @@ const output = {
     skeletonProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified,
   fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
     skeletonProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified,
-  fp0165Absent: skeletonProof.fp0165Absent,
   fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
     skeletonProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
-  fp0166Absent: skeletonProof.fp0166Absent,
+  fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+    skeletonProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+  fp0167Absent: skeletonProof.fp0167Absent,
   runtimeSafeSkeletonBuilderIsolated:
     skeletonProof.runtimeSafeSkeletonBuilderIsolated &&
     sourceScope.runtimeSafeSkeletonBuilderIsolated,
@@ -515,14 +535,18 @@ function verifyProofBridgeScope() {
         true &&
       readinessProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified ===
         true &&
-      readinessProof.fp0166Absent === true &&
+      readinessProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified ===
+        true &&
+      readinessProof.fp0167Absent === true &&
       visualQaProof.fp0163AbsentOrLocalAppsSdkResourceSkeletonPlanVerified ===
         true &&
       visualQaProof.fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified ===
         true &&
       visualQaProof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified ===
         true &&
-      visualQaProof.fp0166Absent === true,
+      visualQaProof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified ===
+        true &&
+      visualQaProof.fp0167Absent === true,
   };
 }
 

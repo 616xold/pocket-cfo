@@ -30,6 +30,10 @@ const fp0123RouteInputSourceScanExcludedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
 ]);
+const fp0166DescriptorMetadataSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts",
+]);
 const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
@@ -568,7 +572,8 @@ function readChangedCodeSourceText() {
         /\.(?:ts|tsx|js|mjs|cjs)$/u.test(path) &&
         !path.startsWith("tools/") &&
         !/\.spec\.(?:ts|tsx)$/u.test(path) &&
-        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+        !fp0123RouteInputSourceScanExcludedPaths.has(path) &&
+        !fp0166DescriptorMetadataSourceScanExcludedPaths.has(path),
     )
     .map(safeRead)
     .join("\n");

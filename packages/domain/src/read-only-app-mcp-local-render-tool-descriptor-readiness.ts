@@ -1,7 +1,8 @@
 import {
   FP0165_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PLAN_PATH,
   verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
-  verifyFp0166Absent,
+  verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan,
+  verifyFp0167Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI } from "./read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime";
 import {
@@ -216,7 +217,11 @@ export function buildReadOnlyMcpLocalRenderToolDescriptorReadinessProof(
       verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
         repoPaths,
       ),
-    fp0166Absent: verifyFp0166Absent(repoPaths),
+    fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified:
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+        repoPaths,
+      ),
+    fp0167Absent: verifyFp0167Absent(repoPaths),
     localRenderToolDescriptorReadinessBoundaryVerified:
       Object.values(topics).every(Boolean) &&
       input.changedPathScopeAccepted !== false &&

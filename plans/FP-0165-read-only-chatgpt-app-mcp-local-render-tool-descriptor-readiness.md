@@ -22,7 +22,9 @@ Target phase: V2CG read-only ChatGPT App/MCP local render tool descriptor readin
 - [x] 2026-05-27T00:32:00Z - Refreshed directly stale active docs and `plugins.md` entries to record FP-0165 as the active local render tool descriptor readiness slice while keeping FP-0164/FP-0163/FP-0162 predecessor boundaries intact.
 - [x] 2026-05-27T00:49:00Z - Focused validation passed for the FP-0165 proof, FP-0164 predecessor bridge, and focused domain specs.
 - [x] 2026-05-27T01:14:00Z - Strict same-branch validation completed successfully through the requested proof ladder, focused domain/control-plane tests, `pnpm lint`, `pnpm typecheck`, `pnpm test`, and `pnpm ci:repro:current`. The CI reproduction log ended with `CI reproduction succeeded`.
-- [ ] Run the required post-closeout validation subset after this plan closeout edit, then commit once, push, and open the PR.
+- [x] 2026-05-27T01:18:00Z - Post-closeout validation subset passed, then the slice was committed once, pushed, and opened as PR #344.
+- [x] 2026-05-27T00:39:45Z - PR #344 merged into `main` with head SHA `f5bd30467170493b87cbe8ee477a4453d6375e81` and merge commit `bf025e120d2fea74f8615eb7546da44686a90c35`.
+- [x] 2026-05-27T07:05:00Z - Same-branch FP-0166 preflight/QA confirmed current `HEAD` and `origin/main` match PR #344 merge commit `bf025e120d2fea74f8615eb7546da44686a90c35`, FP-0165 predecessor proof passed before edits, local QA had passed including `pnpm ci:repro:current`, GitHub `static` and `integration-db` checks were green, and no standalone post-merge QA is required because current main matches the validated PR head/merge posture and CI remains green.
 
 ## Surprises & Discoveries
 
@@ -35,6 +37,8 @@ Proof/source leakage scanners reject token-looking material and exact source-dum
 Some older predecessor proofs had exact path allowlists that stopped before the FP-0165 readiness successor. The slice patched only exact FP-0165 readiness plan/helper/spec/proof path compatibility in those proof gates so they still reject unrelated runtime, route, public-app, render-tool, outputTemplate, provider, auth, DB, source, and finance-write changes.
 
 The first full-validation wrapper used `status` as a shell variable name, which is read-only in zsh. The wrapper failed after the underlying validation log had already reached `CI reproduction succeeded`; the repo validation itself passed. Post-closeout validation uses a different wrapper variable.
+
+Same-branch QA after PR #344 merge found no FP-0165 runtime, proof, route, data-tool-template, default-registration, public-app, token, source, finance-write, or provider defect and made no correction.
 
 ## Decision Log
 
@@ -206,4 +210,4 @@ The future render tool descriptor skeleton may start only as a later FP-0166 loc
 
 No replay event is required because this slice changes only plans/docs/proof helpers/specs/proof commands and does not change mission state, finance evidence, sources, the Finance Twin, reports, approvals, monitor findings, routes, runtime behavior, or durable finance artifacts.
 
-Remaining after this closeout edit: run the required post-closeout validation subset, commit once, push the same branch, and open the PR.
+Remaining after this closeout freshness correction: no standalone post-merge QA is required when current main matches the validated PR head/merge posture and CI remains green. A later FP-0166 may start only as the exact local render tool descriptor skeleton path described above, with no public app behavior, default registration, data-tool template ownership, route behavior, production authentication, provider call, source mutation, or finance write.

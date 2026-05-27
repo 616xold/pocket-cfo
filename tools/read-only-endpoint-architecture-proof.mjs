@@ -36,6 +36,10 @@ const fp0123RouteInputSourceScanExcludedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
 ]);
+const fp0166RenderDescriptorMetadataSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts",
+]);
 const FP0125_LOCAL_ROUTE_PLAN =
   "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
 const FP0125_LOCAL_ROUTE_PATH =
@@ -89,6 +93,7 @@ const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md",
   "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md",
+  "plans/FP-0166-read-only-chatgpt-app-mcp-local-render-tool-descriptor-skeleton.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
@@ -98,12 +103,16 @@ const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.spec.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs",
   "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs",
+  "tools/read-only-mcp-local-render-tool-descriptor-skeleton-proof.mjs",
 ]);
 
 const repoPaths = repoFilePaths();
@@ -693,7 +702,8 @@ function readPublicAppProofGateSourceText() {
     .filter(
       (path) =>
         !path.endsWith(".spec.ts") &&
-        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+        !fp0123RouteInputSourceScanExcludedPaths.has(path) &&
+        !fp0166RenderDescriptorMetadataSourceScanExcludedPaths.has(path),
     )
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");

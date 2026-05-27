@@ -17,8 +17,11 @@ import {
 } from "./read-only-app-mcp-local-render-tool-descriptor-readiness";
 import {
   FP0165_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PLAN_PATH,
+  FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH,
   verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
   verifyFp0166Absent,
+  verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan,
+  verifyFp0167Absent,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import { LOCAL_APPS_SDK_RESOURCE_TEMPLATE_URI } from "./read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime";
 import {
@@ -74,10 +77,34 @@ describe("FP-0165 local render tool descriptor readiness", () => {
         "plans/FP-0165-render-tool-runtime.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0166Absent(repoPaths)).toBe(true);
-    expect(verifyFp0166Absent([...repoPaths, "plans/FP-0166-runtime.md"])).toBe(
-      false,
+    const repoPathsWithoutFp0166 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0166/u.test(path),
     );
+    expect(verifyFp0166Absent(repoPathsWithoutFp0166)).toBe(true);
+    expect(
+      verifyFp0166Absent([
+        ...repoPathsWithoutFp0166,
+        FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH,
+      ]),
+    ).toBe(false);
+    expect(
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan([
+        ...repoPathsWithoutFp0166,
+        FP0166_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_SKELETON_PLAN_PATH,
+      ]),
+    ).toBe(true);
+    expect(
+      verifyFp0166AbsentOrReadOnlyMcpLocalRenderToolDescriptorSkeletonPlan([
+        ...repoPathsWithoutFp0166,
+        "plans/FP-0166-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0167Absent(repoPaths)).toBe(true);
   });
 
   it("records readiness-only input, output, metadata, and implementation boundaries", () => {
@@ -201,7 +228,10 @@ describe("FP-0165 local render tool descriptor readiness", () => {
     expect(
       proof.fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified,
     ).toBe(true);
-    expect(proof.fp0166Absent).toBe(true);
+    expect(
+      proof.fp0166AbsentOrLocalRenderToolDescriptorSkeletonPlanVerified,
+    ).toBe(true);
+    expect(proof.fp0167Absent).toBe(true);
     expect(proof.renderToolImplementationStillBlocked).toBe(true);
     expect(proof.toolDescriptorImplementationStillBlocked).toBe(true);
     expect(proof.outputTemplateImplementationStillBlocked).toBe(true);

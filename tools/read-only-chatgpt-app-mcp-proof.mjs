@@ -49,6 +49,10 @@ const fp0123RouteInputSourceScanExcludedPaths = new Set([
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory-rules.ts",
   "tools/read-only-mcp-protected-resource-metadata-route-input-proof.mjs",
 ]);
+const fp0166DescriptorMetadataSourceScanExcludedPaths = new Set([
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton-runtime.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-skeleton.ts",
+]);
 const FP0125_LOCAL_ROUTE_PLAN =
   "plans/FP-0125-read-only-chatgpt-app-mcp-protected-resource-metadata-local-route-implementation.md";
 const FP0125_LOCAL_ROUTE_PATH =
@@ -2939,7 +2943,8 @@ function readPublicAppProofGateSourceText() {
     .filter(
       (path) =>
         !path.endsWith(".spec.ts") &&
-        !fp0123RouteInputSourceScanExcludedPaths.has(path),
+        !fp0123RouteInputSourceScanExcludedPaths.has(path) &&
+        !fp0166DescriptorMetadataSourceScanExcludedPaths.has(path),
     )
     .map((path) => readFileSync(path, "utf8"))
     .join("\n");
