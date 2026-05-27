@@ -49,7 +49,9 @@ export type ReadOnlyMcpLocalAppsSdkResourceRegistrationProofInput = {
   fp0163CloseoutFresh?: boolean;
   fp0163SuccessorBridgeCompatible?: boolean;
   fp0164PlanVerified?: boolean;
+  fp0165PlanVerified?: boolean;
   fp0165Absent?: boolean;
+  fp0166Absent?: boolean;
   noAppRuntimeOrRouteWiring?: boolean;
   noToolDescriptorOrRenderTool?: boolean;
   registrationHelperImportsRuntimeSafeBuilder?: boolean;
@@ -117,6 +119,9 @@ export function buildReadOnlyMcpLocalAppsSdkResourceRegistrationProof(
     fp0164AbsentOrLocalAppsSdkResourceRegistrationPlanVerified:
       input.fp0164PlanVerified === true,
     fp0165Absent: input.fp0165Absent === true,
+    fp0165AbsentOrLocalRenderToolDescriptorReadinessPlanVerified:
+      input.fp0165PlanVerified === true,
+    fp0166Absent: input.fp0166Absent === true,
     localAppsSdkResourceRegistrationBoundaryVerified:
       input.runtimeSafeSkeletonBuilderIsolated === true &&
       input.registrationHelperImportsRuntimeSafeBuilder === true &&

@@ -42,6 +42,7 @@ export * from "./read-only-app-mcp-evidence-app-local-preview-demo-ui-bridge-rea
 export * from "./read-only-app-mcp-local-apps-sdk-resource-readiness";
 export * from "./read-only-app-mcp-local-apps-sdk-resource-registration";
 export * from "./read-only-app-mcp-local-apps-sdk-resource-skeleton";
+export * from "./read-only-app-mcp-local-render-tool-descriptor-readiness";
 export {
   FP0128_TOKEN_VALIDATION_READINESS_CONTRACTS_PLAN_PATH,
   MCP_TOKEN_FORBIDDEN_LEAKAGE_MATERIALS,

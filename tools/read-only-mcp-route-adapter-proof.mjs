@@ -97,6 +97,7 @@ const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "plans/FP-0162-read-only-chatgpt-app-mcp-local-apps-sdk-resource-readiness.md",
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md",
+  "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-readiness.spec.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton.ts",
@@ -104,11 +105,14 @@ const FP0162_ALLOWED_RESOURCE_READINESS_PATHS = new Set([
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-skeleton-runtime.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts",
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.ts",
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts",
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
   "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs",
+  "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs",
 ]);
 
 const repoPaths = repoFilePaths();
@@ -1053,6 +1057,7 @@ function changedFilesAreAllowed() {
     "plans/ROADMAP.md",
     "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md",
     "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md",
+    "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md",
     "plans/FP-0134-read-only-chatgpt-app-mcp-token-validation-test-double-local-implementation.md",
     "plans/FP-0135-read-only-chatgpt-app-mcp-invalid-token-challenge-sequencing-master-plan.md",
     "plans/FP-0114-read-only-chatgpt-app-mcp-remote-host-readiness-security-contracts-foundation.md",
@@ -1065,6 +1070,7 @@ function changedFilesAreAllowed() {
     "tools/read-only-mcp-local-apps-sdk-resource-readiness-proof.mjs",
     "tools/read-only-mcp-local-apps-sdk-resource-skeleton-proof.mjs",
     "tools/read-only-mcp-local-apps-sdk-resource-registration-proof.mjs",
+    "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs",
     "tools/read-only-mcp-protected-resource-metadata-local-route-proof.mjs",
     "tools/read-only-mcp-www-authenticate-missing-token-challenge-proof.mjs",
   ]);

@@ -26,6 +26,8 @@ const FP0163_PLAN_PATH =
   "plans/FP-0163-read-only-chatgpt-app-mcp-local-apps-sdk-resource-skeleton.md";
 const FP0164_PLAN_PATH =
   "plans/FP-0164-read-only-chatgpt-app-mcp-local-apps-sdk-resource-registration.md";
+const FP0165_PLAN_PATH =
+  "plans/FP-0165-read-only-chatgpt-app-mcp-local-render-tool-descriptor-readiness.md";
 const FP0158_HARNESS_PATH =
   "tools/read-only-mcp-evidence-app-local-demo-bridge.mjs";
 const FP0158_PROOF_PATH =
@@ -71,6 +73,12 @@ const LOCAL_APPS_SDK_RESOURCE_REGISTRATION_MODULE_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.ts";
 const LOCAL_APPS_SDK_RESOURCE_REGISTRATION_SPEC_PATH =
   "packages/domain/src/read-only-app-mcp-local-apps-sdk-resource-registration.spec.ts";
+const LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH =
+  "tools/read-only-mcp-local-render-tool-descriptor-readiness-proof.mjs";
+const LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.ts";
+const LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH =
+  "packages/domain/src/read-only-app-mcp-local-render-tool-descriptor-readiness.spec.ts";
 const FP0097_PLAN_PATH =
   "plans/FP-0097-read-only-chatgpt-app-mcp-premium-ui-preview-route-visual-qa-foundation.md";
 const FP0096_PLAN_PATH =
@@ -94,6 +102,7 @@ const allowedChangedPaths = new Set([
   FP0162_PLAN_PATH,
   FP0163_PLAN_PATH,
   FP0164_PLAN_PATH,
+  FP0165_PLAN_PATH,
   FP0158_HARNESS_PATH,
   FP0158_PROOF_PATH,
   FP0157_PROOF_PATH,
@@ -134,6 +143,9 @@ const allowedChangedPaths = new Set([
   LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PROOF_PATH,
   LOCAL_APPS_SDK_RESOURCE_REGISTRATION_MODULE_PATH,
   LOCAL_APPS_SDK_RESOURCE_REGISTRATION_SPEC_PATH,
+  LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PROOF_PATH,
+  LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_MODULE_PATH,
+  LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_SPEC_PATH,
   "packages/domain/src/read-only-app-mcp-oauth-implementation-sequencing-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-inventory.ts",
   "packages/domain/src/read-only-app-mcp-protected-resource-metadata-route-input-inventory.ts",

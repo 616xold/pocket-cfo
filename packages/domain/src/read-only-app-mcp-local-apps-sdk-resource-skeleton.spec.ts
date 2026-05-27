@@ -4,8 +4,10 @@ import { describe, expect, it } from "vitest";
 import {
   FP0163_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_SKELETON_PLAN_PATH,
   FP0164_READ_ONLY_MCP_LOCAL_APPS_SDK_RESOURCE_REGISTRATION_PLAN_PATH,
+  FP0165_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PLAN_PATH,
   verifyFp0164AbsentOrReadOnlyMcpLocalAppsSdkResourceRegistrationPlan,
-  verifyFp0165Absent,
+  verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan,
+  verifyFp0166Absent,
   verifyFp0163AbsentOrReadOnlyMcpLocalAppsSdkResourceSkeletonPlan,
 } from "./read-only-app-mcp-authorization-parser-contracts";
 import {
@@ -34,13 +36,16 @@ const controlPlaneMcpRoutePath =
 const previewRoutePath = "apps/web/app/read-only-app-mcp-preview/page.tsx";
 
 describe("FP-0163 local Apps SDK resource skeleton", () => {
-  it("accepts exactly one FP-0163 skeleton plan, the exact FP-0164 registration successor, and keeps FP-0165 absent", () => {
+  it("accepts exactly one FP-0163 skeleton plan, the exact FP-0164 and FP-0165 successors, and keeps FP-0166 absent", () => {
     const repoPaths = repoFilePaths();
     const repoPathsWithoutFp0163 = repoPaths.filter(
       (path) => !/(^|\/)FP-0163/u.test(path),
     );
     const repoPathsWithoutFp0164 = repoPaths.filter(
       (path) => !/(^|\/)FP-0164/u.test(path),
+    );
+    const repoPathsWithoutFp0165 = repoPaths.filter(
+      (path) => !/(^|\/)FP-0165/u.test(path),
     );
 
     expect(
@@ -80,10 +85,24 @@ describe("FP-0163 local Apps SDK resource skeleton", () => {
         "plans/FP-0164-runtime.md",
       ]),
     ).toBe(false);
-    expect(verifyFp0165Absent(repoPaths)).toBe(true);
-    expect(verifyFp0165Absent([...repoPaths, "plans/FP-0165-runtime.md"])).toBe(
-      false,
-    );
+    expect(
+      verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan(
+        repoPaths,
+      ),
+    ).toBe(true);
+    expect(
+      verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan([
+        ...repoPathsWithoutFp0165,
+        FP0165_READ_ONLY_MCP_LOCAL_RENDER_TOOL_DESCRIPTOR_READINESS_PLAN_PATH,
+      ]),
+    ).toBe(true);
+    expect(
+      verifyFp0165AbsentOrReadOnlyMcpLocalRenderToolDescriptorReadinessPlan([
+        ...repoPathsWithoutFp0165,
+        "plans/FP-0165-runtime.md",
+      ]),
+    ).toBe(false);
+    expect(verifyFp0166Absent(repoPaths)).toBe(true);
   });
 
   it("returns a deterministic local resource URI, Apps SDK resource mime type, and static sanitized HTML", () => {
